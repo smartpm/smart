@@ -22,6 +22,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.backends.rpm.rpmver import splitarch
 from smart.cache import PackageInfo, Loader
 from smart.backends.rpm.base import *
 from smart import *
@@ -29,8 +30,9 @@ import posixpath
 import os
 import re
 
-DEPENDSRE = re.compile("^([^[]*)(?:\[\*\])*(\[.*])?")
-OPERATIONRE = re.compile("\[([<>=]*) *(.*)\]")
+DEPENDSRE = re.compile("^([^[]*)(\[\*\])?(\[.*\])?")
+OPERATIONRE = re.compile("\[([<>=]*) *(.+)?\]")
+EPOCHRE = re.compile("[0-9]+:")
 
 
 class URPMISynthesisPackageInfo(PackageInfo):
@@ -40,10 +42,11 @@ class URPMISynthesisPackageInfo(PackageInfo):
         self._info = info
 
     def getURLs(self):
-        rpmname = "%s-%s.%s.rpm" % (self._info["name"],
-                                    self._info["version"],
-                                    self._info["arch"])
-        return [posixpath.join(self._loader._baseurl, rpmname)]
+        name = self._package.name
+        version, arch = splitarch(self._package.version)
+        version = EPOCHRE.sub("", version)
+        return [posixpath.join(self._loader._baseurl,
+                               "%s-%s.%s.rpm" % (name, version, arch))]
 
     def getInstalledSize(self):
         return int(self._info.get("size"))
@@ -57,7 +60,7 @@ class URPMISynthesisPackageInfo(PackageInfo):
 
 class URPMISynthesisLoader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+1
+    __stateversion__ = Loader.__stateversion__+2
 
     def __init__(self, filename, baseurl, filelistname):
         Loader.__init__(self)
@@ -83,20 +86,29 @@ class URPMISynthesisLoader(Loader):
         for deps in depsarray:
             depends = _dependsre.match(deps)
             if depends:
-                name = depends.groups()[0]
-                operation = ""
-                version = ""
-                condition = depends.groups()[1]
+                name, flag, condition = depends.groups()
+                operation = None
+                version = None
                 if condition:
                     o = _operationre.match(condition)
                     if o:
-                        (operation, version) = o.groups()[0:2]
-                        
-                        if operation == "==": operation = "="
-                result.append((name, operation, version))
+                        operation, version = o.groups()
+                        if operation == "==":
+                            operation = "="
+                        if version and version.startswith("0:"):
+                            version = version[2:]
+                result.append((name, operation, version, bool(flag)))
         return result
 
     def load(self):
+
+        Pkg = RPMPackage
+        Prv = RPMProvides
+        NPrv = RPMNameProvides
+        PreReq = RPMPreRequires
+        Req = RPMRequires
+        Obs = RPMObsoletes
+        Cnf = RPMConflicts
 
         requires = ()
         provides = ()
@@ -129,46 +141,45 @@ class URPMISynthesisLoader(Loader):
 
                 rpmnameparts = element[0].split("-")
                 version = "-".join(rpmnameparts[-2:])
-                # Replace . by @
-                versionarch = "@".join(version.rsplit(".", 1))
-                version, arch = versionarch.split("@", 1)[0:2]
+                version, arch = version.rsplit(".", 1)
+                versionarch = "@".join((version, arch))
 
                 if element[1] != "0":
                     version = "%s:%s" % (element[1], version)
                 name = "-".join(rpmnameparts[0:-2])
 
-                info = {}
-                info["version"] = version
-                info["name"] = name
-                info["arch"] = arch
-                info["summary"] = summary
-                info["size"] = element[2]
-                info["group"] = element[3]
+                info = {"summary": summary,
+                        "size"   : element[2],
+                        "group"  : element[3]}
 
                 prvdict = {}
-                for i in provides:
-                    prv = (RPMProvides, i[0], i[2])
+                for n, r, v, f in provides:
+                    if n == name and v == version:
+                        prv = (NPrv, n, versionarch)
+                    else:
+                        prv = (Prv, n, v)
                     prvdict[prv] = True
 
                 reqdict = {}
-                for i in requires:
-                    req = (RPMRequires, i[0], i[1], i[2])
-                    reqdict[req] = True
+                for n, r, v, f in requires:
+                    if f:
+                        reqdict[(PreReq, n, r, v)] = True
+                    else:
+                        reqdict[(Req, n, r, v)] = True
 
                 cnfdict = {}
-                for i in conflicts:
-                    cnf = (RPMConflicts, i[0], i[1], i[2])
-                    cnfdict[cnf] = True
+                for n, r, v, f in conflicts:
+                    cnfdict[(Cnf, n, r, v)] = True
 
                 upgdict = {}
-                upgdict[(RPMObsoletes, name, "<", version)] = True
+                upgdict[(Obs, name, "<", versionarch)] = True
 
-                for i in obsoletes:
-                    upg = (RPMObsoletes, i[0], i[1], i[2])
+                for n, r, v, f in obsoletes:
+                    upg = (Obs, n, r, v)
                     upgdict[upg] = True
                     cnfdict[upg] = True
                     
-                pkg = self.buildPackage((RPMPackage, name, versionarch),
+                pkg = self.buildPackage((Pkg, name, versionarch),
                                         prvdict.keys(), reqdict.keys(),
                                         upgdict.keys(), cnfdict.keys())
                 pkg.loaders[self] = info
