@@ -32,6 +32,7 @@ from smart.cache import Cache
 from smart.const import *
 from smart import *
 import sys, os
+import time
 import md5
 
 class Control(object):
@@ -153,7 +154,9 @@ class Control(object):
                 return
             self._confdigest = confdigest
             conffile = self._conffile
-        conffile = os.path.expanduser(conffile)
+        else:
+            conffile = os.path.expanduser(conffile)
+        sysconf.save(conffile)
 
     def reloadSysConfChannels(self):
         for channel in self._sysconfchannels:
@@ -209,6 +212,7 @@ class Control(object):
         for channel in channels:
             steps += channel.getFetchSteps()
         progress.set(0, steps)
+        result = True
         for channel in channels:
             self._cache.removeLoader(channel.getLoader())
             if not manual and channel.hasManualUpdate():
@@ -222,10 +226,16 @@ class Control(object):
             self._fetcher.setForceCopy(channel.isRemovable())
             self._fetcher.setLocalPathPrefix(channel.getAlias()+"%%")
             try:
-                channel.fetch(self._fetcher, progress)
+                if not channel.fetch(self._fetcher, progress):
+                    iface.debug("Failed fetching channel '%s'" % channel)
+                    result = False
             except Error, e:
                 iface.error(str(e))
+                iface.debug("Failed fetching channel '%s'" % channel)
+                result = False
             self._cache.addLoader(channel.getLoader())
+        if result and caching is not ALWAYS:
+            sysconf.set("last-update", time.time())
         self._fetcher.setForceCopy(False)
         self._fetcher.setLocalPathPrefix(None)
         progress.setStopped()
@@ -247,6 +257,7 @@ class Control(object):
                 os.unlink(os.path.join(channelsdir, entry))
 
         self._pathlocks.lock(channelsdir)
+        return result
 
     def dumpTransactionURLs(self, trans, output=None):
         changeset = trans.getChangeSet()

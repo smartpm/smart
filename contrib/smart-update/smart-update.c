@@ -30,7 +30,7 @@
 
 int main(int argc, char *argv[], char *envp[])
 {
-    char *const smart_argv[] = {"/usr/bin/smart", "update", NULL};
+    char *const smart_argv[] = {"/usr/bin/smart", "update", NULL, NULL};
     char *const smart_envp[] = {"PATH=/bin:/usr/bin", "HOME=", NULL};
     struct passwd *pwd = getpwuid(geteuid());
     if (!pwd) {
@@ -41,6 +41,12 @@ int main(int argc, char *argv[], char *envp[])
     if (asprintf(&smart_envp[1], "HOME=%s", pwd->pw_dir) == -1) {
         fprintf(stderr, "error: Unable to create HOME environment variable\n");
         exit(1);
+    }
+    if (argc == 3 && strcmp(argv[1], "--after") == 0) {
+        if (asprintf(&smart_argv[2], "--after=%d", argv[2]) == -1) {
+            fprintf(stderr, "error: Unable to create argument variable\n");
+            exit(1);
+        }
     }
     setreuid(pwd->pw_uid, pwd->pw_uid);
     setregid(pwd->pw_gid, pwd->pw_gid);

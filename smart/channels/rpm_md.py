@@ -53,12 +53,12 @@ class RPMMetaDataChannel(Channel):
         fetcher.run(progress=progress)
 
         if item.getStatus() is FAILED:
-            if fetcher.getCaching() is NEVER:
-                iface.warning("Failed acquiring information for '%s':" % self)
-                iface.warning("%s: %s" % (item.getURL(),
-                                          item.getFailedReason()))
             progress.add(1)
-            return
+            if fetcher.getCaching() is NEVER:
+                lines = ["Failed acquiring release file for '%s':" % self,
+                         "%s: %s" % (item.getURL(), item.getFailedReason())]
+                raise Error, "\n".join(lines)
+            return False
 
         info = {}
         root = ElementTree.parse(item.getTargetPath()).getroot()
@@ -78,9 +78,8 @@ class RPMMetaDataChannel(Channel):
                         subnode.text
 
         if "primary" not in info:
-            iface.warning("Primary information not found in repository "
-                          "metadata for '%s'" % self)
-            return
+            raise Error, "Primary information not found in repository " \
+                         "metadata for '%s'" % self
 
         fetcher.reset()
         item = fetcher.enqueue(info["primary"]["url"],
@@ -94,8 +93,11 @@ class RPMMetaDataChannel(Channel):
             self._loader = RPMMetaDataLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
         else:
-            iface.warning("Failed acquiring information for '%s':" % self)
-            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+            lines = ["Failed acquiring information for '%s':" % self,
+                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            raise Error, "\n".join(lines)
+
+        return True
 
 def create(type, alias, data):
     name = None

@@ -29,8 +29,6 @@
 #include <kprocio.h>
 #include <kaction.h>
 
-#define DEFAULTDELAY 60
-
 class KMySystemTray : public KSystemTray
 {
     Q_OBJECT
@@ -71,6 +69,8 @@ class KSmartTray : public QObject
     
     State state;
     QString lastKnownStatus;
+    bool updateFailed;
+    bool manualCheck;
 
     QTimer checkTimer;
     QTimer blinkTimer;
@@ -84,6 +84,10 @@ class KSmartTray : public QObject
     void foundOldUpgrades();
     void foundNoUpgrades();
 
+    protected:
+
+    void internalCheckUpgrades(bool manual);
+
     protected slots:
 
     void processDone(KProcess *);
@@ -95,6 +99,7 @@ class KSmartTray : public QObject
     public slots:
 
     void checkUpgrades();
+    void manualCheckUpgrades();
     void runUpgrades();
 
     public:

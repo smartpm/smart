@@ -81,6 +81,7 @@ KSmartTray::KSmartTray()
     state = StateWaiting;
 
     blinkFlag = false;
+    updateFailed = false;
 
     connect(&checkTimer, SIGNAL(timeout()), this, SLOT(checkUpgrades()));
     connect(&process, SIGNAL(processExited(KProcess *)),
@@ -92,7 +93,7 @@ KSmartTray::KSmartTray()
     connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(toggleBlink()));
 
     connect(&sysTray.checkAction, SIGNAL(activated()),
-            this, SLOT(checkUpgrades()));
+            this, SLOT(manualCheckUpgrades()));
     connect(&sysTray.stopAction, SIGNAL(activated()),
             this, SLOT(stopChecking()));
     connect(&sysTray, SIGNAL(quitSelected()),
@@ -100,18 +101,21 @@ KSmartTray::KSmartTray()
 
     connect(&sysTray, SIGNAL(activated()), this, SLOT(runUpgrades()));
 
-    checkTimer.start(DEFAULTDELAY*60*1000);
+    checkTimer.start(5*60*1000);
 
     checkUpgrades();
 }
 
-void KSmartTray::checkUpgrades()
+void KSmartTray::internalCheckUpgrades(bool manual)
 {
     if (state == StateWaiting) {
         sysTray.checkAction.setEnabled(false);
         sysTray.stopAction.setEnabled(true);
         process.resetAll();
-        process << "smart-update";
+        if (manual)
+            process << "smart-update";
+        else
+            process << "smart-update" << "--after" << "60";
         if (!process.start()) {
             KNotifyClient::event(sysTray.winId(), "fatalerror",
                                  "Couldn't run 'smart-update'.");
@@ -120,6 +124,16 @@ void KSmartTray::checkUpgrades()
             state = StateUpdating;
         }
     }
+}
+
+void KSmartTray::checkUpgrades()
+{
+    internalCheckUpgrades(false);
+}
+
+void KSmartTray::manualCheckUpgrades()
+{
+    internalCheckUpgrades(true);
 }
 
 void KSmartTray::runUpgrades()
@@ -152,6 +166,8 @@ void KSmartTray::processDone(KProcess *)
     switch (state) {
 
         case StateUpdating:
+            if (!process.normalExit() || process.exitStatus() != 0)
+                updateFailed = true;
             process.resetAll();
             process << "smart" << "upgrade" << "--check-update";
             if (!process.start()) {
@@ -160,7 +176,8 @@ void KSmartTray::processDone(KProcess *)
                 state = StateWaiting;
                 lastKnownStatus = "";
             } else {
-                QToolTip::add(&sysTray, "Verifying upgradable packages...");
+                QToolTip::add(&sysTray,
+                              "Verifying upgradable packages...");
                 state = StateChecking;
             }
             break;
@@ -173,6 +190,8 @@ void KSmartTray::processDone(KProcess *)
                     KNotifyClient::event(sysTray.winId(), "found-new-upgrades",
                                          lastKnownStatus);
                     emit foundNewUpgrades();
+                } else if (updateFailed) {
+                    /* Do nothing. */
                 } else if (process.exitStatus() == 1) {
                     lastKnownStatus = "There are pending upgrades!";
                     KNotifyClient::event(sysTray.winId(), "found-old-upgrades",
@@ -200,6 +219,7 @@ void KSmartTray::processDone(KProcess *)
     }
 
     if (state == StateWaiting) {
+        updateFailed = false;
         sysTray.checkAction.setEnabled(true);
         sysTray.stopAction.setEnabled(false);
         if (!lastKnownStatus.isEmpty())

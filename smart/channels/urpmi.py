@@ -52,8 +52,10 @@ class URPMIChannel(Channel):
         failed = item.getFailedReason()
         if failed:
             if fetcher.getCaching() is NEVER:
-                iface.warning("Failed acquiring information for '%s':" % self)
-                iface.warning("%s: %s" % (item.getURL(), failed))
+                lines = ["Failed acquiring information for '%s':" % self,
+                         "%s: %s" % (item.getURL(), failed)]
+                raise Error, "\n".join(lines)
+            return False
         else:
             basename = posixpath.basename(self._hdlurl)
             for line in open(item.getTargetPath()):
@@ -66,9 +68,9 @@ class URPMIChannel(Channel):
         item = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
         fetcher.run(progress=progress)
         if item.getStatus() == FAILED:
-            iface.warning("Failed acquiring information for '%s':" %
-                          self._alias)
-            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+            lines = ["Failed acquiring information for '%s':" % self,
+                     "%s: %s" % (item.getURL(), failed)]
+            raise Error, "\n".join(lines)
         else:
             localpath = item.getTargetPath()
             if localpath.endswith(".cz"):
@@ -92,6 +94,8 @@ class URPMIChannel(Channel):
                 localpath = localpath[:-3]
             self._loader = URPMILoader(localpath, self._baseurl)
             self._loader.setChannel(self)
+
+        return True
 
 def create(type, alias, data):
     name = None

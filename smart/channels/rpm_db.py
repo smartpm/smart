@@ -32,6 +32,7 @@ class RPMDBChannel(Channel):
     def fetch(self, fetcher, progress):
         self._loader = RPMDBLoader()
         self._loader.setChannel(self)
+        return True
 
 def create(type, alias, data):
     name = None

@@ -23,6 +23,7 @@ from smart.option import OptionParser
 from smart.const import NEVER
 from smart import *
 import string
+import time
 import re
 
 USAGE="smart update [options] [channelalias] ..."
@@ -44,6 +45,9 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
+    parser.add_option("--after", metavar="MIN", type="int",
+                      help="only update if the last successful update "
+                           "happened before the given delay")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -52,16 +56,26 @@ def main(ctrl, opts):
 
     sysconf.assertWritable()
 
+    if opts.after is not None:
+        lastupdate = sysconf.get("last-update", 0)
+        if lastupdate >= time.time()-(opts.after*60):
+            return 1
+
     ctrl.reloadSysConfChannels()
     if opts.args:
-        channels = [x for x in ctrl.getChannels() if x.getAlias() in opts.args]
-        if not channels:
-            return
+        channels = []
+        for arg in opts.args:
+            for channel in ctrl.getChannels():
+                if channel.getAlias() == arg:
+                    channels.append(channel)
+                    break
+            else:
+                raise Error, "Argument '%s' is not a channel alias." % arg
     else:
         channels = None
     # First, load current cache to keep track of new packages.
     ctrl.updateCache()
-    ctrl.updateCache(channels, caching=NEVER)
+    failed = not ctrl.updateCache(channels, caching=NEVER)
     cache = ctrl.getCache()
     newpackages = sysconf.filterByFlag("new", cache.getPackages())
     if not newpackages:
@@ -76,5 +90,6 @@ def main(ctrl, opts):
             info = "."
         iface.showStatus("Channels have %d new packages%s"
                          % (len(newpackages), info))
+    return int(failed)
 
 # vim:ts=4:sw=4:et

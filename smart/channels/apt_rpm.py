@@ -60,12 +60,13 @@ class APTRPMChannel(Channel):
         fetcher.run(progress=progress)
         failed = item.getFailedReason()
         if failed:
-            if fetcher.getCaching() is NEVER:
-                iface.warning("Failed acquiring release file for '%s':" % self)
-                iface.warning("%s: %s" % (item.getURL(), failed))
             progress.add(self.getFetchSteps()-1)
             progress.show()
-            return
+            if fetcher.getCaching() is NEVER:
+                lines = ["Failed acquiring information for '%s':" % self,
+                         "%s: %s" % (item.getURL(), failed)]
+                raise Error, "\n".join(lines)
+            return False
 
         # Parse release file
         md5sum = {}
@@ -155,7 +156,8 @@ class APTRPMChannel(Channel):
                 pkglist += ".gz"
                 url += ".gz"
             elif pkglist not in md5sum:
-                iface.warning("Component '%s' is not in release file" % comp)
+                iface.warning("Component '%s' is not in release file\n"
+                              "for channel '%s'" % (comp, self))
                 continue
             else:
                 upkglist = None
@@ -178,7 +180,7 @@ class APTRPMChannel(Channel):
 
         fetcher.run(progress=progress)
 
-        firstfailure = True
+        errorlines = []
         for i in range(len(pkgitems)):
             pkgitem = pkgitems[i]
             relitem = relitems[i]
@@ -197,12 +199,14 @@ class APTRPMChannel(Channel):
                 loader.setChannel(self)
                 self._loader.append(loader)
             else:
-                if firstfailure:
-                    firstfailure = False
-                    iface.warning("Failed acquiring information for '%s':" %
-                                  self)
-                iface.warning("%s: %s" %
-                              (pkgitem.getURL(), pkgitem.getFailedReason()))
+                errorlines.append("%s: %s" % (pkgitem.getURL(),
+                                              pkgitem.getFailedReason()))
+        if errorlines:
+            errorlines.insert(0, "Failed acquiring information for '%s':" %
+                                 self)
+            raise Error, "\n".join(errorlines)
+
+        return True
 
 def create(type, alias, data):
     name = None

@@ -32,6 +32,7 @@ class SlackDBChannel(Channel):
     def fetch(self, fetcher, progress):
         self._loader = SlackDBLoader()
         self._loader.setChannel(self)
+        return True
 
 def create(type, alias, data):
     name = None

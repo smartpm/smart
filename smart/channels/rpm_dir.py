@@ -37,6 +37,7 @@ class RPMDirChannel(Channel):
                          (self, self._path)
         self._loader = RPMDirLoader(self._path)
         self._loader.setChannel(self)
+        return True
 
 def create(type, alias, data):
     name = None

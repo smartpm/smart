@@ -37,6 +37,7 @@ class DebStatusChannel(Channel):
         self._loader = DebTagFileLoader(path)
         self._loader.setInstalled(True)
         self._loader.setChannel(self)
+        return True
 
 def create(type, alias, data):
     name = None

@@ -159,8 +159,6 @@ def main(argv):
         exitcode = iface.run(opts.command, opts.argv)
         if exitcode is None:
             exitcode = 0
-        ctrl.saveSysConf()
-        ctrl.restoreMediaState()
     except Error, e:
         if opts and opts.log_level == "debug":
             import traceback
@@ -175,6 +173,8 @@ def main(argv):
             traceback.print_exc()
             sys.exit(1)
         sys.stderr.write("\nInterrupted\n")
+    ctrl.saveSysConf()
+    ctrl.restoreMediaState()
     sys.exit(exitcode)
 
 if __name__ == "__main__":
