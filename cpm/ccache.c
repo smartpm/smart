@@ -128,6 +128,7 @@ Package_init(PackageObject *self, PyObject *args)
     self->conflicts = PyList_New(0);
     Py_INCREF(Py_False);
     self->installed = Py_False;
+    Py_INCREF(Py_False);
     self->essential = Py_False;
     self->precedence = PyInt_FromLong(0);
     self->loaders = PyDict_New();

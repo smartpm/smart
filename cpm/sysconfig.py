@@ -40,6 +40,9 @@ class SysConfig:
         filepath = os.path.expanduser(filepath)
         if os.path.isfile(filepath):
             os.rename(filepath, filepath+".old")
+        dirname = os.path.dirname(filepath)
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
         file = open(filepath, "w")
         cPickle.dump(self._map, file, 2)
         file.close()

@@ -1,4 +1,5 @@
 import posixpath
+import string
 
 class ShortURL(object):
     def __init__(self, maxlen):
@@ -30,4 +31,8 @@ def getSizeStr(bytes):
         return "%.1fk" % (bytes/1000.)
     else:
         return "%.1fM" % (bytes/1000000.)
+
+_nulltrans = string.maketrans('', '')
+def isRegEx(s):
+    return s.translate(_nulltrans, '^{[*') != s
 

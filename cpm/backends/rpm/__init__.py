@@ -1,6 +1,7 @@
 from cpm.backends.rpm.pm import RPMPackageManager
 #from rpmver import checkdep, vercmp, splitarch
 from crpmver import checkdep, vercmp, splitarch
+from cpm.util.strtools import isRegEx
 from cpm.matcher import Matcher
 from cpm.cache import *
 import string
@@ -16,10 +17,8 @@ class RPMMatcher(Matcher):
     def __init__(self, str):
         Matcher.__init__(self, str)
         self._options = [] # (name, version)
-        nulltrans = string.maketrans('', '')
-        isre = lambda x: x.translate(nulltrans, '^{[*') != x
         # First, try to match the whole thing against the name.
-        if isre(str):
+        if isRegEx(str):
             name = re.compile(str)
         else:
             name = str
@@ -28,10 +27,10 @@ class RPMMatcher(Matcher):
         if len(tokens) > 1:
             # Then, consider the last section as the version.
             name = "-".join(tokens[:-1])
-            if isre(name):
+            if isRegEx(name):
                 name = re.compile(name)
             version = tokens[-1]
-            if isre(version):
+            if isRegEx(version):
                 if ":" not in version and version[0].isdigit():
                     version = "(?:\d+:)?"+version
                 version = re.compile(version)
@@ -39,10 +38,10 @@ class RPMMatcher(Matcher):
             # Finally, consider last two sections as the version.
             if len(tokens) > 2:
                 name = "-".join(tokens[:-2])
-                if isre(name):
+                if isRegEx(name):
                     name = re.compile(name)
                 version = "-".join(tokens[-2:])
-                if isre(version):
+                if isRegEx(version):
                     if ":" not in version and version[0].isdigit():
                         version = "(?:\d+:)?"+version
                     version = re.compile(version)
@@ -116,7 +115,7 @@ class RPMPackage(Package):
         return True
 
     def coexists(self, other):
-        if type(other) is not RPMPackage:
+        if not issubclass(other, RPMPackage):
             return True
         # Do not accept two archs at the same time for now
         selfver, selfarch = splitarch(self.version)
