@@ -172,7 +172,7 @@ class RPMNameProvides(RPMProvides): pass
 class RPMDepends(Depends):
 
     def matches(self, prv):
-        if self.name != prv.name or not isinstance(prv, RPMProvides):
+        if self.name != prv.name:
             return False
         if not self.version or not prv.version:
             return True
