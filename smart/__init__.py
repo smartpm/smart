@@ -110,9 +110,11 @@ def init(command=None, argv=None,
     return ctrl
 
 def initPlugins():
-    # Import every plugin, and let they do whatever they want.
+    # Import every plugin, and let they do whatever they want. Backends
+    # are also considered plugins for that matter.
     from smart.const import PLUGINSDIR
     from smart import plugins
+    from smart import backends
     pluginsdir = os.path.dirname(plugins.__file__)
     entries = os.listdir(pluginsdir)
     if os.path.isdir(PLUGINSDIR):
@@ -126,5 +128,12 @@ def initPlugins():
                 initpath = os.path.join(entrypath, "__init__.py")
                 if os.path.isfile(initpath):
                     __import__("smart.plugins."+entry)
+    backendsdir = os.path.dirname(backends.__file__)
+    for entry in os.listdir(backendsdir):
+        entrypath = os.path.join(backendsdir, entry)
+        if os.path.isdir(entrypath):
+            initpath = os.path.join(entrypath, "__init__.py")
+            if os.path.isfile(initpath):
+                __import__("smart.backends."+entry)
 
 # vim:ts=4:sw=4:et

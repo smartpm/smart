@@ -66,12 +66,12 @@ def main(ctrl, opts):
 
     urls = []
     for arg in opts.args[:]:
-        if '/' in arg:
-            if os.path.isfile(arg):
-                ctrl.addFileChannel(arg)
-                opts.args.remove(arg)
-            elif ":/" in arg:
-                urls.append(arg)
+        if (os.path.isfile(arg) and
+            '/' in arg or filter(None, hooks.call("check-package-file", arg))):
+            ctrl.addFileChannel(arg)
+            opts.args.remove(arg)
+        elif ":/" in arg:
+            urls.append(arg)
     if urls:
         succ, fail = ctrl.downloadURLs(urls, _("packages"),
                                        targetdir=os.getcwd())
