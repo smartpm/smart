@@ -21,7 +21,7 @@
 #
 #from gepeto.backends.rpm.rpmver import splitarch
 from gepeto.backends.rpm.crpmver import splitarch
-from gepeto.sorter import ChangeSetSorter
+from gepeto.sorter import ChangeSetSorter, LoopError
 from gepeto.const import INSTALL, REMOVE
 from gepeto.pm import PackageManager
 from gepeto import *
@@ -67,8 +67,15 @@ class RPMPackageManager(PackageManager):
         try:
             sorter = ChangeSetSorter(changeset)
             sorted = sorter.getSorted()
-        except Error:
-            sorted = changeset.items()
+            forcerpmorder = False
+        except LoopError, e:
+            iface.error("Found unbreakable loops:")
+            for loop in e.loops:
+                for path in sorter.getLoopPaths(loop):
+                    path = ["%s [%s]" % (x[0], x[1] is INSTALL and "I" or "R")
+                            for x in path]
+                    iface.error("    "+" -> ".join(path))
+            forcerpmorder = True
         del sorter
 
         packages = 0
@@ -131,7 +138,8 @@ class RPMPackageManager(PackageManager):
                         line = "%s conflicts with %s" % (name1, name2)
                     problines.append(line)
                 raise Error, "\n".join(problines)
-        ts.order()
+        if forcerpmorder or sysconf.get("rpm-order"):
+            ts.order()
         probfilter = rpm.RPMPROB_FILTER_OLDPACKAGE
         if force or reinstall:
             probfilter |= rpm.RPMPROB_FILTER_REPLACEPKG
@@ -196,7 +204,7 @@ class RPMCallback:
                     raise
             else:
                 if output:
-                    if self.topic != self.lasttopic:
+                    if self.topic and self.topic != self.lasttopic:
                         self.lasttopic = self.topic
                         iface.info(self.topic)
                     iface.info(output)

@@ -256,7 +256,8 @@ class Control(object):
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
     def downloadTransaction(self, trans, caching=OPTIONAL, confirm=True):
-        return self.downloadChangeSet(trans.getChangeSet(), caching, confirm)
+        return self.downloadChangeSet(trans.getChangeSet(), caching,
+                                      confirm=confirm)
 
     def downloadChangeSet(self, changeset, caching=OPTIONAL, targetdir=None,
                           confirm=True):
@@ -300,6 +301,7 @@ class Control(object):
 
         channels = getChannelsWithPackages([x for x in changeset
                                             if changeset[x] is INSTALL])
+        datadir = sysconf.get("data-dir")
         splitter = ChangeSetSplitter(changeset)
         donecs = ChangeSet(self._cache)
         copypkgpaths = {}
@@ -337,11 +339,11 @@ class Control(object):
                     if sysconf.get("commit", True):
                         pmclass().commit(pmcs, pkgpaths)
 
-                datadir = sysconf.get("data-dir")
-                for pkg in pkgpaths:
-                    for path in pkgpaths[pkg]:
-                        if path.startswith(datadir):
-                            os.unlink(path)
+                if sysconf.get("remove-packages", True):
+                    for pkg in pkgpaths:
+                        for path in pkgpaths[pkg]:
+                            if path.startswith(datadir):
+                                os.unlink(path)
 
             if donecs == changeset:
                 break

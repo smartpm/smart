@@ -22,69 +22,292 @@
 from gepeto.const import ENFORCE, OPTIONAL, INSTALL, REMOVE
 from gepeto.cache import PreRequires
 from gepeto import *
+from sets import Set
 
-class TopoSorter(object):
+class LoopError(Error):
+
+    def __init__(self, loops):
+        Error.__init__(self, "Unbreakable loops found while sorting")
+        self.loops = loops
+
+class ElementSorter(object):
 
     def __init__(self):
+        self._predecessors = {}
         self._successors = {}
-        self._predcount = {}
 
     def reset(self):
+        self._predecessors.clear()
         self._successors.clear()
-        self._predcount.clear()
+
+    def _getAllSuccessors(self, elem, set):
+        dct = self._successors.get(elem)
+        if dct:
+            for succ in dct:
+                if succ not in set:
+                    set.add(succ)
+                    self._getAllSuccessors(succ, set)
+
+    def _getAllPredecessors(self, elem, set):
+        for pred in self._predecessors[elem]:
+            if type(pred) is list:
+                for subpred in pred:
+                    if subpred not in set:
+                        set.add(subpred)
+                        self._getAllPredecessors(subpred, set)
+            else:
+                if pred not in set:
+                    set.add(pred)
+                    self._getAllPredecessors(pred, set)
+
+    def getAllSuccessors(self, elem):
+        set = Set()
+        self._getAllSuccessors(elem, set)
+        return set
+
+    def getAllPredecessors(self, elem):
+        set = Set()
+        self._getAllPredecessors(elem, set)
+        return set
+
+    def getLoop(self, elem):
+        succs = self.getAllSuccessors(elem)
+        preds = self.getAllPredecessors(elem)
+        return succs.intersection(preds)
+
+    def getLoops(self):
+        predecessors = self._predecessors
+        checked = Set()
+        loops = []
+        for elem in predecessors:
+            if predecessors[elem] and elem not in checked:
+                succs = self.getAllSuccessors(elem)
+                preds = self.getAllPredecessors(elem)
+                loop = succs.intersection(preds)
+                if loop:
+                    loops.append(loop)
+                    checked.update(loop)
+        return loops
+
+    def _getLoopPaths(self, loop, path):
+        paths = []
+        for succ in self._successors[path[-1]]:
+            if succ in loop:
+                path.append(succ)
+                if succ == path[0]: 
+                    paths.append(path[:])
+                else:
+                    paths.extend(self._getLoopPaths(loop, path))
+                path.pop()
+        return paths
+
+    def getLoopPaths(self, loop):
+        if not loop:
+            return []
+        return self._getLoopPaths(loop, [iter(loop).next()])
+
+    def _breakLoop(self, elem, loop, saved):
+        result = saved.get(elem)
+        if result is not None:
+            return result
+        saved[elem] = False
+
+        predecessors = self._predecessors
+        successors = self._successors
+
+        result = True
+
+        dct = successors.get(elem)
+        if dct:
+
+            breakoptional = {}
+
+            for succ in dct:
+
+                if succ in loop and succ not in breakoptional:
+                    kind = dct[succ]
+
+                    succpreds = predecessors[succ]
+                    group = None
+                    if elem not in succpreds:
+                        # It's part of a group. Find it.
+                        for group in succpreds:
+                            if type(group) is list and elem in group:
+                                break
+                        else:
+                            raise Error, "Internal error: where's the " \
+                                         "predecessor?"
+
+                        # Now, check if any other group element
+                        # is not in the loop.
+                        found = False
+                        for subelem in group:
+                            if subelem not in loop:
+                                found = True
+                                break
+                        if found:
+                            continue
+
+                    if kind == OPTIONAL:
+
+                        # It's optional. Break it and go on.
+                        breakoptional[succ] = True
+
+                    else:
+
+                        if group:
+                            # It's part of a group. Check if any other
+                            # group element is immediately breakable.
+                            for _succ in dct:
+                                if (_succ is not succ and
+                                    dct[_succ] is OPTIONAL and
+                                    _succ in group):
+                                    breakoptional[_succ] = True
+                                    found = True
+                                    break
+                            if found:
+                                continue
+
+                        if group:
+                            # It's part of a group. Check if any other
+                            # group element is breakable down the road.
+                            # We prefer elements in the loop.
+                            found = False
+                            for subelem in group:
+                                if (subelem in loop and
+                                    self._breakLoop(subelem, loop, saved)):
+                                    found = True
+                                    break
+                            else:
+                                for subelem in group:
+                                    if (subelem not in loop and
+                                        self._breakLoop(subelem,
+                                                         loop, saved)):
+                                        found = True
+                                        break
+                            if found:
+                                continue
+                        else:
+                            # Try to break succ's loop down the road.
+                            if self._breakLoop(succ, loop, saved):
+                                continue
+
+                        return False
+
+            if breakoptional:
+                for succ in breakoptional:
+                    del successors[elem][succ]
+                    lst = predecessors[succ]
+                    try:
+                        lst.remove(elem)
+                    except ValueError:
+                        for group in lst:
+                            if type(group) is list and elem in group:
+                                newgroup = group[:]
+                                newgroup.remove(elem)
+                                lst.remove(group)
+                                if newgroup:
+                                    lst.append(newgroup)
+
+        saved[elem] = True
+        return True
+
+    def breakLoops(self):
+        predecessors = self._predecessors
+        checked = Set()
+        saved = {}
+        loops = []
+        for elem in predecessors:
+            if predecessors[elem] and elem not in checked:
+                succs = self.getAllSuccessors(elem)
+                preds = self.getAllPredecessors(elem)
+                loop = succs.intersection(preds)
+                if loop and not self._breakLoop(elem, loop, saved):
+                    checked.update(loop)
+                    loops.append(loop)
+        return loops
 
     def addElement(self, elem):
-        if elem not in self._successors:
-            self._successors[elem] = {}
-            self._predcount[elem] = 0
+        if elem not in self._predecessors:
+            self._predecessors[elem] = ()
 
-    def addSuccessor(self, elem1, elem2, obey=ENFORCE):
-        # Check for loops, and break them if optional.
+    def addSuccessor(self, pred, elem, kind=ENFORCE):
+        self.addPredecessor(self, elem, pred, kind)
+
+    def addPredecessor(self, elem, pred, kind=ENFORCE):
+        predecessors = self._predecessors
         successors = self._successors
-        predcount = self._predcount
-        if elem2 in successors[elem1]:
-            return
-        elem2successors = [elem2]
-        breakoptional = []
-        while elem2successors:
-            elem = elem2successors.pop(0)
-            for subelem in successors[elem]:
-                if subelem == elem1:
-                    if obey is OPTIONAL:
-                        return
-                    elif (successors[elem][elem1] is OPTIONAL or
-                          sysconf.get("force-loop")):
-                        breakoptional.append(elem)
+
+        lst = predecessors.get(elem)
+        if not lst:
+            predecessors[elem] = [pred]
+        elif pred not in lst:
+            lst.append(pred)
+
+        if type(pred) is list:
+            for subpred in pred:
+                if subpred not in predecessors:
+                    predecessors[subpred] = ()
+                    successors[subpred] = {elem: kind}
+                else:
+                    dct = successors.get(subpred)
+                    if not dct:
+                        successors[subpred] = {elem: kind}
                     else:
-                        raise Error, "Unbreakable loop between %s and %s!" % \
-                                     (str(elem1), str(elem2))
-                elem2successors.append(subelem)
-        for elem in breakoptional:
-            del successors[elem][elem1]
-            predcount[elem1] -= 1
-        successors[elem1][elem2] = obey
-        predcount[elem2] += 1
+                        if kind is ENFORCE or elem not in dct:
+                            dct[elem] = kind
+        elif pred not in predecessors:
+            predecessors[pred] = ()
+            successors[pred] = {elem: kind}
+        else:
+            dct = successors.get(pred)
+            if not dct:
+                successors[pred] = {elem: kind}
+            else:
+                if kind is ENFORCE or elem not in dct:
+                    dct[elem] = kind
 
     def getSorted(self):
+
+        loops = self.breakLoops()
+        if loops:
+            raise LoopError(loops)
+
+        predecessors = self._predecessors
         successors = self._successors
-        predcount = self._predcount.copy()
-        result = [x for x in predcount if predcount[x] == 0]
-        queue = result[:]
-        while queue:
-            elem = queue.pop()
-            del predcount[elem]
-            for succ in successors[elem]:
-                predcount[succ] -= 1
-                if predcount[succ] == 0:
-                    queue.append(succ)
-                    result.append(succ)
-        assert not predcount, str(predcount)
+        result = [x for x in predecessors if not predecessors[x]]
+        done = dict.fromkeys(result, True)
+
+        for elem in result:
+
+            dct = successors.get(elem)
+            if dct:
+                for succ in dct:
+                    if succ in done:
+                        continue
+                    for pred in predecessors[succ]:
+                        if type(pred) is list:
+                            for subpred in pred:
+                                if subpred in done:
+                                    break
+                            else:
+                                break
+                            continue
+                        elif pred not in done:
+                            break
+                    else:
+                        result.append(succ)
+                        done[succ] = True
+
+        if len(result) != len(predecessors):
+            raise Error, "Internal error: there are still loops!"
+
         return result
 
-class ChangeSetSorter(TopoSorter):
+class ChangeSetSorter(ElementSorter):
 
     def __init__(self, changeset=None):
-        TopoSorter.__init__(self)
+        ElementSorter.__init__(self)
         if changeset:
             self.setChangeSet(changeset)
 
@@ -100,15 +323,26 @@ class ChangeSetSorter(TopoSorter):
                 # before this package's installation.
                 for req in pkg.requires:
                     if isinstance(req, PreRequires):
-                        obey = ENFORCE
+                        kind = ENFORCE
                     else:
-                        obey = OPTIONAL
+                        kind = OPTIONAL
+                    pred = []
                     for prv in req.providedby:
                         for prvpkg in prv.packages:
                             if changeset.get(prvpkg) is INSTALL:
-                                pred = (prvpkg, INSTALL)
-                                self.addElement(pred)
-                                self.addSuccessor(pred, elem, obey)
+                                pred.append((prvpkg, INSTALL))
+                            elif (prvpkg.installed and
+                                  changeset.get(prvpkg) is not REMOVE):
+                                break
+                        else:
+                            continue
+                        break
+                    else:
+                        if pred:
+                            if len(pred) == 1:
+                                pred = pred[0]
+                            self.addPredecessor(elem, pred, kind)
+
 
                 # Upgraded packages being removed must go in
                 # before this package's installation. Notice that
@@ -124,8 +358,7 @@ class ChangeSetSorter(TopoSorter):
                 for upgpkg in upgpkgs:
                     if changeset.get(upgpkg) is REMOVE:
                         pred = (prvpkg, REMOVE)
-                        self.addElement(pred)
-                        self.addSuccessor(pred, elem, OPTIONAL)
+                        self.addPredecessor(elem, pred, OPTIONAL)
 
                 # Conflicted packages being removed must go in
                 # before this package's installation.
@@ -138,23 +371,39 @@ class ChangeSetSorter(TopoSorter):
                 for cnfpkg in cnfpkgs:
                     if changeset.get(cnfpkg) is REMOVE:
                         pred = (cnfpkg, REMOVE)
-                        self.addElement(pred)
-                        self.addSuccessor(pred, elem, ENFORCE)
+                        self.addPredecessor(elem, pred, ENFORCE)
 
             else: # REMOVE
 
                 # We only care about relations with removed packages
                 # here. Relations with installed packages have already
                 # been handled above.
+
+                # Packages that require some dependency on this
+                # package without any alternatives in the system
+                # must be removed before it.
                 for prv in pkg.provides:
                     for req in prv.requiredby:
+
+                        installed = False
+                        for reqprv in req.providedby:
+                            for reqprvpkg in reqprv.packages:
+                                if (reqprvpkg.installed and
+                                    changeset.get(reqprvpkg) is not REMOVE):
+                                    installed = True
+                                    break
+                            else:
+                                continue
+                            break
+                        if installed:
+                            break
+
                         for reqpkg in req.packages:
                             if changeset.get(reqpkg) is REMOVE:
                                 if isinstance(req, PreRequires):
-                                    obey = ENFORCE
+                                    kind = ENFORCE
                                 else:
-                                    obey = OPTIONAL
+                                    kind = OPTIONAL
                                 pred = (reqpkg, REMOVE)
-                                self.addElement(pred)
-                                self.addSuccessor(pred, elem, obey)
+                                self.addPredecessor(elem, pred, kind)
 
