@@ -10,8 +10,6 @@ class RPMPackageManager(PackageManager):
 
         prog = self.getProgress()
         prog.setTopic("Committing transaction...")
-        prog.set(0, 1)
-        prog.show()
 
         # Build obsoletes relations.
         obsoleting = {}

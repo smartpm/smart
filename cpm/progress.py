@@ -142,7 +142,7 @@ class RPMStyleProgress(Progress):
         Progress.__init__(self)
         self._lasttopic = None
         self._lastsubkey = None
-        self._lastsubkeytime = 0
+        self._lastsubkeystart = 0
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         out = sys.stdout
@@ -153,17 +153,17 @@ class RPMStyleProgress(Progress):
             if subpercent != 100:
                 now = time.time()
                 if subkey == self._lastsubkey:
-                    if (self._lastsubkeytime+2 < now and
+                    if (self._lastsubkeystart+2 < now and
                         len(self._subprogress) > 1):
                         return
                 else:
-                    if (self._lastsubkeytime+2 > now and
+                    if (self._lastsubkeystart+2 > now and
                         len(self._subprogress) > 1):
                         return
                     self._lastsubkey = subkey
-                    self._lastsubkeytime = now
+                    self._lastsubkeystart = now
             elif subkey == self._lastsubkey:
-                    self._lastsubkeytime = 0
+                    self._lastsubkeystart = 0
             current = subpercent
             topic = subtopic
         elif not self._subprogress and not self._subdone:

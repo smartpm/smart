@@ -109,7 +109,7 @@ class Fetcher(object):
         prog.set(0, total)
         if self._caching is not NEVER:
             for handler in handlers:
-                for url in handler.getQueue():
+                for url in handler.getQueue()[:]:
                     localpath = self.getLocalPath(url)
                     valid, reason = self.validate(url, localpath)
                     if valid:
