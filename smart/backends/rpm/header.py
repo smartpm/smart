@@ -177,6 +177,8 @@ class RPMHeaderLoader(Loader):
         Cnf = RPMConflicts
         prog = iface.getProgress(self._cache)
         for h, offset in self.getHeaders(prog):
+            if h[1106]: # RPMTAG_SOURCEPACKAGE
+                continue
             arch = h[1022] # RPMTAG_ARCH
             if rpm.archscore(arch) == 0:
                 continue

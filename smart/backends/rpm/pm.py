@@ -158,12 +158,15 @@ class RPMPackageManager(PackageManager):
         ts.setProbFilter(probfilter)
         cb = RPMCallback(prog, upgradednames)
         cb.grabOutput(True)
-        probs = ts.run(cb, None)
-        cb.grabOutput(False)
-        prog.setDone()
-        if probs:
-            raise Error, "\n".join([x[0] for x in probs])
-        prog.stop()
+        probs = None
+        try:
+            probs = ts.run(cb, None)
+        finally:
+            cb.grabOutput(False)
+            prog.setDone()
+            if probs:
+                raise Error, "\n".join([x[0] for x in probs])
+            prog.stop()
 
 class RPMCallback:
     def __init__(self, prog, upgradednames):
