@@ -240,7 +240,7 @@ To open the graphic interface in interactive mode, one may simply run::
 
 	smart --gui
 
-Similarly, to open the following command would open the shell interface::
+Similarly, the following command would open the shell interface::
 
 	smart --shell
 
@@ -292,6 +292,10 @@ Study Cases
 
 In this section will be described real cases showing `Smart` behavior
 in comparison with other tools, or handling unusual situations.
+
+Notice that Smart was not tunned to work in any of these cases, and
+the reason it works is because handling unusual situations was the
+initial project goal.
 
 
 Case 1 - APT
@@ -402,6 +406,211 @@ expected result is obtained::
  Confirm changes (Y/n)?
 
 Done.
+
+Case 2 - APT & YUM
+------------------
+
+This is another real case, and is being reproduced in a controlled
+environment for tests with YUM, APT-RPM, and Smart.
+
+The issue is, a package named `A` requires package `BCD` explicitly, and
+RPM detects implicit dependencies between `A` and `libB`, `libC`, and `libD`.
+Package `BCD` provides `libB`, `libC`, and `libD`, but additionally there
+is a package `B` providing `libB`, a package `C` providing `libC`, and
+a package `D` providing `libD`.
+
+In other words, there's a package `A` which requires four different symbols,
+and one of these symbols is provided by a single package `BCD`, which happens
+to provide all symbols needed by `A`. There are also packages `B`, `C`, and `D`,
+that provide some of the symbols required by `A`, but can't satisfy all
+dependencies without `BCD`.
+
+The expected behavior for an operation asking to install `A` is obviously
+selecting `BCD` to satisfy `A`'s dependencies, on the other hand, `YUM` and
+APT fail to deliver that as a guaranted operation, as is shown
+below.
+
+First, let's see how YUM deals with the problem::
+
+  [root@burma ~]% yum install A
+  Setting up Install Process
+  Setting up Repo:  localpub
+  repomd.xml                100% |=========================|  951 B    00:00
+  Reading repository metadata in from local files
+  localpub  : ################################################## 5/5
+  Resolving Dependencies
+  --> Populating transaction set with selected packages. Please wait.
+  ---> Downloading header for A to pack into transaction set.
+  A-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+  ---> Package A.i386 0:1.0-1cl set to be installed
+  --> Running transaction check
+  --> Processing Dependency: libD for package: A
+  --> Processing Dependency: libC for package: A
+  --> Processing Dependency: libB for package: A
+  --> Processing Dependency: BCD for package: A
+  --> Restarting Dependency Resolution with new changes.
+  --> Populating transaction set with selected packages. Please wait.
+  ---> Downloading header for D to pack into transaction set.
+  D-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+  ---> Package D.i386 0:1.0-1cl set to be installed
+  ---> Downloading header for C to pack into transaction set.
+  C-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+  ---> Package C.i386 0:1.0-1cl set to be installed
+  ---> Downloading header for B to pack into transaction set.
+  B-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+  ---> Package B.i386 0:1.0-1cl set to be installed
+  ---> Downloading header for BCD to pack into transaction set.
+  BCD-1.0-1cl.i386.rpm      100% |=========================| 1.0 kB    00:00
+  ---> Package BCD.i386 0:1.0-1cl set to be installed
+  --> Running transaction check
+  
+  Dependencies Resolved
+  Transaction Listing:
+    Install: A.i386 0:1.0-1cl
+  
+  Performing the following to resolve dependencies:
+    Install: B.i386 0:1.0-1cl
+    Install: BCD.i386 0:1.0-1cl
+    Install: C.i386 0:1.0-1cl
+    Install: D.i386 0:1.0-1cl
+  Is this ok [y/N]:
+
+
+YUM selected **all** packages for installation, even though `BCD`
+alone would satisfy `A`'s dependencies.
+
+Let's see how APT deals with that::
+
+  [root@burma ~]% apt-get install A
+  Reading Package Lists... Done
+  Building Dependency Tree... Done
+  The following extra packages will be installed:
+    B BCD
+  The following NEW packages will be installed:
+    A B BCD
+  0 upgraded, 3 newly installed, 0 removed and 0 not upgraded.
+  Need to get 0B/4055B of archives.
+  After unpacking 0B of additional disk space will be used.
+  Do you want to continue? [Y/n] n
+
+As a coincidence, APT did a better job, and selected only `B` and
+`BCD` to satisfy `A`'s dependency, which is still not right.
+
+Now, let's see how Smart would solve the problem::
+
+  [root@burma ~]% smart install A
+  Updating cache...               ######################################## [100%]
+  
+  Computing transaction...
+  
+  Installed packages (2):
+    A-1.0-1cl@i386     BCD-1.0-1cl@i386
+  
+  2.7kb of package files are needed.
+  
+  Confirm changes (Y/n)?
+
+Smart correctly selected only `BCD`, since it's necessary anyway, and
+solves all dependencies.
+
+
+Case 3 - APT & YUM
+------------------
+
+That's another interesting case which was tested with APT-RPM and YUM.
+
+In this case, there's a package `A` version 1.0 installed in the
+system, and there are two versions available for upgrading: 1.5 and 2.0.
+Version 1.5 may be installed without problems, but version 2.0 has a
+dependency on `B`, which is not available anywhere.
+
+In this case, the best possibility is upgrading to 1.5, since upgrading
+to 2.0 is not an option.
+
+Let's see how APT reacts to this situation::
+
+  [root@burma ~]% apt-get upgrade A
+  Reading Package Lists... Done
+  Building Dependency Tree... Done
+  The following packages have been kept back
+    A
+  0 upgraded, 0 newly installed, 0 removed and 1 not upgraded.
+
+APT seems to refuse to upgrade `A`, even though version 1.5 might be
+installed without problems.
+
+What happens when forcing APT to install `A`::
+
+  [root@burma ~]% apt-get install A
+  Reading Package Lists... Done
+  Building Dependency Tree... Done
+  Some packages could not be installed. This may mean that you have
+  requested an impossible situation or if you are using the unstable
+  distribution that some required packages have not yet been created
+  or been moved out of Incoming.
+  
+  Since you only requested a single operation it is extremely likely that
+  the package is simply not installable and a bug report against
+  that package should be filed.
+  The following information may help to resolve the situation:
+  
+  The following packages have unmet dependencies:
+    A: Depends: B but it is not installable
+  E: Broken packages
+
+It really refuses to install the newest version, and doesn't consider
+the possibility of using version 1.5.
+
+Now, let's see how YUM would handle it::
+
+  [root@burma ~]% yum update
+  Setting up Update Process
+  Setting up Repo:  localpub
+  repomd.xml                100% |=========================|  951 B    00:00
+  Reading repository metadata in from local files
+  localpub  : ################################################## 3/3
+  Resolving Dependencies
+  --> Populating transaction set with selected packages. Please wait.
+  ---> Package A.i386 0:2.0-1cl set to be updated
+  --> Running transaction check
+  
+  Dependencies Resolved
+  Transaction Listing:
+    Update: A.i386 0:2.0-1cl
+  Is this ok [y/N]: y
+  Downloading Packages:
+  Running Transaction Test
+  Finished Transaction Test
+  Transaction Test Succeeded
+  Running Transaction
+  Updating: A 100 % done 1/2
+  
+  Updated: A.i386 0:2.0-1cl
+  Complete!
+
+It succeeded installing version 2.0, and failed to report a
+problem, as shown below::
+
+  [root@burma ~]% rpm -V A
+  Unsatisfied dependencies for A-2.0-1cl: B
+
+Now, let's see how Smart would behave in the same situation::
+
+  [root@burma ~]% ./smart.py upgrade
+  Loading cache...
+  Updating cache...               ######################################## [100%]
+  
+  Computing transaction...
+  
+  Upgrading packages (1):
+    A-1.5-1cl@i386
+  
+  1.3kb of package files are needed.
+  
+  Confirm changes (Y/n)?
+
+Smart correctly selects the intermediate version 1.5, which is the
+only viable possibility given the current options.
 
 -------
 Credits
