@@ -80,9 +80,17 @@ class TextInterface(Interface):
                 else:
                     print "   ", pkg
                 for upgpkg in report.upgrading.get(pkg, ()):
-                    print "       Upgrades:", upgpkg
+                    print "       Upgrades:",
+                    if upgpkg in report.remove:
+                        print upgpkg
+                    else:
+                        print upgpkg, "(not removed)"
                 for upgpkg in report.downgrading.get(pkg, ()):
-                    print "       Downgrades:", upgpkg
+                    print "       Downgrades:",
+                    if upgpkg in report.remove:
+                        print upgpkg
+                    else:
+                        print upgpkg, "(not removed)"
             print
         pkgs = report.removed.keys()
         if pkgs:
