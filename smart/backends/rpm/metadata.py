@@ -450,7 +450,7 @@ class XMLFileListsParser(object):
         parser.StartElementHandler = self.startElement
         parser.EndElementHandler = self.endElement
         parser.CharacterDataHandler = self.charData
-        parser.returns_unicode = False
+        parser.returns_unicode = True
 
         file = open(self._loader._filelistsname)
         try:

@@ -295,7 +295,7 @@ class XMLParser(object):
         parser.StartElementHandler = self.startElement
         parser.EndElementHandler = self.endElement
         parser.CharacterDataHandler = self.charData
-        parser.returns_unicode = False
+        parser.returns_unicode = True
 
         self._lastoffset = 0
         self._mod = 0
