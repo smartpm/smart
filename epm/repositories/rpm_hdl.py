@@ -1,4 +1,4 @@
-from epm.loaders.rpm.header import RPMHeaderListLoader
+from epm.backends.rpm.header import RPMHeaderListLoader
 from epm.repository import Repository
 from epm import *
 import posixpath

@@ -106,6 +106,9 @@ class Loader(object):
     def setCache(self, cache):
         self._cache = cache
 
+    def getInstalled(self):
+        return self._installed
+
     def setInstalled(self, flag):
         self._installed = flag
 

@@ -1,4 +1,4 @@
-from epm.loaders.rpm.header import RPMPackageListLoader
+from epm.backends.rpm.header import RPMPackageListLoader
 from epm.repository import Repository
 from epm.cache import LoaderSet
 from epm import *

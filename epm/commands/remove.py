@@ -32,6 +32,10 @@ def main(opts):
     if not found:
         raise Error, "no packages matched given arguments"
     print trans
+    print "Running transaction"
+    from epm.packagemanagers.rpmpm import RPMPackageManager
+    pm = RPMPackageManager()
+    pm.commit(trans)
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

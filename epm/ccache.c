@@ -587,6 +587,13 @@ Loader_setCache(LoaderObject *self, PyObject *cache)
 }
 
 PyObject *
+Loader_getInstalled(LoaderObject *self, PyObject *args)
+{
+    Py_INCREF(self->_installed);
+    return self->_installed;
+}
+
+PyObject *
 Loader_setInstalled(LoaderObject *self, PyObject *flag)
 {
     Py_DECREF(self->_installed);
@@ -1195,6 +1202,7 @@ error:
 
 static PyMethodDef Loader_methods[] = {
     {"setCache", (PyCFunction)Loader_setCache, METH_O, NULL},
+    {"getInstalled", (PyCFunction)Loader_getInstalled, METH_NOARGS, NULL},
     {"setInstalled", (PyCFunction)Loader_setInstalled, METH_O, NULL},
     {"getInfo", (PyCFunction)Loader_getInfo, METH_O, NULL},
     {"reset", (PyCFunction)Loader_reset, METH_NOARGS, NULL},
