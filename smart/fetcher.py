@@ -496,7 +496,7 @@ class URL(object):
             url += "@"
         url += self.host
         if self.port:
-            url += ":%d" % self.port
+            url += ":%s" % self.port
         if self.path:
             url += urllib.quote(self.path)
         else:
