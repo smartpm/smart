@@ -72,6 +72,9 @@ class RPMPackageManager(PackageManager):
 
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
 
+        if not sysconf.get("rpm-check-signatures", False):
+            ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+
         # Let's help RPM, since it doesn't do a good
         # ordering job on erasures.
         try:
