@@ -1,6 +1,7 @@
 from epm.option import OptionParser
 from epm.control import Control
 from epm.cmdline import initCmdLine
+from epm.const import NEVER
 from epm import *
 import string
 import re
@@ -16,11 +17,7 @@ def parse_options(argv):
 def main(opts):
     ctrl = Control(opts)
     initCmdLine(ctrl)
-    ctrl.standardInit()
-    initCmdLine(ctrl)
-    fetcher = ctrl.getFetcher()
-    fetcher.setUseCache(False)
-    ctrl.acquireRepositories()
+    ctrl.update()
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

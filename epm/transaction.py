@@ -1,8 +1,6 @@
 from epm.sorter import UpgradeSorter, ObsoletesSorter
+from epm.const import INSTALL, REMOVE
 from epm import Error
-
-INSTALL = True
-REMOVE  = False
 
 class ChangeSet(object):
     def __init__(self, state=None):
@@ -22,7 +20,7 @@ class ChangeSet(object):
             if pkg in self._opmap:
                 del self._opmap[pkg]
         else:
-            self._opmap[pkg] = True
+            self._opmap[pkg] = INSTALL
 
     def getInstall(self, pkg):
         return self._opmap.get(pkg) is INSTALL
@@ -32,7 +30,7 @@ class ChangeSet(object):
             if pkg in self._opmap:
                 del self._opmap[pkg]
         else:
-            self._opmap[pkg] = False
+            self._opmap[pkg] = REMOVE
 
     def getRemove(self, pkg):
         return self._opmap.get(pkg) is REMOVE

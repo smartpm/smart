@@ -22,22 +22,26 @@ class Committer(object):
     def acquire(self, trans):
         set = trans.getChangeSet().getSet()
         pkgurl = {}
+        self._fetcher.reset()
         for pkg in set:
             if set[pkg] is REMOVE:
                 continue
             loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
-            pkgurl[pkg] = info.getURL()
-        acquired, failed = self._fetcher.get(pkgurl.values(),
-                                             "packages")
+            url = info.getURL()
+            pkgurl[pkg] = url
+            self._fetcher.enqueue(url)
+        self._fetcher.run("packages")
+        failed = self._fetcher.getFailedSet()
         if failed:
             raise Error, "failed to download packages:\n" + \
                          "\n".join(["    "+url for url in failed])
+        succeeded = self._fetcher.getSucceededSet()
         pkgpath = {}
         for pkg in set:
             if set[pkg] is REMOVE:
                 continue
-            pkgpath[pkg] = acquired[pkgurl[pkg]]
+            pkgpath[pkg] = succeeded[pkgurl[pkg]]
         return pkgpath
 
     def commit(self, trans, pkgpath):

@@ -3,6 +3,7 @@ from epm.committer import Committer
 from epm.progress import Progress
 from epm.fetcher import Fetcher
 from epm.cache import Cache
+from epm.const import *
 from epm import *
 import sys, os
 
@@ -63,19 +64,24 @@ class Control:
         self._cache.setProgress(self._progress)
         self._cache.reload()
 
+    def update(self):
+        self._cache.setProgress(self._progress)
+        self._fetcher.setProgress(self._progress)
+        self.readConfig()
+        self.loadRepositories()
+        self._fetcher.setCaching(NEVER)
+        self.acquireRepositories()
+        self._fetcher.setCaching(OPTIONAL)
+
     def standardInit(self):
         self._cache.setProgress(self._progress)
         self._fetcher.setProgress(self._progress)
         self.readConfig()
-        if 1:
-            self.loadRepositories()
-            self._fetcher.setCacheOnly(True)
-            self.acquireRepositories()
-            self._fetcher.setCacheOnly(False)
-            self.loadCache()
-        else:
-            self.restoreState()
-            self.reloadCache()
+        self.loadRepositories()
+        self._fetcher.setCaching(ALWAYS)
+        self.acquireRepositories()
+        self._fetcher.setCaching(OPTIONAL)
+        self.loadCache()
 
     def standardFinalize(self):
         pass
@@ -137,5 +143,11 @@ class Control:
         committer.setProgress(self._progress)
         committer.setFetcher(self._fetcher)
         committer.acquireAndCommit(trans)
+
+    def acquire(self, trans):
+        committer = self._committer
+        committer.setProgress(self._progress)
+        committer.setFetcher(self._fetcher)
+        committer.acquire(trans)
 
 # vim:ts=4:sw=4:et
