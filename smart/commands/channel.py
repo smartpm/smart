@@ -20,9 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.option import OptionParser, append_all
+from smart.util.filetools import getFileDigest
 from smart.const import NEVER
 from smart.channel import *
 from smart import *
+import tempfile
 import textwrap
 import sys, os
 
@@ -109,6 +111,8 @@ def parse_options(argv):
     parser.add_option("--show", action="callback", callback=append_all,
                       help=_("show channels with given aliases, or all "
                            "channels if no arguments were given"))
+    parser.add_option("--edit", action="store_true",
+                      help=_("edit channels in editor set by $EDITOR"))
     parser.add_option("--enable", action="callback", callback=append_all,
                       help=_("enable channels with given aliases"))
     parser.add_option("--disable", action="callback", callback=append_all,
@@ -282,5 +286,47 @@ def main(ctrl, opts):
                 if desc:
                     print desc
                     print
+
+    if opts.edit:
+        fd, name = tempfile.mkstemp(".ini")
+        file = os.fdopen(fd, "w")
+        for alias in sysconf.get("channels"):
+            channel = sysconf.get(("channels", alias))
+            desc = createChannelDescription(alias, parseChannelData(channel))
+            print >>file, desc
+            print >>file
+        file.close()
+        editor = os.environ.get("EDITOR", "vi")
+        olddigest = getFileDigest(name)
+        while True:
+            os.system("%s %s" % (editor, name))
+            newdigest = getFileDigest(name)
+            if newdigest == olddigest:
+                break
+            file = open(name)
+            data = file.read()
+            file.close()
+            try:
+                newchannels = parseChannelsDescription(data)
+            except Error, e:
+                iface.error(unicode(e))
+                if not iface.askYesNo(_("Continue?"), True):
+                    break
+                else:continue
+            failed = False
+            for alias in newchannels:
+                channel = newchannels[alias]
+                try:
+                    createChannel(alias, channel)
+                except Error, e:
+                    failed = True
+                    iface.error(_("Error in '%s' channel: %s") %
+                                (alias, unicode(e)))
+            if failed:
+                if not iface.askYesNo(_("Continue?"), True):
+                    break
+            else:
+                sysconf.set("channels", newchannels)
+                break
 
 # vim:ts=4:sw=4:et
