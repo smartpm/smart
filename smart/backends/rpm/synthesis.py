@@ -140,12 +140,15 @@ class URPMISynthesisLoader(Loader):
             elif id == "info":
 
                 rpmnameparts = element[0].split("-")
+
                 version = "-".join(rpmnameparts[-2:])
+                epoch = element[1]
+                if epoch != "0":
+                    version = "%s:%s" % (epoch, version)
+
                 version, arch = version.rsplit(".", 1)
                 versionarch = "@".join((version, arch))
 
-                if element[1] != "0":
-                    version = "%s:%s" % (element[1], version)
                 name = "-".join(rpmnameparts[0:-2])
 
                 info = {"summary": summary,
