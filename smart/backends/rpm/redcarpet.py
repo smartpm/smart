@@ -83,7 +83,7 @@ class RPMRedCarpetLoader(Loader):
                     bfp(pkg, (RPMProvides, fn, None))
 
     def getInfo(self, pkg):
-        return RPMRedCarpetPackageInfo(pkg, pkg.loaders[self])
+        return RPMRedCarpetPackageInfo(pkg, self, pkg.loaders[self])
 
     def getLoadSteps(self):
         return 0
@@ -277,7 +277,7 @@ class XMLParser(object):
         pkg.loaders[self._loader] = self._info
 
         self._loader._fileprovides.setdefault(pkg, []) \
-                                  .extend(self._loader._filedict.keys())
+                                  .extend(self._filedict.keys())
 
         self.resetPackage()
 
@@ -302,7 +302,7 @@ class XMLParser(object):
         self._progress = iface.getProgress(self._loader._cache)
         self._file = open(self._loader._filename)
 
-        parser.ParseFile(open(self._filename))
+        parser.ParseFile(open(self._loader._filename))
 
         self.updateProgress()
 

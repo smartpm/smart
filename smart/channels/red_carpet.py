@@ -72,13 +72,13 @@ class RedCarpetChannel(PackageChannel):
         return True
 
 def create(alias, data):
-    return RPMRedCarpetChannel(data["baseurl"],
-                               data["packageinfourl"],
-                               data["type"],
-                               alias,
-                               data["name"],
-                               data["manual"],
-                               data["removable"],
-                               data["priority"])
+    return RedCarpetChannel(data["baseurl"],
+                            data["packageinfourl"],
+                            data["type"],
+                            alias,
+                            data["name"],
+                            data["manual"],
+                            data["removable"],
+                            data["priority"])
 
 # vim:ts=4:sw=4:et
