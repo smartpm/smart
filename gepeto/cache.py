@@ -206,6 +206,9 @@ class Depends(object):
         self.packages = []
         self.providedby = ()
 
+    def getMatchNames(self):
+        return (self.name,)
+
     def matches(self, prv):
         return False
 
@@ -500,25 +503,28 @@ class Cache(object):
     def linkDeps(self):
         reqnames = {}
         for req in self._requires:
-            lst = reqnames.get(req.name)
-            if lst:
-                lst.append(req)
-            else:
-                reqnames[req.name] = [req]
+            for name in req.getMatchNames():
+                lst = reqnames.get(name)
+                if lst:
+                    lst.append(req)
+                else:
+                    reqnames[name] = [req]
         upgnames = {}
         for upg in self._upgrades:
-            lst = upgnames.get(upg.name)
-            if lst:
-                lst.append(upg)
-            else:
-                upgnames[upg.name] = [upg]
+            for name in upg.getMatchNames():
+                lst = upgnames.get(name)
+                if lst:
+                    lst.append(upg)
+                else:
+                    upgnames[name] = [upg]
         cnfnames = {}
         for cnf in self._conflicts:
-            lst = cnfnames.get(cnf.name)
-            if lst:
-                lst.append(cnf)
-            else:
-                cnfnames[cnf.name] = [cnf]
+            for name in cnf.getMatchNames():
+                lst = cnfnames.get(name)
+                if lst:
+                    lst.append(cnf)
+                else:
+                    cnfnames[name] = [cnf]
         for prv in self._provides:
             lst = reqnames.get(prv.name)
             if lst:

@@ -576,6 +576,15 @@ Depends_dealloc(DependsObject *self)
 }
 
 static PyObject *
+Depends_getMatchNames(DependsObject *self)
+{
+    PyObject *tup = PyTuple_New(1);
+    Py_INCREF(self->name);
+    PyTuple_SET_ITEM(tup, 0, self->name);
+    return tup;
+}
+
+static PyObject *
 Depends_matches(DependsObject *self, PyObject *prv)
 {
     Py_INCREF(Py_False);
@@ -633,6 +642,7 @@ Depends_compare(DependsObject *self, DependsObject *other)
 }
 
 static PyMethodDef Depends_methods[] = {
+    {"getMatchNames", (PyCFunction)Depends_getMatchNames, METH_NOARGS, NULL},
     {"matches", (PyCFunction)Depends_matches, METH_O, NULL},
     {NULL, NULL}
 };
@@ -1539,26 +1549,39 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
     len = PyList_GET_SIZE(self->_requires);
     for (i = 0; i != len; i++) {
         PyObject *req = PyList_GET_ITEM(self->_requires, i);
-        DependsObject *reqobj = (DependsObject*)req;
 
-        /* lst = reqnames.get(req.name) */
-        lst = PyDict_GetItem(reqnames, reqobj->name);
+        /* for name in req.getMatchNames(): */
+        PyObject *names = PyObject_CallMethod(req, "getMatchNames", NULL);
+        PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                               "non-sequence object");
+        int nameslen;
+        if (!seq) return NULL;
+        nameslen = PySequence_Fast_GET_SIZE(seq);
+        for (j = 0; j != nameslen; j++) {
+            PyObject *name = PySequence_Fast_GET_ITEM(seq, j);
+            
+            /* lst = reqnames.get(name) */
+            lst = PyDict_GetItem(reqnames, name);
 
-        /* 
-           if lst:
-               lst.append(req)
-           else:
-               reqnames[req.name] = [req]
-        */
-        if (lst) {
-            PyList_Append(lst, req);
-        } else {
-            lst = PyList_New(1);
-            Py_INCREF(req);
-            PyList_SET_ITEM(lst, 0, req);
-            PyDict_SetItem(reqnames, reqobj->name, lst);
-            Py_DECREF(lst);
+            /* 
+               if lst:
+                   lst.append(req)
+               else:
+                   reqnames[name] = [req]
+            */
+            if (lst) {
+                PyList_Append(lst, req);
+            } else {
+                lst = PyList_New(1);
+                Py_INCREF(req);
+                PyList_SET_ITEM(lst, 0, req);
+                PyDict_SetItem(reqnames, name, lst);
+                Py_DECREF(lst);
+            }
         }
+
+        Py_DECREF(names);
+        Py_DECREF(seq);
     }
 
     /* upgnames = {} */
@@ -1567,26 +1590,39 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
     len = PyList_GET_SIZE(self->_upgrades);
     for (i = 0; i != len; i++) {
         PyObject *upg = PyList_GET_ITEM(self->_upgrades, i);
-        DependsObject *upgobj = (DependsObject*)upg;
 
-        /* lst = upgnames.get(upg.name) */
-        lst = PyDict_GetItem(upgnames, upgobj->name);
+        /* for name in upg.getMatchNames(): */
+        PyObject *names = PyObject_CallMethod(upg, "getMatchNames", NULL);
+        PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                               "non-sequence object");
+        int nameslen;
+        if (!seq) return NULL;
+        nameslen = PySequence_Fast_GET_SIZE(seq);
+        for (j = 0; j != nameslen; j++) {
+            PyObject *name = PySequence_Fast_GET_ITEM(seq, j);
+            
+            /* lst = upgnames.get(name) */
+            lst = PyDict_GetItem(upgnames, name);
 
-        /* 
-           if lst:
-               lst.append(upg)
-           else:
-               upgnames[upg.name] = [upg]
-        */
-        if (lst) {
-            PyList_Append(lst, upg);
-        } else {
-            lst = PyList_New(1);
-            Py_INCREF(upg);
-            PyList_SET_ITEM(lst, 0, upg);
-            PyDict_SetItem(upgnames, upgobj->name, lst);
-            Py_DECREF(lst);
+            /* 
+               if lst:
+                   lst.append(upg)
+               else:
+                   upgnames[name] = [upg]
+            */
+            if (lst) {
+                PyList_Append(lst, upg);
+            } else {
+                lst = PyList_New(1);
+                Py_INCREF(upg);
+                PyList_SET_ITEM(lst, 0, upg);
+                PyDict_SetItem(upgnames, name, lst);
+                Py_DECREF(lst);
+            }
         }
+
+        Py_DECREF(names);
+        Py_DECREF(seq);
     }
 
     /* cnfnames = {} */
@@ -1595,26 +1631,39 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
     len = PyList_GET_SIZE(self->_conflicts);
     for (i = 0; i != len; i++) {
         PyObject *cnf = PyList_GET_ITEM(self->_conflicts, i);
-        DependsObject *cnfobj = (DependsObject*)cnf;
 
-        /* lst = cnfnames.get(cnf.name) */
-        lst = PyDict_GetItem(cnfnames, cnfobj->name);
+        /* for name in cnf.getMatchNames(): */
+        PyObject *names = PyObject_CallMethod(cnf, "getMatchNames", NULL);
+        PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                               "non-sequence object");
+        int nameslen;
+        if (!seq) return NULL;
+        nameslen = PySequence_Fast_GET_SIZE(seq);
+        for (j = 0; j != nameslen; j++) {
+            PyObject *name = PySequence_Fast_GET_ITEM(seq, j);
+            
+            /* lst = cnfnames.get(name) */
+            lst = PyDict_GetItem(cnfnames, name);
 
-        /* 
-           if lst:
-               lst.append(cnf)
-           else:
-               cnfnames[cnf.name] = [cnf]
-        */
-        if (lst) {
-            PyList_Append(lst, cnf);
-        } else {
-            lst = PyList_New(1);
-            Py_INCREF(cnf);
-            PyList_SET_ITEM(lst, 0, cnf);
-            PyDict_SetItem(cnfnames, cnfobj->name, lst);
-            Py_DECREF(lst);
+            /* 
+               if lst:
+                   lst.append(cnf)
+               else:
+                   cnfnames[name] = [cnf]
+            */
+            if (lst) {
+                PyList_Append(lst, cnf);
+            } else {
+                lst = PyList_New(1);
+                Py_INCREF(cnf);
+                PyList_SET_ITEM(lst, 0, cnf);
+                PyDict_SetItem(cnfnames, name, lst);
+                Py_DECREF(lst);
+            }
         }
+
+        Py_DECREF(names);
+        Py_DECREF(seq);
     }
 
     /* for prv in self._provides: */
