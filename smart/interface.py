@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.images import __file__ as _images__file__
-from smart.const import ERROR, WARNING, INFO, DEBUG
+from smart.const import *
 from smart import *
 import sys, os
 import termios
@@ -31,6 +31,7 @@ class Interface(object):
 
     def __init__(self, ctrl):
         self._ctrl = ctrl
+        self._passwdcache = {}
 
     def getControl(self):
         return self._ctrl
@@ -72,8 +73,26 @@ class Interface(object):
     def askOkCancel(self, question, default=False):
         return True
 
-    def askInput(self, prompt, message=None, widthchars=None):
+    def askInput(self, prompt, message=None, widthchars=None, echo=True):
         return ""
+
+    def askPassword(self, location, caching=OPTIONAL):
+        passwd = None
+        if caching is not NEVER and location in self._passwdcache:
+            passwd = self._passwdcache[location]
+        elif caching is not ALWAYS:
+            passwd = self.askInput("Password",
+                                   "A password is needed for '%s'." % location,
+                                   echo=False, widthchars=16)
+            self._passwdcache[location] = passwd
+        return passwd
+
+    def setPassword(self, location, passwd):
+        if passwd is None:
+            if location in self._passwdcache:
+                del self._passwdcache[location]
+        else:
+            self._passwdcache[location] = passwd
 
     def confirmChangeSet(self, changeset):
         return True

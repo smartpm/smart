@@ -104,7 +104,7 @@ class GtkInterface(Interface):
         else:
             return default
 
-    def askInput(self, prompt, message=None, widthchars=40):
+    def askInput(self, prompt, message=None, widthchars=40, echo=True):
         dialog = gtk.Dialog("Input",
                             parent=self._window,
                             flags=gtk.DIALOG_MODAL,
@@ -131,6 +131,9 @@ class GtkInterface(Interface):
         hbox.pack_start(label, False, False)
         entry = gtk.Entry()
         entry.set_width_chars(widthchars)
+        if not echo:
+            entry.set_visibility(False)
+            entry.set_invisible_char('*')
         entry.show()
         hbox.pack_start(entry)
         response = dialog.run()

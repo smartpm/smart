@@ -1643,7 +1643,17 @@ class SCPHandler(FetcherHandler):
 
         if url.host[-1] == ":":
             url.host = url.host[:-1]
-        ssh = SSH(url.user, url.host, url.passwd)
+
+        locurl = URL()
+        locurl.scheme = url.scheme
+        locurl.user = url.user
+        locurl.host = url.host
+        locurl.port = url.port
+        def getpassword(location=str(locurl)):
+            return iface.askPassword(location)
+        del locurl
+
+        ssh = SSH(url.user, url.host, url.passwd, getpassword)
 
         try:
             localpath = self.getLocalPath(item)

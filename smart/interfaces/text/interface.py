@@ -22,9 +22,11 @@
 from smart.interfaces.text.progress import TextProgress
 from smart.interface import Interface, getScreenWidth
 from smart.util.strtools import sizeToStr, printColumns
+from smart.const import OPTIONAL, ALWAYS
 from smart.fetcher import Fetcher
 from smart.report import Report
 from smart import *
+import getpass
 import sys
 import os
 
@@ -92,16 +94,26 @@ class TextInterface(Interface):
     def confirmChangeSet(self, changeset):
         return self.showChangeSet(changeset, confirm=True)
 
-    def askInput(self, prompt, message=None, widthchars=None):
+    def askInput(self, prompt, message=None, widthchars=None, echo=True):
         print
         if message:
             print message
+        prompt += ": "
         try:
-            res = raw_input(prompt+": ")
+            if echo:
+                res = raw_input(prompt)
+            else:
+                res = getpass.getpass(prompt)
         except KeyboardInterrupt:
             res = ""
         print
         return res
+
+    def askPassword(self, location, caching=OPTIONAL):
+        self._progress.lock()
+        passwd = Interface.askPassword(self, location, caching)
+        self._progress.unlock()
+        return passwd
 
     def insertRemovableChannels(self, channels):
         self.hideStatus()

@@ -24,10 +24,11 @@ import pexpect
 import sys
 
 class SSH:
-    def __init__(self, username, host, password=None):
+    def __init__(self, username, host, password=None, getpassword=None):
         self.username = username
         self.host = host
         self.password = password
+        self.getpassword = getpassword
 
     def _exec(self, command, **kwargs):
         p = pexpect.spawn(command, timeout=1)
@@ -43,10 +44,14 @@ class SSH:
             elif i == 1:
                 outlist.append(p.before)
             elif i == 2 or i == 3:
-                if not self.password:
+                if self.password:
+                    password = self.password
+                elif self.getpassword:
+                    password = self.getpassword()
+                else:
                     raise Error, "SSH asked for password, " \
                                  "but no password is available"
-                p.sendline(self.password)
+                p.sendline(password)
                 outlist = []
             elif i == 4:
                 p.sendline("yes")
