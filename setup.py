@@ -36,6 +36,11 @@ distutils.dir_util.copy_tree = copy_tree
 
 PYTHONLIB = get_python_lib()
 
+I18NFILES = []
+for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
+    targetpath = os.path.dirname(os.path.join(sys.prefix, "share", filepath))
+    I18NFILES.append((targetpath, filepath))
+
 setup(name="smart",
       version = VERSION,
       description = "Smart Package Manager is a next generation package "
@@ -74,7 +79,8 @@ Smart Package Manager is a next generation package handling tool.
                      Extension("smart.util.ctagfile",
                                ["smart/util/ctagfile.c"]),
                     ],
-      data_files = [(PYTHONLIB+"/smart/interfaces/images", 
+      data_files = I18NFILES +
+                   [(PYTHONLIB+"/smart/interfaces/images", 
                      glob.glob("smart/interfaces/images/*.png"))],
       )
 
