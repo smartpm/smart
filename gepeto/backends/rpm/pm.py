@@ -53,7 +53,7 @@ class RPMPackageManager(PackageManager):
                         if upgd:
                             upgrading[pkg] = True
                             upgraded.update(dict.fromkeys(upgd))
-        ts = rpm.ts()
+        ts = rpm.ts(sysconf.get("rpm-root", "/"))
         packages = 0
         reinstall = False
         for pkg in install:
