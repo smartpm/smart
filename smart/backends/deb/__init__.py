@@ -157,7 +157,7 @@ class DebNameProvides(DebProvides): pass
 class DebDepends(Depends):
 
     def matches(self, prv):
-        if not isinstance(prv, DebProvides):
+        if not isinstance(prv, DebProvides) and type(prv) is not Provides:
             return False
         if not self.version:
             return True
@@ -178,7 +178,7 @@ class DebOrDepends(Depends):
         return [x[0] for x in self._nrv]
 
     def matches(self, prv):
-        if not isinstance(prv, DebProvides):
+        if not isinstance(prv, DebProvides) and type(prv) is not Provides:
             return False
         for name, relation, version in self._nrv:
             if name == prv.name:
@@ -196,7 +196,7 @@ class DebOrPreRequires(DebOrDepends,PreRequires): pass
 class DebUpgrades(DebDepends,Upgrades):
 
     def matches(self, prv):
-        if not isinstance(prv, DebNameProvides):
+        if not isinstance(prv, DebNameProvides) and type(prv) is not Provides:
             return False
         if not self.version or not prv.version:
             return True

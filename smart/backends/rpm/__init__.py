@@ -193,7 +193,7 @@ class RPMNameProvides(RPMProvides): pass
 class RPMDepends(Depends):
 
     def matches(self, prv):
-        if not isinstance(prv, RPMProvides):
+        if not isinstance(prv, RPMProvides) and type(prv) is not Provides:
             return False
         if not self.version or not prv.version:
             return True
@@ -209,7 +209,7 @@ class RPMConflicts(RPMDepends,Conflicts): pass
 class RPMObsoletes(Depends):
 
     def matches(self, prv):
-        if prv.__class__ != RPMNameProvides:
+        if not isinstance(prv, RPMNameProvides) and type(prv) is not Provides:
             return False
         if self.version and not prv.version:
             return False

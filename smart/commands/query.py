@@ -295,16 +295,16 @@ def main(ctrl, opts, updatecache=True):
                             else:
                                 name = str(cnfpkg)
                             print "       ", "%s (%s)" % (name, prv)
-        if pkg.requires and (opts.show_requires or opts.show_prerequires
-                             or whorequires):
+        if pkg.requires and (opts.show_requires or opts.show_prerequires):
             pkg.requires.sort()
             first = True
             for req in pkg.requires:
                 if opts.show_prerequires and not isinstance(req, PreRequires):
                     continue
                 if whorequires:
+                    matchnames = req.getMatchNames()
                     for whoreq in whorequires:
-                        if req.matches(whoreq):
+                        if whoreq.name in matchnames and req.matches(whoreq):
                             break
                     else:
                         continue
@@ -327,13 +327,14 @@ def main(ctrl, opts, updatecache=True):
                             else:
                                 name = str(prvpkg)
                             print "       ", "%s (%s)" % (name, prv)
-        if pkg.upgrades and (opts.show_upgrades or whoupgrades):
+        if pkg.upgrades and opts.show_upgrades:
             pkg.upgrades.sort()
             first = True
             for upg in pkg.upgrades:
                 if whoupgrades:
+                    matchnames = upg.getMatchNames()
                     for whoupg in whoupgrades:
-                        if upg.matches(whoupg):
+                        if whoupg.name in matchnames and upg.matches(whoupg):
                             break
                     else:
                         continue
@@ -353,13 +354,14 @@ def main(ctrl, opts, updatecache=True):
                             else:
                                 name = str(prvpkg)
                             print "       ", "%s (%s)" % (name, prv)
-        if pkg.conflicts and (opts.show_conflicts or whoconflicts):
+        if pkg.conflicts and opts.show_conflicts:
             pkg.conflicts.sort()
             first = True
             for cnf in pkg.conflicts:
                 if whoconflicts:
+                    matchnames = cnf.getMatchNames()
                     for whocnf in whoconflicts:
-                        if cnf.matches(whocnf):
+                        if whocnf.name in matchnames and cnf.matches(whocnf):
                             break
                     else:
                         continue
