@@ -25,6 +25,18 @@ import cPickle
 import os
 
 class SysConfig(object):
+    """System configuration class.
+
+    It has three different kinds of opition maps, regarding the
+    persistence and priority that maps are queried.
+
+    normal - Options are persistent.
+    soft   - Options are not persistent, and have a higher priority
+             than any persistent option.
+    weak   - Options are not persistent, and have a lower priority
+             than any persistent option.
+    """
+
 
     def __init__(self):
         self._map = {}

@@ -65,8 +65,8 @@ class TextInterface(Interface):
             return "ok".startswith(res)
         return default
 
-    def confirmTransaction(self, trans):
-        report = Report(trans.getChangeSet())
+    def confirmChangeSet(self, changeset):
+        report = Report(changeset)
         report.compute()
 
         print

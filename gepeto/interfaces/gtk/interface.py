@@ -97,8 +97,8 @@ class GtkInterface(Interface):
             return True
         return self._changes.showChangeSet(changeset, keep=keep, confirm=True)
 
-    def confirmTransaction(self, trans):
-        return self._changes.showChangeSet(trans.getChangeSet(), confirm=True)
+    def confirmChangeSet(self, changeset):
+        return self._changes.showChangeSet(changeset, confirm=True)
 
     # Non-standard interface methods
 

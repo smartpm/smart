@@ -196,9 +196,9 @@ class Control(object):
             localdir = os.path.join(sysconf.get("data-dir"), "packages/")
             if not os.path.isdir(localdir):
                 os.makedirs(localdir)
-            self._fetcher.setLocalDir(localdir, mangle=False)
+            fetcher.setLocalDir(localdir, mangle=False)
         else:
-            self._fetcher.setLocalDir(targetdir, mangle=False)
+            fetcher.setLocalDir(targetdir, mangle=False)
         pkgitems = {}
         for pkg in packages:
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
@@ -222,11 +222,15 @@ class Control(object):
             pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
         return pkgpaths
 
-    def fetchFiles(self, urllst, what, caching=NEVER):
-        localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
-        if not os.path.isdir(localdir):
-            os.makedirs(localdir)
+    def fetchFiles(self, urllst, what, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
+        if targetdir is None:
+            localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
+            if not os.path.isdir(localdir):
+                os.makedirs(localdir)
+            fetcher.setLocalDir(localdir, mangle=False)
+        else:
+            fetcher.setLocalDir(targetdir, mangle=False)
         fetcher.setLocalDir(localdir, mangle=True)
         fetcher.setCaching(caching)
         for url in urllst:
@@ -252,15 +256,24 @@ class Control(object):
         for url in urls:
             print >>output, url
 
-    def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
-        if not confirm or iface.confirmTransaction(trans):
-            return self.commitChangeSet(trans.getChangeSet(), caching)
-        return False
+    def downloadTransaction(self, trans, caching=OPTIONAL, confirm=True):
+        return self.downloadChangeSet(trans.getChangeSet(), caching, confirm)
 
-    def commitChangeSet(self, changeset, caching=OPTIONAL):
+    def downloadChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
+        if confirm and not iface.confirmChangeSet(changeset):
+            return False
+        self.fetchPackages([pkg for pkg in changeset
+                            if changeset[pkg] is INSTALL], caching)
+        return True
+
+    def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
+        return self.commitChangeSet(trans.getChangeSet(), caching, confirm)
+
+    def commitChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
+        if confirm and not iface.confirmChangeSet(changeset):
+            return False
         pkgpaths = self.fetchPackages([pkg for pkg in changeset
-                                       if changeset[pkg] is INSTALL],
-                                       caching)
+                                       if changeset[pkg] is INSTALL], caching)
         pmpkgs = {}
         for pkg in changeset:
             pmclass = pkg.packagemanager
@@ -285,11 +298,13 @@ class Control(object):
         return True
 
     def commitTransactionStepped(self, trans, caching=OPTIONAL, confirm=True):
-        if not confirm or iface.confirmTransaction(trans):
-            return self.commitChangeSetStepped(trans.getChangeSet(), caching)
-        return False
+        return self.commitChangeSetStepped(trans.getChangeSet(),
+                                           caching, confirm)
 
-    def commitChangeSetStepped(self, changeset, caching=OPTIONAL):
+    def commitChangeSetStepped(self, changeset, caching=OPTIONAL,
+                               confirm=True):
+        if confirm and not iface.confirmChangeSet(changeset):
+            return False
 
         # Order by number of required packages inside the transaction.
         pkglst = []

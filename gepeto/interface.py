@@ -56,7 +56,7 @@ class Interface(object):
     def askOkCancel(self, question, default=False):
         return True
 
-    def confirmTransaction(self, trans):
+    def confirmChangeSet(self, changeset):
         return True
 
     def confirmChange(self, oldchangeset, newchangeset):
