@@ -5,27 +5,42 @@ Features
 Global:
 
 - Modular.
-- Interface creation is extremely simple.
+- Interface creation is simple.
 - Backend based, completely package-manager-agnostic.
 - Easily portable for any package manager.
 
-Transaction system:
-
-- Transaction based.
-
 Priority system:
 
-- ...
+- Packages with higher priorities are considered a better option
+  even when package versions state otherwise.
+- Using priorities one may avoid unwanted upgrades, force downgrades,
+  select packages in given channels as preferential, and other kinds
+  of interesting setups.
+- When a package has no explicit priority, the channel priority is
+  used. The channel priority may be changed using the 'channel'
+  command, and defaults to 0 when not set.
 
 Mirror system:
 
-- ...
+- Mirrors are URLs that supposedly provide the same contents as
+  are available in other URLs, named origins.
+- There is no internal restriction on the kind of information
+  which is mirrored. Once an origin URL is provided, and one or
+  more mirror URLs are provided, these mirrors will be considered
+  for any file which is going to be fetched from an URL starting
+  with the origin URL.
+- Whether the mirror will be chosen or not will depend on the
+  history of downloads from this mirror and from other mirrors for
+  the same URL.
+- Mirrors are automatically balanced so that the faster mirrors
+  and with less errors are chosen.
+- When errors occur, the next mirror is tried.
 
 Cache system:
 
 - Recognizes multiple versions of the same package name.
 - Package names decoupled from the upgrade procedure. Only
-  thing that matters is obsoletes relations, which are
+  thing that matters is upgrades relations, which are
   introduced implicitly by the loader system, when
   necessary.
 
@@ -38,10 +53,11 @@ Dependency solving algorithm:
 - Upgrades select the best option, not the latest available version.
 - Algorithm is smart enough to even reinstall a package if
   necessary, if it detects that different packages with same
-  name-version have different relations.
+  name-version have different relations, and the one not installed
+  is a better option.
 - Works with broken packages in the system. Only packages which
   are related to the operations being made will be checked for
-  correctness.
+  correctness (may be instructed to fix everything if desired).
 
 Downloading system:
 
@@ -70,5 +86,7 @@ Supported channel/repository formats
 - URPMI
 - RPM metadata
 - Plain RPM header lists
+- Local directory with RPM files
 - Red Carpet
+- Slackware Package Repository
 

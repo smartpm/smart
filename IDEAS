@@ -47,7 +47,7 @@ Priority system
   package priority.
 - Upgrades happen always to a package with the same or a higher
   priority.
-- Downgrades may happen if packages with a higher priority are
+- Downgrades may happen if packages with higher priorities are
   found somewhere.
 - Priority is used to compute the best choice when multiple options
   are available to satisfy a dependency.
