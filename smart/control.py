@@ -73,7 +73,7 @@ class Control(object):
         channels = []
         for channel in hooks.call("create-file-channel", filename):
             if channel:
-                channels.extend(channel)
+                channels.append(channel)
         if not channels:
             raise Error, "Unable to create channel for file: %s" % filename
         self._channels.extend(channels)
@@ -172,7 +172,8 @@ class Control(object):
     def reloadSysConfChannels(self):
         for channel in self._sysconfchannels:
             self._channels.remove(channel)
-            self._cache.removeLoader(channel.getLoader())
+            if isinstance(channel, PackageChannel):
+                self._cache.removeLoader(channel.getLoader())
         del self._sysconfchannels[:]
         channels = sysconf.get("channels", ())
         for alias in channels:

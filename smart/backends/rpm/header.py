@@ -430,7 +430,8 @@ class RPMFileChannel(FileChannel):
     def __init__(self, filename):
         FileChannel.__init__(self, filename)
         dirname, basename = os.path.split(filename)
-        self.setInfo("loader", RPMDirLoader(dirname, basename))
+        self._loader = RPMDirLoader(dirname, basename)
+        self._loader.setChannel(self)
 
 def createFileChannel(filename):
     if filename.endswith(".rpm") and not filename.endswith(".src.rpm"):

@@ -116,9 +116,8 @@ class FileChannel(PackageChannel):
             name = os.path.basename(filename)
         if not os.path.isfile(filename):
             raise Error, "File not found: %s" % filename
-        super(PackageChannel, self).__init__("file", filename, name,
-                                             manualupdate=True,
-                                             priority=priority)
+        super(FileChannel, self).__init__("file", filename, name,
+                                          manualupdate=True, priority=priority)
 
     def getFileName(self):
         return self._filename
