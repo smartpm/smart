@@ -25,6 +25,7 @@ class Fetcher(object):
         self._validators = {}
         self._failed = {}
         self._succeeded = {}
+        self._info = {}
 
     def getProgress(self):
         return self._progress
@@ -51,6 +52,12 @@ class Fetcher(object):
 
     def setSucceeded(self, url, localpath):
         self._succeeded[url] = localpath
+
+    def setInfo(self, url, size=None, md5=None, sha=None):
+        self._info[url] = {"size": size, "md5": md5, "sha": sha}
+
+    def getInfo(self, url, kind):
+        return self._info.get(url, {}).get(kind)
 
     def getCaching(self):
         return self._caching
@@ -94,7 +101,8 @@ class Fetcher(object):
             filename = os.path.basename(path)
         return os.path.join(self._localdir, filename)
 
-    def enqueue(self, url):
+    def enqueue(self, url, **info):
+        self.setInfo(**info)
         handler = self.getHandlerInstance(url)
         handler.enqueue(url)
 

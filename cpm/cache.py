@@ -8,6 +8,8 @@ class Package(object):
         self.obsoletes = []
         self.conflicts = []
         self.installed = False
+        self.essential = False
+        self.precedence = 0
         self.loaderinfo = {}
 
     def equals(self, other):

@@ -33,6 +33,8 @@ typedef struct {
     PyObject *obsoletes;
     PyObject *conflicts;
     PyObject *installed;
+    PyObject *essential;
+    PyObject *precedence;
     PyObject *loaderinfo;
 } PackageObject;
 
@@ -98,6 +100,8 @@ Package_init(PackageObject *self, PyObject *args)
     self->conflicts = PyList_New(0);
     Py_INCREF(Py_False);
     self->installed = Py_False;
+    self->essential = Py_False;
+    self->precedence = PyInt_FromLong(0);
     self->loaderinfo = PyDict_New();
     return 0;
 }
@@ -112,6 +116,8 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->obsoletes);
     Py_XDECREF(self->conflicts);
     Py_XDECREF(self->installed);
+    Py_XDECREF(self->essential);
+    Py_XDECREF(self->precedence);
     Py_XDECREF(self->loaderinfo);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -249,6 +255,8 @@ static PyMemberDef Package_members[] = {
     {"obsoletes", T_OBJECT, OFF(obsoletes), 0, 0},
     {"conflicts", T_OBJECT, OFF(conflicts), 0, 0},
     {"installed", T_OBJECT, OFF(installed), 0, 0},
+    {"essential", T_OBJECT, OFF(essential), 0, 0},
+    {"precedence", T_OBJECT, OFF(precedence), 0, 0},
     {"loaderinfo", T_OBJECT, OFF(loaderinfo), 0, 0},
     {NULL}
 };
@@ -1247,10 +1255,10 @@ static PyMethodDef Loader_methods[] = {
 
 #define OFF(x) offsetof(LoaderObject, x)
 static PyMemberDef Loader_members[] = {
-    {"_cache", T_OBJECT, OFF(_cache), RO, "Cache object"},
-    {"_packages", T_OBJECT, OFF(_packages), RO, "Package list"},
-    {"_installed", T_OBJECT, OFF(_installed), RO, "Installed flag"},
-    {"_progress", T_OBJECT, OFF(_progress), RO, "Progress object"},
+    {"_cache", T_OBJECT, OFF(_cache), RO, 0},
+    {"_packages", T_OBJECT, OFF(_packages), RO, 0},
+    {"_installed", T_OBJECT, OFF(_installed), RO, 0},
+    {"_progress", T_OBJECT, OFF(_progress), RO, 0},
     {NULL}
 };
 #undef OFF

@@ -190,6 +190,14 @@ class Transaction(object):
     def isInstalled(self, pkg):
         return self._changeset.isInstalled(pkg)
 
+    def getInstallList(self):
+        set = self._changeset.getSet()
+        return [pkg for pkg in set if set[pkg] is INSTALL]
+
+    def getRemoveList(self):
+        set = self._changeset.getSet()
+        return [pkg for pkg in set if set[pkg] is REMOVE]
+
     def __str__(self):
         return str(self._changeset)
 
@@ -321,7 +329,13 @@ class Transaction(object):
                 # More than one package provide it.
                 alternatives = []
                 failures = []
-                for prvpkg in prvpkgs:
+                prvpkgs = [(-pkg.precedence, prvpkg) for prvpkg in prvpkgs]
+                prvpkgs.sort()
+                lastprecedence = None
+                for precedence, prvpkg in prvpkgs:
+                    if precedence != lastprecedence and alternatives:
+                        break
+                    lastprecedence = precedence
                     try:
                         cs = changeset.copy()
                         self.install(prvpkg, cs, locked)
@@ -339,6 +353,8 @@ class Transaction(object):
                 self.install(prvpkgs[0], changeset, locked)
 
     def remove(self, pkg, changeset=None, locked=None):
+        if pkg.essential:
+            raise Failed, "can't remove %s: it's an essential package"
         if not locked:
             locked = self._policy.getLockedSet().copy()
         else:
