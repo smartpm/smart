@@ -729,7 +729,7 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = sysconf.filterByFlag("new", packages)
 
         if self._searchbar.get_property("visible"):
-            search = [re.compile("\s+".join(x.split()))
+            search = [re.compile("\s+".join(x.split()), re.I)
                       for x in shlex.split(self._searchentry.get_text())]
             if not search:
                 packages = []
