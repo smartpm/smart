@@ -271,7 +271,7 @@ class RPMCallback:
             self.data["item-number"] += 1
             self.prog.add(1)
             if infopath in self.upgradednames:
-                topic = _("Removing old %s") % infopath
+                topic = _("Cleaning %s") % infopath
             else:
                 topic = _("Removing %s") % infopath
             self.prog.setSubTopic(subkey, topic)
@@ -285,7 +285,7 @@ class RPMCallback:
                 self.data["item-number"] += 1
                 self.prog.add(1)
                 if infopath in self.upgradednames:
-                    topic = _("Removing old %s") % infopath
+                    topic = _("Cleaning %s") % infopath
                 else:
                     topic = _("Removing %s") % infopath
                 self.prog.setSubTopic(subkey, topic)

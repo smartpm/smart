@@ -159,7 +159,7 @@ class APTDEBChannel(PackageChannel):
                 packages += ".gz"
                 url += ".gz"
             elif packages not in md5sum:
-                iface.warning(_("Component '%s' is not in Release file\n"
+                iface.warning(_("Component '%s' is not in Release file "
                                 "for channel '%s'") % (comp, self))
                 continue
             else:

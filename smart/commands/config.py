@@ -37,7 +37,7 @@ EXAMPLES=_("""
 smart config --set someoption.suboption=10
 smart config --remove someoption
 smart config --show someoption
-smart config --dump
+smart config --show
 """)
 
 def parse_options(argv):

@@ -43,9 +43,6 @@ Currently known flags are:
   multi-version - Flagged packages may have more than one version
                   installed in the system at the same time
                   (backend dependent).
-  multi-arch    - Flagged packages may have more than one
-                  architecture installed in the system at the same
-                  time (backend dependent).
 """)
 
 EXAMPLES=_("""

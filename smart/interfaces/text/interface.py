@@ -62,7 +62,7 @@ class TextInterface(Interface):
         self.hideStatus()
         if question[-1] in ".!?":
             question = question[:-1]
-        mask = default and _("%s? (Y/n): ") or _("%s? (y/N): ")
+        mask = default and _("%s (Y/n): ") or _("%s (y/N): ")
         res = raw_input(mask % question).strip().lower()
         print
         if res:
@@ -176,7 +176,7 @@ class TextInterface(Interface):
         if pkgs:
             pkgs = cvt(pkgs)
             pkgs.sort()
-            print _("Removed packages: (%d)") % len(pkgs)
+            print _("Removed packages (%d):") % len(pkgs)
             printColumns(pkgs, indent=2, width=screenwidth)
             print
         dsize = report.getDownloadSize()

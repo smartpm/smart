@@ -38,18 +38,13 @@ try:
 except IOError, e:
     _ = lambda s: unicode(s)
 else:
+    import codecs
     try:
-        sys = reload(sys)
-        sys.setdefaultencoding(locale.getpreferredencoding())
-    except AttributeError:
-        class StdOut(object):
-            def write(self, obj,
-                      _stdout=sys.stdout,
-                      _encoding=locale.getpreferredencoding()):
-                if type(obj) is unicode:
-                    obj = obj.encode(_encoding)
-                _stdout.write(obj)
-        sys.stdout = StdOut()
+        encoding = locale.getpreferredencoding()
+        sys.stdout = codecs.getwriter(encoding)(sys.stdout)
+        del encoding
+    except LookupError:
+        pass
 
 class Proxy:
     def __init__(self, object=None):

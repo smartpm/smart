@@ -162,7 +162,7 @@ class APTRPMChannel(PackageChannel):
                 pkglist += ".gz"
                 url += ".gz"
             elif pkglist not in md5sum:
-                iface.warning(_("Component '%s' is not in release file\n"
+                iface.warning(_("Component '%s' is not in release file "
                                 "for channel '%s'") % (comp, self))
                 continue
             else:

@@ -26,6 +26,14 @@ import sys, os
 
 __all__ = ["OptionParser", "OptionValueError", "append_all"]
 
+try:
+    optparse.STD_HELP_OPTION.help = \
+            _("show this help message and exit")
+    optparse.STD_VERSION_OPTION.help = \
+            _("show program's version number and exit")
+except AttributeError:
+    optparse._ = _
+
 OptionValueError = optparse.OptionValueError
 
 class HelpFormatter(optparse.HelpFormatter):
@@ -37,7 +45,9 @@ class HelpFormatter(optparse.HelpFormatter):
         return _("Usage: %s\n") % usage
 
     def format_heading(self, heading):
+        heading = _(heading)
         return "\n%*s%s:\n" % (self.current_indent, "", heading.capitalize())
+        _("options")
 
     def format_description(self, description):
         return description.strip()
@@ -70,7 +80,7 @@ class OptionParser(optparse.OptionParser):
             result = result.strip()
             result += "\n"
             if self._examples:
-                result += formatter.format_heading("examples")
+                result += formatter.format_heading(_("examples"))
                 formatter.indent()
                 for line in self._examples.strip().splitlines():
                     result += " "*formatter.current_indent
