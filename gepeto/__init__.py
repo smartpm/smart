@@ -50,23 +50,24 @@ def init(opts=None):
     from gepeto.control import Control
 
     sysconf.object = SysConfig()
-    if opts and opts.log_level:
-        level = {"error": ERROR, "warning": WARNING,
-                 "debug": DEBUG, "info": INFO}.get(opts.log_level)
-        if level is None:
-            raise Error, "unknown log level"
-        sysconf.set("log-level", level, soft=True)
-    if opts and opts.data_dir:
-        datadir = os.path.expanduser(opts.data_dir)
-        sysconf.set("data-dir", datadir, soft=True)
+    if opts:
+        if opts.log_level:
+            level = {"error": ERROR, "warning": WARNING,
+                     "debug": DEBUG, "info": INFO}.get(opts.log_level)
+            if level is None:
+                raise Error, "unknown log level"
+            sysconf.set("log-level", level, soft=True)
+        if opts.data_dir:
+            datadir = os.path.expanduser(opts.data_dir)
+            sysconf.set("data-dir", datadir, soft=True)
     ctrl = Control(opts and opts.config_file)
-    if opts.gui:
+    if opts and opts.gui:
         ifacename = sysconf.get("default-gui", "gtk")
     elif opts and opts.interface:
         ifacename = opts.interface
     else:
         ifacename = "text"
-    iface.object = createInterface(ifacename, not bool(opts.command))
+    iface.object = createInterface(ifacename, not bool(opts and opts.command))
     if os.path.isfile(DISTROFILE):
         execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
                               "sysconf": sysconf})
