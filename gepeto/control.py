@@ -557,17 +557,24 @@ class AvailableChannelSet(object):
 
         progress.stop()
 
+class ChannelSorter(object):
+    def __init__(self, channel):
+        self.channel = channel
+    def __cmp__(self, other):
+        rc = -cmp(isinstance(self.channel, FileChannel),
+                  isinstance(other.channel, FileChannel))
+        if rc == 0:
+            rc = -cmp(self.channel.isRemovable(), other.channel.isRemovable())
+        return rc
+
 def getChannelsWithPackages(packages):
     channels = {}
     for pkg in packages:
-        channel = None
-        for loader in pkg.loaders:
-            if loader.getInstalled():
-                continue
-            channel = loader.getChannel()
-            if not channel.isRemovable():
-                break
-        assert channel, "Received invalid package set"
+        sorters = [ChannelSorter(x.getChannel()) for x in pkg.loaders
+                   if not x.getInstalled()]
+        assert sorters, "Received invalid package set"
+        sorters.sort()
+        channel = sorters[0].channel
         try:
             channels[channel].append(pkg)
         except KeyError:

@@ -124,6 +124,7 @@ class FileChannel(Channel):
         if not loaders:
             raise Error, "Unable to find loader for file: %s" % filename
         self._loader = loaders[0]
+        self._loader.setChannel(self)
 
 
 class ChannelDataError(Error): pass
