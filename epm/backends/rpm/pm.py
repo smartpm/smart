@@ -25,6 +25,7 @@ class RPMPackageManager(PackageManager):
                             obsoleting[obspkg] = True
 
         ts = rpm.ts()
+        packagesTotal = 0
         for pkg in set:
             if not isinstance(pkg, RPMPackage):
                 continue
@@ -33,22 +34,31 @@ class RPMPackageManager(PackageManager):
                 loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
                 info = loader.getInfo(pkg)
                 mode = pkg in obsoleting and "u" or "i"
-                ts.addInstall(info.getHeader(), info, mode)
+                url = info.getURL()
+                if not url.startswith("file://"):
+                    raise Error, "Ooops.. not yet supported."
+                fd = os.open(url[7:], os.O_RDONLY)
+                h = ts.hdrFromFdno(fd)
+                os.close(fd)
+                ts.addInstall(h, info, mode)
+                packagesTotal += 1
             elif pkg not in obsoleted:
                 version = pkg.version
                 if ":" in version:
                     version = version[version.find(":")+1:]
                 ts.addErase("%s-%s" % (pkg.name, version))
         ts.order()
-        ts.run(RPMStandardCallback(), None)
+        cb = RPMStandardCallback(packagesTotal)
+        ts.run(cb, None)
 
 
 class RPMStandardCallback:
-    def __init__(self):
+    def __init__(self, packagesTotal):
         self.hashesPrinted = 0
-        self.packagesTotal = 0
+        self.packagesTotal = packagesTotal
         self.progressTotal = 0
         self.progressCurrent = 0
+        self.fd = None
 
     def __call__(self, what, amount, total, info, data):
 
@@ -57,17 +67,22 @@ class RPMStandardCallback:
             if not url.startswith("file://"):
                 raise Error, "Ooops.. not yet supported."
             filename = url[7:]
-            fd = os.open(filename, os.O_RDONLY)
-            return fd
+            self.fd = os.open(filename, os.O_RDONLY)
+            return self.fd
+        
+        elif what == rpm.RPMCALLBACK_INST_CLOSE_FILE:
+            if self.fd is not None:
+                os.close(self.fd)
+                self.fd = None
 
         elif what == rpm.RPMCALLBACK_INST_START:
             self.hashesPrinted = 0
-            h = info.getHeader()
-            s = h[rpm.RPMTAG_NAME]
+            name = info.getPackage().name
             if sys.stdout.isatty():
-                sys.stdout.write("%4d:%-23.23s" % (self.progressCurrent+1, s))
+                sys.stdout.write("%4d:%-23.23s" %
+                                 (self.progressCurrent+1, name))
             else:
-                sys.stdout.write("%-28.28s" % s)
+                sys.stdout.write("%-28.28s" % name)
             sys.stdout.flush()
 
         elif (what == rpm.RPMCALLBACK_TRANS_PROGRESS or

@@ -18,7 +18,8 @@ CRPMTAG_UPDATE_URL        = 1000023
 
 class RPMHeaderPackageInfo(PackageInfo):
 
-    def __init__(self, loader, header):
+    def __init__(self, package, loader, header):
+        PackageInfo.__init__(self, package)
         self._loader = loader
         self._h = header
 
@@ -150,7 +151,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         file = open(self._filename)
         file.seek(pkg.loaderinfo[self])
         h, offset = rpm.readHeaderFromFD(file.fileno())
-        info = RPMHeaderPackageInfo(self, h)
+        info = RPMHeaderPackageInfo(pkg, self, h)
         file.close()
         return info
 
@@ -204,7 +205,7 @@ class RPMDBLoader(RPMHeaderLoader):
     def getInfo(self, pkg):
         ts = rpm.ts()
         mi = ts.dbMatch(0, pkg.loaderinfo[self])
-        return RPMHeaderPackageInfo(self, mi.next())
+        return RPMHeaderPackageInfo(pkg, self, mi.next())
 
     def getURL(self):
         return None
@@ -238,7 +239,7 @@ class RPMFileLoader(RPMHeaderLoader):
         file = open(self._filename)
         ts = rpm.ts()
         h = ts.hdrFromFdno(file.fileno())
-        info = RPMHeaderPackageInfo(self, h)
+        info = RPMHeaderPackageInfo(pkg, self, h)
         file.close()
         return info
 

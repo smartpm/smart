@@ -38,6 +38,12 @@ class Package(object):
         return rc
 
 class PackageInfo(object):
+    def __init__(self, package):
+        self._package = package
+
+    def getPackage(self):
+        return self._package
+
     def getDescription(self):
         return ""
 
