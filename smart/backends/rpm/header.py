@@ -29,6 +29,11 @@ import stat
 import rpm
 import os
 
+try:
+    import rpmhelper
+except ImportError:
+    rpmhelper = None
+
 CRPMTAG_FILENAME          = 1000000
 CRPMTAG_FILESIZE          = 1000001
 CRPMTAG_MD5               = 1000005
@@ -466,10 +471,16 @@ class RPMDBLoader(RPMHeaderLoader):
             prog.show()
         prog.add(1)
 
-    def getHeader(self, pkg):
-        ts = rpm.ts(sysconf.get("rpm-root", "/"))
-        mi = ts.dbMatch(0, pkg.loaders[self])
-        return mi.next()
+    if rpmhelper:
+        def getHeader(self, pkg):
+            ts = rpm.ts(sysconf.get("rpm-root", "/"))
+            mi = rpmhelper.dbMatch(ts, 0, pkg.loaders[self])
+            return mi.next()
+    else:
+        def getHeader(self, pkg):
+            ts = rpm.ts(sysconf.get("rpm-root", "/"))
+            mi = ts.dbMatch(0, pkg.loaders[self])
+            return mi.next()
 
     def getURL(self):
         return None
