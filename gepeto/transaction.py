@@ -856,6 +856,13 @@ class Transaction(object):
                                             "%s conflicts with %s"
                                             % (cnfpkg, pkg))
                                 raise StopIteration
+                # Check packages with the same name that can't
+                # coexist with this one.
+                namepkgs = self._cache.getPackages(pkg.name)
+                for namepkg in namepkgs:
+                    if namepkg is not pkg and not pkg.coexists(namepkg):
+                        iface.debug("Package %s can't coexist with %s" % (namepkg, pkg))
+                        raise StopIteration
             except StopIteration:
                 pass
             else:
