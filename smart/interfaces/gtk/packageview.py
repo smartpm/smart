@@ -128,7 +128,7 @@ class GtkPackageView(gtk.Alignment):
         selection = self._treeview.get_selection()
         selection.set_mode(gtk.SELECTION_MULTIPLE)
 
-        column = gtk.TreeViewColumn("Package")
+        column = gtk.TreeViewColumn(_("Package"))
         renderer = PixbufCellRenderer()
         renderer.set_property("activate", self._pixbufClicked)
         renderer.set_property("xpad", 3)
@@ -141,7 +141,7 @@ class GtkPackageView(gtk.Alignment):
         self._treeview.append_column(column)
 
         renderer = gtk.CellRendererText()
-        self._treeview.insert_column_with_data_func(-1, "Version", renderer,
+        self._treeview.insert_column_with_data_func(-1, _("Version"), renderer,
                                                     self._setVersion)
 
         self._ipixbuf = getPixbuf("package-installed")

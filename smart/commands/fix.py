@@ -26,36 +26,36 @@ from smart import *
 import string
 import re
 
-USAGE="smart fix [options] [package] ..."
+USAGE=_("smart fix [options] [package] ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will try to fix dependencies of installed packages
 which are related to the given packages. Notice that the given
 packages may be currently installed or not. If no packages are
 given, all installed packages will be checked.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart fix
 smart fix pkgname
 smart fix '*kgna*'
 smart fix pkgname-1.0
 smart fix pkgname-1.0-1
 smart fix pkgname1 pkgname2
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
-                      help="split operation in steps")
+                      help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
-                      help="dump needed urls and don't commit operation")
+                      help=_("dump needed urls and don't commit operation"))
     parser.add_option("--download", action="store_true",
-                      help="download packages and don't commit operation")
+                      help=_("download packages and don't commit operation"))
     parser.add_option("-y", "--yes", action="store_true",
-                      help="do not ask for confirmation")
+                      help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -72,15 +72,15 @@ def main(ctrl, opts):
             matcher = MasterMatcher(arg)
             fpkgs = matcher.filter(pkgs)
             if not fpkgs:
-                raise Error, "'%s' matches no packages" % arg
+                raise Error, _("'%s' matches no packages") % arg
             newpkgs.extend(fpkgs)
         pkgs = dict.fromkeys(newpkgs).keys()
     for pkg in pkgs:
         trans.enqueue(pkg, FIX)
-    iface.showStatus("Computing transaction...")
+    iface.showStatus(_("Computing transaction..."))
     trans.run()
     if not trans:
-        iface.showStatus("No problems to resolve!")
+        iface.showStatus(_("No problems to resolve!"))
     else:
         iface.hideStatus()
         confirm = not opts.yes

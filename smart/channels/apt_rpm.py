@@ -59,7 +59,7 @@ class APTRPMChannel(PackageChannel):
             progress.add(self.getFetchSteps()-1)
             progress.show()
             if fetcher.getCaching() is NEVER:
-                lines = ["Failed acquiring information for '%s':" % self,
+                lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
@@ -99,8 +99,8 @@ class APTRPMChannel(PackageChannel):
             sfile = os.fdopen(sfd, "w")
             try:
                 if not hassignature:
-                    raise Error, "Channel '%s' has fingerprint but is not " \
-                                 "signed" % self
+                    raise Error, _("Channel '%s' has fingerprint but is not "
+                                   "signed") % self
 
                 file = rfile
                 for line in open(item.getTargetPath()):
@@ -128,9 +128,9 @@ class APTRPMChannel(PackageChannel):
                         elif first == "BADSIG":
                             badsig = True
                 if badsig:
-                    raise Error, "Channel '%s' has bad signature" % self
+                    raise Error, _("Channel '%s' has bad signature") % self
                 if not goodsig or validsig != self._fingerprint:
-                    raise Error, "Channel '%s' signed with unknown key" % self
+                    raise Error, _("Channel '%s' signed with unknown key")%self
             except Error, e:
                 progress.add(self.getFetchSteps()-1)
                 progress.show()
@@ -162,8 +162,8 @@ class APTRPMChannel(PackageChannel):
                 pkglist += ".gz"
                 url += ".gz"
             elif pkglist not in md5sum:
-                iface.warning("Component '%s' is not in release file\n"
-                              "for channel '%s'" % (comp, self))
+                iface.warning(_("Component '%s' is not in release file\n"
+                                "for channel '%s'") % (comp, self))
                 continue
             else:
                 upkglist = None
@@ -209,8 +209,8 @@ class APTRPMChannel(PackageChannel):
                                               pkgitem.getFailedReason()))
         if errorlines:
             if fetcher.getCaching() is NEVER:
-                errorlines.insert(0, "Failed acquiring information for '%s':" %
-                                     self)
+                errorlines.insert(0, _("Failed acquiring information for "
+                                       "'%s':") % self)
                 raise Error, "\n".join(errorlines)
             return False
 

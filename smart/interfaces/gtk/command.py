@@ -55,7 +55,7 @@ class GtkStatus(object):
     def __init__(self):
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Status")
+        self._window.set_title(_("Status"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_border_width(20)

@@ -164,13 +164,13 @@ class PackageInfo(object):
     def validate(self, url, localpath, withreason=False):
         try:
             if not os.path.isfile(localpath):
-                raise Error, "File not found"
+                raise Error, _("File not found")
 
             size = self.getSize(url)
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
-                    raise Error, "Unexpected size (expected %d, got %d)" % \
+                    raise Error, _("Unexpected size (expected %d, got %d)") % \
                                  (size, lsize)
 
             filemd5 = self.getMD5(url)
@@ -184,7 +184,7 @@ class PackageInfo(object):
                     data = file.read(BLOCKSIZE)
                 lfilemd5 = digest.hexdigest()
                 if lfilemd5 != filemd5:
-                    raise Error, "Invalid MD5 (expected %s, got %s)" % \
+                    raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
             else:
                 filesha = self.getSHA(url)
@@ -198,7 +198,7 @@ class PackageInfo(object):
                         data = file.read(BLOCKSIZE)
                     lfilesha = digest.hexdigest()
                     if lfilesha != filesha:
-                        raise Error, "Invalid SHA (expected %s, got %s)" % \
+                        raise Error, _("Invalid SHA (expected %s, got %s)") % \
                                      (filesha, lfilesha)
         except Error, reason:
             if withreason:
@@ -534,7 +534,7 @@ class Cache(object):
         self._reload()
         prog = iface.getProgress(self)
         prog.start()
-        prog.setTopic("Updating cache...")
+        prog.setTopic(_("Updating cache..."))
         prog.set(0, 1)
         prog.show()
         total = 1

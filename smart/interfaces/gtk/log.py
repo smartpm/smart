@@ -21,6 +21,7 @@
 #
 from smart.const import ERROR, WARNING, DEBUG
 from smart.interfaces.gtk import getPixbuf
+from smart import *
 import gtk, gobject
 import locale
 
@@ -33,7 +34,7 @@ class GtkLog(gtk.Window):
         self.__gobject_init__()
 
         self.set_icon(getPixbuf("smart"))
-        self.set_title("Log")
+        self.set_title(_("Log"))
         self.set_geometry_hints(min_width=400, min_height=300)
         self.set_modal(True)
 
@@ -76,8 +77,8 @@ class GtkLog(gtk.Window):
         return self.get_property("visible")
 
     def message(self, level, msg):
-        prefix = {ERROR: "error", WARNING: "warning",
-                  DEBUG: "debug"}.get(level)
+        prefix = {ERROR: _("error"), WARNING: _("warning"),
+                  DEBUG: _("debug")}.get(level)
         buffer = self._textview.get_buffer()
         iter = buffer.get_end_iter()
         if not isinstance(msg, unicode):

@@ -9,7 +9,7 @@ if sysconf.has("rpm-dir"):
         channel = RPMDirChannel(sysconf.get("rpm-dir"),
                                 "rpm-dir",
                                 "rpm-dir-option",
-                                "Dynamic RPM Directory",
+                                _("Dynamic RPM Directory"),
                                 True, False, 0) 
         return [channel]
     

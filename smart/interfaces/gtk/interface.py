@@ -60,8 +60,6 @@ class GtkInterface(Interface):
         return self._hassubprogress
 
     def askYesNo(self, question, default=False):
-        if question[-1] not in ".!?":
-            question += "?"
         dialog = gtk.MessageDialog(parent=self._window,
                                    flags=gtk.DIALOG_MODAL,
                                    type=gtk.MESSAGE_QUESTION,
@@ -82,11 +80,9 @@ class GtkInterface(Interface):
     def askContCancel(self, question, default=False):
         if question[-1] not in ".!?":
             question += "."
-        return self.askYesNo(question+" Continue", default)
+        return self.askYesNo(question+_(" Continue?"), default)
 
-    def askOkCancel(self, question, default=False, nodot=False):
-        if not nodot and question[-1] not in ".!?":
-            question += "."
+    def askOkCancel(self, question, default=False):
         dialog = gtk.MessageDialog(parent=self._window,
                                    flags=gtk.DIALOG_MODAL,
                                    type=gtk.MESSAGE_INFO,
@@ -105,7 +101,7 @@ class GtkInterface(Interface):
             return default
 
     def askInput(self, prompt, message=None, widthchars=40, echo=True):
-        dialog = gtk.Dialog("Input",
+        dialog = gtk.Dialog(_("Input"),
                             parent=self._window,
                             flags=gtk.DIALOG_MODAL,
                             buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
@@ -145,13 +141,14 @@ class GtkInterface(Interface):
         return result
 
     def insertRemovableChannels(self, channels):
-        question = "Insert one or more of the following removable channels:\n"
+        question = _("Insert one or more of the following removable "
+                     "channels:\n")
         question += "\n"
         for channel in channels:
             question += "    "
             question += channel.getName()
             question += "\n"
-        return self.askOkCancel(question, default=True, nodot=True)
+        return self.askOkCancel(question, default=True)
 
     def message(self, level, msg):
         self._log.message(level, msg)

@@ -80,12 +80,12 @@ class Control(object):
         for channel in hooks.call("create-file-channel", filename):
             if channel:
                 if channel.getAlias() in self._channels:
-                    raise Error, "There's another channel with alias '%s'" \
+                    raise Error, _("There's another channel with alias '%s'") \
                                  % channel.getAlias()
                 self._channels[channel.getAlias()] = channel
                 found = True
         if not found:
-            raise Error, "Unable to create channel for file: %s" % filename
+            raise Error, _("Unable to create channel for file: %s") % filename
 
     def removeFileChannel(self, filename):
         filename = os.path.abspath(filename)
@@ -95,7 +95,7 @@ class Control(object):
                 channel.removeLoaders()
                 break
         else:
-            raise Error, "Channel not found for '%s'" % filename
+            raise Error, _("Channel not found for '%s'") % filename
 
     def askForRemovableChannels(self, channels):
         removable = [(str(x), x) for x in channels if x.isRemovable()]
@@ -129,7 +129,7 @@ class Control(object):
         if confpath:
             confpath = os.path.expanduser(confpath)
             if not os.path.isfile(confpath):
-                raise Error, "Configuration file not found: %s" % confpath
+                raise Error, _("Configuration file not found: %s") % confpath
             sysconf.load(confpath)
             loaded = True
         else:
@@ -146,7 +146,7 @@ class Control(object):
                 os.makedirs(datadir)
                 writable = True
             except OSError:
-                raise Error, "No configuration found!"
+                raise Error, _("No configuration found!")
 
         if writable and not self._pathlocks.lock(datadir, exclusive=True):
             writable = False
@@ -164,7 +164,7 @@ class Control(object):
                 return
 
             if self._cachechanged:
-                iface.showStatus("Saving cache...")
+                iface.showStatus(_("Saving cache..."))
                 cachepath = os.path.join(sysconf.get("data-dir"), "cache")
                 cachefile = open(cachepath+".new", "w")
                 state = (self.__stateversion__,
@@ -206,7 +206,7 @@ class Control(object):
         if channels and not self._channels:
             cachepath = os.path.join(sysconf.get("data-dir"), "cache")
             if os.path.isfile(cachepath):
-                iface.showStatus("Loading cache...")
+                iface.showStatus(_("Loading cache..."))
                 cachefile = open(cachepath)
                 try:
                     state = cPickle.load(cachefile)
@@ -219,7 +219,7 @@ class Control(object):
                     if os.access(os.path.dirname(cachepath), os.W_OK):
                         os.unlink(cachepath)
                 else:
-                    (_,
+                    (__stateversion__,
                      self._cache,
                      self._channels,
                      self._sysconfchannels) = state
@@ -263,8 +263,8 @@ class Control(object):
                 for channel in channels:
                     alias = channel.getAlias()
                     if alias in self._channels:
-                        raise Error, "There's another channel with alias '%s'"\
-                                     % alias
+                        raise Error, _("There's another channel with "
+                                       "alias '%s'") % alias
                     newchannels[alias] = channel
         self._channels.update(newchannels)
         self._dynamicchannels.update(newchannels)
@@ -286,16 +286,16 @@ class Control(object):
             try:
                 os.makedirs(channelsdir)
             except OSError:
-                raise Error, "Unable to create channel directory."
+                raise Error, _("Unable to create channel directory.")
         if caching is ALWAYS:
             if sysconf.getReadOnly() and os.access(channelsdir, os.W_OK):
-                iface.warning("Configuration is in readonly mode!")
+                iface.warning(_("Configuration is in readonly mode!"))
             if not self._pathlocks.lock(channelsdir):
-                raise Error, "Channel information is locked for writing."
+                raise Error, _("Channel information is locked for writing.")
         elif sysconf.getReadOnly():
-            raise Error, "Can't update channels in readonly mode."
+            raise Error, _("Can't update channels in readonly mode.")
         elif not self._pathlocks.lock(channelsdir, exclusive=True):
-            raise Error, "Can't update channels with active readers."
+            raise Error, _("Can't update channels with active readers.")
         self._fetcher.setLocalDir(channelsdir, mangle=True)
 
         # Prepare progress. If we're reading from the cache, we don't want
@@ -331,18 +331,18 @@ class Control(object):
             else:
                 self._fetcher.setCaching(caching)
                 if channel.getFetchSteps() > 0:
-                    progress.setTopic("Fetching information for '%s'..." %
+                    progress.setTopic(_("Fetching information for '%s'...") %
                                   (channel.getName() or channel.getAlias()))
                     progress.show()
             self._fetcher.setForceCopy(channel.isRemovable())
             self._fetcher.setLocalPathPrefix(channel.getAlias()+"%%")
             try:
                 if not channel.fetch(self._fetcher, progress):
-                    iface.debug("Failed fetching channel '%s'" % channel)
+                    iface.debug(_("Failed fetching channel '%s'") % channel)
                     result = False
             except Error, e:
                 iface.error(str(e))
-                iface.debug("Failed fetching channel '%s'" % channel)
+                iface.debug(_("Failed fetching channel '%s'") % channel)
                 result = False
             if (channel.getDigest() != digest and
                 isinstance(channel, PackageChannel)):
@@ -395,7 +395,7 @@ class Control(object):
         for pkg in packages:
             loaders = [x for x in pkg.loaders if not x.getInstalled()]
             if not loaders:
-                raise Error, "Package %s is not available for downloading" \
+                raise Error, _("Package %s is not available for downloading") \
                              % pkg
             info = loaders[0].getInfo(pkg)
             urls.extend(info.getURLs())
@@ -590,7 +590,7 @@ class Control(object):
                 if self._achanset.isAvailable(channel):
                     break
             else:
-                raise Error, "No channel available for package %s" % pkg
+                raise Error, _("No channel available for package %s") % pkg
             info = loader.getInfo(pkg)
             urls = info.getURLs()
             pkgitems[pkg] = []
@@ -607,7 +607,7 @@ class Control(object):
         fetcher.setForceCopy(False)
         failed = fetcher.getFailedSet()
         if failed:
-            raise Error, "Failed to download packages:\n" + \
+            raise Error, _("Failed to download packages:\n") + \
                          "\n".join(["    %s: %s" % (url, failed[url])
                                     for url in failed])
         pkgpaths = {}
@@ -743,7 +743,7 @@ def getChannelsWithPackages(packages):
         sorters = [ChannelSorter(x.getChannel()) for x in pkg.loaders
                    if not x.getInstalled()]
         if not sorters:
-            raise Error, "%s is not available for downloading" % pkg
+            raise Error, _("%s is not available for downloading") % pkg
         sorters.sort()
         channel = sorters[0].channel
         try:

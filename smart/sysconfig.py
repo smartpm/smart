@@ -70,12 +70,12 @@ class SysConfig(object):
 
     def assertWritable(self):
         if self._readonly:
-            raise Error, "Configuration is in readonly mode."
+            raise Error, _("Configuration is in readonly mode.")
 
     def load(self, filepath):
         filepath = os.path.expanduser(filepath)
         if not os.path.isfile(filepath):
-            raise Error, "file not found: %s" % filepath
+            raise Error, _("File not found: %s") % filepath
         file = open(filepath)
         self._hardmap.clear()
         try:

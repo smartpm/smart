@@ -36,7 +36,7 @@ class RPMPackageManager(PackageManager):
 
         prog = iface.getProgress(self, True)
         prog.start()
-        prog.setTopic("Committing transaction...")
+        prog.setTopic(_("Committing transaction..."))
         prog.set(0, len(changeset))
         prog.show()
 
@@ -75,12 +75,12 @@ class RPMPackageManager(PackageManager):
             sorted = sorter.getSorted()
             forcerpmorder = False
         except LoopError:
-            lines = ["Found unbreakable loops:"]
+            lines = [_("Found unbreakable loops:")]
             for path in sorter.getLoopPaths(sorter.getLoops()):
                 path = ["%s [%s]" % (pkg, op is INSTALL and "I" or "R")
                         for pkg, op in path]
                 lines.append("    "+" -> ".join(path))
-            lines.append("Will ask RPM to order it.")
+            lines.append(_("Will ask RPM to order it."))
             iface.error("\n".join(lines))
             sys.exit(1)
             forcerpmorder = True
@@ -124,7 +124,7 @@ class RPMPackageManager(PackageManager):
         del upgraded
         del upgrading
 
-        force = sysconf.get("rpm-force", False)
+        force = sysconf.get("rpm-force", True)
         if not force:
             probs = ts.check()
             if probs:
@@ -144,9 +144,9 @@ class RPMPackageManager(PackageManager):
                         name2 += " "
                         name2 += version
                     if prob[4] == rpm.RPMDEP_SENSE_REQUIRES:
-                        line = "%s requires %s" % (name1, name2)
+                        line = _("%s requires %s") % (name1, name2)
                     else:
-                        line = "%s conflicts with %s" % (name1, name2)
+                        line = _("%s conflicts with %s") % (name1, name2)
                     problines.append(line)
                 raise Error, "\n".join(problines)
         if forcerpmorder or sysconf.get("rpm-order"):
@@ -230,8 +230,8 @@ class RPMCallback:
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
             pkgstr = str(info.getPackage())
-            iface.debug("Processing %s in %s" % (pkgstr, path))
-            self.topic = "Output from %s:" % pkgstr
+            iface.debug(_("Processing %s in %s") % (pkgstr, path))
+            self.topic = _("Output from %s:") % pkgstr
             self.fd = os.open(path, os.O_RDONLY)
             setCloseOnExec(self.fd)
             return self.fd
@@ -246,7 +246,7 @@ class RPMCallback:
             pkg = info.getPackage()
             self.data["item-number"] += 1
             self.prog.add(1)
-            self.prog.setSubTopic(infopath, "Installing %s" % pkg.name)
+            self.prog.setSubTopic(infopath, _("Installing %s") % pkg.name)
             self.prog.setSub(infopath, 0, 1, subdata=self.data)
             self.prog.show()
 
@@ -257,7 +257,7 @@ class RPMCallback:
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_START:
-            self.prog.setSubTopic("trans", "Preparing...")
+            self.prog.setSubTopic("trans", _("Preparing..."))
             self.prog.setSub("trans", 0, 1)
             self.prog.show()
 
@@ -266,14 +266,14 @@ class RPMCallback:
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_UNINST_START:
-            self.topic = "Output from %s:" % infopath
+            self.topic = _("Output from %s:") % infopath
             subkey =  "R*"+infopath
             self.data["item-number"] += 1
             self.prog.add(1)
             if infopath in self.upgradednames:
-                topic = "Removing old %s" % infopath
+                topic = _("Removing old %s") % infopath
             else:
-                topic = "Removing %s" % infopath
+                topic = _("Removing %s") % infopath
             self.prog.setSubTopic(subkey, topic)
             self.prog.setSub(subkey, 0, 1, subdata=self.data)
             self.prog.show()
@@ -285,9 +285,9 @@ class RPMCallback:
                 self.data["item-number"] += 1
                 self.prog.add(1)
                 if infopath in self.upgradednames:
-                    topic = "Removing old %s" % infopath
+                    topic = _("Removing old %s") % infopath
                 else:
-                    topic = "Removing %s" % infopath
+                    topic = _("Removing %s") % infopath
                 self.prog.setSubTopic(subkey, topic)
                 self.prog.setSub(subkey, 1, 1, subdata=self.data)
             else:

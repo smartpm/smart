@@ -47,7 +47,7 @@ class Interface(object):
                 if sysconf.get("log-level") == DEBUG:
                     import traceback
                     traceback.print_exc()
-                raise Error, "Invalid command '%s'" % command
+                raise Error, _("Invalid command '%s'") % command
             opts = _command.parse_options(argv or [])
             result = _command.main(self._ctrl, opts)
         return result
@@ -81,9 +81,9 @@ class Interface(object):
         if caching is not NEVER and location in self._passwdcache:
             passwd = self._passwdcache[location]
         elif caching is not ALWAYS:
-            passwd = self.askInput("Password",
-                                   "A password is needed for '%s'." % location,
-                                   echo=False, widthchars=16)
+            passwd = self.askInput(_("Password"),
+                                   _("A password is needed for '%s'.")
+                                   % location, echo=False, widthchars=16)
             self._passwdcache[location] = passwd
         return passwd
 
@@ -148,7 +148,7 @@ def createInterface(name, ctrl, command=None, argv=None):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, "Invalid interface '%s'" % name
+        raise Error, _("Invalid interface '%s'") % name
     return interface.create(ctrl, command, argv)
 
 def getImagePath(name, _dirname=os.path.dirname(_images__file__)):

@@ -24,9 +24,9 @@ from smart import *
 import string
 import re
 
-USAGE="smart priority [options]"
+USAGE=_("smart priority [options]")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command allows changing the priority of given packages.
 Packages with higher priorities are considered a better option
 even when package versions state otherwise. Using priorities
@@ -36,29 +36,29 @@ of interesting setups. When a package has no explicit priority,
 the channel priority is used. The channel priority may be
 changed using the 'channel' command, and defaults to 0 when
 not set.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart priority --set pkgname 100
 smart priority --set pkgname mychannel -200
 smart priority --remove pkgname 100
 smart priority --remove pkgname mychannel -200
 smart priority --show
 smart priority --show pkgname
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--set", action="store_true",
-                      help="set priority")
+                      help=_("set priority"))
     parser.add_option("--remove", action="store_true",
-                      help="unset priority")
+                      help=_("unset priority"))
     parser.add_option("--show", action="store_true",
-                      help="show priorities")
+                      help=_("show priorities"))
     parser.add_option("--force", action="store_true",
-                      help="ignore problems")
+                      help=_("ignore problems"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -72,11 +72,11 @@ def main(ctrl, opts):
         elif len(opts.args) == 3:
             name, alias, priority = opts.args
         else:
-            raise Error, "Invalid arguments"
+            raise Error, _("Invalid arguments")
         try:
             priority = int(priority)
         except ValueError:
-            raise Error, "Invalid priority"
+            raise Error, _("Invalid priority")
         sysconf.setPriority(name, alias, priority)
 
     elif opts.remove:
@@ -86,12 +86,12 @@ def main(ctrl, opts):
         elif len(opts.args) == 2:
             name, alias = opts.args
         else:
-            raise Error, "Invalid arguments"
+            raise Error, _("Invalid arguments")
         if not sysconf.removePriority(name, alias, priority):
-            iface.warning("Priority not found")
+            iface.warning(_("Priority not found"))
 
     elif opts.show:
-        header = ("Package", "Channel", "Priority")
+        header = (_("Package"), _("Channel"), _("Priority"))
         print "%-30s %-20s %s" % header
         print "-"*(52+len(header[-1]))
         priorities = sysconf.get("package-priorities")

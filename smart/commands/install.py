@@ -28,15 +28,15 @@ import string
 import re
 import os
 
-USAGE="smart install [options] package ..."
+USAGE=_("smart install [options] package ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will install one or more packages in the
 system. If a new version of an already installed package
 is available, it will be selected for installation.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart install pkgname
 smart install '*kgna*'
 smart install pkgname-1.0
@@ -44,20 +44,20 @@ smart install pkgname-1.0-1
 smart install pkgname1 pkgname2
 smart install ./somepackage.file
 smart install http://some.url/some/path/somepackage.file
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
-                      help="split operation in steps")
+                      help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
-                      help="dump needed urls and don't commit operation")
+                      help=_("dump needed urls and don't commit operation"))
     parser.add_option("--download", action="store_true",
-                      help="download packages and don't commit operation")
+                      help=_("download packages and don't commit operation"))
     parser.add_option("-y", "--yes", action="store_true",
-                      help="do not ask for confirmation")
+                      help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -73,9 +73,10 @@ def main(ctrl, opts):
             elif ":/" in arg:
                 urls.append(arg)
     if urls:
-        succ, fail = ctrl.downloadURLs(urls, "packages", targetdir=os.getcwd())
+        succ, fail = ctrl.downloadURLs(urls, _("packages"),
+                                       targetdir=os.getcwd())
         if fail:
-            raise Error, "Failed to download packages:\n" + \
+            raise Error, _("Failed to download packages:\n") + \
                          "\n".join(["    %s: %s" % (url, fail[url])
                                     for url in fail])
         for url, file in succ.items():
@@ -88,13 +89,13 @@ def main(ctrl, opts):
         for loader in channel.getLoaders():
             for pkg in loader.getPackages():
                 if pkg.installed:
-                    raise Error, "%s is already installed" % pkg
+                    raise Error, _("%s is already installed") % pkg
                 trans.enqueue(pkg, INSTALL)
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         pkgs = matcher.filter(cache.getPackages())
         if not pkgs:
-            raise Error, "'%s' matches no packages" % arg
+            raise Error, _("'%s' matches no packages") % arg
         if len(pkgs) > 1:
             sortUpgrades(pkgs)
         names = {}
@@ -104,13 +105,13 @@ def main(ctrl, opts):
         for name in names:
             pkg = names[name][0]
             if pkg.installed:
-                iface.warning("%s is already installed" % pkg)
+                iface.warning(_("%s is already installed") % pkg)
             else:
                 found = True
                 trans.enqueue(pkg, INSTALL)
         if not found:
-            raise Error, "No uninstalled packages matched '%s'" % arg
-    iface.showStatus("Computing transaction...")
+            raise Error, _("No uninstalled packages matched '%s'") % arg
+    iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()
     if trans:

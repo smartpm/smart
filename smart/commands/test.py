@@ -24,7 +24,7 @@ from smart import *
 import string
 import re
 
-USAGE="smart test [options]"
+USAGE=_("smart test [options]")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)

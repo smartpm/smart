@@ -76,7 +76,7 @@ class APTDEBChannel(PackageChannel):
             progress.add(self.getFetchSteps()-2)
             progress.show()
             if fetcher.getCaching() is NEVER:
-                lines = ["Failed acquiring information for '%s':" % self,
+                lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
@@ -109,8 +109,8 @@ class APTDEBChannel(PackageChannel):
             try:
                 failed = gpgitem.getFailedReason()
                 if failed:
-                    raise Error, "Channel '%s' has fingerprint but download " \
-                                 "of Release.gpg failed: %s" % (self, failed)
+                    raise Error, _("Channel '%s' has fingerprint but download "
+                                   "of Release.gpg failed: %s")%(self, failed)
 
                 status, output = commands.getstatusoutput(
                     "gpg --batch --no-secmem-warning --status-fd 1 "
@@ -131,9 +131,10 @@ class APTDEBChannel(PackageChannel):
                         elif first == "BADSIG":
                             badsig = True
                 if badsig:
-                    raise Error, "Channel '%s' has bad signature" % self
+                    raise Error, _("Channel '%s' has bad signature") % self
                 if not goodsig or validsig != self._fingerprint:
-                    raise Error, "Channel '%s' signed with unknown key" % self
+                    raise Error, _("Channel '%s' signed with unknown key") \
+                                 % self
             except Error, e:
                 progress.add(self.getFetchSteps()-2)
                 progress.show()
@@ -158,8 +159,8 @@ class APTDEBChannel(PackageChannel):
                 packages += ".gz"
                 url += ".gz"
             elif packages not in md5sum:
-                iface.warning("Component '%s' is not in Release file\n"
-                              "for channel '%s'" % (comp, self))
+                iface.warning(_("Component '%s' is not in Release file\n"
+                                "for channel '%s'") % (comp, self))
                 continue
             else:
                 upackages = None
@@ -205,8 +206,8 @@ class APTDEBChannel(PackageChannel):
 
         if errorlines:
             if fetcher.getCaching() is NEVER:
-                errorlines.insert(0, "Failed acquiring information for '%s':" %
-                                     self)
+                errorlines.insert(0, _("Failed acquiring information for '%s':")
+                                     % self)
                 raise Error, "\n".join(errorlines)
             return False
 

@@ -439,7 +439,7 @@ class ElementSorter(object):
         self._profile(2)
 
         if not brokeall:
-            raise LoopError, "Unbreakable loops found while sorting"
+            raise LoopError, _("Unbreakable loops found while sorting")
 
         for pred, succ, kind in self._disabled:
             predcount[succ] -= 1
@@ -464,7 +464,7 @@ class ElementSorter(object):
         self._profile(3)
 
         if len(result) != len(successors):
-            raise Error, "Internal error: there are still loops (%d != %d)!" \
+            raise Error, _("Internal error: there are still loops (%d != %d)!")\
                          % (len(result), len(successors))
 
         return result

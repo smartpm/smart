@@ -385,8 +385,8 @@ class Transaction(object):
                         locked[prvpkg] = True
                         continue
                     if prvpkg in locked:
-                        raise Failed, "Can't install %s: conflicted package " \
-                                      "%s is locked" % (pkg, prvpkg)
+                        raise Failed, _("Can't install %s: conflicted package "
+                                        "%s is locked") % (pkg, prvpkg)
                     self._remove(prvpkg, changeset, locked, pending, depth)
                     pending.append((PENDING_UPDOWN, prvpkg))
 
@@ -398,8 +398,9 @@ class Transaction(object):
                         locked[cnfpkg] = True
                         continue
                     if cnfpkg in locked:
-                        raise Failed, "Can't install %s: it's conflicted by " \
-                                      "the locked package %s" % (pkg, cnfpkg)
+                        raise Failed, _("Can't install %s: it's conflicted by "
+                                        "the locked package %s") \
+                                      % (pkg, cnfpkg)
                     self._remove(cnfpkg, changeset, locked, pending, depth)
                     pending.append((PENDING_UPDOWN, cnfpkg))
 
@@ -412,8 +413,8 @@ class Transaction(object):
                     locked[namepkg] = True
                     continue
                 if namepkg in locked:
-                    raise Failed, "Can't install %s: it can't coexist " \
-                                  "with %s" % (pkg, namepkg)
+                    raise Failed, _("Can't install %s: it can't coexist "
+                                    "with %s") % (pkg, namepkg)
                 self._remove(namepkg, changeset, locked, pending, depth)
 
         # Install packages required by this one.
@@ -440,7 +441,7 @@ class Transaction(object):
 
             if not prvpkgs:
                 # No packages provide it at all. Give up.
-                raise Failed, "Can't install %s: no package provides %s" % \
+                raise Failed, _("Can't install %s: no package provides %s") % \
                               (pkg, req)
 
             if len(prvpkgs) == 1:
@@ -458,7 +459,7 @@ class Transaction(object):
         #depth += 1
 
         if pkg.essential:
-            raise Failed, "Can't remove %s: it's an essential package"
+            raise Failed, _("Can't remove %s: it's an essential package")
 
         locked[pkg] = True
         changeset.set(pkg, REMOVE)
@@ -509,8 +510,8 @@ class Transaction(object):
                         if not isinst(reqpkg):
                             continue
                         if reqpkg in locked:
-                            raise Failed, "Can't remove %s: %s is locked" % \
-                                          (pkg, reqpkg)
+                            raise Failed, _("Can't remove %s: %s is locked") \
+                                          % (pkg, reqpkg)
                         self._remove(reqpkg, changeset, locked, pending, depth)
                         pending.append((PENDING_UPDOWN, reqpkg))
 
@@ -640,8 +641,8 @@ class Transaction(object):
 
                 if not prvpkgs:
                     # No packages provide it at all. Give up.
-                    raise Failed, "Can't install %s: no package provides %s" % \
-                                  (pkg, req)
+                    raise Failed, _("Can't install %s: no package "
+                                    "provides %s") % (pkg, req)
 
                 if len(prvpkgs) > 1:
                     # More than one package provide it. We use _pending here,
@@ -667,8 +668,8 @@ class Transaction(object):
                                                  keeporder, cs, lk))
                             keeporder += 0.000001
                     if not alternatives:
-                        raise Failed, "Can't install %s: all packages providing " \
-                                      "%s failed to install:\n%s" \
+                        raise Failed, _("Can't install %s: all packages "
+                                        "providing %s failed to install:\n%s")\
                                       % (pkg, req,  "\n".join(failures))
                     alternatives.sort()
                     changeset.setState(alternatives[0][1])
@@ -730,8 +731,8 @@ class Transaction(object):
 
                     for reqpkg in reqpkgs:
                         if reqpkg in locked and isinst(reqpkg):
-                            raise Failed, "Can't remove %s: requiring " \
-                                          "package %s is locked" % \
+                            raise Failed, _("Can't remove %s: requiring "
+                                            "package %s is locked") % \
                                           (pkg, reqpkg)
                     for reqpkg in reqpkgs:
                         # We check again, since other actions may have
@@ -739,8 +740,8 @@ class Transaction(object):
                         if not isinst(reqpkg):
                             continue
                         if reqpkg in locked:
-                            raise Failed, "Can't remove %s: requiring " \
-                                          "package %s is locked" % \
+                            raise Failed, _("Can't remove %s: requiring "
+                                            "package %s is locked") % \
                                           (pkg, reqpkg)
                         self._remove(reqpkg, changeset, locked,
                                      pending, depth)
@@ -754,12 +755,12 @@ class Transaction(object):
                 try:
                     for reqpkg in reqpkgs:
                         if reqpkg in locked and isinst(reqpkg):
-                            raise Failed, "%s is locked" % reqpkg
+                            raise Failed, _("%s is locked") % reqpkg
                     for reqpkg in reqpkgs:
                         if not cs.installed(reqpkg):
                             continue
                         if reqpkg in lk:
-                            raise Failed, "%s is locked" % reqpkg
+                            raise Failed, _("%s is locked") % reqpkg
                         _pending = []
                         self._remove(reqpkg, cs, lk, _pending, depth)
                         if _pending:
@@ -770,8 +771,8 @@ class Transaction(object):
                     alternatives.append((getweight(cs), cs, lk))
 
                 if not alternatives:
-                    raise Failed, "Can't install %s: all packages providing " \
-                                  "%s failed to install:\n%s" \
+                    raise Failed, _("Can't install %s: all packages providing "
+                                    "%s failed to install:\n%s") \
                                   % (pkg, prv,  "\n".join(failures))
 
                 alternatives.sort()
@@ -837,23 +838,23 @@ class Transaction(object):
                             continue
                         break
                     else:
-                        iface.debug("Unsatisfied dependency: "
-                                    "%s requires %s" % (pkg, req))
+                        iface.debug(_("Unsatisfied dependency: "
+                                      "%s requires %s") % (pkg, req))
                         raise StopIteration
                 for cnf in pkg.conflicts:
                     for prv in cnf.providedby:
                         for prvpkg in prv.packages:
                             if isinst(prvpkg):
-                                iface.debug("Unsatisfied dependency: "
-                                            "%s conflicts with %s"
+                                iface.debug(_("Unsatisfied dependency: "
+                                              "%s conflicts with %s")
                                             % (pkg, prvpkg))
                                 raise StopIteration
                 for prv in pkg.provides:
                     for cnf in prv.conflictedby:
                         for cnfpkg in cnf.packages:
                             if isinst(cnfpkg):
-                                iface.debug("Unsatisfied dependency: "
-                                            "%s conflicts with %s"
+                                iface.debug(_("Unsatisfied dependency: "
+                                              "%s conflicts with %s")
                                             % (cnfpkg, pkg))
                                 raise StopIteration
                 # Check packages with the same name that can't
@@ -862,7 +863,7 @@ class Transaction(object):
                 for namepkg in namepkgs:
                     if (isinst(namepkg) and namepkg is not pkg
                         and not pkg.coexists(namepkg)):
-                        iface.debug("Package %s can't coexist with %s" %
+                        iface.debug(_("Package %s can't coexist with %s") %
                                     (namepkg, pkg))
                         raise StopIteration
             except StopIteration:
@@ -903,7 +904,8 @@ class Transaction(object):
                 alternatives.append((getweight(cs), cs))
 
             if not alternatives:
-                raise Failed, "Can't fix %s:\n%s" % (pkg, "\n".join(failures))
+                raise Failed, _("Can't fix %s:\n%s") % \
+                              (pkg, "\n".join(failures))
 
             alternatives.sort()
             changeset.setState(alternatives[0][1])
@@ -955,15 +957,15 @@ class Transaction(object):
                         del changeset[pkg]
                 elif op is INSTALL:
                     if not isinst(pkg) and pkg in locked:
-                        raise Failed, "Can't install %s: it's locked" % pkg
+                        raise Failed, _("Can't install %s: it's locked") % pkg
                     changeset.set(pkg, INSTALL)
                 elif op is REMOVE:
                     if isinst(pkg) and pkg in locked:
-                        raise Failed, "Can't remove %s: it's locked" % pkg
+                        raise Failed, _("Can't remove %s: it's locked") % pkg
                     changeset.set(pkg, REMOVE)
                 elif op is REINSTALL:
                     if pkg in locked:
-                        raise Failed, "Can't reinstall %s: it's locked" % pkg
+                        raise Failed, _("Can't reinstall %s: it's locked")%pkg
                     changeset.set(pkg, INSTALL, force=True)
 
             upgpkgs = []
@@ -1135,8 +1137,8 @@ class ChangeSetSplitter(object):
 
                     # Should we care about this?
                     if needed:
-                        raise Error, "No providers for '%s', " \
-                                     "required by '%s'" % (req, reqpkg)
+                        raise Error, _("No providers for '%s', "
+                                       "required by '%s'") % (req, reqpkg)
 
         # Check upgrading/downgrading packages.
         relpkgs = [upgpkg for prv in pkg.provides
@@ -1152,7 +1154,7 @@ class ChangeSetSplitter(object):
             for relpkg in relpkgs:
                 if subset.get(relpkg) is REMOVE:
                     if relpkg in locked:
-                        raise Error, "Package '%s' is locked" % relpkg
+                        raise Error, _("Package '%s' is locked") % relpkg
                     self.exclude(subset, relpkg, locked)
         else:
             # Package is being removed, and included in the
@@ -1161,7 +1163,7 @@ class ChangeSetSplitter(object):
             for relpkg in relpkgs:
                 if set.get(relpkg) is INSTALL and relpkg not in subset:
                     if relpkg in locked:
-                        raise Error, "Package '%s' is locked" % relpkg
+                        raise Error, _("Package '%s' is locked") % relpkg
                     self.include(subset, relpkg, locked)
 
     def _install(self, subset, pkg, locked):
@@ -1235,8 +1237,8 @@ class ChangeSetSplitter(object):
             # Should we really care about it?
             if (self._forcerequires or
                 isinstance(req, PreRequires)):
-                raise Error, "No providers for '%s', " \
-                             "required by '%s'" % (req, pkg)
+                raise Error, _("No providers for '%s', "
+                               "required by '%s'") % (req, pkg)
 
         cnfpkgs = [prvpkg for cnf in pkg.conflicts
                           for prv in cnf.providedby
@@ -1249,7 +1251,7 @@ class ChangeSetSplitter(object):
             if (subset.get(cnfpkg) is INSTALL or
                 cnfpkg.installed and subset.get(cnfpkg) is not REMOVE):
                 if cnfpkg not in set:
-                    raise Error, "Can't remove %s, which conflicts with %s" \
+                    raise Error, _("Can't remove %s, which conflicts with %s")\
                                  % (cnfpkg, pkg)
                 if set[cnfpkg] is INSTALL:
                     self.exclude(subset, cnfpkg, locked)
@@ -1270,7 +1272,7 @@ class ChangeSetSplitter(object):
             for relpkg in relpkgs:
                 if set.get(relpkg) is REMOVE and relpkg not in subset:
                     if relpkg in locked:
-                        raise Error, "Package '%s' is locked" % relpkg
+                        raise Error, _("Package '%s' is locked") % relpkg
                     self.include(subset, relpkg, locked)
         else:
             # Package is being removed, but excluded from the
@@ -1279,7 +1281,7 @@ class ChangeSetSplitter(object):
             for relpkg in relpkgs:
                 if subset.get(relpkg) is INSTALL:
                     if relpkg in locked:
-                        raise Error, "Package '%s' is locked" % relpkg
+                        raise Error, _("Package '%s' is locked") % relpkg
                     self.exclude(subset, relpkg, locked)
 
     def include(self, subset, pkg, locked=None):
@@ -1295,9 +1297,9 @@ class ChangeSetSplitter(object):
             print "Including %s of %s" % (strop, pkg)
 
         if pkg not in set:
-            raise Error, "Package '%s' is not in changeset" % pkg
+            raise Error, _("Package '%s' is not in changeset") % pkg
         if pkg in locked:
-            raise Error, "Package '%s' is locked" % pkg
+            raise Error, _("Package '%s' is locked") % pkg
 
         locked[pkg] = True
 
@@ -1326,9 +1328,9 @@ class ChangeSetSplitter(object):
             print "Excluding %s of %s" % (strop, pkg)
 
         if pkg not in set:
-            raise Error, "Package '%s' is not in changeset" % pkg
+            raise Error, _("Package '%s' is not in changeset") % pkg
         if pkg in locked:
-            raise Error, "Package '%s' is locked" % pkg
+            raise Error, _("Package '%s' is locked") % pkg
 
         locked[pkg] = True
 
@@ -1464,7 +1466,7 @@ def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
                 break
             else:
                 if report:
-                    iface.info("Unsatisfied dependency: %s requires %s" %
+                    iface.info(_("Unsatisfied dependency: %s requires %s") %
                                (pkg, req))
                 problems = True
 
@@ -1476,8 +1478,9 @@ def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
                 for prvpkg in prv.packages:
                     if prvpkg.installed:
                         if report:
-                            iface.info("Unsatisfied dependency: "
-                                       "%s conflicts with %s" % (pkg, prvpkg))
+                            iface.info(_("Unsatisfied dependency: "
+                                         "%s conflicts with %s") %
+                                       (pkg, prvpkg))
                         problems = True
 
         namepkgs = cache.getPackages(pkg.name)
@@ -1488,7 +1491,7 @@ def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
             if (namepkg.installed and namepkg is not pkg and
                 not pkg.coexists(namepkg)):
                 if report:
-                    iface.info("Package %s can't coexist with %s" %
+                    iface.info(_("Package %s can't coexist with %s") %
                                (namepkg, pkg))
                 problems = True
 

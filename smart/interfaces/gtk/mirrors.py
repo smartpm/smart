@@ -29,7 +29,7 @@ class GtkMirrors(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Mirrors")
+        self._window.set_title(_("Mirrors"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -62,7 +62,7 @@ class GtkMirrors(object):
         renderer.set_property("xpad", 3)
         renderer.set_property("editable", True)
         renderer.connect("edited", self.rowEdited)
-        self._treeview.insert_column_with_attributes(-1, "Mirror", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Mirror"), renderer,
                                                      text=0)
 
         bbox = gtk.HButtonBox()
@@ -142,14 +142,14 @@ class GtkMirrors(object):
             return
         if len(path) == 1:
             if sysconf.has(("mirrors", newtext)):
-                iface.error("Origin already exists!")
+                iface.error(_("Origin already exists!"))
             else:
                 sysconf.move(("mirrors", oldtext), ("mirrors", newtext))
                 model.set_value(iter, 0, newtext)
         else:
             origin = model.get_value(model.get_iter(path[1:]), 0)
             if sysconf.has(("mirrors", origin), newtext):
-                iface.error("Mirror already exists!")
+                iface.error(_("Mirror already exists!"))
             else:
                 sysconf.remove(("mirrors", origin), oldtext)
                 sysconf.add(("mirrors", origin), newtext, unique=True)

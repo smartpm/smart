@@ -19,17 +19,18 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "URPMI Repository"
+name = _("URPMI Repository")
 
-description = """
+description = _("""
 Repository created for Mandrake's URPMI package manager.
-"""
+""")
 
-fields = [("baseurl", "Base URL", str, None,
-           "Base URL where RPMS/ directory is found"),
-          ("hdlurl", "Header List URL", str, "",
-           "URL for header list. If it's hdlist.cz inside "
-           "the given base URL, may be left empty.")]
+fields = [("baseurl", _("Base URL"), str, None,
+           _("Base URL where RPMS/ directory is found")),
+          ("hdlurl", _("Header List URL"), str, "",
+           _("URL for header list. If it's hdlist.cz inside "
+             "the given base URL, may be left empty."))]

@@ -26,9 +26,9 @@ from smart import *
 import textwrap
 import sys, os
 
-USAGE="smart channel [options]"
+USAGE=_("smart channel [options]")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command allows one to manipulate channels. Channels are
 used as sources of information about installed and available
 packages. Depending on the channel type, a different backend
@@ -40,9 +40,9 @@ The following channel types are available:
 %(types)s
 
 Use --help-type <type> for more information.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart channel --help-type apt-rpm
 smart channel --add mydb type=rpm-db name="RPM Database"
 smart channel --add mychannel type=apt-rpm name="Some repository" \\
@@ -55,7 +55,7 @@ smart channel --show mychannel > mychannel.txt
 smart channel --add ./mychannel.txt
 smart channel --add http://some.url/mychannel.txt
 smart channel --add /mnt/cdrom
-"""
+""")
 
 def build_types():
     result = ""
@@ -95,28 +95,28 @@ def parse_options(argv):
     parser.defaults["disable"] = []
     parser.defaults["show"] = None
     parser.add_option("--add", action="callback", callback=append_all,
-                      help="argument is an alias and one or more "
-                           "key=value pairs defining a channel, or a "
-                           "filename/url pointing to a channel description "
-                           "in the same format used by --show, or a "
-                           "directory path where autodetection will be "
-                           "tried")
+                      help=_("argument is an alias and one or more "
+                             "key=value pairs defining a channel, or a "
+                             "filename/url pointing to a channel description "
+                             "in the same format used by --show, or a "
+                             "directory path where autodetection will be "
+                             "tried"))
     parser.add_option("--set", action="callback", callback=append_all,
-                      help="argument is an alias, and one or more key=value "
-                           "pairs modifying a channel")
+                      help=_("argument is an alias, and one or more key=value "
+                             "pairs modifying a channel"))
     parser.add_option("--remove", action="callback", callback=append_all,
-                      help="arguments are channel aliases to be removed")
+                      help=_("arguments are channel aliases to be removed"))
     parser.add_option("--show", action="callback", callback=append_all,
-                      help="show channels with given aliases, or all "
-                           "channels if no arguments were given")
+                      help=_("show channels with given aliases, or all "
+                           "channels if no arguments were given"))
     parser.add_option("--enable", action="callback", callback=append_all,
-                      help="enable channels with given aliases")
+                      help=_("enable channels with given aliases"))
     parser.add_option("--disable", action="callback", callback=append_all,
-                      help="disable channels with given aliases")
+                      help=_("disable channels with given aliases"))
     parser.add_option("-y", "--yes", action="store_true",
-                      help="execute without asking")
+                      help=_("execute without asking"))
     parser.add_option("--help-type", action="store", metavar="TYPE",
-                      help="show further information about given type")
+                      help=_("show further information about given type"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -125,14 +125,14 @@ def main(ctrl, opts):
 
     if opts.help_type:
         info = getChannelInfo(opts.help_type)
-        print "Type:", opts.help_type, "-", info.name
+        print _("Type:"), opts.help_type, "-", info.name
         print
         print info.description.strip()
         print
-        print "Fields:"
+        print _("Fields:")
         print format_fields(info.fields)
         print
-        print "(*) These fields are necessary for this type."
+        print _("(*) These fields are necessary for this type.")
         print
         sys.exit(0)
     
@@ -153,7 +153,7 @@ def main(ctrl, opts):
             elif ":/" in arg:
                 succ, fail = ctrl.downloadURLs([arg], "channel description")
                 if fail:
-                    raise Error, "Unable to fetch channel description: %s" \
+                    raise Error, _("Unable to fetch channel description: %s")\
                                  % fail[arg]
                 data = open(succ[arg]).read()
                 if succ[arg].startswith(sysconf.get("data-dir")):
@@ -165,15 +165,15 @@ def main(ctrl, opts):
                     channel["alias"] = alias
                     newchannels.append(channel)
             else:
-                raise Error, "File not found: %s" % arg
+                raise Error, _("File not found: %s") % arg
         else:
             alias = opts.add.pop(0).strip()
             if not alias:
-                raise Error, "Channel has no alias"
+                raise Error, _("Channel has no alias")
             channel = {}
             for arg in opts.add:
                 if "=" not in arg:
-                    raise Error, "Argument '%s' has no '='" % arg
+                    raise Error, _("Argument '%s' has no '='") % arg
                 key, value = arg.split("=")
                 channel[key.strip()] = value.strip()
             channel = parseChannelData(channel)
@@ -190,7 +190,7 @@ def main(ctrl, opts):
                     if key in channel:
                         print "%s: %s" % (label, channel[key])
                 print
-            if opts.yes or iface.askYesNo("Include this channel"):
+            if opts.yes or iface.askYesNo(_("Include this channel?")):
                 try:
                     createChannel("alias", channel)
                 except Error, e:
@@ -200,9 +200,9 @@ def main(ctrl, opts):
                         alias = channel.get("alias")
                         while not alias or sysconf.has(("channels", alias)):
                             if alias:
-                                print "Channel alias '%s' is already in use." \
-                                      % alias
-                            alias = raw_input("Channel alias: ").strip()
+                                print _("Channel alias '%s' is already in "
+                                        "use.") % alias
+                            alias = raw_input(_("Channel alias: ")).strip()
                         del channel["alias"]
                         sysconf.set(("channels", alias), channel)
                         newaliases.append(alias)
@@ -213,7 +213,7 @@ def main(ctrl, opts):
                      if sysconf.get(("channels", alias, "removable"))]
         if removable:
             print
-            print "Updating removable channels..."
+            print _("Updating removable channels...")
             print
             import update
             updateopts = update.parse_options(removable)
@@ -221,25 +221,25 @@ def main(ctrl, opts):
 
     if opts.set:
         if not opts.set:
-            raise Error, "Invalid arguments"
+            raise Error, _("Invalid arguments")
 
         alias = opts.set.pop(0)
         if "=" in alias:
-            raise Error, "First argument must be the channel alias"
+            raise Error, _("First argument must be the channel alias")
 
         channel = sysconf.get(("channels", alias))
         if not channel:
-            raise Error, "Channel with alias '%s' not found" % alias
+            raise Error, _("Channel with alias '%s' not found") % alias
 
         for arg in opts.set:
             if "=" not in arg:
-                raise Error, "Argument '%s' has no '='" % arg
+                raise Error, _("Argument '%s' has no '='") % arg
             key, value = arg.split("=")
             key = key.strip()
             if key == "type":
-                raise Error, "Can't change the channel type"
+                raise Error, _("Can't change the channel type")
             if key == "alias":
-                raise Error, "Can't change the channel alias"
+                raise Error, _("Can't change the channel alias")
             channel[key] = value.strip()
 
         for key in channel.keys():
@@ -253,21 +253,21 @@ def main(ctrl, opts):
     if opts.remove:
         for alias in opts.remove:
             if (not sysconf.has(("channels", alias)) or opts.yes or
-                iface.askYesNo("Remove channel '%s'" % alias)):
+                iface.askYesNo(_("Remove channel '%s'?") % alias)):
                 if not sysconf.remove(("channels", alias)):
-                    iface.warning("Channel '%s' not found." % alias)
+                    iface.warning(_("Channel '%s' not found.") % alias)
 
     if opts.enable:
         for alias in opts.enable:
             if not sysconf.has(("channels", alias)):
-                iface.warning("Channel '%s' not found." % alias)
+                iface.warning(_("Channel '%s' not found.") % alias)
             else:
                 sysconf.remove(("channels", alias, "disabled"))
 
     if opts.disable:
         for alias in opts.disable:
             if not sysconf.has(("channels", alias)):
-                iface.warning("Channel '%s' not found." % alias)
+                iface.warning(_("Channel '%s' not found.") % alias)
             else:
                 sysconf.set(("channels", alias, "disabled"), "yes")
 
@@ -275,7 +275,7 @@ def main(ctrl, opts):
         for alias in (opts.show or sysconf.get("channels")):
             channel = sysconf.get(("channels", alias))
             if not channel:
-                iface.warning("Channel '%s' not found." % alias)
+                iface.warning(_("Channel '%s' not found.") % alias)
             else:
                 desc = createChannelDescription(alias,
                                                 parseChannelData(channel))

@@ -26,28 +26,28 @@ import string
 import time
 import re
 
-USAGE="smart update [options] [channelalias] ..."
+USAGE=_("smart update [options] [channelalias] ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will update the known information about the
 given channels. If no channels are given, all channels
 which are not disabled or setup for manual updates will
 be updated.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart update
 smart update mychannel
 smart update mychannel1 mychannel2
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--after", metavar="MIN", type="int",
-                      help="only update if the last successful update "
-                           "happened before the given delay")
+                      help=_("only update if the last successful update "
+                             "happened before the given delay"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -70,7 +70,7 @@ def main(ctrl, opts):
                     channels.append(channel)
                     break
             else:
-                raise Error, "Argument '%s' is not a channel alias." % arg
+                raise Error, _("Argument '%s' is not a channel alias.") % arg
     else:
         channels = None
     # First, load current cache to keep track of new packages.
@@ -79,7 +79,7 @@ def main(ctrl, opts):
     cache = ctrl.getCache()
     newpackages = pkgconf.filterByFlag("new", cache.getPackages())
     if not newpackages:
-        iface.showStatus("Channels have no new packages.")
+        iface.showStatus(_("Channels have no new packages."))
     else:
         if len(newpackages) <= 10:
             newpackages.sort()
@@ -88,7 +88,7 @@ def main(ctrl, opts):
                 info += "    %s\n" % pkg
         else:
             info = "."
-        iface.showStatus("Channels have %d new packages%s"
+        iface.showStatus(_("Channels have %d new packages%s")
                          % (len(newpackages), info))
     return int(failed)
 

@@ -23,6 +23,7 @@ from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.interfaces.gtk import getPixbuf
 from smart.util.strtools import sizeToStr
 from smart.report import Report
+from smart import *
 import gobject, gtk
 
 class GtkChanges(object):
@@ -31,7 +32,7 @@ class GtkChanges(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Change Summary")
+        self._window.set_title(_("Change Summary"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -92,7 +93,8 @@ class GtkChanges(object):
         report.compute()
         
         class Sorter(str):
-            ORDER = ["Remove", "Downgrade", "Reinstall", "Install", "Upgrade"]
+            ORDER = [_("Remove"), _("Downgrade"), _("Reinstall"),
+                     _("Install"), _("Upgrade")]
             def _index(self, s):
                 i = 0
                 for os in self.ORDER:
@@ -119,23 +121,23 @@ class GtkChanges(object):
                 done = {}
                 if pkg in report.upgrading:
                     for upgpkg in report.upgrading[pkg]:
-                        package.setdefault("Upgrades", []).append(upgpkg)
+                        package.setdefault(_("Upgrades"), []).append(upgpkg)
                         done[upgpkg] = True
                 if pkg in report.downgrading:
                     for dwnpkg in report.downgrading[pkg]:
-                        package.setdefault("Downgrades", []).append(dwnpkg)
+                        package.setdefault(_("Downgrades"), []).append(dwnpkg)
                         done[dwnpkg] = True
                 if pkg in report.requires:
                     for reqpkg in report.requires[pkg]:
-                        package.setdefault("Requires", []).append(reqpkg)
+                        package.setdefault(_("Requires"), []).append(reqpkg)
                 if pkg in report.requiredby:
                     for reqpkg in report.requiredby[pkg]:
-                        package.setdefault("Required By", []).append(reqpkg)
+                        package.setdefault(_("Required By"), []).append(reqpkg)
                 if pkg in report.conflicts:
                     for cnfpkg in report.conflicts[pkg]:
                         if cnfpkg in done:
                             continue
-                        package.setdefault("Conflicts", []).append(cnfpkg)
+                        package.setdefault(_("Conflicts"), []).append(cnfpkg)
                 if pkg.installed:
                     reinstall[pkg] = package
                 elif pkg in report.upgrading:
@@ -145,13 +147,15 @@ class GtkChanges(object):
                 else:
                     install[pkg] = package
             if reinstall:
-                packages[Sorter("Reinstall (%d)" % len(reinstall))] = reinstall
+                packages[Sorter(_("Reinstall (%d)") % len(reinstall))] = \
+                                                                    reinstall
             if install:
-                packages[Sorter("Install (%d)" % len(install))] = install
+                packages[Sorter(_("Install (%d)") % len(install))] = install
             if upgrade:
-                packages[Sorter("Upgrade (%d)" % len(upgrade))] = upgrade
+                packages[Sorter(_("Upgrade (%d)") % len(upgrade))] = upgrade
             if downgrade:
-                packages[Sorter("Downgrade (%d)" % len(downgrade))] = downgrade
+                packages[Sorter(_("Downgrade (%d)") % len(downgrade))] = \
+                                                                    downgrade
 
         if report.remove:
             remove = {}
@@ -164,32 +168,33 @@ class GtkChanges(object):
                     continue
                 if pkg in report.requires:
                     for reqpkg in report.requires[pkg]:
-                        package.setdefault("Requires", []).append(reqpkg)
+                        package.setdefault(_("Requires"), []).append(reqpkg)
                 if pkg in report.requiredby:
                     for reqpkg in report.requiredby[pkg]:
-                        package.setdefault("Required By", []).append(reqpkg)
+                        package.setdefault(_("Required By"), []).append(reqpkg)
                 if pkg in report.conflicts:
                     for cnfpkg in report.conflicts[pkg]:
                         if cnfpkg in done:
                             continue
-                        package.setdefault("Conflicts", []).append(cnfpkg)
+                        package.setdefault(_("Conflicts"), []).append(cnfpkg)
                 remove[pkg] = package
             if remove:
-                packages[Sorter("Remove (%d)" % len(report.remove))] = remove
+                packages[Sorter(_("Remove (%d)") % len(report.remove))] = \
+                                                                        remove
 
         if keep:
-            packages["Keep (%d)" % len(keep)] = keep
+            packages[_("Keep (%d)") % len(keep)] = keep
 
         dsize = report.getDownloadSize()
         size = report.getInstallSize() - report.getRemoveSize()
         sizestr = ""
         if dsize:
-            sizestr += "%s of package files are needed. " % sizeToStr(dsize)
+            sizestr += _("%s of package files are needed. ") % sizeToStr(dsize)
         if size > 0:
-            sizestr += "%s will be used." % sizeToStr(size)
+            sizestr += _("%s will be used.") % sizeToStr(size)
         elif size < 0:
             size *= -1
-            sizestr += "%s will be freed." % sizeToStr(size)
+            sizestr += _("%s will be freed.") % sizeToStr(size)
         if dsize or size:
             self._sizelabel.set_text(sizestr)
             self._sizelabel.show()

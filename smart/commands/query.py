@@ -28,14 +28,14 @@ import fnmatch
 import string
 import re
 
-USAGE="smart query [options] [package] ..."
+USAGE=_("smart query [options] [package] ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command allows querying the known packages in many
 different ways. Check also the 'search' command.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart query pkgname
 smart query '*kgnam*'
 smart query pkgname-1.0
@@ -43,7 +43,7 @@ smart query pkgname --show-requires
 smart query --requires libpkg.so --show-providedby
 smart query --installed
 smart query --summary ldap
-"""
+""")
 
 def parse_options(argv, help=None):
     if help:
@@ -53,46 +53,51 @@ def parse_options(argv, help=None):
                               description=DESCRIPTION,
                               examples=EXAMPLES)
     parser.add_option("--installed", action="store_true",
-                      help="consider only installed packages")
+                      help=_("consider only installed packages"))
     parser.add_option("--provides", action="append", default=[], metavar="DEP",
-                      help="show only packages providing the given dependency")
+                      help=_("show only packages providing the given "
+                             "dependency"))
     parser.add_option("--requires", action="append", default=[], metavar="DEP",
-                      help="show only packages requiring the given dependency")
+                      help=_("show only packages requiring the given "
+                             "dependency"))
     parser.add_option("--conflicts", action="append", default=[], metavar="DEP",
-                      help="show only packages conflicting with the given "
-                           "dependency")
+                      help=_("show only packages conflicting with the given "
+                             "dependency"))
     parser.add_option("--upgrades", action="append", default=[], metavar="DEP",
-                      help="show only packages upgrading the given dependency")
+                      help=_("show only packages upgrading the given "
+                             "dependency"))
     parser.add_option("--name", action="append", default=[], metavar="STR",
-                      help="show only packages which match given name")
+                      help=_("show only packages which match given name"))
     parser.add_option("--summary", action="append", default=[], metavar="STR",
-                      help="show only packages which match given summary")
+                      help=_("show only packages which match given summary"))
     parser.add_option("--description", action="append", default=[], metavar="STR",
-                      help="show only packages which match given description")
+                      help=_("show only packages which match given "
+                             "description"))
     parser.add_option("--hide-version", action="store_true",
-                      help="hide package version")
+                      help=_("hide package version"))
     parser.add_option("--show-summary", action="store_true",
-                      help="show package summaries")
+                      help=_("show package summaries"))
     parser.add_option("--show-provides", action="store_true",
-                      help="show provides for the given packages")
+                      help=_("show provides for the given packages"))
     parser.add_option("--show-requires", action="store_true",
-                      help="show requires for the given packages")
+                      help=_("show requires for the given packages"))
     parser.add_option("--show-prerequires", action="store_true",
-                      help="show requires selecting only pre-dependencies")
+                      help=_("show requires selecting only pre-dependencies"))
     parser.add_option("--show-upgrades", action="store_true",
-                      help="show upgrades for the given packages")
+                      help=_("show upgrades for the given packages"))
     parser.add_option("--show-conflicts", action="store_true",
-                      help="show conflicts for the given packages")
+                      help=_("show conflicts for the given packages"))
     parser.add_option("--show-providedby", action="store_true",
-                      help="show packages providing dependencies")
+                      help=_("show packages providing dependencies"))
     parser.add_option("--show-requiredby", action="store_true",
-                      help="show packages requiring provided information")
+                      help=_("show packages requiring provided information"))
     parser.add_option("--show-upgradedby", action="store_true",
-                      help="show packages upgrading provided information")
+                      help=_("show packages upgrading provided information"))
     parser.add_option("--show-conflictedby", action="store_true",
-                      help="show packages conflicting with provided information")
+                      help=_("show packages conflicting with provided "
+                             "information"))
     parser.add_option("--show-priority", action="store_true",
-                      help="show package priority")
+                      help=_("show package priority"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -253,18 +258,18 @@ def main(ctrl, opts, reloadchannels=True):
                         continue
                 if first:
                     first = False
-                    print "  Provides:"
+                    print " ", _("Provides:")
                 print "   ", prv
                 if opts.show_requiredby and prv.requiredby:
-                    print "      Required By:"
+                    print "     ", _("Required By:")
                     for req in prv.requiredby:
                         req.packages.sort()
                         for reqpkg in req.packages:
                             if opts.installed and not reqpkg.installed:
                                 continue
                             if isinstance(req, PreRequires):
-                                print "       ", "%s (%s) [pre]" % \
-                                      (reqpkg, prv)
+                                print "       ", "%s (%s) [%s]" % \
+                                      (reqpkg, prv, _("pre"))
                             else:
                                 if opts.hide_version:
                                     name = reqpkg.name
@@ -272,7 +277,7 @@ def main(ctrl, opts, reloadchannels=True):
                                     name = str(reqpkg)
                                 print "       ", "%s (%s)" % (name, prv)
                 if opts.show_upgradedby and prv.upgradedby:
-                    print "      Upgraded By:"
+                    print "     ", _("Upgraded By:")
                     for upg in prv.upgradedby:
                         upg.packages.sort()
                         for upgpkg in upg.packages:
@@ -284,7 +289,7 @@ def main(ctrl, opts, reloadchannels=True):
                                 name = str(upgpkg)
                             print "       ", "%s (%s)" % (name, prv)
                 if opts.show_conflictedby and prv.conflictedby:
-                    print "      Conflicted By:"
+                    print "     ", _("Conflicted By:")
                     for cnf in prv.conflictedby:
                         cnf.packages.sort()
                         for cnfpkg in cnf.packages:
@@ -310,13 +315,13 @@ def main(ctrl, opts, reloadchannels=True):
                         continue
                 if first:
                     first = False
-                    print "  Requires:"
+                    print " ", _("Requires:")
                 if isinstance(req, PreRequires):
-                    print "   ", req, "[pre]"
+                    print "   ", req, "[%s]" % _("pre")
                 else:
                     print "   ", req
                 if opts.show_providedby and req.providedby:
-                    print "      Provided By:"
+                    print "     ", _("Provided By:")
                     for prv in req.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
@@ -340,10 +345,10 @@ def main(ctrl, opts, reloadchannels=True):
                         continue
                 if first:
                     first = False
-                    print "  Upgrades:"
+                    print " ", _("Upgrades:")
                 print "   ", upg
                 if opts.show_providedby and upg.providedby:
-                    print "      Provided By:"
+                    print "     ", _("Provided By:")
                     for prv in upg.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
@@ -367,10 +372,10 @@ def main(ctrl, opts, reloadchannels=True):
                         continue
                 if first:
                     first = False
-                    print "  Conflicts:"
+                    print " ", _("Conflicts:")
                 print "   ", cnf
                 if opts.show_providedby and cnf.providedby:
-                    print "      Provided By:"
+                    print "     ", _("Provided By:")
                     for prv in cnf.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:

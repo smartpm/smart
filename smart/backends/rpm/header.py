@@ -294,10 +294,10 @@ class RPMHeaderListLoader(RPMHeaderLoader):
                 self.__class__.WARNED = True
                 sysconf.set("no-rpm-readHeaderFromFD",
                             sysconf.get("no-rpm-readHeaderFromFD", 0)+1)
-                iface.warning("Your rpm module has no support for "
-                              "readHeaderFromFD()!\n"
-                              "As a consequence, Smart will consume "
-                              "extra memory.")
+                iface.warning(_("Your rpm module has no support for "
+                                "readHeaderFromFD()!\n"
+                                "As a consequence, Smart will consume "
+                                "extra memory."))
 
             self.__class__.getHeaders = self.getHeadersHDL
             self.__class__.getHeader = self.getHeaderHDL
@@ -393,7 +393,7 @@ class RPMPackageListLoader(RPMHeaderListLoader):
         h = info._h
         filename = h[CRPMTAG_FILENAME]
         if not filename:
-            raise Error, "Package list with no CRPMTAG_FILENAME tag"
+            raise Error, _("Package list with no CRPMTAG_FILENAME tag")
         directory = h[CRPMTAG_DIRECTORY]
         if directory:
             filename = os.path.join(directory, filename)
@@ -421,7 +421,7 @@ class URPMILoader(RPMHeaderListLoader):
         h = info._h
         filename = h[CRPMTAG_FILENAME]
         if not filename:
-            raise Error, "Package list with no CRPMTAG_FILENAME tag"
+            raise Error, _("Package list with no CRPMTAG_FILENAME tag")
         if filename in self._prefix:
             filename = os.path.join(self._prefix[filename], filename)
         return filename

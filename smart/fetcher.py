@@ -145,7 +145,7 @@ class Fetcher(object):
 
     def enqueue(self, url, **info):
         if url in self._items:
-            raise Error, "%s is already in the queue" % url
+            raise Error, _("%s is already in the queue") % url
         mirror = self._mirrorsystem.get(url)
         item = FetchItem(self, url, mirror)
         self._items[url] = item
@@ -175,16 +175,16 @@ class Fetcher(object):
             prog = progress
             prog.add(local)
             if what:
-                prog.setTopic("Fetching %s..." % what)
+                prog.setTopic(_("Fetching %s...") % what)
             prog.show()
         else:
             prog = iface.getProgress(self, True)
             prog.start()
             prog.set(local, total)
             if what:
-                topic = "Fetching %s..." % what
+                topic = _("Fetching %s...") % what
             else:
-                topic = "Fetching information..."
+                topic = _("Fetching information...")
             prog.setTopic(topic)
             prog.show()
         for handler in handlers:
@@ -249,7 +249,7 @@ class Fetcher(object):
         if not progress:
             prog.stop()
         if self._cancel:
-            raise FetcherCancelled, "Cancelled"
+            raise FetcherCancelled, _("Cancelled")
 
     def _uncompress(self, item, localpath, uncomphandler):
         try:
@@ -289,7 +289,7 @@ class Fetcher(object):
         if not handler:
             klass = self._registry.get(scheme)
             if not klass:
-                raise Error, "Unsupported scheme: %s" % scheme
+                raise Error, _("Unsupported scheme: %s") % scheme
             handler = klass(self)
             self._handlers[scheme] = handler
         return handler
@@ -304,7 +304,7 @@ class Fetcher(object):
     def validate(self, item, localpath, withreason=False, uncomp=False):
         try:
             if not os.path.isfile(localpath):
-                raise Error, "File not found"
+                raise Error, _("File not found")
 
             if uncomp:
                 uncompprefix = "uncomp_"
@@ -325,7 +325,7 @@ class Fetcher(object):
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
-                    raise Error, "Unexpected size (expected %d, got %d)" % \
+                    raise Error, _("Unexpected size (expected %d, got %d)") % \
                                  (size, lsize)
 
             filemd5 = item.getInfo(uncompprefix+"md5")
@@ -339,7 +339,7 @@ class Fetcher(object):
                     data = file.read(BLOCKSIZE)
                 lfilemd5 = digest.hexdigest()
                 if lfilemd5 != filemd5:
-                    raise Error, "Invalid MD5 (expected %s, got %s)" % \
+                    raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
             else:
                 filesha = item.getInfo(uncompprefix+"sha")
@@ -353,7 +353,7 @@ class Fetcher(object):
                         data = file.read(BLOCKSIZE)
                     lfilesha = digest.hexdigest()
                     if lfilesha != filesha:
-                        raise Error, "Invalid SHA (expected %s, got %s)" % \
+                        raise Error, _("Invalid SHA (expected %s, got %s)") % \
                                      (filesha, lfilesha)
         except Error, reason:
             if withreason:
@@ -520,7 +520,7 @@ class FetchItem(object):
             self._progress.show()
 
     def setCancelled(self):
-        self.setFailed("Cancelled")
+        self.setFailed(_("Cancelled"))
 
 class URL(object):
     def __init__(self, url=None):
@@ -545,7 +545,7 @@ class URL(object):
             rest = url
         else:
             if ":/" not in url:
-                raise Error, "Invalid URL: %s" % url
+                raise Error, _("Invalid URL: %s") % url
             self.scheme, rest = urllib.splittype(url)
         if self.scheme in Fetcher.getLocalSchemes():
             scheme = self.scheme
@@ -812,7 +812,7 @@ class LocalMediaHandler(FileHandler):
                     mediaset.mountAll()
                     media = mediaset.findFile(itempath)
                 if not media or not media.isMounted():
-                    item.setFailed("Media not found")
+                    item.setFailed(_("Media not found"))
                     del self._queue[i]
                     continue
             item.setURL(media.joinURL(itempath))
@@ -936,7 +936,7 @@ class FTPHandler(FetcherHandler):
             else:
                 size = item.getInfo("size")
                 if size and size != total:
-                    raise Error, "Server reports unexpected size"
+                    raise Error, _("Server reports unexpected size")
 
             if (not mtime or not os.path.isfile(localpath) or
                 mtime != os.path.getmtime(localpath) or
@@ -1124,7 +1124,7 @@ class URLLIBHandler(FetcherHandler):
                     openmode = "w"
 
                 if size and total and size != total:
-                    raise Error, "Server reports unexpected size"
+                    raise Error, _("Server reports unexpected size")
 
                 try:
                     local = open(localpathpart, openmode)
@@ -1298,7 +1298,7 @@ class URLLIB2Handler(FetcherHandler):
                     openmode = "w"
 
                 if size and total and size != total:
-                    raise Error, "Server reports unexpected size"
+                    raise Error, _("Server reports unexpected size")
 
                 try:
                     local = open(localpathpart, openmode)
@@ -1674,7 +1674,7 @@ class SCPHandler(FetcherHandler):
                         total = size
                 else:
                     if size and size != total:
-                        raise Error, "Server reports unexpected size"
+                        raise Error, _("Server reports unexpected size")
             elif size:
                 total = size
 

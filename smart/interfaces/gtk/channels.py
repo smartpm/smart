@@ -36,7 +36,7 @@ class GtkChannels(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Channels")
+        self._window.set_title(_("Channels"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -80,11 +80,11 @@ class GtkChannels(object):
 
         renderer = gtk.CellRendererText()
         renderer.set_property("xpad", 3)
-        self._treeview.insert_column_with_attributes(-1, "Alias", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Alias"), renderer,
                                                      text=1)
-        self._treeview.insert_column_with_attributes(-1, "Type", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Type"), renderer,
                                                      text=2)
-        self._treeview.insert_column_with_attributes(-1, "Name", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Name"), renderer,
                                                      text=3)
 
         bbox = gtk.HButtonBox()
@@ -146,7 +146,7 @@ class GtkChannels(object):
                     self._changed = True
             else:
                 if not disabled:
-                    sysconf.set(("channels", row[1], "disabled"), "yes")
+                    sysconf.set(("channels", row[1], "disabled"), True)
                     self._changed = True
             
     def show(self):
@@ -191,7 +191,7 @@ class GtkChannels(object):
                 #             action=gtk.FILE_CHOOSER_ACTION_OPEN,
                 #             buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
                 #                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-                dia = gtk.FileSelection("Select Channel Description")
+                dia = gtk.FileSelection(_("Select Channel Description"))
                 dia.hide_fileop_buttons()
                 response = dia.run()
                 filename = dia.get_filename()
@@ -199,19 +199,19 @@ class GtkChannels(object):
                 if response != gtk.RESPONSE_OK:
                     return
                 if not os.path.isfile(filename):
-                    iface.error("File not found: %s" % filename)
+                    iface.error(_("File not found: %s") % filename)
                     return
                 file = open(filename)
                 data = file.read()
                 file.close()
             elif method == "descriptionurl":
-                url = iface.askInput("Description URL")
+                url = iface.askInput(_("Description URL"))
                 if not url:
                     return
                 ctrl = iface.getControl()
-                succ, fail = ctrl.downloadURLs([url], "channel description")
+                succ, fail = ctrl.downloadURLs([url], _("channel description"))
                 if fail:
-                    iface.error("Unable to fetch channel description: %s"
+                    iface.error(_("Unable to fetch channel description: %s")
                                 % fail[url])
                     return
                 file = open(succ[url])
@@ -238,7 +238,7 @@ class GtkChannels(object):
                 if not path:
                     return
             elif method == "detectpath":
-                dia = gtk.FileSelection("Select Path")
+                dia = gtk.FileSelection(_("Select Path"))
                 dia.hide_fileop_buttons()
                 response = dia.run()
                 path = dia.get_filename()
@@ -246,7 +246,7 @@ class GtkChannels(object):
                 if response != gtk.RESPONSE_OK:
                     return
                 if not os.path.isdir(path):
-                    iface.error("Directory not found: %s" % path)
+                    iface.error(_("Directory not found: %s") % path)
                     return
 
             sysconf.set("default-localmedia", path, soft=True)
@@ -264,7 +264,7 @@ class GtkChannels(object):
                         removable.append(alias)
             
             if not foundchannel:
-                iface.error("No channels detected!")
+                iface.error(_("No channels detected!"))
                 return
 
         if removable:
@@ -300,7 +300,7 @@ class GtkChannelSelector(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Select Channels")
+        self._window.set_title(_("Select Channels"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -343,11 +343,11 @@ class GtkChannelSelector(object):
 
         renderer = gtk.CellRendererText()
         renderer.set_property("xpad", 3)
-        self._treeview.insert_column_with_attributes(-1, "Alias", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Alias"), renderer,
                                                      text=1)
-        self._treeview.insert_column_with_attributes(-1, "Type", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Type"), renderer,
                                                      text=2)
-        self._treeview.insert_column_with_attributes(-1, "Name", renderer,
+        self._treeview.insert_column_with_attributes(-1, _("Name"), renderer,
                                                      text=3)
 
         bbox = gtk.HButtonBox()
@@ -405,7 +405,7 @@ class ChannelEditor(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Edit Channel")
+        self._window.set_title(_("Edit Channel"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -490,7 +490,7 @@ class ChannelEditor(object):
                     child = widget
                     widget.set_width_chars(40)
             else:
-                raise Error, "Don't know how to handle %s fields" % ftype
+                raise Error, _("Don't know how to handle %s fields") % ftype
 
         child.show_all()
 
@@ -545,16 +545,16 @@ class ChannelEditor(object):
                     elif ftype == bool:
                         newchannel[key] = widget.get_active()
                     else:
-                        raise Error, "Don't know how to handle %s fields" % \
+                        raise Error, _("Don't know how to handle %s fields") %\
                                      ftype
                 try:
                     if editalias:
                         value = newchannel["alias"]
                         if not value:
-                            raise Error, "Invalid alias!"
+                            raise Error, _("Invalid alias!")
                         if (value != alias and 
                             sysconf.has(("channels", value))):
-                            raise Error, "Alias already in use!"
+                            raise Error, _("Alias already in use!")
                         if not alias:
                             alias = value
                     createChannel(alias, newchannel)
@@ -577,7 +577,7 @@ class TypeSelector(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Channel")
+        self._window.set_title(_("New Channel"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -598,7 +598,7 @@ class TypeSelector(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Type:")
+        label = gtk.Label(_("Type:"))
         label.set_alignment(1.0, 0.0)
         label.show()
         table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -673,7 +673,7 @@ class MethodSelector(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Channel")
+        self._window.set_title(_("New Channel"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         def delete(widget, event):
@@ -693,7 +693,7 @@ class MethodSelector(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Method:")
+        label = gtk.Label(_("Method:"))
         label.set_alignment(1.0, 0.0)
         label.show()
         table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -732,15 +732,15 @@ class MethodSelector(object):
             if button.get_active():
                 self._method = method
         for method, descr in [("manual",
-                               "Provide channel information"),
+                               _("Provide channel information")),
                               ("descriptionpath",
-                               "Read channel description from local path"),
+                               _("Read channel description from local path")),
                               ("descriptionurl",
-                               "Read channel description from URL"),
+                               _("Read channel description from URL")),
                               ("detectmedia",
-                               "Detect channel in media (CDROM, DVD, etc)"),
+                               _("Detect channel in media (CDROM, DVD, etc)")),
                               ("detectpath",
-                               "Detect channel in local path")]:
+                               _("Detect channel in local path"))]:
             if not self._method:
                 self._method = method
             radio = gtk.RadioButton(radio, descr)
@@ -774,7 +774,7 @@ class MountPointSelector(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Channel")
+        self._window.set_title(_("New Channel"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -795,7 +795,7 @@ class MountPointSelector(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Media path:")
+        label = gtk.Label(_("Media path:"))
         label.set_alignment(1.0, 0.0)
         label.show()
         table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -849,7 +849,7 @@ class MountPointSelector(object):
             n += 1
 
         if n == 0:
-            iface.error("No local media found!")
+            iface.error(_("No local media found!"))
             return None
         elif n == 1:
             return self._mp

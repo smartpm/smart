@@ -25,20 +25,20 @@ import pprint
 import string
 import re
 
-USAGE="smart config [options]"
+USAGE=_("smart config [options]")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command allows changing the internal configuration
 representation arbitrarily. This is supposed to be used
 by advanced users only, and is generally not needed.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart config --set someoption.suboption=10
 smart config --remove someoption
 smart config --show someoption
 smart config --dump
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
@@ -48,13 +48,13 @@ def parse_options(argv):
     parser.defaults["remove"] = []
     parser.defaults["show"] = None
     parser.add_option("--set", action="callback", callback=append_all,
-                      help="set given key=value options")
+                      help=_("set given key=value options"))
     parser.add_option("--show", action="callback", callback=append_all,
-                      help="show given options")
+                      help=_("show given options"))
     parser.add_option("--remove", action="callback", callback=append_all,
-                      help="remove given options")
+                      help=_("remove given options"))
     parser.add_option("--force", action="store_true",
-                      help="ignore problems")
+                      help=_("ignore problems"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -77,7 +77,7 @@ def main(ctrl, opts):
         for opt in opts.set:
             m = SETRE.match(opt)
             if not m:
-                raise Error, "Invalid --set argument: %s" % opt
+                raise Error, _("Invalid --set argument: %s") % opt
             path, assign, value = m.groups()
             try:
                 value = int(value)
@@ -95,7 +95,7 @@ def main(ctrl, opts):
         for opt in opts.remove:
             m = DELRE.match(opt)
             if not m:
-                raise Error, "Invalid --remove argument: %s" % opt
+                raise Error, _("Invalid --remove argument: %s") % opt
             path, value = m.groups()
             if value:
                 try:
@@ -109,7 +109,7 @@ def main(ctrl, opts):
             else:
                 removed = sysconf.remove(path)
             if not removed:
-                iface.warning("Option '%s' not found." % path)
+                iface.warning(_("Option '%s' not found.") % path)
 
     if opts.show is not None:
         if opts.show:
@@ -117,7 +117,7 @@ def main(ctrl, opts):
             for opt in opts.show:
                 value = sysconf.get(opt, marker)
                 if value is marker:
-                    iface.warning("Option '%s' not found." % opt)
+                    iface.warning(_("Option '%s' not found.") % opt)
                 else:
                     pprint.pprint(value)
         else:

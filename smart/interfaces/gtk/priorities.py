@@ -30,7 +30,7 @@ class GtkPriorities(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Priorities")
+        self._window.set_title(_("Priorities"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -64,7 +64,7 @@ class GtkPriorities(object):
         self._namerenderer.set_property("xpad", 3)
         self._namerenderer.set_property("editable", True)
         self._namerenderer.connect("edited", self.rowEdited)
-        self._treeview.insert_column_with_attributes(-1, "Package Name",
+        self._treeview.insert_column_with_attributes(-1, _("Package Name"),
                                                      self._namerenderer,
                                                      text=0)
 
@@ -72,7 +72,7 @@ class GtkPriorities(object):
         self._aliasrenderer.set_property("xpad", 3)
         self._aliasrenderer.set_property("editable", True)
         self._aliasrenderer.connect("edited", self.rowEdited)
-        self._treeview.insert_column_with_attributes(-1, "Channel Alias",
+        self._treeview.insert_column_with_attributes(-1, _("Channel Alias"),
                                                      self._aliasrenderer,
                                                      text=1)
 
@@ -80,7 +80,7 @@ class GtkPriorities(object):
         self._priorityrenderer.set_property("xpad", 3)
         self._priorityrenderer.set_property("editable", True)
         self._priorityrenderer.connect("edited", self.rowEdited)
-        self._treeview.insert_column_with_attributes(-1, "Priority",
+        self._treeview.insert_column_with_attributes(-1, _("Priority"),
                                                      self._priorityrenderer,
                                                      text=2)
 
@@ -126,7 +126,7 @@ class GtkPriorities(object):
         name, alias, priority = PriorityCreator().show()
         if name:
             if sysconf.has(("package-priorities", name, alias)):
-                iface.error("Name/alias pair already exists!")
+                iface.error(_("Name/alias pair already exists!"))
             else:
                 sysconf.set(("package-priorities", name, alias), int(priority))
                 self.fill()
@@ -164,7 +164,7 @@ class GtkPriorities(object):
                 if not newtext:
                     pass
                 elif sysconf.has(("package-priorities", newtext, alias)):
-                    iface.error("Name/alias pair already exists!")
+                    iface.error(_("Name/alias pair already exists!"))
                 else:
                     sysconf.set(("package-priorities", newtext, alias),
                                 int(priority))
@@ -174,7 +174,7 @@ class GtkPriorities(object):
                 name = model.get_value(iter, 0)
                 priority = model.get_value(iter, 2)
                 if sysconf.has(("package-priorities", name, newtext)):
-                    iface.error("Name/alias pair already exists!")
+                    iface.error(_("Name/alias pair already exists!"))
                 else:
                     sysconf.move(("package-priorities", name, oldtext),
                                  ("package-priorities", name, newtext))
@@ -189,7 +189,7 @@ class GtkPriorities(object):
                         sysconf.set(("package-priorities", name, alias),
                                     int(newtext))
                     except ValueError:
-                        iface.error("Invalid priority!")
+                        iface.error(_("Invalid priority!"))
                     else:
                         model.set_value(iter, col, newtext)
 
@@ -199,7 +199,7 @@ class PriorityCreator(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Package Priority")
+        self._window.set_title(_("New Package Priority"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -220,7 +220,7 @@ class PriorityCreator(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Package Name:")
+        label = gtk.Label(_("Package Name:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
@@ -229,7 +229,7 @@ class PriorityCreator(object):
         self._name.show()
         table.attach(self._name, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
 
-        label = gtk.Label("Channel Alias:")
+        label = gtk.Label(_("Channel Alias:"))
         label.set_alignment(1.0, 0.0)
         label.show()
         table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -239,7 +239,7 @@ class PriorityCreator(object):
         self._alias.show()
         table.attach(self._alias, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
 
-        label = gtk.Label("Priority:")
+        label = gtk.Label(_("Priority:"))
         label.set_alignment(1.0, 0.0)
         label.show()
         table.attach(label, 0, 1, 2, 3, gtk.FILL, gtk.FILL)
@@ -289,7 +289,7 @@ class PriorityCreator(object):
                 self._result = False
                 name = self._name.get_text().strip()
                 if not name:
-                    iface.error("No name provided!")
+                    iface.error(_("No name provided!"))
                     continue
                 alias = self._alias.get_text().strip()
                 if alias == "*":
@@ -309,7 +309,7 @@ class GtkSinglePriority(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Package Priority")
+        self._window.set_title(_("Package Priority"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -349,7 +349,7 @@ class GtkSinglePriority(object):
         table = self._table
         table.foreach(table.remove)
 
-        label = gtk.Label("Package:")
+        label = gtk.Label(_("Package:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
@@ -372,7 +372,7 @@ class GtkSinglePriority(object):
         def value_changed(spin, alias):
             priority[alias] = int(spin.get_value())
 
-        label = gtk.Label("Default priority:")
+        label = gtk.Label(_("Default priority:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -382,12 +382,12 @@ class GtkSinglePriority(object):
         hbox.show()
         table.attach(hbox, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
 
-        radio = gtk.RadioButton(None, "Channel default")
+        radio = gtk.RadioButton(None, _("Channel default"))
         radio.set_active(None not in priority)
         radio.show()
         hbox.pack_start(radio, expand=False)
 
-        radio = gtk.RadioButton(radio, "Set to")
+        radio = gtk.RadioButton(radio, _("Set to"))
         radio.set_active(None in priority)
         radio.show()
         hbox.pack_start(radio, expand=False)
@@ -403,7 +403,7 @@ class GtkSinglePriority(object):
         spin.show()
         hbox.pack_start(spin, expand=False)
 
-        label = gtk.Label("Channel priority:")
+        label = gtk.Label(_("Channel priority:"))
         label.set_alignment(1.0, 0.0)
         label.show()
         table.attach(label, 0, 1, 2, 3, gtk.FILL, gtk.FILL)

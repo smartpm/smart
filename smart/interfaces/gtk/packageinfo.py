@@ -63,11 +63,11 @@ class GtkPackageInfo(gtk.Alignment):
         attrsright.insert(pango.AttrFontDesc(boldfont, 0, -1))
 
         row = 0
-        for attr, text in [("status", "Status:"),
-                           ("priority", "Priority:"),
-                           ("group", "Group:"),
-                           ("installedsize", "Installed Size:"),
-                           ("channels", "Channels:")]:
+        for attr, text in [("status", _("Status:")),
+                           ("priority", _("Priority:")),
+                           ("group", _("Group:")),
+                           ("installedsize", _("Installed Size:")),
+                           ("channels", _("Channels:"))]:
             label = gtk.Label(text)
             label.set_attributes(attrsleft)
             if attr == "channels":
@@ -85,7 +85,7 @@ class GtkPackageInfo(gtk.Alignment):
             setattr(self._info, attr, label)
             row += 1
 
-        label = gtk.Label("General")
+        label = gtk.Label(_("General"))
         self._notebook.append_page(sw, label)
 
 
@@ -106,7 +106,7 @@ class GtkPackageInfo(gtk.Alignment):
         buffer.create_tag("summary", font_desc=boldfont)
         sw.add(self._descrtv)
 
-        label = gtk.Label("Description")
+        label = gtk.Label(_("Description"))
         self._notebook.append_page(sw, label)
 
 
@@ -126,7 +126,7 @@ class GtkPackageInfo(gtk.Alignment):
         buffer.create_tag("content", font_desc=font)
         sw.add(self._conttv)
 
-        label = gtk.Label("Content")
+        label = gtk.Label(_("Content"))
         self._notebook.append_page(sw, label)
 
 
@@ -135,7 +135,7 @@ class GtkPackageInfo(gtk.Alignment):
         self._relations.getTreeView().set_headers_visible(False)
         self._relations.show()
 
-        label = gtk.Label("Relations")
+        label = gtk.Label(_("Relations"))
         self._notebook.append_page(self._relations, label)
 
 
@@ -153,13 +153,15 @@ class GtkPackageInfo(gtk.Alignment):
         self._urls.show()
         renderer = gtk.CellRendererText()
         renderer.set_property("font-desc", font)
-        self._urls.insert_column_with_attributes(-1, "Channel",
+        self._urls.insert_column_with_attributes(-1, _("Channel"),
                                                  renderer, text=0)
-        self._urls.insert_column_with_attributes(-1, "Size", renderer, text=1)
-        self._urls.insert_column_with_attributes(-1, "URL", renderer, text=2)
+        self._urls.insert_column_with_attributes(-1, _("Size"),
+                                                 renderer, text=1)
+        self._urls.insert_column_with_attributes(-1, _("URL"),
+                                                 renderer, text=2)
         sw.add(self._urls)
 
-        label = gtk.Label("URLs")
+        label = gtk.Label(_("URLs"))
         self._notebook.append_page(sw, label)
 
 
@@ -213,9 +215,9 @@ class GtkPackageInfo(gtk.Alignment):
             else:
                 flags = ""
 
-            status = pkg.installed and "Installed" or "Available"
+            status = pkg.installed and _("Installed") or _("Available")
             self._info.status.set_text(status+flags)
-            self._info.group.set_text(group or "Unknown")
+            self._info.group.set_text(group or _("Unknown"))
             self._info.priority.set_text(str(pkg.getPriority()))
             self._info.channels.set_text("\n".join(channels))
 
@@ -308,7 +310,8 @@ class GtkPackageInfo(gtk.Alignment):
     def _setRelations(self, pkg):
 
         class Sorter(str):
-            ORDER = ["Provides", "Upgrades", "Requires", "Conflicts"]
+            ORDER = [_("Provides"), _("Upgrades"),
+                     _("Requires"), _("Conflicts")]
             def __cmp__(self, other):
                 return cmp(self.ORDER.index(str(self)),
                            self.ORDER.index(str(other)))
@@ -325,22 +328,23 @@ class GtkPackageInfo(gtk.Alignment):
             for req in prv.requiredby:
                 requiredby.extend(req.packages)
             if requiredby:
-                prvmap["Required By"] = requiredby
+                prvmap[_("Required By")] = requiredby
 
             upgradedby = []
             for upg in prv.upgradedby:
                 upgradedby.extend(upg.packages)
             if upgradedby:
-                prvmap["Upgraded By"] = upgradedby
+                prvmap[_("Upgraded By")] = upgradedby
 
             conflictedby = []
             for cnf in prv.conflictedby:
                 conflictedby.extend(cnf.packages)
             if conflictedby:
-                prvmap["Conflicted By"] = conflictedby
+                prvmap[_("Conflicted By")] = conflictedby
 
             if prvmap:
-                relations.setdefault(Sorter("Provides"), {})[str(prv)] = prvmap
+                relations.setdefault(Sorter(_("Provides")), {})[str(prv)] = \
+                                                                        prvmap
 
         requires = {}
         for req in pkg.requires:
@@ -349,7 +353,7 @@ class GtkPackageInfo(gtk.Alignment):
                 lst.extend(prv.packages)
             lst[:] = dict.fromkeys(lst).keys()
         if requires:
-            relations[Sorter("Requires")] = requires
+            relations[Sorter(_("Requires"))] = requires
 
         upgrades = {}
         for upg in pkg.upgrades:
@@ -358,7 +362,7 @@ class GtkPackageInfo(gtk.Alignment):
                 lst.extend(prv.packages)
             lst[:] = dict.fromkeys(lst).keys()
         if upgrades:
-            relations[Sorter("Upgrades")] = upgrades
+            relations[Sorter(_("Upgrades"))] = upgrades
 
         conflicts = {}
         for cnf in pkg.conflicts:
@@ -367,7 +371,7 @@ class GtkPackageInfo(gtk.Alignment):
                 lst.extend(prv.packages)
             lst[:] = dict.fromkeys(lst).keys()
         if conflicts:
-            relations[Sorter("Conflicts")] = conflicts
+            relations[Sorter(_("Conflicts"))] = conflicts
 
         self._relations.setPackages(relations, self._changeset)
 

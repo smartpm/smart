@@ -19,20 +19,21 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "APT-DEB Repository"
+name = _("APT-DEB Repository")
 
-description = """
+description = _("""
 Repositories created for APT-DEB.
-"""
+""")
 
-fields = [("baseurl", "Base URL", str, None,
-           "Base URL of repository, where dists/ is located."),
-          ("distribution", "Distribution", str, None,
-           "Distribution to use."),
-          ("components", "Components", str, None,
-           "Space separated list of components."),
-          ("fingerprint", "Fingerprint", str, "",
-           "GPG fingerprint of key signing the channel.")]
+fields = [("baseurl", _("Base URL"), str, None,
+           _("Base URL of repository, where dists/ is located.")),
+          ("distribution", _("Distribution"), str, None,
+           _("Distribution to use.")),
+          ("components", _("Components"), str, None,
+           _("Space separated list of components.")),
+          ("fingerprint", _("Fingerprint"), str, "",
+           _("GPG fingerprint of key signing the channel."))]

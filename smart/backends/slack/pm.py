@@ -30,7 +30,7 @@ class SlackPackageManager(PackageManager):
 
         prog = iface.getProgress(self, True)
         prog.start()
-        prog.setTopic("Committing transaction...")
+        prog.setTopic(_("Committing transaction..."))
         prog.show()
 
         install = {}
@@ -56,7 +56,7 @@ class SlackPackageManager(PackageManager):
         prog.set(0, total)
 
         for pkg in install:
-            prog.setSubTopic(pkg, "Installing %s" % pkg.name)
+            prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("installpkg %s" %
@@ -64,13 +64,13 @@ class SlackPackageManager(PackageManager):
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
-                iface.warning("Got status %d installing %s:" % (status, pkg))
+                iface.warning(_("Got status %d installing %s:") % (status, pkg))
                 iface.warning(output)
             else:
-                iface.debug("Installing %s:" % pkg)
+                iface.debug(_("Installing %s:") % pkg)
                 iface.debug(output)
         for pkg in upgrade:
-            prog.setSubTopic(pkg, "Upgrading %s" % pkg.name)
+            prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("upgradepkg %s" %
@@ -78,13 +78,13 @@ class SlackPackageManager(PackageManager):
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
-                iface.warning("Got status %d upgrading %s:" % (status, pkg))
+                iface.warning(_("Got status %d upgrading %s:") % (status, pkg))
                 iface.warning(output)
             else:
-                iface.debug("Upgrading %s:" % pkg)
+                iface.debug(_("Upgrading %s:") % pkg)
                 iface.debug(output)
         for pkg in remove:
-            prog.setSubTopic(pkg, "Removing %s" % pkg.name)
+            prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("removepkg %s" %
@@ -92,10 +92,10 @@ class SlackPackageManager(PackageManager):
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
-                iface.warning("Got status %d removing %s:" % (status, pkg))
+                iface.warning(_("Got status %d removing %s:") % (status, pkg))
                 iface.warning(output)
             else:
-                iface.debug("Removing %s:" % pkg)
+                iface.debug(_("Removing %s:") % pkg)
                 iface.debug(output)
 
         prog.setDone()

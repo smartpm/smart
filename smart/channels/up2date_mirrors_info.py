@@ -19,14 +19,15 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "mirror"
 
-name = "Mirror Information (up2date format)"
+name = _("Mirror Information (up2date format)")
 
-description = """
+description = _("""
 Mirror information file, in up2date format.
-"""
+""")
 
-fields = [("url", "Mirror File URL", str, None,
-           "URL for the mirror information file")]
+fields = [("url", _("Mirror File URL"), str, None,
+           _("URL for the mirror information file"))]

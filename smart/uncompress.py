@@ -41,7 +41,7 @@ class Uncompressor(object):
             if handler.query(localpath):
                 return handler.uncompress(localpath)
         else:
-            raise Error, "unknown compressed file: %s" % localpath
+            raise Error, _("Unknown compressed file: %s") % localpath
 
 class UncompressorHandler(object):
 
@@ -52,7 +52,7 @@ class UncompressorHandler(object):
         return None
 
     def uncompress(self, localpath):
-        raise Error, "unsupported file type"
+        raise Error, _("Unsupported file type")
 
 class BZ2Handler(UncompressorHandler):
 

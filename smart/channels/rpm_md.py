@@ -55,7 +55,7 @@ class RPMMetaDataChannel(PackageChannel):
         if item.getStatus() is FAILED:
             progress.add(1)
             if fetcher.getCaching() is NEVER:
-                lines = ["Failed acquiring release file for '%s':" % self,
+                lines = [_("Failed acquiring release file for '%s':") % self,
                          "%s: %s" % (item.getURL(), item.getFailedReason())]
                 raise Error, "\n".join(lines)
             return False
@@ -84,8 +84,8 @@ class RPMMetaDataChannel(PackageChannel):
                         subnode.text
 
         if "primary" not in info:
-            raise Error, "Primary information not found in repository " \
-                         "metadata for '%s'" % self
+            raise Error, _("Primary information not found in repository "
+                           "metadata for '%s'") % self
 
         fetcher.reset()
         item = fetcher.enqueue(info["primary"]["url"],
@@ -100,8 +100,8 @@ class RPMMetaDataChannel(PackageChannel):
             loader.setChannel(self)
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
-            lines = ["Failed acquiring information for '%s':" % self,
-                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            lines = [_("Failed acquiring information for '%s':") % self,
+                       "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
         else:
             return False

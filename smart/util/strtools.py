@@ -19,6 +19,8 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
+
 import posixpath
 import string
 import md5
@@ -49,7 +51,7 @@ class ShortURL(object):
 
 def sizeToStr(bytes):
     if bytes is None:
-        return "Unknown"
+        return _("Unknown")
     if bytes < 1024:
         return "%dB" % bytes
     elif bytes < 1024000:
@@ -59,7 +61,7 @@ def sizeToStr(bytes):
 
 def speedToStr(speed):
     if speed < 1:
-        return "Stalled"
+        return _("Stalled")
     elif speed < 1024:
         return "%dB/s" % speed
     elif speed < 1024000:
@@ -80,9 +82,9 @@ def strToBool(s, default=False):
     if not s:
         return default
     s = s.strip().lower()
-    if s in ("y", "yes", "true", "1"):
+    if s in ("y", "yes", "true", "1", _("y"), _("yes"), _("true")):
         return True
-    if s in ("n", "no", "false", "0"):
+    if s in ("n", "no", "false", "0", _("n"), _("no"), _("false")):
         return False
     return default
 

@@ -19,14 +19,15 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "RPM Directory"
+name = _("RPM Directory")
 
-description = """
+description = _("""
 Local directory with RPM packages.
-"""
+""")
 
-fields = [("path", "Directory Path", str, None,
-           "Path of directory containing RPM packages.")]
+fields = [("path", _("Directory Path"), str, None,
+           _("Path of directory containing RPM packages."))]

@@ -106,56 +106,56 @@ UI = """
 """
 
 ACTIONS = [
-    ("file", None, "_File"),
-    ("update-selected-channels", "gtk-refresh", "Update _Selected Channels...", None,
-     "Update given channels", "self.updateChannels(True)"),
-    ("update-channels", "gtk-refresh", "_Update Channels", None,
-     "Update channels", "self.updateChannels()"),
-    ("rebuild-cache", None, "_Rebuild Cache", None,
-     "Reload package information", "self.rebuildCache()"),
-    ("exec-changes", "gtk-execute", "_Execute Changes...", "<control>c",
-     "Apply marked changes", "self.applyChanges()"),
-    ("quit", "gtk-quit", "_Quit", "<control>q",
-     "Quit application", "gtk.main_quit()"),
+    ("file", None, _("_File")),
+    ("update-selected-channels", "gtk-refresh", _("Update _Selected Channels..."), None,
+     _("Update given channels"), "self.updateChannels(True)"),
+    ("update-channels", "gtk-refresh", _("_Update Channels"), None,
+     _("Update channels"), "self.updateChannels()"),
+    ("rebuild-cache", None, _("_Rebuild Cache"), None,
+     _("Reload package information"), "self.rebuildCache()"),
+    ("exec-changes", "gtk-execute", _("_Execute Changes..."), "<control>c",
+     _("Apply marked changes"), "self.applyChanges()"),
+    ("quit", "gtk-quit", _("_Quit"), "<control>q",
+     _("Quit application"), "gtk.main_quit()"),
 
-    ("edit", None, "_Edit"),
-    ("undo", "gtk-undo", "_Undo", "<control>z",
-     "Undo last change", "self.undo()"),
-    ("redo", "gtk-redo", "_Redo", "<control><shift>z",
-     "Redo last undone change", "self.redo()"),
-    ("clear-changes", "gtk-clear", "Clear Marked Changes", None,
-     "Clear all changes", "self.clearChanges()"),
-    ("check-installed-packages", None, "Check Installed Packages...", None,
-     "Check installed packages", "self.checkPackages()"),
-    ("check-uninstalled-packages", None, "Check Uninstalled Packages...", None,
-     "Check uninstalled packages", "self.checkPackages(uninstalled=True)"),
-    ("check-all-packages", None, "Check All Packages...", None,
-     "Check all packages", "self.checkPackages(all=True)"),
-    ("upgrade-all", "gtk-go-up", "Upgrade _All...", None,
-     "Upgrade all packages", "self.upgradeAll()"),
-    ("fix-all-problems", None, "Fix All _Problems...", None,
-     "Fix all problems", "self.fixAllProblems()"),
-    ("find", "gtk-find", "_Find...", "<control>f",
-     "Find packages", "self.toggleSearch()"),
-    ("edit-channels", None, "_Channels", None,
-     "Edit channels", "self.editChannels()"),
-    ("edit-mirrors", None, "_Mirrors", None,
-     "Edit mirrors", "self.editMirrors()"),
-    ("edit-flags", None, "_Flags", None,
-     "Edit package flags", "self.editFlags()"),
-    ("edit-priorities", None, "_Priorities", None,
-     "Edit package priorities", "self.editPriorities()"),
+    ("edit", None, _("_Edit")),
+    ("undo", "gtk-undo", _("_Undo"), "<control>z",
+     _("Undo last change"), "self.undo()"),
+    ("redo", "gtk-redo", _("_Redo"), "<control><shift>z",
+     _("Redo last undone change"), "self.redo()"),
+    ("clear-changes", "gtk-clear", _("Clear Marked Changes"), None,
+     _("Clear all changes"), "self.clearChanges()"),
+    ("check-installed-packages", None, _("Check Installed Packages..."), None,
+     _("Check installed packages"), "self.checkPackages()"),
+    ("check-uninstalled-packages", None, _("Check Uninstalled Packages..."), None,
+     _("Check uninstalled packages"), "self.checkPackages(uninstalled=True)"),
+    ("check-all-packages", None, _("Check All Packages..."), None,
+     _("Check all packages"), "self.checkPackages(all=True)"),
+    ("upgrade-all", "gtk-go-up", _("Upgrade _All..."), None,
+     _("Upgrade all packages"), "self.upgradeAll()"),
+    ("fix-all-problems", None, _("Fix All _Problems..."), None,
+     _("Fix all problems"), "self.fixAllProblems()"),
+    ("find", "gtk-find", _("_Find..."), "<control>f",
+     _("Find packages"), "self.toggleSearch()"),
+    ("edit-channels", None, _("_Channels"), None,
+     _("Edit channels"), "self.editChannels()"),
+    ("edit-mirrors", None, _("_Mirrors"), None,
+     _("Edit mirrors"), "self.editMirrors()"),
+    ("edit-flags", None, _("_Flags"), None,
+     _("Edit package flags"), "self.editFlags()"),
+    ("edit-priorities", None, _("_Priorities"), None,
+     _("Edit package priorities"), "self.editPriorities()"),
 
-    ("view", None, "_View"),
-    ("tree-style", None, "_Tree Style"),
-    ("expand-all", "gtk-open", "_Expand All", None,
-     "Expand all items in the tree", "self._pv.getTreeView().expand_all()"),
-    ("collapse-all", "gtk-close", "_Collapse All", None,
-     "Collapse all items in the tree", "self._pv.getTreeView().collapse_all()"),
-    ("summary-window", None, "_Summary Window", "<control>s",
-     "Show summary window", "self.showChanges()"),
-    ("log-window", None, "_Log Window", None,
-     "Show log window", "self._log.show()"),
+    ("view", None, _("_View")),
+    ("tree-style", None, _("_Tree Style")),
+    ("expand-all", "gtk-open", _("_Expand All"), None,
+     _("Expand all items in the tree"), "self._pv.getTreeView().expand_all()"),
+    ("collapse-all", "gtk-close", _("_Collapse All"), None,
+     _("Collapse all items in the tree"), "self._pv.getTreeView().collapse_all()"),
+    ("summary-window", None, _("_Summary Window"), "<control>s",
+     _("Show summary window"), "self.showChanges()"),
+    ("log-window", None, _("_Log Window"), None,
+     _("Show log window"), "self._log.show()"),
 ]
 
 def compileActions(actions, globals):
@@ -203,21 +203,21 @@ class GtkInteractiveInterface(GtkInterface):
         self._actions.add_actions(compileActions(ACTIONS, globals))
 
         self._filters = {}
-        for name, label in [("hide-non-upgrades", "Hide Non-upgrades"),
-                            ("hide-installed", "Hide Installed"),
-                            ("hide-uninstalled", "Hide Uninstalled"),
-                            ("hide-unmarked", "Hide Unmarked"),
-                            ("hide-old", "Hide Old")]:
+        for name, label in [("hide-non-upgrades", _("Hide Non-upgrades")),
+                            ("hide-installed", _("Hide Installed")),
+                            ("hide-uninstalled", _("Hide Uninstalled")),
+                            ("hide-unmarked", _("Hide Unmarked")),
+                            ("hide-old", _("Hide Old"))]:
             action = gtk.ToggleAction(name, label, "", "")
             action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
             self._actions.add_action(action)
 
         treestyle = sysconf.get("package-tree")
         lastaction = None
-        for name, label in [("groups", "Groups"),
-                            ("channels", "Channels"),
-                            ("channels-groups", "Channels & Groups"),
-                            ("none", "None")]:
+        for name, label in [("groups", _("Groups")),
+                            ("channels", _("Channels")),
+                            ("channels-groups", _("Channels & Groups")),
+                            ("none", _("None"))]:
             action = gtk.RadioAction("tree-style-"+name, label, "", "", 0)
             if name == treestyle:
                 action.set_active(True)
@@ -267,7 +267,7 @@ class GtkInteractiveInterface(GtkInterface):
         searchtable.show()
         searchvp.add(searchtable)
 
-        label = gtk.Label("Search:")
+        label = gtk.Label(_("Search:"))
         label.show()
         searchtable.attach(label, 0, 1, 0, 1, 0, 0)
 
@@ -307,16 +307,16 @@ class GtkInteractiveInterface(GtkInterface):
         hbox.show()
         searchtable.attach(hbox, 1, 2, 1, 2)
 
-        self._searchname = gtk.RadioButton(None, "Name")
+        self._searchname = gtk.RadioButton(None, _("Name"))
         self._searchname.set_active(True)
         self._searchname.connect("clicked", lambda x: self.refreshPackages())
         self._searchname.show()
         hbox.pack_start(self._searchname, False)
-        self._searchdesc = gtk.RadioButton(self._searchname, "Description")
+        self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
         self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
         self._searchdesc.show()
         hbox.pack_start(self._searchdesc, False)
-        self._searchpath = gtk.RadioButton(self._searchname, "Content")
+        self._searchpath = gtk.RadioButton(self._searchname, _("Content"))
         self._searchpath.connect("clicked", lambda x: self.refreshPackages())
         self._searchpath.show()
         hbox.pack_start(self._searchpath, False)
@@ -432,10 +432,10 @@ class GtkInteractiveInterface(GtkInterface):
                 self.saveUndo()
                 self._changeset.setState(changeset)
                 self.changedMarks()
-                if self.askYesNo("Apply marked changes now", True):
+                if self.askYesNo(_("Apply marked changes now?"), True):
                     self.applyChanges()
         else:
-            self.showStatus("No interesting upgrades available!")
+            self.showStatus(_("No interesting upgrades available!"))
 
     def actOnPackages(self, pkgs, op=None):
         cache = self._ctrl.getCache()
@@ -489,7 +489,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         image = gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-install"))
-        item = gtk.ImageMenuItem("Install")
+        item = gtk.ImageMenuItem(_("Install"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
         if not hasnoninstalled:
@@ -498,7 +498,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         image = gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-reinstall"))
-        item = gtk.ImageMenuItem("Reinstall")
+        item = gtk.ImageMenuItem(_("Reinstall"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
         if not hasinstalled:
@@ -508,7 +508,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         image = gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-remove"))
-        item = gtk.ImageMenuItem("Remove")
+        item = gtk.ImageMenuItem(_("Remove"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, REMOVE))
         if not hasinstalled:
@@ -520,7 +520,7 @@ class GtkInteractiveInterface(GtkInterface):
             image.set_from_pixbuf(getPixbuf("package-available"))
         else:
             image.set_from_pixbuf(getPixbuf("package-installed"))
-        item = gtk.ImageMenuItem("Keep")
+        item = gtk.ImageMenuItem(_("Keep"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, KEEP))
         if not [pkg for pkg in pkgs if pkg in self._changeset]:
@@ -529,7 +529,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         image = gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-broken"))
-        item = gtk.ImageMenuItem("Fix problems")
+        item = gtk.ImageMenuItem(_("Fix problems"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, FIX))
         if not hasinstalled:
@@ -560,7 +560,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         image = gtk.Image()
         if thislocked:
-            item = gtk.ImageMenuItem("Unlock this version")
+            item = gtk.ImageMenuItem(_("Unlock this version"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed"))
             else:
@@ -572,7 +572,7 @@ class GtkInteractiveInterface(GtkInterface):
                 self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_this)
         else:
-            item = gtk.ImageMenuItem("Lock this version")
+            item = gtk.ImageMenuItem(_("Lock this version"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed-locked"))
             else:
@@ -590,7 +590,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         image = gtk.Image()
         if alllocked:
-            item = gtk.ImageMenuItem("Unlock all versions")
+            item = gtk.ImageMenuItem(_("Unlock all versions"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed"))
             else:
@@ -602,7 +602,7 @@ class GtkInteractiveInterface(GtkInterface):
                 self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_all)
         else:
-            item = gtk.ImageMenuItem("Lock all versions")
+            item = gtk.ImageMenuItem(_("Lock all versions"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed-locked"))
             else:
@@ -618,7 +618,7 @@ class GtkInteractiveInterface(GtkInterface):
             item.set_sensitive(False)
         menu.append(item)
 
-        item = gtk.MenuItem("Priority")
+        item = gtk.MenuItem(_("Priority"))
         def priority(x):
             GtkSinglePriority(self._window).show(pkgs[0])
             self._pi.setPackage(pkgs[0])
@@ -634,7 +634,7 @@ class GtkInteractiveInterface(GtkInterface):
         cache = self._ctrl.getCache()
         if checkPackages(cache, cache.getPackages(), report=True,
                          all=all, uninstalled=uninstalled):
-            self.info("All checked packages have correct relations.")
+            self.info(_("All checked packages have correct relations."))
 
     def fixAllProblems(self):
         self.actOnPackages([pkg for pkg in self._ctrl.getCache().getPackages()

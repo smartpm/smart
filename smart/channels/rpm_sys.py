@@ -31,7 +31,7 @@ class RPMSysChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         path = os.path.join(sysconf.get("rpm-root", "/"),
-                            "/var/lib/rpm/Packages")
+                            "var/lib/rpm/Packages")
         digest = os.path.getmtime(path)
         if digest == self._digest:
             return True
@@ -44,7 +44,7 @@ class RPMSysChannel(PackageChannel):
 
 def create(alias, data):
     if data["removable"]:
-        raise Error, "%s channels cannot be removable" % data["type"]
+        raise Error, _("%s channels cannot be removable") % data["type"]
     return RPMSysChannel(data["type"],
                          alias,
                          data["name"],

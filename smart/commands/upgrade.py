@@ -28,40 +28,40 @@ import string
 import re
 import os
 
-USAGE="smart upgrade [options] [package] ..."
+USAGE=_("smart upgrade [options] [package] ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will upgrade one or more packages which
 are currently installed in the system. If no packages
 are given, all installed packages will be checked.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart upgrade
 smart upgrade pkgname
 smart upgrade '*kgnam*'
 smart upgrade pkgname-1.0
 smart upgrade pkgname-1.0-1
 smart upgrade pkgname1 pkgname2
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
-                      help="split operation in steps")
+                      help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
-                      help="dump needed urls and don't commit operation")
+                      help=_("dump needed urls and don't commit operation"))
     parser.add_option("--download", action="store_true",
-                      help="download packages and don't commit operation")
+                      help=_("download packages and don't commit operation"))
     parser.add_option("--check", action="store_true",
-                      help="just check if there are upgrades to be done")
+                      help=_("just check if there are upgrades to be done"))
     parser.add_option("--check-update", action="store_true",
-                      help="check if there are upgrades to be done, and "
-                           "update the known upgrades")
+                      help=_("check if there are upgrades to be done, and "
+                             "update the known upgrades"))
     parser.add_option("-y", "--yes", action="store_true",
-                      help="do not ask for confirmation")
+                      help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -78,12 +78,12 @@ def main(ctrl, opts):
             matcher = MasterMatcher(arg)
             fpkgs = matcher.filter(pkgs)
             if not fpkgs:
-                raise Error, "'%s' matches no installed packages" % arg
+                raise Error, _("'%s' matches no installed packages") % arg
             newpkgs.extend(fpkgs)
         pkgs = dict.fromkeys(newpkgs).keys()
     for pkg in pkgs:
         trans.enqueue(pkg, UPGRADE)
-    iface.showStatus("Computing transaction...")
+    iface.showStatus(_("Computing transaction..."))
     trans.run()
 
     if trans and opts.check or opts.check_update:
@@ -104,18 +104,18 @@ def main(ctrl, opts):
             cPickle.dump(state, file, 2)
             file.close()
         if not state:
-            iface.showStatus("No interesting upgrades available.")
+            iface.showStatus(_("No interesting upgrades available."))
             return 2
         elif checkstate:
             for entry in state:
                 if checkstate.get(entry) != state[entry]:
                     break
             else:
-                iface.showStatus("There are pending upgrades!")
+                iface.showStatus(_("There are pending upgrades!"))
                 return 1
-        iface.showStatus("There are new upgrades available!")
+        iface.showStatus(_("There are new upgrades available!"))
     elif not trans:
-        iface.showStatus("No interesting upgrades available.")
+        iface.showStatus(_("No interesting upgrades available."))
     else:
         iface.hideStatus()
         confirm = not opts.yes

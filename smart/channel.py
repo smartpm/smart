@@ -110,7 +110,7 @@ class FileChannel(PackageChannel):
         if name is None:
             name = os.path.basename(filename)
         if not os.path.isfile(filename):
-            raise Error, "File not found: %s" % filename
+            raise Error, _("File not found: %s") % filename
         super(FileChannel, self).__init__("file", filename, name,
                                           manualupdate=True, priority=priority)
 
@@ -128,29 +128,29 @@ class MirrorsChannel(Channel):
         return self._mirrors
 
 # (key, label, needed, type, description)
-DEFAULTFIELDS = [("alias", "Alias", str, None,
-                  "Unique identification for the channel."),
-                 ("type", "Type", str, None,
-                  "Channel type"),
-                 ("name", "Name", str, "",
-                  "Channel name"),
-                 ("manual", "Manual updates", bool, False,
-                  "If set to a true value, the given channel "
-                  "will only be updated when manually selected."),
-                 ("disabled", "Disabled", bool, False,
-                  "If set to a true value, the given channel "
-                  "won't be used."),
-                 ("removable", "Removable", bool, False,
-                  "If set to a true value, the given channel will "
-                  "be considered as being available in a removable "
-                  "media (cdrom, etc).")]
+DEFAULTFIELDS = [("alias", _("Alias"), str, None,
+                  _("Unique identification for the channel.")),
+                 ("type", _("Type"), str, None,
+                  _("Channel type")),
+                 ("name", _("Name"), str, "",
+                  _("Channel name")),
+                 ("manual", _("Manual updates"), bool, False,
+                  _("If set to a true value, the given channel "
+                    "will only be updated when manually selected.")),
+                 ("disabled", _("Disabled"), bool, False,
+                  _("If set to a true value, the given channel "
+                    "won't be used.")),
+                 ("removable", _("Removable"), bool, False,
+                  _("If set to a true value, the given channel will "
+                    "be considered as being available in a removable "
+                    "media (cdrom, etc)."))]
 
 KINDFIELDS = {"package":
-              [("priority", "Priority", int, 0,
-                "Default priority assigned to all packages "
-                "available in this channel (0 if not set). If "
-                "the exact same package is available in more "
-                "than one channel, the highest priority is used.")]}
+              [("priority", _("Priority"), int, 0,
+                _("Default priority assigned to all packages "
+                  "available in this channel (0 if not set). If "
+                  "the exact same package is available in more "
+                  "than one channel, the highest priority is used."))]}
 
 def createChannel(alias, data):
     data = parseChannelData(data)
@@ -164,7 +164,7 @@ def createChannel(alias, data):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, "Unable to create channel of type '%s'" % type
+        raise Error, _("Unable to create channel of type '%s'") % type
     data = data.copy()
     info = getChannelInfo(data.get("type"))
     for key, label, ftype, default, descr in info.fields:
@@ -177,10 +177,10 @@ def createChannel(alias, data):
 def createChannelDescription(alias, data):
     ctype = data.get("type")
     if not ctype:
-        raise Error, "Channel has no type"
+        raise Error, _("Channel has no type")
     info = getChannelInfo(ctype)
     if not info:
-        raise Error, "Unknown channel type: %s" % ctype
+        raise Error, _("Unknown channel type: %s") % ctype
     lines = ["[%s]" % alias]
     for key, label, ftype, default, descr in info.fields:
         if key == "alias":
@@ -190,7 +190,7 @@ def createChannelDescription(alias, data):
             value = value.strip()
         if not value or value == default:
             if default is None:
-                raise Error, "%s (%s) is a needed field for '%s' channels" \
+                raise Error, _("%s (%s) is a needed field for '%s' channels") \
                              % (label, key, ctype)
             continue
         if type(value) is bool:
@@ -203,10 +203,10 @@ def createChannelDescription(alias, data):
 def parseChannelData(data):
     ctype = data.get("type")
     if not ctype:
-        raise Error, "Channel has no type"
+        raise Error, _("Channel has no type")
     info = getChannelInfo(ctype)
     if not info:
-        raise Error, "Unknown channel type: %s" % ctype
+        raise Error, _("Unknown channel type: %s") % ctype
     newdata = {}
     for key, label, ftype, default, descr in info.fields:
         if key == "alias":
@@ -216,27 +216,29 @@ def parseChannelData(data):
             value = value.strip()
         if not value or value == default:
             if default is None:
-                raise Error, "%s (%s) is a needed field for '%s' channels"\
+                raise Error, _("%s (%s) is a needed field for '%s' channels") \
                              % (label, key, ctype)
             continue
         if type(value) is str:
             if ftype is bool:
                 value = value.lower()
-                if value in ("y", "yes", "true", "1"):
+                if value in ("y", "yes", "true", "1",
+                             _("y"), _("yes"), _("true")):
                     value = True
-                elif value in ("n", "no", "false", "0"):
+                elif value in ("n", "no", "false", "0",
+                               _("n"), _("no"), _("false")):
                     value = False
                 else:
-                    raise Error, "Invalid value for '%s' (%s) field: %s" % \
+                    raise Error, _("Invalid value for '%s' (%s) field: %s") % \
                                  (label, key, `value`)
             elif ftype is not str:
                 try:
                     value = ftype(value)
                 except ValueError:
-                    raise Error, "Invalid value for '%s' (%s) field: %s" % \
+                    raise Error, _("Invalid value for '%s' (%s) field: %s") % \
                                  (label, key, `value`)
         elif type(value) is not ftype:
-            raise Error, "Invalid value for '%s' (%s) field: %s" % \
+            raise Error, _("Invalid value for '%s' (%s) field: %s") % \
                          (label, key, `value`)
         newdata[key] = value
     return newdata
@@ -251,7 +253,7 @@ def parseChannelsDescription(data):
             continue
         if len(line) > 2 and line[0] == "[" and line[-1] == "]":
             if current and "type" not in current:
-                raise Error, "Channel '%s' has no type" % alias
+                raise Error, _("Channel '%s' has no type") % alias
             alias = line[1:-1].strip()
             current = {}
             channels[alias] = current
@@ -273,7 +275,7 @@ def getChannelInfo(type):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, "Invalid channel type '%s'" % type
+        raise Error, _("Invalid channel type '%s'") % type
     if not hasattr(info, "_fixed"):
         info._fixed = True
         fields = []

@@ -26,33 +26,33 @@ from smart import *
 import string
 import re
 
-USAGE="smart remove [options] package ..."
+USAGE=_("smart remove [options] package ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will remove one or more packages which
 are currently installed in the system.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart remove pkgname
 smart remove '*kgnam*'
 smart remove pkgname-1.0
 smart remove pkgname-1.0-1
 smart remove pkgname1 pkgname2
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
-                      help="split operation in steps")
+                      help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
-                      help="dump needed urls and don't commit operation")
+                      help=_("dump needed urls and don't commit operation"))
     parser.add_option("--download", action="store_true",
-                      help="download packages and don't commit operation")
+                      help=_("download packages and don't commit operation"))
     parser.add_option("-y", "--yes", action="store_true",
-                      help="do not ask for confirmation")
+                      help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -73,8 +73,8 @@ def main(ctrl, opts):
             else:
                 policy.setLocked(pkg, True)
         if not found:
-            raise Error, "'%s' matches no installed packages" % arg
-    iface.showStatus("Computing transaction...")
+            raise Error, _("'%s' matches no installed packages") % arg
+    iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()
     if trans:

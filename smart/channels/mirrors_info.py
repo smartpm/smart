@@ -22,11 +22,11 @@
 
 kind = "mirror"
 
-name = "Mirror Information"
+name = _("Mirror Information")
 
-description = """
+description = _("""
 Mirror information file.
-"""
+""")
 
-fields = [("url", "Mirror File URL", str, None,
-           "URL for the mirror information file")]
+fields = [("url", _("Mirror File URL"), str, None,
+           _("URL for the mirror information file"))]

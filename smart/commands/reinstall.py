@@ -27,33 +27,33 @@ from smart import *
 import string
 import re
 
-USAGE="smart reinstall [options] package ..."
+USAGE=_("smart reinstall [options] package ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will reinstall one or more packages which
 are already installed in the system.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart reinstall pkgname
 smart reinstall '*kgnam*'
 smart reinstall pkgname-1.0
 smart reinstall pkgname-1.0-1
 smart reinstall pkgname1 pkgname2
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
-                      help="split operation in steps")
+                      help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
-                      help="dump needed urls and don't commit operation")
+                      help=_("dump needed urls and don't commit operation"))
     parser.add_option("--download", action="store_true",
-                      help="download packages and don't commit operation")
+                      help=_("download packages and don't commit operation"))
     parser.add_option("-y", "--yes", action="store_true",
-                      help="do not ask for confirmation")
+                      help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -68,17 +68,17 @@ def main(ctrl, opts):
         pkgs = matcher.filter(cache.getPackages())
         pkgs = [x for x in pkgs if x.installed]
         if not pkgs:
-            raise Error, "'%s' matches no installed packages" % arg
+            raise Error, _("'%s' matches no installed packages") % arg
         if len(pkgs) > 1:
-            raise Error, "'%s' matches multiple installed packages" % arg
+            raise Error, _("'%s' matches multiple installed packages") % arg
         pkg = pkgs[0]
         for loader in pkg.loaders:
             if not loader.getInstalled():
                 break
         else:
-            raise Error, "'%s' is not available for reinstallation" % pkg
+            raise Error, _("'%s' is not available for reinstallation") % pkg
         trans.enqueue(pkg, REINSTALL)
-    iface.showStatus("Computing transaction...")
+    iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()
     if trans:

@@ -62,33 +62,35 @@ class TextInterface(Interface):
         self.hideStatus()
         if question[-1] in ".!?":
             question = question[:-1]
-        mask = default and "%s (Y/n)? " or "%s (y/N)? "
+        mask = default and _("%s? (Y/n): ") or _("%s? (y/N): ")
         res = raw_input(mask % question).strip().lower()
         print
         if res:
-            return "yes".startswith(res)
+            return (_("yes").startswith(res) and not
+                    _("no").startswith(res))
         return default
 
     def askContCancel(self, question, default=False):
         self.hideStatus()
-        if question[-1] in ".!?":
-            question = question[:-1]
-        mask = default and "%s (Continue/cancel): " or "%s (continue/Cancel)? "
+        if default:
+            mask = _("%s (Continue/cancel): ")
+        else:
+            mask = _("%s (continue/Cancel): ")
         res = raw_input(mask % question).strip().lower()
         print
-        if res and res != "c":
-            return "continue".startswith(res)
+        if res:
+            return (_("continue").startswith(res) and not
+                    _("cancel").startswith(res))
         return default
 
     def askOkCancel(self, question, default=False):
         self.hideStatus()
-        if question[-1] in ".!?":
-            question = question[:-1]
-        mask = default and "%s (Ok/cancel): " or "%s (ok/Cancel): "
+        mask = default and _("%s (Ok/cancel): ") or _("%s (ok/Cancel): ")
         res = raw_input(mask % question).strip().lower()
         print
         if res:
-            return "ok".startswith(res)
+            return (_("ok").startswith(res) and not
+                    _("cancel").startswith(res))
         return default
 
     def confirmChangeSet(self, changeset):
@@ -118,12 +120,12 @@ class TextInterface(Interface):
     def insertRemovableChannels(self, channels):
         self.hideStatus()
         print
-        print "Insert one or more of the following removable channels:"
+        print _("Insert one or more of the following removable channels:")
         print
         for channel in channels:
             print "   ", str(channel)
         print
-        return self.askOkCancel("Continue", True)
+        return self.askOkCancel(_("Continue?"), True)
 
     # Non-standard interface methods:
         
@@ -146,51 +148,51 @@ class TextInterface(Interface):
         if keep:
             keep = cvt(keep)
             keep.sort()
-            print "Kept packages (%d):" % len(keep)
+            print _("Kept packages (%d):") % len(keep)
             printColumns(keep, indent=2, width=screenwidth)
             print
         pkgs = report.upgrading.keys()
         if pkgs:
             pkgs = cvt(pkgs)
             pkgs.sort()
-            print "Upgrading packages (%d):" % len(pkgs)
+            print _("Upgrading packages (%d):") % len(pkgs)
             printColumns(pkgs, indent=2, width=screenwidth)
             print
         pkgs = report.downgrading.keys()
         if pkgs:
             pkgs = cvt(pkgs)
             pkgs.sort()
-            print "Downgrading packages (%d):" % len(pkgs)
+            print _("Downgrading packages (%d):") % len(pkgs)
             printColumns(pkgs, indent=2, width=screenwidth)
             print
         pkgs = report.installing.keys()
         if pkgs:
             pkgs = cvt(pkgs)
             pkgs.sort()
-            print "Installed packages (%d):" % len(pkgs)
+            print _("Installed packages (%d):") % len(pkgs)
             printColumns(pkgs, indent=2, width=screenwidth)
             print
         pkgs = report.removed.keys()
         if pkgs:
             pkgs = cvt(pkgs)
             pkgs.sort()
-            print "Removed packages: (%d)" % len(pkgs)
+            print _("Removed packages: (%d)") % len(pkgs)
             printColumns(pkgs, indent=2, width=screenwidth)
             print
         dsize = report.getDownloadSize()
         size = report.getInstallSize() - report.getRemoveSize()
         if dsize:
-            sys.stdout.write("%s of package files are needed. " %
+            sys.stdout.write(_("%s of package files are needed. ") %
                              sizeToStr(dsize))
         if size > 0:
-            sys.stdout.write("%s will be used." % sizeToStr(size))
+            sys.stdout.write(_("%s will be used.") % sizeToStr(size))
         elif size < 0:
             size *= -1
-            sys.stdout.write("%s will be freed." % sizeToStr(size))
+            sys.stdout.write(_("%s will be freed.") % sizeToStr(size))
         if dsize or size:
             sys.stdout.write("\n\n")
         if confirm:
-            return self.askYesNo("Confirm changes", True)
+            return self.askYesNo(_("Confirm changes?"), True)
         return True
 
 # vim:ts=4:sw=4:et

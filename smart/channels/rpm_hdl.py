@@ -53,7 +53,7 @@ class RPMHeaderListChannel(PackageChannel):
             loader.setChannel(self)
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
-            lines = ["Failed acquiring information for '%s':" % self,
+            lines = [_("Failed acquiring information for '%s':") % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
         else:

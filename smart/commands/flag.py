@@ -24,9 +24,9 @@ from smart import *
 import string
 import re
 
-USAGE="smart flag [options]"
+USAGE=_("smart flag [options]")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command allows one to set, remove, and show package flags.
 Package flags are used to tune the behavior of some algorithms
 when dealing with the given packages.
@@ -46,16 +46,16 @@ Currently known flags are:
   multi-arch    - Flagged packages may have more than one
                   architecture installed in the system at the same
                   time (backend dependent).
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart flag --show
 smart flag --show new
 smart flag --set lock pkgname
 smart flag --remove lock pkgname
 smart flag --set lock 'pkgname >= 1.0'
 smart flag --remove lock 'pkgname >= 1.0'
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
@@ -65,20 +65,20 @@ def parse_options(argv):
     parser.defaults["remove"] = []
     parser.defaults["show"] = None
     parser.add_option("--set", action="callback", callback=append_all,
-                      help="set flags given in pairs of flag name/target, "
-                           "where targets may use just the package "
-                           "name, or the package name, relation, and "
-                           "version, such as: lock 'python > 1.0'")
+                      help=_("set flags given in pairs of flag name/target, "
+                             "where targets may use just the package "
+                             "name, or the package name, relation, and "
+                             "version, such as: lock 'python > 1.0'"))
     parser.add_option("--remove", action="callback", callback=append_all,
-                      help="remove flags given in pairs of flag name/target, "
-                           "where targets may use just the package "
-                           "name, or the package name, relation, and "
-                           "version, such as: lock 'python > 1.0'")
+                      help=_("remove flags given in pairs of flag name/target, "
+                             "where targets may use just the package "
+                             "name, or the package name, relation, and "
+                             "version, such as: lock 'python > 1.0'"))
     parser.add_option("--show", action="callback", callback=append_all,
-                      help="show packages with the flags given as arguments "
-                           "or all flags if no argument was given")
+                      help=_("show packages with the flags given as arguments "
+                             "or all flags if no argument was given"))
     parser.add_option("--force", action="store_true",
-                      help="ignore problems")
+                      help=_("ignore problems"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -91,12 +91,12 @@ def main(ctrl, opts):
 
     for args in (opts.set, opts.remove):
         if len(args) % 2 != 0:
-            raise Error, "Invalid arguments"
+            raise Error, _("Invalid arguments")
         for i in range(0, len(args), 2):
             flag, target = args[i:i+2]
             m = TARGETRE.match(target)
             if not m:
-                raise Error, "Invalid target: %s" % arg
+                raise Error, _("Invalid target: %s") % arg
             if args is opts.set:
                 pkgconf.setFlag(flag, m.group("name"),
                                 m.group("rel"), m.group("version"))

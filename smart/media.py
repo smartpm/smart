@@ -74,7 +74,8 @@ class MediaSet(object):
         path = os.path.normpath(path)
         for media in self._medias:
             device = media.getDevice()
-            if device == path or subpath and path.startswith(device+"/"):
+            if device and \
+               (device == path or subpath and path.startswith(device+"/")):
                 return media
         return None
 
@@ -178,7 +179,7 @@ class Media(object):
 
     def isMounted(self):
         if not os.path.isfile("/proc/mounts"):
-            raise Error, "/proc/mounts not found"
+            raise Error, _("/proc/mounts not found")
         for line in open("/proc/mounts"):
             device, mountpoint, type = line.split()[:3]
             if mountpoint == self._mountpoint:
@@ -326,11 +327,22 @@ def discoverAutoMountMedias():
                 continue
             prefix, mapfile = line.split()[:2]
             if os.path.isfile(mapfile):
+                firstline = False
                 for line in open(mapfile):
+                    if firstline and line.startswith("#!"):
+                        firstline = False
+                        break
                     line = line.strip()
                     if not line or line[0] == "#":
                         continue
-                    key, type, location = line.split()
+                    tokens = line.split()
+                    if len(tokens) == 2:
+                        key, location = tokens
+                        type = None
+                    elif len(tokens) == 3:
+                        key, type, location = tokens
+                    else:
+                        continue
                     if ("-fstype=iso9660" in type or
                         location in (":/dev/cdrom", ":/dev/dvd")):
                         mountpoint = os.path.join(prefix, key)

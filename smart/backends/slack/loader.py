@@ -65,7 +65,7 @@ def parsePackageInfo(filename):
             name = line[13:].strip()
             m = NAMERE.match(name)
             if not m:
-                iface.warning("Invalid package name: %s" % name)
+                iface.warning(_("Invalid package name: %s") % name)
                 continue
             if info:
                 infolst.append(info)

@@ -86,7 +86,7 @@ class URPMIChannel(PackageChannel):
 
         if hdlitem.getStatus() == FAILED:
             if fetcher.getCaching() is NEVER:
-                lines = ["Failed acquiring information for '%s':" % self,
+                lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (hdlitem.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
@@ -121,7 +121,7 @@ class URPMIChannel(PackageChannel):
                     except Error, e:
                         # cz file has trailing information which breaks
                         # current gzip module logic.
-                        if "Not a gzipped file" not in e[0]:
+                        if _("Not a gzipped file") not in e[0]:
                             os.unlink(linkpath)
                             raise
                     os.unlink(linkpath)

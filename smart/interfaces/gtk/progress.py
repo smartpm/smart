@@ -22,6 +22,7 @@
 from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
 from smart.interfaces.gtk import getPixbuf
+from smart import *
 import gobject, gtk
 import posixpath
 import thread
@@ -48,7 +49,7 @@ class GtkProgress(Progress, gtk.Window):
             self.set_size_request(300, 80)
 
         self.set_icon(getPixbuf("smart"))
-        self.set_title("Operation Progress")
+        self.set_title(_("Operation Progress"))
         self.set_modal(True)
         self.set_position(gtk.WIN_POS_CENTER)
 
@@ -86,32 +87,32 @@ class GtkProgress(Progress, gtk.Window):
             self._scrollwin.add(self._treeview)
 
             renderer = ProgressCellRenderer()
-            column = gtk.TreeViewColumn("Progress", renderer, percent=0)
+            column = gtk.TreeViewColumn(_("Progress"), renderer, percent=0)
             column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
             column.set_fixed_width(110)
             self._treeview.append_column(column)
 
             renderer = gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn("Current", renderer, text=2)
+            column = gtk.TreeViewColumn(_("Current"), renderer, text=2)
             self._currentcolumn = column
             self._treeview.append_column(column)
 
             renderer = gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn("Total", renderer, text=3)
+            column = gtk.TreeViewColumn(_("Total"), renderer, text=3)
             self._totalcolumn = column
             self._treeview.append_column(column)
 
             renderer = gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn("Speed", renderer, text=4)
+            column = gtk.TreeViewColumn(_("Speed"), renderer, text=4)
             self._speedcolumn = column
             self._treeview.append_column(column)
 
             renderer = gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn("Description", renderer, text=1)
+            column = gtk.TreeViewColumn(_("Description"), renderer, text=1)
             column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
             self._treeview.append_column(column)
 

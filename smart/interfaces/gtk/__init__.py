@@ -32,7 +32,7 @@ except ImportError:
     if sysconf.get("log-level") == DEBUG:
         import traceback
         traceback.print_exc()
-    raise Error, "system has no support for gtk python interface"
+    raise Error, _("System has no support for gtk python interface")
 
 def create(ctrl, command=None, argv=None):
     if command:
@@ -51,6 +51,6 @@ def getPixbuf(name):
             pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
             _pixbuf[name] = pixbuf
         else:
-            raise Error, "image '%s' not found"
+            raise Error, _("Image '%s' not found")
     return _pixbuf[name]
 

@@ -19,16 +19,17 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "RPM Header List"
+name = _("RPM Header List")
 
-description = """
+description = _("""
 Packages from an RPM Header List.
-"""
+""")
 
-fields = [("hdlurl", "Header List URL", str, None,
-           "URL for the header list"),
-          ("baseurl", "Base URL for packages", str, None,
-           "Base URL where package files are found")]
+fields = [("hdlurl", _("Header List URL"), str, None,
+           _("URL for the header list")),
+          ("baseurl", _("Base URL for packages"), str, None,
+           _("Base URL where package files are found"))]

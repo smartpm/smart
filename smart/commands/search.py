@@ -20,8 +20,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.commands import query
+from smart import *
 
-HELP="""
+HELP=_("""
 Usage: smart search expression ...
 
 This command allows searching for the given expressions
@@ -36,7 +37,7 @@ Examples:
   smart search rpm 'package manager'
   smart search pkgname
   smart search 'pkgn*e'
-"""
+""")
 
 def parse_options(argv):
     opts = query.parse_options(argv, help=HELP)

@@ -32,7 +32,7 @@ class RPMDirChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         if not os.path.isdir(self._path):
-            raise Error, "Channel '%s' has invalid directory: %s" % \
+            raise Error, _("Channel '%s' has invalid directory: %s") % \
                          (self, self._path)
         digest = os.path.getmtime(self._path)
         if digest == self._digest:
@@ -46,7 +46,7 @@ class RPMDirChannel(PackageChannel):
 
 def create(alias, data):
     if data["removable"]:
-        raise Error, "%s channels cannot be removable" % data["type"]
+        raise Error, _("%s channels cannot be removable") % data["type"]
     return RPMDirChannel(data["path"],
                          data["type"],
                          alias,

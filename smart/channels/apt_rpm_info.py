@@ -19,21 +19,22 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "APT-RPM Repository"
+name = _("APT-RPM Repository")
 
-description = """
+description = _("""
 Repositories created for APT-RPM.
-"""
+""")
 
-fields = [("baseurl", "Base URL", str, None,
-           "Base URL of APT-RPM repository, where base/ is located."),
-          ("components", "Components", str, None,
-           "Space separated list of components."),
-          ("fingerprint", "Fingerprint", str, "",
-           "GPG fingerprint of key signing the channel.")]
+fields = [("baseurl", _("Base URL"), str, None,
+           _("Base URL of APT-RPM repository, where base/ is located.")),
+          ("components", _("Components"), str, None,
+           _("Space separated list of components.")),
+          ("fingerprint", _("Fingerprint"), str, "",
+           _("GPG fingerprint of key signing the channel."))]
 
 def detectLocalChannels(path, media):
     import os

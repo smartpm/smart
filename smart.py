@@ -22,7 +22,7 @@
 #
 import sys
 if sys.version_info < (2, 3):
-    sys.exit("error: python 2.3 or later required")
+    sys.exit(_("error: Python 2.3 or later required"))
 
 from smart.const import VERSION, DEBUG, DATADIR
 from smart.option import OptionParser
@@ -31,9 +31,9 @@ from smart import *
 import pwd
 import os
 
-USAGE="smart command [options] [arguments]"
+USAGE=_("smart command [options] [arguments]")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 Action commands:
     update
     install
@@ -55,15 +55,15 @@ Setup commands:
     flag
 
 Run "smart command --help" for more information.
-"""
+""")
 
-EXAMPLES = """
+EXAMPLES = _("""
 smart install --help
 smart install pkgname
 smart --gui
 smart --gui install pkgname
 smart --shell
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
@@ -71,24 +71,25 @@ def parse_options(argv):
                           examples=EXAMPLES,
                           version="smart %s" % VERSION)
     parser.disable_interspersed_args()
-    parser.add_option("--config-file", metavar="FILE",
-                      help="configuration file (default is <data-dir>/config)")
-    parser.add_option("--data-dir", metavar="DIR",
-                      help="data directory (default is %s)" % DATADIR)
-    parser.add_option("--log-level", metavar="LEVEL",
-                      help="set the log level to LEVEL (debug, info, "
-                           "warning, error)")
+    parser.add_option("--config-file", metavar=_("FILE"),
+                      help=_("configuration file "
+                             "(default is <data-dir>/config)"))
+    parser.add_option("--data-dir", metavar=_("DIR"),
+                      help=_("data directory (default is %s)") % DATADIR)
+    parser.add_option("--log-level", metavar=_("LEVEL"),
+                      help=_("set the log level to LEVEL (debug, info, "
+                             "warning, error)"))
     parser.add_option("--gui", action="store_true",
-                      help="use the default graphic interface")
+                      help=_("use the default graphic interface"))
     parser.add_option("--shell", action="store_true",
-                      help="use the default shell interface")
-    parser.add_option("--interface", metavar="NAME",
-                      help="use the given interface")
+                      help=_("use the default shell interface"))
+    parser.add_option("--interface", metavar=_("NAME"),
+                      help=_("use the given interface"))
     parser.add_option("--ignore-locks", action="store_true",
-                      help="don't respect locking")
+                      help=_("don't respect locking"))
     parser.add_option("-o", "--option", action="append", default=[],
-                      metavar="OPT",
-                      help="set the option given by a name=value pair")
+                      metavar=_("OPT"),
+                      help=_("set the option given by a name=value pair"))
     opts, args = parser.parse_args()
     if args:
         opts.command = args[0]
@@ -118,7 +119,7 @@ def set_config_options(options):
     for opt in options:
         m = SETRE.match(opt)
         if not m:
-            raise Error, "Invalid option: %s" % opt
+            raise Error, _("Invalid option: %s") % opt
         path, assign, value = m.groups()
         try:
             value = int(value)
@@ -160,7 +161,7 @@ def main(argv):
         if iface.object:
             iface.error(str(e))
         else:
-            sys.stderr.write("error: %s\n" % e)
+            sys.stderr.write(_("error: %s\n") % e)
         if ctrl:
             ctrl.saveSysConf()
             ctrl.restoreMediaState()
@@ -169,7 +170,7 @@ def main(argv):
             import traceback
             traceback.print_exc()
             sys.exit(1)
-        sys.stderr.write("\nInterrupted\n")
+        sys.stderr.write(_("\nInterrupted\n"))
     print
     if exitcode != 0:
         sys.exit(exitcode)

@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart import Error
+from smart import Error, _
 import optparse
 import textwrap
 import sys, os
@@ -34,7 +34,7 @@ class HelpFormatter(optparse.HelpFormatter):
         optparse.HelpFormatter.__init__(self, 2, 24, 79, 1)
 
     def format_usage(self, usage):
-        return "Usage: %s\n" % usage
+        return _("Usage: %s\n") % usage
 
     def format_heading(self, heading):
         return "\n%*s%s:\n" % (self.current_indent, "", heading.capitalize())

@@ -19,15 +19,16 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "RPM MetaData"
+name = _("RPM MetaData")
 
-description = """
+description = _("""
 Repository created with the rpm-metadata project.
-"""
+""")
 
-fields = [("baseurl", "Base URL", str, None,
-           "URL where repodata/ subdirectory is found")]
+fields = [("baseurl", _("Base URL"), str, None,
+           _("URL where repodata/ subdirectory is found"))]
 

@@ -109,9 +109,8 @@ static PyObject *
 getSysConf(void)
 {
     static PyObject *sysconf = NULL;
-    PyObject *module;
     if (sysconf == NULL) {
-        module = PyImport_ImportModule("smart");
+        PyObject *module = PyImport_ImportModule("smart");
         if (module) {
             sysconf = PyObject_GetAttrString(module, "sysconf");
             Py_DECREF(module);
@@ -125,9 +124,8 @@ static PyObject *
 getPkgConf(void)
 {
     static PyObject *pkgconf = NULL;
-    PyObject *module;
     if (pkgconf == NULL) {
-        module = PyImport_ImportModule("smart");
+        PyObject *module = PyImport_ImportModule("smart");
         if (module) {
             pkgconf = PyObject_GetAttrString(module, "pkgconf");
             Py_DECREF(module);
@@ -140,15 +138,32 @@ static PyObject *
 getIface(void)
 {
     static PyObject *iface = NULL;
-    PyObject *module;
     if (iface == NULL) {
-        module = PyImport_ImportModule("smart");
+        PyObject *module = PyImport_ImportModule("smart");
         if (module) {
             iface = PyObject_GetAttrString(module, "iface");
             Py_DECREF(module);
         }
     }
     return iface;
+}
+
+static PyObject *
+_(const char *str)
+{
+    static PyObject *_ = NULL;
+    if (_ == NULL) {
+        PyObject *module = PyImport_ImportModule("smart");
+        if (module) {
+            _ = PyObject_GetAttrString(module, "_");
+            Py_DECREF(module);
+            if (_ == NULL) {
+                Py_INCREF(Py_None);
+                return Py_None;
+            }
+        }
+    }
+    return PyObject_CallFunction(_, "s", str);
 }
 
 static int
@@ -193,7 +208,7 @@ Package_str(PackageObject *self)
 {
     if (!PyString_Check(self->name) || !PyString_Check(self->version)) {
         PyErr_SetString(PyExc_TypeError,
-                        "package name or version is not string");
+                        "Package name or version is not string");
         return NULL;
     }
     return PyString_FromFormat("%s-%s", STR(self->name), STR(self->version));
@@ -213,7 +228,7 @@ Package_richcompare(PackageObject *self, PackageObject *other, int op)
         const char *self_name, *other_name;
         if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError,
-                            "package name is not string");
+                            "Package name is not string");
             return NULL;
         }
         self_name = STR(self->name);
@@ -224,7 +239,7 @@ Package_richcompare(PackageObject *self, PackageObject *other, int op)
             if (!PyString_Check(self->version) ||
                 !PyString_Check(other->version)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "package version is not string");
+                                "Package version is not string");
                 return NULL;
             }
             self_version = STR(self->version);
@@ -396,7 +411,7 @@ Package_coexists(PackageObject *self, PackageObject *other)
     }
 
     if (!PyString_Check(self->version) || !PyString_Check(other->version)) {
-        PyErr_SetString(PyExc_TypeError, "package version is not string");
+        PyErr_SetString(PyExc_TypeError, "Package version is not string");
         return NULL;
     }
 
@@ -645,7 +660,7 @@ Provides_compare(ProvidesObject *self, ProvidesObject *other)
     int rc = -1;
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Provides_Type)) {
         if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
-            PyErr_SetString(PyExc_TypeError, "provides name is not string");
+            PyErr_SetString(PyExc_TypeError, "Provides name is not string");
             return -1;
         }
         rc = strcmp(STR(self->name), STR(other->name));
@@ -808,15 +823,14 @@ static PyObject *
 Depends_str(DependsObject *self)
 {
     if (!PyString_Check(self->name)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "package name is not string");
+        PyErr_SetString(PyExc_TypeError, "Package name is not string");
         return NULL;
     }
     if (self->version != Py_None) {
         if (!PyString_Check(self->version) ||
             !PyString_Check(self->relation)) {
             PyErr_SetString(PyExc_TypeError,
-                            "package version or relation is not string");
+                            "Package version or relation is not string");
             return NULL;
         }
         return PyString_FromFormat("%s %s %s", STR(self->name),
@@ -833,7 +847,7 @@ Depends_compare(DependsObject *self, DependsObject *other)
     int rc = -1;
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Depends_Type)) {
         if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
-            PyErr_SetString(PyExc_TypeError, "depends name is not string");
+            PyErr_SetString(PyExc_TypeError, "Depends name is not string");
             return -1;
         }
         rc = strcmp(STR(self->name), STR(other->name));
@@ -999,7 +1013,7 @@ Loader_setCache(LoaderObject *self, PyObject *cache)
 
     if (!PyObject_IsInstance(cache, (PyObject *)&Cache_Type)) {
         PyErr_SetString(PyExc_TypeError,
-                        "cache is not an instance of cache.Cache");
+                        "Cache is not an instance of cache.Cache");
         return NULL;
     }
 
@@ -1092,7 +1106,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
     CacheObject *cache;
 
     if (!self->_cache) {
-        PyErr_SetString(PyExc_TypeError, "cache not set");
+        PyErr_SetString(PyExc_TypeError, "Cache not set");
         return NULL;
     }
 
@@ -1104,7 +1118,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
         return NULL;
 
     if (PyTuple_GET_SIZE(pkgargs) < 2) {
-        PyErr_SetString(PyExc_ValueError, "invalid pkgargs tuple");
+        PyErr_SetString(PyExc_ValueError, "Invalid pkgargs tuple");
         return NULL;
     }
 
@@ -1134,7 +1148,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             
             if (!PyTuple_Check(args)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "item in prvargs is not a tuple");
+                                "Item in prvargs is not a tuple");
                 return NULL;
             }
 
@@ -1145,7 +1159,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             /* if not prv: */
             if (!prv) {
                 if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
-                    PyErr_SetString(PyExc_ValueError, "invalid prvargs tuple");
+                    PyErr_SetString(PyExc_ValueError, "Invalid prvargs tuple");
                     return NULL;
                 }
                 /* prv = args[0](*args[1:]) */
@@ -1187,7 +1201,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             
             if (!PyTuple_Check(args)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "item in reqargs is not a tuple");
+                                "Item in reqargs is not a tuple");
                 return NULL;
             }
 
@@ -1198,7 +1212,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             /* if not req: */
             if (!req) {
                 if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
-                    PyErr_SetString(PyExc_ValueError, "invalid reqargs tuple");
+                    PyErr_SetString(PyExc_ValueError, "Invalid reqargs tuple");
                     return NULL;
                 }
                 /* req = args[0](*args[1:]) */
@@ -1240,7 +1254,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             
             if (!PyTuple_Check(args)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "item in upgargs is not a tuple");
+                                "Item in upgargs is not a tuple");
                 return NULL;
             }
 
@@ -1251,7 +1265,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             /* if not upg: */
             if (!upg) {
                 if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
-                    PyErr_SetString(PyExc_ValueError, "invalid upgargs tuple");
+                    PyErr_SetString(PyExc_ValueError, "Invalid upgargs tuple");
                     return NULL;
                 }
                 /* upg = args[0](*args[1:]) */
@@ -1293,7 +1307,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             
             if (!PyTuple_Check(args)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "item in cnfargs is not a tuple");
+                                "Item in cnfargs is not a tuple");
                 return NULL;
             }
 
@@ -1304,7 +1318,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             /* if not cnf: */
             if (!cnf) {
                 if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
-                    PyErr_SetString(PyExc_ValueError, "invalid cnfargs tuple");
+                    PyErr_SetString(PyExc_ValueError, "Invalid cnfargs tuple");
                     return NULL;
                 }
                 /* cnf = args[0](*args[1:]) */
@@ -1422,7 +1436,7 @@ Loader_buildFileProvides(LoaderObject *self, PyObject *args)
     int i;
 
     if (!self->_cache) {
-        PyErr_SetString(PyExc_TypeError, "cache not set");
+        PyErr_SetString(PyExc_TypeError, "Cache not set");
         return NULL;
     }
     cache = (CacheObject *)self->_cache;
@@ -1432,7 +1446,7 @@ Loader_buildFileProvides(LoaderObject *self, PyObject *args)
 
     if (!PyObject_IsInstance(pkg, (PyObject *)&Package_Type)) {
         PyErr_SetString(PyExc_TypeError,
-                        "first argument must be a Package instance");
+                        "First argument must be a Package instance");
         return NULL;
     }
 
@@ -1446,7 +1460,7 @@ Loader_buildFileProvides(LoaderObject *self, PyObject *args)
     if (!prv) {
 
         if (!PyTuple_Check(prvargs) || PyTuple_GET_SIZE(prvargs) < 2) {
-            PyErr_SetString(PyExc_ValueError, "invalid prvargs tuple");
+            PyErr_SetString(PyExc_ValueError, "Invalid prvargs tuple");
             return NULL;
         }
 
@@ -1459,7 +1473,7 @@ Loader_buildFileProvides(LoaderObject *self, PyObject *args)
 
         if (!PyObject_IsInstance(prv, (PyObject *)&Provides_Type)) {
             PyErr_SetString(PyExc_TypeError,
-                            "instance must be a Provides subclass");
+                            "Instance must be a Provides subclass");
             return NULL;
         }
 
@@ -2037,7 +2051,7 @@ Cache_load(CacheObject *self, PyObject *args)
     prog = PyObject_CallMethod(getIface(), "getProgress", "OO",
                                self, Py_False);
     CALLMETHOD(prog, "start", NULL);
-    CALLMETHOD(prog, "setTopic", "s", "Updating cache...");
+    CALLMETHOD(prog, "setTopic", "O", _("Updating cache..."));
     CALLMETHOD(prog, "set", "ii", 0, 1);
     CALLMETHOD(prog, "show", NULL);
     len = PyList_GET_SIZE(self->_loaders);

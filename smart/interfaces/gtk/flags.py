@@ -32,7 +32,7 @@ class GtkFlags(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("Flags")
+        self._window.set_title(_("Flags"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -78,7 +78,7 @@ class GtkFlags(object):
         renderer.set_property("xpad", 3)
         renderer.set_property("editable", True)
         renderer.connect("edited", self.flagEdited)
-        self._flagsview.insert_column_with_attributes(-1, "Flags", renderer,
+        self._flagsview.insert_column_with_attributes(-1, _("Flags"), renderer,
                                                       text=0)
 
         bbox = gtk.HButtonBox()
@@ -124,7 +124,7 @@ class GtkFlags(object):
         renderer.set_property("xpad", 3)
         renderer.set_property("editable", True)
         renderer.connect("edited", self.targetEdited)
-        self._targetsview.insert_column_with_attributes(-1, "Targets",
+        self._targetsview.insert_column_with_attributes(-1, _("Targets"),
                                                         renderer, text=0)
 
         bbox = gtk.HButtonBox()
@@ -196,7 +196,7 @@ class GtkFlags(object):
         flag = FlagCreator().show()
         if flag:
             if pkgconf.flagExists(flag):
-                iface.error("Flag already exists!")
+                iface.error(_("Flag already exists!"))
             else:
                 pkgconf.createFlag(flag)
                 self.fillFlags()
@@ -225,7 +225,7 @@ class GtkFlags(object):
             target = model.get_value(iter, 0)
             m = TARGETRE.match(target)
             if not m:
-                iface.error("Invalid target!")
+                iface.error(_("Invalid target!"))
             else:
                 name, relation, version = m.groups()
                 pkgconf.clearFlag(self._flag, name, relation, version)
@@ -240,7 +240,7 @@ class GtkFlags(object):
         oldtext = model.get_value(iter, 0)
         if newtext != oldtext:
             if pkgconf.flagExists(newtext):
-                iface.error("Flag already exists!")
+                iface.error(_("Flag already exists!"))
             else:
                 pkgconf.renameFlag(oldtext, newtext)
                 model.set_value(iter, 0, newtext)
@@ -252,12 +252,12 @@ class GtkFlags(object):
         if newtext != oldtext:
             m = TARGETRE.match(oldtext)
             if not m:
-                iface.error("Invalid target!")
+                iface.error(_("Invalid target!"))
             else:
                 oldname, oldrelation, oldversion = m.groups()
                 m = TARGETRE.match(newtext)
                 if not m:
-                    iface.error("Invalid target!")
+                    iface.error(_("Invalid target!"))
                 else:
                     newname, newrelation, newversion = m.groups()
                     pkgconf.clearFlag(self._flag, oldname,
@@ -290,7 +290,7 @@ class FlagCreator(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Flag")
+        self._window.set_title(_("New Flag"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -311,7 +311,7 @@ class FlagCreator(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Name:")
+        label = gtk.Label(_("Name:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
@@ -355,7 +355,7 @@ class FlagCreator(object):
                 self._result = False
                 flag = self._flag.get_text().strip()
                 if not flag:
-                    iface.error("No flag name provided!")
+                    iface.error(_("No flag name provided!"))
                     continue
                 break
             flag = None
@@ -371,7 +371,7 @@ class TargetCreator(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Target")
+        self._window.set_title(_("New Target"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -392,7 +392,7 @@ class TargetCreator(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Target:")
+        label = gtk.Label(_("Target:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
@@ -402,7 +402,8 @@ class TargetCreator(object):
         self._target.show()
         table.attach(self._target, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
 
-        label = gtk.Label("Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\"")
+        label = gtk.Label(_("Examples: \"pkgname\", \"pkgname = 1.0\" or "
+                            "\"pkgname <= 1.0\""))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
@@ -441,11 +442,11 @@ class TargetCreator(object):
                 self._result = False
                 target = self._target.get_text().strip()
                 if not target:
-                    iface.error("No target provided!")
+                    iface.error(_("No target provided!"))
                     continue
                 if ('"' in target or ',' in target or
                     not TARGETRE.match(target)):
-                    iface.error("Invalid target!")
+                    iface.error(_("Invalid target!"))
                     continue
                 break
             target = None

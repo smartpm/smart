@@ -26,32 +26,32 @@ from smart import *
 import string
 import re
 
-USAGE="smart check [options] [package] ..."
+USAGE=_("smart check [options] [package] ...")
 
-DESCRIPTION="""
+DESCRIPTION=_("""
 This command will check relations of the given installed
 packages. If no packages are given, all installed packages
 will be checked. Use the 'fix' command to fix broken
 relations.
-"""
+""")
 
-EXAMPLES="""
+EXAMPLES=_("""
 smart check
 smart check pkgname
 smart check '*kgna*'
 smart check pkgname-1.0
 smart check pkgname-1.0-1
 smart check pkgname1 pkgname2
-"""
+""")
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--all", action="store_true",
-                      help="check uninstalled packages as well")
+                      help=_("check uninstalled packages as well"))
     parser.add_option("--uninstalled", action="store_true",
-                      help="check only uninstalled packages")
+                      help=_("check only uninstalled packages"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -67,7 +67,7 @@ def main(ctrl, opts):
             matcher = MasterMatcher(arg)
             fpkgs = [pkg for pkg in matcher.filter(cache.getPackages())]
             if not fpkgs:
-                raise Error, "'%s' matches no packages" % arg
+                raise Error, _("'%s' matches no packages") % arg
             pkgs.update(dict.fromkeys(fpkgs, True))
         pkgs = pkgs.keys()
     else:

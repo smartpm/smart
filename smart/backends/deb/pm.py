@@ -119,7 +119,7 @@ class DebPackageManager(PackageManager):
 
         prog = iface.getProgress(self)
         prog.start()
-        prog.setTopic("Committing transaction...")
+        prog.setTopic(_("Committing transaction..."))
         prog.show()
         print
 
@@ -146,7 +146,7 @@ class DebPackageManager(PackageManager):
             sorter = DebSorter(changeset)
             sorted = sorter.getSorted()
         except LoopError:
-            lines = ["Found unbreakable loops:"]
+            lines = [_("Found unbreakable loops:")]
             opname = {REMOVE: "remove", CONFIG: "config", UNPACK: "unpack"}
             for loop in sorter.getLoops():
                 for path in sorter.getLoopPaths(loop):
@@ -229,13 +229,14 @@ class DebPackageManager(PackageManager):
             if not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0:
 
                 if os.WIFSIGNALED(status) and os.WTERMSIG(status):
-                    iface.error("Sub-process %s has received a "
-                                "segmentation fault" % args[0])
+                    iface.error(_("Sub-process %s has received a "
+                                  "segmentation fault") % args[0])
                 elif os.WIFEXITED(status):
-                    iface.error("Sub-process %s returned an error code "
-                                "(%d)" % (args[0], os.WEXITSTATUS(status)))
+                    iface.error(_("Sub-process %s returned an error code "
+                                  "(%d)") % (args[0], os.WEXITSTATUS(status)))
                 else:
-                    iface.error("Sub-process %s exited unexpectedly" % args[0])
+                    iface.error(_("Sub-process %s exited unexpectedly")
+                                % args[0])
                 prog.setDone()
                 prog.stop()
                 return

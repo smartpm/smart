@@ -1,11 +1,7 @@
 - Support for selecting packages by provided dependencies.
-- Show download size before starting fetching.
-- Make slack-site default priority be 100 or so.
+- Make slack-site default priority be 100 or so?
 - Clean stdin buffer before asking for user input.
 - Autodetection of removable media for apt-deb channels.
 - Implement package content listing for deb backend.
 - Create a "master local directory mirror", which is checked
   for packages, to be used in conjuction with upgrade --urls?
-- Make the mirror history size dependent on the number of
-  mirrors available.
-- Rethink the way fetch speed is computed.

@@ -32,7 +32,7 @@ class SlackSysChannel(PackageChannel):
     def fetch(self, fetcher, progress):
         dir = os.path.join(sysconf.get("slack-root", "/"),
                            sysconf.get("slack-packages-dir",
-                                       "/var/log/packages"))
+                                       "var/log/packages"))
         digest = os.path.getmtime(dir)
         if digest == self._digest:
             return True
@@ -45,7 +45,7 @@ class SlackSysChannel(PackageChannel):
 
 def create(alias, data):
     if data["removable"]:
-        raise Error, "%s channels cannot be removable" % data["type"]
+        raise Error, _("%s channels cannot be removable") % data["type"]
     return SlackSysChannel(data["type"],
                            alias,
                            data["name"],

@@ -21,6 +21,8 @@
 #
 from gettext import translation
 from smart.hook import Hooks
+import locale
+import sys
 import os
 
 __all__ = ["sysconf", "pkgconf", "iface", "hooks", "Error", "_"]
@@ -28,9 +30,26 @@ __all__ = ["sysconf", "pkgconf", "iface", "hooks", "Error", "_"]
 class Error(Exception): pass
 
 try:
-    _ = translation("smart").ugettext
-except IOError:
+    import __main__
+    localedir = os.path.join(os.path.dirname(__main__.__file__), "locale")
+    if not os.path.isdir(localedir):
+        localedir = None
+    _ = translation("smart", localedir).ugettext
+except IOError, e:
     _ = lambda s: unicode(s)
+else:
+    try:
+        sys = reload(sys)
+        sys.setdefaultencoding(locale.getpreferredencoding())
+    except AttributeError:
+        class StdOut(object):
+            def write(self, obj,
+                      _stdout=sys.stdout,
+                      _encoding=locale.getpreferredencoding()):
+                if type(obj) is unicode:
+                    obj = obj.encode(_encoding)
+                _stdout.write(obj)
+        sys.stdout = StdOut()
 
 class Proxy:
     def __init__(self, object=None):
@@ -65,7 +84,7 @@ def init(command=None, argv=None,
         level = {"error": ERROR, "warning": WARNING,
                  "debug": DEBUG, "info": INFO}.get(loglevel)
         if level is None:
-            raise Error, "unknown log level"
+            raise Error, _("Unknown log level")
         sysconf.set("log-level", level, soft=True)
     if datadir:
         sysconf.set("data-dir", os.path.expanduser(datadir), soft=True)
@@ -75,7 +94,7 @@ def init(command=None, argv=None,
     elif shell:
         ifacename = sysconf.get("default-shell", "text")
         if command:
-            raise Error, "Can't use commands with shell interfaces"
+            raise Error, _("Can't use commands with shell interfaces")
     elif interface:
         ifacename = interface
     else:

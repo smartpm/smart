@@ -19,14 +19,15 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart import _
 
 kind = "package"
 
-name = "Slackware Repository"
+name = _("Slackware Repository")
 
-description = """
+description = _("""
 Remote repository with slackware packages.
-"""
+""")
 
-fields = [("baseurl", "Base URL", str, None,
-           "Base URL where PACKAGES.TXT is located")]
+fields = [("baseurl", _("Base URL"), str, None,
+           _("Base URL where PACKAGES.TXT is located"))]
