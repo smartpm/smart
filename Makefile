@@ -23,3 +23,5 @@ dist:
 rpm:
 	$(PYTHON) setup.py bdist_rpm
 
+locale/messages.po:
+	xgettext -o locale/messages.po `find -name '*.c' -o -name '*.py'`
