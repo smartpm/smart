@@ -318,31 +318,32 @@ class Control(object):
             cs = cs.difference(donecs)
             donecs.update(cs)
 
-            if not cs: continue
+            if cs:
 
-            pkgpaths = self.fetchPackages([pkg for pkg in cs
-                                           if pkg not in copypkgpaths
-                                              and cs[pkg] is INSTALL], caching)
-            for pkg in cs:
-                if pkg in copypkgpaths:
-                    pkgpaths[pkg] = copypkgpaths[pkg]
-                    del copypkgpaths[pkg]
+                pkgpaths = self.fetchPackages([pkg for pkg in cs
+                                               if pkg not in copypkgpaths
+                                                  and cs[pkg] is INSTALL],
+                                              caching)
+                for pkg in cs:
+                    if pkg in copypkgpaths:
+                        pkgpaths[pkg] = copypkgpaths[pkg]
+                        del copypkgpaths[pkg]
 
-            for pmclass in pmpkgs:
-                pminstall = []
-                pmremove = []
-                for pkg in pmpkgs[pmclass]:
-                    if cs.get(pkg) is INSTALL:
-                        pminstall.append(pkg)
-                    elif cs.get(pkg) is REMOVE:
-                        pmremove.append(pkg)
-                pmclass().commit(pminstall, pmremove, pkgpaths)
+                for pmclass in pmpkgs:
+                    pminstall = []
+                    pmremove = []
+                    for pkg in pmpkgs[pmclass]:
+                        if cs.get(pkg) is INSTALL:
+                            pminstall.append(pkg)
+                        elif cs.get(pkg) is REMOVE:
+                            pmremove.append(pkg)
+                    pmclass().commit(pminstall, pmremove, pkgpaths)
 
-            datadir = sysconf.get("data-dir")
-            for pkg in pkgpaths:
-                for path in pkgpaths[pkg]:
-                    if path.startswith(datadir):
-                        os.unlink(path)
+                datadir = sysconf.get("data-dir")
+                for pkg in pkgpaths:
+                    for path in pkgpaths[pkg]:
+                        if path.startswith(datadir):
+                            os.unlink(path)
 
             if donecs == changeset:
                 break
