@@ -38,9 +38,12 @@ def distance(a, b, cutoff=None):
         for ai in range(1, al):
             last, lst[ai] = lst[ai], min(lst[ai-1]+1, lst[ai]+1,
                                          last+(a[ai] != b[bi]))
+        print lst
         if cutoff is not None and min(lst) > cutoff:
             return al, 0.0
     res = lst[-1]
+    if cutoff is not None and res > cutoff:
+        return al, 0.0
     return res, float(al-res)/al
 
 def globdistance(a, b, cutoff=None):
@@ -74,6 +77,8 @@ def globdistance(a, b, cutoff=None):
         if cutoff is not None and min(lst) > cutoff:
             return al, 0.0
     res = lst[-1]
+    if cutoff is not None and res > cutoff:
+        return al, 0.0
     return res, float(maxl-res)/maxl
 
 from cdistance import *

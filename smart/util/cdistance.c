@@ -52,7 +52,7 @@ distance(const char *a, int al, const char *b, int bl,
         al = MAXSIZE;
     if (bl > MAXSIZE)
         bl = MAXSIZE;
-    if (al == bl && memcmp(a, b, al)) {
+    if (al == bl && memcmp(a, b, al) == 0) {
         if (ratio)
             *ratio = 1.0;
         return 0;
@@ -82,6 +82,11 @@ distance(const char *a, int al, const char *b, int bl,
         }
     }
     res = lst[al-1];
+    if (cutoff != -1 && res > cutoff) {
+        if (ratio)
+            *ratio = 0.0;
+        return al;
+    }
     if (ratio)
         *ratio = ((float)al-res)/al;
     return res;
@@ -105,7 +110,7 @@ globdistance(const char *a, int al, const char *b, int bl,
         al = MAXSIZE;
     if (bl > MAXSIZE)
         bl = MAXSIZE;
-    if (al == bl && memcmp(a, b, al)) {
+    if (al == bl && memcmp(a, b, al) == 0) {
         if (ratio)
             *ratio = 1.0;
         return 0;
@@ -149,10 +154,15 @@ globdistance(const char *a, int al, const char *b, int bl,
         if (cutoff != -1 && minlstai > cutoff) {
             if (ratio)
                 *ratio = 0.0;
-            return al;
+            return maxl;
         }
     }
     res = lst[al-1];
+    if (cutoff != -1 && res > cutoff) {
+        if (ratio)
+            *ratio = 0.0;
+        return maxl;
+    }
     if (ratio)
         *ratio = ((float)maxl-res)/maxl;
     return res;
@@ -161,7 +171,7 @@ globdistance(const char *a, int al, const char *b, int bl,
 static PyObject *
 cdistance_distance(PyObject *self, PyObject *args)
 {
-    PyObject *ao, *bo, *cutoffo = NULL;
+    PyObject *ao, *bo, *cutoffo = Py_None;
     PyObject *resulto, *ratioo, *ret;
     const char *a, *b, *t;
     int cutoff = -1;
@@ -173,16 +183,16 @@ cdistance_distance(PyObject *self, PyObject *args)
     b = PyString_AS_STRING(bo);
     al = PyString_GET_SIZE(ao);
     bl = PyString_GET_SIZE(bo);
-    if (al > bl) {
+    if (al < bl) {
         t = a; tl = al;
         a = b; al = bl;
         b = t; bl = tl;
     }
-    if (cutoffo) {
+    if (cutoffo != Py_None) {
         if (PyInt_Check(cutoffo)) {
             cutoff = (int)PyInt_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
-            cutoff = al-PyFloat_AsDouble(cutoffo)*al;
+            cutoff = (int)al-PyFloat_AsDouble(cutoffo)*al;
         } else {
             PyErr_SetString(PyExc_TypeError, "cutoff must be int or float");
             return NULL;
@@ -202,7 +212,7 @@ cdistance_distance(PyObject *self, PyObject *args)
 static PyObject *
 cdistance_globdistance(PyObject *self, PyObject *args)
 {
-    PyObject *ao, *bo, *cutoffo = NULL;
+    PyObject *ao, *bo, *cutoffo = Py_None;
     PyObject *resulto, *ratioo, *ret;
     const char *a, *b;
     int cutoff = -1;
@@ -215,7 +225,7 @@ cdistance_globdistance(PyObject *self, PyObject *args)
     al = PyString_GET_SIZE(ao);
     bl = PyString_GET_SIZE(bo);
     maxl = al>bl?al:bl;
-    if (cutoffo) {
+    if (cutoffo != Py_None) {
         if (PyInt_Check(cutoffo)) {
             cutoff = (int)PyInt_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
