@@ -274,9 +274,9 @@ class PolicyUpgrade(Policy):
                             self.getPriority(pkg) > self.getPriority(upgpkg)):
                             upgrading[pkg] = True
                             if upgpkg in upgraded:
-                                upgraded[prvpkg].append(pkg)
+                                upgraded[upgpkg].append(pkg)
                             else:
-                                upgraded[prvpkg] = [pkg]
+                                upgraded[upgpkg] = [pkg]
             # Precompute bonus weight for installing packages
             # required for other upgrades.
             weight = 0
