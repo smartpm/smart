@@ -57,6 +57,9 @@ _nulltrans = string.maketrans('', '')
 def isRegEx(s):
     return s.translate(_nulltrans, '^{[*') != s
 
+def isGlob(s):
+    return s.translate(_nulltrans, '*?') != s
+
 def strToBool(s, default=False):
     if not s:
         return default

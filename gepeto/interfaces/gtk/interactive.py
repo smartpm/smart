@@ -33,6 +33,7 @@ from gepeto.interfaces.gtk import getPixbuf
 from gepeto.const import NEVER, VERSION
 from gepeto import *
 import shlex, re
+import fnmatch
 import gtk
 
 UI = """
@@ -729,7 +730,8 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = sysconf.filterByFlag("new", packages)
 
         if self._searchbar.get_property("visible"):
-            search = [re.compile("\s+".join(x.split()), re.I)
+            search = [re.compile(fnmatch.translate("\s+".join(x.split()))[:-1],
+                                 re.I)
                       for x in shlex.split(self._searchentry.get_text())]
             if not search:
                 packages = []

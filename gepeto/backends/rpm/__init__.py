@@ -22,9 +22,10 @@
 from gepeto.backends.rpm.pm import RPMPackageManager
 #from rpmver import checkdep, vercmp, splitarch
 from crpmver import checkdep, vercmp, splitarch
-from gepeto.util.strtools import isRegEx
+from gepeto.util.strtools import isGlob
 from gepeto.matcher import Matcher
 from gepeto.cache import *
+import fnmatch
 import string
 import os, re
 
@@ -39,8 +40,8 @@ class RPMMatcher(Matcher):
         Matcher.__init__(self, str)
         self._options = [] # (name, version)
         # First, try to match the whole thing against the name.
-        if isRegEx(str):
-            name = re.compile(str)
+        if isGlob(str):
+            name = re.compile(fnmatch.translate(str))
         else:
             name = str
         self._options.append((name, None))
@@ -48,23 +49,23 @@ class RPMMatcher(Matcher):
         if len(tokens) > 1:
             # Then, consider the last section as the version.
             name = "-".join(tokens[:-1])
-            if isRegEx(name):
-                name = re.compile(name)
+            if isGlob(name):
+                name = re.compile(fnmatch.translate(name))
             version = tokens[-1]
-            if isRegEx(version):
+            if isGlob(version):
                 if ":" not in version and version[0].isdigit():
-                    version = "(?:\d+:)?"+version
+                    version = "(?:\d+:)?"+fnmatch.translate(version)
                 version = re.compile(version)
             self._options.append((name, version))
             # Finally, consider last two sections as the version.
             if len(tokens) > 2:
                 name = "-".join(tokens[:-2])
-                if isRegEx(name):
-                    name = re.compile(name)
+                if isGlob(name):
+                    name = re.compile(fnmatch.translate(name))
                 version = "-".join(tokens[-2:])
-                if isRegEx(version):
+                if isGlob(version):
                     if ":" not in version and version[0].isdigit():
-                        version = "(?:\d+:)?"+version
+                        version = "(?:\d+:)?"+fnmatch.translate(version)
                     version = re.compile(version)
                 self._options.append((name, version))
 

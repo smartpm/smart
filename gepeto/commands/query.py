@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.util.strtools import isRegEx
+from gepeto.util.strtools import isGlob
 from gepeto.matcher import MasterMatcher
 from gepeto.option import OptionParser
 from gepeto.cache import Provides, PreRequires
@@ -87,8 +87,8 @@ def main(opts, ctrl):
             name, version = name.split('=')
         else:
             version = None
-        if isRegEx(name):
-            p = re.compile(name)
+        if isGlob(name):
+            p = re.compile(fnmatch.translate(name))
             for prv in cache.getProvides():
                 if p.match(prv.name):
                     whoprovides.append(Provides(prv.name, version))
@@ -100,8 +100,8 @@ def main(opts, ctrl):
             name, version = name.split('=')
         else:
             version = None
-        if isRegEx(name):
-            p = re.compile(name)
+        if isGlob(name):
+            p = re.compile(fnmatch.translate(name))
             for req in cache.getRequires():
                 if p.match(req.name):
                     whorequires.append(Provides(req.name, version))
@@ -113,8 +113,8 @@ def main(opts, ctrl):
             name, version = name.split('=')
         else:
             version = None
-        if isRegEx(name):
-            p = re.compile(name)
+        if isGlob(name):
+            p = re.compile(fnmatch.translate(name))
             for upg in cache.getUpgrades():
                 if p.match(upg.name):
                     whoupgrades.append(Provides(upg.name, version))
@@ -126,8 +126,8 @@ def main(opts, ctrl):
             name, version = name.split('=')
         else:
             version = None
-        if isRegEx(name):
-            p = re.compile(name)
+        if isGlob(name):
+            p = re.compile(fnmatch.translate(name))
             for cnf in cache.getConflicts():
                 if p.match(cnf.name):
                     whoconflicts.append(Provides(cnf.name, version))
