@@ -160,8 +160,7 @@ class Control(object):
         progress.start()
         steps = 0
         for channel in channels:
-            if manual or not channel.getManualUpdate():
-                steps += channel.getFetchSteps()
+            steps += channel.getFetchSteps()
         progress.set(0, steps)
         for channel in channels:
             self._cache.removeLoader(channel.getLoader())
@@ -199,28 +198,36 @@ class Control(object):
             fetcher.setLocalDir(localdir, mangle=False)
         else:
             fetcher.setLocalDir(targetdir, mangle=False)
-        pkgitems = {}
         for pkg in packages:
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
             urls = info.getURLs()
-            pkgitems[pkg] = []
-            for url in urls:
-                pkgitems[pkg].append(fetcher.enqueue(url,
-                                                     md5=info.getMD5(url),
-                                                     sha=info.getSHA(url),
-                                                     size=info.getSize(url),
-                                                     validate=info.validate))
-        fetcher.run(what="packages")
-        failed = fetcher.getFailedSet()
-        if failed:
-            raise Error, "Failed to download packages:\n" + \
-                         "\n".join(["    %s: %s" % (url, failed[url])
-                                    for url in failed])
-        pkgpaths = {}
-        for pkg in packages:
-            pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
-        return pkgpaths
+            if urls:
+                for url in urls:
+                    fetcher.enqueue(url, pkg=pkg,
+                                    md5=info.getMD5(url),
+                                    sha=info.getSHA(url),
+                                    size=info.getSize(url),
+                                    validate=info.validate))
+
+        while True:
+
+            fetcher.run(what="packages")
+
+            failed = fetcher.getFailedSet()
+            if failed:
+                raise Error, "Failed to download packages:\n" + \
+                             "\n".join(["    %s: %s" % (url, failed[url])
+                                        for url in failed])
+
+            for item in fetcher.getItems():
+                path = item.getTargetPath()
+                try:
+                    pkgpaths[item.getInfo("pkg")].append(path)
+                except KeyError:
+                    pkgpaths[item.getInfo("pkg")] = [path]
+
+            yield pkgpaths
 
     def fetchFiles(self, urllst, what, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
