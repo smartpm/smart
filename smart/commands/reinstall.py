@@ -71,7 +71,13 @@ def main(ctrl, opts):
             raise Error, "'%s' matches no installed packages" % arg
         if len(pkgs) > 1:
             raise Error, "'%s' matches multiple installed packages" % arg
-        trans.enqueue(pkgs[0], REINSTALL)
+        pkg = pkgs[0]
+        for loader in pkg.loaders:
+            if not loader.getInstalled():
+                break
+        else:
+            raise Error, "'%s' is not available for reinstallation" % pkg
+        trans.enqueue(pkg, REINSTALL)
     iface.showStatus("Computing transaction...")
     trans.run()
     iface.hideStatus()
