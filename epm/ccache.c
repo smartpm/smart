@@ -1133,6 +1133,60 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
     /* pkg.provides.append(prv) */
     PyList_Append(pkgobj->provides, prv);
 
+
+    /* if name[0] == "/": */
+    if (STR(name)[0] == '/') {
+        /* for req in pkg.requires[:]: */
+        int i;
+        for (i = PyList_GET_SIZE(pkgobj->requires)-1; i != -1; i--) {
+            DependsObject *reqobj;
+            PyObject *req = PyList_GET_ITEM(pkgobj->requires, i);
+            reqobj = (DependsObject *)req;
+            /* if req.name == name: */
+            if (STR(reqobj->name)[0] == '/' &&
+                strcmp(STR(reqobj->name), STR(name)) == 0) {
+                int j;
+                /* pkg.requires.remove(req) */
+                PyList_SetSlice(pkgobj->requires, i, i+1, NULL);
+                /* req.packages.remove(pkg) */
+                for (j = PyList_GET_SIZE(reqobj->packages); j != -1; j--) {
+                    if (PyList_GET_ITEM(reqobj->packages, j) == pkg)
+                        PyList_SetSlice(reqobj->packages, j, j+1, NULL);
+                }
+                /* if not req.packages: */
+                if (PyList_GET_SIZE(reqobj->packages) == 0) {
+                    PyObject *reqargs;
+                    /* cache._requires.remove(req) */
+                    for (j = PyList_GET_SIZE(cache->_requires); j != -1; j--) {
+                        if (PyList_GET_ITEM(cache->_requires, j) == req)
+                            PyList_SetSlice(cache->_requires, j, j+1, NULL);
+                    }
+                    /* lst = cache._reqnames[req.name] */
+                    lst = PyDict_GetItem(cache->_reqnames, reqobj->name);
+                    /* if len(lst) == 1: */
+                    if (!lst || PyList_GET_SIZE(lst) == 1) {
+                        /* del cache._reqnames[req.name] */
+                        PyDict_DelItem(cache->_reqnames, reqobj->name);
+                    /* else: */
+                    } else {
+                        /* lst.remove(req) */
+                        for (j = PyList_GET_SIZE(lst); j != -1; j--) {
+                            if (PyList_GET_ITEM(lst, j) == req)
+                                PyList_SetSlice(lst, j, j+1, NULL);
+                        }
+                    }
+                    reqargs = PyTuple_New(3);
+                    /* reqargs = (req.name, req.version, req.relation) */
+                    PyTuple_SetItem(reqargs, 0, reqobj->name);
+                    PyTuple_SetItem(reqargs, 1, reqobj->version);
+                    PyTuple_SetItem(reqargs, 2, reqobj->relation);
+                    /* del cache._reqmap[reqargs] */
+                    PyDict_DelItem(cache->_reqmap, reqargs);
+                }
+            }
+        }
+    }
+
     Py_DECREF(args);
 
     Py_RETURN_NONE;

@@ -201,7 +201,6 @@ class Loader(object):
                         cache._prvnames[prv.name] = [prv]
                     cache._provides.append(prv)
                 relpkgs.append(prv.packages)
-                #prv.packages.append(pkg)
                 pkg.provides.append(prv)
 
         if reqargs:
@@ -217,7 +216,6 @@ class Loader(object):
                         cache._reqnames[req.name] = [req]
                     cache._requires.append(req)
                 relpkgs.append(req.packages)
-                #req.packages.append(pkg)
                 pkg.requires.append(req)
 
         if obsargs:
@@ -233,7 +231,6 @@ class Loader(object):
                         cache._obsnames[obs.name] = [obs]
                     cache._obsoletes.append(obs)
                 relpkgs.append(obs.packages)
-                #obs.packages.append(pkg)
                 pkg.obsoletes.append(obs)
 
         if cnfargs:
@@ -249,7 +246,6 @@ class Loader(object):
                         cache._cnfnames[cnf.name] = [cnf]
                     cache._conflicts.append(cnf)
                 relpkgs.append(cnf.packages)
-                #cnf.packages.append(pkg)
                 pkg.conflicts.append(cnf)
 
         found = False
@@ -295,6 +291,21 @@ class Loader(object):
             cache._provides.append(prv)
         prv.packages.append(pkg)
         pkg.provides.append(prv)
+
+        if name[0] == "/":
+            for req in pkg.requires[:]:
+                if req.name == name:
+                    pkg.requires.remove(req)
+                    req.packages.remove(pkg)
+                    if not req.packages:
+                        cache._requires.remove(req)
+                        lst = cache._reqnames[req.name]
+                        if len(lst) == 1:
+                            del cache._reqnames[req.name]
+                        else:
+                            lst.remove(req)
+                        reqargs = (req.name, req.version, req.relation)
+                        del cache._reqmap[reqargs]
 
 class LoaderSet(list):
 

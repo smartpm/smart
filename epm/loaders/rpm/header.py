@@ -70,7 +70,11 @@ class RPMHeaderLoader(RPMLoader):
 
             n = h[1047] # RPMTAG_PROVIDENAME
             v = h[1113] # RPMTAG_PROVIDEVERSION
-            prvargs = [(n[i], v[i] or None) for i in range(len(n))]
+            prvdict = {}
+            for i in range(len(n)):
+                if not n[i].startswith("config("):
+                    prvdict[(n[i], v[i] or None)] = True
+            prvargs = prvdict.keys()
 
             n = h[1049] # RPMTAG_REQUIRENAME
             if n:
@@ -78,8 +82,13 @@ class RPMHeaderLoader(RPMLoader):
                 v = h[1050] # RPMTAG_REQUIREVERSION
                 reqdict = {}
                 for i in range(len(n)):
-                    if not n[i].startswith("rpmlib("):
-                        reqdict[(n[i], v[i] or None, CM.get(f[i]&CF))] = True
+                    ni = n[i]
+                    if ni[:7] not in ("rpmlib(", "config("):
+                        vi = v[i] or None
+                        r = CM.get(f[i]&CF)
+                        if ((r is not None and r != "=") or
+                            ((ni, vi) not in prvdict)):
+                            reqdict[(ni, vi, r)] = True
                 reqargs = reqdict.keys()
             else:
                 reqargs = None
@@ -196,7 +205,6 @@ class RPMDBLoader(RPMHeaderLoader):
             while h:
                 self.newProvides(self._offsets[mi.instance()], fn)
                 h = mi.next()
-
 
 class RPMFileLoader(RPMHeaderLoader):
 

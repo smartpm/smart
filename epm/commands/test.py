@@ -19,5 +19,9 @@ def main(opts):
     import __main__
     __main__.ctrl = ctrl
     __main__.cache = ctrl.getCache()
+    #try:
+    #    import user
+    #except ImportError:
+    #    pass
 
 # vim:ts=4:sw=4:et
