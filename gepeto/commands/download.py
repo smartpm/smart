@@ -93,6 +93,6 @@ def main(opts, ctrl):
                 urls.extend([x.strip() for x in open(arg)])
             else:
                 raise Error, "Argument is not a file nor url: %s" % arg
-        ctrl.downloadFiles(urls, "URLs", targetdir=opts.target)
+        ctrl.downloadURLs(urls, "URLs", targetdir=opts.target)
 
 # vim:ts=4:sw=4:et

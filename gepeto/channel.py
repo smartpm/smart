@@ -164,7 +164,7 @@ def createChannelDescription(type, alias, data):
             lines.append("%s = %s" % (key, data[key]))
     return "\n".join(lines)
 
-def parseChannelDescription(data):
+def parseChannelsDescription(data):
     channels = {}
     current = None
     alias = None
@@ -221,6 +221,16 @@ def detectLocalChannels(path):
         media = mediaset.findMountPoint(root, subpath=True)
         if media:
             media.mount()
+        channelsfile = os.path.join(root, ".channels")
+        if os.path.isfile(channelsfile):
+            file = open(channelsfile)
+            descriptions = parseChannelsDescription(file.read())
+            file.close()
+            for alias in descriptions:
+                channel = descriptions[alias]
+                channel["alias"] = alias
+                channels.append(channel)
+            continue
         for type in infos:
             info = infos[type]
             if hasattr(info, "detectLocalChannels"):

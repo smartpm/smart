@@ -145,14 +145,14 @@ def main(opts, ctrl):
             arg = opts.add[0]
             if os.path.isfile(arg):
                 data = open(arg).read()
-                newchannels = parseChannelDescription(data)
+                newchannels = parseChannelsDescription(data)
             elif ":/" in arg:
-                succ, fail = ctrl.downloadFiles([arg], "channel description")
+                succ, fail = ctrl.downloadURLs([arg], "channel description")
                 if fail:
                     raise Error, "Unable to fetch channel description: %s" \
                                  % fail[arg]
                 data = open(succ[arg]).read()
-                newchannels = parseChannelDescription(data)
+                newchannels = parseChannelsDescription(data)
                 os.unlink(succ[arg])
             else:
                 raise Error, "File not found: %s" % arg

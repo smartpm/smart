@@ -231,7 +231,7 @@ class Control(object):
         for url in urls:
             print >>output, url
 
-    def downloadURLs(self, urllst, what, caching=NEVER, targetdir=None):
+    def downloadURLs(self, urllst, what=None, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
         if targetdir is None:
             localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
