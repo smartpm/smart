@@ -37,16 +37,17 @@ class RPMPackageManager(PackageManager):
         prog = iface.getProgress(self, True)
         prog.start()
         prog.setTopic("Committing transaction...")
+        prog.set(0, len(changeset))
         prog.show()
 
         # Compute upgrading/upgraded packages
         upgrading = {}
         upgraded = {}
-        for pkg in changeset:
+        for pkg in changeset.keys():
             if changeset[pkg] is INSTALL:
                 for upg in pkg.upgrades:
                     for prv in upg.providedby:
-                        upgd = []
+                        prvpkgs = []
                         for prvpkg in prv.packages:
                             if prvpkg.installed:
                                 # If any upgraded package will stay in
@@ -54,11 +55,13 @@ class RPMPackageManager(PackageManager):
                                 # upgrade.
                                 if changeset.get(prvpkg) is not REMOVE:
                                     break
-                                upgd.append(prvpkg)
+                                prvpkgs.append(prvpkg)
                         else:
                             if upgd:
                                 upgrading[pkg] = True
-                                upgraded.update(dict.fromkeys(upgd))
+                                for prvpkg in prvpkgs:
+                                    upgraded[prvpkg] = True
+                                    del changeset[prvpkg]
 
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
 
@@ -94,16 +97,15 @@ class RPMPackageManager(PackageManager):
                 ts.addInstall(h, (info, path), mode)
                 packages += 1
             else:
-                if pkg not in upgraded:
-                    version = pkg.version
-                    if ":" in version:
-                        version = version[version.find(":")+1:]
-                    version, arch = splitarch(version)
-                    try:
-                        ts.addErase("%s-%s" % (pkg.name, version))
-                    except rpm.error, e:
-                        raise Error, "%s-%s: %s" % \
-                                     (pkg.name, pkg.version, str(e))
+                version = pkg.version
+                if ":" in version:
+                    version = version[version.find(":")+1:]
+                version, arch = splitarch(version)
+                try:
+                    ts.addErase("%s-%s" % (pkg.name, version))
+                except rpm.error, e:
+                    raise Error, "%s-%s: %s" % \
+                                 (pkg.name, pkg.version, str(e))
 
         upgradednames = {}
         for pkg in upgraded:
@@ -145,7 +147,6 @@ class RPMPackageManager(PackageManager):
             probfilter |= rpm.RPMPROB_FILTER_REPLACEPKG
             probfilter |= rpm.RPMPROB_FILTER_REPLACEOLDFILES
         ts.setProbFilter(probfilter)
-        prog.set(0, len(changeset))
         cb = RPMCallback(prog, upgradednames)
         cb.grabOutput(True)
         probs = ts.run(cb, None)
