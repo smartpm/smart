@@ -108,6 +108,11 @@ slapt-get: http://software.jaos.org/
 ftp://ftp.nluug.nl/pub/os/Linux/distr/slackware/slackware-current/
 ftp://ftp.slackware.com/pub/slackware/slackware-current/
 
+Mandrake repository
+-------------------
+
+ftp://ftp.planetmirror.com/pub/plf/mandrake/cooker
+
 Examples of cases where the upgrading algorithm is better
 ---------------------------------------------------------
 

@@ -24,11 +24,11 @@ class TextProgress(Progress):
                 now = time.time()
                 if subkey == self._lastsubkey:
                     if (self._lastsubkeystart+2 < now and
-                        self.getHasActiveSub()):
+                        self.getSubCount() > 1):
                         return
                 else:
                     if (self._lastsubkeystart+2 > now and
-                        self.getHasActiveSub()):
+                        self.getSubCount() > 1):
                         return
                     self._lastsubkey = subkey
                     self._lastsubkeystart = now

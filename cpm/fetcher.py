@@ -121,7 +121,7 @@ class Fetcher(object):
             total += len(handler.getQueue())
         if total == 0:
             return
-        prog = iface.getProgress(self)
+        prog = iface.getProgress(self, True)
         prog.start()
         prog.setTopic("Fetching %s..." % what)
         prog.set(0, total)
@@ -460,7 +460,7 @@ class FTPHandler(FetcherHandler):
 
     def connect(self, ftp, urlobj):
         url = urlobj.original
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
         prog.show()
@@ -487,7 +487,7 @@ class FTPHandler(FetcherHandler):
 
         fetcher = self._fetcher
         url = urlobj.original
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
 
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
@@ -645,7 +645,7 @@ class URLLIBHandler(FetcherHandler):
         opener = Opener()
         
         fetcher = self._fetcher
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
 
         while True:
 
@@ -827,7 +827,7 @@ class URLLIB2Handler(FetcherHandler):
         import urllib2, rfc822
         
         fetcher = self._fetcher
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
 
         while True:
 
@@ -984,7 +984,7 @@ class PyCurlHandler(FetcherHandler):
         import pycurl
 
         fetcher = self._fetcher
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
         multi = self._multi
 
         num = 1
@@ -1200,7 +1200,7 @@ class SCPHandler(FetcherHandler):
                         urlobj.total = None
                         urlobj.localpath = None
                         thread.start_new_thread(self.fetch, (urlobj,))
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
         for urlobj in self._active:
             if urlobj.total and urlobj.localpath:
                 try:
@@ -1218,7 +1218,7 @@ class SCPHandler(FetcherHandler):
 
         fetcher = self._fetcher
         url = urlobj.original
-        prog = iface.getProgress(self._fetcher)
+        prog = iface.getSubProgress(self._fetcher)
 
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)

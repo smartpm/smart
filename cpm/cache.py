@@ -519,7 +519,7 @@ class Cache(object):
 
     def load(self):
         self.reset()
-        prog = iface.getProgress(self, False)
+        prog = iface.getProgress(self)
         prog.start()
         prog.setTopic("Building cache...")
         prog.set(0, 1)

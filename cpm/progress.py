@@ -38,8 +38,8 @@ class Progress:
     def getHasSub(self):
         return self.__hassub
 
-    def getHasActiveSub(self):
-        return bool(self.__subprogress)
+    def getSubCount(self):
+        return len(self.__subprogress)
 
     def show(self):
         now = time.time()

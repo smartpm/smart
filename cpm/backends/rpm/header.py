@@ -101,7 +101,7 @@ class RPMHeaderLoader(Loader):
         Upg = RPMUpgrades
         Obs = RPMObsoletes
         Cnf = RPMConflicts
-        prog = iface.getProgress(self._cache)
+        prog = iface.getSubProgress(self._cache)
         for h, offset in self.getHeaders(prog):
             arch = h[1022] # RPMTAG_ARCH
             if rpm.archscore(arch) == 0:
@@ -251,6 +251,21 @@ class RPMPackageListLoader(RPMHeaderListLoader):
 
     def getMD5(self, info):
         return info._h[CRPMTAG_MD5]
+
+class URPMILoader(RPMHeaderListLoader):
+
+    def getFileName(self, info):
+        h = info._h
+        filename = h[CRPMTAG_FILENAME]
+        if not filename:
+            raise Error, "package list with no CRPMTAG_FILENAME tag"
+        return os.path.join(h[rpm.RPMTAG_ARCH], filename)
+
+    def getSize(self, info):
+        return info._h[CRPMTAG_FILESIZE]
+
+    def getMD5(self, info):
+        return None
 
 class RPMDBLoader(RPMHeaderLoader):
 

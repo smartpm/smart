@@ -14,8 +14,11 @@ class GtkCommandInterface(Interface):
         self._changes = None
         self._status = GtkStatus()
 
-    def getProgress(self, obj, hassub=True):
+    def getProgress(self, obj, hassub=False):
         self._progress.setHasSub(hassub)
+        return self._progress
+
+    def getSubProgress(self, obj):
         return self._progress
 
     def showStatus(self, msg):

@@ -17,8 +17,9 @@ class APTRPMRepository(Repository):
 
     def fetch(self, fetcher):
 
-        # Fetch release file
         fetcher.reset()
+
+        # Fetch release file
         url = posixpath.join(self._baseurl, "base/release")
         fetcher.enqueue(url)
         fetcher.run("release file for '%s'" % self._name)

@@ -20,6 +20,12 @@ class Interface:
     def hideStatus(self):
         pass
 
+    def getProgress(self, obj, hassub=False):
+        return None
+
+    def getSubProgress(self):
+        return None
+
     def askYesNo(self, question, default=False):
         return True
 
