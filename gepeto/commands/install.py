@@ -43,6 +43,8 @@ gpt install '*kgna*'
 gpt install pkgname-1.0
 gpt install pkgname-1.0-1
 gpt install pkgname1 pkgname2
+gpt install ./somepackage.file
+gpt install http://some.url/some/path/somepackage.file
 """
 
 def parse_options(argv):
@@ -60,15 +62,30 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
+    urls = []
     for arg in opts.args[:]:
-        if '/' in arg and os.path.isfile(arg):
-            ctrl.addFileChannel(arg)
-            opts.args.remove(arg)
+        if '/' in arg:
+            if os.path.isfile(arg):
+                ctrl.addFileChannel(arg)
+                opts.args.remove(arg)
+            elif ":/" in arg:
+                urls.append(arg)
+    if urls:
+        succ, fail = ctrl.downloadURLs(urls, "packages", targetdir=os.getcwd())
+        if fail:
+            raise Error, "Failed to download packages:\n" + \
+                         "\n".join(["    %s: %s" % (url, fail[url])
+                                    for url in fail])
+        for url, file in succ.items():
+            ctrl.addFileChannel(file)
+            opts.args.remove(url)
     ctrl.updateCache()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
     for channel in ctrl.getFileChannels():
         for pkg in channel.getLoader().getPackages():
+            if pkg.installed:
+                raise Error, "%s is already installed" % pkg
             trans.enqueue(pkg, INSTALL)
     for arg in opts.args:
         matcher = MasterMatcher(arg)
