@@ -1,4 +1,3 @@
-- Ordering system
 - Removable media handling
 - Support extra flags for rpm backend package manager (equivalent
   to --replacefiles).
@@ -7,8 +6,5 @@
   unsatisfied requires due to transaction breaking, etc).
 - Introduce support for reinstall in install command, rpm pm,
   and report system.
-- Make Package.coexists() handle every case of multi-version
-  conflict, so that we don't need to introduce explicit
-  conflicts in packages, and may change the configuration
-  without reloading the cache.
-- Priority handling.
+- Interactive preferences editors: channels, flags, priorities
+- Debian backend.

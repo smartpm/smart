@@ -38,6 +38,8 @@ def parse_options(argv):
                            "dependency")
     parser.add_option("--whoupgrades", action="append", default=[], metavar="DEP",
                       help="show only packages upgrading the given dependency")
+    parser.add_option("--priority", action="store_true",
+                      help="show package priority")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -141,7 +143,10 @@ def main(opts, ctrl):
 
     packages.sort()
     for pkg in packages:
-        print pkg
+        if opts.priority:
+            print pkg, "{%s}" % pkg.getPriority()
+        else:
+            print pkg
         if pkg.provides and (opts.provides or whoprovides):
             pkg.provides.sort()
             first = True

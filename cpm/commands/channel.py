@@ -11,6 +11,10 @@ def parse_options(argv):
                       help="arguments are key=value pairs defining a "
                            "channel, or a filename/url pointing to "
                            "a channel description")
+    parser.add_option("--set", action="store_true",
+                      help="arguments are key=value pairs defining a "
+                           "channel, or a filename/url pointing to "
+                           "a channel description")
     parser.add_option("--remove", action="store_true",
                       help="arguments are channel aliases to be removed")
     parser.add_option("--show", action="store_true",
@@ -27,6 +31,8 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
+
+    channels = sysconf.get("channels", setdefault={})
     
     if opts.add:
 
@@ -34,38 +40,42 @@ def main(opts, ctrl):
             arg = opts.args[0]
             if os.path.isfile(arg):
                 data = open(arg).read()
-                channels = parseChannelDescription(data)
+                newchannels = parseChannelDescription(data)
             elif ":/" in arg:
                 succ, fail = ctrl.fetchFiles([arg], "channel description")
                 if fail:
                     raise Error, "Unable to fetch channel description: %s" \
                                  % fail[arg]
                 data = open(succ[arg]).read()
-                channels = parseChannelDescription(data)
+                newchannels = parseChannelDescription(data)
                 os.unlink(succ[arg])
             else:
                 raise Error, "Don't know what to do with: %s" % arg
         else:
-            channels = []
+            newchannels = {}
             channel = {}
+            alias = None
             for arg in opts.args:
                 if "=" not in arg:
                     raise Error, "Argument '%s' has no '='" % arg
                 key, value = arg.split("=")
-                channel[key.strip()] = value.strip()
+                key = key.strip()
+                value = value.strip()
+                if key == "alias":
+                    alias = value
+                else:
+                    channel[key] = value
+            if not alias:
+                raise Error, "Channel has no alias"
             if "type" not in channel:
                 raise Error, "Channel has no type"
-            if "alias" not in channel:
-                raise Error, "Channel has no alias"
 
-            channels.append(channel)
+            newchannels[alias] = channel
 
-        curchannels = sysconf.get("channels")
-        if curchannels is None:
-            curchannels = []
-            sysconf.set("channels", curchannels)
-        for channel in channels:
-            desc = createChannelDescription(channel)
+        for alias in newchannels:
+            channel = newchannels[alias]
+            type = channel.get("type")
+            desc = createChannelDescription(type, alias, channel)
             if not desc:
                 continue
             if not opts.force:
@@ -75,56 +85,87 @@ def main(opts, ctrl):
                 res = raw_input("Include this channel (y/N)? ").strip()
             if opts.force or res and res[0].lower() == "y":
                 try:
-                    createChannel(channel.get("type"), channel)
+                    createChannel(type, alias, channel)
                 except Error, e:
-                    print "error: invalid description: %s" % e
+                    iface.error("Invalid channel: %s" % e)
                 else:
-                    alias = channel.get("alias")
-                    while [x for x in curchannels if x.get("alias") == alias]:
-                        print "Channel alias '%s' is already in use." % alias
+                    while alias in channels:
+                        iface.info("Channel alias '%s' is already in use."
+                                   % alias)
                         res = raw_input("Choose another one: ").strip()
                         if res:
                             alias = res
-                    channel["alias"] = alias
-                    curchannels.append(channel)
+                    channels[alias] = channel
+
+    elif opts.set:
+
+        if not opts.args:
+            raise Error, "Invalid arguments"
+
+        alias = opts.args.pop(0)
+        if "=" in alias:
+            raise Error, "First argument must be the channel alias"
+        if alias not in channels:
+            raise Error, "Channel with alias '%s' not found" % alias
+        oldchannel = channels[alias]
+
+        channel = {}
+        for arg in opts.args:
+            if "=" not in arg:
+                raise Error, "Argument '%s' has no '='" % arg
+            key, value = arg.split("=")
+            key = key.strip()
+            if key == "type":
+                raise Error, "Can't change the channel type"
+            if key == "alias":
+                raise Error, "Can't change the channel alias"
+            channel[key] = value.strip()
+
+        newchannel = oldchannel.copy()
+        newchannel.update(channel)
+        for key in newchannel.keys():
+            if not newchannel[key]:
+                del newchannel[key]
+        try:
+            createChannel(newchannel.get("type"), alias, newchannel)
+        except Error, e:
+            raise Error, "Invalid channel: %s" % e
+
+        oldchannel.update(channel)
+        for key in oldchannel.keys():
+            if not oldchannel[key]:
+                del oldchannel[key]
 
     elif opts.remove:
 
-        channels = sysconf.get("channels", [])
-
-        for arg in opts.args:
-
-            if [x for x in channels if x.get("alias") == arg]:
-                if not opts.force:
-                    res = raw_input("Remove channel '%s' (y/N)? "
-                                    % arg).strip()
-                if opts.force or res and res[0].lower() == "y":
-                    channels = [x for x in channels if x.get("alias") != arg]
-
-        sysconf.set("channels", channels)
+        for alias in opts.args:
+            if alias not in channels:
+                continue
+            if opts.force or iface.askYesNo("Remove channel '%s'" % alias):
+                del channels[alias]
 
     elif opts.enable or opts.disable:
 
-        channels = sysconf.get("channels", [])
-
-        for channel in channels:
-            if channel.get("alias") in opts.args:
-                if opts.enable:
-                    if "disabled" in channel:
-                        del channel["disabled"]
-                else:
-                    channel["disabled"] = "yes"
+        for alias in opts.args:
+            if alias not in channels:
+                continue
+            channel = channels[alias]
+            if opts.enable:
+                if "disabled" in channel:
+                    del channel["disabled"]
+            else:
+                channel["disabled"] = "yes"
 
     elif opts.show:
 
-        channels = sysconf.get("channels", [])
-        if opts.args:
-            channels = [x for x in channels if x.get("alias") in opts.args]
-
-        for channel in channels:
-            desc = createChannelDescription(channel)
+        for alias in opts.args or channels:
+            if alias not in channels:
+                continue
+            channel = channels[alias]
+            desc = createChannelDescription(channel.get("type"),
+                                            alias, channel)
             if desc:
                 print desc
-            print
+                print
 
 # vim:ts=4:sw=4:et

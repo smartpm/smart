@@ -265,6 +265,10 @@ class GtkInteractiveInterface(GtkInterface):
         self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
         self._searchdesc.show()
         hbox.pack_start(self._searchdesc, False)
+        self._searchpath = gtk.RadioButton(self._searchname, "Content")
+        self._searchpath.connect("clicked", lambda x: self.refreshPackages())
+        self._searchpath.show()
+        hbox.pack_start(self._searchpath, False)
 
         # Packages and information
 
@@ -492,6 +496,7 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = []
             else:
                 desc = self._searchdesc.get_active()
+                path = self._searchpath.get_active()
                 newpackages = []
                 for pkg in packages:
                     for pat in search:
@@ -500,6 +505,15 @@ class GtkInteractiveInterface(GtkInterface):
                             if pat.search(info.getDescription()):
                                 newpackages.append(pkg)
                                 break
+                        elif path:
+                            info = pkg.loaders.keys()[0].getInfo(pkg)
+                            for path in info.getPathList():
+                                if pat.search(path):
+                                   newpackages.append(pkg)
+                                   break
+                            else:
+                                continue
+                            break
                         elif pat.search(pkg.name):
                             newpackages.append(pkg)
                             break

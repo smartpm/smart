@@ -53,7 +53,7 @@ class GtkPackageInfo(gtk.Alignment):
         buffer.create_tag("content", font_desc=fontdesc)
         sw.add(self._conttv)
 
-        label = gtk.Label("Contents")
+        label = gtk.Label("Content")
         self._notebook.append_page(sw, label)
 
         label = gtk.Label("Relations")

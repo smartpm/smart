@@ -1,5 +1,4 @@
 from cpm.cache import PackageInfo, Loader
-from cpm.packageflags import PackageFlags
 from cpm.backends.rpm import *
 from cpm import *
 import posixpath

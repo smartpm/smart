@@ -75,4 +75,58 @@ class SysConfig:
         if option in self._softmap:
             del self._weakmap[option]
 
+    def setFlag(self, flag, name, version=None, relation=None):
+        map = self.get("package-flags", setdefault={})
+        names = map.get(flag)
+        if names:
+            lst = names.get(name)
+            if lst:
+                lst.append((relation, version))
+            else:
+                names[name] = [(relation, version)]
+        else:
+            map[flag] = {name: [(relation, version)]}
+
+    def testFlag(self, flag, pkg):
+        names = self.get("package-flags", {}).get(flag)
+        if names:
+            lst = names.get(pkg.name)
+            if lst:
+                for item in lst:
+                    if pkg.matches(*item):
+                        return True
+        return False
+
+    def filterByFlag(self, flag, pkgs):
+        fpkgs = []
+        names = self.get("package-flags", {}).get(flag)
+        if names:
+            for pkg in pkgs:
+                lst = names.get(pkg.name)
+                if lst:
+                    for item in lst:
+                        if pkg.matches(*item):
+                            fpkgs.append(pkg)
+                            break
+        return fpkgs
+
+    def getPriority(self, pkg):
+        priority = None
+        priorities = self.get("package-priorities", {}).get(pkg.name)
+        if priorities:
+            priority = None
+            for loader in pkg.loaders:
+                inchannel = priorities.get(loader.getChannel().getAlias())
+                if (inchannel is not None and priority is None or
+                    inchannel > priority):
+                    priority = inchannel
+            if priority is None:
+                priority = priorities.get(None)
+        return priority
+
+    def setPriority(self, name, channelalias, priority):
+        priorities = self.get("package-priorities", setdefault={})
+        priorities.setdefault(name, {})[channelalias] = priority
+
 # vim:ts=4:sw=4:et
+

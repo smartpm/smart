@@ -1282,7 +1282,7 @@ class SCPHandler(FetcherHandler):
                     item = self._queue[i]
                     url = item.getURL()
                     hostactive = [x for x in self._active
-                                  if x.host == url.host]
+                                  if x.getURL().host == url.host]
                     if len(hostactive) < self.MAXPERHOST:
                         del self._queue[i]
                         self._active.append(item)

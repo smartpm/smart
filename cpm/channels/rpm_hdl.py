@@ -6,8 +6,8 @@ import posixpath
 
 class RPMHeaderListChannel(Channel):
 
-    def __init__(self, type, alias, name, description, hdlurl, baseurl):
-        Channel.__init__(self, type, alias, name, description)
+    def __init__(self, hdlurl, baseurl, *args):
+        Channel.__init__(self, *args)
         
         self._hdlurl = hdlurl
         self._baseurl = baseurl
@@ -28,39 +28,41 @@ class RPMHeaderListChannel(Channel):
                           self._alias)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
-def create(ctype, data):
-    alias = None
+def create(type, alias, data):
     name = None
     description = None
+    priority = 0
     hdlurl = None
     baseurl = None
-    if type(data) is dict:
-        alias = data.get("alias")
+    if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
         hdlurl = data.get("hdlurl")
         baseurl = data.get("baseurl")
-    elif hasattr(data, "tag") and data.tag == "channel":
-        node = data
-        alias = node.get("alias")
-        for n in node.getchildren():
+        priority = data.get("priority", 0)
+    elif getattr(data, "tag", None) == "channel":
+        for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
             elif n.tag == "description":
                 description = n.text
+            elif n.tag == "priority":
+                priority = n.text
             elif n.tag == "hdlurl":
                 hdlurl = n.text
             elif n.tag == "baseurl":
                 baseurl = n.text
     else:
         raise ChannelDataError
-    if not alias:
-        raise Error, "Channel of type '%s' has no alias" % ctype
     if not hdlurl:
         raise Error, "Channel '%s' has no hdlurl" % alias
     if not baseurl:
         raise Error, "Channel '%s' has no baseurl" % alias
-    return RPMHeaderListChannel(ctype, alias, name, description,
-                                hdlurl, baseurl)
+    try:
+        priority = int(priority)
+    except ValueError:
+        raise Error, "Invalid priority"
+    return RPMHeaderListChannel(hdlurl, baseurl,
+                                type, alias, name, description, priority)
 
 # vim:ts=4:sw=4:et

@@ -92,7 +92,7 @@ class SlackProvides(Provides): pass
 class SlackDepends(Depends):
 
     def matches(self, prv):
-        if self.name != prv.name:
+        if self.name != prv.name or not isinstance(prv, SlackProvides):
             return False
         if not self.version or not prv.version:
             return True

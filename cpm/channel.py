@@ -2,13 +2,17 @@ from cpm import *
 
 class Channel:
 
-    def __init__(self, type, alias, name=None, description=None):
+    def __init__(self, type, alias, name=None, description=None, priority=0):
         self._type = type
         self._alias = alias
         self._name = name
         self._description = description
+        self._priority = priority
         self._loader = None
         self._loadorder = 1000
+
+    def getType(self):
+        return self._type
 
     def getAlias(self):
         return self._alias
@@ -19,8 +23,8 @@ class Channel:
     def getDescription(self):
         return self._description
 
-    def getType(self):
-        return self._type
+    def getPriority(self):
+        return self._priority
 
     def getLoader(self):
         return self._loader
@@ -41,7 +45,7 @@ class Channel:
 
 class ChannelDataError(Error): pass
 
-def createChannel(type, data):
+def createChannel(type, alias, data):
     try:
         xtype = type.replace('-', '_').lower()
         cpm = __import__("cpm.channels."+xtype)
@@ -54,48 +58,46 @@ def createChannel(type, data):
             traceback.print_exc()
         raise Error, "Invalid channel type '%s'" % type
     try:
-        return channel.create(type, data)
+        return channel.create(type, alias, data)
     except ChannelDataError:
         raise Error, "Channel type %s doesn't support %s" % (type, `data`)
 
+def createChannelDescription(type, alias, data):
+    lines = []
+    lines.append("[%s]" % alias)
+    lines.append("type = %s" % type)
+    first = ("name", "description")
+    for key in first:
+        if key in ("type", "alias"):
+            continue
+        if key in data:
+            lines.append("%s = %s" % (key, data[key]))
+    keys = data.keys()
+    keys.sort()
+    for key in keys:
+        if key in ("type", "alias"):
+            continue
+        if key not in first:
+            lines.append("%s = %s" % (key, data[key]))
+    return "\n".join(lines)
+
 def parseChannelDescription(data):
-    channels = []
+    channels = {}
     current = None
+    alias = None
     for line in data.splitlines():
         line = line.strip()
         if not line:
             continue
         if len(line) > 2 and line[0] == "[" and line[-1] == "]":
-            if current:
-                channels.append(current)
+            if current and "type" not in current:
+                raise Error, "Channel '%s' has no type" % alias
+            alias = line[1:-1].strip()
             current = {}
-            current["alias"] = line[1:-1]
-        elif current and not line[0] == "#" and "=" in line:
+            channels[alias] = current
+        elif current is not None and not line[0] == "#" and "=" in line:
             key, value = line.split("=")
             current[key.strip().lower()] = value.strip()
-    if current:
-        channels.append(current)
     return channels
-
-def createChannelDescription(channel):
-    if "alias" not in channel or "type" not in channel:
-        return None
-    lines = []
-    alias = channel.get("alias")
-    lines.append("[%s]" % alias)
-    first = ("name", "type", "description")
-    for key in first:
-        if key == "alias":
-            continue
-        if key in channel:
-            lines.append("%s = %s" % (key, channel[key]))
-    keys = channel.keys()
-    keys.sort()
-    for key in keys:
-        if key == "alias":
-            continue
-        if key not in first:
-            lines.append("%s = %s" % (key, channel[key]))
-    return "\n".join(lines)
 
 # vim:ts=4:sw=4:et

@@ -11,26 +11,28 @@ class RPMDBChannel(Channel):
         self._loader = RPMDBLoader()
         self._loader.setChannel(self)
 
-def create(ctype, data):
-    alias = None
+def create(type, alias, data):
     name = None
     description = None
-    if type(data) is dict:
-        alias = data.get("alias")
+    priority = 0
+    if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
-    elif hasattr(data, "tag") and data.tag == "channel":
-        node = data
-        alias = node.get("alias")
-        for n in node.getchildren():
+        priority = data.get("priority", 0)
+    elif getattr(data, "tag", None) == "channel":
+        for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
             elif n.tag == "description":
                 description = n.text
+            elif n.tag == "priority":
+                priority = n.text
     else:
         raise ChannelDataError
-    if not alias:
-        raise Error, "Channel of type '%s' has no alias" % ctype
-    return RPMDBChannel(ctype, alias, name, description)
+    try:
+        priority = int(priority)
+    except ValueError:
+        raise Error, "Invalid priority"
+    return RPMDBChannel(type, alias, name, description, priority)
 
 # vim:ts=4:sw=4:et

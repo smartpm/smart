@@ -37,7 +37,7 @@ typedef struct {
     PyObject *conflicts;
     PyObject *installed;
     PyObject *essential;
-    PyObject *precedence;
+    PyObject *priority;
     PyObject *loaders;
 } PackageObject;
 
@@ -88,28 +88,32 @@ typedef struct {
     PyObject *_cnfmap;
 } CacheObject;
 
-#if 0
 static PyObject *
 getSysConf(void)
 {
-    PyObject *module, *sysconf = NULL;
-    module = PyImport_ImportModule("cpm");
-    if (module) {
-        sysconf = PyObject_GetAttrString(module, "sysconf");
-        Py_DECREF(module);
+    static PyObject *sysconf = NULL;
+    PyObject *module;
+    if (sysconf == NULL) {
+        module = PyImport_ImportModule("cpm");
+        if (module) {
+            sysconf = PyObject_GetAttrString(module, "sysconf");
+            Py_DECREF(module);
+        }
     }
     return sysconf;
 }
-#endif
 
 static PyObject *
 getIface(void)
 {
-    PyObject *module, *iface = NULL;
-    module = PyImport_ImportModule("cpm");
-    if (module) {
-        iface = PyObject_GetAttrString(module, "iface");
-        Py_DECREF(module);
+    static PyObject *iface = NULL;
+    PyObject *module;
+    if (iface == NULL) {
+        module = PyImport_ImportModule("cpm");
+        if (module) {
+            iface = PyObject_GetAttrString(module, "iface");
+            Py_DECREF(module);
+        }
     }
     return iface;
 }
@@ -130,7 +134,7 @@ Package_init(PackageObject *self, PyObject *args)
     self->installed = Py_False;
     Py_INCREF(Py_False);
     self->essential = Py_False;
-    self->precedence = PyInt_FromLong(0);
+    self->priority = PyInt_FromLong(0);
     self->loaders = PyDict_New();
     return 0;
 }
@@ -146,7 +150,7 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->conflicts);
     Py_XDECREF(self->installed);
     Py_XDECREF(self->essential);
-    Py_XDECREF(self->precedence);
+    Py_XDECREF(self->priority);
     Py_XDECREF(self->loaders);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -295,16 +299,45 @@ Package_coexists(PackageObject *self, PackageObject *other)
 }
 
 static PyObject *
-Package_matches(PackageObject *self, PackageObject *args)
+Package_matches(PackageObject *self, PyObject *args)
 {
     Py_INCREF(Py_False);
     return Py_False;
+}
+
+
+static PyObject *
+Package_getPriority(PackageObject *self, PyObject *args)
+{
+    PyObject *sysconf = getSysConf();
+    PyObject *priority;
+    PyObject *loaders;
+    long lpriority = 0;
+    int i;
+    priority = PyObject_CallMethod(sysconf, "getPriority", "O", self);
+    if (priority != Py_None)
+        return priority;
+    Py_DECREF(priority);
+    loaders = PyDict_Keys(self->loaders);
+    for (i = 0; i != PyList_GET_SIZE(loaders); i++) {
+        PyObject *loader = PyList_GET_ITEM(loaders, i);
+        PyObject *channel = PyObject_CallMethod(loader, "getChannel", NULL);
+        priority = PyObject_CallMethod(channel, "getPriority", NULL);
+        if (i == 0 || PyInt_AS_LONG(priority) > lpriority)
+            lpriority = PyInt_AS_LONG(priority);
+        Py_DECREF(priority);
+        Py_DECREF(channel);
+    }
+    Py_DECREF(loaders);
+    lpriority += PyInt_AS_LONG(self->priority);
+    return PyInt_FromLong(lpriority);
 }
 
 static PyMethodDef Package_methods[] = {
     {"equals", (PyCFunction)Package_equals, METH_O, NULL},
     {"coexists", (PyCFunction)Package_coexists, METH_O, NULL},
     {"matches", (PyCFunction)Package_matches, METH_VARARGS, NULL},
+    {"getPriority", (PyCFunction)Package_getPriority, METH_NOARGS, NULL},
     {NULL, NULL}
 };
 
@@ -318,7 +351,7 @@ static PyMemberDef Package_members[] = {
     {"conflicts", T_OBJECT, OFF(conflicts), 0, 0},
     {"installed", T_OBJECT, OFF(installed), 0, 0},
     {"essential", T_OBJECT, OFF(essential), 0, 0},
-    {"precedence", T_OBJECT, OFF(precedence), 0, 0},
+    {"priority", T_OBJECT, OFF(priority), 0, 0},
     {"loaders", T_OBJECT, OFF(loaders), 0, 0},
     {NULL}
 };

@@ -12,7 +12,7 @@ class Package(object):
         self.conflicts = []
         self.installed = False
         self.essential = False
-        self.precedence = 0
+        self.priority = 0
         self.loaders = {}
 
     def equals(self, other):
@@ -37,6 +37,17 @@ class Package(object):
 
     def matches(self, relation, version):
         return False
+
+    def getPriority(self):
+        priority = sysconf.getPriority(self)
+        if priority is not None:
+            return priority
+        channelpriority = None
+        for loader in self.loaders:
+            priority = loader.getChannel().getPriority()
+            if channelpriority is None or priority > channelpriority:
+                channelpriority = priority
+        return channelpriority+self.priority
 
     def __str__(self):
         return "%s-%s" % (self.name, self.version)

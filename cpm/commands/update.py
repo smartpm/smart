@@ -16,7 +16,7 @@ def main(opts, ctrl):
     ctrl.reloadSysConfChannels()
     channels = ctrl.getChannels()
     if opts.args:
-        channels = [x for x in channels if x.getName() in opts.args]
+        channels = [x for x in channels if x.getAlias() in opts.args]
     ctrl.fetchChannels(channels, caching=NEVER)
 
 # vim:ts=4:sw=4:et

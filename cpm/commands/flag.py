@@ -29,15 +29,12 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+)\s*"
                       r"(?P<version>\S+))?\s*$")
 
 def main(opts, ctrl):
-    pkgflags = sysconf.get("package-flags")
-    if pkgflags is None:
-        pkgflags = {}
-        sysconf.set("package-flags", pkgflags)
+    flags = sysconf.get("package-flags", setdefault={})
 
     if opts.set or opts.remove:
 
         if len(opts.args) < 2:
-            raise Error, "No flag name or target provided"
+            raise Error, "Invalid arguments"
 
         flag = opts.args[0].strip()
 
@@ -49,7 +46,7 @@ def main(opts, ctrl):
 
             g = m.groupdict()
 
-            names = pkgflags.setdefault(flag, {})
+            names = flags.setdefault(flag, {})
             lst = names.setdefault(g["name"], [])
 
             tup = (g["rel"], g["version"])
@@ -61,20 +58,23 @@ def main(opts, ctrl):
                 if tup in lst:
                     lst.remove(tup)
 
-        if opts.remove and pkgflags.get(flag) == {}:
-            del pkgflags[flag]
+        if opts.remove and flags.get(flag) == {}:
+            del flags[flag]
 
     elif opts.show:
 
-        flags = opts.args or pkgflags
+        showflags = opts.args or flags.keys()
+        showflags.sort()
 
-        for flag in flags:
+        for flag in showflags:
             flag = flag.strip()
 
             print flag
 
-            names = pkgflags.get(flag, {})
-            for name in names:
+            names = flags.get(flag, {})
+            nameslst = names.keys()
+            nameslst.sort()
+            for name in nameslst:
                 for relation, version in names[name]:
                     if relation and version:
                         print "   ", name, relation, version

@@ -23,6 +23,28 @@ Mirror system
 - All servers start with penality = 0
 - Use servers with the lowest penality
 
+Priority system
+---------------
+
+- Packages and channels have priorities
+- Both may be overriden by user configuration
+- The final package priority is obtained by taking the user
+  priority for the package, if given, or by taking the highest
+  channel priority for the given package and summing with the
+  package priority.
+- Upgrades happen always to a package with the same or a higher
+  priority.
+- Downgrades may happen if packages with a higher priority are
+  found somewhere.
+- Priority is used to compute the best choice when multiple options
+  are available to satisfy a dependency.
+
+Removable media handling
+------------------------
+
+- Use the concept of removable channels.
+- A channel may be queried if it is removable and if it is available.
+
 Repositories
 ------------
 

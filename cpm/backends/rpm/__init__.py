@@ -1,7 +1,6 @@
 from cpm.backends.rpm.pm import RPMPackageManager
 #from rpmver import checkdep, vercmp, splitarch
 from crpmver import checkdep, vercmp, splitarch
-from cpm.packageflags import PackageFlags
 from cpm.util.strtools import isRegEx
 from cpm.matcher import Matcher
 from cpm.cache import *
@@ -10,9 +9,8 @@ import os, re
 
 from rpm import archscore
 
-__all__ = ["RPMPackage", "RPMFlagPackage", "RPMProvides", "RPMNameProvides",
-           "RPMPreRequires", "RPMRequires", "RPMUpgrades", "RPMConflicts",
-           "RPMObsoletes"]
+__all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
+           "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes"]
 
 class RPMMatcher(Matcher):
 
@@ -119,10 +117,9 @@ class RPMPackage(Package):
     def coexists(self, other):
         if not isinstance(other, RPMPackage):
             return True
-        pkgflags = PackageFlags(sysconf.get("package-flags", {}))
-        if pkgflags.test("multi-arch", self):
+        if sysconf.testFlag("multi-arch", self):
             return True
-        if not pkgflags.test("multi-version", self):
+        if not sysconf.testFlag("multi-version", self):
             return False
         selfver, selfarch = splitarch(self.version)
         otherver, otherarch = splitarch(other.version)
@@ -148,25 +145,13 @@ class RPMPackage(Package):
                     rc = -cmp(archscore(selfarch), archscore(otherarch))
         return rc
 
-class RPMFlagPackage(object):
-    # Used for flag testing during cache loader execution.
-    def __init__(self):
-        self.name = ""
-        self.version = ""
-
-    def matches(self, relation, version):
-        # There's no need to split arch.
-        if not relation:
-            return True
-        return checkdep(self.version, relation, version)
-
 class RPMProvides(Provides): pass
 class RPMNameProvides(RPMProvides): pass
 
 class RPMDepends(Depends):
 
     def matches(self, prv):
-        if self.name != prv.name:
+        if self.name != prv.name or not isinstance(prv, RPMProvides):
             return False
         if not self.version or not prv.version:
             return True

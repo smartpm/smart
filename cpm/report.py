@@ -79,7 +79,7 @@ class Report:
                     for upg in prv.upgradedby:
                         for upgpkg in upg.packages:
                             if upgpkg.installed:
-                                if pkg in self.upgrading:
+                                if pkg in self.downgrading:
                                     self.downgrading[pkg].append(upgpkg)
                                 else:
                                     self.downgrading[pkg] = [upgpkg]

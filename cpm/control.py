@@ -80,19 +80,15 @@ class Control:
             self._channels.remove(channel)
             self._cache.removeLoader(channel.getLoader())
         del self._sysconfchannels[:]
-        names = {}
-        for data in sysconf.get("channels", ()):
+        channels = sysconf.get("channels", ())
+        for alias in channels:
+            data = channels[alias]
             if data.get("disabled"):
                 continue
             type = data.get("type")
             if not type:
                 raise Error, "Channel without type in configuration"
-            channel = createChannel(type, data)
-            name = channel.getName()
-            if names.get(name):
-                raise Error, "'%s' is not a unique channel name" % name
-            else:
-                names[name] = True
+            channel = createChannel(type, alias, data)
             self._sysconfchannels.append(channel)
             self._channels.append(channel)
 

@@ -13,8 +13,8 @@ OPENCHECKSUM = NS+"open-checksum"
 
 class RPMMetaDataChannel(Channel):
 
-    def __init__(self, type, alias, name, description, baseurl):
-        Channel.__init__(self, type, alias, name, description)
+    def __init__(self, baseurl, *args):
+        Channel.__init__(self, *args)
         self._baseurl = baseurl
 
     def getFetchSteps(self):
@@ -72,32 +72,35 @@ class RPMMetaDataChannel(Channel):
                           self._alias)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
-def create(ctype, data):
-    alias = None
+def create(type, alias, data):
     name = None
     description = None
+    priority = 0
     baseurl = None
-    if type(data) is dict:
-        alias = data.get("alias")
+    if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
+        priority = data.get("priority", 0)
         baseurl = data.get("baseurl")
-    elif hasattr(data, "tag") and data.tag == "channel":
-        node = data
-        alias = node.get("alias")
-        for n in node.getchildren():
+    elif getattr(data, "tag", None) == "channel":
+        for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
             elif n.tag == "description":
                 description = n.text
+            elif n.tag == "priority":
+                priority = n.text
             elif n.tag == "baseurl":
                 baseurl = n.text
     else:
         raise ChannelDataError
-    if not alias:
-        raise Error, "Channel of type '%s' has no alias" % ctype
     if not baseurl:
         raise Error, "Channel '%s' has no baseurl" % alias
-    return RPMMetaDataChannel(ctype, alias, name, description, baseurl)
+    try:
+        priority = int(priority)
+    except ValueError:
+        raise Error, "Invalid priority"
+    return RPMMetaDataChannel(baseurl,
+                              type, alias, name, description, priority)
 
 # vim:ts=4:sw=4:et

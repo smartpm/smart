@@ -1,5 +1,4 @@
 from cpm.const import INSTALL, REMOVE, UPGRADE, FIX
-from cpm.packageflags import PackageFlags
 from cpm.cache import PreRequires
 from cpm import *
 
@@ -82,16 +81,18 @@ class Policy(object):
         self._trans = trans
         self._locked = {}
         self._sysconflocked = []
+        self._priorities = {}
 
     def runStarting(self):
-        pkgflags = PackageFlags(sysconf.get("package-flags", {}))
+        self._priorities.clear()
         cache = self._trans.getCache()
-        for pkg in pkgflags.filter("lock", cache.getPackages()):
+        for pkg in sysconf.filterByFlag("lock", cache.getPackages()):
             if pkg not in self._locked:
                 self._sysconflocked.append(pkg)
                 self._locked[pkg] = True
 
     def runFinished(self):
+        self._priorities.clear()
         for pkg in self._sysconflocked:
             del self._locked[pkg]
         del self._sysconflocked[:]
@@ -112,6 +113,24 @@ class Policy(object):
     def getWeight(self, changeset):
         return 0
 
+    def getPriority(self, pkg):
+        priority = self._priorities.get(pkg)
+        if priority is None:
+            self._priorities[pkg] = priority = pkg.getPriority()
+        return priority
+
+    def getPriorityWeights(self, pkgs):
+        set = {}
+        lower = None
+        for pkg in pkgs:
+            priority = self.getPriority(pkg)
+            if lower is None or priority < lower:
+                lower = priority
+            set[pkg] = priority
+        for pkg in set:
+            set[pkg] = -(set[pkg] - lower)
+        return set
+
 class PolicyInstall(Policy):
     """Give precedence for keeping functionality in the system."""
 
@@ -124,9 +143,21 @@ class PolicyInstall(Policy):
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
-                        if prvpkg.installed:
+                        if (prvpkg.installed and
+                            self.getPriority(pkg) >= self.getPriority(prvpkg)):
                             upgrading[pkg] = True
                             if prvpkg in upgraded:
+                                upgraded[prvpkg].append(pkg)
+                            else:
+                                upgraded[prvpkg] = [pkg]
+            # Downgrades are upgrades if they have a higher priority.
+            for prv in pkg.provides:
+                for upg in prv.upgradedby:
+                    for upgpkg in upg.packages:
+                        if (upgpkg.installed and
+                            self.getPriority(pkg) > self.getPriority(upgpkg)):
+                            upgrading[pkg] = True
+                            if upgpkg in upgraded:
                                 upgraded[prvpkg].append(pkg)
                             else:
                                 upgraded[prvpkg] = [pkg]
@@ -185,9 +216,21 @@ class PolicyUpgrade(Policy):
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
-                        if prvpkg.installed:
+                        if (prvpkg.installed and
+                            self.getPriority(pkg) >= self.getPriority(prvpkg)):
                             upgrading[pkg] = True
                             if prvpkg in upgraded:
+                                upgraded[prvpkg].append(pkg)
+                            else:
+                                upgraded[prvpkg] = [pkg]
+            # Downgrades are upgrades if they have a higher priority.
+            for prv in pkg.provides:
+                for upg in prv.upgradedby:
+                    for upgpkg in upg.packages:
+                        if (upgpkg.installed and
+                            self.getPriority(pkg) > self.getPriority(upgpkg)):
+                            upgrading[pkg] = True
+                            if upgpkg in upgraded:
                                 upgraded[prvpkg].append(pkg)
                             else:
                                 upgraded[prvpkg] = [pkg]
@@ -431,29 +474,45 @@ class Transaction(object):
         depth += 1
 
         isinst = changeset.installed
+        getpriority = self._policy.getPriority
+
+        pkgpriority = getpriority(pkg)
 
         # Check if any upgrading version of this package is installed.
         # If so, we won't try to install any other version.
-        prvpkgs = {}
+        upgpkgs = {}
+        for prv in pkg.provides:
+            for upg in prv.upgradedby:
+                for upgpkg in upg.packages:
+                    if isinst(upgpkg):
+                        return
+                    if getpriority(upgpkg) < pkgpriority:
+                        continue
+                    if upgpkg not in locked and upgpkg not in upgpkgs:
+                        upgpkgs[upgpkg] = True
+        # Also check if any downgrading version with a higher
+        # priority is installed.
         for upg in pkg.upgrades:
             for prv in upg.providedby:
                 for prvpkg in prv.packages:
+                    if getpriority(prvpkg) <= pkgpriority:
+                        continue
                     if isinst(prvpkg):
                         return
-                    if prvpkg not in locked and prvpkg not in prvpkgs:
-                        prvpkgs[prvpkg] = True
+                    if prvpkg not in locked and prvpkg not in upgpkgs:
+                        upgpkgs[prvpkg] = True
 
         # No, let's try to upgrade it.
         getweight = self._policy.getWeight
         alternatives = [(getweight(changeset), changeset)]
 
         # Check if upgrading is possible.
-        for prvpkg in prvpkgs:
+        for upgpkg in upgpkgs:
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
                 _pending = []
-                self._install(prvpkg, cs, lk, _pending, depth)
+                self._install(upgpkg, cs, lk, _pending, depth)
                 if _pending:
                     self._pending(cs, lk, _pending, depth)
             except Failed:
@@ -462,28 +521,38 @@ class Transaction(object):
                 alternatives.append((getweight(cs), cs))
 
         # Is any downgrading version of this package installed?
-        upgpkgs = {}
-        for prv in pkg.provides:
-            for upg in prv.upgradedby:
-                for upgpkg in upg.packages:
-                    if isinst(upgpkg):
-                        break
-                    if upgpkg not in locked:
-                        upgpkgs[upgpkg] = True
-                else:
-                    continue
-                break
-            else:
-                continue
-            break
+        try:
+            dwnpkgs = {}
+            for upg in pkg.upgrades:
+                for prv in upg.providedby:
+                    for prvpkg in prv.packages:
+                        if getpriority(prvpkg) > pkgpriority:
+                            continue
+                        if isinst(prvpkg):
+                            raise StopIteration
+                        if prvpkg not in locked:
+                            dwnpkgs[prvpkg] = True
+            # Also check if any upgrading version with a lower
+            # priority is installed.
+            for prv in pkg.provides:
+                for upg in prv.upgradedby:
+                    for upgpkg in upg.packages:
+                        if getpriority(upgpkg) >= pkgpriority:
+                            continue
+                        if isinst(upgpkg):
+                            raise StopIteration
+                        if upgpkg not in locked:
+                            dwnpkgs[upgpkg] = True
+        except StopIteration:
+            pass
         else:
             # Check if downgrading is possible.
-            for upgpkg in upgpkgs:
+            for dwnpkg in dwnpkgs:
                 try:
                     cs = changeset.copy()
                     lk = locked.copy()
                     _pending = []
-                    self._install(upgpkg, cs, lk, _pending, depth)
+                    self._install(dwnpkg, cs, lk, _pending, depth)
                     if _pending:
                         self._pending(cs, lk, _pending, depth)
                 except Failed:
@@ -494,7 +563,7 @@ class Transaction(object):
         if len(alternatives) > 1:
             alternatives.sort()
             changeset.setState(alternatives[0][1])
-                      
+
     def _pending(self, changeset, locked, pending, depth=0):
         #print "[%03d] _pending(%s)" % depth
         depth += 1
@@ -530,12 +599,13 @@ class Transaction(object):
                                   (pkg, req)
 
                 if len(prvpkgs) > 1:
-                    # More than one package provide it. We use _install here,
+                    # More than one package provide it. We use _pending here,
                     # since any option must consider the whole change for
                     # weighting.
                     alternatives = []
                     failures = []
                     sortUpgrades(prvpkgs)
+                    pw = self._policy.getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
                         try:
                             _pending = []
@@ -547,7 +617,8 @@ class Transaction(object):
                         except Failed, e:
                             failures.append(str(e))
                         else:
-                            alternatives.append((getweight(cs), cs, lk))
+                            alternatives.append((getweight(cs)+pw[prvpkg],
+                                                cs, lk))
                     if not alternatives:
                         raise Failed, "Can't install %s: all packages providing " \
                                       "%s failed to install:\n%s" \
@@ -590,6 +661,7 @@ class Transaction(object):
                     alternatives = []
                     failures = []
 
+                    pw = self._policy.getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
                         try:
                             _pending = []
@@ -601,7 +673,8 @@ class Transaction(object):
                         except Failed, e:
                             failures.append(str(e))
                         else:
-                            alternatives.append((getweight(cs), cs, lk))
+                            alternatives.append((getweight(cs)+pw[prvpkg],
+                                                cs, lk))
 
                 if not prvpkgs or not alternatives:
 
@@ -784,12 +857,23 @@ class Transaction(object):
             isinst = self._changeset.installed
             _upgpkgs = {}
             try:
+                pkgpriority = pkg.getPriority()
                 for prv in pkg.provides:
                     for upg in prv.upgradedby:
                         for upgpkg in upg.packages:
+                            if upgpkg.getPriority() < pkgpriority:
+                                continue
                             if isinst(upgpkg):
                                 raise StopIteration
                             _upgpkgs[upgpkg] = True
+                for upg in pkg.upgrades:
+                    for prv in upg.providedby:
+                        for prvpkg in prv.packages:
+                            if prvpkg.getPriority() <= pkgpriority:
+                                continue
+                            if isinst(prvpkg):
+                                raise StopIteration
+                            _upgpkgs[prvpkg] = True
             except StopIteration:
                 pass
             else:
@@ -1228,7 +1312,7 @@ class ChangeSetSplitter:
             except Error:
                 pass
 
-def sortUpgrades(pkgs):
+def sortUpgrades(pkgs, policy=None):
     upgpkgs = {}
     for pkg in pkgs:
         dct = {}
@@ -1238,10 +1322,18 @@ def sortUpgrades(pkgs):
     pkgs.sort()
     pkgs.reverse()
     newpkgs = []
+    priority = {}
+    if policy:
+        for pkg in pkgs:
+            priority[pkg] = policy.getPriority(pkg)
+    else:
+        for pkg in pkgs:
+            priority[pkg] = pkg.getPriority()
     for pkg in pkgs:
         pkgupgs = upgpkgs[pkg]
         for i in range(len(newpkgs)):
-            if newpkgs[i] in pkgupgs:
+            newpkg = newpkgs[i]
+            if newpkg in pkgupgs or priority[pkg] > priority[newpkg]:
                 newpkgs.insert(i, pkg)
                 break
         else:
