@@ -111,7 +111,7 @@ def read_mirrors(filename):
         result.append(mirror)
     return result
 
-def main(opts, ctrl):
+def main(ctrl, opts):
 
     mirrors = sysconf.get("mirrors", setdefault={})
     history = sysconf.get("mirrors-history", setdefault=[])

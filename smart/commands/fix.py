@@ -60,7 +60,8 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     ctrl.updateCache()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)

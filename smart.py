@@ -150,23 +150,7 @@ def main(argv):
         ctrl = init(opts)
         if opts.option:
             set_config_options(opts.option)
-        iface.start()
-        if not opts.command:
-            iface.run()
-        else:
-            try:
-                smart = __import__("smart.commands."+opts.command)
-                commands = getattr(smart, "commands")
-                command = getattr(commands, opts.command)
-            except (ImportError, AttributeError):
-                if opts.log_level == DEBUG:
-                    import traceback
-                    traceback.print_exc()
-                raise Error, "invalid command '%s'" % opts.command
-            cmdopts = command.parse_options(opts.argv)
-            opts.__dict__.update(cmdopts.__dict__)
-            command.main(opts, ctrl)
-        iface.finish()
+        iface.run(opts.command, opts.argv)
         ctrl.saveSysConf()
         ctrl.restoreMediaState()
     except Error, e:

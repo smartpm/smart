@@ -79,8 +79,13 @@ def init(opts=None):
             raise Error, "No interface selected"
     else:
         ifacename = "text"
-    iface.object = createInterface(ifacename, ctrl,
-                                   not bool(opts and opts.command))
+    if opts:
+        command = opts.command
+        argv = opts.argv
+    else:
+        command = None
+        argv = None
+    iface.object = createInterface(ifacename, ctrl, command, argv)
 
     # Import every plugin, and let they do whatever they want.
     from smart import plugins

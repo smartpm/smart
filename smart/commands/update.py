@@ -48,7 +48,8 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     ctrl.reloadSysConfChannels()
     if opts.args:
         channels = [x for x in ctrl.getChannels() if x.getAlias() in opts.args]

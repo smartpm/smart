@@ -34,13 +34,13 @@ except ImportError:
         traceback.print_exc()
     raise Error, "system has no support for gtk python interface"
 
-def create(ctrl, interactive):
-    if interactive:
-        from smart.interfaces.gtk.interactive import GtkInteractiveInterface
-        return GtkInteractiveInterface(ctrl)
-    else:
+def create(ctrl, command=None, argv=None):
+    if command:
         from smart.interfaces.gtk.command import GtkCommandInterface
         return GtkCommandInterface(ctrl)
+    else:
+        from smart.interfaces.gtk.interactive import GtkInteractiveInterface
+        return GtkInteractiveInterface(ctrl)
     
 _pixbuf = {}
 

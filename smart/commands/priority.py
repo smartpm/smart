@@ -63,7 +63,8 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     priorities = sysconf.get("package-priorities", setdefault={})
 
     if opts.set:

@@ -343,7 +343,7 @@ class GtkInteractiveInterface(GtkInterface):
     def hideStatus(self):
         self._status.pop(0)
 
-    def run(self):
+    def run(self, command=None, argv=None):
         self._window.show()
         self._ctrl.updateCache()
         self._progress.hide()

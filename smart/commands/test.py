@@ -32,7 +32,8 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     ctrl.updateCache()
     import __main__
     __main__.ctrl = ctrl

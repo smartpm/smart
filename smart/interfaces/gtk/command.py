@@ -36,7 +36,8 @@ class GtkCommandInterface(GtkInterface):
     def hideStatus(self):
         self._status.hide()
 
-    def finish(self):
+    def run(self, command=None, argv=None):
+        GtkInterface.run(self, command, argv)        
         self._status.wait()
         while self._log.isVisible():
             time.sleep(0.1)

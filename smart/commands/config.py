@@ -90,7 +90,8 @@ def getSubName(name, d, create=False):
                 raise Error, "Option '%s' not found" % subnamestr
     return subnames[-1], d
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     globals = {}
     globals["__builtins__"] = {}
     globals["True"] = True

@@ -87,7 +87,8 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+?)\s*"
                       r"((?P<rel>[<>=]+)\s*"
                       r"(?P<version>\S+))?\s*$")
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     flags = sysconf.get("package-flags", setdefault={})
 
     for args in (opts.set, opts.remove):

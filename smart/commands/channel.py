@@ -123,7 +123,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts, ctrl):
+def main(ctrl, opts):
 
     channels = sysconf.get("channels", setdefault={})
 

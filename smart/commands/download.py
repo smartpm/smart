@@ -65,7 +65,8 @@ def parse_options(argv):
         raise Error, "Directory not found:", opts.target
     return opts
 
-def main(opts, ctrl):
+def main(ctrl, opts):
+
     packages = []
     if opts.args:
         ctrl.updateCache()

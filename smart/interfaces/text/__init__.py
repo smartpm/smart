@@ -21,13 +21,13 @@
 #
 from smart import Error
 
-def create(ctrl, interactive):
-    if interactive:
-        from smart.interfaces.text.interactive import TextInteractiveInterface
-        return TextInteractiveInterface(ctrl)
-    else:
+def create(ctrl, command=None, argv=None):
+    if command:
         from smart.interfaces.text.interface import TextInterface
         return TextInterface(ctrl)
+    else:
+        from smart.interfaces.text.interactive import TextInteractiveInterface
+        return TextInteractiveInterface(ctrl)
 
 # vim:ts=4:sw=4:et
 

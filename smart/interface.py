@@ -35,14 +35,18 @@ class Interface(object):
     def getControl(self):
         return self._ctrl
 
-    def start(self):
-        pass
-
-    def finish(self):
-        pass
-
-    def run(self):
-        pass
+    def run(self, command=None, argv=None):
+        if command:
+            try:
+                smart = __import__("smart.commands."+command)
+                commands = getattr(smart, "commands")
+                _command = getattr(commands, command)
+            except (ImportError, AttributeError):
+                if sysconf.get("log-level") == DEBUG:
+                    import traceback
+                    traceback.print_exc()
+                raise Error, "Invalid command '%s'" % command
+            _command.main(self._ctrl, _command.parse_options(argv or []))
     
     def showStatus(self, msg):
         pass
@@ -112,7 +116,7 @@ def getScreenWidth():
         return 80
     return struct.unpack('HHHH', x)[1]
 
-def createInterface(name, ctrl, interactive):
+def createInterface(name, ctrl, command=None, argv=None):
     try:
         xname = name.replace('-', '_').lower()
         smart = __import__("smart.interfaces."+xname)
@@ -123,7 +127,7 @@ def createInterface(name, ctrl, interactive):
             import traceback
             traceback.print_exc()
         raise Error, "Invalid interface '%s'" % name
-    return interface.create(ctrl, interactive)
+    return interface.create(ctrl, command, argv)
 
 def getImagePath(name, _dirname=os.path.dirname(_images__file__)):
     return os.path.join(_dirname, name+".png")

@@ -32,7 +32,7 @@ import shlex
 
 class TextInteractiveInterface(TextInterface):
 
-    def run(self):
+    def run(self, command=None, argv=None):
         print "Smart Package Manager %s - Shell Mode" % VERSION
         print
         self._ctrl.updateCache()
