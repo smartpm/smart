@@ -31,7 +31,11 @@ class Error(Exception): pass
 
 try:
     import __main__
-    localedir = os.path.join(os.path.dirname(__main__.__file__), "locale")
+    try:
+        localedir = os.path.join(os.path.dirname(__main__.__file__), "locale")
+    except AttributeError:
+        localedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                 "locale")
     if not os.path.isdir(localedir):
         localedir = None
     _ = translation("smart", localedir).ugettext
