@@ -1349,6 +1349,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
                 /* pkg = lstpkg */
                 Py_DECREF(pkg);
                 pkg = lstpkg;
+                pkgobj = (PackageObject *)pkg;
                 Py_INCREF(pkg);
                 /* found = True */
                 found = 1;
