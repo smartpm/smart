@@ -140,10 +140,25 @@ class Interpreter(Cmd):
 
     def onecmd(self, line):
         try:
+            cmd, arg, line = self.parseline(line)
+            if arg in ("-h", "--help"):
+                try:
+                    getattr(self, "help_"+cmd)()
+                    return None
+                except AttributeError:
+                    pass
             return Cmd.onecmd(self, line)
         except Error, e:
             iface.error(str(e))
             return None
+
+    def help_help(self):
+        print "What would you expect!? ;-)"
+
+    def help_EOF(self):
+        print "The exit/quit/EOF command returns to the system."
+    help_exit = help_EOF
+    help_quit = help_EOF
 
     def do_EOF(self, line):
         print
@@ -151,10 +166,21 @@ class Interpreter(Cmd):
     do_exit = do_EOF
     do_quit = do_EOF
 
+    def help_shell(self):
+        print "The shell command offers execution of system commands."
+        print ""
+        print "Usage: shell [<cmd>]"
+        print "       ![<cmd>]"
+
     def do_shell(self, line):
         if not line.strip():
             line = os.environ.get("SHELL", "/bin/sh")
         os.system(line)
+
+    def help_status(self):
+        print "The status command shows currently marked changes."
+        print ""
+        print "Usage: status"
 
     def do_status(self, line):
         if line.strip():
@@ -163,6 +189,11 @@ class Interpreter(Cmd):
             print "There are no marked changes."
         else:
             iface.showChangeSet(self._changeset)
+
+    def help_install(self):
+        print "The install command marks packages for installation."
+        print ""
+        print "Usage: install <pkgname> ..."
 
     complete_install = completeAvailable
     def do_install(self, line):
@@ -186,6 +217,11 @@ class Interpreter(Cmd):
             self.saveUndo()
             self._changeset.setState(changeset)
 
+    def help_reinstall(self):
+        print "The reinstall command marks packages for reinstallation."
+        print ""
+        print "Usage: reinstall <pkgname> ..."
+
     complete_reinstall = completeInstalled
     def do_reinstall(self, line):
         cache = self._ctrl.getCache()
@@ -204,6 +240,11 @@ class Interpreter(Cmd):
         if iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+
+    def help_upgrade(self):
+        print "The upgrade command marks packages for upgrading."
+        print ""
+        print "Usage: upgrade <pkgname> ..."
 
     complete_upgrade = completeInstalled
     def do_upgrade(self, line):
@@ -233,6 +274,11 @@ class Interpreter(Cmd):
             self.saveUndo()
             self._changeset.setState(changeset)
 
+    def help_remove(self):
+        print "The remove command marks packages for being removed."
+        print ""
+        print "Usage: remove <pkgname> ..."
+
     complete_remove = completeInstalled
     def do_remove(self, line):
         cache = self._ctrl.getCache()
@@ -254,6 +300,11 @@ class Interpreter(Cmd):
             self.saveUndo()
             self._changeset.setState(changeset)
 
+    def help_keep(self):
+        print "The keep command unmarks currently marked packages."
+        print ""
+        print "Usage: keep <pkgname> ..."
+
     complete_keep = completeMarked
     def do_keep(self, line):
         cache = self._ctrl.getCache()
@@ -273,6 +324,12 @@ class Interpreter(Cmd):
             self.saveUndo()
             self._changeset.setState(changeset)
 
+    def help_fix(self):
+        print ("The fix command verifies relations of given packages\n"
+               "and marks the necessary changes for fixing them.")
+        print ""
+        print "Usage: fix <pkgname> ..."
+
     complete_fix = completeAll
     def do_fix(self, line):
         cache = self._ctrl.getCache()
@@ -291,6 +348,12 @@ class Interpreter(Cmd):
             self.saveUndo()
             self._changeset.setState(changeset)
 
+    def help_download(self):
+        print ("The download command fetches the given packages\n"
+               "to the local filesystem.")
+        print ""
+        print "Usage: download <pkgname> ..."
+
     complete_download = completeAll
     def do_download(self, line):
         packages = []
@@ -302,6 +365,11 @@ class Interpreter(Cmd):
         if packages:
             self._ctrl.downloadPackages(packages, targetdir=os.getcwd())
 
+    def help_commit(self):
+        print "The commit command applies marked changes in the system."
+        print ""
+        print "Usage: commit"
+
     def do_commit(self, line):
         transaction = Transaction(self._ctrl.getCache(),
                                   changeset=self._changeset)
@@ -310,6 +378,11 @@ class Interpreter(Cmd):
             del self._redo[:]
             self._changeset.clear()
             self._ctrl.updateCache()
+
+    def help_undo(self):
+        print "The undo command reverts marked changes."
+        print ""
+        print "Usage: undo"
 
     def do_undo(self, line):
         if not self._undo:
@@ -321,6 +394,11 @@ class Interpreter(Cmd):
             self._redo.insert(0, self._changeset.getPersistentState())
             self._changeset.setPersistentState(state)
 
+    def help_redo(self):
+        print "The redo command reapplies undone changes."
+        print ""
+        print "Usage: redo"
+
     def do_redo(self, line):
         if not self._redo:
             return
@@ -330,6 +408,18 @@ class Interpreter(Cmd):
             state = self._redo.pop(0)
             self._undo.insert(0, self._changeset.getPersistentState())
             self._changeset.setPersistentState(state)
+
+    def help_ls(self):
+        print ("The ls command lists packages by name. Wildcards\n"
+               "are accepted.")
+        print ""
+        print "Options:"
+        print "   -i  List only installed packages"
+        print "   -n  List only new packages"
+        print "   -v  Show versions"
+        print "   -s  Show summaries"
+        print ""
+        print "Usage: ls [options] [<string>] ..."
 
     complete_ls = completeAll
     def do_ls(self, line):
@@ -402,6 +492,11 @@ class Interpreter(Cmd):
                 out.write(" "*(columnlen-len(s)))
             print
 
+    def help_update(self):
+        print "The update command will update channel information."
+        print ""
+        print "Usage: update [<alias>] ..."
+
     def complete_update(self, text, line, begidx, endidx):
         matches = []
         for channel in self._ctrl.getChannels():
@@ -435,6 +530,13 @@ class Interpreter(Cmd):
             iface.showStatus("Channels have %d new packages%s"
                              % (len(newpackages), info))
 
+    def help_query(self):
+        print ("The query command allows querying package information,\n"
+               "and accepts the same options available in the command\n"
+               "line interface.")
+        print ""
+        print "Usage: query [options] [<pkgname>] ..."
+
     complete_query = completeAll
     def do_query(self, line):
         from gepeto.commands import query
@@ -444,6 +546,11 @@ class Interpreter(Cmd):
         except SystemExit:
             pass
 
+    def help_search(self):
+        print "The search command allows searching for packages."
+        print ""
+        print "Usage: search <string> ..."
+
     complete_search = completeAll
     def do_search(self, line):
         from gepeto.commands import search
@@ -452,3 +559,5 @@ class Interpreter(Cmd):
             search.main(opts, self._ctrl, updatecache=False)
         except SystemExit:
             pass
+
+# vim:ts=4:sw=4:et
