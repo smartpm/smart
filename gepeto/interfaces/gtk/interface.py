@@ -33,6 +33,7 @@ class GtkInterface(Interface):
         self._progress = GtkProgress(False)
         self._hassubprogress = GtkProgress(True)
         self._changes = GtkChanges()
+        self._window = None
 
     def getProgress(self, obj, hassub=False):
         if hassub:
@@ -45,6 +46,45 @@ class GtkInterface(Interface):
 
     def getSubProgress(self, obj):
         return self._hassubprogress
+
+    def askYesNo(self, question, default=False):
+        dialog = gtk.MessageDialog(parent=self._window,
+                                   flags=gtk.DIALOG_MODAL,
+                                   type=gtk.MESSAGE_QUESTION,
+                                   buttons=gtk.BUTTONS_YES_NO,
+                                   message_format=question+"?")
+        dialog.set_default_response(default and gtk.RESPONSE_YES
+                                             or gtk.RESPONSE_NO)
+        response = dialog.run()
+        dialog.destroy()
+        print response
+        if response == gtk.RESPONSE_YES:
+            return True
+        elif response == gtk.RESPONSE_NO:
+            return False
+        else:
+            return default
+
+    def askContCancel(self, question, default=False):
+        return self.askYesNo(question+". Continue", default)
+
+    def askOkCancel(self, question, default=False):
+        dialog = gtk.MessageDialog(parent=self._window,
+                                   flags=gtk.DIALOG_MODAL,
+                                   type=gtk.MESSAGE_INFO,
+                                   buttons=gtk.BUTTONS_OK_CANCEL,
+                                   message_format=question+".")
+        dialog.set_default_response(default and gtk.RESPONSE_OK
+                                             or gtk.RESPONSE_CANCEL)
+        response = dialog.run()
+        dialog.destroy()
+        print response
+        if response == gtk.RESPONSE_OK:
+            return True
+        elif response == gtk.RESPONSE_CANCEL:
+            return False
+        else:
+            return default
 
     def message(self, level, msg):
         self._log.message(level, msg)

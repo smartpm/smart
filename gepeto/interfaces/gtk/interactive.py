@@ -417,10 +417,15 @@ class GtkInteractiveInterface(GtkInterface):
             self.error(str(e[0]))
         else:
             changeset = transaction.getChangeSet()
-            if self.confirmChange(self._changeset, changeset):
-                self.saveUndo()
-                self._changeset.setState(changeset)
-                self.changedMarks()
+            if changeset != self._changeset:
+                if self.confirmChange(self._changeset, changeset):
+                    self.saveUndo()
+                    self._changeset.setState(changeset)
+                    self.changedMarks()
+                    if self.askYesNo("Apply marked changes now", True):
+                        self.applyChanges()
+            else:
+                self.showStatus("No interesting upgrades available!")
 
     def togglePackage(self, pkg, reinstall=False):
         transaction = Transaction(self._ctrl.getCache(), policy=PolicyInstall)

@@ -21,6 +21,9 @@
 #
 from gepeto.const import ERROR, WARNING, DEBUG
 import gtk, gobject
+import locale
+
+ENCODING = locale.getpreferredencoding()
 
 class GtkLog(gtk.Window):
 
@@ -75,6 +78,8 @@ class GtkLog(gtk.Window):
                   DEBUG: "debug"}.get(level)
         buffer = self._textview.get_buffer()
         iter = buffer.get_end_iter()
+        if not isinstance(msg, unicode):
+            msg = msg.decode(ENCODING)
         if prefix:
             for line in msg.split("\n"):
                 buffer.insert(iter, "%s: %s\n" % (prefix, line))
