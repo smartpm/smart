@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.backends.rpm.synthesis import URPMISynthesisLoader
 from smart.backends.rpm.header import URPMILoader
 from smart.util.filetools import getFileDigest
 from smart.const import SUCCEEDED, FAILED, ALWAYS, NEVER
@@ -77,7 +78,8 @@ class URPMIChannel(PackageChannel):
         if self._hdlurl.endswith("/list"):
             listitem = None
         else:
-            m = re.compile(r"/hdlist(.*)\.").search(self._hdlurl)
+            m = re.compile(r"/(?:synthesis\.)?hdlist(.*)\.") \
+                  .search(self._hdlurl)
             suffix = m and m.group(1) or ""
             listurl = posixpath.join(hdlbaseurl, "list%s" % suffix)
             listitem = fetcher.enqueue(listurl, uncomp=True)
@@ -126,7 +128,12 @@ class URPMIChannel(PackageChannel):
                             raise
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
-            loader = URPMILoader(localpath, self._baseurl, listpath)
+
+            if open(localpath).read(4) == "\xad\x8e\x01\xe8":
+                loader = URPMILoader(localpath, self._baseurl, listpath)
+            else:
+                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath)
+                                
             loader.setChannel(self)
             self._loaders.append(loader)
 
