@@ -2085,7 +2085,7 @@ Cache_load(CacheObject *self, PyObject *args)
     CALLMETHOD(self, "loadFileProvides", NULL);
     PyDict_Clear(self->_objmap);
     CALLMETHOD(self, "linkDeps", NULL);
-    CALLMETHOD(prog, "add", "i", 1);
+    CALLMETHOD(prog, "setDone", NULL);
     CALLMETHOD(prog, "show", NULL);
     CALLMETHOD(prog, "stop", NULL);
     Py_RETURN_NONE;

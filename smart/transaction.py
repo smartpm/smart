@@ -621,12 +621,13 @@ class Transaction(object):
                 else:
                     alternatives.append((getweight(cs), cs))
 
+        # If there's only one alternative, it's the one currenlty in use.
         if len(alternatives) > 1:
             alternatives.sort()
             changeset.setState(alternatives[0][1])
 
     def _pending(self, changeset, locked, pending, depth=0):
-        #print "[%03d] _pending(%s)" % depth
+        #print "[%03d] _pending()" % depth
         #depth += 1
 
         isinst = changeset.installed

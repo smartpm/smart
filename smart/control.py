@@ -202,6 +202,15 @@ class Control(object):
     def rebuildSysConfChannels(self):
 
         channels = sysconf.get("channels", ())
+    
+        forcechannels = sysconf.get("force-channels", "")
+        if forcechannels:
+            forcechannels = forcechannels.split(",")
+
+        def isEnabled(alias, data):
+            if forcechannels:
+                return alias in forcechannels
+            return not data.get("disabled")
 
         if channels and not self._channels:
             cachepath = os.path.join(sysconf.get("data-dir"), "cache")
@@ -225,15 +234,14 @@ class Control(object):
                      self._sysconfchannels) = state
                     for alias in self._channels.keys():
                         if (alias not in channels or
-                            channels[alias].get("disabled")):
+                            not isEnabled(alias, channels[alias])):
                             self.removeChannel(alias)
                 cachefile.close()
                 iface.hideStatus()
 
         for alias in channels:
             data = channels[alias]
-            # Remove strToBool from here ASAP!
-            if strToBool(data.get("disabled")):
+            if not isEnabled(alias, data):
                 continue
 
             if alias in self._sysconfchannels.keys():

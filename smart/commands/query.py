@@ -76,6 +76,13 @@ def parse_options(argv, help=None):
     parser.add_option("--description", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given "
                              "description"))
+    parser.add_option("--path", action="append", default=[], metavar="STR",
+                      help=_("show only packages which include the given "
+                             "path in the available meta information"))
+    parser.add_option("--url", action="append", default=[], metavar="STR",
+                      help=_("show only packages which include the given "
+                             "reference url in the available meta "
+                             "information"))
     parser.add_option("--hide-version", action="store_true",
                       help=_("hide package version"))
     parser.add_option("--show-summary", action="store_true",
@@ -228,21 +235,43 @@ def main(ctrl, opts, reloadchannels=True):
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
         hasdescription.append(re.compile(token, re.I))
+    haspath = []
+    for token in opts.path:
+        token = fnmatch.translate(token).replace(r"\ ", " ")
+        haspath.append(re.compile(token, re.I))
+    hasurl = []
+    for token in opts.url:
+        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
+        hasurl.append(re.compile(token, re.I))
 
-    if hasname or hassummary or hasdescription:
+    if hasname or hassummary or hasdescription or haspath:
         newpackages = {}
+        needsinfo = hassummary or hasdescription or haspath or hasurl
         for pkg in cache.getPackages():
-            for pattern in hasname:
-                if pattern.search(pkg.name):
-                    newpackages[pkg] = True
-            if hassummary or hasdescription:
+            if hasname:
+                for pattern in hasname:
+                    if pattern.search(pkg.name):
+                        newpackages[pkg] = True
+            if needsinfo:
                 info = pkg.loaders.keys()[0].getInfo(pkg)
-                for pattern in hassummary:
-                    if pattern.search(info.getSummary()):
-                        newpackages[pkg] = True
-                for pattern in hasdescription:
-                    if pattern.search(info.getDescription()):
-                        newpackages[pkg] = True
+                if hassummary:
+                    for pattern in hassummary:
+                        if pattern.search(info.getSummary()):
+                            newpackages[pkg] = True
+                if hasdescription:
+                    for pattern in hasdescription:
+                        if pattern.search(info.getDescription()):
+                            newpackages[pkg] = True
+                if haspath:
+                    for pattern in haspath:
+                        for path in info.getPathList():
+                            if pattern.match(path):
+                                newpackages[pkg] = True
+                if hasurl:
+                    for pattern in hasurl:
+                        for url in info.getReferenceURLs():
+                            if pattern.match(url):
+                                newpackages[pkg] = True
         packages = newpackages.keys()
 
     

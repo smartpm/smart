@@ -44,6 +44,11 @@ def parse_options(argv):
     opts.name = opts.args
     opts.summary = opts.args
     opts.description = opts.args
+    for arg in argv:
+        if ":/" in arg:
+            opts.url.append(arg)
+        elif "/" in arg:
+            opts.path.append(arg)
     opts.show_summary = True
     opts.hide_version = True
     opts.args = []

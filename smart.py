@@ -50,6 +50,7 @@ Action commands:
 Query commands:
     search
     query
+    info
 
 Setup commands:
     channel

@@ -53,10 +53,16 @@ class RPMHeaderPackageInfo(PackageInfo):
 
     _h = LazyHeader()
 
-    def __init__(self, package, loader):
-        PackageInfo.__init__(self, package)
+    def __init__(self, package, loader, order=0):
+        PackageInfo.__init__(self, package, order)
         self._loader = loader
         self._path = None
+
+    def getReferenceURLs(self):
+        url = self._h[rpm.RPMTAG_URL]
+        if url:
+            return [url]
+        return []
 
     def getURLs(self):
         url = self._loader.getURL()
@@ -137,6 +143,8 @@ class RPMHeaderPackageInfo(PackageInfo):
                     stat.S_ISREG(mode))
 
 class RPMHeaderLoader(Loader):
+
+    __stateversion__ = Loader.__stateversion__+1
  
     COMPFLAGS = rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_GREATER|rpm.RPMSENSE_LESS
 
@@ -148,6 +156,7 @@ class RPMHeaderLoader(Loader):
 
     def __init__(self):
         Loader.__init__(self)
+        self._infoorder = 0
         self._offsets = {}
         self._groups = {}
 
@@ -155,7 +164,7 @@ class RPMHeaderLoader(Loader):
         return []
 
     def getInfo(self, pkg):
-        return RPMHeaderPackageInfo(pkg, self)
+        return RPMHeaderPackageInfo(pkg, self, self._infoorder)
 
     def getGroup(self, pkg):
         return self._groups[pkg]
@@ -441,6 +450,7 @@ class RPMDBLoader(RPMHeaderLoader):
     def __init__(self):
         RPMHeaderLoader.__init__(self)
         self.setInstalled(True)
+        self._infoorder = -100
 
     def getLoadSteps(self):
         return 1

@@ -4,9 +4,6 @@ AM_INIT_AUTOMAKE(kynaptic, 0.5)
 
 dnl These are common macros that you might or might not want to use
 
-dnl Image readers/writers
-KDE_CHECK_KIMGIO
- 
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC

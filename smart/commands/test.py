@@ -21,7 +21,6 @@
 #
 from smart.option import OptionParser
 from smart import *
-import string
 import re
 
 USAGE=_("smart test [options]")

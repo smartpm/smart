@@ -116,8 +116,9 @@ class Package(object):
          self.loaders) = state
 
 class PackageInfo(object):
-    def __init__(self, package):
+    def __init__(self, package, order=0):
         self._package = package
+        self._order = order
 
     def getPackage(self):
         return self._package
@@ -148,6 +149,9 @@ class PackageInfo(object):
 
     def getInstalledSize(self):
         return None
+
+    def getReferenceURLs(self):
+        return []
 
     def getURLs(self):
         return []
@@ -208,6 +212,9 @@ class PackageInfo(object):
             if withreason:
                 return True, None
             return True
+
+    def __lt__(self, other):
+        return self._order < other._order
 
 class Provides(object):
     def __init__(self, name, version):
@@ -549,7 +556,7 @@ class Cache(object):
         self.loadFileProvides()
         self._objmap.clear()
         self.linkDeps()
-        prog.add(1)
+        prog.setDone()
         prog.show()
         prog.stop()
 

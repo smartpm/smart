@@ -570,4 +570,19 @@ class Interpreter(Cmd):
         except SystemExit:
             pass
 
+    def help_info(self):
+        print _("The info command shows information about packages.")
+        print
+        print _("Usage: info <pkgname> ...")
+
+    complete_info = completeAll
+    def do_info(self, line):
+        from smart.commands import info
+        try:
+            opts = info.parse_options(shlex.split(line))
+            info.main(self._ctrl, opts, reloadchannels=False)
+        except SystemExit:
+            pass
+
+
 # vim:ts=4:sw=4:et
