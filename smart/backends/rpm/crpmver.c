@@ -119,7 +119,7 @@ vercmpparts(const char *e1, const char *v1, const char *r1,
 }
 
 static void
-parseversion(char *buf, char **e, char **v, char **r)
+splitversion(char *buf, char **e, char **v, char **r)
 {
     char *s = strrchr(buf, '-');
     if (s) {
@@ -151,8 +151,8 @@ vercmp(const char *s1, const char *s2)
     strncpy(b2, s2, sizeof(b2)-1);
     b1[sizeof(b1)-1] = '\0';
     b2[sizeof(b1)-1] = '\0';
-    parseversion(b1, &e1, &v1, &r1);
-    parseversion(b2, &e2, &v2, &r2);
+    splitversion(b1, &e1, &v1, &r1);
+    splitversion(b2, &e2, &v2, &r2);
     return vercmpparts(e1, v1, r1, e2, v2, r2);
 }
 

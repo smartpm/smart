@@ -26,18 +26,30 @@ VERRE = re.compile("(?:([0-9]+):)?(.+?)(?:-([^-]+))?$")
 CM = {"=": "=", "<<": "<", ">>": ">", "<=": "<=",
       ">=": ">=", ">": ">=", "<": "<="}
 
-def parseversion(str, cm=CM):
+SPLITRE = re.compile(" *([<>=]+) *")
+
+def parserelation(str, cm=CM):
     open = str.find("(")
     if open != -1:
         close = str.find(")")
-        toks = str[open+1:close].split()
+        toks = SPLITRE.split(str[open+1:close].strip())
         l = len(toks)
-        if l == 2:
-            return str[:open].strip(), cm.get(toks[0]), toks[1]
+        if l == 3:
+            return str[:open].strip(), cm.get(toks[1]), toks[2]
         else:
             return str[:open].strip(), None, None
     else:
         return str.strip(), None, None
+
+def parserelations(str):
+    ret = []
+    for descr in str.split(","):
+        group = descr.split("|")
+        if len(group) == 1:
+            ret.append(parserelation(group[0]))
+        else:
+            ret.append([parserelation(x) for x in group])
+    return ret
 
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)
@@ -88,8 +100,10 @@ def vercmppart(a, b):
                (not a[ai].isdigit() or not b[bi].isdigit())):
             vc = ORDER[a[ai]]
             rc = ORDER[b[bi]]
-            if vc != rc:
-                return vc - rc
+            if vc > rc:
+                return 1
+            if vc < rc:
+                return -1;
             ai += 1
             bi += 1
         while ai != la and a[ai] == "0":
@@ -106,8 +120,10 @@ def vercmppart(a, b):
             return 1
         if bi != lb and b[bi].isdigit():
             return -1
-        if first_diff:
-            return first_diff
+        if first_diff > 0:
+            return 1
+        if first_diff < 0:
+            return -1
     if ai == la and bi == lb:
         return 0
     if ai == la:
@@ -131,5 +147,7 @@ for i in range(256):
         ORDER[c] = i
     else:
         ORDER[c] = i+256
+
+from cdebver import *
 
 # vim:ts=4:sw=4

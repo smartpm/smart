@@ -20,8 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.cache import Loader, PackageInfo
-from smart.backends.deb.debver import parseversion
-from smart.backends.deb.tagfile import TagFile
+from smart.util.tagfile import TagFile
+from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb import *
 from smart import *
 import locale
@@ -115,7 +115,6 @@ class DebTagFileLoader(Loader):
 
     def reset(self):
         Loader.reset(self)
-        self._offsets = {}
 
     def load(self):
         Pkg = DebPackage
@@ -147,42 +146,34 @@ class DebTagFileLoader(Loader):
             if value:
                 for prvname in value.split(","):
                     prvname = prvname.strip()
-                    prvargs.append((Prv, prvname))
+                    prvargs.append((Prv, prvname, None))
                     prvdict[prvname] = True
 
             reqargs = []
             value = section.get("depends")
             if value:
-                for descr in value.split(","):
-                    opts = descr.split("|")
-                    if len(opts) == 1:
-                        n, r, v = parseversion(opts[0])
+                for relation in parserelations(value):
+                    if type(relation) is not list:
+                        n, r, v = relation
                         reqargs.append((Req, n, r, v))
                     else:
-                        nrv = []
-                        for subdescr in opts:
-                            nrv.append(parseversion(subdescr))
-                        reqargs.append((OrReq, tuple(nrv), descr))
+                        reqargs.append((OrReq, tuple(relation))
             value = section.get("pre-depends")
             if value:
-                for descr in value.split(","):
-                    opts = descr.split("|")
-                    if len(opts) == 1:
-                        n, r, v = parseversion(opts[0])
+                for relation in parserelations(value):
+                    if type(relation) is not list:
+                        n, r, v = relation
                         reqargs.append((PreReq, n, r, v))
                     else:
-                        nrv = []
-                        for subdescr in opts:
-                            nrv.append(parseversion(subdescr))
-                        reqargs.append((OrPreReq, tuple(nrv), descr))
+                        reqargs.append((OrPreReq, tuple(relation))
 
             upgargs = [(Upg, name, '<', version)]
 
             cnfargs = []
             value = section.get("conflicts")
             if value:
-                for descr in value.split(","):
-                    n, r, v = parseversion(descr)
+                for relation in parserelations(value):
+                    n, r, v = relation
                     if not v and n in prvdict:
                         continue
                     cnfargs.append((Cnf, n, r, v))
@@ -191,6 +182,5 @@ class DebTagFileLoader(Loader):
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
             pkg._section = section.get("section", "")
-            self._offsets[offset] = pkg
 
 # vim:ts=4:sw=4:et

@@ -19,9 +19,8 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#from smart.backends.rpm.rpmver import splitarch
+from smart.backends.rpm.rpmver import splitarch
 from smart.util.filetools import setCloseOnExec
-from smart.backends.rpm.crpmver import splitarch
 from smart.sorter import ChangeSetSorter, LoopError
 from smart.const import INSTALL, REMOVE
 from smart.pm import PackageManager

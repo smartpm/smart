@@ -170,8 +170,9 @@ class DebRequires(DebDepends,Requires): pass
 
 class DebOrDepends(Depends):
 
-    def __init__(self, nrv, descr):
-        Depends.__init__(self, descr, None, None)
+    def __init__(self, nrv):
+        name = " | ".join((x[2] and " ".join(x) or x[0]) for x in nrv)
+        Depends.__init__(self, name, None, None)
         self._nrv = nrv
 
     def getInitArgs(self):

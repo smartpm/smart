@@ -97,14 +97,18 @@ def main(ctrl, opts):
             if not m:
                 raise Error, "Invalid --remove argument: %s" % opt
             path, value = m.groups()
-            try:
-                value = int(value)
-            except ValueError:
+            if value:
                 try:
-                    value = eval(value, globals)
-                except:
-                    pass
-            if not sysconf.remove(path, value):
+                    value = int(value)
+                except ValueError:
+                    try:
+                        value = eval(value, globals)
+                    except:
+                        pass
+                removed = sysconf.remove(path, value)
+            else:
+                removed = sysconf.remove(path)
+            if not removed:
                 iface.warning("Option '%s' not found." % path)
 
     if opts.show is not None:

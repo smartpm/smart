@@ -25,8 +25,7 @@
 import zlib
 
 from smart.backends.rpm.pm import RPMPackageManager
-from crpmver import checkdep, vercmp, splitarch
-#from rpmver import checkdep, vercmp, splitarch
+from rpmver import checkdep, vercmp, splitarch
 from smart.util.strtools import isGlob
 from smart.matcher import Matcher
 from smart.cache import *

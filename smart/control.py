@@ -161,6 +161,7 @@ class Control(object):
                 return
 
             if self._cachechanged:
+                iface.showStatus("Saving cache...")
                 cachepath = os.path.join(sysconf.get("data-dir"), "cache")
                 cachefile = open(cachepath+".new", "w")
                 state = (self.__stateversion__,
@@ -170,6 +171,7 @@ class Control(object):
                 cPickle.dump(state, cachefile, 2)
                 cachefile.close()
                 os.rename(cachepath+".new", cachepath)
+                iface.hideStatus()
 
             if not sysconf.getModified():
                 return

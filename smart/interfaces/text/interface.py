@@ -23,6 +23,7 @@ from smart.interfaces.text.progress import TextProgress
 from smart.interface import Interface, getScreenWidth
 from smart.fetcher import Fetcher
 from smart.report import Report
+import sys
 import os
 
 class TextInterface(Interface):
@@ -30,6 +31,7 @@ class TextInterface(Interface):
     def __init__(self, ctrl):
         Interface.__init__(self, ctrl)
         self._progress = TextProgress()
+        self._activestatus = False
 
     def getProgress(self, obj, hassub=False):
         self._progress.setHasSub(hassub)
@@ -40,9 +42,20 @@ class TextInterface(Interface):
         return self._progress
 
     def showStatus(self, msg):
-        print msg
+        if self._activestatus:
+            print
+        else:
+            self._activestatus = True
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+
+    def hideStatus(self):
+        if self._activestatus:
+            self._activestatus = False
+            print
 
     def askYesNo(self, question, default=False):
+        self.hideStatus()
         if question[-1] in ".!?":
             question = question[:-1]
         mask = default and "%s (Y/n)? " or "%s (y/N)? "
@@ -53,6 +66,7 @@ class TextInterface(Interface):
         return default
 
     def askContCancel(self, question, default=False):
+        self.hideStatus()
         if question[-1] in ".!?":
             question = question[:-1]
         mask = default and "%s (Continue/cancel): " or "%s (continue/Cancel)? "
@@ -63,6 +77,7 @@ class TextInterface(Interface):
         return default
 
     def askOkCancel(self, question, default=False):
+        self.hideStatus()
         if question[-1] in ".!?":
             question = question[:-1]
         mask = default and "%s (Ok/cancel): " or "%s (ok/Cancel): "
@@ -87,6 +102,7 @@ class TextInterface(Interface):
         return res
 
     def insertRemovableChannels(self, channels):
+        self.hideStatus()
         print
         print "Insert one or more of the following removable channels:"
         print
@@ -98,6 +114,7 @@ class TextInterface(Interface):
     # Non-standard interface methods:
         
     def showChangeSet(self, changeset, keep=None, confirm=False):
+        self.hideStatus()
         report = Report(changeset)
         report.compute()
 

@@ -27,6 +27,14 @@ class TagFile(dict):
         self._file = open(filename)
         self._offset = 0
 
+    def __getstate__(self):
+        return self._filename
+
+    def __setstate__(self, state):
+        self._filename = state
+        self._file = open(state)
+        self._offset = 0
+
     def setOffset(self, offset):
         self._offset = offset
         self._file.seek(offset)
@@ -40,12 +48,20 @@ class TagFile(dict):
             key = None
             for line in self._file:
                 self._offset += len(line)
-                line = line.rstrip()
                 if not line:
                     break
+                if line[-1] == "\n":
+                    line = line[:-1]
+                if not line:
+                    if key:
+                        break
+                    continue
                 if line[0].isspace():
                     if key:
-                        self[key] += "\n"+line.lstrip()
+                        line = line[1:].rstrip()
+                        if line == ".":
+                            line = ""
+                        self[key] += "\n"+line
                 else:
                     toks = line.split(":", 1)
                     if len(toks) == 2:
@@ -56,3 +72,5 @@ class TagFile(dict):
         except StopIteration:
             pass
         return bool(self)
+
+from ctagfile import *
