@@ -1,7 +1,9 @@
 #!/usr/bin/python
 from distutils.command.install_scripts import install_scripts
 from distutils.core import setup, Extension
-import sys
+from distutils.sysconfig import get_python_lib
+import sys, os
+import glob
 import re
 
 verpat = re.compile("VERSION *= *\"(.*)\"")
@@ -10,6 +12,8 @@ m = verpat.search(data)
 if not m:
     sys.exit("error: can't find VERSION")
 VERSION = m.group(1)
+
+PYTHONLIB = get_python_lib()
 
 setup(name="gepeto",
       version = VERSION,
@@ -41,5 +45,7 @@ Gepeto is an advanced packaging tool.
                      Extension("gepeto.backends.rpm.crpmver",
                                ["gepeto/backends/rpm/crpmver.c"]),
                     ],
+      data_files = [(PYTHONLIB+"/gepeto/interfaces/images", 
+                     glob.glob("gepeto/interfaces/images/*.png"))],
       )
 
