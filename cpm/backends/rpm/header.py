@@ -171,7 +171,7 @@ class RPMHeaderLoader(Loader):
 
             fpkg.name = name
             fpkg.version = version
-            if not pkgflags or pkgflags.test("multi-version", fpkg):
+            if not pkgflags or not pkgflags.test("multi-version", fpkg):
                 cnfargs.append(obstup)
 
             pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
