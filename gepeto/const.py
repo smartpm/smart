@@ -19,35 +19,45 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import sys
 
 VERSION = "0.12"
 
-INSTALL = 1
-REMOVE  = 2
+RECURSIONLIMIT = sys.getrecursionlimit()
 
-KEEP      = 3
-REINSTALL = 4
-UPGRADE   = 5
-FIX       = 6
+class Enum(object):
+    def __init__(self, name):
+        self._name = name
+    def __repr__(self):
+        return self._name
 
-OPTIONAL = 1
-NEVER    = 2
-ENFORCE = ALWAYS = 3
+INSTALL   = Enum("INSTALL")
+REMOVE    = Enum("REMOVE")
 
-ERROR   = 1
-WARNING = 2
-INFO    = 3
-DEBUG   = 4
+KEEP      = Enum("KEEP")
+REINSTALL = Enum("REINSTALL")
+UPGRADE   = Enum("UPGRADE")
+FIX       = Enum("FIX")
 
-WAITING   = 1
-RUNNING   = 2
-FAILED    = 3
-SUCCEEDED = 4
+OPTIONAL  = Enum("OPTIONAL")
+NEVER     = Enum("NEVER")
+ENFORCE   = Enum("ENFORCE")
+ALWAYS    = Enum("ALWAYS")
+
+ERROR     = Enum("ERROR")
+WARNING   = Enum("WARNING")
+INFO      = Enum("INFO")
+DEBUG     = Enum("DEBUG")
+
+WAITING   = Enum("WAITING")
+RUNNING   = Enum("RUNNING")
+FAILED    = Enum("FAILED")
+SUCCEEDED = Enum("SUCCEEDED")
 
 BLOCKSIZE = 16384
 
 DISTROFILE = "/usr/lib/gepeto/distro.py"
-DATADIR = "/var/lib/gepeto/"
-CONFFILE = "config"
+DATADIR    = "/var/lib/gepeto/"
+CONFFILE   = "config"
 
 # vim:ts=4:sw=4:et
