@@ -44,9 +44,6 @@ def parse_options(argv, help=None):
         parser = OptionParser(usage=USAGE,
                               description=DESCRIPTION,
                               examples=EXAMPLES)
-    parser = OptionParser(usage=USAGE,
-                          description=DESCRIPTION,
-                          examples=EXAMPLES)
     parser.add_option("--urls", action="store_true",
                       help=_("show URLs"))
     parser.add_option("--paths", action="store_true",

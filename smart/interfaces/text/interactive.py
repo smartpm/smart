@@ -584,5 +584,18 @@ class Interpreter(Cmd):
         except SystemExit:
             pass
 
+    def help_stats(self):
+        print _("The stats command shows some statistics.")
+        print
+        print _("Usage: stats")
+
+    def do_stats(self, line):
+        from smart.commands import stats
+        try:
+            opts = stats.parse_options(shlex.split(line))
+            stats.main(self._ctrl, opts, reloadchannels=False)
+        except SystemExit:
+            pass
+
 
 # vim:ts=4:sw=4:et

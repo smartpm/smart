@@ -51,6 +51,7 @@ Query commands:
     search
     query
     info
+    stats
 
 Setup commands:
     channel
