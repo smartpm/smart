@@ -26,7 +26,7 @@ def main(opts, ctrl):
                 found = True
                 trans.enqueue(pkg, REMOVE)
     if not found:
-        raise Error, "no installed packages matched given arguments"
+        raise Error, "No installed packages matched given arguments"
     iface.showStatus("Computing transaction...")
     trans.run()
     iface.hideStatus()

@@ -32,11 +32,11 @@ def createRepository(type, data):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, "invalid repository type '%s'" % type
+        raise Error, "Invalid repository type '%s'" % type
     try:
         return repository.create(type, data)
     except RepositoryDataError:
-        raise Error, "repository type %s doesn't support %s" % (type, `data`)
+        raise Error, "Repository type %s doesn't support %s" % (type, `data`)
 
 def parseRepositoryDescription(data):
     replst = []

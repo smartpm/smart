@@ -24,7 +24,7 @@ class Control:
 
     def removeRepository(self, repos):
         if repos in self._sysconfreplst:
-            raise Error, "repository is in system configuration"
+            raise Error, "Repository is in system configuration"
         self._replst.remove(repos)
 
     def getCache(self):
@@ -44,7 +44,7 @@ class Control:
         if conffile:
             conffile = os.path.expanduser(conffile)
             if not os.path.isfile(conffile):
-                raise Error, "configuration file not found: %s" % conffile
+                raise Error, "Configuration file not found: %s" % conffile
             sysconf.load(conffile)
             loaded = True
         else:
@@ -80,7 +80,7 @@ class Control:
                 continue
             type = data.get("type")
             if not type:
-                raise Error, "repository without type in configuration"
+                raise Error, "Repository without type in configuration"
             repos = createRepository(type, data)
             name = repos.getName()
             if names.get(name):
@@ -124,7 +124,7 @@ class Control:
         fetcher.run("packages")
         failed = fetcher.getFailedSet()
         if failed:
-            raise Error, "failed to download packages:\n" + \
+            raise Error, "Failed to download packages:\n" + \
                          "\n".join(["    %s: %s" % (url, failed[url])
                                     for url in failed])
         succeeded = self._fetcher.getSucceededSet()
@@ -188,11 +188,11 @@ class Control:
         pkglst.sort()
 
         splitter = ChangeSetSplitter(changeset)
-        unioncs = ChangeSet()
+        unioncs = ChangeSet(self._cache)
         for n, pkg in pkglst:
             if pkg in unioncs:
                 continue
-            cs = ChangeSet(unioncs)
+            cs = ChangeSet(self._cache, unioncs)
             splitter.include(unioncs, pkg)
             cs = unioncs.difference(cs)
             self.commitChangeSet(cs)

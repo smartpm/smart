@@ -2,8 +2,7 @@ from cpm.const import INSTALL, REMOVE
 
 class Report:
 
-    def __init__(self, cache, changeset):
-        self._cache = cache
+    def __init__(self, changeset):
         self._changeset = changeset
 
         self.exclude = {}
@@ -21,6 +20,8 @@ class Report:
 
         self.notupgraded = {}
 
+        self.conflicts = {}
+
     def reset(self):
         self.exclude.clear()
         self.install.clear()
@@ -35,7 +36,7 @@ class Report:
 
     def compute(self):
         changeset = self._changeset
-        for pkg in self._cache.getPackages():
+        for pkg in changeset.getCache().getPackages():
             if pkg in self.exclude:
                 continue
             if changeset.get(pkg) is REMOVE:
@@ -95,5 +96,20 @@ class Report:
                 else:
                     if notupgraded:
                         self.notupgraded[pkg] = notupgraded.keys()
+
+            if changeset.get(pkg):
+                lst = []
+                for cnf in pkg.conflicts:
+                    for prv in cnf.providedby:
+                        for prvpkg in prv.packages:
+                            if changeset.get(prvpkg):
+                                lst.append(prvpkg)
+                for prv in pkg.provides:
+                    for cnf in prv.conflictedby:
+                        for cnfpkg in cnf.packages:
+                            if changeset.get(cnfpkg):
+                                lst.append(cnfpkg)
+                if lst:
+                    self.conflicts[pkg] = lst
 
 # vim:ts=4:sw=4:et

@@ -35,7 +35,7 @@ def getSubName(name, d, create=False):
     subnamestr = ""
     while len(subnames) > 1:
         if type(d) is not dict:
-            raise Error, "option '%s' exists and is not a dictionary" \
+            raise Error, "Option '%s' exists and is not a dictionary" \
                          % subnamestr
         subname = subnames.pop(0)
         if subnamestr:
@@ -48,7 +48,7 @@ def getSubName(name, d, create=False):
         else:
             d = d.get(subname)
             if d is None:
-                raise Error, "option '%s' not found" % subnamestr
+                raise Error, "Option '%s' not found" % subnamestr
     return subnames[-1], d
 
 def main(opts, ctrl):
@@ -65,7 +65,7 @@ def main(opts, ctrl):
 
         m = SETRE.match(opt)
         if not m:
-            raise Error, "invalid --set argument: %s" % opt
+            raise Error, "Invalid --set argument: %s" % opt
 
         g = m.groupdict()
 
@@ -82,13 +82,13 @@ def main(opts, ctrl):
             if not lst or pos >= len(lst):
                 if opts.force:
                     continue
-                raise Error, "invalid sequence access in '%s'" % g["name"]
+                raise Error, "Invalid sequence access in '%s'" % g["name"]
             if g["assign"] == "+=":
                 elem = lst[pos]
                 if type(elem) is not list:
                     if opts.force:
                         continue
-                    raise Error, "current value of '%s' is not a list" % \
+                    raise Error, "Current value of '%s' is not a list" % \
                                  g["name"]
                 def set(value, elem=elem):
                     elem.append(value)
@@ -101,7 +101,7 @@ def main(opts, ctrl):
                 if type(elem) is not list:
                     if opts.force:
                         continue
-                    raise Error, "current value of '%s' is not a list" % \
+                    raise Error, "Current value of '%s' is not a list" % \
                                  g["name"]
                 def set(value, elem=elem):
                     elem.append(value)
@@ -123,7 +123,7 @@ def main(opts, ctrl):
 
         m = DELRE.match(opt)
         if not m:
-            raise Error, "invalid --del argument: %s" % opt
+            raise Error, "Invalid --del argument: %s" % opt
 
         g = m.groupdict()
 
@@ -140,7 +140,7 @@ def main(opts, ctrl):
             if not lst or pos >= len(lst):
                 if opts.force:
                     continue
-                raise Error, "invalid sequence access in '%s[%d]'" % \
+                raise Error, "Invalid sequence access in '%s[%d]'" % \
                              (g["name"], pos)
             del lst[pos]
         else:
@@ -149,13 +149,13 @@ def main(opts, ctrl):
             else:
                 if opts.force:
                     continue
-                raise Error, "option '%s' not found" % g["name"]
+                raise Error, "Option '%s' not found" % g["name"]
             
     for opt in opts.show:
 
         m = GETRE.match(opt)
         if not m:
-            raise Error, "invalid --show argument: %s" % opt
+            raise Error, "Invalid --show argument: %s" % opt
 
         g = m.groupdict()
 
@@ -170,14 +170,14 @@ def main(opts, ctrl):
         if value is None:
             if opts.force:
                 continue
-            raise Error, "option '%s' not found" % g["name"]
+            raise Error, "Option '%s' not found" % g["name"]
 
         if g["pos"]:
             pos = int(g["pos"])
             if type(value) not in (list, tuple):
                 if opts.force:
                     continue
-                raise Error, "option '%s' is not a sequence" % g["name"]
+                raise Error, "Option '%s' is not a sequence" % g["name"]
             value = value[pos]
 
         pprint.pprint(value)

@@ -38,25 +38,25 @@ def main(opts, ctrl):
             elif ":/" in arg:
                 succ, fail = ctrl.fetchFiles([arg], "repository description")
                 if fail:
-                    raise Error, "unable to fetch repository description: %s" \
+                    raise Error, "Unable to fetch repository description: %s" \
                                  % fail[arg]
                 data = open(succ[arg]).read()
                 replst = parseRepositoryDescription(data)
                 os.unlink(succ[arg])
             else:
-                raise Error, "don't know what to do with: %s" % arg
+                raise Error, "Don't know what to do with: %s" % arg
         else:
             replst = []
             rep = {}
             for arg in opts.args:
                 if "=" not in arg:
-                    raise Error, "argument '%s' has no '='" % arg
+                    raise Error, "Argument '%s' has no '='" % arg
                 key, value = arg.split("=")
                 rep[key.strip()] = value.strip()
             if "type" not in rep:
-                raise Error, "repository has no type"
+                raise Error, "Repository has no type"
             if "name" not in rep:
-                raise Error, "repository has no name"
+                raise Error, "Repository has no name"
 
             replst.append(rep)
 

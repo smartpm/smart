@@ -40,7 +40,7 @@ class TextInterface(Interface):
         return default
 
     def confirmTransaction(self, trans):
-        report = Report(trans.getCache(), trans.getChangeSet())
+        report = Report(trans.getChangeSet())
         report.compute()
 
         print

@@ -188,7 +188,7 @@ class Fetcher(object):
         if not handler:
             klass = self._registry.get(scheme)
             if not klass:
-                raise Error, "unsupported scheme: %s" % scheme
+                raise Error, "Unsupported scheme: %s" % scheme
             handler = klass(self)
             self._handlers[scheme] = handler
         return handler
@@ -204,7 +204,7 @@ class Fetcher(object):
     def validate(self, url, localpath, withreason=False, uncomp=False):
         try:
             if not os.path.isfile(localpath):
-                raise Error, "file not found"
+                raise Error, "File not found"
 
             if uncomp:
                 uncompprefix = "uncomp_"
@@ -215,7 +215,7 @@ class Fetcher(object):
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
-                    raise Error, "unexpected size (expected %d, got %d)" % \
+                    raise Error, "Unexpected size (expected %d, got %d)" % \
                                  (size, lsize)
 
             filemd5 = self.getInfo(url, uncompprefix+"md5")
@@ -229,7 +229,7 @@ class Fetcher(object):
                     data = file.read(8192)
                 lfilemd5 = digest.hexdigest()
                 if lfilemd5 != filemd5:
-                    raise Error, "invalid MD5 (expected %s, got %s)" % \
+                    raise Error, "Invalid MD5 (expected %s, got %s)" % \
                                  (filemd5, lfilemd5)
             else:
                 filesha = self.getInfo(url, uncompprefix+"sha")
@@ -243,7 +243,7 @@ class Fetcher(object):
                         data = file.read(8192)
                     lfilesha = digest.hexdigest()
                     if lfilesha != filesha:
-                        raise Error, "invalid SHA (expected %s, got %s)" % \
+                        raise Error, "Invalid SHA (expected %s, got %s)" % \
                                      (filesha, lfilesha)
         except Error, reason:
             if withreason:
@@ -527,7 +527,7 @@ class FTPHandler(FetcherHandler):
             else:
                 size = fetcher.getInfo(url, "size")
                 if size and size != total:
-                    raise Error, "server reports unexpected size"
+                    raise Error, "Server reports unexpected size"
 
             if (not mtime or not os.path.isfile(localpath) or
                 mtime != os.path.getmtime(localpath) or
@@ -716,7 +716,7 @@ class URLLIBHandler(FetcherHandler):
                     openmode = "w"
 
                 if size and total and size != total:
-                    raise Error, "server reports unexpected size"
+                    raise Error, "Server reports unexpected size"
 
                 try:
                     local = open(localpathpart, openmode)
@@ -889,7 +889,7 @@ class URLLIB2Handler(FetcherHandler):
                     openmode = "w"
 
                 if size and total and size != total:
-                    raise Error, "server reports unexpected size"
+                    raise Error, "Server reports unexpected size"
 
                 try:
                     local = open(localpathpart, openmode)
@@ -1247,7 +1247,7 @@ class SCPHandler(FetcherHandler):
                 mtime = int(tokens[0])
                 total = int(tokens[1])
                 if size and size != total:
-                    raise Error, "server reports unexpected size"
+                    raise Error, "Server reports unexpected size"
             elif size:
                 total = size
 

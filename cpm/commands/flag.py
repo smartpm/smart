@@ -37,7 +37,7 @@ def main(opts, ctrl):
     if opts.set or opts.remove:
 
         if len(opts.args) < 2:
-            raise Error, "no flag name or target provided"
+            raise Error, "No flag name or target provided"
 
         flag = opts.args[0].strip()
 
@@ -45,7 +45,7 @@ def main(opts, ctrl):
 
             m = TARGETRE.match(arg)
             if not m:
-                raise Error, "invalid target: %s" % arg
+                raise Error, "Invalid target: %s" % arg
 
             g = m.groupdict()
 
