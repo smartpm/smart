@@ -430,6 +430,8 @@ class URL(object):
         self.query = ""
 
     def set(self, url):
+        if ":/" not in url:
+            raise Error, "Invalid URL: %s" % url
         self.scheme, rest = urllib.splittype(url)
         if self.scheme == "file":
             self.reset()
