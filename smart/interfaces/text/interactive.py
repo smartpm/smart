@@ -540,6 +540,22 @@ class Interpreter(Cmd):
             iface.showStatus(_("Channels have %d new packages%s")
                              % (len(newpackages), info))
 
+    def help_flag(self):
+        print _("The flag command allows configuring, removing and\n"
+                "verifying package flags, and accepts the same options\n"
+                "available in the command line interface.")
+        print
+        print _("Usage: flag [options]")
+
+    complete_flag = completeAll
+    def do_flag(self, line):
+        from smart.commands import flag
+        try:
+            opts = flag.parse_options(shlex.split(line))
+            flag.main(self._ctrl, opts)
+        except SystemExit:
+            pass
+
     def help_query(self):
         print _("The query command allows querying package information,\n"
                 "and accepts the same options available in the command\n"

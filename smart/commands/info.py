@@ -37,13 +37,10 @@ smart info pkgname-1.0
 smart info pkgname --urls --paths
 """)
 
-def parse_options(argv, help=None):
-    if help:
-        parser = OptionParser(help=help)
-    else:
-        parser = OptionParser(usage=USAGE,
-                              description=DESCRIPTION,
-                              examples=EXAMPLES)
+def parse_options(argv):
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.add_option("--urls", action="store_true",
                       help=_("show URLs"))
     parser.add_option("--paths", action="store_true",

@@ -35,13 +35,10 @@ EXAMPLES=_("""
 smart stats 
 """)
 
-def parse_options(argv, help=None):
-    if help:
-        parser = OptionParser(help=help)
-    else:
-        parser = OptionParser(usage=USAGE,
-                              description=DESCRIPTION,
-                              examples=EXAMPLES)
+def parse_options(argv):
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
