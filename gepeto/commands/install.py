@@ -27,10 +27,26 @@ from gepeto import *
 import string
 import re
 
-USAGE="gpt install [options] packages"
+USAGE="gpt install [options] package ..."
+
+DESCRIPTION="""
+This command will install one or more packages in the
+system. If a new version of an already installed package
+is available, it will be selected for installation.
+"""
+
+EXAMPLES="""
+gpt install pkgname
+gpt install '*kgna*'
+gpt install pkgname-1.0
+gpt install pkgname-1.0-1
+gpt install pkgname1 pkgname2
+"""
 
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")
     parser.add_option("--dump-urls", action="store_true",

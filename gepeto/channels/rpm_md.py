@@ -22,7 +22,7 @@
 from gepeto.backends.rpm.metadata import RPMMetaDataLoader
 from gepeto.util.elementtree import ElementTree
 from gepeto.util.strtools import strToBool
-from gepeto.const import SUCCEEDED, FAILED
+from gepeto.const import SUCCEEDED, FAILED, NEVER
 from gepeto.channel import Channel
 from gepeto import *
 import posixpath
@@ -49,10 +49,12 @@ class RPMMetaDataChannel(Channel):
         item = fetcher.enqueue(repomd)
         fetcher.run(progress=progress)
 
-        if item.getStatus() == FAILED:
-            iface.warning("Failed acquiring information for '%s':" %
-                          self._alias)
-            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+        if item.getStatus() is FAILED:
+            if fetcher.getCaching() is NEVER:
+                iface.warning("Failed acquiring information for '%s':" %
+                              self._alias)
+                iface.warning("%s: %s" % (item.getURL(),
+                                          item.getFailedReason()))
             progress.add(1)
             return
 

@@ -22,7 +22,7 @@
 from gepeto.backends.rpm.header import RPMPackageListLoader
 from gepeto.channel import Channel, ChannelDataError
 from gepeto.util.strtools import strToBool
-from gepeto.const import SUCCEEDED, FAILED
+from gepeto.const import SUCCEEDED, FAILED, NEVER
 from gepeto.cache import LoaderSet
 from gepeto import *
 import posixpath
@@ -58,9 +58,10 @@ class APTRPMChannel(Channel):
         fetcher.run(progress=progress)
         failed = item.getFailedReason()
         if failed:
-            iface.warning("Failed acquiring release file for '%s': %s" %
-                          (self._alias, failed))
-            iface.debug("%s: %s" % (url, failed))
+            if fetcher.getCaching() is NEVER:
+                iface.warning("Failed acquiring release file for '%s':" %
+                              self._alias)
+                iface.warning("%s: %s" % (url, failed))
             progress.add(len(self._comps)*2)
             progress.show()
             return
@@ -212,6 +213,7 @@ def create(type, alias, data):
     manual = False
     baseurl = None
     comps = None
+    fingerprint = None
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")

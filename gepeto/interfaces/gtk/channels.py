@@ -20,52 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.util.strtools import strToBool
-from gepeto.channel import createChannel
+from gepeto.channel import createChannel, getChannelInfo, getAllChannelInfos
 from gepeto import *
 import gobject, gtk
-
-TYPES = [
-    ("rpm-db", "Local RPM Database"),
-    ("rpm-hdl", "RPM Header List"),
-    ("apt-rpm", "APT-RPM Repository"),
-    ("rpm-md", "RPM MetaData"),
-    ("urpmi", "URPMI Repository"),
-    ("red-carpet", "Red Carpet"),
-    ("slack-db", "Slackware Installed Packages"),
-    ("slack-site", "Slackware Remote Packages"),
-]
-
-# Fields needed by given types, besides alias, type, name, description
-# and priority which are common. Every field is of the form:
-# (<field-key>, <label>, <tooltip>)
-FIELDS = {
-    "rpm-db": [],
-    "rpm-hdl": [("hdlurl", "Header List URL",
-                 "URL for the header list"),
-                ("baseurl", "Base URL for packages",
-                 "Base URL where package files are found")],
-    "apt-rpm": [("baseurl", "Base URL",
-                 "Base URL of APT-RPM repository,\nwhere base/ is located"),
-                ("components", "Components",
-                 "Space separated list of components"),
-                ("fingerprint", "Fingerprint",
-                 "GPG fingerprint of key signing the channel")],
-    "rpm-md": [("baseurl", "Base URL",
-                "URL where repodata/ subdirectory is found")],
-    "urpmi": [("hdlurl", "Header List URL",
-               "URL for the header list"),
-              ("baseurl", "Base URL",
-               "Base URL where MD5SUM file is found")],
-    "red-carpet": [("baseurl", "Base URL for packages",
-                    "URL where packages are found"),
-                   ("packageinfourl", "URL for packageinfo XML",
-                    "URL for packageinfo.xml.gz (filename must be included)\n"
-                    "(may be ommitted if it's named packageinfo.xml.gz and\n"
-                    "is inside the base url)")],
-    "slack-db": [],
-    "slack-site": [("baseurl", "Base URL",
-                    "URL where PACKAGES.TXT is located")],
-}
+import textwrap
 
 class GtkChannels(object):
 
@@ -447,8 +405,9 @@ class ChannelEditor(object):
                       channel.get("description", ""))
 
         # Specific fields:
-        for key, label, tip in FIELDS.get(channel.get("type"), ()):
-            self.addField(key, label, channel.get(key, ""), tip=tip)
+        for key, name, descr in getChannelInfo(channel.get("type")).fields:
+            tip = "\n".join(textwrap.wrap(text=descr, width=40))
+            self.addField(key, name, channel.get(key, ""), tip=tip)
 
         self._window.show()
 
@@ -567,8 +526,11 @@ class ChannelCreator(object):
         def type_toggled(button, type):
             if button.get_active():
                 self._type = type
-        for type, descr in TYPES:
-            radio = gtk.RadioButton(radio, descr)
+        infos = [(info.name, type) for type, info in
+                 getAllChannelInfos().items()]
+        infos.sort()
+        for name, type in infos:
+            radio = gtk.RadioButton(radio, name)
             radio.connect("toggled", type_toggled, type)
             radio.show()
             if not self._type:

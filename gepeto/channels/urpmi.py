@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.backends.rpm.header import URPMILoader
-from gepeto.const import SUCCEEDED, FAILED, ALWAYS
+from gepeto.const import SUCCEEDED, FAILED, ALWAYS, NEVER
 from gepeto.util.strtools import strToBool
 from gepeto.channel import Channel
 from gepeto import *
@@ -48,9 +48,10 @@ class URPMIChannel(Channel):
         hdlmd5 = None
         failed = item.getFailedReason()
         if failed:
-            iface.warning("Failed acquiring information for '%s':" %
-                          self._alias)
-            iface.warning("%s: %s" % (item.getURL(), failed))
+            if fetcher.getCaching() is NEVER:
+                iface.warning("Failed acquiring information for '%s':" %
+                              self._alias)
+                iface.warning("%s: %s" % (item.getURL(), failed))
         else:
             basename = posixpath.basename(self._hdlurl)
             for line in open(item.getTargetPath()):

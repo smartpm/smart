@@ -26,8 +26,41 @@ import re
 
 USAGE="gpt flag [options]"
 
+DESCRIPTION="""
+This command allows one to set, remove, and show package flags.
+Package flags are used to tune the behavior of some algorithms
+when dealing with the given packages.
+
+Currently known flags are:
+
+  lock          - Flagged packages will not be removed, if they
+                  are currently installed, nor installed, if they
+                  are currently available.
+  new           - Flagged packages were considered new packages
+                  in the repository when the last update was done.
+                  This flag is automatically manipulated by the
+                  system.
+  multi-version - Flagged packages may have more than one version
+                  installed in the system at the same time
+                  (backend dependent).
+  multi-arch    - Flagged packages may have more than one
+                  architecture installed in the system at the same
+                  time (backend dependent).
+"""
+
+EXAMPLES="""
+gpt flag --show
+gpt flag --show new
+gpt flag --set lock pkgname
+gpt flag --remove lock pkgname
+gpt flag --set lock 'pkgname >= 1.0'
+gpt flag --remove lock 'pkgname >= 1.0'
+"""
+
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.defaults["set"] = []
     parser.defaults["remove"] = []
     parser.defaults["show"] = None

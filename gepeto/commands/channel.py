@@ -22,12 +22,67 @@
 from gepeto.option import OptionParser, append_all
 from gepeto.channel import *
 from gepeto import *
-import os
+import textwrap
+import sys, os
 
 USAGE="gpt channel [options]"
 
+DESCRIPTION="""
+This command allows one to manipulate channels. Channels are
+used as source of information about installed and available
+packages. Depending on the channel type, a different backend
+is used to handle interactions with the operating system and
+extraction of information from the given channel.
+
+The following channel types are available:
+
+%(types)s
+
+The following information is common to all channel types:
+
+%(fields)s
+"""
+
+EXAMPLES="""
+gpt channel --help-type apt-rpm
+gpt channel --add mydb type=rpm-db name="RPM Database"
+gpt channel --add mychannel type=apt-rpm name="Some repository" \\
+                  baseurl=http://somewhere.com/pub/repos
+gpt channel --set mychannel priority=-100
+gpt channel --disable mychannel
+gpt channel --remove mychannel
+"""
+
+def build_types():
+    result = ""
+    typeinfo = getAllChannelInfos().items()
+    typeinfo.sort()
+    for type, info in typeinfo:
+        result += "  %-10s - %s\n" % (type, info.name)
+    return result.rstrip()
+
+def format_fields(fields):
+    result = []
+    maxkey = max([len(x[0]) for x in fields])
+    for key, name, description in fields:
+        if not description:
+            description = name
+        indent = " "*(5+maxkey)
+        lines = textwrap.wrap(text=description, width=70,
+                              initial_indent=indent,
+                              subsequent_indent=indent)
+        name = lines.pop(0).strip()
+        result.append("  %s%s - %s" % (key, " "*(maxkey-len(key)), name))
+        for line in lines:
+            result.append(line)
+    return "\n".join(result)
+
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    description = DESCRIPTION % {"types": build_types(),
+                                 "fields": format_fields(DEFAULTFIELDS)}
+    parser = OptionParser(usage=USAGE,
+                          description=description,
+                          examples=EXAMPLES)
     parser.defaults["add"] = []
     parser.defaults["set"] = []
     parser.defaults["remove"] = []
@@ -52,6 +107,8 @@ def parse_options(argv):
                       help="arguments are channel aliases to be disabled")
     parser.add_option("--force", action="store_true",
                       help="execute without asking")
+    parser.add_option("--help-type", action="store", metavar="TYPE",
+                      help="show further information about given type")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -59,6 +116,17 @@ def parse_options(argv):
 def main(opts, ctrl):
 
     channels = sysconf.get("channels", setdefault={})
+
+    if opts.help_type:
+        info = getChannelInfo(opts.help_type)
+        print "Type:", opts.help_type, "-", info.name
+        print
+        print info.description.strip()
+        print
+        print "Custom Fields:"
+        print format_fields(info.fields)
+        print
+        sys.exit(0)
     
     if opts.add:
 
@@ -76,23 +144,18 @@ def main(opts, ctrl):
                 newchannels = parseChannelDescription(data)
                 os.unlink(succ[arg])
             else:
-                raise Error, "Don't know what to do with: %s" % arg
+                raise Error, "File not found: %s" % arg
         else:
             newchannels = {}
             channel = {}
-            alias = None
+            alias = opts.add.pop(0).strip()
+            if not alias:
+                raise Error, "Channel has no alias"
             for arg in opts.add:
                 if "=" not in arg:
                     raise Error, "Argument '%s' has no '='" % arg
                 key, value = arg.split("=")
-                key = key.strip()
-                value = value.strip()
-                if key == "alias":
-                    alias = value
-                else:
-                    channel[key] = value
-            if not alias:
-                raise Error, "Channel has no alias"
+                channel[key.strip()] = value.strip()
             if "type" not in channel:
                 raise Error, "Channel has no type"
 
@@ -115,13 +178,16 @@ def main(opts, ctrl):
                 except Error, e:
                     iface.error("Invalid channel: %s" % e)
                 else:
-                    while alias in channels:
-                        iface.info("Channel alias '%s' is already in use."
-                                   % alias)
-                        res = raw_input("Choose another one: ").strip()
-                        if res:
-                            alias = res
-                    channels[alias] = channel
+                    try:
+                        while alias in channels:
+                            iface.info("Channel alias '%s' is already in use."
+                                       % alias)
+                            res = raw_input("Choose another one: ").strip()
+                            if res:
+                                alias = res
+                        channels[alias] = channel
+                    except KeyboardInterrupt:
+                        pass
 
     if opts.set:
 

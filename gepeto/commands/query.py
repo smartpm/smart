@@ -28,10 +28,30 @@ import fnmatch
 import string
 import re
 
-USAGE="gpt query [options] <name> ..."
+USAGE="gpt query [options] [package] ..."
 
-def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+DESCRIPTION="""
+This command allows querying the known packages in many
+different ways. Check also the 'search' command.
+"""
+
+EXAMPLES="""
+gpt query pkgname
+gpt query '*kgnam*'
+gpt query pkgname-1.0
+gpt query pkgname --show-requires
+gpt query --requires libpkg.so --show-providedby
+gpt query --installed
+gpt query --summary ldap
+"""
+
+def parse_options(argv, help=None):
+    if help:
+        parser = OptionParser(help=help)
+    else:
+        parser = OptionParser(usage=USAGE,
+                              description=DESCRIPTION,
+                              examples=EXAMPLES)
     parser.add_option("--installed", action="store_true",
                       help="consider only installed packages")
     parser.add_option("--provides", action="append", default=[], metavar="DEP",
@@ -99,7 +119,7 @@ def main(opts, ctrl):
         else:
             version = None
         if isGlob(name):
-            p = re.compile(fnmatch.translate(name))
+            p = re.compile(fnmatch.translate(name), re.I)
             for prv in cache.getProvides():
                 if p.match(prv.name):
                     whoprovides.append(Provides(prv.name, version))
@@ -112,7 +132,7 @@ def main(opts, ctrl):
         else:
             version = None
         if isGlob(name):
-            p = re.compile(fnmatch.translate(name))
+            p = re.compile(fnmatch.translate(name), re.I)
             for req in cache.getRequires():
                 if p.match(req.name):
                     whorequires.append(Provides(req.name, version))
@@ -125,7 +145,7 @@ def main(opts, ctrl):
         else:
             version = None
         if isGlob(name):
-            p = re.compile(fnmatch.translate(name))
+            p = re.compile(fnmatch.translate(name), re.I)
             for upg in cache.getUpgrades():
                 if p.match(upg.name):
                     whoupgrades.append(Provides(upg.name, version))
@@ -138,7 +158,7 @@ def main(opts, ctrl):
         else:
             version = None
         if isGlob(name):
-            p = re.compile(fnmatch.translate(name))
+            p = re.compile(fnmatch.translate(name), re.I)
             for cnf in cache.getConflicts():
                 if p.match(cnf.name):
                     whoconflicts.append(Provides(cnf.name, version))
@@ -177,17 +197,17 @@ def main(opts, ctrl):
     for token in opts.name:
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
-        hasname.append(re.compile(token))
+        hasname.append(re.compile(token, re.I))
     hassummary = []
     for token in opts.summary:
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
-        hassummary.append(re.compile(token))
+        hassummary.append(re.compile(token, re.I))
     hasdescription = []
     for token in opts.description:
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
-        hasdescription.append(re.compile(token))
+        hasdescription.append(re.compile(token, re.I))
 
     if hasname or hassummary or hasdescription:
         newpackages = []

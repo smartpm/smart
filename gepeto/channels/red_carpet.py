@@ -21,7 +21,7 @@
 #
 from gepeto.backends.rpm.redcarpet import RPMRedCarpetLoader
 from gepeto.util.strtools import strToBool
-from gepeto.const import SUCCEEDED, FAILED
+from gepeto.const import SUCCEEDED, FAILED, NEVER
 from gepeto.channel import Channel
 from gepeto import *
 import posixpath
@@ -50,7 +50,7 @@ class RPMRedCarpetChannel(Channel):
             localpath = item.getTargetPath()
             self._loader = RPMRedCarpetLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
-        else:
+        elif fetcher.getCaching() is NEVER:
             iface.warning("Failed acquiring information for '%s':" %
                           self._alias)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))

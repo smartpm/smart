@@ -34,17 +34,17 @@ HELP = """\
 Usage: gpt command [options] [arguments]
 
 Available commands:
-    query
+    search
     install
     reinstall
     upgrade
     remove
     fix
     update
-    channel
     flag
-    config
+    channel
     priority
+    query
 
 Run "gpt command --help" for more information.
 """

@@ -25,10 +25,25 @@ from gepeto import *
 import string
 import re
 
-USAGE="gepeto update [options]"
+USAGE="gepeto update [options] [channelalias] ..."
+
+DESCRIPTION="""
+This command will update the known information about the
+given channels. If no channels are given, all channels
+which are not disabled or setup for manual updates will
+be updated.
+"""
+
+EXAMPLES="""
+gpt update
+gpt update mychannel
+gpt update mychannel1 mychannel2
+"""
 
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

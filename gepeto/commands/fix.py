@@ -26,10 +26,28 @@ from gepeto import *
 import string
 import re
 
-USAGE="gpt fix [options] packages"
+USAGE="gpt fix [options] [package] ..."
+
+DESCRIPTION="""
+This command will try to fix dependencies of installed packages
+which are related to the given packages. Notice that the given
+packages may be currently installed or not. If no packages are
+given, all installed packages will be checked.
+"""
+
+EXAMPLES="""
+gpt fix
+gpt fix pkgname
+gpt fix '*kgna*'
+gpt fix pkgname-1.0
+gpt fix pkgname-1.0-1
+gpt fix pkgname1 pkgname2
+"""
 
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")
     parser.add_option("--dump-urls", action="store_true",

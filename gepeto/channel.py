@@ -20,6 +20,26 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto import *
+import os
+
+DEFAULTFIELDS = [("alias", "Alias",
+                  "Unique identification for the channel."),
+                 ("type", "Type", "Channel type"),
+                 ("name", "Name", "Channel name"),
+                 ("description", "Description",
+                  "Channel description"),
+                 ("priority", "Priority",
+                  "Default priority assigned to all packages "
+                  "available in this channel (default is 0). If "
+                  "the exact same package is available in more "
+                  "than one channel, the highest priority is used."),
+                 ("manual", "Manual updates",
+                  "If set to a true value ('yes', 'true', etc), "
+                  "the given channel will only be updated when "
+                  "manually selected."),
+                 ("disabled", "Disabled",
+                  "If set to a true value ('yes', 'true', etc), "
+                  "the given channel won't be used.")]
 
 class Channel(object):
 
@@ -125,5 +145,29 @@ def parseChannelDescription(data):
             key, value = line.split("=")
             current[key.strip().lower()] = value.strip()
     return channels
+
+def getChannelInfo(type):
+    try:
+        infoname = type.replace('-', '_').lower()+"_info"
+        gepeto = __import__("gepeto.channels."+infoname)
+        channels = getattr(gepeto, "channels")
+        info = getattr(channels, infoname)
+    except (ImportError, AttributeError):
+        from gepeto.const import DEBUG
+        if sysconf.get("log-level") == DEBUG:
+            import traceback
+            traceback.print_exc()
+        raise Error, "Invalid channel type '%s'" % type
+    return info
+
+def getAllChannelInfos():
+    from gepeto import channels
+    filenames = os.listdir(os.path.dirname(channels.__file__))
+    infos = {}
+    for filename in filenames:
+        if filename.endswith("_info.py"):
+            type = filename[:-8].replace("_", "-")
+            infos[type] = getChannelInfo(type)
+    return infos
 
 # vim:ts=4:sw=4:et

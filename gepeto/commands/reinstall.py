@@ -27,10 +27,25 @@ from gepeto import *
 import string
 import re
 
-USAGE="gpt reinstall [options] packages"
+USAGE="gpt reinstall [options] package ..."
+
+DESCRIPTION="""
+This command will reinstall one or more packages which
+are already installed in the system.
+"""
+
+EXAMPLES="""
+gpt reinstall pkgname
+gpt reinstall '*kgnam*'
+gpt reinstall pkgname-1.0
+gpt reinstall pkgname-1.0-1
+gpt reinstall pkgname1 pkgname2
+"""
 
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")
     opts, args = parser.parse_args(argv)

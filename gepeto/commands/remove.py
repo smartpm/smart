@@ -26,10 +26,25 @@ from gepeto import *
 import string
 import re
 
-USAGE="gpt remove [options] packages"
+USAGE="gpt remove [options] package ..."
+
+DESCRIPTION="""
+This command will remove one or more packages which
+are currently installed in the system.
+"""
+
+EXAMPLES="""
+gpt remove pkgname
+gpt remove '*kgnam*'
+gpt remove pkgname-1.0
+gpt remove pkgname-1.0-1
+gpt remove pkgname1 pkgname2
+"""
 
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     opts, args = parser.parse_args(argv)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")

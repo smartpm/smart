@@ -22,7 +22,7 @@
 from gepeto.backends.slack.loader import SlackSiteLoader
 from gepeto.channel import Channel, ChannelDataError
 from gepeto.util.strtools import strToBool
-from gepeto.const import SUCCEEDED, FAILED
+from gepeto.const import SUCCEEDED, FAILED, NEVER
 from gepeto import *
 import posixpath
 
@@ -47,7 +47,7 @@ class SlackSiteChannel(Channel):
             localpath = item.getTargetPath()
             self._loader = SlackSiteLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
-        else:
+        elif fetcher.getCaching() is NEVER:
             iface.warning("Failed acquiring information for '%s':" %
                           self._alias)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))

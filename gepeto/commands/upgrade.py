@@ -26,10 +26,27 @@ from gepeto import *
 import string
 import re
 
-USAGE="gpt upgrade [options] [packages]"
+USAGE="gpt upgrade [options] [package] ..."
+
+DESCRIPTION="""
+This command will upgrade one or more packages which
+are currently installed in the system. If no packages
+are given, all installed packages will be checked.
+"""
+
+EXAMPLES="""
+gpt upgrade
+gpt upgrade pkgname
+gpt upgrade '*kgnam*'
+gpt upgrade pkgname-1.0
+gpt upgrade pkgname-1.0-1
+gpt upgrade pkgname1 pkgname2
+"""
 
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")
     parser.add_option("--dump-urls", action="store_true",

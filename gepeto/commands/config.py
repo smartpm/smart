@@ -27,8 +27,23 @@ import re
 
 USAGE="gpt config [options]"
 
+DESCRIPTION="""
+This command allows changing the internal configuration
+representation arbitrarily. This is supposed to be used
+by advanced users only, and is generally not needed.
+"""
+
+EXAMPLES="""
+gpt config --set someoption.suboption=10
+gpt config --remove someoption
+gpt config --show someoption
+gpt config --dump
+"""
+
 def parse_options(argv):
-    parser = OptionParser(usage=USAGE)
+    parser = OptionParser(usage=USAGE,
+                          description=DESCRIPTION,
+                          examples=EXAMPLES)
     parser.defaults["set"] = []
     parser.defaults["show"] = []
     parser.defaults["remove"] = []

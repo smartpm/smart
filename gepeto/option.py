@@ -20,35 +20,62 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import optparse
+import textwrap
 import sys, os
 
 __all__ = ["OptionParser", "OptionValueError", "append_all"]
 
 OptionValueError = optparse.OptionValueError
 
-class CapitalizeHelpFormatter(optparse.IndentedHelpFormatter):
+class HelpFormatter(optparse.HelpFormatter):
+
+    def __init__(self):
+        optparse.HelpFormatter.__init__(self, 2, 24, 79, 1)
 
     def format_usage(self, usage):
-        return optparse.IndentedHelpFormatter \
-                .format_usage(self, usage).capitalize()
+        return "Usage: %s\n" % usage
 
     def format_heading(self, heading):
-        return optparse.IndentedHelpFormatter \
-                .format_heading(self, heading).capitalize()
+        return "\n%*s%s:\n" % (self.current_indent, "", heading.capitalize())
+
+    def format_description(self, description):
+        return description.strip()
+
+    def format_option(self, option):
+        help = option.help
+        option.help = help.capitalize()
+        result = optparse.HelpFormatter.format_option(self, option)
+        option.help = help
+        return result
 
 class OptionParser(optparse.OptionParser):
 
-    def __init__(self, usage=None, help=None, **kwargs):
+    def __init__(self, usage=None, help=None, examples=None, **kwargs):
         if not "formatter" in kwargs:
-            kwargs["formatter"] = CapitalizeHelpFormatter()
+            kwargs["formatter"] = HelpFormatter()
         optparse.OptionParser.__init__(self, usage, **kwargs)
         self._override_help = help
+        self._examples = examples
 
     def format_help(self, formatter=None):
+        if formatter is None:
+            formatter = self.formatter
         if self._override_help:
-            return self._override_help
+            result = self._override_help.strip()
+            result += "\n"
         else:
-            return optparse.OptionParser.format_help(self, formatter)
+            result = optparse.OptionParser.format_help(self, formatter)
+            result = result.strip()
+            result += "\n"
+            if self._examples:
+                result += formatter.format_heading("examples")
+                formatter.indent()
+                for line in self._examples.strip().splitlines():
+                    result += " "*formatter.current_indent
+                    result += line+"\n"
+                formatter.dedent()
+        result += "\n"
+        return result
 
 def append_all(option, opt, value, parser):
     if option.dest is None:

@@ -21,7 +21,7 @@
 #
 from gepeto.backends.rpm.header import RPMHeaderListLoader
 from gepeto.util.strtools import strToBool
-from gepeto.const import SUCCEEDED, FAILED
+from gepeto.const import SUCCEEDED, FAILED, NEVER
 from gepeto.channel import Channel
 from gepeto import *
 import posixpath
@@ -45,7 +45,7 @@ class RPMHeaderListChannel(Channel):
             localpath = item.getTargetPath()
             self._loader = RPMHeaderListLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
-        else:
+        elif fetcher.getCaching() is NEVER:
             iface.warning("Failed acquiring information for '%s':" %
                           self._alias)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
