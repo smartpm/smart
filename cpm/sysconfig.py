@@ -1,6 +1,6 @@
+from cpm.util.elementtree import ElementTree
 from cpm.repository import createRepository
 from cpm.packageflags import PackageFlags
-from cpm.elementtree import ElementTree
 from cpm import *
 import os
 

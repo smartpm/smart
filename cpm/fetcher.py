@@ -494,7 +494,7 @@ class URLLIB2Handler(Handler):
     def __init__(self, *args):
         Handler.__init__(self, *args)
         if not URLLIB2Handler._openerinstalled:
-            import urllib2
+            from cpm.util import urllib2
             URLLIB2Handler._openerinstalled = True
             if self.USECACHEDFTP:
                 opener = urllib2.build_opener(urllib2.CacheFTPHandler)
@@ -512,7 +512,8 @@ class URLLIB2Handler(Handler):
         return bool(self._queue or self._active)
 
     def fetch(self):
-        import urllib2, rfc822
+        from cpm.util import urllib2
+        import rfc822
         
         fetcher = self._fetcher
         prog = self._progress
