@@ -57,6 +57,8 @@ def parse_options(argv):
                       help="dump needed urls and don't commit operation")
     parser.add_option("--download", action="store_true",
                       help="download packages and don't commit operation")
+    parser.add_option("--force", action="store_true",
+                      help="do not ask for confirmation")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -106,13 +108,14 @@ def main(opts, ctrl):
     trans.run()
     iface.hideStatus()
     if trans:
+        confirm = not opts.force
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
         elif opts.download:
-            ctrl.downloadTransaction(trans)
+            ctrl.downloadTransaction(trans, confirm=confirm)
         elif opts.stepped:
-            ctrl.commitTransactionStepped(trans)
+            ctrl.commitTransactionStepped(trans, confirm=confirm)
         else:
-            ctrl.commitTransaction(trans)
+            ctrl.commitTransaction(trans, confirm=confirm)
 
 # vim:ts=4:sw=4:et
