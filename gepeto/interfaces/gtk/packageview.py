@@ -99,6 +99,8 @@ class GtkPackageView(gtk.Alignment):
                               (gobject.TYPE_PYOBJECT,)),
         "package_activated": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
                               (gobject.TYPE_PYOBJECT,)),
+        "package_popup":     (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
+                              (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)),
     }
 
     def __init__(self):
@@ -321,20 +323,23 @@ class GtkPackageView(gtk.Alignment):
             return iter
 
     def _buttonPress(self, treeview, event):
-        if (event.type != gtk.gdk._2BUTTON_PRESS or
-            event.window != treeview.get_bin_window()):
+        if event.window != treeview.get_bin_window():
             return
         path, column, cellx, celly = treeview.get_path_at_pos(int(event.x),
                                                               int(event.y))
         model = treeview.get_model()
         iter = model.get_iter(path)
         value = model.get_value(iter, 0)
-        if not self._expandpackage and hasattr(value, "name"):
-            self.emit("package_activated", value)
-        elif treeview.row_expanded(path):
-            treeview.collapse_row(path)
-        else:
-            treeview.expand_row(path, False)
+        if event.type == gtk.gdk._2BUTTON_PRESS:
+            if not self._expandpackage and hasattr(value, "name"):
+                self.emit("package_activated", value)
+            elif treeview.row_expanded(path):
+                treeview.collapse_row(path)
+            else:
+                treeview.expand_row(path, False)
+        elif event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+            if hasattr(value, "name"):
+                self.emit("package_popup", value, event)
 
     def _selectCursor(self, treeview, start_editing=False):
         selection = treeview.get_selection()

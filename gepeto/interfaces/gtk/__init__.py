@@ -24,6 +24,8 @@ from gepeto import *
 import os
 
 try:
+    import pygtk
+    pygtk.require("2.0")
     import gtk
 except ImportError:
     from gepeto.const import DEBUG

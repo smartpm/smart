@@ -323,6 +323,7 @@ class GtkInteractiveInterface(GtkInterface):
                          lambda x, y: self._pi.setPackage(y))
         self._pv.connect("package_activated",
                          lambda x, y: self.togglePackage(y))
+        self._pv.connect("package_popup", self.packagePopup)
         self._vpaned.pack2(self._pi, False)
 
         self._status = gtk.Statusbar()
@@ -441,6 +442,45 @@ class GtkInteractiveInterface(GtkInterface):
                 self.saveUndo()
                 self._changeset.setState(changeset)
                 self.changedMarks()
+
+    def packagePopup(self, packageview, pkg, event):
+        menu = gtk.Menu()
+        names = sysconf.get("package-flags", {}).get("lock")
+        if (names and pkg.name in names and 
+            ("=", pkg.version) in names[pkg.name]):
+            thislocked = True
+            alllocked = len(names[pkg.name]) > 1
+        else:
+            thislocked = False
+            alllocked = sysconf.testFlag("lock", pkg)
+        if thislocked:
+            item = gtk.MenuItem("Unlock this version")
+            def unlock_this(x):
+                names[pkg.name].remove(("=", pkg.version))
+                self._pv.queue_draw()
+            item.connect("activate", unlock_this)
+        else:
+            item = gtk.MenuItem("Lock this version")
+            def lock_this(x):
+                names.setdefault(pkg.name, []).append(("=", pkg.version))
+                self._pv.queue_draw()
+            item.connect("activate", lock_this)
+        menu.append(item)
+        if alllocked:
+            item = gtk.MenuItem("Unlock all versions")
+            def unlock_all(x):
+                del names[pkg.name]
+                self._pv.queue_draw()
+            item.connect("activate", unlock_all)
+        else:
+            item = gtk.MenuItem("Lock all versions")
+            def lock_all(x):
+                names.setdefault(pkg.name, []).append((None, None))
+                self._pv.queue_draw()
+            item.connect("activate", lock_all)
+        menu.append(item)
+        menu.show_all()
+        menu.popup(None, None, None, event.button, event.time)
 
     def undo(self):
         if self._undo:
