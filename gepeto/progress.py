@@ -40,6 +40,12 @@ class Progress(object):
         self.__lock = thread.allocate_lock()
         self.__hassub = False
 
+    def lock(self):
+        self.__lock.acquire()
+
+    def unlock(self):
+        self.__lock.release()
+
     def start(self):
         pass
 

@@ -26,8 +26,8 @@ import gtk
 
 class GtkCommandInterface(GtkInterface):
 
-    def __init__(self):
-        GtkInterface.__init__(self)
+    def __init__(self, ctrl):
+        GtkInterface.__init__(self, ctrl)
         self._status = GtkStatus()
 
     def showStatus(self, msg):

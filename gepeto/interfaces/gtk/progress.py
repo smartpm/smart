@@ -20,9 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.util.strtools import ShortURL, getSizeStr
-from gepeto.progress import Progress
+from gepeto.progress import Progress, INTERVAL
 import gobject, gtk
 import posixpath
+import thread
+import time
 
 class GtkProgress(Progress, gtk.Window):
 
@@ -34,6 +36,8 @@ class GtkProgress(Progress, gtk.Window):
         self._hassub = hassub
         self._fetchermode = False
         self._shorturl = ShortURL(50)
+        self._ticking = False
+        self._stopticking = False
 
         if hassub:
             self.set_size_request(500, 400)
@@ -62,7 +66,8 @@ class GtkProgress(Progress, gtk.Window):
 
         if hassub:
             self._scrollwin = gtk.ScrolledWindow()
-            self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC,
+                                       gtk.POLICY_AUTOMATIC)
             self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
             self._scrollwin.show()
             self._vbox.pack_start(self._scrollwin)
@@ -108,11 +113,28 @@ class GtkProgress(Progress, gtk.Window):
         self._currentcolumn.set_visible(flag)
         self._totalcolumn.set_visible(flag)
 
+    def tick(self):
+        while not self._stopticking:
+            self.lock()
+            while gtk.events_pending():
+                gtk.main_iteration()
+            self.unlock()
+            time.sleep(INTERVAL)
+        self._ticking = False
+
     def start(self):
         Progress.start(self)
+
         self.setHasSub(self._hassub)
+        self._ticking = True
+        self._stopticking = False
+
+        thread.start_new_thread(self.tick, ())
 
     def stop(self):
+        self._stopticking = True
+        while self._ticking: pass
+
         Progress.stop(self)
 
         if self._hassub:
@@ -160,8 +182,6 @@ class GtkProgress(Progress, gtk.Window):
             self._progress.set_text("%d%%" % percent)
             if self._hassub:
                 self._treeview.queue_draw()
-            while gtk.events_pending():
-                gtk.main_iteration()
 
 gobject.type_register(GtkProgress)
 
