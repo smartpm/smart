@@ -148,7 +148,7 @@ def createInterface(name, ctrl, command=None, argv=None):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, _("Invalid interface '%s'") % name
+        raise Error, _("Interface '%s' not available") % name
     return interface.create(ctrl, command, argv)
 
 def getImagePath(name, _dirname=os.path.dirname(_images__file__)):

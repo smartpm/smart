@@ -179,7 +179,6 @@ class GtkInteractiveInterface(GtkInterface):
         self._changeset = None
 
         self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Smart Package Manager %s" % VERSION)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=640, min_height=480)
@@ -357,6 +356,7 @@ class GtkInteractiveInterface(GtkInterface):
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
+        self._window.set_icon(getPixbuf("smart"))
         self._window.show()
         self._ctrl.reloadChannels()
         self._changeset = ChangeSet(self._ctrl.getCache())
@@ -500,7 +500,7 @@ class GtkInteractiveInterface(GtkInterface):
         image.set_from_pixbuf(getPixbuf("package-reinstall"))
         item = gtk.ImageMenuItem(_("Reinstall"))
         item.set_image(image)
-        item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
+        item.connect("activate", lambda x: self.actOnPackages(pkgs, REINSTALL))
         if not hasinstalled:
             item.set_sensitive(False)
         menu.append(item)

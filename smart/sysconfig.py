@@ -192,7 +192,7 @@ class SysConfig(object):
     def keys(self, path, soft=False, hard=False, weak=False):
         value = self._getvalue(path, soft, hard, weak)
         if value is NOTHING:
-            return default
+            return []
         if type(value) is dict:
             return value.keys()
         elif type(value) is list:

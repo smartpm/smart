@@ -22,7 +22,7 @@
 from smart.backends.rpm.metadata import RPMMetaDataLoader
 from smart.util.filetools import getFileDigest
 from smart.util.elementtree import ElementTree
-from smart.const import SUCCEEDED, FAILED, NEVER
+from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel
 from smart import *
 import posixpath
@@ -43,7 +43,7 @@ class RPMMetaDataChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 2
+        return 3
 
     def fetch(self, fetcher, progress):
         
@@ -53,7 +53,7 @@ class RPMMetaDataChannel(PackageChannel):
         fetcher.run(progress=progress)
 
         if item.getStatus() is FAILED:
-            progress.add(1)
+            progress.add(self.getFetchSteps()-1)
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring release file for '%s':") % self,
                          "%s: %s" % (item.getURL(), item.getFailedReason())]
@@ -91,14 +91,30 @@ class RPMMetaDataChannel(PackageChannel):
         item = fetcher.enqueue(info["primary"]["url"],
                                md5=info["primary"].get("md5"),
                                uncomp_md5=info["primary"].get("uncomp_md5"),
+                               sha=info["primary"].get("sha"),
+                               uncomp_sha=info["primary"].get("uncomp_sha"),
                                uncomp=True)
+        flitem = fetcher.enqueue(info["filelists"]["url"],
+                                 md5=info["filelists"].get("md5"),
+                                 uncomp_md5=info["filelists"].get("uncomp_md5"),
+                                 sha=info["filelists"].get("sha"),
+                                 uncomp_sha=info["filelists"].get("uncomp_sha"),
+                                 uncomp=True)
         fetcher.run(progress=progress)
 
-        if item.getStatus() == SUCCEEDED:
+        if item.getStatus() == SUCCEEDED and flitem.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
-            loader = RPMMetaDataLoader(localpath, self._baseurl)
+            filelistspath = flitem.getTargetPath()
+            loader = RPMMetaDataLoader(localpath, filelistspath,
+                                       self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
+        elif (item.getStatus() == SUCCEEDED and
+              flitem.getStatus() == FAILED and
+              fetcher.getCaching() is ALWAYS):
+            iface.warning(_("You must fetch channel information to "
+                            "acquire needed filelists."))
+            return False
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
                        "%s: %s" % (item.getURL(), item.getFailedReason())]

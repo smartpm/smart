@@ -60,8 +60,6 @@ class TextInterface(Interface):
 
     def askYesNo(self, question, default=False):
         self.hideStatus()
-        if question[-1] in ".!?":
-            question = question[:-1]
         mask = default and _("%s (Y/n): ") or _("%s (y/N): ")
         res = raw_input(mask % question).strip().lower()
         print

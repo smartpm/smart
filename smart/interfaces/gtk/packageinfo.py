@@ -268,7 +268,9 @@ class GtkPackageInfo(gtk.Alignment):
             else:
                 loader = pkg.loaders.keys()[0]
             info = loader.getInfo(pkg)
-            for path in info.getPathList():
+            pathlist = info.getPathList()
+            pathlist.sort()
+            for path in pathlist:
                 contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
 
         elif num == 3:

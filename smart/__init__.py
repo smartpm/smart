@@ -110,8 +110,12 @@ def init(command=None, argv=None,
 
 def initPlugins():
     # Import every plugin, and let they do whatever they want.
+    from smart.const import PLUGINSDIR
     from smart import plugins
     pluginsdir = os.path.dirname(plugins.__file__)
+    entries = os.listdir(pluginsdir)
+    if os.path.isdir(PLUGINSDIR):
+        entries.extend(os.listdir(PLUGINSDIR))
     for entry in os.listdir(pluginsdir):
         if entry != "__init__.py" and entry.endswith(".py"):
             __import__("smart.plugins."+entry[:-3])

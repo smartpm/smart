@@ -29,8 +29,9 @@ import os
 
 from xml.parsers import expat
 
-NS_COMMON = "http://linux.duke.edu/metadata/common"
-NS_RPM    = "http://linux.duke.edu/metadata/rpm"
+NS_COMMON    = "http://linux.duke.edu/metadata/common"
+NS_RPM       = "http://linux.duke.edu/metadata/rpm"
+NS_FILELISTS = "http://linux.duke.edu/metadata/filelists"
 
 BYTESPERPKG = 3000
 
@@ -70,12 +71,16 @@ class RPMMetaDataPackageInfo(PackageInfo):
 
 
 class RPMMetaDataLoader(Loader):
+
+    __stateversion__ = Loader.__stateversion__+1
  
-    def __init__(self, filename, baseurl):
+    def __init__(self, filename, filelistsname, baseurl):
         Loader.__init__(self)
         self._filename = filename
+        self._filelistsname = filelistsname
         self._baseurl = baseurl
         self._fileprovides = {}
+        self._pkgids = {}
 
     def reset(self):
         Loader.reset(self)
@@ -83,9 +88,24 @@ class RPMMetaDataLoader(Loader):
 
     def loadFileProvides(self, fndict):
         bfp = self.buildFileProvides
-        for pkg in self._fileprovides:
-            for fn in self._fileprovides[pkg]:
-                if fn in fndict:
+        parsed = False
+        for fn in fndict:
+            if fn not in self._fileprovides:
+                if not parsed:
+                    parsed = True
+                    self._fileprovides.clear()
+                    XMLFileListsParser(self).parse(fndict)
+                    if fn not in self._fileprovides:
+                        pkgs = self._fileprovides[fn] = ()
+                    else:
+                        pkgs = self._fileprovides[fn]
+                else:
+                    pkgs = self._fileprovides[fn] = ()
+            else:
+                pkgs = self._fileprovides[fn]
+
+            if pkgs:
+                for pkg in pkgs:
                     bfp(pkg, (RPMProvides, fn, None))
 
     def getInfo(self, pkg):
@@ -115,6 +135,7 @@ class XMLParser(object):
         self._name = None
         self._version = None
         self._arch = None
+        self._pkgid = None
 
         self._reqdict = {}
         self._prvdict = {}
@@ -163,6 +184,7 @@ class XMLParser(object):
         self._name = None
         self._version = None
         self._arch = None
+        self._pkgid = None
         self._reqdict.clear()
         self._prvdict.clear()
         self._upgdict.clear()
@@ -226,6 +248,8 @@ class XMLParser(object):
 
     def handleCheckSumEnd(self, name, attrs, data):
         self._info[attrs.get("type")] = data
+        if attrs.get("pkgid") == "YES":
+            self._pkgid = data
 
     def handleLocationEnd(self, name, attrs, data):
         self._info["location"] = attrs.get("href")
@@ -300,8 +324,17 @@ class XMLParser(object):
                                         prvargs, reqargs, upgargs, cnfargs)
         pkg.loaders[self._loader] = self._info
 
-        self._loader._fileprovides.setdefault(pkg, []) \
-                                  .extend(self._filedict.keys())
+        if self._filedict:
+            fileprovides = self._loader._fileprovides
+            for filename in self._filedict:
+                lst = fileprovides.get(filename)
+                if not lst:
+                    fileprovides[filename] = [pkg]
+                else:
+                    lst.append(pkg)
+
+        if self._pkgid:
+            self._loader._pkgids[self._pkgid] = pkg
 
         self.resetPackage()
 
@@ -329,5 +362,94 @@ class XMLParser(object):
         parser.ParseFile(self._file)
 
         self.updateProgress()
+
+class XMLFileListsParser(object):
+
+    def __init__(self, loader):
+        self._loader = loader
+
+        self._queue = []
+        self._data = ""
+
+        self._fndict = None
+        self._pkgid = None
+
+        self._skip = None
+
+        self._starthandler = {}
+        self._endhandler = {}
+
+        for ns, attr in ((NS_FILELISTS, "MetaData"),
+                         (NS_FILELISTS, "Package"),
+                         (NS_FILELISTS, "File")):
+            handlername = "handle%sStart" % attr
+            handler = getattr(self, handlername, None)
+            nsattr = "%s %s" % (ns, attr.lower())
+            if handler:
+                self._starthandler[nsattr] = handler
+            handlername = "handle%sEnd" % attr
+            handler = getattr(self, handlername, None)
+            if handler:
+                self._endhandler[nsattr] = handler
+            setattr(self, attr.upper(), nsattr)
+
+    def startElement(self, name, attrs):
+        if self._skip:
+            return
+        handler = self._starthandler.get(name)
+        if handler:
+            handler(name, attrs)
+        self._data = ""
+        self._queue.append((name, attrs))
+
+    def endElement(self, name):
+        if self._skip:
+            if name == self._skip:
+                self._skip = None
+                _name = None
+                while _name != name:
+                    _name, attrs = self._queue.pop()
+            return
+        _name, attrs = self._queue.pop()
+        assert _name == name
+        handler = self._endhandler.get(name)
+        if handler:
+            handler(name, attrs, self._data)
+        self._data = ""
+
+    def charData(self, data):
+        self._data += data
+
+    def handlePackageStart(self, name, attrs):
+        if attrs.get("arch") == "src":
+            self._skip = self.PACKAGE
+        else:
+            self._pkg = self._pkgids.get(attrs.get("pkgid"))
+            if not self._pkg:
+                self._skip = self.PACKAGE
+
+    def handleFileEnd(self, name, attrs, data):
+        if data in self._fndict:
+            pkgs = self._fileprovides.get(data)
+            if not pkgs:
+                self._fileprovides[data] = [self._pkg]
+            else:
+                pkgs.append(self._pkg)
+
+    def parse(self, fndict):
+        self._fndict = fndict
+
+        self._fileprovides = self._loader._fileprovides
+        self._pkgids = self._loader._pkgids
+
+        parser = expat.ParserCreate(namespace_separator=" ")
+        parser.StartElementHandler = self.startElement
+        parser.EndElementHandler = self.endElement
+        parser.CharacterDataHandler = self.charData
+        parser.returns_unicode = False
+
+        file = open(self._loader._filelistsname)
+        parser.ParseFile(file)
+        file.close()
 
 # vim:ts=4:sw=4:et

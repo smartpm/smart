@@ -6,7 +6,7 @@
 <meta name="generator" content="Docutils 0.3.6: http://docutils.sourceforge.net/" />
 <title>Smart Package Manager</title>
 <meta name="author" content="Gustavo Niemeyer" />
-<meta name="date" content="2004-11-25 15:58:25 -0200 (Thu, 25 Nov 2004)" />
+<meta name="date" content="2004-12-05 14:29:24 -0200 (Sun, 05 Dec 2004)" />
 <link rel="stylesheet" href="default.css" type="text/css" />
 </head>
 <body>
@@ -20,9 +20,9 @@
 <tr><th class="docinfo-name">Contact:</th>
 <td><a class="first last reference" href="mailto:niemeyer&#64;conectiva.com">niemeyer&#64;conectiva.com</a></td></tr>
 <tr><th class="docinfo-name">Revision:</th>
-<td>380</td></tr>
+<td>404</td></tr>
 <tr><th class="docinfo-name">Date:</th>
-<td>2004-11-25 15:58:25 -0200 (Thu, 25 Nov 2004)</td></tr>
+<td>2004-12-05 14:29:24 -0200 (Sun, 05 Dec 2004)</td></tr>
 </tbody>
 </table>
 <div class="document" id="smart-package-manager">
@@ -569,39 +569,39 @@ E: Broken packages
 </pre>
 <p>It really refuses to install the newest version, and doesn't consider
 the possibility of using version 1.5.</p>
-<p>Now, let's see how YUM would handle it:</p>
+<p>Now, let's see how YUM would handle it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Update:</th><td class="field-body">This test case was showing the wrong results for YUM, since it
+was using a cached version of the package header that didn't
+present the missing dependency. I apologise for showing invalid
+results.</td>
+</tr>
+</tbody>
+</table>
 <pre class="literal-block">
 [root&#64;burma ~]% yum update
 Setting up Update Process
 Setting up Repo:  localpub
 repomd.xml                100% |=========================|  951 B    00:00
 Reading repository metadata in from local files
+primary.xml.gz            100% |=========================|  809 B    00:00
+MD Read   : ################################################## 3/3
 localpub  : ################################################## 3/3
 Resolving Dependencies
 --&gt; Populating transaction set with selected packages. Please wait.
+---&gt; Downloading header for A to pack into transaction set.
+A-2.0-1cl.i386.rpm        100% |=========================| 1.3 kB    00:00
 ---&gt; Package A.i386 0:2.0-1cl set to be updated
 --&gt; Running transaction check
-
-Dependencies Resolved
-Transaction Listing:
-  Update: A.i386 0:2.0-1cl
-Is this ok [y/N]: y
-Downloading Packages:
-Running Transaction Test
-Finished Transaction Test
-Transaction Test Succeeded
-Running Transaction
-Updating: A 100 % done 1/2
-
-Updated: A.i386 0:2.0-1cl
-Complete!
+--&gt; Processing Dependency: B for package: A
+--&gt; Finished Dependency Resolution
+Error: missing dep: B for pkg A
 </pre>
-<p>It succeeded installing version 2.0, and failed to report a
-problem, as shown below:</p>
-<pre class="literal-block">
-[root&#64;burma ~]% rpm -V A
-Unsatisfied dependencies for A-2.0-1cl: B
-</pre>
+<p>Just like APT, YUM selected version 2.0 and didn't consider the
+availability of an intermediate version.</p>
 <p>Now, let's see how Smart would behave in the same situation:</p>
 <pre class="literal-block">
 [root&#64;burma ~]% smart upgrade

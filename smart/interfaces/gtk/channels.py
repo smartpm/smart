@@ -374,7 +374,9 @@ class GtkChannelSelector(object):
     def fill(self):
         self._treemodel.clear()
         channels = sysconf.get("channels", {})
-        for alias in channels:
+        aliases = channels.keys()
+        aliases.sort()
+        for alias in aliases:
             channel = channels[alias]
             if not channel.get("disabled"):
                 self._treemodel.append((False, alias,

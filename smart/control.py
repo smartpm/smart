@@ -603,7 +603,7 @@ class Control(object):
                                                      validate=info.validate))
         if targetdir:
             fetcher.setForceCopy(True)
-        fetcher.run(what="packages")
+        fetcher.run(what=_("packages"))
         fetcher.setForceCopy(False)
         failed = fetcher.getFailedSet()
         if failed:

@@ -65,6 +65,7 @@ SUCCEEDED = Enum("SUCCEEDED")
 BLOCKSIZE = 16384
 
 DISTROFILE = "/usr/lib/smart/distro.py"
+PLUGINSDIR = "/usr/lib/smart/plugins/"
 DATADIR    = "/var/lib/smart/"
 CONFFILE   = "config"
 
