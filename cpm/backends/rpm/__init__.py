@@ -75,6 +75,49 @@ class RPMPackage(Package):
     packagemanager = RPMPackageManager
     matcher = RPMMatcher
 
+    ignoreprereq = False
+
+    def equals(self, other):
+        if not self.ignoreprereq:
+            return Package.equals(self, other)
+        fk = dict.fromkeys
+        if (self.name != other.name or
+            self.version != other.version or
+            len(self.provides) != len(other.provides) or
+            len(self.upgrades) != len(other.upgrades) or
+            len(self.conflicts) != len(other.conflicts) or
+            fk(self.provides) != fk(other.provides) or
+            fk(self.upgrades) != fk(other.upgrades) or
+            fk(self.conflicts) != fk(other.conflicts)):
+            print fk(self.provides) != fk(other.provides)
+            print [x for x in self.provides]
+            print [x for x in other.provides]
+            return False
+        sreqs = fk(self.requires)
+        oreqs = fk(other.requires)
+        if sreqs != oreqs:
+            for sreq in sreqs:
+                if sreq in oreqs:
+                    continue
+                for oreq in oreqs:
+                    if (sreq.name == oreq.name and
+                        sreq.relation == oreq.relation and
+                        sreq.version == oreq.version):
+                        break
+                else:
+                    return False
+            for oreq in oreqs:
+                if oreq in sreqs:
+                    continue
+                for sreq in sreqs:
+                    if (sreq.name == oreq.name and
+                        sreq.relation == oreq.relation and
+                        sreq.version == oreq.version):
+                        break
+                else:
+                    return False
+        return True
+
     def coexists(self, other):
         if type(other) is not RPMPackage:
             return True

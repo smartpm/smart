@@ -19,12 +19,6 @@ class RPMMetaDataChannel(Channel):
     def fetch(self, fetcher):
 
         fetcher.reset()
-
-        #root = ElementTree.parse(
-        """
-        """#"""
-
-        fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
         fetcher.enqueue(repomd)
         fetcher.run("repository metadata for '%s'" % self._alias)

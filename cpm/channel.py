@@ -8,6 +8,7 @@ class Channel:
         self._name = name
         self._description = description
         self._loader = None
+        self._loadorder = 1000
 
     def getAlias(self):
         return self._alias
@@ -23,6 +24,14 @@ class Channel:
 
     def getLoader(self):
         return self._loader
+
+    def getLoadOrder(self):
+        return self._loadorder
+
+    def __cmp__(self, other):
+        if isinstance(other, Channel):
+            return cmp(self._loadorder, other._loadorder)
+        return -1
 
     def fetch(self, fetcher):
         pass

@@ -3,6 +3,10 @@ from cpm.channel import Channel
 
 class RPMDBChannel(Channel):
 
+    def __init__(self, *args):
+        Channel.__init__(self, *args)
+        self._loadorder = 500
+
     def fetch(self, fetcher):
         self._loader = RPMDBLoader()
         self._loader.setChannel(self)

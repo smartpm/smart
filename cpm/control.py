@@ -106,6 +106,7 @@ class Control:
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=True)
         self._fetcher.setCaching(caching)
+        channels.sort()
         for channel in channels:
             self._cache.removeLoader(channel.getLoader())
             channel.fetch(self._fetcher)

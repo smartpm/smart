@@ -1,6 +1,5 @@
 from cpm.const import OPTIONAL, ALWAYS, NEVER
 from cpm.uncompress import Uncompressor
-from cpm.progress import Progress
 from cpm import *
 import tempfile
 import urllib

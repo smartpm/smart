@@ -72,7 +72,7 @@ class APTRPMChannel(Channel):
             if upkglist:
                 info["uncomp_md5"], info["uncomp_size"] = md5sum[upkglist]
             fetcher.enqueue(url, **info)
-        fetcher.run("package lists for '%s'" % self._alias)
+        fetcher.run("information for '%s'" % self._alias)
         succeeded = fetcher.getSucceededSet()
         for url in urlcomp:
             filename = succeeded.get(url)
@@ -82,7 +82,7 @@ class APTRPMChannel(Channel):
                 self._loader.append(loader)
         failed = fetcher.getFailedSet()
         if failed:
-            iface.warning("Failed acquiring pkglists for '%s': %s" %
+            iface.warning("Failed acquiring information for '%s': %s" %
                           (self._alias, ", ".join(["%s (%s)" %
                                                    (urlcomp[x], failed[x])
                                                    for x in failed])))
