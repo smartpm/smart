@@ -192,7 +192,7 @@ cdistance_distance(PyObject *self, PyObject *args)
         if (PyInt_Check(cutoffo)) {
             cutoff = (int)PyInt_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
-            cutoff = al-(int)(PyFloat_AsDouble(cutoffo)*al);
+            cutoff = al-(int)((float)PyFloat_AsDouble(cutoffo)*al);
         } else {
             PyErr_SetString(PyExc_TypeError, "cutoff must be int or float");
             return NULL;
@@ -229,7 +229,7 @@ cdistance_globdistance(PyObject *self, PyObject *args)
         if (PyInt_Check(cutoffo)) {
             cutoff = (int)PyInt_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
-            cutoff = maxl-(int)(PyFloat_AsDouble(cutoffo)*maxl);
+            cutoff = maxl-(int)((float)PyFloat_AsDouble(cutoffo)*maxl);
         } else {
             PyErr_SetString(PyExc_TypeError, "cutoff must be int or float");
             return NULL;
