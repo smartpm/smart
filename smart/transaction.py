@@ -779,7 +779,7 @@ class Transaction(object):
                         _pending = []
                         self._remove(reqpkg, cs, lk, _pending, depth)
                         if _pending:
-                            self._pending(changeset, lk, _pending, depth)
+                            self._pending(cs, lk, _pending, depth)
                 except Failed, e:
                     failures.append(unicode(e))
                 else:
