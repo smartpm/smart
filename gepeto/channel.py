@@ -68,6 +68,9 @@ class Channel(object):
     def getName(self):
         return self._name
 
+    def __str__(self):
+        return self._name or self._alias
+
     def getDescription(self):
         return self._description
 
