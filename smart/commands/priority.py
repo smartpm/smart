@@ -77,7 +77,7 @@ def main(ctrl, opts):
             priority = int(priority)
         except ValueError:
             raise Error, _("Invalid priority")
-        sysconf.setPriority(name, alias, priority)
+        pkgconf.setPriority(name, alias, priority)
 
     elif opts.remove:
         if len(opts.args) == 1:
@@ -87,14 +87,14 @@ def main(ctrl, opts):
             name, alias = opts.args
         else:
             raise Error, _("Invalid arguments")
-        if not sysconf.removePriority(name, alias, priority):
+        if not pkgconf.removePriority(name, alias):
             iface.warning(_("Priority not found"))
 
     elif opts.show:
         header = (_("Package"), _("Channel"), _("Priority"))
         print "%-30s %-20s %s" % header
         print "-"*(52+len(header[-1]))
-        priorities = sysconf.get("package-priorities")
+        priorities = sysconf.get("package-priorities", {})
         showpriorities = opts.args or priorities.keys()
         showpriorities.sort()
         for name in showpriorities:
