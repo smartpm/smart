@@ -7,9 +7,6 @@ INTERVAL = 0.1
 class Progress:
 
     def __init__(self):
-        self.reset()
-
-    def reset(self):
         self._topic = ""
         self._progress = (0, 0, {}) # (current, total, data)
         self._lastshown = None
@@ -20,6 +17,20 @@ class Progress:
         self._subdone = {}
         self._lasttime = 0
         self._lock = thread.allocate_lock()
+
+    def start(self):
+        pass
+
+    def stop(self):
+        self._topic = ""
+        self._progress = (0, 0, {})
+        self._lastshown = None
+        self._hassub = False
+        self._subtopic.clear()
+        self._subprogress.clear()
+        self._sublastshown.clear()
+        self._subdone.clear()
+        self._lasttime = 0
 
     def setHasSub(self, flag):
         self._hassub = flag
@@ -234,7 +245,8 @@ class RPMStyleProgress(Progress):
 def test():
     prog = RPMStyleProgress()
     data = {"item-number": 0}
-    total, subtotal = 100, 1000
+    total, subtotal = 100, 100
+    prog.start()
     prog.setTopic("Installing packages...")
     prog.setHasSub(True)
     for n in range(1,total+1):
@@ -244,7 +256,8 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            time.sleep(0.02)
+            time.sleep(0.01)
+    prog.stop()
 
 if __name__ == "__main__":
     test()

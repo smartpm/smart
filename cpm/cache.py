@@ -539,7 +539,7 @@ class Cache(object):
     def load(self):
         self.reset()
         prog = self._progress
-        prog.reset()
+        prog.start()
         prog.setTopic("Building cache...")
         prog.set(0, 1)
         prog.show()
@@ -555,6 +555,7 @@ class Cache(object):
         self.linkDeps()
         prog.add(1)
         prog.show()
+        prog.stop()
 
     def unload(self):
         self.reset()

@@ -129,7 +129,7 @@ class Fetcher(object):
         if total == 0:
             return
         prog = self._progress
-        prog.reset()
+        prog.start()
         prog.setHasSub(True)
         prog.setTopic("Fetching %s..." % what)
         prog.set(0, total)
@@ -163,6 +163,7 @@ class Fetcher(object):
             time.sleep(0.1)
         for handler in handlers:
             handler.stop()
+        prog.stop()
 
     def _uncompress(self, url, localpath, uncomphandler):
         try:

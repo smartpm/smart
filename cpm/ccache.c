@@ -1804,7 +1804,7 @@ Cache_load(CacheObject *self, PyObject *args)
     int i, len;
     int total = 1;
     CALLMETHOD(self, "reset", NULL);
-    CALLMETHOD(self->_progress, "reset", NULL);
+    CALLMETHOD(self->_progress, "start", NULL);
     CALLMETHOD(self->_progress, "setTopic", "s", "Building cache...");
     CALLMETHOD(self->_progress, "set", "ii", 0, 1);
     CALLMETHOD(self->_progress, "show", NULL);
@@ -1828,6 +1828,7 @@ Cache_load(CacheObject *self, PyObject *args)
     CALLMETHOD(self, "linkDeps", NULL);
     CALLMETHOD(self->_progress, "add", "i", 1);
     CALLMETHOD(self->_progress, "show", NULL);
+    CALLMETHOD(self->_progress, "stop", NULL);
     Py_RETURN_NONE;
 }
 

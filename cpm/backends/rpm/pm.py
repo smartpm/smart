@@ -10,7 +10,7 @@ class RPMPackageManager(PackageManager):
     def commit(self, install, remove, pkgpath):
 
         prog = self.getProgress()
-        prog.reset()
+        prog.start()
         prog.setHasSub(True)
         prog.setTopic("Committing transaction...")
         prog.show()
@@ -81,6 +81,7 @@ class RPMPackageManager(PackageManager):
         prog.setDone()
         if probs:
             raise Error, "\n".join([x[0] for x in probs])
+        prog.stop()
 
 class RPMCallback:
     def __init__(self, prog):
