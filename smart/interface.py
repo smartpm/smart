@@ -36,6 +36,7 @@ class Interface(object):
         return self._ctrl
 
     def run(self, command=None, argv=None):
+        result = None
         if command:
             try:
                 smart = __import__("smart.commands."+command)
@@ -46,8 +47,10 @@ class Interface(object):
                     import traceback
                     traceback.print_exc()
                 raise Error, "Invalid command '%s'" % command
-            _command.main(self._ctrl, _command.parse_options(argv or []))
-    
+            opts = _command.parse_options(argv or [])
+            result = _command.main(self._ctrl, opts)
+        return result
+
     def showStatus(self, msg):
         pass
 

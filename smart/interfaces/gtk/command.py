@@ -37,12 +37,13 @@ class GtkCommandInterface(GtkInterface):
         self._status.hide()
 
     def run(self, command=None, argv=None):
-        GtkInterface.run(self, command, argv)        
+        result = GtkInterface.run(self, command, argv)        
         self._status.wait()
         while self._log.isVisible():
             time.sleep(0.1)
             while gtk.events_pending():
                 gtk.main_iteration()
+        return result
 
 class GtkStatus(object):
 
@@ -63,6 +64,8 @@ class GtkStatus(object):
         self._label.set_text(msg)
         self._window.show()
         self._lastshown = time.time()
+        while gtk.events_pending():
+            gtk.main_iteration()
 
     def hide(self):
         self._window.hide()

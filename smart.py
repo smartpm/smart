@@ -145,12 +145,15 @@ def main(argv):
     if os.getuid() == 0:
         os.environ["HOME"] = pwd.getpwuid(0)[5]
     opts = None
+    exitcode = 1
     try:
         opts = parse_options(argv)
         ctrl = init(opts)
         if opts.option:
             set_config_options(opts.option)
-        iface.run(opts.command, opts.argv)
+        exitcode = iface.run(opts.command, opts.argv)
+        if exitcode is None:
+            exitcode = 0
         ctrl.saveSysConf()
         ctrl.restoreMediaState()
     except Error, e:
@@ -161,14 +164,13 @@ def main(argv):
             iface.error(str(e))
         else:
             sys.stderr.write("error: %s\n" % e)
-        sys.exit(1)
     except KeyboardInterrupt:
         if opts and opts.log_level == "debug":
             import traceback
             traceback.print_exc()
             sys.exit(1)
         sys.stderr.write("\nInterrupted\n")
-        sys.exit(1)
+    sys.exit(exitcode)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

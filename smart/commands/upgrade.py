@@ -23,8 +23,10 @@ from smart.transaction import Transaction, PolicyUpgrade, UPGRADE
 from smart.matcher import MasterMatcher
 from smart.option import OptionParser
 from smart import *
+import cPickle
 import string
 import re
+import os
 
 USAGE="smart upgrade [options] [package] ..."
 
@@ -53,6 +55,11 @@ def parse_options(argv):
                       help="dump needed urls and don't commit operation")
     parser.add_option("--download", action="store_true",
                       help="download packages and don't commit operation")
+    parser.add_option("--check", action="store_true",
+                      help="just check if there are upgrades to be done")
+    parser.add_option("--check-update", action="store_true",
+                      help="check if there are upgrades to be done, and "
+                           "update the known upgrades")
     parser.add_option("--force", action="store_true",
                       help="do not ask for confirmation")
     opts, args = parser.parse_args(argv)
@@ -78,7 +85,36 @@ def main(ctrl, opts):
         trans.enqueue(pkg, UPGRADE)
     iface.showStatus("Computing transaction...")
     trans.run()
-    if not trans:
+
+    if trans and opts.check or opts.check_update:
+        checkfile = os.path.expanduser("~/.smart/upgradecheck")
+        if os.path.isfile(checkfile):
+            file = open(checkfile)
+            checkstate = cPickle.load(file)
+            file.close()
+        else:
+            checkstate = None
+        changeset = trans.getChangeSet()
+        state = changeset.getPersistentState()
+        if opts.check_update:
+            dirname = os.path.dirname(checkfile)
+            if not os.path.isdir(dirname):
+                os.makedirs(dirname)
+            file = open(checkfile, "w")
+            cPickle.dump(state, file, 2)
+            file.close()
+        if not state:
+            iface.showStatus("There are no upgrades to be made.")
+            return 1
+        elif checkstate:
+            for entry in state:
+                if checkstate.get(entry) != state[entry]:
+                    break
+            else:
+                iface.showStatus("All upgrades to be made are known.")
+                return 1
+        iface.showStatus("There are new upgrades to be made!")
+    elif not trans:
         iface.showStatus("No interesting upgrades available!")
     else:
         iface.hideStatus()
