@@ -998,7 +998,7 @@ class Transaction(object):
             self._policy.runFinished()
 
 
-class ChangeSetSplitter:
+class ChangeSetSplitter(object):
     # This class operates on *sane* changesets.
 
     def __init__(self, changeset, forcerequires=True):
@@ -1449,6 +1449,10 @@ try:
 except ImportError:
     pass
 else:
+    psyco.bind(PolicyInstall)
+    psyco.bind(PolicyUpgrade)
+    psyco.bind(PolicyRemove)
     psyco.bind(Transaction)
+    psyco.bind(ChangeSetSplitter)
 
 # vim:ts=4:sw=4:et

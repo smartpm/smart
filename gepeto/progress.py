@@ -25,7 +25,7 @@ import sys
 
 INTERVAL = 0.1
 
-class Progress:
+class Progress(object):
 
     def __init__(self):
         self.__topic = ""
@@ -244,5 +244,12 @@ class Progress:
             del self.__subprogress[subkey]
         self.__lasttime = 0
         self.__lock.release()
+
+try:
+    import psyco
+except ImportError:
+    pass
+else:
+    psyco.bind(Progress)
 
 # vim:ts=4:sw=4:et

@@ -43,7 +43,7 @@ class GtkCommandInterface(GtkInterface):
             while gtk.events_pending():
                 gtk.main_iteration()
 
-class GtkStatus:
+class GtkStatus(object):
 
     def __init__(self):
         self._window = gtk.Window()

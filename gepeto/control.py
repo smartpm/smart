@@ -29,7 +29,7 @@ from gepeto.const import *
 from gepeto import *
 import os, md5
 
-class Control:
+class Control(object):
 
     def __init__(self, conffile=None):
         self._conffile = None

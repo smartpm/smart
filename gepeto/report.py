@@ -21,7 +21,7 @@
 #
 from gepeto.const import INSTALL, REMOVE
 
-class Report:
+class Report(object):
 
     def __init__(self, changeset):
         self._changeset = changeset
@@ -154,5 +154,12 @@ class Report:
                                 map[reqpkg] = True
                 if map:
                     self.requiredby[pkg] = map.keys()
+
+try:
+    import psyco
+except ImportError:
+    pass
+else:
+    psyco.bind(Report)
 
 # vim:ts=4:sw=4:et

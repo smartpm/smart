@@ -77,7 +77,7 @@ class BZ2Handler(UncompressorHandler):
 
 Uncompressor.addHandler(BZ2Handler)
 
-class GZipHandler:
+class GZipHandler(UncompressorHandler):
 
     def query(self, localpath):
         if localpath.endswith(".gz"):

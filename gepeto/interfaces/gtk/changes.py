@@ -24,7 +24,7 @@ from gepeto.interfaces.gtk import getPixbuf
 from gepeto.report import Report
 import gobject, gtk
 
-class GtkChanges:
+class GtkChanges(object):
 
     def __init__(self):
 

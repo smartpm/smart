@@ -24,7 +24,7 @@ from gepeto.const import ERROR, WARNING, INFO, DEBUG
 from gepeto import *
 import sys, os
 
-class Interface:
+class Interface(object):
 
     def start(self):
         pass

@@ -104,6 +104,13 @@ class TextProgress(Progress):
             out.write("[%3d%%]\n" % percent)
         out.flush()
 
+try:
+    import psyco
+except ImportError:
+    pass
+else:
+    psyco.bind(TextProgress.expose)
+
 def test():
     prog = TextProgress()
     data = {"item-number": 0}

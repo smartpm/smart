@@ -110,4 +110,12 @@ class MirrorItem(object):
             self._current = None
             return None
 
+try:
+    import psyco
+except ImportError:
+    pass
+else:
+    psyco.bind(MirrorSystem)
+    psyco.bind(MirrorItem)
+
 # vim:ts=4:sw=4:et
