@@ -292,6 +292,7 @@ class Interpreter(Cmd):
         transaction = Transaction(cache, policy=PolicyRemove)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
+        policy = transaction.getPolicy()
         expected = 0
         for arg, pkgs in self.pkgsFromLine(line):
             expected += 1
@@ -300,6 +301,9 @@ class Interpreter(Cmd):
                 if pkg.installed:
                     found = True
                     transaction.enqueue(pkg, REMOVE)
+                    for _pkg in cache.getPackages(pkg.name):
+                        if not _pkg.installed:
+                            policy.setLocked(_pkg, True)
             if not found:
                 raise Error, "'%s' matches no installed packages" % arg
         transaction.run()

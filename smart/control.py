@@ -742,7 +742,8 @@ def getChannelsWithPackages(packages):
     for pkg in packages:
         sorters = [ChannelSorter(x.getChannel()) for x in pkg.loaders
                    if not x.getInstalled()]
-        assert sorters, "Received invalid package set"
+        if not sorters:
+            raise Error, "%s is not available for downloading" % pkg
         sorters.sort()
         channel = sorters[0].channel
         try:

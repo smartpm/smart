@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP, FIX
-from smart.transaction import Transaction, ChangeSet
+from smart.transaction import Transaction, ChangeSet, checkPackages
 from smart.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from smart.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from smart.interfaces.gtk.mirrors import GtkMirrors
@@ -56,6 +56,10 @@ UI = """
         <separator/>
         <menuitem action="upgrade-all"/>
         <menuitem action="fix-all-problems"/>
+        <separator/>
+        <menuitem action="check-installed-packages"/>
+        <menuitem action="check-uninstalled-packages"/>
+        <menuitem action="check-all-packages"/>
         <separator/>
         <menuitem action="find"/>
         <separator/>
@@ -121,6 +125,12 @@ ACTIONS = [
      "Redo last undone change", "self.redo()"),
     ("clear-changes", "gtk-clear", "Clear Marked Changes", None,
      "Clear all changes", "self.clearChanges()"),
+    ("check-installed-packages", None, "Check Installed Packages...", None,
+     "Check installed packages", "self.checkPackages()"),
+    ("check-uninstalled-packages", None, "Check Uninstalled Packages...", None,
+     "Check uninstalled packages", "self.checkPackages(uninstalled=True)"),
+    ("check-all-packages", None, "Check All Packages...", None,
+     "Check all packages", "self.checkPackages(all=True)"),
     ("upgrade-all", "gtk-go-up", "Upgrade _All...", None,
      "Upgrade all packages", "self.upgradeAll()"),
     ("fix-all-problems", None, "Fix All _Problems...", None,
@@ -619,6 +629,12 @@ class GtkInteractiveInterface(GtkInterface):
 
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
+
+    def checkPackages(self, all=False, uninstalled=False):
+        cache = self._ctrl.getCache()
+        if checkPackages(cache, cache.getPackages(), report=True,
+                         all=all, uninstalled=uninstalled):
+            self.info("All checked packages have correct relations.")
 
     def fixAllProblems(self):
         self.actOnPackages([pkg for pkg in self._ctrl.getCache().getPackages()

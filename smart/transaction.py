@@ -1431,4 +1431,67 @@ def recursiveInternalRequires(pkgmap, pkg, numrel, done=None):
     numrel[pkg] = n
     return n
 
+def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
+    pkgs.sort()
+
+    problems = False
+    coexistchecked = {}
+    for pkg in pkgs:
+
+        if not all and uninstalled:
+            for loader in pkg.loaders:
+                if not loader.getInstalled():
+                    break
+            else:
+                continue
+
+        for req in pkg.requires:
+            for prv in req.providedby:
+                for prvpkg in prv.packages:
+                    if all:
+                        break
+                    elif uninstalled:
+                        for loader in prvpkg.loaders:
+                            if not loader.getInstalled():
+                                break
+                        else:
+                            continue
+                        break
+                    elif prvpkg.installed:
+                        break
+                else:
+                    continue
+                break
+            else:
+                if report:
+                    iface.info("Unsatisfied dependency: %s requires %s" %
+                               (pkg, req))
+                problems = True
+
+        if not pkg.installed:
+            continue
+
+        for cnf in pkg.conflicts:
+            for prv in cnf.providedby:
+                for prvpkg in prv.packages:
+                    if prvpkg.installed:
+                        if report:
+                            iface.info("Unsatisfied dependency: "
+                                       "%s conflicts with %s" % (pkg, prvpkg))
+                        problems = True
+
+        namepkgs = cache.getPackages(pkg.name)
+        for namepkg in namepkgs:
+            if (namepkg, pkg) in coexistchecked:
+                continue
+            coexistchecked[(pkg, namepkg)] = True
+            if (namepkg.installed and namepkg is not pkg and
+                not pkg.coexists(namepkg)):
+                if report:
+                    iface.info("Package %s can't coexist with %s" %
+                               (namepkg, pkg))
+                problems = True
+
+    return not problems
+
 # vim:ts=4:sw=4:et
