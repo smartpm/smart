@@ -84,8 +84,14 @@ class MirrorElement(object):
         self.mirror = mirror
 
     def __cmp__(self, other):
-        penal = self._system._penality
-        return cmp(penal.get(self.mirror, 0), penal.get(other.mirror, 0))
+        # Give priority to local files.
+        rc = -cmp(self.mirror.startswith("file://"),
+                  other.mirror.startswith("file://"))
+        if rc == 0:
+            # Otherwise, check penality.
+            penal = self._system._penality
+            rc = cmp(penal.get(self.mirror, 0), penal.get(other.mirror, 0))
+        return rc
 
 class MirrorItem(object):
 
