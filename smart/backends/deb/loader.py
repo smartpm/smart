@@ -178,8 +178,6 @@ class DebTagFileLoader(Loader):
             if value:
                 for relation in parserelations(value):
                     n, r, v = relation
-                    if not v and n in prvdict:
-                        continue
                     cnfargs.append((Cnf, n, r, v))
 
             pkg = self.buildPackage((Pkg, name, version),
