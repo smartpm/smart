@@ -81,13 +81,14 @@ class Transaction:
         self.queue = []
 
     def getState(self):
-        return (self.operation.copy(), self.touched.copy())
+        return (self.operation.copy(), self.touched.copy(), self.queue[:])
 
     def setState(self, state):
         self.operation.clear()
         self.operation.update(state[0])
         self.touched.clear()
         self.touched.update(state[1])
+        self.queue[:] = state[2]
 
     def getWeight(self):
         return self.policy.getWeight()
@@ -108,12 +109,12 @@ class Transaction:
         self.touched[pkg] = True
         if not self.getInstalled(pkg):
             self.operation[pkg] = (OPER_INSTALL, REASON_REQUESTED, None, None)
-        self.queue.append((pkg, OPER_INSTALL))
+        self.queue.append((pkg, OPER_INSTALL, len(self.backtrack)))
 
     def remove(self, pkg):
         self.touched[pkg] = True
         self.operation[pkg] = (OPER_REMOVE, REASON_REQUESTED, None, None)
-        self.queue.append((pkg, OPER_REMOVE))
+        self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
 
         # We don't want to upgrade/downgrade that package.
         for obs in pkg.obsoletes:
@@ -141,9 +142,8 @@ class Transaction:
 
         isinst = self.getInstalled
 
-        upgset = {}
-
         # Find multiple levels of packages obsoleting installed packages.
+        upgset = {}
         queue = cache.getPackages()
         while queue:
             pkg = queue.pop(0)
@@ -157,6 +157,9 @@ class Transaction:
                             upgset[obspkg] = True
                             queue.append(obspkg)
 
+        print len(upgset)
+
+
     def run(self):
         loopctrl = {}
 
@@ -164,7 +167,7 @@ class Transaction:
         opmap = self.operation
         queue = self.queue
         isinst = self.getInstalled
-        backtrack = self.backtrack
+        bt = self.backtrack
 
         beststate = None
         bestweight = "MAX"
@@ -183,13 +186,7 @@ class Transaction:
                     if not queue:
                         break
 
-                    pkg, op = queue.pop(0)
-
-                    # If this package fails in some point, all alternatives
-                    # introduced from now on will fail as well. Thusly,
-                    # we save the backtrack state here, and restore it
-                    # on failures.
-                    savedbt = backtrack[:]
+                    pkg, op, btlen = queue.pop(0)
 
                     if op == OPER_INSTALL:
 
@@ -271,13 +268,13 @@ class Transaction:
                                 # Register alternatives.
                                 prvpkgs.sort()
                                 for prvpkg in prvpkgs[1:]:
-                                    backtrack.append((prvpkg,
-                                                      OPER_INSTALL,
-                                                      REASON_REQUIRES,
-                                                      pkg, prvpkg,
-                                                      self.getState()))
+                                    bt.append((prvpkg,
+                                               OPER_INSTALL,
+                                               REASON_REQUIRES,
+                                               pkg, prvpkg,
+                                               self.getState()))
                             prvpkg = prvpkgs[0]
-                            queue.append((prvpkg, OPER_INSTALL))
+                            queue.append((prvpkg, OPER_INSTALL, len(bt)))
                             touched[prvpkg] = True
                             opmap[prvpkg] = (OPER_INSTALL,
                                              REASON_REQUIRES,
@@ -322,11 +319,11 @@ class Transaction:
                                     prvpkgs = prvpkgs.keys()
                                     prvpkgs.sort()
                                     for prvpkg in prvpkgs:
-                                        backtrack.append((prvpkg,
-                                                          OPER_INSTALL,
-                                                          REASON_REQUIRES,
-                                                          reqpkgs[0], pkg,
-                                                          self.getState()))
+                                        bt.append((prvpkg,
+                                                   OPER_INSTALL,
+                                                   REASON_REQUIRES,
+                                                   reqpkgs[0], pkg,
+                                                   self.getState()))
 
                                 # Then, remove requiring packages.
                                 for reqpkg in reqpkgs:
@@ -338,8 +335,7 @@ class Transaction:
                                                  REASON_REQUIRES,
                                                  reqpkg, pkg)
             except Failed:
-                del queue[:]
-                backtrack[:] = savedbt
+                del bt[btlen:]
                 weight = getweight()+FAILED
             else:
                 weight = getweight()
@@ -349,19 +345,19 @@ class Transaction:
             print "Queue is over!"
             print "Current weight is %d.\n" % weight
             """
-            if backtrack:
+            if bt:
                 i += 1
                 if i == ilim:
-                    print "Alternatives/Weight: %d/%d" % (len(backtrack), weight)
-                #print "Found %d alternative(s)." % len(backtrack)
+                    print "Alternatives/Weight: %d/%d" % (len(bt), weight)
+                #print "Found %d alternative(s)." % len(bt)
                 if weight < bestweight:
                     print "Replacing beststate (%d < %s)" % (weight, str(bestweight))
                     beststate = self.getState()
                     bestweight = weight
-                pkg, op, reason, pkg1, pkg2, state = backtrack.pop()
+                pkg, op, reason, pkg1, pkg2, state = bt.pop()
                 self.setState(state)
                 touched[pkg] = True
-                self.queue.append((pkg, op))
+                queue.append((pkg, op, len(bt)))
                 opmap[pkg] = (op, reason, pkg1, pkg2)
                 if i == ilim:
                     print "Starting weight: %d" % getweight()
@@ -412,7 +408,7 @@ class Transaction:
 
         # Finally, remove the package.
         self.touched[pkg] = True
-        self.queue.append((pkg, OPER_REMOVE))
+        self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
         self.operation[pkg] = (OPER_REMOVE, reason, pkg1, pkg2)
 
 try:
