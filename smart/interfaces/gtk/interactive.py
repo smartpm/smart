@@ -348,7 +348,7 @@ class GtkInteractiveInterface(GtkInterface):
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
         self._window.show()
-        self._ctrl.updateCache()
+        self._ctrl.reloadChannels()
         self._progress.hide()
         self.refreshPackages()
         gtk.main()
@@ -368,13 +368,13 @@ class GtkInteractiveInterface(GtkInterface):
             if not channels:
                 return
         state = self._changeset.getPersistentState()
-        self._ctrl.updateCache(channels, caching=NEVER)
+        self._ctrl.reloadChannels(channels, caching=NEVER)
         self._changeset.setPersistentState(state)
         self.refreshPackages()
 
     def rebuildCache(self):
         state = self._changeset.getPersistentState()
-        self._ctrl.updateCache()
+        self._ctrl.reloadChannels()
         self._changeset.setPersistentState(state)
         self.refreshPackages()
 
@@ -387,7 +387,7 @@ class GtkInteractiveInterface(GtkInterface):
             self._redomenuitem.set_property("sensitive", False)
             self._undomenuitem.set_property("sensitive", False)
             self._changeset.clear()
-            self._ctrl.updateCache()
+            self._ctrl.reloadChannels()
             self.refreshPackages()
             self.changedMarks()
         self._progress.hide()

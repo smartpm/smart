@@ -61,7 +61,7 @@ def main(ctrl, opts):
         if lastupdate >= time.time()-(opts.after*60):
             return 1
 
-    ctrl.reloadSysConfChannels()
+    ctrl.rebuildSysConfChannels()
     if opts.args:
         channels = []
         for arg in opts.args:
@@ -74,8 +74,8 @@ def main(ctrl, opts):
     else:
         channels = None
     # First, load current cache to keep track of new packages.
-    ctrl.updateCache()
-    failed = not ctrl.updateCache(channels, caching=NEVER)
+    ctrl.reloadChannels()
+    failed = not ctrl.reloadChannels(channels, caching=NEVER)
     cache = ctrl.getCache()
     newpackages = pkgconf.filterByFlag("new", cache.getPackages())
     if not newpackages:

@@ -68,7 +68,7 @@ def main(ctrl, opts):
 
     packages = []
     if opts.args:
-        ctrl.updateCache()
+        ctrl.reloadChannels()
         cache = ctrl.getCache()
         for arg in opts.args:
             matcher = MasterMatcher(arg)

@@ -140,7 +140,7 @@ def read_mirrors(ctrl, filename):
 
 def main(ctrl, opts):
 
-    ctrl.updateCache()
+    ctrl.reloadChannels()
 
     if opts.add:
         if len(opts.add) == 1:

@@ -68,7 +68,7 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
-    ctrl.updateCache()
+    ctrl.reloadChannels()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyUpgrade)
     pkgs = [x for x in cache.getPackages() if x.installed]

@@ -34,7 +34,7 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
-    ctrl.updateCache()
+    ctrl.reloadChannels()
     import __main__
     __main__.ctrl = ctrl
     __main__.cache = ctrl.getCache()

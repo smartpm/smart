@@ -59,7 +59,7 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
-    ctrl.updateCache()
+    ctrl.reloadChannels()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyRemove)
     policy = trans.getPolicy()

@@ -72,7 +72,7 @@ class Control(object):
         if not self._sysconfchannels:
             # Give a chance for backends to register
             # themselves on FileChannel hooks.
-            self.reloadSysConfChannels()
+            self.rebuildSysConfChannels()
         found = True
         for channel in hooks.call("create-file-channel", filename):
             if channel:
@@ -191,8 +191,7 @@ class Control(object):
         if not msys.getHistory():
             msys.setHistory(sysconf.get("mirrors-history", []))
 
-    # rename to rebuildSysConfChannels()
-    def reloadSysConfChannels(self):
+    def rebuildSysConfChannels(self):
 
         channels = sysconf.get("channels", ())
 
@@ -241,12 +240,11 @@ class Control(object):
             if alias not in channels:
                 self.removeChannel(alias)
 
-    # rename to reloadChannels()
-    def updateCache(self, channels=None, caching=ALWAYS):
+    def reloadChannels(self, channels=None, caching=ALWAYS):
 
         if channels is None:
             manual = False
-            self.reloadSysConfChannels()
+            self.rebuildSysConfChannels()
             channels = self._channels.values()
         else:
             manual = True

@@ -97,10 +97,10 @@ def parse_options(argv, help=None):
     opts.args = args
     return opts
 
-def main(ctrl, opts, updatecache=True):
+def main(ctrl, opts, reloadchannels=True):
 
-    if updatecache:
-        ctrl.updateCache()
+    if reloadchannels:
+        ctrl.reloadChannels()
 
     cache = ctrl.getCache()
     if not opts.args:

@@ -81,7 +81,7 @@ def main(ctrl, opts):
         for url, file in succ.items():
             ctrl.addFileChannel(file)
             opts.args.remove(url)
-    ctrl.updateCache()
+    ctrl.reloadChannels()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
     for channel in ctrl.getFileChannels():

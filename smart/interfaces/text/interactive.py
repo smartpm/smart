@@ -35,7 +35,7 @@ class TextInteractiveInterface(TextInterface):
     def run(self, command=None, argv=None):
         print "Smart Package Manager %s - Shell Mode" % VERSION
         print
-        self._ctrl.updateCache()
+        self._ctrl.reloadChannels()
         Interpreter(self._ctrl).cmdloop()
 
     def confirmChange(self, oldchangeset, newchangeset, expected=0):
@@ -384,7 +384,7 @@ class Interpreter(Cmd):
             del self._undo[:]
             del self._redo[:]
             self._changeset.clear()
-            self._ctrl.updateCache()
+            self._ctrl.reloadChannels()
 
     def help_undo(self):
         print "The undo command reverts marked changes."
@@ -521,7 +521,7 @@ class Interpreter(Cmd):
                 return
         else:
             channels = None
-        self._ctrl.updateCache(channels, caching=NEVER)
+        self._ctrl.reloadChannels(channels, caching=NEVER)
         cache = self._ctrl.getCache()
         newpackages = pkgconf.filterByFlag("new", cache.getPackages())
         if not newpackages:
@@ -549,7 +549,7 @@ class Interpreter(Cmd):
         from smart.commands import query
         try:
             opts = query.parse_options(shlex.split(line))
-            query.main(self._ctrl, opts, updatecache=False)
+            query.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
 
@@ -563,7 +563,7 @@ class Interpreter(Cmd):
         from smart.commands import search
         try:
             opts = search.parse_options(shlex.split(line))
-            search.main(self._ctrl, opts, updatecache=False)
+            search.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
 
