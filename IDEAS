@@ -12,7 +12,16 @@ Downloading and committing
 - Removable repositories are normal repositories with special media
   ID, and a mark saying where the removable media mounting point
   starts.
-- Removable repositories may be remote as well.
+
+Removable repositories
+----------------------
+
+- Use a file in the removable media in a standard place
+  to inform the repository type/position.
+- Ask channel to check if repository is available somewhere.
+- Remove packages for unavailable media and ask to replace
+  it when the current transaction has been committed.
+- Removable repositories may be remote as well (?)
 
 Mirror system
 -------------

@@ -6,6 +6,5 @@
   unsatisfied requires due to transaction breaking, etc).
 - Introduce support for reinstall in install command, rpm pm,
   and report system.
-- Interactive preferences editors: flags, priorities, mirrors
 - Debian backend.
 - Distribution configuration control system.
