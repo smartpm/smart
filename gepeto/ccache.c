@@ -94,7 +94,7 @@ getSysConf(void)
     static PyObject *sysconf = NULL;
     PyObject *module;
     if (sysconf == NULL) {
-        module = PyImport_ImportModule("cpm");
+        module = PyImport_ImportModule("gepeto");
         if (module) {
             sysconf = PyObject_GetAttrString(module, "sysconf");
             Py_DECREF(module);
@@ -109,7 +109,7 @@ getIface(void)
     static PyObject *iface = NULL;
     PyObject *module;
     if (iface == NULL) {
-        module = PyImport_ImportModule("cpm");
+        module = PyImport_ImportModule("gepeto");
         if (module) {
             iface = PyObject_GetAttrString(module, "iface");
             Py_DECREF(module);

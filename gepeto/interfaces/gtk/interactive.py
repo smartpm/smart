@@ -4,7 +4,7 @@ from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
 from gepeto.interfaces.gtk.channels import GtkChannels
-from gepeto.const import NEVER
+from gepeto.const import NEVER, VERSION
 from gepeto import *
 import shlex, re
 import gtk
@@ -130,7 +130,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._changeset = None
 
         self._window = gtk.Window()
-        self._window.set_title("")
+        self._window.set_title("Gepeto %s" % VERSION)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=640, min_height=480)
         self._window.connect("destroy", lambda x: gtk.main_quit())

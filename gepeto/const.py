@@ -1,4 +1,6 @@
 
+VERSION = "0.5"
+
 INSTALL = 1
 REMOVE  = 2
 

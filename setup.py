@@ -5,7 +5,7 @@ import sys
 import re
 
 verpat = re.compile("VERSION *= *\"(.*)\"")
-data = open("gpt").read()
+data = open("gepeto/const.py").read()
 m = verpat.search(data)
 if not m:
     sys.exit("error: can't find VERSION")

@@ -1,13 +1,12 @@
 #!/usr/bin/python
 from gepeto.option import OptionParser
+from gepeto.const import VERSION
 from gepeto import init
 from gepeto import *
 import sys
 
 if sys.version_info < (2, 3):
     sys.exit("error: python 2.3 or later required")
-
-VERSION = "0.0.1"
 
 HELP = """\
 Usage: gpt command [options] [arguments]
