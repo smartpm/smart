@@ -59,7 +59,7 @@ class Control(object):
     def removeChannel(self, alias):
         channel = self._channels[alias]
         if isinstance(channel, PackageChannel):
-            self._cache.removeLoaders(channel.getLoaders())
+            channel.removeLoaders()
         del self._channels[alias]
         if alias in self._sysconfchannels:
             del self._sysconfchannels[alias]
@@ -76,7 +76,7 @@ class Control(object):
         found = True
         for channel in hooks.call("create-file-channel", filename):
             if channel:
-                if channel.getAlias() in channels:
+                if channel.getAlias() in self._channels:
                     raise Error, "There's another channel with alias '%s'" \
                                  % channel.getAlias()
                 self._channels[channel.getAlias()] = channel
@@ -89,7 +89,7 @@ class Control(object):
         for channel in self._channels.values():
             if (isinstance(channel, FileChannel) and
                 channel.getFileName() == filename):
-                self._cache.removeLoaders(channel.getLoaders())
+                channel.removeLoaders()
                 break
         else:
             raise Error, "Channel not found for '%s'" % filename
@@ -217,7 +217,7 @@ class Control(object):
                      self._cache,
                      self._channels,
                      self._sysconfchannels) = state
-                    for alias in self._channels:
+                    for alias in self._channels.keys():
                         if alias not in self._sysconfchannels:
                             self.removeChannel(alias)
                 cachefile.close()
@@ -235,7 +235,7 @@ class Control(object):
                 else:
                     channel = self._channels[alias]
                     if isinstance(channel, PackageChannel):
-                        self._cache.removeLoaders(channel.getLoaders())
+                        channel.removeLoaders()
                     del self._channels[alias]
                     del self._sysconfchannels[alias]
 
@@ -273,12 +273,6 @@ class Control(object):
         elif not self._pathlocks.lock(channelsdir, exclusive=True):
             raise Error, "Can't update channels with active readers."
         self._fetcher.setLocalDir(channelsdir, mangle=True)
-
-        # Sort channels in their preferred fetch order. This is usually
-        # necessary to move channels with installed packages to the front,
-        # since they know about provided files and perhaps other information
-        # better than non-installed ones.
-        channels.sort() # REMOVE IT!
 
         # Prepare progress. If we're reading from the cache, we don't want
         # too much information being shown. Otherwise, ask for a full-blown
@@ -706,8 +700,8 @@ class ChannelSorter(object):
     def __init__(self, channel):
         self.channel = channel
     def __cmp__(self, other):
-        rc = cmp(isinstance(self.channel, FileChannel),
-                 isinstance(other.channel, FileChannel))
+        rc = -cmp(isinstance(self.channel, FileChannel),
+                  isinstance(other.channel, FileChannel))
         if rc == 0:
             rc = cmp(self.channel.isRemovable(), other.channel.isRemovable())
             if rc and sysconf.get("prefer-removable"):

@@ -66,6 +66,8 @@ class APTRPMChannel(PackageChannel):
 
         digest = getFileDigest(item.getTargetPath())
         if digest == self._digest:
+            progress.add(self.getFetchSteps()-1)
+            progress.show()
             return True
         self.removeLoaders()
 

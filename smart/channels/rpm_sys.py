@@ -28,7 +28,6 @@ class RPMSysChannel(PackageChannel):
 
     def __init__(self, *args):
         super(RPMSysChannel, self).__init__(*args)
-        self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
         path = os.path.join(sysconf.get("rpm-root", "/"),

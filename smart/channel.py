@@ -28,7 +28,6 @@ class Channel(object):
         self._type = type
         self._alias = alias
         self._name = name
-        self._fetchorder = 1000
         self._manualupdate = manualupdate
         self._removable = removable
         self._digest = object()
@@ -47,10 +46,6 @@ class Channel(object):
 
     def isRemovable(self):
         return self._removable
-
-    def getFetchOrder(self):
-        return -self._fetchorder
-        #return 0 
 
     def getFetchSteps(self):
         return 0
@@ -78,11 +73,6 @@ class Channel(object):
         files and also to load local cached information, depending
         on the caching mode of the fetcher.
         """
-        pass
-
-    def __lt__(self, other):
-        if isinstance(other, Channel):
-            return cmp(self._fetchorder, other._fetchorder) == -1
         return True
 
     def __str__(self):

@@ -26,7 +26,6 @@ class SlackSysChannel(PackageChannel):
 
     def __init__(self, *args):
         super(SlackSysChannel, self).__init__(*args)
-        self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
         dir = os.path.join(sysconf.get("slack-root", "/"),

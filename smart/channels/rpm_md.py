@@ -62,6 +62,7 @@ class RPMMetaDataChannel(PackageChannel):
 
         digest = getFileDigest(item.getTargetPath())
         if digest == self._digest:
+            progress.add(1)
             return True
         self.removeLoaders()
 

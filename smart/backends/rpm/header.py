@@ -434,11 +434,17 @@ class RPMDirLoader(RPMHeaderLoader):
 
 class RPMFileChannel(FileChannel):
 
-    def __init__(self, filename):
-        FileChannel.__init__(self, filename)
-        dirname, basename = os.path.split(filename)
-        self._loader = RPMDirLoader(dirname, basename)
-        self._loader.setChannel(self)
+    def fetch(self, fetcher, progress):
+        digest = os.path.getmtime(self._filename)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        dirname, basename = os.path.split(self._filename)
+        loader = RPMDirLoader(dirname, basename)
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
+        return True
 
 def createFileChannel(filename):
     if filename.endswith(".rpm") and not filename.endswith(".src.rpm"):

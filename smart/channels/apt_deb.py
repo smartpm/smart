@@ -83,6 +83,8 @@ class APTDEBChannel(PackageChannel):
 
         digest = getFileDigest(item.getTargetPath())
         if digest == self._digest:
+            progress.add(self.getFetchSteps()-2)
+            progress.show()
             return True
         self.removeLoaders()
 

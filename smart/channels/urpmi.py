@@ -49,6 +49,7 @@ class URPMIChannel(PackageChannel):
         hdlmd5 = None
         failed = item.getFailedReason()
         if failed:
+            progress.add(1)
             if fetcher.getCaching() is NEVER:
                 lines = ["Failed acquiring information for '%s':" % self,
                          "%s: %s" % (item.getURL(), failed)]
@@ -58,6 +59,7 @@ class URPMIChannel(PackageChannel):
 
         digest = getFileDigest(item.getTargetPath())
         if digest == self._digest:
+            progress.add(1)
             return True
         self.removeLoaders()
 
