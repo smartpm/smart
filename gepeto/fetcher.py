@@ -433,6 +433,7 @@ class URL(object):
         self.scheme, rest = urllib.splittype(url)
         if self.scheme == "file":
             self.reset()
+            self.scheme = "file"
             self.original = url
             self.path = os.path.normpath(rest)
             if self.path.startswith("//"):
