@@ -139,8 +139,8 @@ class RPMPackage(Package):
     def coexists(self, other):
         if not isinstance(other, RPMPackage):
             return True
-        if sysconf.testFlag("multi-arch", self):
-            return True
+        if self.version == other.version:
+            return False
         if not sysconf.testFlag("multi-version", self):
             return False
         selfver, selfarch = splitarch(self.version)
@@ -177,7 +177,9 @@ class RPMDepends(Depends):
             return False
         if not self.version or not prv.version:
             return True
-        return checkdep(prv.version, self.relation, self.version)
+        selfver, selfarch = splitarch(self.version)
+        prvver, prvarch = splitarch(prv.version)
+        return checkdep(prvver, self.relation, selfver)
 
 class RPMPreRequires(RPMDepends,PreRequires): pass
 class RPMRequires(RPMDepends,Requires): pass
@@ -195,6 +197,16 @@ class RPMObsoletes(Depends):
             return False
         if not self.version and prv.version:
             return True
-        return checkdep(prv.version, self.relation, self.version)
+        selfver, selfarch = splitarch(self.version)
+        prvver, prvarch = splitarch(prv.version)
+        if (prvarch and selfarch and
+            getArchColor(selfarch) != getArchColor(prvarch)):
+            return False
+        return checkdep(prvver, self.relation, selfver)
+
+# TODO: Embed color into nameprovides and obsoletes relations.
+_COLORMAP = {"x86_64": 2}
+def getArchColor(arch):
+    return _COLORMAP.get(arch, 1)
 
 # vim:ts=4:sw=4:et

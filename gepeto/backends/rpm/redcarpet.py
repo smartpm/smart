@@ -229,8 +229,9 @@ class RPMRedCarpetLoader(Loader):
             version = "%s:%s-%s" % (self._epoch, self._version, self._release)
         else:
             version = "%s-%s" % (self._version, self._release)
+        versionarch = "%s.%s" % (version, self._arch)
 
-        self._upgdict[(RPMObsoletes, name, '<', version)] = True
+        self._upgdict[(RPMObsoletes, name, '<', versionarch)] = True
 
         reqargs = [x for x in self._reqdict
                    if (RPMProvides, x[1], x[3]) not in self._prvdict]
@@ -241,11 +242,10 @@ class RPMRedCarpetLoader(Loader):
         for i in range(len(prvargs)):
             tup = prvargs[i]
             if tup[1] == name and tup[2] == version:
-                prvargs[i] = (RPMNameProvides, tup[1], tup[2])
+                prvargs[i] = (RPMNameProvides, tup[1], versionarch)
                 break
 
-        pkg = self.newPackage((RPMPackage, name,
-                               "%s.%s" % (version, self._arch)),
+        pkg = self.newPackage((RPMPackage, name, versionarch,
                                prvargs, reqargs, upgargs, cnfargs)
         pkg.loaders[self] = self._info
 

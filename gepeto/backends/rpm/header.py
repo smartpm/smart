@@ -138,7 +138,6 @@ class RPMHeaderLoader(Loader):
         NPrv = RPMNameProvides
         PreReq = RPMPreRequires
         Req = RPMRequires
-        Upg = RPMUpgrades
         Obs = RPMObsoletes
         Cnf = RPMConflicts
         prog = iface.getProgress(self._cache)
@@ -155,6 +154,7 @@ class RPMHeaderLoader(Loader):
             else:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
                 version = "%s-%s" % (h[1001], h[1002])
+            versionarch = "%s.%s" % (version, arch)
 
             n = h[1047] # RPMTAG_PROVIDENAME
             v = h[1113] # RPMTAG_PROVIDEVERSION
@@ -164,9 +164,9 @@ class RPMHeaderLoader(Loader):
                 if not ni.startswith("config("):
                     vi = v[i]
                     if ni == name and vi == version:
-                        prvdict[(NPrv, n[i], v[i] or None)] = True
+                        prvdict[(NPrv, ni, versionarch)] = True
                     else:
-                        prvdict[(Prv, n[i], v[i] or None)] = True
+                        prvdict[(Prv, ni, vi or None)] = True
             prvargs = prvdict.keys()
 
             n = h[1049] # RPMTAG_REQUIRENAME
@@ -197,7 +197,7 @@ class RPMHeaderLoader(Loader):
             else:
                 cnfargs = []
 
-            obstup = (Obs, name, '<', version)
+            obstup = (Obs, name, '<', versionarch)
 
             n = h[1090] # RPMTAG_OBSOLETENAME
             if n:
@@ -210,7 +210,7 @@ class RPMHeaderLoader(Loader):
             else:
                 upgargs = [obstup]
 
-            pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
+            pkg = self.newPackage((Pkg, name, versionarch),
                                   prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
             pkg._group = h[rpm.RPMTAG_GROUP]

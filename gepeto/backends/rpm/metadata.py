@@ -231,6 +231,7 @@ class RPMMetaDataLoader(Loader):
                 self._filedict[name] = True
             else:
                 if name == self._name and version == self._version:
+                    version = "%s.%s" % (version, self._arch)
                     Prv = RPMNameProvides
                 else:
                     Prv = RPMProvides
@@ -253,8 +254,9 @@ class RPMMetaDataLoader(Loader):
     def _handlePackageEnd(self, name, attrs, data):
         name = self._name
         version = self._version
+        versionarch = "%s.%s" % (version, self._arch)
 
-        self._upgdict[(RPMObsoletes, name, '<', version)] = True
+        self._upgdict[(RPMObsoletes, name, '<', versionarch)] = True
 
         reqargs = [x for x in self._reqdict
                    if (RPMProvides, x[1], x[3]) not in self._prvdict]
@@ -262,8 +264,7 @@ class RPMMetaDataLoader(Loader):
         cnfargs = self._cnfdict.keys()
         upgargs = self._upgdict.keys()
 
-        pkg = self.newPackage((RPMPackage, name,
-                               "%s.%s" % (version, self._arch)),
+        pkg = self.newPackage((RPMPackage, name, versionarch,
                                prvargs, reqargs, upgargs, cnfargs)
         pkg.loaders[self] = self._info
 
