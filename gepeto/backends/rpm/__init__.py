@@ -175,6 +175,8 @@ class RPMNameProvides(RPMProvides): pass
 class RPMDepends(Depends):
 
     def matches(self, prv):
+        if not isinstance(prv, RPMProvides):
+            return False
         if not self.version or not prv.version:
             return True
         selfver, selfarch = splitarch(self.version)
