@@ -108,12 +108,4 @@ def vercmppart(a, b):
     else:
         return 1
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(vercmp)
-    psyco.bind(vercmppart)
-
-# vim:ts=4:sw=4
+# vim:ts=4:sw=4:et

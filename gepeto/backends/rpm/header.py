@@ -429,14 +429,4 @@ def getFileChannelLoader(filename):
 
 hooks.register("FileChannel.getLoader", getFileChannelLoader)
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(RPMHeaderLoader.load)
-    psyco.bind(RPMDBLoader.loadFileProvides)
-    psyco.bind(RPMHeaderListLoader.loadFileProvides)
-    psyco.bind(RPMDirLoader.loadFileProvides)
-
 # vim:ts=4:sw=4:et

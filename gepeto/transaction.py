@@ -1429,15 +1429,4 @@ def recursiveInternalRequires(pkgmap, pkg, numrel, done=None):
     numrel[pkg] = n
     return n
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(PolicyInstall)
-    psyco.bind(PolicyUpgrade)
-    psyco.bind(PolicyRemove)
-    psyco.bind(Transaction)
-    psyco.bind(ChangeSetSplitter)
-
 # vim:ts=4:sw=4:et

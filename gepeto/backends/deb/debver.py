@@ -132,13 +132,4 @@ for i in range(256):
     else:
         ORDER[c] = i+256
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(parseversion)
-    psyco.bind(vercmp)
-    psyco.bind(vercmppart)
-
 # vim:ts=4:sw=4

@@ -179,11 +179,4 @@ class DebTagFileLoader(Loader):
             pkg._section = section.get("section", "")
             self._offsets[offset] = pkg
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(DebTagFileLoader.load)
-
 # vim:ts=4:sw=4:et

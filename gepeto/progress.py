@@ -251,11 +251,4 @@ class Progress(object):
         self.__lasttime = 0
         self.__lock.release()
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(Progress)
-
 # vim:ts=4:sw=4:et

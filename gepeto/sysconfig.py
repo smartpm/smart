@@ -195,12 +195,5 @@ class SysConfig(object):
         priorities = self.get("package-priorities", setdefault={})
         priorities.setdefault(name, {})[channelalias] = priority
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(SysConfig.getPriority)
-
 # vim:ts=4:sw=4:et
 

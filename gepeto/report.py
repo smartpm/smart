@@ -155,11 +155,4 @@ class Report(object):
                 if map:
                     self.requiredby[pkg] = map.keys()
 
-try:
-    import psyco
-except ImportError:
-    pass
-else:
-    psyco.bind(Report)
-
 # vim:ts=4:sw=4:et
