@@ -1,0 +1,37 @@
+
+A problem fixer and an upgrader are the same thing, but with
+different "fixing" algorithms.
+
+Introduce "locking" in fixer and upgrader.
+
+About problem fixer:
+    - Use backtracking?
+    - Support partial problem fixing.
+    - Support fixing score?
+    - Check if a problem is solvable at all.
+    - Check what's the most problematic package in the set of
+      installed ones.
+
+How to fix a broken package:
+    - Upgrade the package (best option).
+    - Downgrade the package.
+    - Remove the given package (and its dependents) (worst option).
+
+About transaction system:
+    - Support reason for change.
+    - Support changes over a partially broken system.
+    - Support transaction diffing.
+    - Support transaction quality measuring?
+
+About upgrades:
+    - Ask packages for the upgrade candidates.
+    - Support cache 'sorters'?
+
+About commands:
+    - Introduce 'fix' command.
+    - Introduce 'install' command.
+    - Introduce 'upgrade' command.
+    - Introduce 'remove' command.
+    - Use same idea as rpm's cmdline about upgrade/install.
+
+vim:ts=4:sw=4:et

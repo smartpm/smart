@@ -1,0 +1,8 @@
+
+Code Conventions
+----------------
+
+- Variables and attributes are named likethis.
+- Private and protected attributes are named _likethis.
+- Methods are named likeThis().
+- All classes must be new-style ones.
