@@ -32,6 +32,8 @@ import time
 import os
 import re
 
+LOCALSCHEMES = ["file", "localmedia"]
+
 class Fetcher(object):
 
     _registry = {}
@@ -451,7 +453,7 @@ class URL(object):
         if ":/" not in url:
             raise Error, "Invalid URL: %s" % url
         self.scheme, rest = urllib.splittype(url)
-        if self.scheme in ("file", "localmedia"):
+        if self.scheme in LOCALSCHEMES:
             scheme = self.scheme
             self.reset()
             self.scheme = scheme
@@ -475,8 +477,8 @@ class URL(object):
         self.path = urllib.unquote(self.path)
 
     def __str__(self):
-        if self.scheme == "file":
-            return "file://"+urllib.quote(self.path)
+        if self.scheme in LOCALSCHEMES:
+            return "%s://%s" % (self.scheme, urllib.quote(self.path))
         url = self.scheme+"://"
         if self.user:
             url += urllib.quote(self.user)
