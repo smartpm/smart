@@ -19,8 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.interfaces.text.interface import TextInterface
-from gepeto.interfaces.text.util import getScreenWidth
+from gepeto.interfaces.text.interface import TextInterface, getScreenWidth
 from gepeto.matcher import MasterMatcher
 from gepeto.const import VERSION, NEVER
 from gepeto.option import OptionParser

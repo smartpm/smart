@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.interfaces.text.progress import TextProgress
-from gepeto.interface import Interface
+from gepeto.interface import Interface, getScreenWidth
 from gepeto.fetcher import Fetcher
 from gepeto.report import Report
 import os

@@ -32,7 +32,7 @@ FIX       = 6
 
 OPTIONAL = 1
 NEVER    = 2
-ALWAYS   = 3
+ENFORCE = ALWAYS = 3
 
 ERROR   = 1
 WARNING = 2

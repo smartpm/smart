@@ -330,15 +330,12 @@ class Control(object):
                         del copypkgpaths[pkg]
 
                 for pmclass in pmpkgs:
-                    pminstall = []
-                    pmremove = []
+                    pmcs = ChangeSet(self._cache)
                     for pkg in pmpkgs[pmclass]:
-                        if cs.get(pkg) is INSTALL:
-                            pminstall.append(pkg)
-                        elif cs.get(pkg) is REMOVE:
-                            pmremove.append(pkg)
+                        if pkg in cs:
+                            pmcs[pkg] = cs[pkg]
                     if sysconf.get("commit", True):
-                        pmclass().commit(pminstall, pmremove, pkgpaths)
+                        pmclass().commit(pmcs, pkgpaths)
 
                 datadir = sysconf.get("data-dir")
                 for pkg in pkgpaths:

@@ -21,6 +21,8 @@
 #
 #from gepeto.backends.rpm.rpmver import splitarch
 from gepeto.backends.rpm.crpmver import splitarch
+from gepeto.sorter import ChangeSetSorter
+from gepeto.const import INSTALL, REMOVE
 from gepeto.pm import PackageManager
 from gepeto import *
 import sys, os
@@ -30,7 +32,7 @@ import rpm
 
 class RPMPackageManager(PackageManager):
 
-    def commit(self, install, remove, pkgpaths):
+    def commit(self, changeset, pkgpaths):
 
         prog = iface.getProgress(self, True)
         prog.start()
@@ -40,44 +42,70 @@ class RPMPackageManager(PackageManager):
         # Compute upgrading/upgraded packages
         upgrading = {}
         upgraded = {}
-        for pkg in install:
-            for upg in pkg.upgrades:
-                for prv in upg.providedby:
-                    upgd = []
-                    for prvpkg in prv.packages:
-                        if prvpkg.installed:
-                            if prvpkg not in remove:
-                                break
-                            upgd.append(prvpkg)
-                    else:
-                        if upgd:
-                            upgrading[pkg] = True
-                            upgraded.update(dict.fromkeys(upgd))
+        for pkg in changeset:
+            if changeset[pkg] is INSTALL:
+                for upg in pkg.upgrades:
+                    for prv in upg.providedby:
+                        upgd = []
+                        for prvpkg in prv.packages:
+                            if prvpkg.installed:
+                                # If any upgraded package will stay in
+                                # the system, this is not really an
+                                # upgrade.
+                                if changeset.get(prvpkg) is not REMOVE:
+                                    break
+                                upgd.append(prvpkg)
+                        else:
+                            if upgd:
+                                upgrading[pkg] = True
+                                upgraded.update(dict.fromkeys(upgd))
+
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
+
+        # Let's help RPM, since it doesn't do a good
+        # ordering job on erasures.
+        try:
+            sorter = ChangeSetSorter(changeset)
+            sorted = sorter.getSorted()
+        except Error:
+            sorted = changeset.items()
+        del sorter
+
         packages = 0
         reinstall = False
-        for pkg in install:
-            if pkg.installed:
-                reinstall = True
-            loader = [x for x in pkg.loaders if not x.getInstalled()][0]
-            info = loader.getInfo(pkg)
-            mode = pkg in upgrading and "u" or "i"
-            path = pkgpaths[pkg][0]
-            fd = os.open(path, os.O_RDONLY)
-            h = ts.hdrFromFdno(fd)
-            os.close(fd)
-            ts.addInstall(h, (info, path), mode)
-            packages += 1
-        for pkg in remove:
-            if pkg not in upgraded:
-                version = pkg.version
-                if ":" in version:
-                    version = version[version.find(":")+1:]
-                version, arch = splitarch(version)
-                try:
-                    ts.addErase("%s-%s" % (pkg.name, version))
-                except rpm.error, e:
-                    raise Error, "%s-%s: %s" % (pkg.name, pkg.version, str(e))
+        for pkg, op in sorted:
+            if op is INSTALL:
+                if pkg.installed:
+                    reinstall = True
+                loader = [x for x in pkg.loaders if not x.getInstalled()][0]
+                info = loader.getInfo(pkg)
+                mode = pkg in upgrading and "u" or "i"
+                path = pkgpaths[pkg][0]
+                fd = os.open(path, os.O_RDONLY)
+                h = ts.hdrFromFdno(fd)
+                os.close(fd)
+                ts.addInstall(h, (info, path), mode)
+                packages += 1
+            else:
+                if pkg not in upgraded:
+                    version = pkg.version
+                    if ":" in version:
+                        version = version[version.find(":")+1:]
+                    version, arch = splitarch(version)
+                    try:
+                        ts.addErase("%s-%s" % (pkg.name, version))
+                    except rpm.error, e:
+                        raise Error, "%s-%s: %s" % \
+                                     (pkg.name, pkg.version, str(e))
+
+        upgradednames = {}
+        for pkg in upgraded:
+            upgradednames[pkg.name] = True
+
+        del sorted
+        del upgraded
+        del upgrading
+
         force = sysconf.get("rpm-force", False)
         if not force:
             probs = ts.check()
@@ -109,8 +137,8 @@ class RPMPackageManager(PackageManager):
             probfilter |= rpm.RPMPROB_FILTER_REPLACEPKG
             probfilter |= rpm.RPMPROB_FILTER_REPLACEOLDFILES
         ts.setProbFilter(probfilter)
-        prog.set(0, packages or 1)
-        cb = RPMCallback(prog)
+        prog.set(0, len(changeset))
+        cb = RPMCallback(prog, upgradednames)
         cb.grabOutput(True)
         probs = ts.run(cb, None)
         cb.grabOutput(False)
@@ -120,9 +148,10 @@ class RPMPackageManager(PackageManager):
         prog.stop()
 
 class RPMCallback:
-    def __init__(self, prog):
-        self.data = {"item-number": 0}
+    def __init__(self, prog, upgradednames):
         self.prog = prog
+        self.upgradednames = upgradednames
+        self.data = {"item-number": 0}
         self.fd = None
         self.rpmout = None
         self.lasttopic = None
@@ -197,7 +226,7 @@ class RPMCallback:
             pkg = info.getPackage()
             self.data["item-number"] += 1
             self.prog.add(1)
-            self.prog.setSubTopic(infopath, pkg.name)
+            self.prog.setSubTopic(infopath, "Installing %s" % pkg.name)
             self.prog.setSub(infopath, 0, 1, subdata=self.data)
             self.prog.show()
 
@@ -214,6 +243,23 @@ class RPMCallback:
 
         elif what == rpm.RPMCALLBACK_TRANS_STOP:
             self.prog.setSubDone("trans")
+            self.prog.show()
+
+        elif what == rpm.RPMCALLBACK_UNINST_START:
+            self.topic = "Output from %s:" % infopath
+            self.data["item-number"] += 1
+            self.prog.add(1)
+            if infopath in self.upgradednames:
+                topic = "Removing old %s" % infopath
+            else:
+                topic = "Removing %s" % infopath
+            self.prog.setSubTopic("R*"+infopath, topic)
+            self.prog.setSub("R*"+infopath, 0, 1, subdata=self.data)
+            self.prog.show()
+
+        elif what == rpm.RPMCALLBACK_UNINST_STOP:
+            self.topic = None
+            self.prog.setSubDone("R*"+infopath)
             self.prog.show()
 
 # vim:ts=4:sw=4:et

@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.interfaces.text.util import getScreenWidth
+from gepeto.interface import getScreenWidth
 from gepeto.util.strtools import ShortURL
 from gepeto.progress import Progress
 import posixpath
@@ -27,8 +27,6 @@ import time
 import sys
 
 class TextProgress(Progress):
-
-    HASHES = 44
 
     def __init__(self):
         Progress.__init__(self)
@@ -38,16 +36,16 @@ class TextProgress(Progress):
         self._fetchermode = False
         self._seentopics = {}
         self._addline = False
-        self._shorturl = ShortURL(self.HASHES+32)
         self.setScreenWidth(getScreenWidth())
 
     def setScreenWidth(self, width):
         self._screenwidth = width
-        self._topicwidth = int(width*0.35)
+        self._topicwidth = int(width*0.4)
         self._hashwidth = int(width-self._topicwidth-7-1) # " [100%]" == 7
         self._topicmask = "%%-%d.%ds" % (self._topicwidth, self._topicwidth)
         self._topicmaskn = "%%4d:%%-%d.%ds" % (self._topicwidth-5,
                                                self._topicwidth-5)
+        self._shorturl = ShortURL(width-4)
 
     def setFetcherMode(self, flag):
         self._fetchermode = flag

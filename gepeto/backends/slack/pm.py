@@ -19,38 +19,44 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from gepeto.const import INSTALL, REMOVE
 from gepeto.pm import PackageManager
 from gepeto import *
 import commands
 
 class SlackPackageManager(PackageManager):
 
-    def commit(self, install, remove, pkgpaths):
+    def commit(self, changeset, pkgpaths):
 
         prog = iface.getProgress(self, True)
         prog.start()
         prog.setTopic("Committing transaction...")
         prog.show()
 
-        # Split out upgrades
-        upgrade = []
-        for pkg in install[:]:
+        install = {}
+        remove = {}
+        for pkg in changeset:
+            if changeset[pkg] is INSTALL:
+                install[pkg] = True
+            else:
+                remove[pkg] = True
+        upgrade = {}
+        for pkg in install:
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
                         if prvpkg.installed:
                             if prvpkg in remove:
-                                remove.remove(prvpkg)
+                                del remove[prvpkg]
                             if pkg in install:
-                                install.remove(pkg)
-                            if pkg not in upgrade:
-                                upgrade.append(pkg)
+                                del install[pkg]
+                            upgrade[pkg] = True
 
         total = len(install)+len(upgrade)+len(remove)
         prog.set(0, total)
 
         for pkg in install:
-            prog.setSubTopic(pkg, "I:%s" % pkg.name)
+            prog.setSubTopic(pkg, "Installing %s" % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("installpkg %s" %
@@ -64,7 +70,7 @@ class SlackPackageManager(PackageManager):
                 iface.debug("Installing %s:" % pkg)
                 iface.debug(output)
         for pkg in upgrade:
-            prog.setSubTopic(pkg, "U:%s" % pkg.name)
+            prog.setSubTopic(pkg, "Upgrading %s" % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("upgradepkg %s" %
@@ -78,7 +84,7 @@ class SlackPackageManager(PackageManager):
                 iface.debug("Upgrading %s:" % pkg)
                 iface.debug(output)
         for pkg in remove:
-            prog.setSubTopic(pkg, "R:%s" % pkg.name)
+            prog.setSubTopic(pkg, "Removing %s" % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("removepkg %s" %

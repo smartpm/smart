@@ -23,6 +23,9 @@ from gepeto.interfaces.images import __file__ as _images__file__
 from gepeto.const import ERROR, WARNING, INFO, DEBUG
 from gepeto import *
 import sys, os
+import termios
+import struct
+import fcntl
 
 class Interface(object):
 
@@ -93,11 +96,21 @@ class Interface(object):
     def message(self, level, msg):
         prefix = {ERROR: "error", WARNING: "warning",
                   DEBUG: "debug"}.get(level)
+        if sys.stderr.isatty():
+            sys.stderr.write(" "*(getScreenWidth()-1)+"\r")
         if prefix:
             for line in msg.split("\n"):
                 sys.stderr.write("%s: %s\n" % (prefix, line))
         else:
             sys.stderr.write("%s\n" % msg.rstrip())
+
+def getScreenWidth():
+    s = struct.pack('HHHH', 0, 0, 0, 0)
+    try:
+        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
+    except IOError:
+        return 80
+    return struct.unpack('HHHH', x)[1]
 
 def createInterface(name, ctrl, interactive):
     try:
