@@ -73,7 +73,7 @@ def main(ctrl, opts):
             else:
                 policy.setLocked(pkg, True)
         if not found:
-            raise Error, _("'%s' matches no installed packages") % arg
+            iface.warning(_("'%s' matches no installed packages") % arg)
     iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()
