@@ -107,6 +107,7 @@ class Loader(object):
     def __init__(self):
         self._cache = None
         self._installed = False
+        self._progress = None
         self.reset()
 
     def setCache(self, cache):
@@ -117,6 +118,15 @@ class Loader(object):
 
     def setInstalled(self, flag):
         self._installed = flag
+
+    def setProgress(self, prog):
+        self._progress = prog
+
+    def getProgress(self, prog):
+        return self._progress
+
+    def getLoadSteps(self):
+        return 0
 
     def getInfo(self, pkg):
         return None
@@ -317,6 +327,16 @@ class LoaderSet(list):
         for loader in self:
             loader.setCache(cache)
 
+    def setProgress(self, prog):
+        for loader in self:
+            loader.setProgress(prog)
+
+    def getLoadSteps(self):
+        steps = 0
+        for loader in self:
+            steps += loader.getLoadSteps()
+        return steps
+
     def reset(self):
         for loader in self:
             loader.reset()
@@ -339,6 +359,7 @@ class LoaderSet(list):
 
 class Cache(object):
     def __init__(self):
+        self._progress = None
         self._loaders = []
         self._packages = []
         self._provides = []
@@ -355,6 +376,12 @@ class Cache(object):
         self._reqmap = {}
         self._obsmap = {}
         self._cnfmap = {}
+
+    def setProgress(self, prog):
+        self._progress = prog
+
+    def getProgress(self):
+        return self._progress
 
     def reset(self, deps=False):
         # Do not lose references to current objects, since
@@ -393,6 +420,7 @@ class Cache(object):
         if loader:
             self._loaders.append(loader)
             loader.setCache(self)
+            loader.setProgress(self._progress)
 
     def removeLoader(self, loader):
         if loader:
@@ -401,11 +429,23 @@ class Cache(object):
 
     def load(self):
         self.reset()
+        prog = self._progress
+        prog.reset()
+        prog.setTopic("Building cache...")
+        prog.set(0, 1)
+        prog.show()
+        total = 1
+        for loader in self._loaders:
+            total += loader.getLoadSteps()
+        prog.set(0, total)
+        prog.show()
         for loader in self._loaders:
             loader.reset()
             loader.load()
         self.loadFileProvides()
         self.linkDeps()
+        prog.add(1)
+        prog.show()
 
     def unload(self):
         self.reset()

@@ -1,112 +1,141 @@
+import time
 import sys
 
+INTERVAL = 0.1
+
 class Progress:
+
     def __init__(self):
-        self._hooks = []
         self.reset()
 
     def reset(self):
         self._topic = ""
-        self._total = 0
-        self._current = 0
-        self._subcurrent = 0
-        self._subtotal = 0
-        self._fragment = 0
+        self._progress = None # (current, total, data)
         self._lastshown = None
-        self._data = {}
+        self._subtopic = {}
+        self._subprogress = {} # (subcurrent, subtotal, fragment, subdata)
+        self._sublastshown = {}
+        self._subdone = {}
+        self._lasttime = 0
 
     def show(self):
-        info = self.getInfo()
-        if self._lastshown != info:
-            self._lastshown = info
-            self.expose(*info)
-            for hook in self._hooks:
-                hook(self, *info)
+        now = time.time()
+        if self._lasttime > now-INTERVAL:
+            return
+        self._lasttime = now
+        current, total, data = self._progress
+        subexpose = []
+        for subkey in self._subprogress.keys():
+            subcurrent, subtotal, fragment, subdata = self._subprogress[subkey]
+            subpercent = int(100*float(subcurrent)/subtotal)
+            if fragment:
+                current += int(fragment*float(subpercent)/100)
+            subtopic = self._subtopic.get(subkey)
+            if (subtopic, subpercent) == self._sublastshown.get(subkey):
+                continue
+            self._sublastshown[subkey] = (subtopic, subpercent)
+            if subpercent == 100:
+                if fragment and current != total:
+                    self.addCurrent(fragment)
+                self._subdone[subkey] = True
+                del self._subprogress[subkey]
+                del self._sublastshown[subkey]
+                del self._subtopic[subkey]
+            subexpose.append((subkey, subtopic, subpercent, subdata))
+        topic = self._topic
+        percent = int(100*float(current)/total)
+        if subexpose:
+            for info in subexpose:
+                self.expose(topic, percent, *info)
+            self.expose(topic, percent, None, None, None, data)
+        elif (topic, percent) != self._lastshown:
+            self.expose(topic, percent, None, None, None, data)
 
-    def expose(self, topic, percent, subpercent):
+    def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         pass
-
-    def addHook(self, hook):
-        self._hooks.append(hook)
-
-    def removeHook(self, hook):
-        self._hooks.remove(hook)
-
-    def getInfo(self):
-        if self._subtotal:
-            subpercent = int(100*float(self._subcurrent)/self._subtotal)
-        else:
-            subpercent = None
-        if self._total:
-            current = self._current
-            if self._subtotal and self._fragment:
-                current += int(self._fragment*float(subpercent)/100)
-            percent = int(100*float(current)/self._total)
-        return self._topic, percent, subpercent
 
     def setTopic(self, topic):
         self._topic = topic
 
-    def getTopic(self):
-        return self._topic
+    def set(self, current, total, data={}):
+        self._progress = (current, total, data)
+        if current == total:
+            self._lasttime = 0
 
-    def setCurrent(self, current):
-        self._current = current
+    def add(self, value):
+        current, total, data = self._progress
+        self._progress = (current+value, total, data)
+        if current == total:
+            self._lasttime = 0
 
-    def getCurrent(self):
-        return self._current
+    def setSubTopic(self, subkey, subtopic):
+        if subkey not in self._subtopic:
+            self._lasttime = 0
+        self._subtopic[subkey] = subtopic
+
+    def setSub(self, subkey, subcurrent, subtotal, fragment=0, subdata={}):
+        if subkey in self._subdone:
+            return
+        if subkey not in self._subtopic:
+            self._subtopic[subkey] = ""
+            self._lasttime = 0
+        if subcurrent == subtotal:
+            self._lasttime = 0
+        self._subprogress[subkey] = (subcurrent, subtotal, fragment, subdata)
+
+    def addSub(self, subkey, value):
+        if subkey in self._subdone:
+            return
+        subcurrent, subtotal, fragment, subdata = self._subprogress[subkey]
+        self._subprogress[subkey] = (subcurrent+value, subtotal,
+                                     fragment, subdata)
+        if subcurrent == subtotal:
+            self._lasttime = 0
 
     def setDone(self):
-        self._current = self._total
+        current, total, data = self._progress
+        self._progress = (total, total, data)
+        for subkey in self._subprogress:
+            self.setSubDone(subkey)
+        self._lasttime = 0
 
-    def setTotal(self, total):
-        self._current = 0
-        self._total = total
-
-    def getTotal(self):
-        return self._total
-
-    def setSubCurrent(self, subcurrent):
-        self._subcurrent = subcurrent
-
-    def getSubCurrent(self):
-        return self._subcurrent
-
-    def setSubTotal(self, subtotal, fragment=0):
-        self._subcurrent = 0
-        self._subtotal = subtotal
-        self._fragment = fragment
-
-    def getSubTotal(self):
-        return self._subtotal
-
-    def getFragment(self):
-        return self._fragment
-
-    def setSubDone(self):
-        self._subcurrent = self._subtotal
-
-    def getData(self, key):
-        return self._data.get(key)
-
-    def setData(self, key, value):
-        self._data[key] = value
+    def setSubDone(self, subkey):
+        if subkey in self._subdone:
+            return
+        subcurrent, subtotal, fragment, subdata = self._subprogress[subkey]
+        if subcurrent != subtotal:
+            self._subprogress[subkey] = (subtotal, subtotal, fragment, subdata)
+        self._lasttime = 0
 
 class RPMStyleProgress(Progress):
 
     HASHES = 44
 
-    def expose(self, topic, percent, subpercent):
+    def __init__(self):
+        Progress.__init__(self)
+        self._lasttopic = None
+
+    def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         out = sys.stdout
-        if subpercent is not None:
+        if subkey:
+            if topic != self._lasttopic:
+                self._lasttopic = topic
+                print topic
             current = subpercent
-        else:
+            topic = subtopic
+        elif not self._subprogress and not self._subdone:
             current = percent
+        else:
+            return
         hashes = int(self.HASHES*current/100)
-        n = self.getData("item-number")
-        if n is not None:
+        n = data.get("item-number")
+        if n:
+            if len(topic) > 22:
+                topic = topic[:19]+"..."
             out.write("%4d:%-23.23s" % (n, topic))
         else:
+            if len(topic) > 27:
+                topic = topic[:24]+"..."
             out.write("%-28.28s" % topic)
         out.write("#"*hashes)
         out.write(" "*(self.HASHES-hashes+1))
@@ -119,18 +148,18 @@ class RPMStyleProgress(Progress):
         out.flush()
 
 def test():
-    import time
-    prog = RPMStyleProgress(None)
-    prog.setTotal(100)
-    for n in range(1,prog.getTotal()+1):
-        prog.setData("item-number", n)
-        prog.setTopic("package-name%d" % n)
-        prog.setCurrent(n)
-        prog.setSubTotal(50)
-        for i in range(1,prog.getSubTotal()+1):
-            prog.setSubCurrent(i)
+    prog = RPMStyleProgress()
+    data = {"item-number": 0}
+    total, subtotal = 100, 1000
+    prog.setTopic("Installing packages...")
+    for n in range(1,total+1):
+        data["item-number"] = n
+        prog.set(n, total)
+        prog.setSubTopic(n, "package-name%d" % n)
+        for i in range(0,subtotal+1):
+            prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            time.sleep(0.05)
+            #time.sleep(0.02)
 
 if __name__ == "__main__":
     test()

@@ -2,7 +2,7 @@ from epm.transaction import Transaction, PolicyInstall
 from epm.matcher import MasterMatcher
 from epm.option import OptionParser
 from epm.control import Control
-from epm.cache import Provides
+from epm.cmdline import initCmdLine
 from epm import *
 import string
 import re
@@ -17,6 +17,7 @@ def parse_options(argv):
 
 def main(opts):
     ctrl = Control(opts)
+    initCmdLine(ctrl)
     ctrl.standardInit()
     cache = ctrl.getCache()
     policy = PolicyInstall()
@@ -35,13 +36,7 @@ def main(opts):
             trans.install(pkg)
             policy.setLocked(pkg, True)
     trans.minimize()
-    print trans
-    print "Running transaction"
-    from epm.backends.rpm.pm import RPMPackageManager
-    pm = RPMPackageManager()
-    from epm.progress import RPMStyleProgress
-    prog = RPMStyleProgress()
-    #pm.commit(trans, prog)
+    ctrl.acquireAndCommit(trans)
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

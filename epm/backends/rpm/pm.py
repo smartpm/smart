@@ -1,22 +1,22 @@
-from epm.backends.rpm import RPMPackage
 from epm.pm import PackageManager
-from epm.transaction import *
+from epm.transaction import INSTALL, REMOVE
 from epm import *
-
 import sys, os
 import rpm
 
 class RPMPackageManager(PackageManager):
 
-    def commit(self, trans, prog):
-        set = trans.getChangeSet().getSet()
+    def commit(self, set, pkgpath):
+
+        prog = self.getProgress()
+        prog.setTopic("Committing transaction...")
+        prog.set(0, 1)
+        prog.show()
 
         # Build obsoletes relations.
         obsoleting = {}
         obsoleted = {}
         for pkg in set:
-            if not isinstance(pkg, RPMPackage):
-                continue
             for prv in pkg.provides:
                 for obs in prv.obsoletedby:
                     for obspkg in obs.packages:
@@ -27,20 +27,16 @@ class RPMPackageManager(PackageManager):
         ts = rpm.ts()
         packages = 0
         for pkg in set:
-            if not isinstance(pkg, RPMPackage):
-                continue
             op = set[pkg]
             if op is INSTALL:
                 loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
                 info = loader.getInfo(pkg)
                 mode = pkg in obsoleting and "u" or "i"
-                url = info.getURL()
-                if not url.startswith("file://"):
-                    raise Error, "Ooops.. not yet supported."
-                fd = os.open(url[7:], os.O_RDONLY)
+                path = pkgpath[pkg]
+                fd = os.open(path, os.O_RDONLY)
                 h = ts.hdrFromFdno(fd)
                 os.close(fd)
-                ts.addInstall(h, info, mode)
+                ts.addInstall(h, (info, path), mode)
                 packages += 1
             elif pkg not in obsoleted:
                 version = pkg.version
@@ -48,24 +44,21 @@ class RPMPackageManager(PackageManager):
                     version = version[version.find(":")+1:]
                 ts.addErase("%s-%s" % (pkg.name, version))
         ts.order()
-        prog.setTotal(packages)
-        cb = RPMStandardCallback(prog)
+        prog.set(0, packages)
+        cb = RPMCallback(prog)
         ts.run(cb, None)
 
-class RPMStandardCallback:
+class RPMCallback:
     def __init__(self, prog):
+        self.data = {"item-number": 0}
         self.prog = prog
-        self.current = 0
         self.fd = None
 
-    def __call__(self, what, amount, total, info, data):
+    def __call__(self, what, amount, total, infopath, data):
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
-            url = info.getURL()
-            if not url.startswith("file://"):
-                raise Error, "Ooops.. not yet supported."
-            filename = url[7:]
-            self.fd = os.open(filename, os.O_RDONLY)
+            info, path = infopath
+            self.fd = os.open(path, os.O_RDONLY)
             return self.fd
         
         elif what == rpm.RPMCALLBACK_INST_CLOSE_FILE:
@@ -74,23 +67,23 @@ class RPMStandardCallback:
                 self.fd = None
 
         elif what == rpm.RPMCALLBACK_INST_START:
-            self.current += 1
-            self.prog.setTopic(info.getPackage().name)
-            self.prog.setCurrent(self.current)
-            self.prog.setData("item-number", self.current)
+            info, path = infopath
+            self.data["item-number"] += 1
+            self.prog.add(1)
+            self.prog.setSubTopic(infopath, info.getPackage().name)
+            self.prog.setSub(info, 0, 1, subdata=self.data)
 
         elif (what == rpm.RPMCALLBACK_TRANS_PROGRESS or
               what == rpm.RPMCALLBACK_INST_PROGRESS):
-            self.prog.setSubTotal(total)
-            self.prog.setSubCurrent(amount)
+            self.prog.setSub(infopath, amount, total, subdata=self.data)
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_START:
-            self.prog.setSubTotal(1)
-            self.prog.setTopic("Preparing...")
+            self.prog.setSubTopic(infopath, "Preparing...")
+            self.prog.setSub(infopath, 0, 1)
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_STOP:
-            self.prog.setSubDone()
+            self.prog.setSubDone(infopath)
             self.prog.show()
 

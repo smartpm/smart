@@ -4,7 +4,7 @@ from epm import Error
 INSTALL = True
 REMOVE  = False
 
-class ChangeSet:
+class ChangeSet(object):
     def __init__(self, state=None):
         if state:
             if hasattr(state, "_opmap"):
@@ -64,7 +64,7 @@ class ChangeSet:
                 l.append("R %s\n" % pkg)
         return "".join(l)
 
-class Policy:
+class Policy(object):
     def __init__(self):
         self._locked = {}
 
@@ -159,7 +159,7 @@ class PolicyUpgrade(Policy):
 
 class Failed(Error): pass
 
-class Transaction:
+class Transaction(object):
     def __init__(self, cache, policy=None, changeset=None):
         self._cache = cache
         self._policy = policy
@@ -334,7 +334,7 @@ class Transaction:
                 if not alternatives:
                     raise Failed, "can't install %s: all packages providing " \
                                   "%s failed to install: %s" \
-                                  (pkg, req,  "; ".join(failures))
+                                  % (pkg, req,  "; ".join(failures))
                 alternatives.sort()
                 changeset.setState(alternatives[0][1])
             else:

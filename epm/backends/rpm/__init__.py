@@ -1,3 +1,4 @@
+from epm.backends.rpm.pm import RPMPackageManager
 #from rpmver import checkdep, vercmp
 from crpmver import checkdep, vercmp
 from epm.matcher import Matcher
@@ -42,6 +43,7 @@ class RPMMatcher(Matcher):
 
 class RPMPackage(Package):
 
+    packagemanager = RPMPackageManager
     matcher = RPMMatcher
 
     def getInfo(self):

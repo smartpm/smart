@@ -5,7 +5,7 @@ from epm import *
 import string
 import re
 
-USAGE="epm test [options]"
+USAGE="epm update [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
@@ -17,12 +17,10 @@ def main(opts):
     ctrl = Control(opts)
     initCmdLine(ctrl)
     ctrl.standardInit()
-    import __main__
-    __main__.ctrl = ctrl
-    __main__.cache = ctrl.getCache()
-    try:
-        import user
-    except ImportError:
-        pass
+    initCmdLine(ctrl)
+    fetcher = ctrl.getFetcher()
+    fetcher.setUseCache(False)
+    ctrl.acquireRepositories()
+    ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

@@ -67,6 +67,7 @@ class RPMHeaderLoader(Loader):
         Req = RPMRequires
         Obs = RPMObsoletes
         Cnf = RPMConflicts
+        prog = self._progress
         for h, offset in self.getHeaders():
 
             name = h[1000] # RPMTAG_NAME
@@ -139,12 +140,18 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         self._filename = filename
         self._baseurl = baseurl
 
+    def getLoadSteps(self):
+        return len(rpm.readHeaderListFromFile(self._filename))
+
     def getHeaders(self):
         file = open(self._filename)
+        prog = self._progress
         h, offset = rpm.readHeaderFromFD(file.fileno())
         while h:
             yield h, offset
             h, offset = rpm.readHeaderFromFD(file.fileno())
+            prog.add(1)
+            prog.show()
         file.close()
 
     def getInfo(self, pkg):
@@ -193,14 +200,21 @@ class RPMDBLoader(RPMHeaderLoader):
         RPMHeaderLoader.__init__(self)
         self.setInstalled(True)
 
+    def getLoadSteps(self):
+        ts = rpm.ts()
+        i = 0
+        for h in ts.dbMatch(): i += 1
+        return i
+
     def getHeaders(self):
+        prog = self._progress
         ts = rpm.ts()
         mi = ts.dbMatch()
-        h = mi.next()
-        while h:
+        for h in mi:
             if h[1000] != "gpg-pubkey": # RPMTAG_NAME
                 yield h, mi.instance()
-            h = mi.next()
+            prog.add(1)
+            prog.show()
 
     def getInfo(self, pkg):
         ts = rpm.ts()
@@ -228,12 +242,17 @@ class RPMFileLoader(RPMHeaderLoader):
         RPMHeaderLoader.__init__(self)
         self._filename = filename
 
+    def getLoadSteps(self):
+        return 1
+
     def getHeaders(self):
         file = open(self._filename)
         ts = rpm.ts()
         h = ts.hdrFromFdno(file.fileno())
         file.close()
-        return [(h, 0)]
+        yield (h, 0)
+        self._progress.add(1)
+        self._progress.show()
 
     def getInfo(self, pkg):
         file = open(self._filename)

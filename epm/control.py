@@ -1,9 +1,10 @@
 from epm.elementtree import ElementTree
+from epm.committer import Committer
+from epm.progress import Progress
 from epm.fetcher import Fetcher
 from epm.cache import Cache
 from epm import *
 import sys, os
-import cPickle
 
 CONFIGFILES = [
     ("~/.epm/config", "~/.epm/"),
@@ -15,11 +16,20 @@ CACHEFORMAT = 1
 class Control:
 
     def __init__(self, options):
+        self._progress = Progress()
         self._options = options
         self._config = None
         self._reps = []
         self._cache = Cache()
         self._datadir = None
+        self._fetcher = Fetcher()
+        self._committer = Committer()
+
+    def getProgress(self):
+        return self._progress
+
+    def setProgress(self, prog):
+        self._progress = prog
 
     def getRepositories(self):
         return self._reps
@@ -33,25 +43,41 @@ class Control:
     def getCache(self):
         return self._cache
 
+    def getFetcher(self):
+        return self._fetcher
+
+    def setFetcher(self):
+        self._fetcher = fetcher
+
+    def getCommitter(self):
+        return self._committer
+
+    def setCommitter(self, committer):
+        self._committer = committer
+
     def loadCache(self):
+        self._cache.setProgress(self._progress)
         self._cache.load()
 
     def reloadCache(self):
+        self._cache.setProgress(self._progress)
         self._cache.reload()
 
     def standardInit(self):
+        self._cache.setProgress(self._progress)
+        self._fetcher.setProgress(self._progress)
         self.readConfig()
         if 1:
             self.loadRepositories()
+            self._fetcher.setCacheOnly(True)
             self.acquireRepositories()
+            self._fetcher.setCacheOnly(False)
             self.loadCache()
         else:
             self.restoreState()
             self.reloadCache()
 
     def standardFinalize(self):
-        #self._cache.reset(True)
-        #self.dumpState();
         pass
 
     def readConfig(self):
@@ -101,34 +127,15 @@ class Control:
                         self._reps.append(Repository(node))
 
     def acquireRepositories(self):
-        fetcher = Fetcher() # XXX
         for rep in self._reps:
             self._cache.removeLoader(rep.getLoader())
-            rep.acquire(fetcher)
+            rep.acquire(self._fetcher)
             self._cache.addLoader(rep.getLoader())
 
-    def dumpState(self):
-        if self._datadir:
-            filename = os.path.join(self._datadir, "cache.dump")
-            file = open(filename, "w")
-            cPickle.dump(CACHEFORMAT, file, 2)
-            cPickle.dump((self._reps, self._cache), file, 2)
-            file.close()
-
-    def restoreState(self):
-        if self._datadir:
-            try:
-                filename = os.path.join(self._datadir, "cache.dump")
-                file = open(filename)
-                format = cPickle.load(file)
-                if format != CACHEFORMAT:
-                    return False
-                self._reps, self._cache = cPickle.load(file)
-                file.close()
-            except (IOError, cPickle.UnpicklingError):
-                pass
-            else:
-                return True
-        return False
+    def acquireAndCommit(self, trans):
+        committer = self._committer
+        committer.setProgress(self._progress)
+        committer.setFetcher(self._fetcher)
+        committer.acquireAndCommit(trans)
 
 # vim:ts=4:sw=4:et

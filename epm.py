@@ -13,8 +13,6 @@ Available commands:
     query
 
 Run "epm command --help" for more information.
-
-Written by Gustavo Niemeyer <niemeyer@conectiva.com>.
 """
 
 def parse_options(argv):
@@ -52,6 +50,10 @@ def main(argv):
         opts.__dict__.update(cmdopts.__dict__)
         command_module.main(opts)
     except Error, e:
+        if opts.loglevel == "debug":
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
         sys.stderr.write("error: %s\n" % str(e))
         sys.exit(1)
 

@@ -4,6 +4,16 @@ different "fixing" algorithms.
 
 Introduce "locking" in fixer and upgrader.
 
+Needed structures:
+    - Configuration: handles configuration issues. Subclasses are
+      responsible for reading information from configuration files.
+      May be accessed by any object in the system.
+    - Interface: handles interface related callbacks, and issues
+      regarding the frontend. May be accessed by any object in the
+      system.
+    - Control: responsible for the logic part of the system. Shouldn't
+      need subclassing, and should only be visible to the frontend.
+
 About cache:
     - Introduce multiple loaders per package, with equals() to
       compare exact package match (same type and relations).

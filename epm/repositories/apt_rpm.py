@@ -25,12 +25,20 @@ class APTRPMRepository(Repository):
             raise Error, "no components found in repository '%s'" % self._name
 
     def acquire(self, fetcher):
+        urlcomp = {}
         for comp in self._comps:
             url = posixpath.join(self._baseurl, "base/pkglist."+comp)
-            filename = fetcher.get(url)
+            urlcomp[url] = comp
+        acquired, failed = fetcher.get(urlcomp.keys(),
+                                       "package lists for '%s'" % self._name)
+        for url in urlcomp:
+            filename = acquired.get(url)
             if filename:
                 loader = RPMPackageListLoader(filename, self._baseurl)
                 self._loader.append(loader)
+        if failed:
+            logger.warning("unable to find pkglists for components: " +
+                           ", ".join([urlcomp[x] for x in failed]))
 
 repository = APTRPMRepository
 
