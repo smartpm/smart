@@ -76,6 +76,8 @@ class SysConfig(object):
         filepath = os.path.expanduser(filepath)
         if not os.path.isfile(filepath):
             raise Error, _("File not found: %s") % filepath
+        if os.path.getsize(filepath) == 0:
+            return
         file = open(filepath)
         self._hardmap.clear()
         try:
