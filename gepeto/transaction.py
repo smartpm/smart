@@ -16,8 +16,9 @@ class ChangeSet(dict):
         return self.copy()
 
     def setState(self, state):
-        self.clear()
-        self.update(state)
+        if state is not self:
+            self.clear()
+            self.update(state)
 
     def getPersistentState(self):
         state = {}
@@ -138,51 +139,70 @@ class PolicyInstall(Policy):
         Policy.runStarting(self)
         self._upgrading = upgrading = {}
         self._upgraded = upgraded = {}
+        self._downgraded = downgraded = {}
         for pkg in self._trans.getCache().getPackages():
             # Precompute upgrade relations.
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
-                        if (prvpkg.installed and
-                            self.getPriority(pkg) >= self.getPriority(prvpkg)):
-                            upgrading[pkg] = True
-                            if prvpkg in upgraded:
-                                upgraded[prvpkg].append(pkg)
+                        if prvpkg.installed:
+                            if (self.getPriority(pkg) >=
+                                self.getPriority(prvpkg)):
+                                upgrading[pkg] = True
+                                if prvpkg in upgraded:
+                                    upgraded[prvpkg].append(pkg)
+                                else:
+                                    upgraded[prvpkg] = [pkg]
                             else:
-                                upgraded[prvpkg] = [pkg]
+                                if prvpkg in downgraded:
+                                    downgraded[prvpkg].append(pkg)
+                                else:
+                                    downgraded[prvpkg] = [pkg]
             # Downgrades are upgrades if they have a higher priority.
             for prv in pkg.provides:
                 for upg in prv.upgradedby:
                     for upgpkg in upg.packages:
-                        if (upgpkg.installed and
-                            self.getPriority(pkg) > self.getPriority(upgpkg)):
-                            upgrading[pkg] = True
-                            if upgpkg in upgraded:
-                                upgraded[prvpkg].append(pkg)
+                        if upgpkg.installed:
+                            if (self.getPriority(pkg) >
+                                self.getPriority(upgpkg)):
+                                upgrading[pkg] = True
+                                if upgpkg in upgraded:
+                                    upgraded[upgpkg].append(pkg)
+                                else:
+                                    upgraded[upgpkg] = [pkg]
                             else:
-                                upgraded[prvpkg] = [pkg]
+                                if upgpkg in downgraded:
+                                    downgraded[upgpkg].append(pkg)
+                                else:
+                                    downgraded[upgpkg] = [pkg]
 
     def runFinished(self):
         Policy.runFinished(self)
         del self._upgrading
         del self._upgraded
+        del self._downgraded
 
     def getWeight(self, changeset):
         weight = 0
         upgrading = self._upgrading
         upgraded = self._upgraded
+        downgraded = self._downgraded
         for pkg in changeset:
             if changeset[pkg] is REMOVE:
                 # Upgrading a package that will be removed
                 # is better than upgrading a package that will
                 # stay in the system.
-                lst = upgraded.get(pkg, ())
-                for lstpkg in lst:
-                    if changeset.get(lstpkg) is INSTALL:
+                for upgpkg in upgraded.get(pkg, ()):
+                    if changeset.get(upgpkg) is INSTALL:
                         weight -= 1
                         break
                 else:
-                    weight += 20
+                    for dwnpkg in downgraded.get(pkg, ()):
+                        if changeset.get(dwnpkg) is INSTALL:
+                            weight += 15
+                            break
+                    else:
+                        weight += 20
             else:
                 if pkg in upgrading:
                     weight += 2

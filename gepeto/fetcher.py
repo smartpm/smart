@@ -363,7 +363,7 @@ class FetchItem(object):
         prog = self._progress
         url = self._urlobj.original
         prog.setSubTopic(url, url)
-        prog.setSubTopic(url, re.sub("([a-z]+:/+[^:@/]+:)[^:@/]+(@.*)",
+        prog.setSubTopic(url, re.sub("([a-z]+:/+[^:/]+:)[^/]+(@.*)",
                                      r"\1*\2", url))
         prog.setSub(url, 0, self._info.get("size") or 1, 1)
         prog.show()

@@ -49,23 +49,31 @@ class TextInterface(Interface):
         report.compute()
 
         print
-        if report.upgrading or report.installing:
-            pkgs = report.upgrading.keys()+report.installing.keys()
+        pkgs = report.upgrading.keys() + \
+               report.downgrading.keys() + \
+               report.installing.keys()
+        if pkgs:
             pkgs.sort()
             print "The following packages are being installed:"
             for pkg in pkgs:
                 print "   ", pkg
                 for upgpkg in report.upgrading.get(pkg, ()):
                     print "       Upgrades:", upgpkg
+                for upgpkg in report.downgrading.get(pkg, ()):
+                    print "       Downgrades:", upgpkg
             print
-        if report.upgraded or report.removed:
-            print "The following packages are being removed:"
-            pkgs = report.upgraded.keys()+report.removed.keys()
+        pkgs = report.upgraded.keys() + \
+               report.downgraded.keys() + \
+               report.removed.keys()
+        if pkgs:
             pkgs.sort()
+            print "The following packages are being removed:"
             for pkg in pkgs:
                 print "   ", pkg
                 for upgpkg in report.upgraded.get(pkg, ()):
                     print "       Upgraded by:", upgpkg
+                for upgpkg in report.downgraded.get(pkg, ()):
+                    print "       Downgraded by:", upgpkg
 
             print
         return self.askYesNo("Confirm changes")

@@ -59,9 +59,9 @@ class Report:
                         for prvpkg in prv.packages:
                             if changeset.get(prvpkg) is INSTALL:
                                 if pkg in self.upgraded:
-                                    self.downgraded[pkg].append(upgpkg)
+                                    self.downgraded[pkg].append(prvpkg)
                                 else:
-                                    self.downgraded[pkg] = [upgpkg]
+                                    self.downgraded[pkg] = [prvpkg]
                 if (pkg not in self.upgraded and
                     pkg not in self.downgraded):
                     self.removed[pkg] = True

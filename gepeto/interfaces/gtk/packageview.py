@@ -123,7 +123,9 @@ class GtkPackageView(gtk.Alignment):
                                                     self._setVersion)
 
         self._ipixbuf = getPixbuf("package-installed")
+        self._ilpixbuf = getPixbuf("package-installed-locked")
         self._apixbuf = getPixbuf("package-available")
+        self._alpixbuf = getPixbuf("package-available-locked")
         self._npixbuf = getPixbuf("package-new")
         self._fpixbuf = getPixbuf("folder")
         self._Ipixbuf = getPixbuf("package-install")
@@ -138,6 +140,8 @@ class GtkPackageView(gtk.Alignment):
         if pkg.installed:
             if self._changeset.get(pkg) is REMOVE:
                 cell.set_property("pixbuf", self._Rpixbuf)
+            elif sysconf.testFlag("lock", pkg):
+                cell.set_property("pixbuf", self._ilpixbuf)
             else:
                 cell.set_property("pixbuf", self._ipixbuf)
         else:
@@ -145,6 +149,8 @@ class GtkPackageView(gtk.Alignment):
                 cell.set_property("pixbuf", self._Ipixbuf)
             elif sysconf.testFlag("new", pkg):
                 cell.set_property("pixbuf", self._npixbuf)
+            elif sysconf.testFlag("lock", pkg):
+                cell.set_property("pixbuf", self._alpixbuf)
             else:
                 cell.set_property("pixbuf", self._apixbuf)
 

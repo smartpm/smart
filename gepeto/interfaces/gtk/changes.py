@@ -110,7 +110,7 @@ class GtkChanges:
                         done[upgpkg] = True
                 if pkg in report.downgraded:
                     for dwnpkg in report.downgraded[pkg]:
-                        package.setdefault("Downgraded By", []).append(upgpkg)
+                        package.setdefault("Downgraded By", []).append(dwnpkg)
                         done[dwnpkg] = True
                 if pkg in report.requires:
                     for reqpkg in report.requires[pkg]:
