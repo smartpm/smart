@@ -40,33 +40,51 @@ class RPMMatcher(Matcher):
         Matcher.__init__(self, str)
         self._options = [] # (name, version)
         # First, try to match the whole thing against the name.
-        if isGlob(str):
-            name = re.compile(fnmatch.translate(str))
-        else:
-            name = str
+        name = str
+        if isGlob(name):
+            try:
+                name = re.compile(fnmatch.translate(name))
+            except re.error:
+                pass
         self._options.append((name, None))
         tokens = str.split("-")
         if len(tokens) > 1:
             # Then, consider the last section as the version.
             name = "-".join(tokens[:-1])
             if isGlob(name):
-                name = re.compile(fnmatch.translate(name))
+                try:
+                    name = re.compile(fnmatch.translate(name))
+                except re.error:
+                    pass
             version = tokens[-1]
             if isGlob(version):
                 if ":" not in version and version[0].isdigit():
-                    version = "(?:\d+:)?"+fnmatch.translate(version)
-                version = re.compile(version)
+                    pattern = "(?:\d+:)?"+fnmatch.translate(version)
+                else:
+                    pattern = version
+                try:
+                    version = re.compile(pattern)
+                except re.error:
+                    pass
             self._options.append((name, version))
             # Finally, consider last two sections as the version.
             if len(tokens) > 2:
                 name = "-".join(tokens[:-2])
                 if isGlob(name):
-                    name = re.compile(fnmatch.translate(name))
+                    try:
+                        name = re.compile(fnmatch.translate(name))
+                    except re.error:
+                        pass
                 version = "-".join(tokens[-2:])
                 if isGlob(version):
                     if ":" not in version and version[0].isdigit():
-                        version = "(?:\d+:)?"+fnmatch.translate(version)
-                    version = re.compile(version)
+                        pattern = "(?:\d+:)?"+fnmatch.translate(version)
+                    else:
+                        pattern = version
+                    try:
+                        version = re.compile(pattern)
+                    except re.error:
+                        pass
                 self._options.append((name, version))
 
     def matches(self, obj):
