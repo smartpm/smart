@@ -30,3 +30,6 @@ update-po: smart.pot
 	for po in locale/*/LC_MESSAGES/smart.po; do \
 		msgmerge -U $$po locale/smart.pot; \
 	done
+
+.PHONY: smart.pot update-po
+
