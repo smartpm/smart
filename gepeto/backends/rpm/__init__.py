@@ -141,10 +141,12 @@ class RPMPackage(Package):
             return True
         if self.version == other.version:
             return False
-        if not sysconf.testFlag("multi-version", self):
-            return False
         selfver, selfarch = splitarch(self.version)
         otherver, otherarch = splitarch(other.version)
+        if getArchColor(selfarch) != getArchColor(otherarch):
+            return True
+        if not sysconf.testFlag("multi-version", self):
+            return False
         return selfver != otherver
 
     def matches(self, relation, version):
