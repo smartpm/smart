@@ -22,7 +22,7 @@
 #
 import sys
 if sys.version_info < (2, 3):
-    sys.exit(_("error: Python 2.3 or later required"))
+    sys.exit("error: Python 2.3 or later required")
 
 from smart.const import VERSION, DEBUG, DATADIR
 from smart.option import OptionParser
