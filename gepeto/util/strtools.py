@@ -61,6 +61,8 @@ def isGlob(s):
     return s.translate(_nulltrans, '*?') != s
 
 def strToBool(s, default=False):
+    if type(s) is bool:
+        return s
     if not s:
         return default
     s = s.strip().lower()

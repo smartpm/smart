@@ -66,7 +66,7 @@ def create(type, alias, data):
         description = data.get("description")
         priority = data.get("priority", 0)
         manual = data.get("manual", False)
-        baseurl = data.get("baseurl")
+        baseurl = strToBool(data.get("baseurl"))
         packageinfourl = data.get("packageinfourl")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():

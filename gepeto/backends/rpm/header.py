@@ -351,26 +351,34 @@ class RPMDBLoader(RPMHeaderLoader):
                     self.newProvides(self._offsets[i], (RPMProvides, fn))
                 h = mi.next()
 
-class RPMFileLoader(RPMHeaderLoader):
+class RPMDirLoader(RPMHeaderLoader):
 
-    def __init__(self, filename):
+    def __init__(self, dir, filename=None):
         RPMHeaderLoader.__init__(self)
-        self._filename = filename
+        self._dir = os.path.abspath(dir)
+        if filename:
+            self._filenames = [filename]
+        else:
+            self._filenames = [x for x in os.listdir(dir)
+                               if x.endswith(".rpm") and
+                               not x.endswith(".src.rpm")]
 
     def getLoadSteps(self):
-        return 1
+        return len(self._filenames)
 
     def getHeaders(self, prog):
-        file = open(self._filename)
         ts = rpm.ts()
-        h = ts.hdrFromFdno(file.fileno())
-        file.close()
-        yield (h, 0)
-        prog.add(1)
-        prog.show()
+        for i, filename in enumerate(self._filenames):
+            file = open(os.path.join(self._dir, filename))
+            h = ts.hdrFromFdno(file.fileno())
+            file.close()
+            yield (h, i)
+            prog.add(1)
+            prog.show()
 
     def getHeader(self, pkg):
-        file = open(self._filename)
+        filename = self._filenames[pkg.loaders[self]]
+        file = open(os.path.join(self._dir, filename))
         ts = rpm.ts()
         h = ts.hdrFromFdno(file.fileno())
         file.close()
@@ -380,23 +388,33 @@ class RPMFileLoader(RPMHeaderLoader):
         return "file://"
 
     def getFileName(self, info):
-        return self._filename
+        pkg = info.getPackage()
+        filename = self._filenames[pkg.loaders[self]]
+        filepath = os.path.join(self._dir, filename)
+        while filepath.startswith("/"):
+            filepath = filepath[1:]
+        return filepath
 
     def getSize(self, info):
-        return os.path.getsize(self._filename)
+        pkg = info.getPackage()
+        filename = self._filenames[pkg.loaders[self]]
+        return os.path.getsize(os.path.join(self._dir, filename))
 
     def getMD5(self, info):
         # Could compute it now, but why?
         return None
 
     def loadFileProvides(self, fndict):
-        file = open(self._filename)
         ts = rpm.ts()
-        h = ts.hdrFromFdno(file.fileno())
-        for fn in h[1027]: # RPMTAG_OLDFILENAMES
-            if fn in fndict and offset in self._offsets:
-                self.newProvides(self._offsets[offset], (RPMProvides, fn))
-        file.close()
+        for i, filename in enumerate(self._filenames):
+            if i not in self._offsets:
+                continue
+            file = open(os.path.join(self._dir, filename))
+            h = ts.hdrFromFdno(file.fileno())
+            file.close()
+            for fn in h[1027]: # RPMTAG_OLDFILENAMES
+                if fn in fndict:
+                    self.newProvides(self._offsets[i], (RPMProvides, fn))
 
 try:
     import psyco
@@ -406,6 +424,6 @@ else:
     psyco.bind(RPMHeaderLoader.load)
     psyco.bind(RPMDBLoader.loadFileProvides)
     psyco.bind(RPMHeaderListLoader.loadFileProvides)
-    psyco.bind(RPMFileLoader.loadFileProvides)
+    psyco.bind(RPMDirLoader.loadFileProvides)
 
 # vim:ts=4:sw=4:et

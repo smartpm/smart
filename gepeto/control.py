@@ -152,7 +152,10 @@ class Control(object):
                     progress.setTopic("Fetching information for '%s'..." %
                                   (channel.getName() or channel.getAlias()))
                     progress.show()
-            channel.fetch(self._fetcher, progress)
+            try:
+                channel.fetch(self._fetcher, progress)
+            except Error, e:
+                iface.error(str(e))
             self._cache.addLoader(channel.getLoader())
         progress.setStopped()
         progress.show()

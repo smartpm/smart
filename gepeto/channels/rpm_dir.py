@@ -19,51 +19,36 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.backends.rpm.header import RPMHeaderListLoader
+from gepeto.backends.rpm.header import RPMDirLoader
 from gepeto.util.strtools import strToBool
-from gepeto.const import SUCCEEDED, FAILED, NEVER
 from gepeto.channel import Channel
 from gepeto import *
-import posixpath
+import os
 
-class RPMHeaderListChannel(Channel):
+class RPMDirChannel(Channel):
 
-    def __init__(self, hdlurl, baseurl, *args):
+    def __init__(self, path, *args):
         Channel.__init__(self, *args)
-        
-        self._hdlurl = hdlurl
-        self._baseurl = baseurl
-
-    def getFetchSteps(self):
-        return 1
+        self._path = path
 
     def fetch(self, fetcher, progress):
-        fetcher.reset()
-        item = fetcher.enqueue(self._hdlurl, uncomp=True)
-        fetcher.run(progress=progress)
-        if item.getStatus() == SUCCEEDED:
-            localpath = item.getTargetPath()
-            self._loader = RPMHeaderListLoader(localpath, self._baseurl)
-            self._loader.setChannel(self)
-        elif fetcher.getCaching() is NEVER:
-            iface.warning("Failed acquiring information for '%s':" %
-                          self._alias)
-            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+        if not os.path.isdir(self._path):
+            raise Error, "Channel '%s' has invalid directory: %s" % self._path
+        self._loader = RPMDirLoader(self._path)
+        self._loader.setChannel(self)
 
 def create(type, alias, data):
     name = None
     description = None
     priority = 0
     manual = False
-    hdlurl = None
-    baseurl = None
+    path = None
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
-        hdlurl = data.get("hdlurl")
-        baseurl = data.get("baseurl")
+        path = data.get("path")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
             if n.tag == "name":
@@ -74,22 +59,17 @@ def create(type, alias, data):
                 priority = n.text
             elif n.tag == "manual":
                 manual = strToBool(n.text)
-            elif n.tag == "hdlurl":
-                hdlurl = n.text
-            elif n.tag == "baseurl":
-                baseurl = n.text
+            elif n.tag == "path":
+                path = n.text
     else:
         raise ChannelDataError
-    if not hdlurl:
-        raise Error, "Channel '%s' has no hdlurl" % alias
-    if not baseurl:
-        raise Error, "Channel '%s' has no baseurl" % alias
+    if not path:
+        raise Error, "Channel '%s' has no path" % alias
     try:
         priority = int(priority)
     except ValueError:
         raise Error, "Invalid priority"
-    return RPMHeaderListChannel(hdlurl, baseurl,
-                                type, alias, name, description,
-                                priority, manual)
+    return RPMDirChannel(path, type, alias, name,
+                         description, priority, manual)
 
 # vim:ts=4:sw=4:et

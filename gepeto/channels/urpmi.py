@@ -102,7 +102,7 @@ def create(type, alias, data):
         name = data.get("name")
         description = data.get("description")
         priority = data.get("priority", 0)
-        manual = data.get("manual", False)
+        manual = strToBool(data.get("manual", False))
         hdlurl = data.get("hdlurl")
         baseurl = data.get("baseurl")
     elif getattr(data, "tag", None) == "channel":

@@ -220,7 +220,7 @@ def create(type, alias, data):
         baseurl = data.get("baseurl")
         comps = (data.get("components") or "").split()
         priority = data.get("priority", 0)
-        manual = data.get("manual", False)
+        manual = strToBool(data.get("manual", False))
         fingerprint = data.get("fingerprint")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
