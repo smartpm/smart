@@ -43,7 +43,7 @@ int main(int argc, char *argv[], char *envp[])
         exit(1);
     }
     if (argc == 3 && strcmp(argv[1], "--after") == 0) {
-        if (asprintf(&smart_argv[2], "--after=%d", argv[2]) == -1) {
+        if (asprintf(&smart_argv[2], "--after=%d", atoi(argv[2])) == -1) {
             fprintf(stderr, "error: Unable to create argument variable\n");
             exit(1);
         }
