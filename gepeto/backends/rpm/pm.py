@@ -98,7 +98,7 @@ class RPMPackageManager(PackageManager):
                 problines.append(line)
             raise Error, "\n".join(problines)
         ts.order()
-        ts.setProbFilter(0)
+        ts.setProbFilter(rpm.RPMPROB_FILTER_OLDPACKAGE)
         prog.set(0, packages or 1)
         cb = RPMCallback(prog)
         cb.grabOutput(True)
