@@ -81,7 +81,7 @@ class RPMHeaderLoader(Loader):
                 rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_LESS:    "<=",
                 rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_GREATER: ">=" }
 
-    def getHeaders(self):
+    def getHeaders(self, prog):
         return []
 
     def reset(self):
@@ -101,8 +101,8 @@ class RPMHeaderLoader(Loader):
         Upg = RPMUpgrades
         Obs = RPMObsoletes
         Cnf = RPMConflicts
-        prog = self._progress
-        for h, offset in self.getHeaders():
+        prog = iface.getProgress(self)
+        for h, offset in self.getHeaders(prog):
             arch = h[1022] # RPMTAG_ARCH
             if rpm.archscore(arch) == 0:
                 continue
@@ -190,9 +190,8 @@ class RPMHeaderListLoader(RPMHeaderLoader):
     def getLoadSteps(self):
         return len(rpm.readHeaderListFromFile(self._filename))
 
-    def getHeaders(self):
+    def getHeaders(self, prog):
         file = open(self._filename)
-        prog = self._progress
         h, offset = rpm.readHeaderFromFD(file.fileno())
         while h:
             yield h, offset
@@ -265,8 +264,7 @@ class RPMDBLoader(RPMHeaderLoader):
         for h in ts.dbMatch(): i += 1
         return i
 
-    def getHeaders(self):
-        prog = self._progress
+    def getHeaders(self, prog):
         ts = rpm.ts()
         mi = ts.dbMatch()
         for h in mi:
@@ -311,14 +309,14 @@ class RPMFileLoader(RPMHeaderLoader):
     def getLoadSteps(self):
         return 1
 
-    def getHeaders(self):
+    def getHeaders(self, prog):
         file = open(self._filename)
         ts = rpm.ts()
         h = ts.hdrFromFdno(file.fileno())
         file.close()
         yield (h, 0)
-        self._progress.add(1)
-        self._progress.show()
+        prog.add(1)
+        prog.show()
 
     def getInfo(self, pkg):
         file = open(self._filename)

@@ -1,7 +1,5 @@
 from cpm.option import OptionParser
-from cpm.cmdline import initCmdLine
 from cpm import *
-import pprint
 import string
 import re
 
@@ -30,10 +28,11 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+)\s*"
                       r"((?P<rel>[<>=]+)\s*"
                       r"(?P<version>\S+))?\s*$")
 
-def main(opts):
-    ctrl = initCmdLine(opts)
-
-    pkgflags = sysconf.get("package-flags", {}, setdefault=True)
+def main(opts, ctrl):
+    pkgflags = sysconf.get("package-flags")
+    if pkgflags is None:
+        pkgflags = {}
+        sysconf.set("package-flags", pkgflags)
 
     if opts.set or opts.remove:
 
@@ -65,7 +64,7 @@ def main(opts):
         if opts.remove and pkgflags.get(flag) == {}:
             del pkgflags[flag]
 
-    elif opts.get or opts.show:
+    elif opts.show:
 
         flags = opts.args or pkgflags
 
@@ -82,7 +81,5 @@ def main(opts):
                     else:
                         print "   ", name
             print
-
-    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et

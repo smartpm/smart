@@ -1,6 +1,3 @@
-from cpm.util.elementtree import ElementTree
-from cpm.repository import createRepository
-from cpm.packageflags import PackageFlags
 from cpm.const import DATADIR, INFO
 from cpm import *
 import cPickle

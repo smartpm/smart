@@ -63,12 +63,10 @@ typedef struct {
     PyObject *_cache;
     PyObject *_packages;
     PyObject *_installed;
-    PyObject *_progress;
 } LoaderObject;
 
 typedef struct {
     PyObject_HEAD
-    PyObject *_progress;
     PyObject *_loaders;
     PyObject *_packages;
     PyObject *_provides;
@@ -100,6 +98,18 @@ getSysConf(void)
     return sysconf;
 }
 #endif
+
+static PyObject *
+getIface(void)
+{
+    PyObject *module, *iface = NULL;
+    module = PyImport_ImportModule("cpm");
+    if (module) {
+        iface = PyObject_GetAttrString(module, "iface");
+        Py_DECREF(module);
+    }
+    return iface;
+}
 
 static int
 Package_init(PackageObject *self, PyObject *args)
@@ -614,8 +624,6 @@ Loader_init(LoaderObject *self, PyObject *args)
     self->_packages = PyList_New(0);
     Py_INCREF(Py_False);
     self->_installed = Py_False;
-    Py_INCREF(Py_None);
-    self->_progress = Py_None;
     return 0;
 }
 
@@ -626,7 +634,6 @@ Loader_dealloc(LoaderObject *self)
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_installed);
     Py_XDECREF(self->_cache);
-    Py_XDECREF(self->_progress);
     self->ob_type->tp_free((PyObject *)self);
 }
 
@@ -686,22 +693,6 @@ Loader_setInstalled(LoaderObject *self, PyObject *flag)
     Py_DECREF(self->_installed);
     Py_INCREF(flag);
     self->_installed = flag;
-    Py_RETURN_NONE;
-}
-
-PyObject *
-Loader_getProgress(LoaderObject *self, PyObject *args)
-{
-    Py_INCREF(self->_progress);
-    return self->_progress;
-}
-
-PyObject *
-Loader_setProgress(LoaderObject *self, PyObject *prog)
-{
-    Py_DECREF(self->_progress);
-    Py_INCREF(prog);
-    self->_progress = prog;
     Py_RETURN_NONE;
 }
 
@@ -1569,8 +1560,6 @@ static PyMethodDef Loader_methods[] = {
     {"setCache", (PyCFunction)Loader_setCache, METH_O, NULL},
     {"getInstalled", (PyCFunction)Loader_getInstalled, METH_NOARGS, NULL},
     {"setInstalled", (PyCFunction)Loader_setInstalled, METH_O, NULL},
-    {"getProgress", (PyCFunction)Loader_getProgress, METH_NOARGS, NULL},
-    {"setProgress", (PyCFunction)Loader_setProgress, METH_O, NULL},
     {"getLoadSteps", (PyCFunction)Loader_getLoadSteps, METH_NOARGS, NULL},
     {"getInfo", (PyCFunction)Loader_getInfo, METH_O, NULL},
     {"reset", (PyCFunction)Loader_reset, METH_NOARGS, NULL},
@@ -1592,7 +1581,6 @@ static PyMemberDef Loader_members[] = {
     {"_cache", T_OBJECT, OFF(_cache), RO, 0},
     {"_packages", T_OBJECT, OFF(_packages), RO, 0},
     {"_installed", T_OBJECT, OFF(_installed), RO, 0},
-    {"_progress", T_OBJECT, OFF(_progress), RO, 0},
     {NULL}
 };
 #undef OFF
@@ -1646,8 +1634,6 @@ Cache_init(CacheObject *self, PyObject *args)
 {
     if (!PyArg_ParseTuple(args, ""))
         return -1;
-    Py_INCREF(Py_None);
-    self->_progress = Py_None;
     self->_loaders = PyList_New(0);
     self->_packages = PyList_New(0);
     self->_provides = PyList_New(0);
@@ -1670,7 +1656,6 @@ Cache_init(CacheObject *self, PyObject *args)
 static void
 Cache_dealloc(CacheObject *self)
 {
-    Py_XDECREF(self->_progress);
     Py_XDECREF(self->_loaders);
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_provides);
@@ -1688,22 +1673,6 @@ Cache_dealloc(CacheObject *self)
     Py_XDECREF(self->_upgmap);
     Py_XDECREF(self->_cnfmap);
     self->ob_type->tp_free((PyObject *)self);
-}
-
-PyObject *
-Cache_getProgress(CacheObject *self, PyObject *args)
-{
-    Py_INCREF(self->_progress);
-    return self->_progress;
-}
-
-PyObject *
-Cache_setProgress(CacheObject *self, PyObject *prog)
-{
-    Py_DECREF(self->_progress);
-    Py_INCREF(prog);
-    self->_progress = prog;
-    Py_RETURN_NONE;
 }
 
 #define RESET_LIST(x) \
@@ -1779,7 +1748,6 @@ Cache_addLoader(CacheObject *self, PyObject *loader)
     if (loader != Py_None) {
         PyList_Append(self->_loaders, loader);
         CALLMETHOD(loader, "setCache", "O", self);
-        CALLMETHOD(loader, "setProgress", "O", self->_progress);
     }
     Py_RETURN_NONE;
 }
@@ -1803,11 +1771,13 @@ Cache_load(CacheObject *self, PyObject *args)
 {
     int i, len;
     int total = 1;
+    PyObject *prog;
     CALLMETHOD(self, "reset", NULL);
-    CALLMETHOD(self->_progress, "start", NULL);
-    CALLMETHOD(self->_progress, "setTopic", "s", "Building cache...");
-    CALLMETHOD(self->_progress, "set", "ii", 0, 1);
-    CALLMETHOD(self->_progress, "show", NULL);
+    prog = PyObject_CallMethod(getIface(), "getProgress", "O", self);
+    CALLMETHOD(prog, "start", NULL);
+    CALLMETHOD(prog, "setTopic", "s", "Building cache...");
+    CALLMETHOD(prog, "set", "ii", 0, 1);
+    CALLMETHOD(prog, "show", NULL);
     len = PyList_GET_SIZE(self->_loaders);
     for (i = 0; i != len; i++) {
         PyObject *loader = PyList_GET_ITEM(self->_loaders, i);
@@ -1816,8 +1786,8 @@ Cache_load(CacheObject *self, PyObject *args)
         total += PyInt_AsLong(res);
         Py_DECREF(res);
     }
-    CALLMETHOD(self->_progress, "set", "ii", 0, total);
-    CALLMETHOD(self->_progress, "show", NULL);
+    CALLMETHOD(prog, "set", "ii", 0, total);
+    CALLMETHOD(prog, "show", NULL);
     len = PyList_GET_SIZE(self->_loaders);
     for (i = 0; i != len; i++) {
         PyObject *loader = PyList_GET_ITEM(self->_loaders, i);
@@ -1826,9 +1796,9 @@ Cache_load(CacheObject *self, PyObject *args)
     }
     CALLMETHOD(self, "loadFileProvides", NULL);
     CALLMETHOD(self, "linkDeps", NULL);
-    CALLMETHOD(self->_progress, "add", "i", 1);
-    CALLMETHOD(self->_progress, "show", NULL);
-    CALLMETHOD(self->_progress, "stop", NULL);
+    CALLMETHOD(prog, "add", "i", 1);
+    CALLMETHOD(prog, "show", NULL);
+    CALLMETHOD(prog, "stop", NULL);
     Py_RETURN_NONE;
 }
 
@@ -2063,8 +2033,6 @@ Cache_getConflicts(CacheObject *self, PyObject *args)
 }
 
 static PyMethodDef Cache_methods[] = {
-    {"getProgress", (PyCFunction)Cache_getProgress, METH_NOARGS, NULL},
-    {"setProgress", (PyCFunction)Cache_setProgress, METH_O, NULL},
     {"reset", (PyCFunction)Cache_reset, METH_VARARGS, NULL},
     {"addLoader", (PyCFunction)Cache_addLoader, METH_O, NULL},
     {"removeLoader", (PyCFunction)Cache_removeLoader, METH_O, NULL},
@@ -2083,7 +2051,6 @@ static PyMethodDef Cache_methods[] = {
 
 #define OFF(x) offsetof(CacheObject, x)
 static PyMemberDef Cache_members[] = {
-    {"_progress", T_OBJECT, OFF(_progress), RO, 0},
     {"_loaders", T_OBJECT, OFF(_loaders), RO, 0},
     {"_packages", T_OBJECT, OFF(_packages), RO, 0},
     {"_provides", T_OBJECT, OFF(_provides), RO, 0},

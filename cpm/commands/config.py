@@ -1,5 +1,4 @@
 from cpm.option import OptionParser
-from cpm.cmdline import initCmdLine
 from cpm import *
 import pprint
 import string
@@ -52,8 +51,15 @@ def getSubName(name, d, create=False):
                 raise Error, "option '%s' not found" % subnamestr
     return subnames[-1], d
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
+    globals = {}
+    globals["__builtins__"] = {}
+    globals["True"] = True
+    globals["true"] = True
+    globals["yes"] = True
+    globals["False"] = False
+    globals["false"] = False
+    globals["no"] = False
 
     for opt in opts.set:
 
@@ -108,7 +114,7 @@ def main(opts):
             value = int(value)
         except ValueError:
             try:
-                value = eval(value)
+                value = eval(value, globals)
             except:
                 pass
         set(value)
@@ -175,8 +181,6 @@ def main(opts):
             value = value[pos]
 
         pprint.pprint(value)
-
-    ctrl.saveSysConf()
 
     if opts.dump:
         pprint.pprint(sysconf.getMap())

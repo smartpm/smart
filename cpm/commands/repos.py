@@ -1,5 +1,4 @@
 from cpm.option import OptionParser
-from cpm.cmdline import initCmdLine
 from cpm.repository import *
 from cpm import *
 import os
@@ -27,8 +26,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
     
     if opts.add:
 
@@ -97,12 +95,13 @@ def main(opts):
         for arg in opts.args:
 
             if [x for x in replst if x.get("name") == arg]:
-                res = raw_input("Remove repository '%s' (y/N)? " % arg).strip()
-                if res and res[0].lower() == "y":
+                if not opts.force:
+                    res = raw_input("Remove repository '%s' (y/N)? "
+                                    % arg).strip()
+                if opts.force or res and res[0].lower() == "y":
                     replst = [x for x in replst if x.get("name") != arg]
 
         sysconf.set("repositories", replst)
-            ctrl.saveSysConf()
 
     elif opts.enable or opts.disable:
 
@@ -127,7 +126,5 @@ def main(opts):
             if desc:
                 print desc
             print
-
-    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et

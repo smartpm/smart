@@ -15,13 +15,6 @@ class Control:
         self._sysconfreplst = []
         self._cache = Cache()
         self._fetcher = Fetcher()
-        self._feedback = ControlFeedback(self)
-
-    def setFeedback(self, feedback):
-        self._feedback = feedback
-
-    def getFeedback(self, feedback):
-        return self._feedback
 
     def getRepositories(self):
         return self._replst
@@ -106,12 +99,10 @@ class Control:
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=True)
         self._fetcher.setCaching(caching)
-        self._feedback.fetcherStarting(self._fetcher)
         for repos in replst:
             self._cache.removeLoader(repos.getLoader())
             repos.fetch(self._fetcher)
             self._cache.addLoader(repos.getLoader())
-        self._feedback.fetcherFinished(self._fetcher)
 
     def fetchPackages(self, packages, caching=OPTIONAL):
         fetcher = self._fetcher
@@ -130,9 +121,7 @@ class Control:
             fetcher.enqueue(url)
             fetcher.setInfo(url, size=info.getSize(), md5=info.getMD5(),
                             sha=info.getSHA())
-        self._feedback.fetcherStarting(fetcher)
         fetcher.run("packages")
-        self._feedback.fetcherFinished(fetcher)
         failed = fetcher.getFailedSet()
         if failed:
             raise Error, "failed to download packages:\n" + \
@@ -153,13 +142,11 @@ class Control:
         fetcher.setCaching(caching)
         for url in urllst:
             fetcher.enqueue(url)
-        self._feedback.fetcherStarting(fetcher)
         fetcher.run(what)
-        self._feedback.fetcherFinished(fetcher)
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
-        if not confirm or self._feedback.confirmTransaction(trans):
+        if not confirm or iface.confirmTransaction(trans):
             self.commitChangeSet(trans.getChangeSet(), caching)
 
     def commitChangeSet(self, changeset, caching=OPTIONAL):
@@ -179,12 +166,10 @@ class Control:
                          if changeset[pkg] is INSTALL]
             pmremove  = [pkg for pkg in pmpkgs[pmclass]
                          if changeset[pkg] is REMOVE]
-            self._feedback.packageManagerStarting(pm)
             pm.commit(pminstall, pmremove, pkgpath)
-            self._feedback.packageManagerFinished(pm)
 
     def commitTransactionStepped(self, trans, caching=OPTIONAL, confirm=True):
-        if not confirm or self._feedback.confirmTransaction(trans):
+        if not confirm or iface.confirmTransaction(trans):
             self.commitChangeSetStepped(trans.getChangeSet(), caching)
 
     def commitChangeSetStepped(self, changeset, caching=OPTIONAL):
@@ -211,25 +196,5 @@ class Control:
             splitter.include(unioncs, pkg)
             cs = unioncs.difference(cs)
             self.commitChangeSet(cs)
-
-class ControlFeedback:
-
-    def __init__(self, ctrl):
-        self._ctrl = ctrl
-
-    def fetcherStarting(self, fetcher):
-        pass
-
-    def fetcherFinished(self, fetcher):
-        pass
-
-    def packageManagerStarting(self, pm):
-        pass
-
-    def packageManagerFinished(self, pm):
-        pass
-
-    def confirmTransaction(self, trans):
-        return True
 
 # vim:ts=4:sw=4:et

@@ -80,18 +80,17 @@ class GtkProgress(Progress):
         self.topic = gtk.Label()
         self.topic.set_alignment(0, 0.5)
         self.topic.show()
-        self.vbox.pack_start(self.topic, 0, 0)
+        self.vbox.pack_start(self.topic, expand=False, fill=False)
 
         self.progress = gtk.ProgressBar()
         self.progress.set_size_request(-1, 25)
         self.progress.show()
-        self.vbox.pack_start(self.progress, 0, 0)
+        self.vbox.pack_start(self.progress, expand=False, fill=False)
 
         self.scrollwin = gtk.ScrolledWindow()
         self.scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self.vbox.pack_start(self.scrollwin,
-                             gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL)
+        self.vbox.pack_start(self.scrollwin)
 
         self.treemodel = gtk.ListStore(gobject.TYPE_INT,
                                        gobject.TYPE_STRING)

@@ -28,16 +28,15 @@ def createRepository(type, data):
         repositories = getattr(cpm, "repositories")
         repository = getattr(repositories, xtype)
     except (ImportError, AttributeError):
-        if sysconf.get("log-level") == "debug":
+        from cpm.const import DEBUG
+        if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-            sys.exit(1)
         raise Error, "invalid repository type '%s'" % type
     try:
-        repos = repository.create(type, data)
+        return repository.create(type, data)
     except RepositoryDataError:
         raise Error, "repository type %s doesn't support %s" % (type, `data`)
-    return repos
 
 def parseRepositoryDescription(data):
     replst = []

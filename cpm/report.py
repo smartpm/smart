@@ -64,7 +64,7 @@ class Report:
                 for upg in pkg.upgrades:
                     for prv in upg.providedby:
                         for prvpkg in prv.packages:
-                            if changeset.get(prvpkg) is REMOVE:
+                            if prvpkg.installed:
                                 if pkg in self.upgrading:
                                     self.upgrading[pkg].append(prvpkg)
                                 else:
@@ -72,7 +72,7 @@ class Report:
                 for prv in pkg.provides:
                     for upg in prv.upgradedby:
                         for upgpkg in upg.packages:
-                            if changeset.get(upgpkg) is REMOVE:
+                            if upgpkg.installed:
                                 if pkg in self.upgrading:
                                     self.downgrading[pkg].append(upgpkg)
                                 else:

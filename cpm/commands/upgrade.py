@@ -1,5 +1,4 @@
 from cpm.transaction import Transaction, PolicyUpgrade, UPGRADE
-from cpm.cmdline import initCmdLine
 from cpm.matcher import MasterMatcher
 from cpm.option import OptionParser
 from cpm import *
@@ -16,8 +15,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
@@ -34,15 +32,15 @@ def main(opts):
         pkgs = dict.fromkeys(newpkgs).keys()
     for pkg in pkgs:
         trans.enqueue(pkg, UPGRADE)
-    print "Computing upgrade..."
+    iface.showStatus("Computing transaction...")
     trans.run()
     if not trans:
-        print "No upgrades available!"
-    elif opts.stepped:
-        ctrl.commitTransactionStepped(trans)
+        iface.showStatus("No interesting upgrades available!")
     else:
-        ctrl.commitTransaction(trans)
-
-    ctrl.saveSysConf()
+        iface.hideStatus()
+        if opts.stepped:
+            ctrl.commitTransactionStepped(trans)
+        else:
+            ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et

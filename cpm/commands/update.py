@@ -1,5 +1,4 @@
 from cpm.option import OptionParser
-from cpm.cmdline import initCmdLine
 from cpm.const import NEVER
 from cpm import *
 import string
@@ -13,8 +12,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
     ctrl.reloadSysConfRepositories()
     repositories = ctrl.getRepositories()
     if opts.args:

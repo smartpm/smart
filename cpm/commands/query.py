@@ -1,5 +1,4 @@
 from cpm.matcher import MasterMatcher
-from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
 from cpm.cache import Provides, PreRequires
 from cpm import *
@@ -43,8 +42,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
     ctrl.fetchRepositories()
     ctrl.loadCache()
 

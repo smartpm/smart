@@ -1,7 +1,11 @@
 #!/usr/bin/python
 from cpm.option import OptionParser
-import cpm
+from cpm import init
+from cpm import *
 import sys
+
+if sys.version_info < (2, 3):
+    sys.exit("error: python 2.3 or later required")
 
 VERSION = "0.0.1"
 
@@ -10,6 +14,12 @@ Usage: cpm command [options] [arguments]
 
 Available commands:
     query
+    install
+    upgrade
+    remove
+    repos
+    flag
+    config
 
 Run "cpm command --help" for more information.
 """
@@ -18,44 +28,54 @@ def parse_options(argv):
     parser = OptionParser(help=HELP, version=VERSION)
     parser.disable_interspersed_args()
     parser.add_option("--config-file", metavar="FILE",
-                      help="configuration file (default is "
-                           "~/.cpm/config or /etc/cpm.conf)")
+                      help="configuration file (default is ~/.cpm/config)")
+    parser.add_option("--data-dir", metavar="DIR",
+                      help="data directory (default is ~/.cpm/)")
     parser.add_option("--log-level", metavar="LEVEL",
-                      help="set logging level to LEVEL (debug, info, "
+                      help="set the log level to LEVEL (debug, info, "
                            "warning, error)")
     parser.add_option("--gui", action="store_true",
-                      help="try to use a graphic interface")
+                      help="use the default graphic interface")
+    parser.add_option("--interface",
+                      help="use the given interface")
     opts, args = parser.parse_args()
-    if len(args) < 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-    opts.command = args[0]
-    opts.argv = args[1:]
+    if args:
+        opts.command = args[0]
+        opts.argv = args[1:]
+    else:
+        opts.command = None
+        opts.argv = []
     return opts
 
 def main(argv):
-    opts = parse_options(argv)
     try:
-        try:
-            cpm_module = __import__("cpm.commands."+opts.command)
-            commands_module = getattr(cpm_module, "commands")
-            command_module = getattr(commands_module, opts.command)
-        except (ImportError, AttributeError):
-            if opts.log_level == "debug":
-                import traceback
-                traceback.print_exc()
-                sys.exit(1)
-            raise cpm.Error, "invalid command '%s'" % opts.command
-        cmdopts = command_module.parse_options(opts.argv)
-        opts.__dict__.update(cmdopts.__dict__)
-        command_module.main(opts)
-    except cpm.Error, e:
+        opts = parse_options(argv)
+        ctrl = init(opts)
+        iface.start()
+        if not opts.command:
+            iface.run(ctrl)
+        else:
+            try:
+                cpm = __import__("cpm.commands."+opts.command)
+                commands = getattr(cpm, "commands")
+                command = getattr(commands, opts.command)
+            except (ImportError, AttributeError):
+                from cpm.const import DEBUG
+                if opts.log_level == DEBUG:
+                    import traceback
+                    traceback.print_exc()
+                raise Error, "invalid command '%s'" % opts.command
+            cmdopts = command.parse_options(opts.argv)
+            opts.__dict__.update(cmdopts.__dict__)
+            command.main(opts, ctrl)
+        iface.finish()
+        ctrl.saveSysConf()
+    except Error, e:
         if opts.log_level == "debug":
             import traceback
             traceback.print_exc()
-            sys.exit(1)
-        if cpm.logger:
-            cpm.logger.error(str(e))
+        if iface.object:
+            iface.error(str(e))
         else:
             sys.stderr.write("error: %s\n" % e)
         sys.exit(1)

@@ -1,9 +1,7 @@
-from cpm.log import *
-from cpm import *
-import atexit
+from cpm.const import ERROR, WARNING, DEBUG
 import gtk
 
-class GtkLogger(Logger):
+class GtkLog:
 
     def __init__(self):
         self.window = gtk.Window()
@@ -32,7 +30,7 @@ class GtkLogger(Logger):
         self.buttonbox.set_spacing(10)
         self.buttonbox.set_layout(gtk.BUTTONBOX_END)
         self.buttonbox.show()
-        self.vbox.pack_start(self.buttonbox, 0, 0)
+        self.vbox.pack_start(self.buttonbox, expand=False, fill=False)
 
         self.clearbutton = gtk.Button(stock="gtk-clear")
         self.clearbutton.show()
@@ -45,6 +43,9 @@ class GtkLogger(Logger):
         self.closebutton.show()
         self.closebutton.connect("clicked", lambda x: self.window.hide())
         self.buttonbox.pack_start(self.closebutton)
+
+    def isVisible(self):
+        return self.window.get_property("visible")
 
     def message(self, level, msg):
         prefix = {ERROR: "error", WARNING: "warning",
@@ -66,16 +67,3 @@ class GtkLogger(Logger):
         else:
             self.window.show()
 
-def waitLogger():
-    import time
-    if isinstance(logger, GtkLogger):
-        try:
-            while logger.window.get_property("visible"):
-                time.sleep(0.1)
-                while gtk.events_pending():
-                    gtk.main_iteration()
-        except KeyboardInterrupt:
-            pass
-atexit.register(waitLogger)
-
-# vim:ts=4:sw=4:et

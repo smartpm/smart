@@ -1,5 +1,4 @@
 from cpm.transaction import Transaction, PolicyRemove, REMOVE
-from cpm.cmdline import initCmdLine
 from cpm.matcher import MasterMatcher
 from cpm.option import OptionParser
 from cpm import *
@@ -14,8 +13,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
@@ -29,10 +27,10 @@ def main(opts):
                 trans.enqueue(pkg, REMOVE)
     if not found:
         raise Error, "no installed packages matched given arguments"
+    iface.showStatus("Computing transaction...")
     trans.run()
+    iface.hideStatus()
     if trans:
         ctrl.commitTransaction(trans)
-
-    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et

@@ -1,5 +1,4 @@
 from cpm.transaction import Transaction, PolicyInstall, sortUpgrades, INSTALL
-from cpm.cmdline import initCmdLine
 from cpm.matcher import MasterMatcher
 from cpm.option import OptionParser
 from cpm import *
@@ -16,8 +15,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def main(opts):
-    ctrl = initCmdLine(opts)
+def main(opts, ctrl):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
@@ -30,17 +28,17 @@ def main(opts):
             raise Error, "'%s' matches no uninstalled packages" % arg
         if len(pkgs) > 1:
             sortUpgrades(pkgs)
-            print "'%s' matches multiple packages, selecting: %s" % \
-                  (arg, pkgs[0])
+            iface.warning("'%s' matches multiple packages, selecting: %s" % \
+                          (arg, pkgs[0]))
         pkg = pkgs[0]
         trans.enqueue(pkg, INSTALL)
+    iface.showStatus("Computing transaction...")
     trans.run()
+    iface.hideStatus()
     if trans:
         if opts.stepped:
             ctrl.commitTransactionStepped(trans)
         else:
             ctrl.commitTransaction(trans)
-
-    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et

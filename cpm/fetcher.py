@@ -14,7 +14,6 @@ class Fetcher(object):
     _registry = {}
 
     def __init__(self):
-        self._progress = Progress()
         self._uncompressor = Uncompressor()
         self._uncompressing = 0
         self._localdir = tempfile.gettempdir()
@@ -31,12 +30,6 @@ class Fetcher(object):
         self._failed = {}
         self._succeeded = {}
         self._info = {}
-
-    def getProgress(self):
-        return self._progress
-
-    def setProgress(self, prog):
-        self._progress = prog
 
     def getFailedSet(self):
         return self._failed
@@ -128,7 +121,7 @@ class Fetcher(object):
             total += len(handler.getQueue())
         if total == 0:
             return
-        prog = self._progress
+        prog = iface.getProgress(self)
         prog.start(True)
         prog.setTopic("Fetching %s..." % what)
         prog.set(0, total)
@@ -196,7 +189,7 @@ class Fetcher(object):
             klass = self._registry.get(scheme)
             if not klass:
                 raise Error, "unsupported scheme: %s" % scheme
-            handler = klass(self, self._progress)
+            handler = klass(self)
             self._handlers[scheme] = handler
         return handler
 
@@ -325,9 +318,8 @@ class URL(object):
 
 
 class FetcherHandler(object):
-    def __init__(self, fetcher, progress):
+    def __init__(self, fetcher):
         self._fetcher = fetcher
-        self._progress = progress
         self._queue = []
 
     def getQueue(self):
@@ -468,7 +460,7 @@ class FTPHandler(FetcherHandler):
 
     def connect(self, ftp, urlobj):
         url = urlobj.original
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
         prog.show()
@@ -495,7 +487,7 @@ class FTPHandler(FetcherHandler):
 
         fetcher = self._fetcher
         url = urlobj.original
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
 
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
@@ -653,7 +645,7 @@ class URLLIBHandler(FetcherHandler):
         opener = Opener()
         
         fetcher = self._fetcher
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
 
         while True:
 
@@ -835,7 +827,7 @@ class URLLIB2Handler(FetcherHandler):
         import urllib2, rfc822
         
         fetcher = self._fetcher
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
 
         while True:
 
@@ -992,7 +984,7 @@ class PyCurlHandler(FetcherHandler):
         import pycurl
 
         fetcher = self._fetcher
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
         multi = self._multi
 
         num = 1
@@ -1208,7 +1200,7 @@ class SCPHandler(FetcherHandler):
                         urlobj.total = None
                         urlobj.localpath = None
                         thread.start_new_thread(self.fetch, (urlobj,))
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
         for urlobj in self._active:
             if urlobj.total and urlobj.localpath:
                 try:
@@ -1226,7 +1218,7 @@ class SCPHandler(FetcherHandler):
 
         fetcher = self._fetcher
         url = urlobj.original
-        prog = self._progress
+        prog = iface.getProgress(self._fetcher)
 
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
