@@ -343,7 +343,7 @@ def discoverAutoMountMedias():
                         key, type, location = tokens
                     else:
                         continue
-                    if ("-fstype=iso9660" in type or
+                    if (type and "-fstype=iso9660" in type or
                         location in (":/dev/cdrom", ":/dev/dvd")):
                         mountpoint = os.path.join(prefix, key)
                         device = location[1:]

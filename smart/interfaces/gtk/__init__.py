@@ -51,6 +51,6 @@ def getPixbuf(name):
             pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
             _pixbuf[name] = pixbuf
         else:
-            raise Error, _("Image '%s' not found")
+            raise Error, _("Image '%s' not found") % name
     return _pixbuf[name]
 
