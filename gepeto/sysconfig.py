@@ -81,7 +81,8 @@ class SysConfig:
         if names:
             lst = names.get(name)
             if lst:
-                lst.append((relation, version))
+                if (relation, version) not in lst:
+                    lst.append((relation, version))
             else:
                 names[name] = [(relation, version)]
         else:

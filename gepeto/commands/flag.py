@@ -24,7 +24,7 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-TARGETRE = re.compile(r"^\s*(?P<name>\S+)\s*"
+TARGETRE = re.compile(r"^\s*(?P<name>\S+?)\s*"
                       r"((?P<rel>[<>=]+)\s*"
                       r"(?P<version>\S+))?\s*$")
 

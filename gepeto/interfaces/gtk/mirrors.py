@@ -88,7 +88,7 @@ class GtkMirrors(object):
             origin = model.get_value(iter, 0)
         else:
             origin = ""
-        origin, mirror = MirrorEditor().show(origin)
+        origin, mirror = MirrorCreator().show(origin)
         if origin and mirror:
             mirrors = sysconf.get("mirrors", setdefault={})
             if origin in mirrors:
@@ -142,12 +142,12 @@ class GtkMirrors(object):
                 mirrors[origin].remove(oldtext)
                 model.set_value(iter, 0, newtext)
 
-class MirrorEditor(object):
+class MirrorCreator(object):
 
     def __init__(self):
 
         self._window = gtk.Window()
-        self._window.set_title("Mirror")
+        self._window.set_title("New Mirror")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
