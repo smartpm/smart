@@ -25,7 +25,7 @@ from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from gepeto.interfaces.gtk.mirrors import GtkMirrors
 from gepeto.interfaces.gtk.flags import GtkFlags
-from gepeto.interfaces.gtk.priorities import GtkPriorities
+from gepeto.interfaces.gtk.priorities import GtkPriorities, GtkSinglePriority
 from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
@@ -594,6 +594,14 @@ class GtkInteractiveInterface(GtkInterface):
             item.connect("activate", lock_all)
         item.set_image(image)
         if inconsistent:
+            item.set_sensitive(False)
+        menu.append(item)
+
+        item = gtk.MenuItem("Priority")
+        def priority(x):
+            GtkSinglePriority().show(pkgs[0])
+        item.connect("activate", priority)
+        if len(pkgs) != 1:
             item.set_sensitive(False)
         menu.append(item)
 

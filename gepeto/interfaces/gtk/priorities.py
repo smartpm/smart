@@ -139,7 +139,7 @@ class GtkPriorities(object):
             name = model.get_value(iter, 0)
             alias = model.get_value(iter, 1)
             if alias == "*":
-                alias = ""
+                alias = None
             priorities = sysconf.get("package-priorities", setdefault={})
             del priorities[name][alias]
             if not priorities[name]:
@@ -164,7 +164,7 @@ class GtkPriorities(object):
             if col == 0:
                 alias = model.get_value(iter, 1)
                 if alias == "*":
-                    alias = ""
+                    alias = None
                 priority = model.get_value(iter, 2)
                 if not newtext:
                     pass
@@ -193,7 +193,7 @@ class GtkPriorities(object):
                     name = model.get_value(iter, 0)
                     alias = model.get_value(iter, 1)
                     if alias == "*":
-                        alias = ""
+                        alias = None
                     try:
                         priorities[name][alias] = int(newtext)
                     except ValueError:
@@ -300,7 +300,7 @@ class PriorityCreator(object):
                     continue
                 alias = self._alias.get_text().strip()
                 if alias == "*":
-                    alias = ""
+                    alias = None
                 priority = self._priority.get_value()
                 break
             name = alias = priority = None
@@ -309,5 +309,146 @@ class PriorityCreator(object):
         self._window.hide()
 
         return name, alias, priority
+
+class GtkSinglePriority(object):
+
+    def __init__(self):
+
+        self._window = gtk.Window()
+        self._window.set_title("Package Priority")
+        self._window.set_modal(True)
+        self._window.set_position(gtk.WIN_POS_CENTER)
+        #self._window.set_geometry_hints(min_width=600, min_height=400)
+        def delete(widget, event):
+            gtk.main_quit()
+            return True
+        self._window.connect("delete-event", delete)
+
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
+
+        self._table = gtk.Table()
+        self._table.set_row_spacings(10)
+        self._table.set_col_spacings(10)
+        self._table.show()
+        vbox.pack_start(self._table)
+
+        bbox = gtk.HButtonBox()
+        bbox.set_spacing(10)
+        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.show()
+        vbox.pack_start(bbox, expand=False)
+
+        button = gtk.Button(stock="gtk-close")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
+    def show(self, pkg):
+
+        priorities = sysconf.get("package-priorities", setdefault={})
+        priority = priorities.setdefault(pkg.name, {})
+        
+        table = self._table
+        table.foreach(table.remove)
+
+        label = gtk.Label("Package:")
+        label.set_alignment(1.0, 0.5)
+        label.show()
+        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+
+        label = gtk.Label()
+        label.set_markup("<b>%s</b>" % pkg.name)
+        label.set_alignment(0.0, 0.5)
+        label.show()
+        table.attach(label, 1, 2, 0, 1, gtk.FILL, gtk.FILL)
+
+        def toggled(check, spin, alias):
+            if check.get_active():
+                priority[alias] = int(spin.get_value())
+                spin.set_sensitive(True)
+            else:
+                if alias in priority:
+                    del priority[alias]
+                spin.set_sensitive(False)
+
+        def value_changed(spin, alias):
+            priority[alias] = int(spin.get_value())
+
+        label = gtk.Label("Default priority:")
+        label.set_alignment(1.0, 0.5)
+        label.show()
+        table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+
+        hbox = gtk.HBox()
+        hbox.set_spacing(10)
+        hbox.show()
+        table.attach(hbox, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
+
+        radio = gtk.RadioButton(None, "Channel default")
+        radio.set_active(None not in priority)
+        radio.show()
+        hbox.pack_start(radio, expand=False)
+
+        radio = gtk.RadioButton(radio, "Set to")
+        radio.set_active(None in priority)
+        radio.show()
+        hbox.pack_start(radio, expand=False)
+        spin = gtk.SpinButton()
+        if None not in priority:
+            spin.set_sensitive(False)
+        spin.set_increments(1, 10)
+        spin.set_numeric(True)
+        spin.set_range(-100000,+100000)
+        spin.set_value(priority.get(None, 0))
+        spin.connect("value-changed", value_changed, None)
+        radio.connect("toggled", toggled, spin, None)
+        spin.show()
+        hbox.pack_start(spin, expand=False)
+
+        label = gtk.Label("Channel priority:")
+        label.set_alignment(1.0, 0.0)
+        label.show()
+        table.attach(label, 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+
+        chantable = gtk.Table()
+        chantable.set_row_spacings(10)
+        chantable.set_col_spacings(10)
+        chantable.show()
+        table.attach(chantable, 1, 2, 2, 3, gtk.FILL, gtk.FILL)
+
+        pos = 0
+        channels = sysconf.get("channels")
+        for alias in channels:
+            name = channels[alias].get("name")
+            if not name:
+                name = alias
+            check = gtk.CheckButton(name)
+            check.set_active(alias in priority)
+            check.show()
+            chantable.attach(check, 0, 1, pos, pos+1, gtk.FILL, gtk.FILL)
+            spin = gtk.SpinButton()
+            if alias not in priority:
+                spin.set_sensitive(False)
+            spin.set_increments(1, 10)
+            spin.set_numeric(True)
+            spin.set_range(-100000,+100000)
+            spin.set_value(int(priority.get(alias, 0)))
+            spin.connect("value_changed", value_changed, alias)
+            check.connect("toggled", toggled, spin, alias)
+            spin.show()
+            chantable.attach(spin, 1, 2, pos, pos+1, gtk.FILL, gtk.FILL)
+            pos += 1
+        
+        self._window.show()
+        gtk.main()
+        self._window.hide()
+
+        if not priority:
+            del priorities[pkg.name]
+
 
 # vim:ts=4:sw=4:et
