@@ -819,7 +819,7 @@ Loader_load(LoaderObject *self, PyObject *args)
 PyObject *
 Loader_unload(LoaderObject *self, PyObject *args)
 {
-    return Loader_reset(self, args);
+    return PyObject_CallMethod((PyObject *)self, "reset", NULL);
 }
 
 PyObject *
@@ -1388,49 +1388,50 @@ Cache_dealloc(CacheObject *self)
 PyObject *
 Cache_reset(CacheObject *self, PyObject *args)
 {
-    PyObject *deps = NULL;
-    if (!PyArg_ParseTuple(args, "|O", &deps))
-        return NULL;
-    if (deps && PyObject_IsTrue(deps)) {
-        int i, len;
-        len = PyList_GET_SIZE(self->_provides);
-        for (i = 0; i != len; i++) {
-            ProvidesObject *prvobj;
-            PyObject *prv;
-            prv = PyList_GET_ITEM(self->_provides, i);
-            prvobj = (ProvidesObject *)prv;
-            LIST_CLEAR(prvobj->packages);
+    int i, len;
+    len = PyList_GET_SIZE(self->_provides);
+    for (i = 0; i != len; i++) {
+        ProvidesObject *prvobj;
+        PyObject *prv;
+        prv = PyList_GET_ITEM(self->_provides, i);
+        prvobj = (ProvidesObject *)prv;
+        LIST_CLEAR(prvobj->packages);
+        if (PyList_Check(prvobj->requiredby))
             LIST_CLEAR(prvobj->requiredby);
+        if (PyList_Check(prvobj->upgradedby))
             LIST_CLEAR(prvobj->upgradedby);
+        if (PyList_Check(prvobj->conflictedby))
             LIST_CLEAR(prvobj->conflictedby);
-        }
-        len = PyList_GET_SIZE(self->_requires);
-        for (i = 0; i != len; i++) {
-            DependsObject *reqobj;
-            PyObject *req;
-            req = PyList_GET_ITEM(self->_requires, i);
-            reqobj = (DependsObject *)req;
-            LIST_CLEAR(reqobj->packages);
+    }
+    len = PyList_GET_SIZE(self->_requires);
+    for (i = 0; i != len; i++) {
+        DependsObject *reqobj;
+        PyObject *req;
+        req = PyList_GET_ITEM(self->_requires, i);
+        reqobj = (DependsObject *)req;
+        LIST_CLEAR(reqobj->packages);
+        if (PyList_Check(reqobj->providedby))
             LIST_CLEAR(reqobj->providedby);
-        }
-        len = PyList_GET_SIZE(self->_upgrades);
-        for (i = 0; i != len; i++) {
-            DependsObject *upgobj;
-            PyObject *upg;
-            upg = PyList_GET_ITEM(self->_upgrades, i);
-            upgobj = (DependsObject *)upg;
-            LIST_CLEAR(upgobj->packages);
+    }
+    len = PyList_GET_SIZE(self->_upgrades);
+    for (i = 0; i != len; i++) {
+        DependsObject *upgobj;
+        PyObject *upg;
+        upg = PyList_GET_ITEM(self->_upgrades, i);
+        upgobj = (DependsObject *)upg;
+        LIST_CLEAR(upgobj->packages);
+        if (PyList_Check(upgobj->providedby))
             LIST_CLEAR(upgobj->providedby);
-        }
-        len = PyList_GET_SIZE(self->_conflicts);
-        for (i = 0; i != len; i++) {
-            DependsObject *cnfobj;
-            PyObject *cnf;
-            cnf = PyList_GET_ITEM(self->_conflicts, i);
-            cnfobj = (DependsObject *)cnf;
-            LIST_CLEAR(cnfobj->packages);
+    }
+    len = PyList_GET_SIZE(self->_conflicts);
+    for (i = 0; i != len; i++) {
+        DependsObject *cnfobj;
+        PyObject *cnf;
+        cnf = PyList_GET_ITEM(self->_conflicts, i);
+        cnfobj = (DependsObject *)cnf;
+        LIST_CLEAR(cnfobj->packages);
+        if (PyList_Check(cnfobj->providedby))
             LIST_CLEAR(cnfobj->providedby);
-        }
     }
     LIST_CLEAR(self->_packages);
     LIST_CLEAR(self->_provides);

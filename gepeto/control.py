@@ -107,9 +107,6 @@ class Control(object):
     def unloadCache(self):
         self._cache.unload()
 
-    def reloadCache(self):
-        self._cache.reload()
-
     def loadSysConf(self, conffile=None):
         loaded = False
         datadir = sysconf.get("data-dir")

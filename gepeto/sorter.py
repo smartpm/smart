@@ -322,10 +322,6 @@ class ChangeSetSorter(ElementSorter):
                 # Required packages being installed must go in
                 # before this package's installation.
                 for req in pkg.requires:
-                    if isinstance(req, PreRequires):
-                        kind = ENFORCE
-                    else:
-                        kind = OPTIONAL
                     pred = []
                     for prv in req.providedby:
                         for prvpkg in prv.packages:
@@ -339,6 +335,10 @@ class ChangeSetSorter(ElementSorter):
                         break
                     else:
                         if pred:
+                            if isinstance(req, PreRequires):
+                                kind = ENFORCE
+                            else:
+                                kind = OPTIONAL
                             if len(pred) == 1:
                                 pred = pred[0]
                             self.addPredecessor(elem, pred, kind)
@@ -400,10 +400,6 @@ class ChangeSetSorter(ElementSorter):
 
                         for reqpkg in req.packages:
                             if changeset.get(reqpkg) is REMOVE:
-                                if isinstance(req, PreRequires):
-                                    kind = ENFORCE
-                                else:
-                                    kind = OPTIONAL
                                 pred = (reqpkg, REMOVE)
-                                self.addPredecessor(elem, pred, kind)
+                                self.addPredecessor(elem, pred, OPTIONAL)
 

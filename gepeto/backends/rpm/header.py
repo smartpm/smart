@@ -119,6 +119,10 @@ class RPMHeaderLoader(Loader):
                 rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_LESS:    "<=",
                 rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_GREATER: ">=" }
 
+    def __init__(self):
+        Loader.__init__(self)
+        self._offsets = {}
+
     def getHeaders(self, prog):
         return []
 
@@ -127,7 +131,7 @@ class RPMHeaderLoader(Loader):
 
     def reset(self):
         Loader.reset(self)
-        self._offsets = {}
+        self._offsets.clear()
 
     def load(self):
         CM = self.COMPMAP

@@ -430,23 +430,26 @@ class Cache(object):
         self._conflicts = []
         self._objmap = {}
 
-    def reset(self, deps=False):
-        # Do not lose references to current objects, since
-        # loader may want to cache them internally.
-        if deps:
-            for prv in self._provides:
-                del prv.packages[:]
+    def reset(self):
+        for prv in self._provides:
+            del prv.packages[:]
+            if prv.requiredby:
                 del prv.requiredby[:]
+            if prv.upgradedby:
                 del prv.upgradedby[:]
+            if prv.conflictedby:
                 del prv.conflictedby[:]
-            for req in self._requires:
-                del req.packages[:]
+        for req in self._requires:
+            del req.packages[:]
+            if req.providedby:
                 del req.providedby[:]
-            for upg in self._upgrades:
-                del upg.packages[:]
+        for upg in self._upgrades:
+            del upg.packages[:]
+            if upg.providedby:
                 del upg.providedby[:]
-            for cnf in self._conflicts:
-                del cnf.packages[:]
+        for cnf in self._conflicts:
+            del cnf.packages[:]
+            if cnf.providedby:
                 del cnf.providedby[:]
         del self._packages[:]
         del self._provides[:]
