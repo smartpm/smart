@@ -31,13 +31,10 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getFileList(self):
         return self._h[rpm.RPMTAG_OLDFILENAMES]
 
-    def getInfo(self):
-        self._loader.getInfo(self)
-
     def getURL(self):
-        url = self.loader.getURL()
+        url = self._loader.getURL()
         if url:
-            url = posixpath.join(url, self.loader.getFileName(self))
+            url = posixpath.join(url, self._loader.getFileName(self))
         return url
 
 class RPMHeaderLoader(RPMLoader):
@@ -62,6 +59,15 @@ class RPMHeaderLoader(RPMLoader):
         CF = self.COMPFLAGS
         for h, offset in self.getHeaders():
 
+            name = h[1000] # RPMTAG_NAME
+            epoch = h[1003] # RPMTAG_EPOCH
+            if epoch is not None:
+                # RPMTAG_VERSION, RPMTAG_RELEASE
+                version = "%s:%s-%s" % (epoch, h[1001], h[1002])
+            else:
+                # RPMTAG_VERSION, RPMTAG_RELEASE
+                version = "%s-%s" % (h[1001], h[1002])
+
             n = h[1047] # RPMTAG_PROVIDENAME
             v = h[1113] # RPMTAG_PROVIDEVERSION
             prvargs = [(n[i], v[i] or None) for i in range(len(n))]
@@ -84,8 +90,9 @@ class RPMHeaderLoader(RPMLoader):
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
                 obsargs = [(n[i], v[i] or None, CM.get(f[i]&CF))
                            for i in range(len(n))]
+                obsargs.append((name, version, '<'))
             else:
-                obsargs = None
+                obsargs = [(name, version, '<')]
 
             n = h[1054] # RPMTAG_CONFLICTNAME
             if n:
@@ -93,18 +100,12 @@ class RPMHeaderLoader(RPMLoader):
                 v = h[1055] # RPMTAG_CONFLICTVERSION
                 cnfargs = [(n[i], v[i] or None, CM.get(f[i]&CF))
                            for i in range(len(n))]
+                cnfargs.append((name, version, '>'))
             else:
-                cnfargs = None
+                cnfargs = [(name, version, '>')]
 
-            epoch = h[1003] # RPMTAG_EPOCH
-            if epoch:
-                # RPMTAG_NAME, RPMTAG_VERSION, RPMTAG_RELEASE
-                args = (h[1000], "%s:%s-%s" % (epoch, h[1001], h[1002]))
-            else:
-                # RPMTAG_NAME, RPMTAG_VERSION, RPMTAG_RELEASE
-                args = (h[1000], "%s-%s" % (h[1001], h[1002]))
-
-            pkg = self.newPackage(args, prvargs, reqargs, obsargs, cnfargs)
+            pkg = self.newPackage((name, version),
+                                  prvargs, reqargs, obsargs, cnfargs)
             pkg._loader = self
             pkg._offset = offset
             self._offsets[offset] = pkg
@@ -174,12 +175,13 @@ class RPMDBLoader(RPMHeaderLoader):
         mi = ts.dbMatch()
         h = mi.next()
         while h:
-            yield h, mi.instance()
+            if h[1000] != "gpg-pubkey": # RPMTAG_NAME
+                yield h, mi.instance()
             h = mi.next()
 
     def getInfo(self, pkg):
         ts = rpm.ts()
-        mi = ts.dbMatch(0, pkg.offset)
+        mi = ts.dbMatch(0, pkg._offset)
         return RPMHeaderPackageInfo(self, mi.next())
 
     def getURL(self):
