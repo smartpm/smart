@@ -1440,11 +1440,14 @@ def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
     coexistchecked = {}
     for pkg in pkgs:
 
-        if not all and uninstalled:
-            for loader in pkg.loaders:
-                if not loader.getInstalled():
-                    break
-            else:
+        if not all:
+            if uninstalled:
+                for loader in pkg.loaders:
+                    if not loader.getInstalled():
+                        break
+                else:
+                    continue
+            elif not pkg.installed:
                 continue
 
         for req in pkg.requires:
