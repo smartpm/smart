@@ -171,22 +171,25 @@ class Control(object):
         if not os.path.isdir(localdir):
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=False)
-        pkgitem = {}
+        pkgitems = {}
         for pkg in packages:
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
-            url = info.getURL()
-            pkgitem[pkg] = fetcher.enqueue(url, validate=info.validate)
+            urls = info.getURLs()
+            pkgitems[pkg] = []
+            for url in urls:
+                pkgitems[pkg].append(fetcher.enqueue(url,
+                                                     validate=info.validate))
         fetcher.run(what="packages")
         failed = fetcher.getFailedSet()
         if failed:
             raise Error, "Failed to download packages:\n" + \
                          "\n".join(["    %s: %s" % (url, failed[url])
                                     for url in failed])
-        pkgpath = {}
+        pkgpaths = {}
         for pkg in packages:
-            pkgpath[pkg] = pkgitem[pkg].getTargetPath()
-        return pkgpath
+            pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
+        return pkgpaths
 
     def fetchFiles(self, urllst, what, caching=NEVER):
         localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
@@ -206,9 +209,9 @@ class Control(object):
         return False
 
     def commitChangeSet(self, changeset, caching=OPTIONAL):
-        pkgpath = self.fetchPackages([pkg for pkg in changeset
-                                      if changeset[pkg] is INSTALL],
-                                      caching)
+        pkgpaths = self.fetchPackages([pkg for pkg in changeset
+                                       if changeset[pkg] is INSTALL],
+                                       caching)
         pmpkgs = {}
         for pkg in changeset:
             pmclass = pkg.packagemanager
@@ -222,7 +225,13 @@ class Control(object):
                          if changeset[pkg] is INSTALL]
             pmremove  = [pkg for pkg in pmpkgs[pmclass]
                          if changeset[pkg] is REMOVE]
-            pm.commit(pminstall, pmremove, pkgpath)
+            pm.commit(pminstall, pmremove, pkgpaths)
+
+        datadir = sysconf.get("data-dir")
+        for pkg in pkgpaths:
+            for path in pkgpaths[pkg]:
+                if path.startswith(datadir):
+                    os.unlink(path)
 
         return True
 

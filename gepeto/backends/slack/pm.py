@@ -25,7 +25,7 @@ import commands
 
 class SlackPackageManager(PackageManager):
 
-    def commit(self, install, remove, pkgpath):
+    def commit(self, install, remove, pkgpaths):
 
         prog = iface.getProgress(self, True)
         prog.start()
@@ -54,7 +54,7 @@ class SlackPackageManager(PackageManager):
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("installpkg %s" %
-                                                      pkgpath[pkg])
+                                                      pkgpaths[pkg][0])
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
@@ -68,7 +68,7 @@ class SlackPackageManager(PackageManager):
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
             status, output = commands.getstatusoutput("upgradepkg %s" %
-                                                      pkgpath[pkg])
+                                                      pkgpaths[pkg][0])
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:

@@ -89,8 +89,8 @@ class PackageInfo(object):
     def getPackage(self):
         return self._package
 
-    def getURL(self):
-        return None
+    def getURLs(self):
+        return []
 
     def getDescription(self):
         return ""

@@ -42,12 +42,13 @@ class SlackPackageInfo(PackageInfo):
     def getDescription(self):
         return self._info.get("description", "")
 
-    def getURL(self):
+    def getURLs(self):
         info = self._info
         if "location" in info and "baseurl" in info:
             pkg = self._package
-            return os.path.join(info["baseurl"], info["location"],
-                                "%s-%s.tgz" % (pkg.name, pkg.version))
+            return [os.path.join(info["baseurl"], info["location"],
+                                 "%s-%s.tgz" % (pkg.name, pkg.version))]
+        return []
 
     def getPathList(self):
         return self._info.get("filelist", [])

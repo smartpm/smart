@@ -35,8 +35,11 @@ class RPMRedCarpetPackageInfo(PackageInfo):
         PackageInfo.__init__(self, package)
         self._info = info
 
-    def getURL(self):
-        return self._info.get("location")
+    def getURLs(self):
+        url = self._info.get("location")
+        if url:
+            return [url]
+        return []
 
     def getSize(self):
         return self._info.get("size")

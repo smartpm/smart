@@ -58,11 +58,12 @@ class RPMHeaderPackageInfo(PackageInfo):
         self._loader = loader
         self._path = None
 
-    def getURL(self):
+    def getURLs(self):
         url = self._loader.getURL()
         if url:
             url = os.path.join(url, self._loader.getFileName(self))
-        return url
+            return [url]
+        return []
 
     def getSize(self):
         return self._loader.getSize(self)

@@ -26,14 +26,22 @@ from gepeto.const import SUCCEEDED, FAILED
 from gepeto.cache import LoaderSet
 from gepeto import *
 import posixpath
+import tempfile
+import commands
+import os
 
 class APTRPMChannel(Channel):
 
-    def __init__(self, baseurl, comps, *args):
+    def __init__(self, baseurl, comps, fingerprint, *args):
         Channel.__init__(self, *args)
         
         self._baseurl = baseurl
         self._comps = comps
+        if fingerprint:
+            self._fingerprint = "".join([x for x in fingerprint
+                                         if not x.isspace()])
+        else:
+            self._fingerprint = None
 
         self._loader = LoaderSet()
 
@@ -59,13 +67,17 @@ class APTRPMChannel(Channel):
 
         # Parse release file
         md5sum = {}
-        started = False
+        insidemd5sum = False
+        hassignature = False
         for line in open(item.getTargetPath()):
-            if not started:
-                if line.startswith("MD5Sum:"):
-                    started = True
-            elif not line.startswith(" "):
+            if line.startswith("-----BEGIN"):
+                hassignature = True
                 break
+            elif not insidemd5sum:
+                if line.startswith("MD5Sum:"):
+                    insidemd5sum = True
+            elif not line.startswith(" "):
+                insidemd5sum = False
             else:
                 try:
                     md5, size, path = line.split()
@@ -73,6 +85,60 @@ class APTRPMChannel(Channel):
                     pass
                 else:
                     md5sum[path] = (md5, int(size))
+
+        if self._fingerprint:
+            rfd, rname = tempfile.mkstemp()
+            sfd, sname = tempfile.mkstemp()
+            rfile = os.fdopen(rfd, "w")
+            sfile = os.fdopen(sfd, "w")
+            try:
+                if not hassignature:
+                    raise Error, "Channel '%s' has fingerprint but is not " \
+                                 "signed" % (self.getName() or self.getAlias())
+
+                file = rfile
+                for line in open(item.getTargetPath()):
+                    if line.startswith("-----BEGIN"):
+                        file = sfile
+                    file.write(line)
+                rfile.close()
+                sfile.close()
+
+                status, output = commands.getstatusoutput(
+                    "gpg --batch --no-secmem-warning --status-fd 1 "
+                    "--verify %s %s" % (sname, rname))
+
+                badsig = False
+                goodsig = False
+                validsig = None
+                for line in output.splitlines():
+                    if line.startswith("[GNUPG:]"):
+                        tokens = line[8:].split()
+                        first = tokens[0]
+                        if first == "VALIDSIG":
+                            validsig = tokens[1]
+                        elif first == "GOODSIG":
+                            goodsig = True
+                        elif first == "BADSIG":
+                            badsig = True
+                if badsig:
+                    raise Error, "Channel '%s' has bad signature" \
+                                 % (self.getName() or self.getAlias())
+                if not goodsig or validsig != self._fingerprint:
+                    raise Error, "Channel '%s' signed with unknown key" \
+                                 % (self.getName() or self.getAlias())
+            except Error, e:
+                iface.error(str(e))
+                progress.add(len(self._comps)*2)
+                progress.show()
+                rfile.close()
+                sfile.close()
+                os.unlink(rname)
+                os.unlink(sname)
+                return
+            else:
+                os.unlink(rname)
+                os.unlink(sname)
 
         # Fetch component package lists and release files
         fetcher.reset()
@@ -153,6 +219,7 @@ def create(type, alias, data):
         comps = (data.get("components") or "").split()
         priority = data.get("priority", 0)
         manual = data.get("manual", False)
+        fingerprint = data.get("fingerprint")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
             if n.tag == "name":
@@ -177,7 +244,7 @@ def create(type, alias, data):
         priority = int(priority)
     except ValueError:
         raise Error, "Invalid priority"
-    return APTRPMChannel(baseurl, comps,
+    return APTRPMChannel(baseurl, comps, fingerprint,
                          type, alias, name, description, priority, manual)
 
 # vim:ts=4:sw=4:et

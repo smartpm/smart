@@ -22,7 +22,7 @@
 
 class PackageManager:
 
-    def commit(self, install, remove, pkgpath):
+    def commit(self, install, remove, pkgpaths):
         pass
 
 # vim:ts=4:sw=4:et

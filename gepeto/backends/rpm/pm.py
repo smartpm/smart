@@ -29,7 +29,7 @@ import rpm
 
 class RPMPackageManager(PackageManager):
 
-    def commit(self, install, remove, pkgpath):
+    def commit(self, install, remove, pkgpaths):
 
         prog = iface.getProgress(self, True)
         prog.start()
@@ -61,7 +61,7 @@ class RPMPackageManager(PackageManager):
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
             mode = pkg in upgrading and "u" or "i"
-            path = pkgpath[pkg]
+            path = pkgpaths[pkg][0]
             fd = os.open(path, os.O_RDONLY)
             h = ts.hdrFromFdno(fd)
             os.close(fd)
