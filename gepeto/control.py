@@ -95,13 +95,15 @@ class Control:
 
     def updateCache(self, channels=None, caching=ALWAYS):
         if channels is None:
+            manual = False
             self.reloadSysConfChannels()
             channels = self._channels
+        else:
+            manual = True
         localdir = os.path.join(sysconf.get("data-dir"), "channels/")
         if not os.path.isdir(localdir):
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=True)
-        self._fetcher.setCaching(caching)
         channels.sort()
         if caching is ALWAYS:
             progress = Progress()
@@ -118,10 +120,14 @@ class Control:
         progress.set(0, steps)
         for channel in channels:
             self._cache.removeLoader(channel.getLoader())
-            if channel.getFetchSteps() > 0:
-                progress.setTopic("Fetching information for '%s'..." %
+            if not manual and channel.getManualUpdate():
+                self._fetcher.setCaching(ALWAYS)
+            else:
+                self._fetcher.setCaching(caching)
+                if channel.getFetchSteps() > 0:
+                    progress.setTopic("Fetching information for '%s'..." %
                                   (channel.getName() or channel.getAlias()))
-                progress.show()
+                    progress.show()
             channel.fetch(self._fetcher, progress)
             self._cache.addLoader(channel.getLoader())
         progress.setStopped()

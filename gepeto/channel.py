@@ -2,7 +2,8 @@ from gepeto import *
 
 class Channel(object):
 
-    def __init__(self, type, alias, name=None, description=None, priority=0):
+    def __init__(self, type, alias, name=None, description=None,
+                 priority=0, manualupdate=False):
         self._type = type
         self._alias = alias
         self._name = name
@@ -10,6 +11,7 @@ class Channel(object):
         self._priority = priority
         self._loader = None
         self._loadorder = 1000
+        self._manualupdate = manualupdate
 
     def getType(self):
         return self._type
@@ -25,6 +27,9 @@ class Channel(object):
 
     def getPriority(self):
         return self._priority
+
+    def getManualUpdate(self):
+        return self._manualupdate
 
     def getLoader(self):
         return self._loader

@@ -1,5 +1,6 @@
 from gepeto.backends.rpm.header import RPMPackageListLoader
 from gepeto.channel import Channel, ChannelDataError
+from gepeto.util.strtools import strToBool
 from gepeto.const import SUCCEEDED, FAILED
 from gepeto.cache import LoaderSet
 from gepeto import *
@@ -97,6 +98,7 @@ def create(type, alias, data):
     name = None
     description = None
     priority = 0
+    manual = False
     baseurl = None
     comps = None
     if isinstance(data, dict):
@@ -105,6 +107,7 @@ def create(type, alias, data):
         baseurl = data.get("baseurl")
         comps = (data.get("components") or "").split()
         priority = data.get("priority", 0)
+        manual = data.get("manual", False)
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
             if n.tag == "name":
@@ -113,6 +116,8 @@ def create(type, alias, data):
                 description = n.text
             elif n.tag == "priority":
                 priority = n.text
+            elif n.tag == "manual":
+                manual = strToBool(n.text)
             elif n.tag == "baseurl":
                 baseurl = n.text
             elif n.tag == "components":
@@ -128,6 +133,6 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return APTRPMChannel(baseurl, comps,
-                         type, alias, name, description, priority)
+                         type, alias, name, description, priority, manual)
 
 # vim:ts=4:sw=4:et

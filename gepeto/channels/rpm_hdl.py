@@ -1,4 +1,5 @@
 from gepeto.backends.rpm.header import RPMHeaderListLoader
+from gepeto.util.strtools import strToBool
 from gepeto.const import SUCCEEDED, FAILED
 from gepeto.channel import Channel
 from gepeto import *
@@ -32,14 +33,16 @@ def create(type, alias, data):
     name = None
     description = None
     priority = 0
+    manual = False
     hdlurl = None
     baseurl = None
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
+        priority = data.get("priority", 0)
+        manual = data.get("manual", False)
         hdlurl = data.get("hdlurl")
         baseurl = data.get("baseurl")
-        priority = data.get("priority", 0)
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
             if n.tag == "name":
@@ -48,6 +51,8 @@ def create(type, alias, data):
                 description = n.text
             elif n.tag == "priority":
                 priority = n.text
+            elif n.tag == "manual":
+                manual = strToBool(n.text)
             elif n.tag == "hdlurl":
                 hdlurl = n.text
             elif n.tag == "baseurl":
@@ -63,6 +68,7 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return RPMHeaderListChannel(hdlurl, baseurl,
-                                type, alias, name, description, priority)
+                                type, alias, name, description,
+                                priority, manual)
 
 # vim:ts=4:sw=4:et

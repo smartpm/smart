@@ -80,7 +80,6 @@ class GtkChannels(object):
         self._treeview.show()
         self._scrollwin.add(self._treeview)
 
-        column = gtk.TreeViewColumn("S")
         renderer = gtk.CellRendererToggle()
         renderer.set_property("xpad", 3)
         renderer.set_active(False)
@@ -151,13 +150,25 @@ class GtkChannels(object):
                                     channel.get("type", ""),
                                     channel.get("name", "")))
 
+    def enableDisable(self):
+        channels = sysconf.get("channels", setdefault={})
+        for row in self._treemodel:
+            channel = channels[row[1]]
+            if row[0]:
+                if "disabled" in channel:
+                    del channel["disabled"]
+            else:
+                channel["disabled"] = "yes"
+            
     def show(self):
         self.fill()
         self._window.show()
         gtk.main()
         self._window.hide()
+        self.enableDisable()
 
     def newChannel(self):
+        self.enableDisable()
         alias, type = ChannelCreator().show()
         if alias and type:
             newchannel = {"type": type}
@@ -167,6 +178,7 @@ class GtkChannels(object):
                 self.fill()
 
     def editChannel(self, alias):
+        self.enableDisable()
         channels = sysconf.get("channels", setdefault={})
         channel = channels[alias]
         editor = ChannelEditor()
@@ -177,6 +189,104 @@ class GtkChannels(object):
         channels = sysconf.get("channels", setdefault={})
         del channels[alias]
         self.fill()
+
+class GtkChannelSelector(object):
+
+    def __init__(self):
+
+        self._window = gtk.Window()
+        self._window.set_title("Select Channels")
+        self._window.set_modal(True)
+        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_geometry_hints(min_width=600, min_height=400)
+        def delete(widget, event):
+            gtk.main_quit()
+            return True
+        self._window.connect("delete-event", delete)
+
+        self._vbox = gtk.VBox()
+        self._vbox.set_border_width(10)
+        self._vbox.set_spacing(10)
+        self._vbox.show()
+        self._window.add(self._vbox)
+
+        self._scrollwin = gtk.ScrolledWindow()
+        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        self._scrollwin.show()
+        self._vbox.add(self._scrollwin)
+
+        self._treemodel = gtk.ListStore(gobject.TYPE_INT,
+                                        gobject.TYPE_STRING,
+                                        gobject.TYPE_STRING,
+                                        gobject.TYPE_STRING)
+        self._treeview = gtk.TreeView(self._treemodel)
+        self._treeview.set_rules_hint(True)
+        self._treeview.show()
+        self._scrollwin.add(self._treeview)
+
+        renderer = gtk.CellRendererToggle()
+        renderer.set_property("xpad", 3)
+        renderer.set_active(False)
+        def toggled(cell, path):
+            model = self._treemodel
+            iter = model.get_iter(path)
+            model.set(iter, 0, not bool(model.get_value(iter, 0)))
+        renderer.connect("toggled", toggled)
+        self._treeview.insert_column_with_attributes(-1, "", renderer,
+                                                     active=0)
+
+        renderer = gtk.CellRendererText()
+        renderer.set_property("xpad", 3)
+        self._treeview.insert_column_with_attributes(-1, "Alias", renderer,
+                                                     text=1)
+        self._treeview.insert_column_with_attributes(-1, "Type", renderer,
+                                                     text=2)
+        self._treeview.insert_column_with_attributes(-1, "Name", renderer,
+                                                     text=3)
+
+        bbox = gtk.HButtonBox()
+        bbox.set_spacing(10)
+        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.show()
+        self._vbox.pack_start(bbox, expand=False)
+
+        self._okbutton = gtk.Button(stock="gtk-ok")
+        self._okbutton.show()
+        def clicked(x):
+            self._result = True
+            gtk.main_quit()
+        self._okbutton.connect("clicked", clicked)
+        bbox.pack_start(self._okbutton)
+
+        self._cancelbutton = gtk.Button(stock="gtk-cancel")
+        self._cancelbutton.show()
+        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(self._cancelbutton)
+
+    def fill(self):
+        self._treemodel.clear()
+        channels = sysconf.get("channels", setdefault={})
+        for alias in channels:
+            channel = channels[alias]
+            self._treemodel.append((False, alias,
+                                    channel.get("type", ""),
+                                    channel.get("name", "")))
+
+    def show(self):
+        self.fill()
+        self._result = False
+        self._window.show()
+        gtk.main()
+        self._window.hide()
+
+        result = []
+        if self._result == True:
+            for row in self._treemodel:
+                if row[0]:
+                    result.append(row[1])
+
+        return result
 
 class ChannelEditor(object):
 
@@ -244,10 +354,11 @@ class ChannelEditor(object):
             entry.set_increments(1, 10)
             entry.set_numeric(True)
             entry.set_range(-100000,+100000)
+            entry.set_value(int(text))
         else:
             entry = gtk.Entry()
+            entry.set_text(text)
         entry.set_property("sensitive", bool(editable))
-        entry.set_text(text)
         entry.show()
         if small or spin:
             if spin:
@@ -272,12 +383,22 @@ class ChannelEditor(object):
     def show(self, alias, channel):
         self._table.foreach(self._table.remove)
 
-        # Enabled checkbox
+        # Initial checkboxes
         enabled = gtk.CheckButton("Enabled")
         enabled.set_active(not strToBool(channel.get("disabled")))
         enabled.show()
         align = gtk.Alignment(0.0, 0.5)
         align.add(enabled)
+        align.show()
+        self._table.attach(align, 1, 2, self._fieldn, self._fieldn+1,
+                           gtk.EXPAND|gtk.FILL, gtk.FILL)
+        self._fieldn += 1
+
+        manual = gtk.CheckButton("Manual updates")
+        manual.set_active(strToBool(channel.get("manual")))
+        manual.show()
+        align = gtk.Alignment(0.0, 0.5)
+        align.add(manual)
         align.show()
         self._table.attach(align, 1, 2, self._fieldn, self._fieldn+1,
                            gtk.EXPAND|gtk.FILL, gtk.FILL)
@@ -308,6 +429,10 @@ class ChannelEditor(object):
                     newchannel["disabled"] = "yes"
                 elif "disabled" in channel:
                     del newchannel["disabled"]
+                if manual.get_active():
+                    newchannel["manual"] = "yes"
+                elif "manual" in channel:
+                    del newchannel["manual"]
                 for key in self._fields:
                     if key not in ("alias", "type"):
                         entry = self._fields[key]

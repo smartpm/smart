@@ -1,5 +1,6 @@
 from gepeto.backends.slack.loader import SlackSiteLoader
 from gepeto.channel import Channel, ChannelDataError
+from gepeto.util.strtools import strToBool
 from gepeto.const import SUCCEEDED, FAILED
 from gepeto import *
 import posixpath
@@ -34,11 +35,13 @@ def create(type, alias, data):
     name = None
     description = None
     priority = 0
+    manual = False
     baseurl = None
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
         priority = data.get("priority", 0)
+        manual = data.get("manual", False)
         baseurl = data.get("baseurl")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
@@ -48,6 +51,8 @@ def create(type, alias, data):
                 description = n.text
             elif n.tag == "priority":
                 priority = n.text
+            elif n.tag == "manual":
+                manual = strToBool(n.text)
             elif n.tag == "baseurl":
                 baseurl = n.text
     else:
@@ -59,6 +64,6 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return SlackSiteChannel(baseurl,
-                            type, alias, name, description, priority)
+                            type, alias, name, description, priority, manual)
 
 # vim:ts=4:sw=4:et

@@ -1,5 +1,6 @@
 from gepeto.backends.rpm.metadata import RPMMetaDataLoader
 from gepeto.util.elementtree import ElementTree
+from gepeto.util.strtools import strToBool
 from gepeto.const import SUCCEEDED, FAILED
 from gepeto.channel import Channel
 from gepeto import *
@@ -77,10 +78,12 @@ def create(type, alias, data):
     description = None
     priority = 0
     baseurl = None
+    manual = False
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
         priority = data.get("priority", 0)
+        manual = data.get("manual", False)
         baseurl = data.get("baseurl")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
@@ -90,6 +93,8 @@ def create(type, alias, data):
                 description = n.text
             elif n.tag == "priority":
                 priority = n.text
+            elif n.tag == "manual":
+                manual = strToBool(n.text)
             elif n.tag == "baseurl":
                 baseurl = n.text
     else:
@@ -101,6 +106,7 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return RPMMetaDataChannel(baseurl,
-                              type, alias, name, description, priority)
+                              type, alias, name, description,
+                              priority, manual)
 
 # vim:ts=4:sw=4:et

@@ -1,9 +1,9 @@
 from gepeto.transaction import Transaction, ChangeSet, INSTALL, REMOVE, UPGRADE
 from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
+from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
-from gepeto.interfaces.gtk.channels import GtkChannels
 from gepeto.const import NEVER, VERSION
 from gepeto import *
 import shlex, re
@@ -13,8 +13,10 @@ UI = """
 <ui>
 <menubar>
     <menu action="file">
+        <menuitem action="update-selected-channels"/>
         <menuitem action="update-channels"/>
-        <menuitem action="update-all-channels"/>
+        <separator/>
+        <menuitem action="rebuild-cache"/>
         <separator/>
         <menuitem action="exec-changes"/>
         <separator/>
@@ -54,7 +56,7 @@ UI = """
     </menu>
 </menubar>
 <toolbar>
-    <toolitem action="update-all-channels"/>
+    <toolitem action="update-channels"/>
     <separator/>
     <toolitem action="exec-changes"/>
     <separator/>
@@ -71,10 +73,12 @@ UI = """
 
 ACTIONS = [
     ("file", None, "_File"),
-    ("update-channels", "gtk-refresh", "Update Channels...", None,
-     "Update given channels", "self.updateChannels()"),
-    ("update-all-channels", "gtk-refresh", "Update All Channels", None,
-     "Update all channels", "self.updateAllChannels()"),
+    ("update-selected-channels", "gtk-refresh", "Update Selected Channels...", None,
+     "Update given channels", "self.updateChannels(True)"),
+    ("update-channels", "gtk-refresh", "Update Channels", None,
+     "Update channels", "self.updateChannels()"),
+    ("rebuild-cache", None, "Rebuild Cache", None,
+     "Reload package information", "self.rebuildCache()"),
     ("exec-changes", "gtk-execute", "Execute Changes...", "<control>c",
      "Apply marked changes", "self.applyChanges()"),
     ("quit", "gtk-quit", "_Quit", "<control>q",
@@ -316,15 +320,24 @@ class GtkInteractiveInterface(GtkInterface):
     def getChangeSet(self):
         return self._changeset
 
-    def updateChannels(self):
-        pass
-
-    def updateAllChannels(self):
+    def updateChannels(self, selected=False):
+        channels = None
+        if selected:
+            aliases = GtkChannelSelector().show()
+            channels = [channel for channel in self._ctrl.getChannels()
+                        if channel.getAlias() in aliases]
+            if not channels:
+                return
         state = self._changeset.getPersistentState()
-        self._ctrl.updateCache(caching=NEVER)
+        self._ctrl.updateCache(channels, caching=NEVER)
         self._changeset.setPersistentState(state)
         self.refreshPackages()
-        self._progress.hide()
+
+    def rebuildCache(self):
+        state = self._changeset.getPersistentState()
+        self._ctrl.updateCache()
+        self._changeset.setPersistentState(state)
+        self.refreshPackages()
 
     def applyChanges(self):
         transaction = Transaction(self._ctrl.getCache(),
