@@ -97,8 +97,9 @@ def parse_options(argv, help=None):
     opts.args = args
     return opts
 
-def main(opts, ctrl):
-    ctrl.updateCache()
+def main(opts, ctrl, updatecache=True):
+    if updatecache:
+        ctrl.updateCache()
 
     cache = ctrl.getCache()
     if not opts.args:

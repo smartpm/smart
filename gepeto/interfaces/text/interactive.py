@@ -434,3 +434,21 @@ class Interpreter(Cmd):
                 info = "."
             iface.showStatus("Channels have %d new packages%s"
                              % (len(newpackages), info))
+
+    complete_query = completeAll
+    def do_query(self, line):
+        from gepeto.commands import query
+        try:
+            opts = query.parse_options(shlex.split(line))
+            query.main(opts, self._ctrl, updatecache=False)
+        except SystemExit:
+            pass
+
+    complete_search = completeAll
+    def do_search(self, line):
+        from gepeto.commands import search
+        try:
+            opts = search.parse_options(shlex.split(line))
+            search.main(opts, self._ctrl, updatecache=False)
+        except SystemExit:
+            pass
