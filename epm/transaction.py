@@ -156,6 +156,13 @@ class Transaction:
         op = elem and elem[0] or None
         return op == OPER_INSTALL or pkg.installed and op != OPER_REMOVE
 
+    def getOperations(self):
+        oper = {}
+        for pkg in self.operation:
+            op, reason, pkg1, pkg2 = self.operation[pkg]
+            oper[pkg] = op
+        return oper
+
     def restate(self):
         """
         After running this method, previously requested changes may be
