@@ -56,16 +56,14 @@ class APTRPMChannel(Channel):
         fetcher.reset()
 
         # Fetch release file
-        url = posixpath.join(self._baseurl, "base/release")
-        item = fetcher.enqueue(url)
+        item = fetcher.enqueue(posixpath.join(self._baseurl, "base/release"))
         fetcher.run(progress=progress)
         failed = item.getFailedReason()
         if failed:
             if fetcher.getCaching() is NEVER:
-                iface.warning("Failed acquiring release file for '%s':" %
-                              self._alias)
-                iface.warning("%s: %s" % (url, failed))
-            progress.add(len(self._comps)*2)
+                iface.warning("Failed acquiring release file for '%s':" % self)
+                iface.warning("%s: %s" % (item.getURL(), failed))
+            progress.add(self.getFetchSteps()-1)
             progress.show()
             return
 
@@ -98,7 +96,7 @@ class APTRPMChannel(Channel):
             try:
                 if not hassignature:
                     raise Error, "Channel '%s' has fingerprint but is not " \
-                                 "signed" % (self.getName() or self.getAlias())
+                                 "signed" % self
 
                 file = rfile
                 for line in open(item.getTargetPath()):
@@ -126,20 +124,17 @@ class APTRPMChannel(Channel):
                         elif first == "BADSIG":
                             badsig = True
                 if badsig:
-                    raise Error, "Channel '%s' has bad signature" \
-                                 % (self.getName() or self.getAlias())
+                    raise Error, "Channel '%s' has bad signature" % self
                 if not goodsig or validsig != self._fingerprint:
-                    raise Error, "Channel '%s' signed with unknown key" \
-                                 % (self.getName() or self.getAlias())
+                    raise Error, "Channel '%s' signed with unknown key" % self
             except Error, e:
-                iface.error(str(e))
-                progress.add(len(self._comps)*2)
+                progress.add(self.getFetchSteps()-1)
                 progress.show()
                 rfile.close()
                 sfile.close()
                 os.unlink(rname)
                 os.unlink(sname)
-                return
+                raise
             else:
                 os.unlink(rname)
                 os.unlink(sname)
@@ -205,7 +200,7 @@ class APTRPMChannel(Channel):
                 if firstfailure:
                     firstfailure = False
                     iface.warning("Failed acquiring information for '%s':" %
-                                  self._alias)
+                                  self)
                 iface.warning("%s: %s" %
                               (pkgitem.getURL(), pkgitem.getFailedReason()))
 

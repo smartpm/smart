@@ -54,8 +54,7 @@ class RPMMetaDataChannel(Channel):
 
         if item.getStatus() is FAILED:
             if fetcher.getCaching() is NEVER:
-                iface.warning("Failed acquiring information for '%s':" %
-                              self._alias)
+                iface.warning("Failed acquiring information for '%s':" % self)
                 iface.warning("%s: %s" % (item.getURL(),
                                           item.getFailedReason()))
             progress.add(1)
@@ -80,7 +79,7 @@ class RPMMetaDataChannel(Channel):
 
         if "primary" not in info:
             iface.warning("Primary information not found in repository "
-                          "metadata for '%s'" % self._alias)
+                          "metadata for '%s'" % self)
             return
 
         fetcher.reset()
@@ -95,8 +94,7 @@ class RPMMetaDataChannel(Channel):
             self._loader = RPMMetaDataLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
         else:
-            iface.warning("Failed acquiring information for '%s':" %
-                          self._alias)
+            iface.warning("Failed acquiring information for '%s':" % self)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
 def create(type, alias, data):

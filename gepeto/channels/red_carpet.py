@@ -54,8 +54,7 @@ class RPMRedCarpetChannel(Channel):
             self._loader = RPMRedCarpetLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
         elif fetcher.getCaching() is NEVER:
-            iface.warning("Failed acquiring information for '%s':" %
-                          self._alias)
+            iface.warning("Failed acquiring information for '%s':" % self)
             iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
 def create(type, alias, data):

@@ -33,7 +33,8 @@ class RPMDirChannel(Channel):
 
     def fetch(self, fetcher, progress):
         if not os.path.isdir(self._path):
-            raise Error, "Channel '%s' has invalid directory: %s" % self._path
+            raise Error, "Channel '%s' has invalid directory: %s" % \
+                         (self, self._path)
         self._loader = RPMDirLoader(self._path)
         self._loader.setChannel(self)
 

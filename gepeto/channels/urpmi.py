@@ -52,8 +52,7 @@ class URPMIChannel(Channel):
         failed = item.getFailedReason()
         if failed:
             if fetcher.getCaching() is NEVER:
-                iface.warning("Failed acquiring information for '%s':" %
-                              self._alias)
+                iface.warning("Failed acquiring information for '%s':" % self)
                 iface.warning("%s: %s" % (item.getURL(), failed))
         else:
             basename = posixpath.basename(self._hdlurl)
