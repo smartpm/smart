@@ -3,6 +3,7 @@ from cpm.transaction import Transaction, INSTALL, REMOVE
 from cpm.interfaces.gtk.packageview import GtkPackageView
 from cpm.interfaces.gtk.packageinfo import GtkPackageInfo
 from cpm.interfaces.gtk.interface import GtkInterface
+from cpm.const import NEVER
 from cpm import *
 import gtk
 
@@ -22,6 +23,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         self._log.set_transient_for(self._window)
         self._progress.set_transient_for(self._window)
+        self._hassubprogress.set_transient_for(self._window)
 
         self._topvbox = gtk.VBox()
         self._topvbox.show()
@@ -34,6 +36,20 @@ class GtkInteractiveInterface(GtkInterface):
         menuitem = gtk.MenuItem("_File")
         submenu = gtk.Menu()
         submenu.show()
+        submenuitem = gtk.MenuItem("_Update...")
+        submenuitem.show()
+        submenu.add(submenuitem)
+        submenuitem = gtk.MenuItem("Update _All")
+        submenuitem.connect("activate", lambda x: self.updateAll())
+        submenuitem.show()
+        submenu.add(submenuitem)
+        submenuitem = gtk.SeparatorMenuItem()
+        submenuitem.show()
+        submenu.add(submenuitem)
+        submenuitem = gtk.MenuItem("Apply _Changes...")
+        submenuitem.connect("activate", lambda x: self.applyChanges())
+        submenuitem.show()
+        submenu.add(submenuitem)
         submenuitem = gtk.SeparatorMenuItem()
         submenuitem.show()
         submenu.add(submenuitem)
@@ -48,6 +64,9 @@ class GtkInteractiveInterface(GtkInterface):
         menuitem = gtk.MenuItem("_Edit")
         submenu = gtk.Menu()
         submenu.show()
+        submenuitem = gtk.MenuItem("_Repositories")
+        submenuitem.show()
+        submenu.add(submenuitem)
         submenuitem = gtk.SeparatorMenuItem()
         submenuitem.show()
         submenu.add(submenuitem)
@@ -61,20 +80,16 @@ class GtkInteractiveInterface(GtkInterface):
         menuitem = gtk.MenuItem("_View")
         submenu = gtk.Menu()
         submenu.show()
+        submenuitem = gtk.MenuItem("_Log Window")
+        submenuitem.connect("activate", lambda x: self._log.show())
+        submenuitem.show()
+        submenu.add(submenuitem)
         submenuitem = gtk.SeparatorMenuItem()
         submenuitem.show()
         submenu.add(submenuitem)
 
         submenuitem = gtk.MenuItem("Filter")
         submenuitem.show()
-        def toggle_package_filter(item, filter):
-            filters = sysconf.get("package-filters", {})
-            if filter in filters:
-                del filters[filter]
-            else:
-                filters[filter] = True
-            sysconf.set("package-filters", filters)
-            self.refreshPackages()
         filters = sysconf.get("package-filters", {})
         subsubmenu = gtk.Menu()
         subsubmenuitem = None
@@ -85,7 +100,9 @@ class GtkInteractiveInterface(GtkInterface):
             subsubmenuitem = gtk.CheckMenuItem(label)
             if filter in filters:
                 subsubmenuitem.set_active(True)
-            subsubmenuitem.connect("toggled", toggle_package_filter, filter)
+            subsubmenuitem.connect("toggled",
+                                   lambda x, y: self.togglePackageFilter(y),
+                                   filter)
             subsubmenuitem.show()
             subsubmenu.add(subsubmenuitem)
         submenuitem.set_submenu(subsubmenu)
@@ -93,10 +110,6 @@ class GtkInteractiveInterface(GtkInterface):
 
         submenuitem = gtk.MenuItem("Tree Style")
         submenuitem.show()
-        def set_package_tree(item, mode):
-            if item.get_active() and mode != sysconf.get("package-tree"):
-                sysconf.set("package-tree", mode)
-                self.refreshPackages()
         tree = sysconf.get("package-tree", "groups")
         subsubmenu = gtk.Menu()
         subsubmenuitem = None
@@ -107,7 +120,9 @@ class GtkInteractiveInterface(GtkInterface):
             subsubmenuitem = gtk.RadioMenuItem(subsubmenuitem, label)
             if tree == mode:
                 subsubmenuitem.set_active(True)
-            subsubmenuitem.connect("activate", set_package_tree, mode)
+            subsubmenuitem.connect("activate",
+                                   lambda x, y: x.get_active() and
+                                                self.setPackageTree(y), mode)
             subsubmenuitem.show()
             subsubmenu.add(subsubmenuitem)
         submenuitem.set_submenu(subsubmenu)
@@ -163,6 +178,34 @@ class GtkInteractiveInterface(GtkInterface):
 
     # Non-standard interface methods:
 
+    def getTransaction(self):
+        return self._transaction
+
+    def updateAll(self):
+        self._ctrl.unloadCache()
+        self._ctrl.fetchRepositories(caching=NEVER)
+        self._ctrl.loadCache()
+        self.refreshPackages()
+        self._progress.hide()
+
+    def applyChanges(self):
+        if self._ctrl.commitTransaction(self._transaction):
+            self._transaction.getChangeSet().clear()
+            self._ctrl.unloadCache()
+            self._ctrl.fetchRepositories()
+            self._ctrl.loadCache()
+            self.refreshPackages()
+        self._progress.hide()
+
+    def togglePackageFilter(self, filter):
+        filters = sysconf.get("package-filters", {})
+        if filter in filters:
+            del filters[filter]
+        else:
+            filters[filter] = True
+        sysconf.set("package-filters", filters)
+        self.refreshPackages()
+
     def togglePackage(self, pkg):
         transaction = self._transaction
         oldchangeset = transaction.getChangeSet()
@@ -193,8 +236,10 @@ class GtkInteractiveInterface(GtkInterface):
                 self._pv.queue_draw()
         transaction.setChangeSet(oldchangeset)
 
-    def getTransaction(self):
-        return self._transaction
+    def setPackageTree(self, mode):
+        if mode != sysconf.get("package-tree"):
+            sysconf.set("package-tree", mode)
+            self.refreshPackages()
 
     def refreshPackages(self):
         if not self._ctrl:

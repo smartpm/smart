@@ -8,15 +8,20 @@ class GtkInterface(Interface):
 
     def __init__(self):
         self._log = GtkLog()
-        self._progress = GtkProgress()
+        self._progress = GtkProgress(False)
+        self._hassubprogress = GtkProgress(True)
         self._changes = None
 
     def getProgress(self, obj, hassub=False):
-        self._progress.setHasSub(hassub)
-        return self._progress
+        if hassub:
+            self._progress.hide()
+            return self._hassubprogress
+        else:
+            self._hassubprogress.hide()
+            return self._progress
 
     def getSubProgress(self, obj):
-        return self._progress
+        return self._hassubprogress
 
     def message(self, level, msg):
         self._log.message(level, msg)
@@ -37,3 +42,10 @@ class GtkInterface(Interface):
         if not self._changes:
             self._changes = GtkChanges()
         return self._changes.showChangeSet(trans.getChangeSet(), confirm=True)
+
+    # Non-standard interface methods
+
+    def hideProgress(self):
+        self._progress.hide()
+        self._hassubprogress.hide()
+

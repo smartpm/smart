@@ -16,7 +16,7 @@ class Progress:
         self.__subdone = {}
         self.__lasttime = 0
         self.__lock = thread.allocate_lock()
-        self._hassub = False
+        self.__hassub = False
 
     def start(self):
         pass

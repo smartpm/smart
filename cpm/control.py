@@ -36,6 +36,9 @@ class Control:
     def loadCache(self):
         self._cache.load()
 
+    def unloadCache(self):
+        self._cache.unload()
+
     def reloadCache(self):
         self._cache.reload()
 
@@ -72,8 +75,7 @@ class Control:
         for repos in self._sysconfreplst:
             self._replst.remove(repos)
             self._cache.removeLoader(repos.getLoader())
-        self._replst = [x for x in self._replst
-                              if x not in self._sysconfreplst]
+        del self._sysconfreplst[:]
         names = {}
         for data in sysconf.get("repositories", ()):
             if data.get("disabled"):
@@ -147,7 +149,8 @@ class Control:
 
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
         if not confirm or iface.confirmTransaction(trans):
-            self.commitChangeSet(trans.getChangeSet(), caching)
+            return self.commitChangeSet(trans.getChangeSet(), caching)
+        return False
 
     def commitChangeSet(self, changeset, caching=OPTIONAL):
         pkgpath = self.fetchPackages([pkg for pkg in changeset
@@ -168,9 +171,12 @@ class Control:
                          if changeset[pkg] is REMOVE]
             pm.commit(pminstall, pmremove, pkgpath)
 
+        return True
+
     def commitTransactionStepped(self, trans, caching=OPTIONAL, confirm=True):
         if not confirm or iface.confirmTransaction(trans):
-            self.commitChangeSetStepped(trans.getChangeSet(), caching)
+            return self.commitChangeSetStepped(trans.getChangeSet(), caching)
+        return False
 
     def commitChangeSetStepped(self, changeset, caching=OPTIONAL):
 
@@ -196,5 +202,7 @@ class Control:
             splitter.include(unioncs, pkg)
             cs = unioncs.difference(cs)
             self.commitChangeSet(cs)
+
+        return True
 
 # vim:ts=4:sw=4:et

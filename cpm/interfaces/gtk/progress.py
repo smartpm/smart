@@ -59,10 +59,16 @@ gobject.type_register(ProgressCellRenderer)
 
 class GtkProgress(Progress, gtk.Window):
 
-    def __init__(self, parent=None):
+    def __init__(self, hassub):
         Progress.__init__(self)
         gtk.Window.__init__(self)
         self.__gobject_init__()
+
+        if hassub:
+            self.setHasSub(True)
+            self.set_size_request(500, 400)
+        else:
+            self.set_size_request(300, 80)
 
         self.set_title("Operation Progress")
         self.set_modal(True)
@@ -84,57 +90,48 @@ class GtkProgress(Progress, gtk.Window):
         self._progress.show()
         self._vbox.pack_start(self._progress, expand=False, fill=False)
 
-        self._scrollwin = gtk.ScrolledWindow()
-        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self._vbox.pack_start(self._scrollwin)
-
-        self._treemodel = gtk.ListStore(gobject.TYPE_INT,
-                                        gobject.TYPE_STRING)
-        self._treeview = gtk.TreeView(self._treemodel)
-        #self._treeview.set_property("fixed_height_mode", True)
-        self._treeview.show()
-        self._scrollwin.add(self._treeview)
-
-        renderer = ProgressCellRenderer()
-        column = gtk.TreeViewColumn("Progress", renderer, percent=0)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        column.set_fixed_width(110)
-        self._treeview.append_column(column)
-
-        renderer = gtk.CellRendererText()
-        renderer.set_fixed_height_from_font(True)
-        column = gtk.TreeViewColumn("Description", renderer, text=1)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        self._treeview.append_column(column)
-
-        self._subiters = {}
-        self._subindex = 0
-        self._lastpath = None
-
-    def start(self):
-        if self.getHasSub():
+        if hassub:
+            self._scrollwin = gtk.ScrolledWindow()
+            self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
             self._scrollwin.show()
-            self.set_size_request(500, 400)
-        else:
-            self._scrollwin.hide()
-            self.set_size_request(300, 80)
+            self._vbox.pack_start(self._scrollwin)
+
+            self._treemodel = gtk.ListStore(gobject.TYPE_INT,
+                                            gobject.TYPE_STRING)
+            self._treeview = gtk.TreeView(self._treemodel)
+            self._treeview.show()
+            self._scrollwin.add(self._treeview)
+
+            renderer = ProgressCellRenderer()
+            column = gtk.TreeViewColumn("Progress", renderer, percent=0)
+            column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+            column.set_fixed_width(110)
+            self._treeview.append_column(column)
+
+            renderer = gtk.CellRendererText()
+            renderer.set_fixed_height_from_font(True)
+            column = gtk.TreeViewColumn("Description", renderer, text=1)
+            column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+            self._treeview.append_column(column)
+
+            self._subiters = {}
+            self._subindex = 0
+            self._lastpath = None
 
     def stop(self):
         Progress.stop(self)
-        self._subiters.clear()
-        self._subindex = 0
-        self._lastpath = None
-        #self._hide()
 
-    def hide(self):
-        gtk.Window.hide(self)
-        self.unrealize()
+        if self.getHasSub():
+            self._subiters.clear()
+            self._subindex = 0
+            self._lastpath = None
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         gtk.Window.show(self)
         
-        if self.getHasSub() and subkey:
+        hassub = self.getHasSub()
+        if hassub and subkey:
             if subkey in self._subiters:
                 iter = self._subiters[subkey]
             else:
@@ -158,7 +155,8 @@ class GtkProgress(Progress, gtk.Window):
             self._topic.set_text(topic)
             self._progress.set_fraction(percent/100.)
             self._progress.set_text("%d%%" % percent)
-            self._treeview.queue_draw()
+            if hassub:
+                self._treeview.queue_draw()
             while gtk.events_pending():
                 gtk.main_iteration()
 

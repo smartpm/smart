@@ -34,7 +34,7 @@ class RPMPackageManager(PackageManager):
         ts = rpm.ts()
         packages = 0
         for pkg in install:
-            loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
+            loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
             mode = pkg in upgrading and "u" or "i"
             path = pkgpath[pkg]
@@ -49,7 +49,10 @@ class RPMPackageManager(PackageManager):
                 if ":" in version:
                     version = version[version.find(":")+1:]
                 version, arch = splitarch(version)
-                ts.addErase("%s-%s" % (pkg.name, version))
+                try:
+                    ts.addErase("%s-%s" % (pkg.name, version))
+                except rpm.error, e:
+                    raise Error, "%s-%s: %s" % (pkg.name, pkg.version, str(e))
         probs = ts.check()
         if probs:
             problines = []
@@ -140,7 +143,7 @@ class RPMCallback:
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
-            iface.debug("processing %s in %s" % (info.getPackage(), path))
+            iface.debug("Processing %s in %s" % (info.getPackage(), path))
             self.fd = os.open(path, os.O_RDONLY)
             return self.fd
         
