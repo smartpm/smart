@@ -17,6 +17,8 @@ def parse_options(argv):
                       help="show conflicts for the given packages")
     parser.add_option("--obsoletes", action="store_true",
                       help="show requires for the given packages")
+    parser.add_option("--satisfies", action="store_true",
+                      help="show packages satisifying dependencies")
     parser.add_option("--whoprovides", action="append", default=[], metavar="DEP",
                       help="show only packages providing the given dependency")
     parser.add_option("--whorequires", action="append", default=[], metavar="DEP",
@@ -155,8 +157,8 @@ def main(opts):
                         continue
                 if first:
                     first = False
-                    print "    Provides:"
-                print "       ", prv
+                    print "  Provides:"
+                print "   ", prv
         if pkg.requires and (opts.requires or whorequires):
             pkg.requires.sort()
             first = True
@@ -169,8 +171,18 @@ def main(opts):
                         continue
                 if first:
                     first = False
-                    print "    Requires:"
-                print "       ", req
+                    print "  Requires:"
+                print "   ", req
+                if opts.satisfies and req.providedby:
+                    print "      Provided By:"
+                    for prv in req.providedby:
+                        prv.packages.sort()
+                        lastprvpkg = None
+                        for pkg in prv.packages:
+                            if pkg == lastprvpkg:
+                                continue
+                            lastprvpkg = pkg
+                            print "       ", "%s (%s)" % (pkg, prv)
         if pkg.obsoletes and (opts.obsoletes or whoobsoletes):
             pkg.obsoletes.sort()
             first = True
@@ -183,8 +195,18 @@ def main(opts):
                         continue
                 if first:
                     first = False
-                    print "    Obsoletes:"
-                print "       ", obs
+                    print "  Obsoletes:"
+                print "   ", obs
+                if opts.satisfies and obs.providedby:
+                    print "      Provided By:"
+                    for prv in obs.providedby:
+                        prv.packages.sort()
+                        lastprvpkg = None
+                        for pkg in prv.packages:
+                            if pkg == lastprvpkg:
+                                continue
+                            lastprvpkg = pkg
+                            print "       ", "%s (%s)" % (pkg, prv)
         if pkg.conflicts and (opts.conflicts or whoconflicts):
             pkg.conflicts.sort()
             first = True
@@ -197,8 +219,18 @@ def main(opts):
                         continue
                 if first:
                     first = False
-                    print "    Conflicts:"
-                print "       ", cnf
+                    print "  Conflicts:"
+                print "   ", cnf
+                if opts.satisfies and cnf.providedby:
+                    print "      Provided By:"
+                    for prv in cnf.providedby:
+                        prv.packages.sort()
+                        lastprvpkg = None
+                        for pkg in prv.packages:
+                            if pkg == lastprvpkg:
+                                continue
+                            lastprvpkg = pkg
+                            print "       ", "%s (%s)" % (pkg, prv)
 
     ctrl.standardFinalize()
 

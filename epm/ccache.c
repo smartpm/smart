@@ -1281,34 +1281,31 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
 
         /* if lst: */
         if (lst) {
-
             /* for req in lst: */
-            len = PyList_GET_SIZE(lst);
-            for (j = 0; j != len; j++) {
-                /* if .......: */
+            int reqlen = PyList_GET_SIZE(lst);
+            for (j = 0; j != reqlen; j++) {
                 DependsObject *req = (DependsObject *)PyList_GET_ITEM(lst, j);
+                /* if .......: */
                 if (req->relation == Py_None || prv->version == Py_None ||
                     (strcmp(PyString_AsString(req->relation), "=") == 0 &&
-                     strcmp(PyString_AsString(prv->version),
-                            PyString_AsString(req->version)) == 0)) {
-
+                     strcmp(PyString_AsString(req->version),
+                            PyString_AsString(prv->version)) == 0)) {
                     /* req.providedby.append(prv) */
                     PyList_Append(req->providedby, (PyObject *)prv);
                     /* prv.requiredby.append(req) */
                     PyList_Append(prv->requiredby, (PyObject *)req);
-
                 } else if (prv->version != Py_None) {
                     PyObject *ret = 
                         PyObject_CallMethod((PyObject *)req, "matches",
                                             "O", (PyObject *)prv);
+                    if (!ret) return NULL;
                     if (PyObject_IsTrue(ret)) {
-
                         /* req.providedby.append(prv) */
                         PyList_Append(req->providedby, (PyObject *)prv);
                         /* prv.requiredby.append(req) */
                         PyList_Append(prv->requiredby, (PyObject *)req);
-
                     }
+                    Py_DECREF(ret);
                 }
             }
         }
@@ -1320,32 +1317,30 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
         if (lst) {
 
             /* for obs in lst: */
-            len = PyList_GET_SIZE(lst);
-            for (j = 0; j != len; j++) {
-                /* if .......: */
+            int obslen = PyList_GET_SIZE(lst);
+            for (j = 0; j != obslen; j++) {
                 DependsObject *obs = (DependsObject *)PyList_GET_ITEM(lst, j);
+                /* if .......: */
                 if (obs->relation == Py_None || prv->version == Py_None ||
                     (strcmp(PyString_AsString(obs->relation), "=") == 0 &&
-                     strcmp(PyString_AsString(prv->version),
-                            PyString_AsString(obs->version)) == 0)) {
-
+                     strcmp(PyString_AsString(obs->version),
+                            PyString_AsString(prv->version)) == 0)) {
                     /* obs.providedby.append(prv) */
                     PyList_Append(obs->providedby, (PyObject *)prv);
                     /* prv.obsoletedby.append(obs) */
                     PyList_Append(prv->obsoletedby, (PyObject *)obs);
-
                 } else if (prv->version != Py_None) {
                     PyObject *ret = 
                         PyObject_CallMethod((PyObject *)obs, "matches",
                                             "O", (PyObject *)prv);
+                    if (!ret) return NULL;
                     if (PyObject_IsTrue(ret)) {
-
                         /* obs.providedby.append(prv) */
                         PyList_Append(obs->providedby, (PyObject *)prv);
                         /* prv.obsoletedby.append(obs) */
                         PyList_Append(prv->obsoletedby, (PyObject *)obs);
-
                     }
+                    Py_DECREF(ret);
                 }
             }
         }
@@ -1357,32 +1352,30 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
         if (lst) {
 
             /* for cnf in lst: */
-            len = PyList_GET_SIZE(lst);
-            for (j = 0; j != len; j++) {
-                /* if .......: */
+            int cnflen = PyList_GET_SIZE(lst);
+            for (j = 0; j != cnflen; j++) {
                 DependsObject *cnf = (DependsObject *)PyList_GET_ITEM(lst, j);
+                /* if .......: */
                 if (cnf->relation == Py_None || prv->version == Py_None ||
                     (strcmp(PyString_AsString(cnf->relation), "=") == 0 &&
-                     strcmp(PyString_AsString(prv->version),
-                            PyString_AsString(cnf->version)) == 0)) {
-
+                     strcmp(PyString_AsString(cnf->version),
+                            PyString_AsString(prv->version)) == 0)) {
                     /* cnf.providedby.append(prv) */
                     PyList_Append(cnf->providedby, (PyObject *)prv);
                     /* prv.conflictedby.append(cnf) */
                     PyList_Append(prv->conflictedby, (PyObject *)cnf);
-
                 } else if (prv->version != Py_None) {
                     PyObject *ret = 
                         PyObject_CallMethod((PyObject *)cnf, "matches",
                                             "O", (PyObject *)prv);
+                    if (!ret) return NULL;
                     if (PyObject_IsTrue(ret)) {
-
                         /* cnf.providedby.append(prv) */
                         PyList_Append(cnf->providedby, (PyObject *)prv);
                         /* prv.conflictedby.append(cnf) */
                         PyList_Append(prv->conflictedby, (PyObject *)cnf);
-
                     }
+                    Py_DECREF(ret);
                 }
             }
         }
