@@ -251,7 +251,9 @@ class Progress(object):
         if subkey in self.__subdone:
             del self.__subdone[subkey]
         if subkey in self.__subprogress:
-            del self.__subprogress[subkey]
+            (subcurrent, subtotal, fragment, subdata) = \
+                self.__subprogress[subkey]
+            self.__subprogress[subkey] = (0, subtotal, fragment, {})
         self.__lasttime = 0
         self.__lock.release()
 
