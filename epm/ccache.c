@@ -1490,28 +1490,17 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             int reqlen = PyList_GET_SIZE(lst);
             for (j = 0; j != reqlen; j++) {
                 DependsObject *req = (DependsObject *)PyList_GET_ITEM(lst, j);
-                /* if .......: */
-                if (req->relation == Py_None ||
-                    (PyString_Check(prv->version) &&
-                     strcmp(STR(req->relation), "=") == 0 &&
-                     strcmp(STR(req->version), STR(prv->version)) == 0)) {
+                /* if req.matches(prv): */
+                PyObject *ret = PyObject_CallMethod((PyObject *)req, "matches",
+                                                    "O", (PyObject *)prv);
+                if (!ret) return NULL;
+                if (PyObject_IsTrue(ret)) {
                     /* req.providedby.append(prv) */
                     PyList_Append(req->providedby, (PyObject *)prv);
                     /* prv.requiredby.append(req) */
                     PyList_Append(prv->requiredby, (PyObject *)req);
-                } else {
-                    PyObject *ret = 
-                        PyObject_CallMethod((PyObject *)req, "matches",
-                                            "O", (PyObject *)prv);
-                    if (!ret) return NULL;
-                    if (PyObject_IsTrue(ret)) {
-                        /* req.providedby.append(prv) */
-                        PyList_Append(req->providedby, (PyObject *)prv);
-                        /* prv.requiredby.append(req) */
-                        PyList_Append(prv->requiredby, (PyObject *)req);
-                    }
-                    Py_DECREF(ret);
                 }
+                Py_DECREF(ret);
             }
         }
 
@@ -1525,28 +1514,17 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             int obslen = PyList_GET_SIZE(lst);
             for (j = 0; j != obslen; j++) {
                 DependsObject *obs = (DependsObject *)PyList_GET_ITEM(lst, j);
-                /* if .......: */
-                if (obs->relation == Py_None ||
-                    (PyString_Check(prv->version) &&
-                     strcmp(STR(obs->relation), "=") == 0 &&
-                     strcmp(STR(obs->version), STR(prv->version)) == 0)) {
+                /* if obs.matches(prv): */
+                PyObject *ret = PyObject_CallMethod((PyObject *)obs, "matches",
+                                                    "O", (PyObject *)prv);
+                if (!ret) return NULL;
+                if (PyObject_IsTrue(ret)) {
                     /* obs.providedby.append(prv) */
                     PyList_Append(obs->providedby, (PyObject *)prv);
                     /* prv.obsoletedby.append(obs) */
                     PyList_Append(prv->obsoletedby, (PyObject *)obs);
-                } else {
-                    PyObject *ret = 
-                        PyObject_CallMethod((PyObject *)obs, "matches",
-                                            "O", (PyObject *)prv);
-                    if (!ret) return NULL;
-                    if (PyObject_IsTrue(ret)) {
-                        /* obs.providedby.append(prv) */
-                        PyList_Append(obs->providedby, (PyObject *)prv);
-                        /* prv.obsoletedby.append(obs) */
-                        PyList_Append(prv->obsoletedby, (PyObject *)obs);
-                    }
-                    Py_DECREF(ret);
                 }
+                Py_DECREF(ret);
             }
         }
 
@@ -1560,28 +1538,17 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             int cnflen = PyList_GET_SIZE(lst);
             for (j = 0; j != cnflen; j++) {
                 DependsObject *cnf = (DependsObject *)PyList_GET_ITEM(lst, j);
-                /* if .......: */
-                if (cnf->relation == Py_None ||
-                    (PyString_Check(prv->version) &&
-                     strcmp(STR(cnf->relation), "=") == 0 &&
-                     strcmp(STR(cnf->version), STR(prv->version)) == 0)) {
+                /* if cnf.matches(prv): */
+                PyObject *ret = PyObject_CallMethod((PyObject *)cnf, "matches",
+                                                    "O", (PyObject *)prv);
+                if (!ret) return NULL;
+                if (PyObject_IsTrue(ret)) {
                     /* cnf.providedby.append(prv) */
                     PyList_Append(cnf->providedby, (PyObject *)prv);
                     /* prv.conflictedby.append(cnf) */
                     PyList_Append(prv->conflictedby, (PyObject *)cnf);
-                } else {
-                    PyObject *ret = 
-                        PyObject_CallMethod((PyObject *)cnf, "matches",
-                                            "O", (PyObject *)prv);
-                    if (!ret) return NULL;
-                    if (PyObject_IsTrue(ret)) {
-                        /* cnf.providedby.append(prv) */
-                        PyList_Append(cnf->providedby, (PyObject *)prv);
-                        /* prv.conflictedby.append(cnf) */
-                        PyList_Append(prv->conflictedby, (PyObject *)cnf);
-                    }
-                    Py_DECREF(ret);
                 }
+                Py_DECREF(ret);
             }
         }
     }

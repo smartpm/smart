@@ -42,8 +42,8 @@ setup(name="epm",
       ext_modules = [
                      Extension("epm.ccache",
       			       ["epm/ccache.c"]),
-                     Extension("epm.loaders.rpm.crpmver",
-                               ["epm/loaders/rpm/crpmver.c"]),
+                     Extension("epm.backends.rpm.crpmver",
+                               ["epm/backends/rpm/crpmver.c"]),
                     ],
       )
 

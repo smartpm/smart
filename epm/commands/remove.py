@@ -31,11 +31,14 @@ def main(opts):
                 policy.setLocked(pkg, True)
     if not found:
         raise Error, "no installed packages matched given arguments"
+    trans.minimize()
     print trans
     print "Running transaction"
     from epm.backends.rpm.pm import RPMPackageManager
     pm = RPMPackageManager()
-    pm.commit(trans)
+    from epm.progress import RPMStyleProgress
+    prog = RPMStyleProgress()
+    #pm.commit(trans, prog)
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

@@ -34,11 +34,14 @@ def main(opts):
         pkgs = dict.fromkeys(newpkgs).keys()
     pkgs = [x for x in pkgs if x.installed]
     trans.upgrade(pkgs)
+    trans.minimize()
     print trans
     print "Running transaction"
     from epm.backends.rpm.pm import RPMPackageManager
     pm = RPMPackageManager()
-    pm.commit(trans)
+    from epm.progress import RPMStyleProgress
+    prog = RPMStyleProgress()
+    #pm.commit(trans, prog)
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

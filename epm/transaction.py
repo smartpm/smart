@@ -73,10 +73,10 @@ class Policy:
 
     def setLocked(self, pkg, flag):
         if flag:
+            self._locked[pkg] = True
+        else:
             if pkg in self._locked:
                 del self._locked[pkg]
-        else:
-            self._locked[pkg] = True
 
     def getLockedSet(self):
         return self._locked
@@ -409,10 +409,12 @@ class Transaction:
                 cs = changeset.copy()
                 try:
                     for reqpkg in req.packages:
-                        if reqpkg in locked or not isinst(reqpkg):
+                        if not isinst(reqpkg):
                             continue
+                        if reqpkg in locked:
+                            raise Failed, "%s is locked" % reqpkg
                         self._remove(reqpkg, cs, lckd)
-                except Failed:
+                except Failed, e:
                     failures.append(str(e))
                 else:
                     alternatives.append((getweight(cs), cs))
@@ -499,7 +501,45 @@ class Transaction:
             alternatives.sort()
             weight, state = alternatives[0]
             changeset.setState(state)
-                
+
+    def minimize(self, changeset=None, locked=None):
+        if not changeset:
+            changeset = self._changeset
+        if not locked:
+            locked = self._policy.getLockedSet().copy()
+        else:
+            locked = locked.copy()
+        getweight = self._policy.getWeight
+        set = changeset.getSet()
+        bestweight = getweight(changeset)
+        for pkg in set.keys():
+            if pkg not in set or pkg in locked:
+                continue
+            if set[pkg] is INSTALL:
+                if not pkg.installed:
+                    cs = changeset.copy()
+                    try:
+                        self.remove(pkg, cs, locked)
+                    except Failed:
+                        pass
+                    else:
+                        weight = getweight(cs)
+                        if weight < bestweight:
+                            bestweight = weight
+                            changeset.setState(cs)
+            else:
+                if pkg.installed:
+                    cs = changeset.copy()
+                    try:
+                        self.install(pkg, cs, locked)
+                    except Failed:
+                        pass
+                    else:
+                        weight = getweight(cs)
+                        if weight < bestweight:
+                            bestweight = weight
+                            changeset.setState(cs)
+
 try:
     import psyco
 except ImportError:

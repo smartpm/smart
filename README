@@ -1,0 +1,22 @@
+
+
+Features
+--------
+
+Cache system:
+
+- Recognizes multiple versions of the same package name.
+- Package names decoupled from the upgrade procedure. Only
+  thing that matter is obsoletes relations, which may be
+  introduced implicitly by the loader system, if necessary.
+
+Dependency solving algorithm:
+
+- Very fast.
+- Works by computing weights for different alternatives.
+- Different notions of weight implemented by separate policies.
+- Every available package is a candidate for dependency resolution.
+- Algorithm is smart enough to even reinstall a package if two
+  different packages with same name-version have different
+  relations.
+- Upgrades select the best option, not the latest available version.

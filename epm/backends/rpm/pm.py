@@ -8,7 +8,7 @@ import rpm
 
 class RPMPackageManager(PackageManager):
 
-    def commit(self, trans):
+    def commit(self, trans, prog):
         set = trans.getChangeSet().getSet()
 
         # Build obsoletes relations.
@@ -25,7 +25,7 @@ class RPMPackageManager(PackageManager):
                             obsoleting[obspkg] = True
 
         ts = rpm.ts()
-        packagesTotal = 0
+        packages = 0
         for pkg in set:
             if not isinstance(pkg, RPMPackage):
                 continue
@@ -41,23 +41,21 @@ class RPMPackageManager(PackageManager):
                 h = ts.hdrFromFdno(fd)
                 os.close(fd)
                 ts.addInstall(h, info, mode)
-                packagesTotal += 1
+                packages += 1
             elif pkg not in obsoleted:
                 version = pkg.version
                 if ":" in version:
                     version = version[version.find(":")+1:]
                 ts.addErase("%s-%s" % (pkg.name, version))
         ts.order()
-        cb = RPMStandardCallback(packagesTotal)
+        prog.setTotal(packages)
+        cb = RPMStandardCallback(prog)
         ts.run(cb, None)
 
-
 class RPMStandardCallback:
-    def __init__(self, packagesTotal):
-        self.hashesPrinted = 0
-        self.packagesTotal = packagesTotal
-        self.progressTotal = 0
-        self.progressCurrent = 0
+    def __init__(self, prog):
+        self.prog = prog
+        self.current = 0
         self.fd = None
 
     def __call__(self, what, amount, total, info, data):
@@ -76,67 +74,23 @@ class RPMStandardCallback:
                 self.fd = None
 
         elif what == rpm.RPMCALLBACK_INST_START:
-            self.hashesPrinted = 0
-            name = info.getPackage().name
-            if sys.stdout.isatty():
-                sys.stdout.write("%4d:%-23.23s" %
-                                 (self.progressCurrent+1, name))
-            else:
-                sys.stdout.write("%-28.28s" % name)
-            sys.stdout.flush()
+            self.current += 1
+            self.prog.setTopic(info.getPackage().name)
+            self.prog.setCurrent(self.current)
+            self.prog.setData("item-number", self.current)
 
         elif (what == rpm.RPMCALLBACK_TRANS_PROGRESS or
               what == rpm.RPMCALLBACK_INST_PROGRESS):
-            self.printHash(amount, total)
-            sys.stdout.flush()
+            self.prog.setSubTotal(total)
+            self.prog.setSubCurrent(amount)
+            self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_START:
-            self.hashesPrinted = 0
-            self.progressTotal = 1
-            self.progressCurrent = 0
-            sys.stdout.write("%-28s" % "Preparing...")
-            sys.stdout.flush()
+            self.prog.setSubTotal(1)
+            self.prog.setTopic("Preparing...")
+            self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_STOP:
-            self.printHash(1, 1)
-            self.progressTotal = self.packagesTotal
-            self.progressCurrent = 0
+            self.prog.setSubDone()
+            self.prog.show()
 
-    def printHash(self, amount, total):
-        hashesNeeded = 0
-        hashesTotal = 50
-        if sys.stdout.isatty():
-            hashesTotal = 44
-
-        if self.hashesPrinted != hashesTotal:
-            if total:
-                hashesNeeded = int(hashesTotal*(float(amount)/total))
-            else:
-                hashesNeeded = hashesTotal
-            while hashesNeeded > self.hashesPrinted:
-                if sys.stdout.isatty():
-                    sys.stdout.write("#"*self.hashesPrinted)
-                    sys.stdout.write(" "*(hashesTotal-self.hashesPrinted))
-                    if total:
-                        percent = 100 * float(amount)/total
-                    else:
-                        percent = 100
-                    sys.stdout.write("(%3d%%)" % percent)
-                    sys.stdout.write("\b"*(hashesTotal+6))
-                else:
-                    sys.stdout.write("#")
-                self.hashesPrinted += 1
-            sys.stdout.flush()
-            self.hashesPrinted = hashesNeeded
-            if self.hashesPrinted == hashesTotal:
-                self.progressCurrent += 1
-                if sys.stdout.isatty():
-                    sys.stdout.write("#"*(self.hashesPrinted-1))
-                    if self.progressTotal:
-                        percent = 100 * float(self.progressCurrent)/ \
-                                        self.progressTotal
-                    else:
-                        percent = 100
-                    sys.stdout.write(" [%3d%%]" % percent)
-                sys.stdout.write("\n")
-            sys.stdout.flush()
