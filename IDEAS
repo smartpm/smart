@@ -174,9 +174,16 @@ deb-src http://www.dreamind.de/debian/ woody-fixes main
       
 Files:
 
+http://www.br.debian.org/mirror/list
+http://download.unesp.br/linux/debian/
+
 http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/Packages.gz
 http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/Packages
 http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/whois_4.5.25-1_i386.deb
+
+Manual of dpkg:
+
+http://sistemac.carnet.hr/paketi/dpkg-full/
 
 Slackware repository
 --------------------

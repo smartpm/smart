@@ -1,4 +1,4 @@
-- Support extra flags for rpm backend package manager (like
-  --replacefiles, --root, etc).
 - Support for selecting packages by provided dependencies.
 - Show download size before starting fetching.
+- Make slack-site default priority be 100 or so.
+- Remove support for channel descriptions.
