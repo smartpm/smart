@@ -339,6 +339,7 @@ class GtkInteractiveInterface(GtkInterface):
     def run(self, ctrl):
         self._ctrl = ctrl
         self._changeset = ChangeSet(ctrl.getCache())
+        self._pi.setChangeSet(self._changeset)
         self._window.show()
         ctrl.updateCache()
         self._progress.hide()

@@ -29,6 +29,7 @@ class GtkPackageInfo(gtk.Alignment):
         self.__gobject_init__()
 
         self._pkg = None
+        self._changeset = None
 
         self._notebook = gtk.Notebook()
         self._notebook.show()
@@ -108,6 +109,9 @@ class GtkPackageInfo(gtk.Alignment):
 
     def _switchPage(self, notebook, page, pagenum):
         self.setPackage(self._pkg, _pagenum=pagenum)
+
+    def setChangeSet(self, changeset):
+        self._changeset = changeset
 
     def setPackage(self, pkg, _pagenum=None):
 
@@ -254,7 +258,7 @@ class GtkPackageInfo(gtk.Alignment):
         if conflicts:
             relations[Sorter("Conflicts")] = conflicts
 
-        self._relations.setPackages(relations)
+        self._relations.setPackages(relations, self._changeset)
 
 gobject.type_register(GtkPackageInfo)
 
