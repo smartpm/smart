@@ -290,7 +290,7 @@ class PolicyUpgrade(Policy):
                     weight += 3
             else:
                 if pkg in upgrading:
-                    weight -= 4
+                    weight -= 5
                 else:
                     weight += 1
                 weight += bonus.get(pkg, 0)
@@ -626,6 +626,7 @@ class Transaction(object):
                     alternatives = []
                     failures = []
                     sortUpgrades(prvpkgs)
+                    keeporder = 0.000001
                     pw = self._policy.getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
                         try:
@@ -638,8 +639,9 @@ class Transaction(object):
                         except Failed, e:
                             failures.append(str(e))
                         else:
-                            alternatives.append((getweight(cs)+pw[prvpkg],
-                                                cs, lk))
+                            alternatives.append((getweight(cs)+pw[prvpkg]+
+                                                 keeporder, cs, lk))
+                            keeporder += 0.000001
                     if not alternatives:
                         raise Failed, "Can't install %s: all packages providing " \
                                       "%s failed to install:\n%s" \
