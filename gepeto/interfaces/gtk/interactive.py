@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP
+from gepeto.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP, FIX
 from gepeto.transaction import Transaction, ChangeSet
 from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
@@ -324,7 +324,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._pv.connect("package_selected",
                          lambda x, y: self._pi.setPackage(y))
         self._pv.connect("package_activated",
-                         lambda x, y: self.togglePackage(y))
+                         lambda x, y: self.actOnPackages(y))
         self._pv.connect("package_popup", self.packagePopup)
         self._vpaned.pack2(self._pi, False)
 
@@ -427,23 +427,29 @@ class GtkInteractiveInterface(GtkInterface):
             else:
                 self.showStatus("No interesting upgrades available!")
 
-    def togglePackage(self, pkg, reinstall=False):
+    def actOnPackages(self, pkgs, op=None):
         transaction = Transaction(self._ctrl.getCache(), policy=PolicyInstall)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
-        if pkg.installed:
-            if reinstall:
-                transaction.enqueue(pkg, REINSTALL)
-            elif pkg in changeset:
-                transaction.enqueue(pkg, KEEP)
+        if op is None:
+            if not [pkg for pkg in pkgs if pkg not in changeset]:
+                op = KEEP
             else:
-                transaction.setPolicy(PolicyRemove)
-                transaction.enqueue(pkg, REMOVE)
-        else:
-            if pkg in changeset:
-                transaction.enqueue(pkg, KEEP)
-            else:
-                transaction.enqueue(pkg, INSTALL)
+                for pkg in pkgs:
+                    if not pkg.installed:
+                        op = INSTALL
+                        break
+                else:
+                    op = REMOVE
+        for pkg in pkgs:
+            if op is KEEP:
+                transaction.enqueue(pkg, op)
+            elif op in (REMOVE, REINSTALL, FIX):
+                if pkg.installed:
+                    transaction.enqueue(pkg, op)
+            elif op is INSTALL:
+                if not pkg.installed:
+                    transaction.enqueue(pkg, op)
         try:
             transaction.run()
         except Error, e:
@@ -454,71 +460,21 @@ class GtkInteractiveInterface(GtkInterface):
                 self._changeset.setState(changeset)
                 self.changedMarks()
 
-    def packagePopup(self, packageview, pkg, event):
+    def packagePopup(self, packageview, pkgs, event):
 
         menu = gtk.Menu()
 
-        names = sysconf.get("package-flags", setdefault={}) \
-                                    .setdefault("lock", {})
-        if (names and pkg.name in names and 
-            ("=", pkg.version) in names[pkg.name]):
-            thislocked = True
-            alllocked = len(names[pkg.name]) > 1
-        else:
-            thislocked = False
-            alllocked = sysconf.testFlag("lock", pkg)
+        hasinstalled = bool([pkg for pkg in pkgs if pkg.installed
+                             and self._changeset.get(pkg) is not REMOVE])
+        hasnoninstalled = bool([pkg for pkg in pkgs if not pkg.installed
+                                and self._changeset.get(pkg) is not INSTALL])
 
         image = gtk.Image()
-        if thislocked:
-            item = gtk.ImageMenuItem("Unlock this version")
-            if pkg.installed:
-                image.set_from_pixbuf(getPixbuf("package-installed"))
-            else:
-                image.set_from_pixbuf(getPixbuf("package-available"))
-            def unlock_this(x):
-                names[pkg.name].remove(("=", pkg.version))
-                self._pv.queue_draw()
-            item.connect("activate", unlock_this)
-        else:
-            item = gtk.ImageMenuItem("Lock this version")
-            if pkg.installed:
-                image.set_from_pixbuf(getPixbuf("package-installed-locked"))
-            else:
-                image.set_from_pixbuf(getPixbuf("package-available-locked"))
-            def lock_this(x):
-                names.setdefault(pkg.name, []).append(("=", pkg.version))
-                self._pv.queue_draw()
-            item.connect("activate", lock_this)
+        image.set_from_pixbuf(getPixbuf("package-install"))
+        item = gtk.ImageMenuItem("Install")
         item.set_image(image)
-        if pkg in self._changeset:
-            item.set_sensitive(False)
-        menu.append(item)
-
-        image = gtk.Image()
-        if alllocked:
-            item = gtk.ImageMenuItem("Unlock all versions")
-            if pkg.installed:
-                image.set_from_pixbuf(getPixbuf("package-installed"))
-            else:
-                image.set_from_pixbuf(getPixbuf("package-available"))
-            if pkg in self._changeset:
-                item.set_sensitive(False)
-            def unlock_all(x):
-                del names[pkg.name]
-                self._pv.queue_draw()
-            item.connect("activate", unlock_all)
-        else:
-            item = gtk.ImageMenuItem("Lock all versions")
-            if pkg.installed:
-                image.set_from_pixbuf(getPixbuf("package-installed-locked"))
-            else:
-                image.set_from_pixbuf(getPixbuf("package-available-locked"))
-            def lock_all(x):
-                names.setdefault(pkg.name, []).append((None, None))
-                self._pv.queue_draw()
-            item.connect("activate", lock_all)
-        item.set_image(image)
-        if pkg in self._changeset:
+        item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
+        if not hasnoninstalled:
             item.set_sensitive(False)
         menu.append(item)
 
@@ -526,10 +482,118 @@ class GtkInteractiveInterface(GtkInterface):
         image.set_from_pixbuf(getPixbuf("package-reinstall"))
         item = gtk.ImageMenuItem("Reinstall")
         item.set_image(image)
-        def reinstall(x):
-            self.togglePackage(pkg, reinstall=True)
-        item.connect("activate", reinstall)
-        if not pkg.installed:
+        item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
+        if not hasinstalled:
+            item.set_sensitive(False)
+        menu.append(item)
+
+
+        image = gtk.Image()
+        image.set_from_pixbuf(getPixbuf("package-remove"))
+        item = gtk.ImageMenuItem("Remove")
+        item.set_image(image)
+        item.connect("activate", lambda x: self.actOnPackages(pkgs, REMOVE))
+        if not hasinstalled:
+            item.set_sensitive(False)
+        menu.append(item)
+
+        image = gtk.Image()
+        if not hasinstalled:
+            image.set_from_pixbuf(getPixbuf("package-available"))
+        else:
+            image.set_from_pixbuf(getPixbuf("package-installed"))
+        item = gtk.ImageMenuItem("Keep")
+        item.set_image(image)
+        item.connect("activate", lambda x: self.actOnPackages(pkgs, KEEP))
+        if not [pkg for pkg in pkgs if pkg in self._changeset]:
+            item.set_sensitive(False)
+        menu.append(item)
+
+        image = gtk.Image()
+        image.set_from_pixbuf(getPixbuf("package-broken"))
+        item = gtk.ImageMenuItem("Fix problems")
+        item.set_image(image)
+        item.connect("activate", lambda x: self.actOnPackages(pkgs, FIX))
+        if not hasinstalled:
+            item.set_sensitive(False)
+        menu.append(item)
+
+        inconsistent = False
+        thislocked = None
+        alllocked = None
+        names = sysconf.get("package-flags", setdefault={}) \
+                                    .setdefault("lock", {})
+        if [pkg for pkg in pkgs if pkg in self._changeset]:
+            inconsistent = True
+        else:
+            for pkg in pkgs:
+                if (names and pkg.name in names and 
+                    ("=", pkg.version) in names[pkg.name]):
+                    newthislocked = True
+                    newalllocked = len(names[pkg.name]) > 1
+                else:
+                    newthislocked = False
+                    newalllocked = sysconf.testFlag("lock", pkg)
+                if (thislocked is not None and thislocked != newthislocked or
+                    alllocked is not None and alllocked != newalllocked):
+                    inconsistent = True
+                    break
+                thislocked = newthislocked
+                alllocked = newalllocked
+
+        image = gtk.Image()
+        if thislocked:
+            item = gtk.ImageMenuItem("Unlock this version")
+            if not hasnoninstalled:
+                image.set_from_pixbuf(getPixbuf("package-installed"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available"))
+            def unlock_this(x):
+                for pkg in pkgs:
+                    names[pkg.name].remove(("=", pkg.version))
+                self._pv.queue_draw()
+            item.connect("activate", unlock_this)
+        else:
+            item = gtk.ImageMenuItem("Lock this version")
+            if not hasnoninstalled:
+                image.set_from_pixbuf(getPixbuf("package-installed-locked"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available-locked"))
+            def lock_this(x):
+                for pkg in pkgs:
+                    names.setdefault(pkg.name, []).append(("=", pkg.version))
+                self._pv.queue_draw()
+            item.connect("activate", lock_this)
+        item.set_image(image)
+        if inconsistent:
+            item.set_sensitive(False)
+        menu.append(item)
+
+        image = gtk.Image()
+        if alllocked:
+            item = gtk.ImageMenuItem("Unlock all versions")
+            if not hasnoninstalled:
+                image.set_from_pixbuf(getPixbuf("package-installed"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available"))
+            def unlock_all(x):
+                for pkg in pkgs:
+                    del names[pkg.name]
+                self._pv.queue_draw()
+            item.connect("activate", unlock_all)
+        else:
+            item = gtk.ImageMenuItem("Lock all versions")
+            if not hasnoninstalled:
+                image.set_from_pixbuf(getPixbuf("package-installed-locked"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available-locked"))
+            def lock_all(x):
+                for pkg in pkgs:
+                    names.setdefault(pkg.name, []).append((None, None))
+                self._pv.queue_draw()
+            item.connect("activate", lock_all)
+        item.set_image(image)
+        if inconsistent:
             item.set_sensitive(False)
         menu.append(item)
 

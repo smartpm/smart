@@ -121,12 +121,12 @@ class GtkPackageView(gtk.Alignment):
         self._treeview.set_rules_hint(True)
         self._treeview.connect("button_press_event", self._buttonPress)
         self._treeview.connect("select_cursor_row", self._selectCursor)
+        self._treeview.connect("cursor_changed", self._cursorChanged)
         self._treeview.show()
         self._scrollwin.add(self._treeview)
 
         selection = self._treeview.get_selection()
-        selection.set_mode(gtk.SELECTION_SINGLE)
-        selection.connect("changed", self._selectionChanged)
+        selection.set_mode(gtk.SELECTION_MULTIPLE)
 
         column = gtk.TreeViewColumn("Package")
         renderer = PixbufCellRenderer()
@@ -195,6 +195,17 @@ class GtkPackageView(gtk.Alignment):
 
     def getTreeView(self):
         return self._treeview
+
+    def getSelectedPkgs(self):
+        selection = self._treeview.get_selection()
+        model, paths = selection.get_selected_rows()
+        lst = []
+        for path in paths:
+            iter = model.get_iter(path)
+            value = model.get_value(iter, 0)
+            if hasattr(value, "name"):
+                lst.append(value)
+        return lst
 
     def setExpandPackage(self, flag):
         self._expandpackage = flag
@@ -338,33 +349,52 @@ class GtkPackageView(gtk.Alignment):
         value = model.get_value(iter, 0)
         if event.type == gtk.gdk._2BUTTON_PRESS:
             if not self._expandpackage and hasattr(value, "name"):
-                self.emit("package_activated", value)
+                pkgs = self.getSelectedPkgs()
+                if len(pkgs) > 1:
+                    self.emit("package_activated", pkgs)
+                else:
+                    self.emit("package_activated", [value])
             elif treeview.row_expanded(path):
                 treeview.collapse_row(path)
             else:
                 treeview.expand_row(path, False)
         elif event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
-            if hasattr(value, "name"):
-                self.emit("package_popup", value, event)
+            pkgs = self.getSelectedPkgs()
+            if len(pkgs) > 1:
+                self.emit("package_popup", pkgs, event)
+            elif hasattr(value, "name"):
+                self.emit("package_popup", [value], event)
 
     def _selectCursor(self, treeview, start_editing=False):
-        selection = treeview.get_selection()
-        model, iter = selection.get_selected()
-        if not iter:
-            return
-        value = model.get_value(iter, 0)
-        if not self._expandpackage and hasattr(value, "name"):
-            self.emit("package_activated", value)
+        pkgs = self.getSelectedPkgs()
+        if not self._expandpackage and pkgs:
+            self.emit("package_activated", pkgs)
         else:
-            path = model.get_path(iter)
-            if treeview.row_expanded(path):
-                treeview.collapse_row(path)
+            model = treeview.get_model()
+            path = treeview.get_cursor()[0]
+            iter = model.get_iter(path)
+            value = model.get_value(iter, 0)
+            if not self._expandpackage and hasattr(value, "name"):
+                self.emit("package_activated", [value])
             else:
-                treeview.expand_row(path, False)
+                if treeview.row_expanded(path):
+                    treeview.collapse_row(path)
+                else:
+                    treeview.expand_row(path, False)
 
-    def _selectionChanged(self, selection):
-        model, iter = selection.get_selected()
-        if iter:
+    def _pixbufClicked(self, path):
+        model = self._treeview.get_model()
+        iter = model.get_iter(path)
+        value = model.get_value(iter, 0)
+        if hasattr(value, "name"):
+            self.emit("package_activated", [value])
+
+    def _cursorChanged(self, treeview):
+        treeview = self._treeview
+        model = treeview.get_model()
+        path = treeview.get_cursor()[0]
+        if path:
+            iter = model.get_iter(path)
             value = model.get_value(iter, 0)
             if hasattr(value, "name"):
                 self.emit("package_selected", value)
@@ -373,13 +403,6 @@ class GtkPackageView(gtk.Alignment):
             path = model.get_path(iter)
         else:
             self.emit("package_selected", None)
-
-    def _pixbufClicked(self, path):
-        model = self._treeview.get_model()
-        iter = model.get_iter(path)
-        value = model.get_value(iter, 0)
-        if hasattr(value, "name"):
-            self.emit("package_activated", value)
 
 gobject.type_register(GtkPackageView)
 
