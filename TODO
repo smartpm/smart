@@ -1,7 +1,4 @@
 - Ordering system
-- Transaction reporting system, which computes differences between
-  transactions, and changes being introduced by a transaction
-  (upgrades, downgrades, reinstalls, etc).
 - Removable media handling
 - Check fetcher handlers for timeout problems due to hibernating
   too long.
@@ -10,3 +7,5 @@
 - Disable some checks in rpm backend package manager after
   considering it stable (allowing package replacing, temporary
   unsatisfied requires due to transaction breaking, etc).
+- Introduce support for reinstall in install command, rpm pm,
+  and report system.

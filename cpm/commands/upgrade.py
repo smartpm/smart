@@ -1,6 +1,6 @@
 from cpm.transaction import Transaction, PolicyUpgrade, UPGRADE
+from cpm.cmdline import initCmdLine, confirmChanges
 from cpm.matcher import MasterMatcher
-from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
 from cpm import *
 import string
@@ -36,7 +36,7 @@ def main(opts):
     trans.run()
     if not trans:
         print "No upgrades available!"
-    else:
+    elif confirmChanges(trans):
         #ctrl.commitTransaction(trans)
         ctrl.commitTransactionStepped(trans)
 

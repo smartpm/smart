@@ -253,6 +253,10 @@ class Transaction(object):
         self._changeset = changeset or ChangeSet()
         self._queue = queue or {}
 
+    def clear(self):
+        self._changeset.clear()
+        self._queue.clear()
+
     def getCache(self):
         return self._cache
 

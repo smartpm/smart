@@ -121,8 +121,6 @@ class Control:
 
         pkglst.sort()
 
-        print changeset
-
         splitter = ChangeSetSplitter(changeset)
         unioncs = ChangeSet()
         for n, pkg in pkglst:
@@ -132,9 +130,6 @@ class Control:
             splitter.include(unioncs, pkg)
             cs = unioncs.difference(cs)
             self.commitChangeSet(cs)
-            #print "Committing changeset:"
-            #print "-"*50
-            #print cs
 
 class ControlFeedback:
 

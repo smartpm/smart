@@ -1,6 +1,6 @@
 from cpm.transaction import Transaction, PolicyRemove, REMOVE
+from cpm.cmdline import initCmdLine, confirmChanges
 from cpm.matcher import MasterMatcher
-from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
 from cpm import *
 import string
@@ -30,7 +30,7 @@ def main(opts):
     if not found:
         raise Error, "no installed packages matched given arguments"
     trans.run()
-    if trans:
+    if trans and confirmChanges(trans):
         ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
