@@ -33,19 +33,23 @@ if sys.version_info < (2, 3):
 HELP = """\
 Usage: gpt command [options] [arguments]
 
-Available commands:
-    search
+Action commands:
+    update
     install
     reinstall
     upgrade
     remove
-    download
     fix
-    update
-    flag
+    download
+
+Query commands:
+    search
+    query
+
+Setup commands:
     channel
     priority
-    query
+    flag
 
 Run "gpt command --help" for more information.
 """
