@@ -1561,7 +1561,7 @@ class PyCurlHandler(FetcherHandler):
 
                         if fetcher.validate(item, localpath):
                             handle.setopt(pycurl.TIMECONDITION,
-                                          pycurl.TIMECOND_IFMODSINCE)
+                                          pycurl.TIMECONDITION_IFMODSINCE)
                             mtime = os.path.getmtime(localpath)
                             if url.scheme == "ftp":
                                 mtime += 1 # libcurl handles ftp mtime wrongly
