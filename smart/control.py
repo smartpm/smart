@@ -340,7 +340,8 @@ class Control(object):
             if (channel.getDigest() != digest and
                 isinstance(channel, PackageChannel)):
                 channel.addLoaders(self._cache)
-                self._cachechanged = True
+                if channel.getAlias() in self._sysconfchannels:
+                    self._cachechanged = True
         if result and caching is not ALWAYS:
             sysconf.set("last-update", time.time())
         self._fetcher.setForceCopy(False)
