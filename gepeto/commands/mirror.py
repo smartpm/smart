@@ -66,6 +66,7 @@ def parse_options(argv):
                           examples=EXAMPLES)
     parser.defaults["add"] = []
     parser.defaults["remove"] = []
+    parser.defaults["remove_all"] = []
     parser.defaults["clear_history"] = None
     parser.add_option("--show", action="store_true",
                       help="show current mirrors")
@@ -77,6 +78,8 @@ def parse_options(argv):
                       help="remove from the given origin URL the given "
                            "mirror URL, provided either in pairs, or in a "
                            "given file in the format used by --show")
+    parser.add_option("--remove-all", action="callback", callback=append_all,
+                      help="remove all mirrors for the given origin URLs")
     parser.add_option("--clear-history", action="callback", callback=append_all,
                       help="clear history for the given origins/mirrors, or "
                            "for all mirrors")
@@ -148,6 +151,14 @@ def main(opts, ctrl):
                     if not mirrors[origin]:
                         del mirrors[origin]
                     raise Error, "Mirror not found"
+            else:
+                raise Error, "Origin not found"
+
+    if opts.remove_all:
+
+        for origin in opts.remove_all:
+            if origin in mirrors:
+                del mirrors[origin]
             else:
                 raise Error, "Origin not found"
 
