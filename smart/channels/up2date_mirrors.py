@@ -49,6 +49,8 @@ class Up2DateMirrorsChannel(MirrorsChannel):
             for mirror in file:
                 mirror = mirror.strip()
                 if mirror:
+                    if mirror[-1] != "/":
+                        mirror += "/"
                     for arch in ARCHS:
                         _origin = origin.replace("$ARCH", arch)
                         _mirror = mirror.replace("$ARCH", arch)
