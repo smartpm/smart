@@ -190,17 +190,19 @@ void KSmartTray::processDone(KProcess *)
                     KNotifyClient::event(sysTray.winId(), "found-new-upgrades",
                                          lastKnownStatus);
                     emit foundNewUpgrades();
-                } else if (updateFailed) {
-                    /* Do nothing. */
                 } else if (process.exitStatus() == 1) {
                     lastKnownStatus = "There are pending upgrades!";
-                    KNotifyClient::event(sysTray.winId(), "found-old-upgrades",
-                                         lastKnownStatus);
+                    if (!updateFailed)
+                        KNotifyClient::event(sysTray.winId(),
+                                             "found-old-upgrades",
+                                             lastKnownStatus);
                     emit foundOldUpgrades();
                 } else if (process.exitStatus() == 2) {
                     lastKnownStatus = "No interesting upgrades available.";
-                    KNotifyClient::event(sysTray.winId(), "found-no-upgrades",
-                                         lastKnownStatus);
+                    if (!updateFailed)
+                        KNotifyClient::event(sysTray.winId(),
+                                             "found-no-upgrades",
+                                             lastKnownStatus);
                     emit foundNoUpgrades();
                 } else {
                     lastKnownStatus = "";
