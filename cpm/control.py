@@ -1,3 +1,4 @@
+from cpm.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
@@ -78,26 +79,62 @@ class Control:
         return pkgpath
 
     def commitTransaction(self, trans, caching=OPTIONAL):
-        install = trans.getInstallList()
-        remove = trans.getRemoveList()
-        pkgpath = self.fetchPackages(install, caching)
+        self.commitChangeSet(trans.getChangeSet(), caching)
+
+    def commitChangeSet(self, changeset, caching=OPTIONAL):
+        pkgpath = self.fetchPackages([pkg for pkg in changeset
+                                      if changeset[pkg] is INSTALL],
+                                     caching)
         pmpkgs = {}
-        for pkg in install+remove:
+        for pkg in changeset:
             pmclass = pkg.packagemanager
             if pmclass not in pmpkgs:
                 pmpkgs[pmclass] = [pkg]
             else:
                 pmpkgs[pmclass].append(pkg)
-        install = dict.fromkeys(install)
-        remove  = dict.fromkeys(remove)
         for pmclass in pmpkgs:
             pm = pmclass()
             self._feedback.packageManagerCreated(pm)
-            pminstall = [pkg for pkg in pmpkgs[pmclass] if pkg in install]
-            pmremove  = [pkg for pkg in pmpkgs[pmclass] if pkg in remove]
+            pminstall = [pkg for pkg in pmpkgs[pmclass]
+                         if changeset[pkg] is INSTALL]
+            pmremove  = [pkg for pkg in pmpkgs[pmclass]
+                         if changeset[pkg] is REMOVE]
             self._feedback.packageManagerStarting(pm)
             pm.commit(pminstall, pmremove, pkgpath)
             self._feedback.packageManagerFinished(pm)
+
+    def commitTransactionStepped(self, trans, caching=OPTIONAL):
+        self.commitChangeSetStepped(trans.getChangeSet(), caching)
+
+    def commitChangeSetStepped(self, changeset, caching=OPTIONAL):
+
+        # Order by number of required packages inside the transaction.
+        pkglst = []
+        for pkg in changeset:
+            n = 0
+            for req in pkg.requires:
+                for prv in req.providedby:
+                    for prvpkg in prv.packages:
+                        if changeset.get(prvpkg) is INSTALL:
+                            n += 1
+            pkglst.append((n, pkg))
+
+        pkglst.sort()
+
+        print changeset
+
+        splitter = ChangeSetSplitter(changeset)
+        unioncs = ChangeSet()
+        for n, pkg in pkglst:
+            if pkg in unioncs:
+                continue
+            cs = ChangeSet(unioncs)
+            splitter.include(unioncs, pkg)
+            cs = unioncs.difference(cs)
+            #self.commitChangeSet(cs)
+            print "Committing changeset:"
+            print "-"*50
+            print cs
 
 class ControlFeedback:
 

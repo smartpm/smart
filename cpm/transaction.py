@@ -1,67 +1,61 @@
 from cpm.const import INSTALL, REMOVE
+from cpm.cache import PreRequires
 from cpm import *
 
-class ChangeSet(object):
+class ChangeSet(dict):
     def __init__(self, state=None):
         if state:
-            if hasattr(state, "_opmap"):
-                self._opmap = state._opmap.copy()
-            else:
-                self._opmap = state.copy()
-        else:
-            self._opmap = {}
-
-    def getSet(self):
-        return self._opmap
-
-    def setInstall(self, pkg):
-        if pkg.installed:
-            if pkg in self._opmap:
-                del self._opmap[pkg]
-        else:
-            self._opmap[pkg] = INSTALL
-
-    def getInstall(self, pkg):
-        return self._opmap.get(pkg) is INSTALL
-
-    def setRemove(self, pkg):
-        if not pkg.installed:
-            if pkg in self._opmap:
-                del self._opmap[pkg]
-        else:
-            self._opmap[pkg] = REMOVE
-
-    def getRemove(self, pkg):
-        return self._opmap.get(pkg) is REMOVE
-
-    def isInstalled(self, pkg):
-        op = self._opmap.get(pkg)
-        return op is INSTALL or pkg.installed and not op is REMOVE
+            self.update(state)
 
     def getState(self):
-        return self._opmap.copy()
+        return self.copy()
 
     def setState(self, state):
-        if hasattr(state, "_opmap"):
-            state = state._opmap
-        self._opmap.clear()
-        self._opmap.update(state)
+        self.clear()
+        self.update(state)
         return self
 
     def copy(self):
         return ChangeSet(self)
 
-    def __nonzero__(self):
-        return bool(self._opmap)
-    
+    def set(self, pkg, op):
+        if op is INSTALL:
+            if pkg.installed:
+                if pkg in self:
+                    del self[pkg]
+            else:
+                self[pkg] = INSTALL
+        else:
+            if not pkg.installed:
+                if pkg in self:
+                    del self[pkg]
+            else:
+                self[pkg] = REMOVE
+
+    def installed(self, pkg):
+        op = self.get(pkg)
+        return op is INSTALL or pkg.installed and not op is REMOVE
+
+    def difference(self, other):
+        diff = ChangeSet()
+        for pkg in self:
+            sop = self[pkg]
+            if sop is not other.get(pkg):
+                diff[pkg] = sop
+        return diff
+
+    def intersect(self, other):
+        isct = ChangeSet()
+        for pkg in self:
+            sop = self[pkg]
+            if sop is other.get(pkg):
+                isct[pkg] = sop
+        return isct
+
     def __str__(self):
         l = []
-        opmap = self._opmap
-        for pkg in self._opmap:
-            if opmap[pkg]:
-                l.append("I %s\n" % pkg)
-            else:
-                l.append("R %s\n" % pkg)
+        for pkg in self:
+            l.append("%s %s\n" % (self[pkg] is INSTALL and "I" or "R", pkg))
         return "".join(l)
 
 class Policy(object):
@@ -126,20 +120,19 @@ class PolicyInstall(Policy):
 
     def getWeight(self, changeset):
         weight = 0
-        set = changeset.getSet()
         # Compute upgrading/upgraded packages
         upgrading = {}
         upgraded = {}
-        for pkg in set:
+        for pkg in changeset:
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
                         if prvpkg.installed:
                             upgrading[pkg] = True
-                            if set.get(prvpkg) is REMOVE:
+                            if changeset.get(prvpkg) is REMOVE:
                                 upgraded[pkg] = True
-        for pkg in set:
-            op = set[pkg]
+        for pkg in changeset:
+            op = changeset[pkg]
             if op is REMOVE:
                 if pkg in upgraded:
                     # Upgrading a package that will be removed
@@ -160,9 +153,8 @@ class PolicyRemove(Policy):
 
     def getWeight(self, changeset):
         weight = 0
-        set = changeset.getSet()
-        for pkg in set:
-            if set[pkg] is REMOVE:
+        for pkg in changeset:
+            if changeset[pkg] is REMOVE:
                 weight += 1
             else:
                 weight += 5
@@ -173,11 +165,10 @@ class PolicyUpgrade(Policy):
 
     def getWeight(self, changeset):
         weight = 0
-        set = changeset.getSet()
         # Compute upgrading/upgraded packages
         upgrading = {}
         upgraded = {}
-        for pkg in set:
+        for pkg in changeset:
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
@@ -187,10 +178,10 @@ class PolicyUpgrade(Policy):
                             # same package is not valuable.
                             if prvpkg not in upgraded:
                                 upgrading[pkg] = True
-                                if set.get(prvpkg) is REMOVE:
+                                if changeset.get(prvpkg) is REMOVE:
                                     upgraded[prvpkg] = True
-        for pkg in set:
-            op = set[pkg]
+        for pkg in changeset:
+            op = changeset[pkg]
             if op is REMOVE:
                 if pkg in upgraded:
                     # Upgrading a package that will be removed
@@ -238,16 +229,8 @@ class Transaction(object):
     def setState(self, state):
         self._changeset.setState(state)
 
-    def isInstalled(self, pkg):
-        return self._changeset.isInstalled(pkg)
-
-    def getInstallList(self):
-        set = self._changeset.getSet()
-        return [pkg for pkg in set if set[pkg] is INSTALL]
-
-    def getRemoveList(self):
-        set = self._changeset.getSet()
-        return [pkg for pkg in set if set[pkg] is REMOVE]
+    def installed(self, pkg):
+        return self._changeset.installed(pkg)
 
     def __nonzero__(self):
         return bool(self._changeset)
@@ -304,8 +287,8 @@ class Transaction(object):
         locked[pkg] = True
         if changeset is None:
             changeset = self._changeset
-        changeset.setInstall(pkg)
-        isinst = changeset.isInstalled
+        changeset.set(pkg, INSTALL)
+        isinst = changeset.installed
         getweight = self._policy.getWeight
 
         # Remove packages conflicted by this one.
@@ -410,8 +393,8 @@ class Transaction(object):
         locked[pkg] = True
         if changeset is None:
             changeset = self._changeset
-        changeset.setRemove(pkg)
-        isinst = changeset.isInstalled
+        changeset.set(pkg, REMOVE)
+        isinst = changeset.installed
         getweight = self._policy.getWeight
 
         # Remove packages requiring this one.
@@ -518,7 +501,7 @@ class Transaction(object):
             locked = locked.copy()
         if changeset is None:
             changeset = self._changeset
-        isinst = changeset.isInstalled
+        isinst = changeset.installed
 
         if type(pkgs) is not list:
             pkgs = [pkgs]
@@ -536,11 +519,56 @@ class Transaction(object):
                                 continue
                             upgpkgs[upgpkg] = True
 
-        self.evalBestState(upgpkgs.keys(), changeset, locked,
-                           install=True, keep=True)
+        if upgpkgs:
+            self.evalBestState(upgpkgs.keys(), changeset, locked,
+                               install=True, keep=True)
+
+    def fix(self, pkgs):
+        changeset = self._changeset
+        isinst = changeset.installed
+
+        fixpkgs = {}
+        for pkg in pkgs:
+            if isinst(pkg):
+                # Is it broken?
+                try:
+                    for req in pkg.requires:
+                        for prv in req.providedby:
+                            for prvpkg in prv.packages:
+                                if isinst(prvpkg):
+                                    break
+                            else:
+                                continue
+                            break
+                        else:
+                            logger.debug("unsatisfied dependency: "
+                                         "%s requires %s" % (pkg, req))
+                            raise Failed
+                    for cnf in pkg.conflicts:
+                        for prv in cnf.providedby:
+                            for prvpkg in prv.packages:
+                                if isinst(prvpkg):
+                                    logger.debug("unsatisfied dependency: "
+                                                 "%s conflicts with %s"
+                                                 % (pkg, prvpkg))
+                                    raise Failed
+                    for prv in pkg.provides:
+                        for cnf in prv.conflictedby:
+                            for cnfpkg in cnf.packages:
+                                if isinst(cnfpkg):
+                                    logger.debug("unsatisfied dependency: "
+                                                 "%s conflicts with %s"
+                                                 % (cnfpkg, pkg))
+                                    raise Failed
+                except Failed:
+                    fixpkgs[pkg] = True
+
+        self.evalBestState(fixpkgs.keys(), install=True,
+                           remove=True, removeupgrade=True)
 
     def evalBestState(self, pkgs, changeset=None, locked=None,
-                      install=False, remove=False, keep=False, upgrade=False):
+                      install=False, remove=False, keep=False,
+                      upgrade=False, removeupgrade=False):
         if locked is None:
             locked = self._policy.getLockedSet().copy()
         else:
@@ -582,10 +610,27 @@ class Transaction(object):
                 try:
                     cs = changeset.copy()
                     self.upgrade(pkg, cs, locked)
+                    if not cs.difference(changeset):
+                        cs = None
                 except Failed, e:
                     failures.append(str(e))
                 else:
-                    alternatives.append((getweight(cs), cs))
+                    if cs:
+                        alternatives.append((getweight(cs), cs))
+
+            if removeupgrade:
+                try:
+                    cs = changeset.copy()
+                    self.remove(pkg, cs, locked)
+                    removecs = cs.copy()
+                    self.upgrade(pkg, cs, locked)
+                    if not cs.difference(removecs):
+                        cs = None
+                except Failed, e:
+                    failures.append(str(e))
+                else:
+                    if cs:
+                        alternatives.append((getweight(cs), cs))
 
             if not alternatives:
                 if not failures:
@@ -605,12 +650,15 @@ class Transaction(object):
         else:
             locked = locked.copy()
         getweight = self._policy.getWeight
-        set = changeset.getSet()
+        # Lock everything which is not in the changeset.
+        for pkg in self._cache.getPackages():
+            if pkg not in changeset:
+                locked[pkg] = True
         bestweight = getweight(changeset)
-        for pkg in set.keys():
-            if pkg not in set or pkg in locked:
+        for pkg in changeset.keys():
+            if pkg not in changeset or pkg in locked:
                 continue
-            if set[pkg] is INSTALL:
+            if changeset[pkg] is INSTALL:
                 if not pkg.installed:
                     cs = changeset.copy()
                     try:
@@ -636,11 +684,11 @@ class Transaction(object):
                             changeset.setState(cs)
 
 class ChangeSetSplitter:
-    # An upgrade should never be split from the old package erasure!
+    # This class operates on *sane* changesets.
 
-    def __init__(self, changeset):
+    def __init__(self, changeset, forcerequires=True):
         self._changeset = changeset
-        self._forcerequires = False
+        self._forcerequires = forcerequires
         self._locked = {}
 
     def getForceRequires(self):
@@ -666,27 +714,353 @@ class ChangeSetSplitter:
     def resetLocked(self):
         self._locked.clear()
 
-    def include(self, changeset, pkg):
-        set = changeset.getSet()
-        selfset = self._changeset.getSet()
-        # Try to include pkg in the changeset, if it won't
+    def include(self, changeset, pkg, locked=None):
+        # Try to include pkg in the subset, if it won't
         # require changing the state of other locked packages.
-        # If installing, add every requires/pre-requires for pkg
-        # If removing, remove every requires/pre-requires for pkg
-        pass
+        set = self._changeset
+        subset = changeset
 
-    def exclude(self, changeset, pkg):
+        if locked is None:
+            locked = self._locked
+        else:
+            locked = locked.copy()
+
+        if pkg in locked:
+            raise Error, "package '%s' is locked" % pkg
+
+        locked[pkg] = True
+
+        if pkg in subset:
+            return
+        if pkg not in set:
+            raise Error, "package '%s' is not in changeset" % pkg
+
+        try:
+            if set[pkg] is INSTALL:
+                subset[pkg] = INSTALL
+
+                # Check all dependencies needed by this package.
+                for req in pkg.requires:
+
+                    # We try to include all required dependencies selected
+                    # for installation, even if not mandatory.
+                    found = False
+                    for prv in req.providedby:
+                        for prvpkg in prv.packages:
+                            if subset.get(prvpkg) is INSTALL:
+                                found = True
+                            elif (set.get(prvpkg) is INSTALL and not
+                                prvpkg in locked):
+                                try:
+                                    self.include(changeset, prvpkg, locked)
+                                    found = True
+                                except Error:
+                                    pass
+                                else:
+                                    break
+                    if found:
+                        continue
+
+                    # We couldn't solve the problem with any solution in
+                    # the changeset. Let's hope some installed package
+                    # may do the job.
+                    found = False
+                    for prv in req.providedby:
+                        for prvpkg in prv.packages:
+                            if (prvpkg.installed and
+                                subset.get(prvpkg) is not REMOVE):
+                                found = True
+                                break
+                        else:
+                            continue
+                        break
+                    if found:
+                        continue
+
+                    # There are no solutions for the problem.
+                    # Should we really care about it?
+                    if (self._forcerequires or
+                        isinstance(req, PreRequires)):
+                        raise Error, "no providers for '%s'" % req
+
+                # About conflicts there's nothing we can do. Any
+                # conflicting/conflicted package must leave.
+                cnfpkgs = [prvpkg for cnf in pkg.conflicts
+                                  for prv in cnf.providedby
+                                  for prvpkg in prv.packages]
+                cnfpkgs.extend([cnfpkg for prv in pkg.provides
+                                       for cnf in prv.conflictedby
+                                       for cnfpkg in cnf.packages])
+                for cnfpkg in cnfpkgs:
+                    if cnfpkg.installed and subset.get(cnfpkg) is not REMOVE:
+                        if set.get(cnfpkg) is not REMOVE:
+                            raise Error, "broken changeset: '%s' is not " \
+                                         "selected for being removed" % \
+                                         cnfpkg
+                        elif cnfpkg in locked:
+                            raise Error, "'%s' must be removed but is " \
+                                         "locked" % cnfpkg
+                        else:
+                            self.include(changeset, cnfpkg, locked)
+
+                # Include upgraded packages being removed as well. We
+                # can't split an upgrade from the package erasure.
+                for upg in pkg.upgrades:
+                    for prv in upg.providedby:
+                        for prvpkg in prv.packages:
+                            if (set.get(prvpkg) is REMOVE
+                                and prvpkg not in subset):
+                                if prvpkg in locked:
+                                    raise Error, "package '%s' is locked" % \
+                                                 prvpkg
+                                self.include(changeset, prvpkg, locked)
+
+            else: # if set[pkg] is REMOVE
+                subset[pkg] = REMOVE
+
+                # Include requiring packages being removed, or exclude
+                # requiring packages being installed.
+                for prv in pkg.provides:
+                    for req in prv.requiredby:
+                        for reqpkg in req.packages:
+
+                            if (subset.get(reqpkg) is REMOVE or
+                                (subset.get(reqpkg) is not INSTALL and
+                                 not pkg.installed)):
+                                # No problems.
+                                continue
+
+                            # Someone else may be providing it. Check
+                            # if we may try to install it, or if it will
+                            # stay in the system.
+                            found = False
+                            for prv in req.providedby:
+                                for prvpkg in prv.packages:
+                                    if (subset.get(prvpkg) is INSTALL or
+                                        (prvpkg.installed and not
+                                         subset.get(prvpkg) is REMOVE)):
+                                        # Already there. Great.
+                                        found = True
+                                        break
+                                else:
+                                    continue
+                                break
+                            if found:
+                                # This fixes every requiring package
+                                # problem, so we may break here.
+                                break
+
+                            # Check if there's any providing package
+                            # we may try to install.
+                            for prv in req.providedby:
+                                for prvpkg in prv.packages:
+                                    if (set.get(prvpkg) is INSTALL
+                                        and prvpkg not in locked):
+                                        try:
+                                            self.include(changeset, prvpkg,
+                                                         locked)
+                                        except Error:
+                                            pass
+                                        else:
+                                            found = True
+                                            break
+                            if found:
+                                # This fixes every requiring package
+                                # problem, so we may break here.
+                                break
+
+                            # Finally, try to include the requiring
+                            # package, if it's being removed, or exclude
+                            # it, if it's being installed. This solves
+                            # this package's problem only, so we must
+                            # continue checking the list of requiring
+                            # packages.
+                            if reqpkg not in locked:
+                                try:
+                                    if set.get(reqpkg) is REMOVE:
+                                        self.include(changeset, reqpkg,
+                                                     locked)
+                                    elif set.get(reqpkg) is INSTALL:
+                                        self.exclude(changeset, reqpkg,
+                                                     locked)
+                                except Error:
+                                    pass
+                                else:
+                                    continue
+
+                            # We can't do anything about it.
+                            # Is it serious?
+                            if (self._forcerequires or
+                                isinstance(req, PreRequires)):
+                                raise Error, "no other providers for " \
+                                             "'%s'" % req
+
+
+                # Every upgrading package must be included.
+                for prv in pkg.provides:
+                    for upg in prv.upgradedby:
+                        for upgpkg in upg.packages:
+                            if (subset.get(upgpkg) is not INSTALL and
+                                set.get(upgpkg) is INSTALL):
+                                if upgpkg in locked:
+                                    raise Error, "package '%s' is locked" % \
+                                                 upgpkg
+                                self.include(changeset, upgpkg, locked)
+
+        except Error:
+            del subset[pkg]
+            raise
+
+    def exclude(self, changeset, pkg, locked=None):
         # Try to exclude package from the changeset, it it won't
         # have to change the state of other locked packages.
-        pass
+        set = self._changeset
+        subset = changeset
+
+        if locked is None:
+            locked = self._locked
+        else:
+            locked = locked.copy()
+
+        if pkg in locked:
+            raise Error, "package '%s' is locked" % pkg
+
+        locked[pkg] = True
+
+        if pkg not in set:
+            raise Error, "package '%s' is not in changeset" % pkg
+        if pkg not in subset:
+            return
+
+        op = set[pkg]
+        try:
+            del subset[pkg]
+            if op is INSTALL:
+
+                # Exclude every package that depends exclusively on
+                # this package, or include an available alternative.
+                for prv in pkg.provides:
+                    for req in prv.requiredby:
+                        for reqpkg in req.packages:
+
+                            if (subset.get(reqpkg) is REMOVE or
+                                (subset.get(reqpkg) is not INSTALL and
+                                 not pkg.installed)):
+                                # No problems.
+                                continue
+
+                            # Check if some package that will stay
+                            # in the system, or some package selected
+                            # for installation, is still providing
+                            # the dependency.
+                            found = False
+                            for prv in req.providedby:
+                                for prvpkg in prv.packages:
+                                    if (subset.get(prvpkg) is INSTALL or
+                                        (prvpkg.installed and not
+                                         subset.get(prvpkg) is REMOVE)):
+                                        found = True
+                                        break
+                                else:
+                                    continue
+                                break
+                            if found:
+                                # This solves the problem of all
+                                # requiring packages, so we may break
+                                # here.
+                                break
+
+                            # Try to include some providing package
+                            # that is selected for installation.
+                            found = False
+                            for prv in req.providedby:
+                                for prvpkg in prv.packages:
+                                    if (set.get(prvpkg) is INSTALL and
+                                        prvpkg not in locked):
+                                        try:
+                                            self.include(changeset, prvpkg,
+                                                         locked)
+                                        except Error:
+                                            pass
+                                        else:
+                                            found = True
+                                            break
+                                else:
+                                    continue
+                                break
+                            if found:
+                                # This solves the problem of all
+                                # requiring packages, so we may break
+                                # here.
+                                break
+
+                            # Finally, try to exclude the requiring
+                            # package if it is being installed, or
+                            # include it if it's being removed. This
+                            # solves this package's problem only,
+                            # so we must continue checking the list
+                            # of requiring packages.
+                            if reqpkg not in locked:
+                                try:
+                                    if set.get(reqpkg) is INSTALL:
+                                        self.exclude(changeset, reqpkg,
+                                                     locked)
+                                    elif set.get(reqpkg) is REMOVE:
+                                        self.include(changeset, reqpkg,
+                                                     locked)
+                                except Error:
+                                    # Should we care about this?
+                                    if (self._forcerequires or
+                                        isinstance(req, PreRequires)):
+                                        raise
+
+                # Exclude upgraded packages being removed as well.
+                for upg in pkg.upgrades:
+                    for prv in upg.providedby:
+                        for prvpkg in prv.packages:
+                            if subset.get(prvpkg) is REMOVE:
+                                if prvpkg in locked:
+                                    raise Error, "package '%s' is locked" % \
+                                                 prvpkg
+                                self.exclude(changeset, prvpkg, locked)
+
+            else: # if op is REMOVE
+
+                # Package will stay in the system. Exclude conflicting
+                # packages selected for installation.
+                cnfpkgs = [prvpkg for cnf in pkg.conflicts
+                                  for prv in cnf.providedby
+                                  for prvpkg in prv.packages]
+                cnfpkgs.extend([cnfpkg for prv in pkg.provides
+                                       for cnf in prv.conflictedby
+                                       for cnfpkg in cnf.packages])
+                for cnfpkg in cnfpkgs:
+                    if subset.get(cnfpkg) is INSTALL:
+                        if cnfpkg in locked:
+                            raise Error, "package '%s' is locked" % cnfpkg
+                        self.exclude(changeset, cnfpkg, locked)
+
+        except Error:
+            subset[pkg] = op
+            raise
 
     def includeAll(self, changeset):
-        # Do everything that doesn't change locked packages
-        pass
+        # Include everything that doesn't change locked packages
+        set = self._changeset.get()
+        for pkg in set.keys():
+            try:
+                self.include(changeset, pkg)
+            except Error:
+                pass
 
     def excludeAll(self, changeset):
-        # Keep everything that doesn't change locked packages
-        pass
+        # Exclude everything that doesn't change locked packages
+        set = self._changeset.get()
+        for pkg in set.keys():
+            try:
+                self.exclude(changeset, pkg)
+            except Error:
+                pass
 
 def sortUpgrades(pkgs):
     upgpkgs = {}

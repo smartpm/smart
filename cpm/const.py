@@ -1,6 +1,6 @@
 
-REMOVE  = 0
 INSTALL = 1
+REMOVE  = 2
 
 OPTIONAL = 1
 NEVER    = 2

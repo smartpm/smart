@@ -17,10 +17,10 @@ class Fetcher(object):
         self._localdir = tempfile.gettempdir()
         self._mangle = False
         self._caching = OPTIONAL
+        self._handlers = {}
         self.reset()
 
     def reset(self):
-        self._handlers = {}
         self._validators = {}
         self._failed = {}
         self._succeeded = {}

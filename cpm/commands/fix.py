@@ -1,5 +1,4 @@
-from cpm.transaction import Transaction
-from cpm.transaction import PolicyUpgrade
+from cpm.transaction import Transaction, PolicyInstall
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
@@ -7,7 +6,7 @@ from cpm import *
 import string
 import re
 
-USAGE="cpm upgrade [options] [packages]"
+USAGE="cpm fix [options] packages"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
@@ -21,26 +20,22 @@ def main(opts):
     ctrl.loadCache()
     cache = ctrl.getCache()
     trans = Transaction(cache)
-    trans.setPolicy(PolicyUpgrade(cache))
+    trans.setPolicy(PolicyInstall(cache))
     pkgs = cache.getPackages()
     if opts.args:
         newpkgs = []
         for arg in opts.args:
             matcher = MasterMatcher(arg)
             fpkgs = matcher.filter(pkgs)
-            fpkgs = [x for x in fpkgs if x.installed]
             if not fpkgs:
-                raise Error, "'%s' matches no installed packages" % arg
+                raise Error, "'%s' matches no packages" % arg
             newpkgs.extend(fpkgs)
         pkgs = dict.fromkeys(newpkgs).keys()
-    print "Computing upgrade..."
-    trans.upgrade(pkgs)
+    print "Resolving problems..."
+    trans.fix(pkgs)
     if not trans:
-        print "No upgrades available!"
+        print "No problems to resolve!"
     else:
-        #trans.minimize()
-        #print trans
-        ctrl.commitTransactionStepped(trans)
-        #ctrl.commitTransaction(trans)
+        ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
