@@ -82,10 +82,11 @@ def append_all(option, opt, value, parser):
         option.dest = opt
         while option.dest[0] == "-":
             option.dest = option.dest[1:]
-    lst = getattr(parser.values, option.dest)
+    dest = option.dest.replace("-", "_")
+    lst = getattr(parser.values, dest)
     if type(lst) is not list:
         lst = []
-        setattr(parser.values, option.dest, lst)
+        setattr(parser.values, dest, lst)
     rargs = parser.rargs
     while rargs and rargs[0] and rargs[0][0] != "-":
         lst.append(parser.rargs.pop(0))
