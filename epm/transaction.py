@@ -1,4 +1,4 @@
-from epm.sorter import UpgradeSorter
+from epm.sorter import UpgradeSorter, ObsoletesSorter
 
 (
 OPER_INSTALL,
@@ -173,9 +173,10 @@ class Transaction:
             for obs, obspkgs_ in prv.getObsoletedBy():
                 for obspkg in obspkgs_:
                     obspkgs[obspkg] = True
-        obspkgs = obspkgs.keys()
-        obspkgs.sort()
-        self.install(obspkgs[-1])
+        if obspkgs:
+            obspkgs = obspkgs.keys()
+            ObsoletesSorter(obspkgs).sort()
+            self.install(obspkgs[0])
 
     def run(self):
         loopctrl = {}
