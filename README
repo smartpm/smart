@@ -13,6 +13,14 @@ Transaction system:
 
 - Transaction based.
 
+Priority system:
+
+- ...
+
+Mirror system:
+
+- ...
+
 Cache system:
 
 - Recognizes multiple versions of the same package name.
