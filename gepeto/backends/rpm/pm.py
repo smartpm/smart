@@ -25,6 +25,7 @@ from gepeto.pm import PackageManager
 from gepeto import *
 import sys, os
 import errno
+import fcntl
 import rpm
 
 class RPMPackageManager(PackageManager):
@@ -122,6 +123,8 @@ class RPMCallback:
         self.prog = prog
         self.fd = None
         self.rpmout = None
+        self.lasttopic = None
+        self.topic = None
 
     def grabOutput(self, flag):
         if flag:
@@ -136,7 +139,6 @@ class RPMCallback:
                 os.dup2(pipe[1], 2)
                 os.close(pipe[1])
                 self.rpmout = pipe[0]
-                import fcntl
                 flags = fcntl.fcntl(self.rpmout, fcntl.F_GETFL, 0)
                 flags |= os.O_NONBLOCK
                 fcntl.fcntl(self.rpmout, fcntl.F_SETFL, flags)
@@ -163,6 +165,9 @@ class RPMCallback:
                     raise
             else:
                 if output:
+                    if self.topic != self.lasttopic:
+                        self.lasttopic = self.topic
+                        iface.info(self.topic)
                     iface.info(output)
 
     def __call__(self, what, amount, total, infopath, data):
@@ -171,8 +176,13 @@ class RPMCallback:
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
-            iface.debug("Processing %s in %s" % (info.getPackage(), path))
+            pkgstr = str(info.getPackage())
+            iface.debug("Processing %s in %s" % (pkgstr, path))
+            self.topic = "Output from %s:" % pkgstr
             self.fd = os.open(path, os.O_RDONLY)
+            flags = fcntl.fcntl(self.fd, fcntl.F_GETFD, 0)
+            flags |= fcntl.FD_CLOEXEC
+            fcntl.fcntl(self.fd, fcntl.F_SETFD, flags)
             return self.fd
         
         elif what == rpm.RPMCALLBACK_INST_CLOSE_FILE:
