@@ -156,7 +156,7 @@ class Fetcher(object):
         else:
             prog = iface.getProgress(self, True)
             prog.start()
-            prog.set(0, total)
+            prog.set(local, total)
             if what:
                 topic = "Fetching %s..." % what
             else:
