@@ -73,10 +73,41 @@ class TextInterface(Interface):
         return default
 
     def confirmChangeSet(self, changeset):
+        return self.showChangeSet(changeset, confirm=True)
+
+    def askInput(self, prompt, message=None, widthchars=None):
+        print
+        if message:
+            print message
+        try:
+            res = raw_input(prompt+": ")
+        except KeyboardInterrupt:
+            res = ""
+        print
+        return res
+
+    def insertRemovableChannels(self, channels):
+        print
+        print "Insert one or more of the following removable channels:"
+        print
+        for channel in channels:
+            print "   ", channel.getName()
+        print
+        return self.askOkCancel("Continue", True)
+
+    # Non-standard interface methods:
+        
+    def showChangeSet(self, changeset, keep=None, confirm=False):
         report = Report(changeset)
         report.compute()
 
         print
+        if keep:
+            keep.sort()
+            print "The following packages are being kept:"
+            for pkg in keep:
+                print "   ", pkg
+            print
         pkgs = report.install.keys()
         if pkgs:
             pkgs.sort()
@@ -106,26 +137,8 @@ class TextInterface(Interface):
             for pkg in pkgs:
                 print "   ", pkg
             print
-        return self.askYesNo("Confirm changes", True)
-
-    def askInput(self, prompt, message=None, widthchars=None):
-        print
-        if message:
-            print message
-        try:
-            res = raw_input(prompt+": ")
-        except KeyboardInterrupt:
-            res = ""
-        print
-        return res
-
-    def insertRemovableChannels(self, channels):
-        print
-        print "Insert one or more of the following removable channels:"
-        print
-        for channel in channels:
-            print "   ", channel.getName()
-        print
-        return self.askOkCancel("Continue", True)
+        if confirm:
+            return self.askYesNo("Confirm changes", True)
+        return True
 
 # vim:ts=4:sw=4:et
