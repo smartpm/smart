@@ -905,7 +905,7 @@ class FTPHandler(FetcherHandler):
         try:
             ftp.connect(url.host, url.port)
             ftp.login(url.user, url.passwd)
-        except (socket.error, ftplib.Error), e:
+        except (socket.error, ftplib.Error, EOFError), e:
             if isinstance(e, ftplib.error_perm) and active:
                 item.reset()
                 self._lock.acquire()
