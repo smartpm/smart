@@ -37,5 +37,9 @@ Dependency solving algorithm:
 
 Downloading system:
 
-- Very fast.
-- Multi-threaded.
+- Very fast
+- Easily extensible
+- Multi-threaded
+- Download resuming
+- Timestamp checking
+

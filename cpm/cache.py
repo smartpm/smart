@@ -60,6 +60,9 @@ class PackageInfo(object):
     def getPackage(self):
         return self._package
 
+    def getURL(self):
+        return None
+
     def getDescription(self):
         return ""
 
@@ -81,7 +84,16 @@ class PackageInfo(object):
     def pathIsSpecial(self, path):
         return None
 
-    def getURL(self):
+    def getSize(self):
+        return 0
+
+    def getInstalledSize(self):
+        return 0
+
+    def getMD5(self):
+        return None
+
+    def getSHA(self):
         return None
 
 class Provides(object):

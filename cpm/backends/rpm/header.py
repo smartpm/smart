@@ -28,6 +28,18 @@ class RPMHeaderPackageInfo(PackageInfo):
         self._path = None
         self._h = header
 
+    def getURL(self):
+        url = self._loader.getURL()
+        if url:
+            url = os.path.join(url, self._loader.getFileName(self))
+        return url
+
+    def getSize(self):
+        return self._loader.getSize(self)
+
+    def getMD5(self):
+        return self._loader.getMD5(self)
+
     def getDescription(self):
         return self._h[rpm.RPMTAG_DESCRIPTION]
 
@@ -57,12 +69,6 @@ class RPMHeaderPackageInfo(PackageInfo):
         return not (stat.S_ISDIR(mode) or
                     stat.S_ISLNK(mode) or
                     stat.S_ISREG(mode))
-
-    def getURL(self):
-        url = self._loader.getURL()
-        if url:
-            url = os.path.join(url, self._loader.getFileName(self))
-        return url
 
 class RPMHeaderLoader(Loader):
  
@@ -215,6 +221,12 @@ class RPMHeaderListLoader(RPMHeaderLoader):
                                     h[rpm.RPMTAG_RELEASE],
                                     h[rpm.RPMTAG_ARCH])
 
+    def getSize(self, info):
+        return 0
+
+    def getMD5(self, info):
+        return None
+
     def loadFileProvides(self, fndict):
         file = open(self._filename)
         h, offset = rpm.readHeaderFromFD(file.fileno())
@@ -236,6 +248,12 @@ class RPMPackageListLoader(RPMHeaderListLoader):
         if directory:
             filename = os.path.join(directory, filename)
         return filename
+
+    def getSize(self, info):
+        return info._h[CRPMTAG_FILESIZE]
+
+    def getMD5(self, info):
+        return info._h[CRPMTAG_MD5]
 
 class RPMDBLoader(RPMHeaderLoader):
 
@@ -268,6 +286,12 @@ class RPMDBLoader(RPMHeaderLoader):
         return None
 
     def getFileName(self, info):
+        return None
+
+    def getSize(self, info):
+        return 0
+
+    def getMD5(self, info):
         return None
 
     def loadFileProvides(self, fndict):
@@ -311,6 +335,13 @@ class RPMFileLoader(RPMHeaderLoader):
 
     def getFileName(self, info):
         return self._filename
+
+    def getSize(self, info):
+        return os.path.getsize(self._filename)
+
+    def getMD5(self, info):
+        # Could compute it now, but why?
+        return None
 
     def loadFileProvides(self, fndict):
         file = open(self._filename)

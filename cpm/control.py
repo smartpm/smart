@@ -61,6 +61,8 @@ class Control:
             url = info.getURL()
             pkgurl[pkg] = url
             fetcher.enqueue(url)
+            fetcher.setInfo(url, size=info.getSize(), md5=info.getMD5(),
+                            sha=info.getSHA())
         self._feedback.fetcherStarting(fetcher)
         fetcher.run("packages")
         self._feedback.fetcherFinished(fetcher)
