@@ -1473,7 +1473,7 @@ msgstr "remove todos os espelhos para as URLs de origens fornecidas"
 
 #: smart/commands/mirror.py:86
 msgid ""
-"syncrhonize mirrors from the given file/url, so that origins in the given "
+"synchronize mirrors from the given file/url, so that origins in the given "
 "file will have exactly the specified mirrors"
 msgstr ""
 "sincroniza espelhos a partir do arquivo/url fornecidos, de forma que as "

@@ -83,7 +83,7 @@ def parse_options(argv):
     parser.add_option("--remove-all", action="callback", callback=append_all,
                       help=_("remove all mirrors for the given origin URLs"))
     parser.add_option("--sync", action="store", metavar="FILE",
-                      help=_("syncrhonize mirrors from the given file/url, "
+                      help=_("synchronize mirrors from the given file/url, "
                              "so that origins in the given file will have "
                              "exactly the specified mirrors"))
     parser.add_option("--clear-history", action="callback", callback=append_all,
