@@ -207,4 +207,33 @@ def getAllChannelInfos():
             infos[type] = getChannelInfo(type)
     return infos
 
+def detectLocalChannels(path):
+    if not os.path.isdir(path):
+        return []
+    from gepeto.media import MediaSet
+    mediaset = MediaSet()
+    infos = getAllChannelInfos()
+    channels = []
+    maxdepth = sysconf.get("detectlocalchannels-maxdepth", 5)
+    roots = [(path, 0)]
+    while roots:
+        root, depth = roots.pop(0)
+        media = mediaset.findMountPoint(root, subpath=True)
+        if media:
+            media.mount()
+        for type in infos:
+            info = infos[type]
+            if hasattr(info, "detectLocalChannels"):
+                for channel in info.detectLocalChannels(root, media):
+                    channel["type"] = type
+                    if media:
+                        channel["removable"] = "yes"
+                    channels.append(channel)
+        if depth < maxdepth:
+            for entry in os.listdir(root):
+                entrypath = os.path.join(root, entry)
+                if os.path.isdir(entrypath):
+                    roots.append((entrypath, depth+1))
+    return channels
+
 # vim:ts=4:sw=4:et

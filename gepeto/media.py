@@ -85,6 +85,9 @@ class MediaSet(object):
             return self.findMountPoint(default, subpath=True)
         return None
 
+    def __iter__(self):
+        return iter(self._medias)
+
 class Media(object):
 
     def __init__(self, mountpoint, device=None):

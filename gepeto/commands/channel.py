@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.option import OptionParser, append_all
+from gepeto.media import MediaSet
+from gepeto.const import NEVER
 from gepeto.channel import *
 from gepeto import *
 import textwrap
@@ -114,6 +116,10 @@ def parse_options(argv):
                       help="execute without asking")
     parser.add_option("--help-type", action="store", metavar="TYPE",
                       help="show further information about given type")
+    parser.add_option("--detect", action="store", metavar="PATH",
+                      help="detect local channels in given path")
+    parser.add_option("--detect-media", action="store_true",
+                      help="detect channels in local medias")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -268,5 +274,96 @@ def main(opts, ctrl):
             if desc:
                 print desc
                 print
+
+    if opts.detect or opts.detect_media:
+
+        def getFieldName(field, info):
+            for key, name, descr in DEFAULTFIELDS:
+                if key == field:
+                    return name
+            for key, name, descr in info.fields:
+                if key == field:
+                    return name
+            return field
+
+        paths = []
+
+        if opts.detect:
+            paths.append(opts.detect)
+
+        mediaset = None
+        if opts.detect_media:
+            mediaset = MediaSet()
+            mediaset.mountAll()
+            for media in mediaset:
+                paths.append(media.getMountPoint())
+
+        aliases = []
+        foundchannel = False
+        for path in paths:
+
+            for channel in detectLocalChannels(path):
+
+                type = channel["type"]
+
+                foundchannel = True
+
+                info = getChannelInfo(type)
+
+                print
+                print "Channel of type '%s' detected:" % type
+                print
+                for field, name, descr in DEFAULTFIELDS:
+                    if field == "type":
+                        continue
+                    if field in channel:
+                        print "%s: %s" % (name, channel[field])
+                for field, name, descr in info.fields:
+                    if field == "type":
+                        continue
+                    if field in channel:
+                        print "%s: %s" % (name, channel[field])
+                print
+                if opts.force or iface.askYesNo("Include this channel"):
+                    alias = channel.get("alias")
+                    while not alias:
+                        res = raw_input("Channel alias: ").strip()
+                        if res in channels:
+                            print "Channel alias '%s' is already in use." % res
+                        else:
+                            alias = res
+                    if "alias" in channel:
+                        del channel["alias"]
+
+                    name = channel.get("name")
+                    if not name:
+                        name = raw_input("Channel name: ").strip()
+                        if name:
+                            channel["name"] = name
+                    
+                    try:
+                        aliases.append(alias)
+                        createChannel(type, alias, channel)
+                    except Error, e:
+                        iface.error("Invalid channel: %s" % e)
+                    else:
+                        channels[alias] = channel
+
+                    print
+
+        if aliases:
+            ctrl.reloadSysConfChannels()
+            channels = [x for x in ctrl.getChannels()
+                        if x.getAlias() in aliases]
+
+            # First, load current cache to keep track of new packages.
+            ctrl.updateCache()
+            ctrl.updateCache(channels, caching=NEVER)
+
+        if not foundchannel:
+            print "No new channels found."
+            
+        if mediaset:
+            mediaset.restoreState()
 
 # vim:ts=4:sw=4:et
