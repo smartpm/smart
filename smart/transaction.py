@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP
-from smart.cache import PreRequires
+from smart.cache import PreRequires, Package
 from smart import *
 
 class ChangeSet(dict):
@@ -152,7 +152,7 @@ class Policy(object):
                 lower = priority
             set[pkg] = priority
         for pkg in set:
-            set[pkg] = -(set[pkg] - lower)*100
+            set[pkg] = -(set[pkg] - lower)*10
         return set
 
 class PolicyInstall(Policy):
@@ -252,7 +252,8 @@ class PolicyUpgrade(Policy):
         Policy.runStarting(self)
         self._upgrading = upgrading = {}
         self._upgraded = upgraded = {}
-        self._bonus = bonus = {}
+        self._sortbonus = sortbonus = {}
+        self._requiredbonus = requiredbonus = {}
         queue = self._trans.getQueue()
         for pkg in self._trans.getCache().getPackages():
             # Precompute upgrade relations.
@@ -261,9 +262,14 @@ class PolicyUpgrade(Policy):
                     for prvpkg in prv.packages:
                         if (prvpkg.installed and
                             self.getPriority(pkg) >= self.getPriority(prvpkg)):
-                            upgrading[pkg] = True
-                            if prvpkg in upgraded:
-                                upgraded[prvpkg].append(pkg)
+                            dct = upgrading.get(pkg)
+                            if dct:
+                                dct[prvpkg] = True
+                            else:
+                                upgrading[pkg] = {prvpkg: True}
+                            lst = upgraded.get(prvpkg)
+                            if lst:
+                                lst.append(pkg)
                             else:
                                 upgraded[prvpkg] = [pkg]
             # Downgrades are upgrades if they have a higher priority.
@@ -272,33 +278,36 @@ class PolicyUpgrade(Policy):
                     for upgpkg in upg.packages:
                         if (upgpkg.installed and
                             self.getPriority(pkg) > self.getPriority(upgpkg)):
-                            upgrading[pkg] = True
-                            if upgpkg in upgraded:
-                                upgraded[upgpkg].append(pkg)
+                            dct = upgrading.get(pkg)
+                            if dct:
+                                dct[upgpkg] = True
+                            else:
+                                upgrading[pkg] = {upgpkg: True}
+                            lst = upgraded.get(upgpkg)
+                            if lst:
+                                lst.append(pkg)
                             else:
                                 upgraded[upgpkg] = [pkg]
-            # Precompute bonus weight for installing packages
-            # required for other upgrades.
-            weight = 0
-            for prv in pkg.provides:
-                for req in prv.requiredby:
-                    for reqpkg in req.packages:
-                        if queue.get(reqpkg) is UPGRADE:
-                            weight -= 3
-            if weight:
-                bonus[pkg] = weight
+
+        pkgs = self._trans._queue.keys()
+        sortUpgrades(pkgs, self)
+        for i, pkg in enumerate(pkgs):
+            self._sortbonus[pkg] = -1./(i+100)
 
     def runFinished(self):
         Policy.runFinished(self)
         del self._upgrading
         del self._upgraded
-        del self._bonus
 
     def getWeight(self, changeset):
         weight = 0
         upgrading = self._upgrading
         upgraded = self._upgraded
-        bonus = self._bonus
+        sortbonus = self._sortbonus
+        requiredbonus = self._requiredbonus
+
+        installedcount = 0
+        upgradedmap = {}
         for pkg in changeset:
             if changeset[pkg] is REMOVE:
                 # Upgrading a package that will be removed
@@ -312,11 +321,13 @@ class PolicyUpgrade(Policy):
                 else:
                     weight += 3
             else:
-                if pkg in upgrading:
-                    weight -= 5
-                else:
-                    weight += 1
-                weight += bonus.get(pkg, 0)
+                installedcount += 1
+                upgpkgs = upgrading.get(pkg)
+                if upgpkgs:
+                    weight += sortbonus.get(pkg, 0)
+                    upgradedmap.update(upgpkgs)
+        upgradedcount = len(upgradedmap)
+        weight += -30*upgradedcount+(installedcount-upgradedcount)
         return weight
 
 class Failed(Error): pass
@@ -791,13 +802,17 @@ class Transaction(object):
 
         isinst = changeset.installed
         getweight = self._policy.getWeight
-        queue = self._queue
 
-        sortUpgrades(pkgs)
+        sortUpgrades(pkgs, self._policy)
+        pkgs.reverse()
+
+        lockedstate = {}
+
+        origchangeset = changeset.copy()
 
         weight = getweight(changeset)
         for pkg in pkgs:
-            if pkg in locked or isinst(pkg):
+            if pkg in locked and not isinst(pkg):
                 continue
 
             try:
@@ -807,14 +822,46 @@ class Transaction(object):
                 self._install(pkg, cs, lk, _pending, depth)
                 if _pending:
                     self._pending(cs, lk, _pending, depth)
-            except Failed:
+            except Failed, e:
                 pass
             else:
+                lockedstate[pkg] = lk
                 csweight = getweight(cs)
                 if csweight < weight:
                     weight = csweight
                     changeset.setState(cs)
 
+        lockedstates = {}
+        for pkg in pkgs:
+            if changeset.get(pkg) is INSTALL:
+                state = lockedstate.get(pkg)
+                if state:
+                    lockedstates.update(state)
+
+        for pkg in changeset.keys():
+
+            op = changeset.get(pkg)
+            if (op and op != origchangeset.get(pkg) and
+                pkg not in locked and pkg not in lockedstates):
+
+                try:
+                    cs = changeset.copy()
+                    lk = locked.copy()
+                    _pending = []
+                    if op is REMOVE:
+                        self._install(pkg, cs, lk, _pending, depth)
+                    elif op is INSTALL:
+                        self._remove(pkg, cs, lk, _pending, depth)
+                    if _pending:
+                        self._pending(cs, lk, _pending, depth)
+                except Failed, e:
+                    pass
+                else:
+                    csweight = getweight(cs)
+                    if csweight < weight:
+                        weight = csweight
+                        changeset.setState(cs)
+                
     def _fix(self, pkgs, changeset, locked, pending, depth=0):
         #print "[%03d] _fix()" % depth
         #depth += 1
@@ -887,7 +934,8 @@ class Transaction(object):
             except Failed, e:
                 failures.append(unicode(e))
             else:
-                alternatives.append((getweight(cs), cs))
+                # If they weight the same, it's better to keep the package.
+                alternatives.append((getweight(cs)-0.000001, cs))
 
             # Try to fix by removing it.
             try:
@@ -1432,6 +1480,131 @@ def recursiveInternalRequires(pkgmap, pkg, numrel, done=None):
                                                        numrel, done)
     numrel[pkg] = n
     return n
+
+def forwardRequires(pkg, map):
+    for req in pkg.requires:
+        if req not in map:
+            map[req] = True
+            for prv in req.providedby:
+                if prv not in map:
+                    map[prv] = True
+                    for prvpkg in prv.packages:
+                        if prvpkg not in map:
+                            map[prvpkg] = True
+                            forwardRequires(prvpkg, map)
+
+def backwardRequires(pkg, map):
+    for prv in pkg.provides:
+        if prv not in map:
+            map[prv] = True
+            for req in prv.requiredby:
+                if req not in map:
+                    map[req] = True
+                    for reqpkg in req.packages:
+                        if reqpkg not in map:
+                            map[reqpkg] = True
+                            backwardRequires(reqpkg, map)
+
+def forwardPkgRequires(pkg, map=None):
+    if map is None:
+        map = {}
+    forwardRequires(pkg, map)
+    for item in map.keys():
+        if not isinstance(item, Package):
+            del map[item]
+    return map
+
+def backwardPkgRequires(pkg, map=None):
+    if map is None:
+        map = {}
+    backwardRequires(pkg, map)
+    for item in map.keys():
+        if not isinstance(item, Package):
+            del map[item]
+    return map
+
+def getAlternates(pkg, cache):
+    """
+    For a given package, return every package that *might* get
+    removed if the given package was installed. The alternate
+    packages are every package that conflicts with any of the
+    required packages, or require any package conflicting with
+    any of the required packages.
+    """
+    conflicts = {}
+
+    # Direct conflicts.
+    for namepkg in cache.getPackages(pkg.name):
+        if namepkg is not pkg and not pkg.coexists(namepkg):
+            conflicts[(pkg, namepkg)] = True
+    for cnf in pkg.conflicts:
+        for prv in cnf.providedby:
+            for prvpkg in prv.packages:
+                if prvpkg is not pkg:
+                    conflicts[(pkg, prvpkg)] = True
+    for prv in pkg.provides:
+        for cnf in prv.conflictedby:
+            for cnfpkg in cnf.packages:
+                if cnfpkg is not pkg:
+                    conflicts[(pkg, cnfpkg)] = True
+
+    # Conflicts of requires.
+    queue = [pkg]
+    done = {}
+    while queue:
+        qpkg = queue.pop()
+        done[qpkg] = True
+        for req in qpkg.requires:
+            prvpkgs = {}
+            for prv in req.providedby:
+                for prvpkg in prv.packages:
+                    if prvpkg is qpkg or prvpkg is pkg:
+                        break
+                    prvpkgs[prvpkg] = True
+                else:
+                    continue
+                break
+            else:
+                for prvpkg in prvpkgs:
+                    if prvpkg in done:
+                        continue
+                    done[prvpkg] = True
+                    queue.append(prvpkg)
+                    for namepkg in cache.getPackages(prvpkg.name):
+                        if (namepkg not in prvpkgs and
+                            namepkg is not pkg and
+                            not prvpkg.coexists(namepkg)):
+                            conflicts[(prvpkg, namepkg)] = True
+                    for cnf in prvpkg.conflicts:
+                        for prv in cnf.providedby:
+                            for _prvpkg in prv.packages:
+                                if (_prvpkg is not pkg and
+                                    _prvpkg not in prvpkgs):
+                                    conflicts[(prvpkg, _prvpkg)] = True
+                    for prv in prvpkg.provides:
+                        for cnf in prv.conflictedby:
+                            for cnfpkg in cnf.packages:
+                                if (cnfpkg is not pkg and
+                                    cnfpkg not in prvpkgs):
+                                    conflicts[(prvpkg, cnfpkg)] = True
+
+    alternates = {}
+    for reqpkg, cnfpkg in conflicts:
+        print reqpkg, cnfpkg
+        alternates[cnfpkg] = True
+        for prv in cnfpkg.provides:
+            for req in prv.requiredby:
+                # Do not ascend if reqpkg also provides
+                # what cnfpkg is offering.
+                for _prv in req.providedby:
+                    if reqpkg in _prv.packages:
+                        break
+                else:
+                    for _reqpkg in req.packages:
+                        alternates[_reqpkg] = True
+                        alternates.update(backwardPkgRequires(_reqpkg))
+
+    return alternates
 
 def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
     pkgs.sort()
