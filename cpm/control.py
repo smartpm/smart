@@ -131,10 +131,10 @@ class Control:
             cs = ChangeSet(unioncs)
             splitter.include(unioncs, pkg)
             cs = unioncs.difference(cs)
-            #self.commitChangeSet(cs)
-            print "Committing changeset:"
-            print "-"*50
-            print cs
+            self.commitChangeSet(cs)
+            #print "Committing changeset:"
+            #print "-"*50
+            #print cs
 
 class ControlFeedback:
 

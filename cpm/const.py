@@ -2,6 +2,9 @@
 INSTALL = 1
 REMOVE  = 2
 
+UPGRADE = 3
+FIX     = 4
+
 OPTIONAL = 1
 NEVER    = 2
 ALWAYS   = 3

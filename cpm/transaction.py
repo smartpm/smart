@@ -1,4 +1,4 @@
-from cpm.const import INSTALL, REMOVE
+from cpm.const import INSTALL, REMOVE, UPGRADE, FIX
 from cpm.cache import PreRequires
 from cpm import *
 
@@ -59,19 +59,27 @@ class ChangeSet(dict):
         return "".join(l)
 
 class Policy(object):
-    def __init__(self, cache):
-        self._cache = cache
+
+    def __init__(self, trans):
+        self._trans = trans
         self._locked = {}
         self._upgradelocked = {}
         self._downgradelocked = {}
         pkgflags = sysconf.get("package-flags")
         if pkgflags:
+            cache = trans.getCache()
             lock = pkgflags.filter("lock", cache.getPackages())
             self._locked = dict.fromkeys(lock)
             lock = pkgflags.filter("upgrade-lock", cache.getPackages())
             self._upgradelocked = dict.fromkeys(lock)
             lock = pkgflags.filter("downgrade-lock", cache.getPackages())
             self._downgradelocked = dict.fromkeys(lock)
+
+    def runStarting(self):
+        pass
+
+    def runFinished(self):
+        pass
 
     def getLocked(self, pkg):
         return pkg in self._locked
@@ -118,30 +126,42 @@ class Policy(object):
 class PolicyInstall(Policy):
     """Give precedence for keeping functionality in the system."""
 
-    def getWeight(self, changeset):
-        weight = 0
-        # Compute upgrading/upgraded packages
-        upgrading = {}
-        upgraded = {}
-        for pkg in changeset:
+    def runStarting(self):
+        self._upgrading = upgrading = {}
+        self._upgraded = upgraded = {}
+        for pkg in self._trans.getCache().getPackages():
+            # Precompute upgrade relations.
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
                         if prvpkg.installed:
                             upgrading[pkg] = True
-                            if changeset.get(prvpkg) is REMOVE:
-                                upgraded[pkg] = True
+                            if prvpkg in upgraded:
+                                upgraded[prvpkg].append(pkg)
+                            else:
+                                upgraded[prvpkg] = [pkg]
+
+    def runFinished(self):
+        del self._upgrading
+        del self._upgraded
+
+    def getWeight(self, changeset):
+        weight = 0
+        upgrading = self._upgrading
+        upgraded = self._upgraded
         for pkg in changeset:
-            op = changeset[pkg]
-            if op is REMOVE:
-                if pkg in upgraded:
-                    # Upgrading a package that will be removed
-                    # is better than upgrading a package that will
-                    # stay in the system.
-                    weight -= 1
+            if changeset[pkg] is REMOVE:
+                # Upgrading a package that will be removed
+                # is better than upgrading a package that will
+                # stay in the system.
+                lst = upgraded.get(pkg, ())
+                for lstpkg in lst:
+                    if changeset.get(lstpkg) is INSTALL:
+                        weight -= 1
+                        break
                 else:
                     weight += 20
-            elif op is INSTALL:
+            else:
                 if pkg in upgrading:
                     weight += 2
                 else:
@@ -163,56 +183,87 @@ class PolicyRemove(Policy):
 class PolicyUpgrade(Policy):
     """Give precedence to the choice with more upgrades and smaller impact."""
 
-    def getWeight(self, changeset):
-        weight = 0
-        # Compute upgrading/upgraded packages
-        upgrading = {}
-        upgraded = {}
-        for pkg in changeset:
+    def runStarting(self):
+        self._upgrading = upgrading = {}
+        self._upgraded = upgraded = {}
+        self._bonus = bonus = {}
+        queue = self._trans.getQueue()
+        for pkg in self._trans.getCache().getPackages():
+            # Precompute upgrade relations.
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
                         if prvpkg.installed:
-                            # Check if another package has already upgraded
-                            # this one. Two different packages upgrading the
-                            # same package is not valuable.
-                            if prvpkg not in upgraded:
-                                upgrading[pkg] = True
-                                if changeset.get(prvpkg) is REMOVE:
-                                    upgraded[prvpkg] = True
+                            upgrading[pkg] = True
+                            if prvpkg in upgraded:
+                                upgraded[prvpkg].append(pkg)
+                            else:
+                                upgraded[prvpkg] = [pkg]
+            # Precompute bonus weight for installing packages
+            # required for other upgrades.
+            weight = 0
+            for prv in pkg.provides:
+                for req in prv.requiredby:
+                    for reqpkg in req.packages:
+                        if queue.get(reqpkg) is UPGRADE:
+                            weight -= 3
+            if weight:
+                bonus[pkg] = weight
+
+    def runFinished(self):
+        del self._upgrading
+        del self._upgraded
+        del self._bonus
+
+    def getWeight(self, changeset):
+        weight = 0
+        upgrading = self._upgrading
+        upgraded = self._upgraded
+        bonus = self._bonus
         for pkg in changeset:
-            op = changeset[pkg]
-            if op is REMOVE:
-                if pkg in upgraded:
-                    # Upgrading a package that will be removed
-                    # is better than upgrading a package that will
-                    # stay in the system.
-                    weight -= 1
+            if changeset[pkg] is REMOVE:
+                # Upgrading a package that will be removed
+                # is better than upgrading a package that will
+                # stay in the system.
+                lst = upgraded.get(pkg, ())
+                for lstpkg in lst:
+                    if changeset.get(lstpkg) is INSTALL:
+                        weight -= 1
+                        break
                 else:
-                    weight += 20
+                    weight += 3
             else:
                 if pkg in upgrading:
                     weight -= 4
                 else:
                     weight += 1
+                weight += bonus.get(pkg, 0)
         return weight
 
 class Failed(Error): pass
 
+PENDING_REMOVE   = 1
+PENDING_INSTALL  = 2
+PENDING_UPDOWN   = 3
+
 class Transaction(object):
-    def __init__(self, cache, policy=None, changeset=None):
+    def __init__(self, cache, policy=None, changeset=None, queue=None):
         self._cache = cache
-        self._policy = policy
+        self._policy = policy and policy(self) or Policy(self)
         self._changeset = changeset or ChangeSet()
+        self._queue = queue or {}
 
     def getCache(self):
         return self._cache
+
+    def getQueue(self):
+        return self._queue
 
     def getPolicy(self):
         return self._policy
 
     def setPolicy(self, policy):
-        self._policy = policy
+        self._policy = policy(self)
 
     def getWeight(self):
         return self._policy.getWeight(self._changeset)
@@ -229,97 +280,58 @@ class Transaction(object):
     def setState(self, state):
         self._changeset.setState(state)
 
-    def installed(self, pkg):
-        return self._changeset.installed(pkg)
-
     def __nonzero__(self):
         return bool(self._changeset)
 
     def __str__(self):
         return str(self._changeset)
 
-    def _remove(self, pkg, changeset, locked):
-        getweight = self._policy.getWeight
-        alternatives = []
-        cs = changeset.copy()
-        self.remove(pkg, cs, locked)
-        alternatives.append((getweight(cs), cs))
+    def _install(self, pkg, changeset, locked, pending, depth=0):
+        #print "[%03d] _install(%s)" % (depth, pkg)
+        depth += 1
 
-        locked = locked.copy()
         locked[pkg] = True
-
-        # Check if upgrading is possible.
-        for upg in pkg.upgrades:
-            for prv in upg.providedby:
-                for prvpkg in prv.packages:
-                    if prvpkg not in locked:
-                        cs = changeset.copy()
-                        try:
-                            self.install(prvpkg, cs, locked)
-                        except Failed:
-                            pass
-                        else:
-                            alternatives.append((getweight(cs), cs))
-
-        # Check if downgrading is possible.
-        for prv in pkg.provides:
-            for upg in prv.upgradedby:
-                for upgpkg in upg.packages:
-                    if upgpkg not in locked:
-                        cs = changeset.copy()
-                        try:
-                            self.install(upgpkg, cs, locked)
-                        except Failed:
-                            pass
-                        else:
-                            alternatives.append((getweight(cs), cs))
-
-        alternatives.sort()
-        changeset.setState(alternatives[0][1])
-
-    def install(self, pkg, changeset=None, locked=None):
-        if locked is None:
-            locked = self._policy.getLockedSet().copy()
-        else:
-            locked = locked.copy()
-        if pkg in locked:
-            raise Failed, "can't install %s: it's locked" % pkg
-        locked[pkg] = True
-        if changeset is None:
-            changeset = self._changeset
         changeset.set(pkg, INSTALL)
         isinst = changeset.installed
-        getweight = self._policy.getWeight
 
         # Remove packages conflicted by this one.
         for cnf in pkg.conflicts:
             for prv in cnf.providedby:
                 for prvpkg in prv.packages:
                     if not isinst(prvpkg):
+                        locked[prvpkg] = True
                         continue
                     if prvpkg in locked:
                         raise Failed, "can't install %s: conflicted package " \
                                       "%s is locked" % (pkg, prvpkg)
-                    self._remove(prvpkg, changeset, locked)
+                    self._remove(prvpkg, changeset, locked, pending, depth)
+                    pending.append((PENDING_UPDOWN, prvpkg))
 
         # Remove packages conflicting with this one.
         for prv in pkg.provides:
             for cnf in prv.conflictedby:
                 for cnfpkg in cnf.packages:
                     if not isinst(cnfpkg):
+                        locked[cnfpkg] = True
                         continue
                     if cnfpkg in locked:
                         raise Failed, "can't install %s: it's conflicted by " \
                                       "the locked package %s" % (pkg, cnfpkg)
-                    self._remove(cnfpkg, changeset, locked)
+                    self._remove(cnfpkg, changeset, locked, pending, depth)
+                    pending.append((PENDING_UPDOWN, cnfpkg))
 
         # Remove packages with the same name-version that can't
         # coexist with this one.
         namepkgs = self._cache.getPackages(pkg.name)
         for namepkg in namepkgs:
-            if (namepkg is not pkg and isinst(namepkg) and
-                not pkg.coexists(namepkg)):
-                self.remove(namepkg, changeset, locked)
+            if namepkg is not pkg and not pkg.coexists(namepkg):
+                if not isinst(namepkg):
+                    locked[namepkg] = True
+                    continue
+                if namepkg in locked:
+                    raise Failed, "can't install %s: it can't coexist " \
+                                  "with %s" % (pkg, namepkg)
+                self._remove(namepkg, changeset, locked, pending, depth)
 
         # Install packages required by this one.
         for req in pkg.requires:
@@ -342,62 +354,34 @@ class Transaction(object):
                 continue
 
             # No one is currently providing it. Do something.
-            prvpkgs = prvpkgs.keys()
+
             if not prvpkgs:
                 # No packages provide it at all. Give up.
                 raise Failed, "can't install %s: no package provides %s" % \
                               (pkg, req)
-            if len(prvpkgs) > 1:
-                # More than one package provide it.
-                alternatives = []
-                failures = []
-                preceddct = {}
-                for prvpkg in prvpkgs:
-                    lst = preceddct.get(prvpkg.precedence)
-                    if lst:
-                        lst.append(prvpkg)
-                    else:
-                        preceddct[prvpkg.precedence] = [prvpkg]
-                precedlst = [(-x, preceddct[x]) for x in preceddct]
-                precedlst.sort()
-                for preced, prvpkgs in precedlst:
-                    sortUpgrades(prvpkgs)
-                    for prvpkg in prvpkgs:
-                        try:
-                            cs = changeset.copy()
-                            self.install(prvpkg, cs, locked)
-                        except Failed, e:
-                            failures.append(str(e))
-                        else:
-                            alternatives.append((getweight(cs), cs))
-                    if alternatives:
-                        break
-                if not alternatives:
-                    raise Failed, "can't install %s: all packages providing " \
-                                  "%s failed to install: %s" \
-                                  % (pkg, req,  "; ".join(failures))
-                alternatives.sort()
-                changeset.setState(alternatives[0][1])
-            else:
-                self.install(prvpkgs[0], changeset, locked)
 
-    def remove(self, pkg, changeset=None, locked=None):
+            if len(prvpkgs) == 1:
+                # Don't check locked here. prvpkgs was
+                # already filtered above.
+                self._install(prvpkgs.popitem()[0], changeset, locked,
+                              pending, depth)
+            else:
+                # More than one package provide it. This package
+                # must be post-processed.
+                pending.append((PENDING_INSTALL, pkg, req, prvpkgs.keys()))
+
+    def _remove(self, pkg, changeset, locked, pending, depth=0):
+        #print "[%03d] _remove(%s)" % (depth, pkg)
+        depth += 1
+
         if pkg.essential:
             raise Failed, "can't remove %s: it's an essential package"
-        if locked is None:
-            locked = self._policy.getLockedSet().copy()
-        else:
-            locked = locked.copy()
-        if pkg in locked:
-            raise Failed, "can't remove %s: it's locked" % pkg
+
         locked[pkg] = True
-        if changeset is None:
-            changeset = self._changeset
         changeset.set(pkg, REMOVE)
         isinst = changeset.installed
-        getweight = self._policy.getWeight
 
-        # Remove packages requiring this one.
+        # Check packages requiring this one.
         for prv in pkg.provides:
             for req in prv.requiredby:
                 # Check if someone installed is requiring it.
@@ -430,258 +414,435 @@ class Transaction(object):
                 # No one is providing it anymore. We'll have to do
                 # something about it.
 
-                alternatives = []
-                failures = []
-                lckd = locked.copy()
-                lckd.update(dict.fromkeys(prvpkgs))
-                
-                # Try to install other providing packages.
-                preceddct = {}
-                for prvpkg in prvpkgs:
-                    lst = preceddct.get(prvpkg.precedence)
-                    if lst:
-                        lst.append(prvpkg)
-                    else:
-                        preceddct[prvpkg.precedence] = [prvpkg]
-                precedlst = [(-x, preceddct[x]) for x in preceddct]
-                precedlst.sort()
-                for preced, prvpkgs in precedlst:
-                    sortUpgrades(prvpkgs)
-                    for prvpkg in prvpkgs:
-                        try:
-                            cs = changeset.copy()
-                            self.install(prvpkg, cs, locked)
-                        except Failed, e:
-                            failures.append(str(e))
-                        else:
-                            alternatives.append((getweight(cs), cs))
-                    if alternatives:
-                        break
                 if prvpkgs:
-                    for prvpkg in prvpkgs:
-                        try:
-                            cs = changeset.copy()
-                            self.install(prvpkg, cs, locked)
-                        except Failed, e:
-                            failures.append(str(e))
-                        else:
-                            alternatives.append((getweight(cs), cs))
-
-                # Then, remove every requiring package, or
-                # upgrade/downgrade them to something which
-                # does not require this dependency. lckd ensures
-                # that the providing packages we just checked won't
-                # be considered alternatives again.
-                cs = changeset.copy()
-                try:
+                    # There are other options, besides removing.
+                    pending.append((PENDING_REMOVE, pkg, prv, req.packages,
+                                    prvpkgs.keys()))
+                else:
+                    # Remove every requiring package, or
+                    # upgrade/downgrade them to something which
+                    # does not require this dependency.
                     for reqpkg in req.packages:
                         if not isinst(reqpkg):
                             continue
                         if reqpkg in locked:
                             raise Failed, "%s is locked" % reqpkg
-                        self._remove(reqpkg, cs, lckd)
-                except Failed, e:
-                    failures.append(str(e))
+                        self._remove(reqpkg, changeset, locked, pending, depth)
+
+    def _updown(self, pkg, changeset, locked, depth=0):
+        #print "[%03d] _updown(%s)" % (depth, pkg)
+        depth += 1
+
+        isinst = changeset.installed
+
+        # Check if any upgrading version of this package is installed.
+        # If so, we won't try to install any other version.
+        prvpkgs = {}
+        for upg in pkg.upgrades:
+            for prv in upg.providedby:
+                for prvpkg in prv.packages:
+                    if isinst(prvpkg):
+                        return
+                    if prvpkg not in locked and prvpkg not in prvpkgs:
+                        prvpkgs[prvpkg] = True
+
+        # No, let's try to upgrade it.
+        getweight = self._policy.getWeight
+        alternatives = [(getweight(changeset), changeset)]
+
+        # Check if upgrading is possible.
+        for prvpkg in prvpkgs:
+            try:
+                cs = changeset.copy()
+                lk = locked.copy()
+                _pending = []
+                self._install(prvpkg, cs, lk, _pending, depth)
+                if _pending:
+                    self._pending(cs, lk, _pending, depth)
+            except Failed:
+                pass
+            else:
+                alternatives.append((getweight(cs), cs))
+
+        # Is any downgrading version of this package installed?
+        upgpkgs = {}
+        for prv in pkg.provides:
+            for upg in prv.upgradedby:
+                for upgpkg in upg.packages:
+                    if isinst(upgpkg):
+                        break
+                    if upgpkg not in locked:
+                        upgpkgs[upgpkg] = True
+                else:
+                    continue
+                break
+            else:
+                continue
+            break
+        else:
+            # Check if downgrading is possible.
+            for upgpkg in upgpkgs:
+                try:
+                    cs = changeset.copy()
+                    lk = locked.copy()
+                    _pending = []
+                    self._install(upgpkg, cs, lk, _pending, depth)
+                    if _pending:
+                        self._pending(cs, lk, _pending, depth)
+                except Failed:
+                    pass
                 else:
                     alternatives.append((getweight(cs), cs))
 
+        if len(alternatives) > 1:
+            alternatives.sort()
+            changeset.setState(alternatives[0][1])
+                      
+    def _pending(self, changeset, locked, pending, depth=0):
+        #print "[%03d] _pending(%s)" % depth
+        depth += 1
+
+        isinst = changeset.installed
+        getweight = self._policy.getWeight
+
+        updown = []
+        while pending:
+            item = pending.pop(0)
+            kind = item[0]
+            if kind == PENDING_UPDOWN:
+                updown.append(item[1])
+            elif kind == PENDING_INSTALL:
+                kind, pkg, req, prvpkgs = item
+
+                # Check if any prvpkg was already selected for installation
+                # due to some other change.
+                found = False
+                for i in range(len(prvpkgs)-1,-1,-1):
+                    prvpkg = prvpkgs[i]
+                    if isinst(prvpkg):
+                        found = True
+                        break
+                    if prvpkg in locked:
+                        del prvpkgs[i]
+                if found:
+                    continue
+
+                if not prvpkgs:
+                    # No packages provide it at all. Give up.
+                    raise Failed, "can't install %s: no package provides %s" % \
+                                  (pkg, req)
+
+                if len(prvpkgs) > 1:
+                    # More than one package provide it. We use _install here,
+                    # since any option must consider the whole change for
+                    # weighting.
+                    alternatives = []
+                    failures = []
+                    sortUpgrades(prvpkgs)
+                    for prvpkg in prvpkgs:
+                        try:
+                            _pending = []
+                            cs = changeset.copy()
+                            lk = locked.copy()
+                            self._install(prvpkg, cs, lk, _pending, depth)
+                            if _pending:
+                                self._pending(cs, lk, _pending, depth)
+                        except Failed, e:
+                            failures.append(str(e))
+                        else:
+                            alternatives.append((getweight(cs), cs, lk))
+                    if not alternatives:
+                        raise Failed, "can't install %s: all packages providing " \
+                                      "%s failed to install:\n%s" \
+                                      % (pkg, req,  "\n".join(failures))
+                    alternatives.sort()
+                    changeset.setState(alternatives[0][1])
+                    if len(alternatives) == 1:
+                        locked.update(alternatives[0][2])
+                else:
+                    # This turned out to be the only way.
+                    self._install(prvpkgs[0], changeset, locked,
+                                  pending, depth)
+
+            elif kind == PENDING_REMOVE:
+                kind, pkg, prv, reqpkgs, prvpkgs = item
+
+                # Check if someone installed is still requiring it.
+                reqpkgs = [x for x in reqpkgs if isinst(x)]
+                if not reqpkgs:
+                    continue
+
+                # Check if someone installed is providing it.
+                found = False
+                for prvpkg in prvpkgs:
+                    if isinst(prvpkg):
+                        found = True
+                        break
+                if found:
+                    # Someone is still providing it. Good.
+                    continue
+
+                prvpkgs = [x for x in prvpkgs if x not in locked]
+
+                # No one is providing it anymore. We'll have to do
+                # something about it.
+
+                # Try to install other providing packages.
+                if prvpkgs:
+
+                    alternatives = []
+                    failures = []
+
+                    for prvpkg in prvpkgs:
+                        try:
+                            _pending = []
+                            cs = changeset.copy()
+                            lk = locked.copy()
+                            self._install(prvpkg, cs, lk, _pending, depth)
+                            if _pending:
+                                self._pending(cs, lk, _pending, depth)
+                        except Failed, e:
+                            failures.append(str(e))
+                        else:
+                            alternatives.append((getweight(cs), cs, lk))
+
+                if not prvpkgs or not alternatives:
+
+                    # There's no alternatives. We must remove
+                    # every requiring package.
+
+                    for reqpkg in reqpkgs:
+                        if reqpkg in locked and isinst(reqpkg):
+                            raise Failed, "can't remove %s: requiring " \
+                                          "package %s is locked" % \
+                                          (pkg, reqpkg)
+                    for reqpkg in reqpkgs:
+                        # We check again, since other actions may have
+                        # changed their state.
+                        if not isinst(reqpkg):
+                            continue
+                        if reqpkg in locked:
+                            raise Failed, "can't remove %s: requiring " \
+                                          "package %s is locked" % \
+                                          (pkg, reqpkg)
+                        self._remove(reqpkg, changeset, locked,
+                                     pending, depth)
+                    continue
+
+                # Then, remove every requiring package, or
+                # upgrade/downgrade them to something which
+                # does not require this dependency.
+                cs = changeset.copy()
+                lk = locked.copy()
+                try:
+                    for reqpkg in reqpkgs:
+                        if reqpkg in locked and isinst(reqpkg):
+                            raise Failed, "%s is locked" % reqpkg
+                    for reqpkg in reqpkgs:
+                        if not cs.installed(reqpkg):
+                            continue
+                        if reqpkg in lk:
+                            raise Failed, "%s is locked" % reqpkg
+                        _pending = []
+                        self._remove(reqpkg, cs, lk, _pending, depth)
+                        if _pending:
+                            self._pending(changeset, lk, _pending, depth)
+                except Failed, e:
+                    failures.append(str(e))
+                else:
+                    alternatives.append((getweight(cs), cs, lk))
+
                 if not alternatives:
-                    raise Failed, "can't remove %s: %s is being required " \
-                                  "and all alternatives failed: %s" % \
-                                  (pkg, prv, "; ".join(failures))
+                    raise Failed, "can't install %s: all packages providing " \
+                                  "%s failed to install:\n%s" \
+                                  % (pkg, prv,  "\n".join(failures))
 
                 alternatives.sort()
                 changeset.setState(alternatives[0][1])
+                if len(alternatives) == 1:
+                    locked.update(alternatives[0][2])
 
-    def upgrade(self, pkgs, changeset=None, locked=None):
-        if locked is None:
-            locked = self._policy.getLockedSet().copy()
-            locked.update(self._policy.getUpgradeLockedSet())
-        else:
-            locked = locked.copy()
-        if changeset is None:
-            changeset = self._changeset
+        for pkg in updown:
+            self._updown(pkg, changeset, locked, depth)
+
+        del pending[:]
+
+    def _upgrade(self, pkgs, changeset, locked, pending, depth=0):
+        #print "[%03d] _upgrade()" % depth
+        depth += 1
+
         isinst = changeset.installed
+        getweight = self._policy.getWeight
+        queue = self._queue
 
-        if type(pkgs) is not list:
-            pkgs = [pkgs]
+        sortUpgrades(pkgs)
 
-        # Find packages upgrading given packages.
-        upgpkgs = {}
+        weight = getweight(changeset)
         for pkg in pkgs:
-            if isinst(pkg):
-                for prv in pkg.provides:
-                    for upg in prv.upgradedby:
-                        for upgpkg in upg.packages:
-                            if (upgpkg in locked or
-                                upgpkg in upgpkgs or
-                                isinst(upgpkg)):
-                                continue
-                            upgpkgs[upgpkg] = True
+            if pkg in locked or isinst(pkg):
+                continue
 
-        if upgpkgs:
-            self.evalBestState(upgpkgs.keys(), changeset, locked,
-                               install=True, keep=True)
+            try:
+                cs = changeset.copy()
+                lk = locked.copy()
+                _pending = []
+                self._install(pkg, cs, lk, _pending, depth)
+                if _pending:
+                    self._pending(cs, lk, _pending, depth)
+            except Failed:
+                pass
+            else:
+                csweight = getweight(cs)
+                if csweight < weight:
+                    weight = csweight
+                    changeset.setState(cs)
 
-    def fix(self, pkgs):
+    def _fix(self, pkgs, changeset, locked, pending, depth=0):
+        #print "[%03d] _fix()" % depth
+        depth += 1
+
         changeset = self._changeset
         isinst = changeset.installed
 
-        fixpkgs = {}
         for pkg in pkgs:
-            if isinst(pkg):
-                # Is it broken?
-                try:
-                    for req in pkg.requires:
-                        for prv in req.providedby:
-                            for prvpkg in prv.packages:
-                                if isinst(prvpkg):
-                                    break
-                            else:
-                                continue
-                            break
+
+            if not isinst(pkg):
+                continue
+
+            # Is it broken at all?
+            try:
+                for req in pkg.requires:
+                    for prv in req.providedby:
+                        for prvpkg in prv.packages:
+                            if isinst(prvpkg):
+                                break
                         else:
-                            logger.debug("unsatisfied dependency: "
-                                         "%s requires %s" % (pkg, req))
-                            raise Failed
-                    for cnf in pkg.conflicts:
-                        for prv in cnf.providedby:
-                            for prvpkg in prv.packages:
-                                if isinst(prvpkg):
-                                    logger.debug("unsatisfied dependency: "
-                                                 "%s conflicts with %s"
-                                                 % (pkg, prvpkg))
-                                    raise Failed
-                    for prv in pkg.provides:
-                        for cnf in prv.conflictedby:
-                            for cnfpkg in cnf.packages:
-                                if isinst(cnfpkg):
-                                    logger.debug("unsatisfied dependency: "
-                                                 "%s conflicts with %s"
-                                                 % (cnfpkg, pkg))
-                                    raise Failed
-                except Failed:
-                    fixpkgs[pkg] = True
+                            continue
+                        break
+                    else:
+                        logger.debug("unsatisfied dependency: "
+                                     "%s requires %s" % (pkg, req))
+                        raise StopIteration
+                for cnf in pkg.conflicts:
+                    for prv in cnf.providedby:
+                        for prvpkg in prv.packages:
+                            if isinst(prvpkg):
+                                logger.debug("unsatisfied dependency: "
+                                             "%s conflicts with %s"
+                                             % (pkg, prvpkg))
+                                raise StopIteration
+                for prv in pkg.provides:
+                    for cnf in prv.conflictedby:
+                        for cnfpkg in cnf.packages:
+                            if isinst(cnfpkg):
+                                logger.debug("unsatisfied dependency: "
+                                             "%s conflicts with %s"
+                                             % (cnfpkg, pkg))
+                                raise StopIteration
+            except StopIteration:
+                pass
+            else:
+                continue
 
-        self.evalBestState(fixpkgs.keys(), install=True,
-                           remove=True, removeupgrade=True)
+            # We have a broken package. Fix it.
 
-    def evalBestState(self, pkgs, changeset=None, locked=None,
-                      install=False, remove=False, keep=False,
-                      upgrade=False, removeupgrade=False):
-        if locked is None:
-            locked = self._policy.getLockedSet().copy()
-        else:
-            locked = locked.copy()
-        if changeset is None:
-            changeset = self._changeset
-        getweight = self._policy.getWeight
-
-        if type(pkgs) is not list:
-            pkgs = [pkgs]
-
-        weight = getweight(changeset)
-        state = changeset.getState()
-        for pkg in pkgs:
             alternatives = []
             failures = []
-            if keep:
-                alternatives.append((weight, state))
 
-            if install:
-                try:
-                    cs = changeset.copy()
-                    self.install(pkg, cs, locked)
-                except Failed, e:
-                    failures.append(str(e))
-                else:
-                    alternatives.append((getweight(cs), cs))
+            # Try to fix by installing it.
+            try:
+                cs = changeset.copy()
+                lk = locked.copy()
+                _pending = []
+                self._install(pkg, cs, lk, _pending, depth)
+                if _pending:
+                    self._pending(cs, lk, _pending, depth)
+            except Failed, e:
+                failures.append(str(e))
+            else:
+                alternatives.append((getweight(cs), cs))
 
-            if remove:
-                try:
-                    cs = changeset.copy()
-                    self.remove(pkg, cs, locked)
-                except Failed, e:
-                    failures.append(str(e))
-                else:
-                    alternatives.append((getweight(cs), cs))
-
-            if upgrade:
-                try:
-                    cs = changeset.copy()
-                    self.upgrade(pkg, cs, locked)
-                    if not cs.difference(changeset):
-                        cs = None
-                except Failed, e:
-                    failures.append(str(e))
-                else:
-                    if cs:
-                        alternatives.append((getweight(cs), cs))
-
-            if removeupgrade:
-                try:
-                    cs = changeset.copy()
-                    self.remove(pkg, cs, locked)
-                    removecs = cs.copy()
-                    self.upgrade(pkg, cs, locked)
-                    if not cs.difference(removecs):
-                        cs = None
-                except Failed, e:
-                    failures.append(str(e))
-                else:
-                    if cs:
-                        alternatives.append((getweight(cs), cs))
+            # Try to fix by removing it.
+            try:
+                cs = changeset.copy()
+                lk = locked.copy()
+                _pending = []
+                self._remove(pkg, cs, lk, _pending, depth)
+                if _pending:
+                    self._pending(cs, lk, _pending, depth)
+                self._updown(pkg, cs, lk, depth)
+            except Failed, e:
+                failures.append(str(e))
+            else:
+                alternatives.append((getweight(cs), cs))
 
             if not alternatives:
-                if not failures:
-                    failures.append("wrong parameters")
-                raise Failed, "no best state for %s: %s" % \
-                              (pkg, "; ".join(failures))
+                raise Failed, "can't fix %s:\n%s" % (pkg, "\n".join(failures))
 
             alternatives.sort()
-            weight, state = alternatives[0]
-            changeset.setState(state)
+            changeset.setState(alternatives[0][1])
 
-    def minimize(self, changeset=None, locked=None):
-        if changeset is None:
-            changeset = self._changeset
-        if locked is None:
-            locked = self._policy.getLockedSet().copy()
+    def enqueue(self, pkg, op):
+        if op is UPGRADE:
+            isinst = self._changeset.installed
+            for prv in pkg.provides:
+                for upg in prv.upgradedby:
+                    _upgpkgs = {}
+                    for upgpkg in upg.packages:
+                        if isinst(upgpkg):
+                            break
+                        _upgpkgs[upgpkg] = True
+                    else:
+                        for upgpkg in _upgpkgs:
+                            self._queue[upgpkg] = op
         else:
-            locked = locked.copy()
-        getweight = self._policy.getWeight
-        # Lock everything which is not in the changeset.
-        for pkg in self._cache.getPackages():
-            if pkg not in changeset:
-                locked[pkg] = True
-        bestweight = getweight(changeset)
-        for pkg in changeset.keys():
-            if pkg not in changeset or pkg in locked:
-                continue
-            if changeset[pkg] is INSTALL:
-                if not pkg.installed:
-                    cs = changeset.copy()
-                    try:
-                        self.remove(pkg, cs, locked)
-                    except Failed:
-                        pass
-                    else:
-                        weight = getweight(cs)
-                        if weight < bestweight:
-                            bestweight = weight
-                            changeset.setState(cs)
-            else:
-                if pkg.installed:
-                    cs = changeset.copy()
-                    try:
-                        self.install(pkg, cs, locked)
-                    except Failed:
-                        pass
-                    else:
-                        weight = getweight(cs)
-                        if weight < bestweight:
-                            bestweight = weight
-                            changeset.setState(cs)
+            self._queue[pkg] = op
+
+    def run(self):
+
+        self._policy.runStarting()
+
+        changeset = self._changeset
+        locked = self._policy.getLockedSet().copy()
+        pending = []
+
+        for pkg in self._queue:
+            op = self._queue[pkg]
+            if op is INSTALL:
+                if not isinst(pkg) and pkg in locked:
+                    raise Failed, "can't install %s: it's locked" % pkg
+                changeset.set(pkg, op)
+            elif op is REMOVE:
+                if isinst(pkg) and pkg in locked:
+                    raise Failed, "can't remove %s: it's locked" % pkg
+                changeset.set(pkg, op)
+
+        upgpkgs = []
+        fixpkgs = []
+        for pkg in self._queue:
+            op = self._queue[pkg]
+            if op is INSTALL:
+                self._install(pkg, changeset, locked, pending)
+            elif op is REMOVE:
+                self._remove(pkg, changeset, locked, pending)
+            elif op is UPGRADE:
+                upgpkgs.append(pkg)
+            elif op is FIX:
+                fixpkgs.append(pkg)
+
+        if pending:
+            self._pending(changeset, locked, pending)
+
+        if upgpkgs:
+            self._upgrade(upgpkgs, changeset, locked, pending)
+
+        if fixpkgs:
+            self._fix(fixpkgs, changeset, locked, pending)
+
+        self._queue.clear()
+
+        self._policy.runFinished()
+
 
 class ChangeSetSplitter:
     # This class operates on *sane* changesets.
@@ -736,7 +897,8 @@ class ChangeSetSplitter:
             raise Error, "package '%s' is not in changeset" % pkg
 
         try:
-            if set[pkg] is INSTALL:
+            op = set[pkg]
+            if op is INSTALL:
                 subset[pkg] = INSTALL
 
                 # Check all dependencies needed by this package.
@@ -815,7 +977,7 @@ class ChangeSetSplitter:
                                                  prvpkg
                                 self.include(changeset, prvpkg, locked)
 
-            else: # if set[pkg] is REMOVE
+            elif op is REMOVE:
                 subset[pkg] = REMOVE
 
                 # Include requiring packages being removed, or exclude
@@ -1024,7 +1186,7 @@ class ChangeSetSplitter:
                                                  prvpkg
                                 self.exclude(changeset, prvpkg, locked)
 
-            else: # if op is REMOVE
+            elif op is REMOVE:
 
                 # Package will stay in the system. Exclude conflicting
                 # packages selected for installation.
@@ -1089,6 +1251,36 @@ def recursiveUpgrades(pkg, set):
             for prvpkg in prv.packages:
                 if prvpkg not in set:
                     recursiveUpgrades(prvpkg, set)
+
+def sortInternalRequires(pkgs):
+    rellst = []
+    numrel = {}
+    pkgmap = dict.fromkeys(pkgs, True)
+    for pkg in pkgs:
+        rellst.append((recursiveInternalRequires(pkgmap, pkg, numrel), pkg))
+    rellst.sort()
+    rellst.reverse()
+    pkgs[:] = [x[1] for x in rellst]
+
+def recursiveInternalRequires(pkgmap, pkg, numrel, done=None):
+    if done is None:
+        done = {}
+    done[pkg] = True
+    if pkg in numrel:
+        return numrel[pkg]
+    n = 0
+    for prv in pkg.provides:
+        for req in prv.requiredby:
+            for relpkg in req.packages:
+                if relpkg in pkgmap and relpkg not in done:
+                    n += 1
+                    if relpkg in numrel:
+                        n += numrel[relpkg]
+                    else:
+                        n += recursiveInternalRequires(pkgmap, relpkg,
+                                                       numrel, done)
+    numrel[pkg] = n
+    return n
 
 try:
     import psyco

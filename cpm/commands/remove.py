@@ -1,13 +1,12 @@
-from cpm.transaction import Transaction, PolicyRemove
+from cpm.transaction import Transaction, PolicyRemove, REMOVE
 from cpm.matcher import MasterMatcher
+from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
-from cpm.control import Control
-from cpm.cache import Provides
 from cpm import *
 import string
 import re
 
-USAGE="cpm install [options] packages"
+USAGE="cpm remove [options] packages"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
@@ -16,29 +15,22 @@ def parse_options(argv):
     return opts
 
 def main(opts):
-    ctrl = Control(opts)
-    ctrl.standardInit()
+    ctrl = initCmdLine(opts)
+    ctrl.fetchRepositories()
+    ctrl.loadCache()
     cache = ctrl.getCache()
-    policy = PolicyRemove(cache)
-    trans = Transaction(cache, policy)
+    trans = Transaction(cache, PolicyRemove)
     found = False
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         for pkg in matcher.filter(cache.getPackages()):
             if pkg.installed:
                 found = True
-                trans.remove(pkg)
-                policy.setLocked(pkg, True)
+                trans.enqueue(pkg, REMOVE)
     if not found:
         raise Error, "no installed packages matched given arguments"
-    trans.minimize()
-    print trans
-    print "Running transaction"
-    from cpm.backends.rpm.pm import RPMPackageManager
-    pm = RPMPackageManager()
-    from cpm.progress import RPMStyleProgress
-    prog = RPMStyleProgress()
-    #pm.commit(trans, prog)
-    ctrl.standardFinalize()
+    trans.run()
+    if trans:
+        ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et

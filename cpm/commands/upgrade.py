@@ -1,5 +1,4 @@
-from cpm.transaction import Transaction
-from cpm.transaction import PolicyUpgrade
+from cpm.transaction import Transaction, PolicyUpgrade, UPGRADE
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
@@ -20,27 +19,25 @@ def main(opts):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
-    trans = Transaction(cache)
-    trans.setPolicy(PolicyUpgrade(cache))
-    pkgs = cache.getPackages()
+    trans = Transaction(cache, PolicyUpgrade)
+    pkgs = [x for x in cache.getPackages() if x.installed]
     if opts.args:
         newpkgs = []
         for arg in opts.args:
             matcher = MasterMatcher(arg)
             fpkgs = matcher.filter(pkgs)
-            fpkgs = [x for x in fpkgs if x.installed]
             if not fpkgs:
                 raise Error, "'%s' matches no installed packages" % arg
             newpkgs.extend(fpkgs)
         pkgs = dict.fromkeys(newpkgs).keys()
+    for pkg in pkgs:
+        trans.enqueue(pkg, UPGRADE)
     print "Computing upgrade..."
-    trans.upgrade(pkgs)
+    trans.run()
     if not trans:
         print "No upgrades available!"
     else:
-        #trans.minimize()
-        #print trans
-        ctrl.commitTransactionStepped(trans)
         #ctrl.commitTransaction(trans)
+        ctrl.commitTransactionStepped(trans)
 
 # vim:ts=4:sw=4:et

@@ -1,4 +1,4 @@
-from cpm.transaction import Transaction, PolicyInstall
+from cpm.transaction import Transaction, PolicyInstall, FIX
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
@@ -19,8 +19,7 @@ def main(opts):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
-    trans = Transaction(cache)
-    trans.setPolicy(PolicyInstall(cache))
+    trans = Transaction(cache, PolicyInstall)
     pkgs = cache.getPackages()
     if opts.args:
         newpkgs = []
@@ -31,8 +30,10 @@ def main(opts):
                 raise Error, "'%s' matches no packages" % arg
             newpkgs.extend(fpkgs)
         pkgs = dict.fromkeys(newpkgs).keys()
+    for pkg in pkgs:
+        trans.enqueue(pkg, FIX)
     print "Resolving problems..."
-    trans.fix(pkgs)
+    trans.run()
     if not trans:
         print "No problems to resolve!"
     else:

@@ -1,4 +1,4 @@
-from cpm.transaction import Transaction, PolicyInstall, sortUpgrades
+from cpm.transaction import Transaction, PolicyInstall, sortUpgrades, INSTALL
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
@@ -19,8 +19,7 @@ def main(opts):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
-    policy = PolicyInstall(cache)
-    trans = Transaction(cache, policy)
+    trans = Transaction(cache, PolicyInstall)
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         pkgs = matcher.filter(cache.getPackages())
@@ -32,9 +31,9 @@ def main(opts):
             print "'%s' matches multiple packages, selecting: %s" % \
                   (arg, pkgs[0])
         pkg = pkgs[0]
-        trans.install(pkg)
-        policy.setLocked(pkg, True)
-    trans.minimize()
-    ctrl.commitTransaction(trans)
+        trans.enqueue(pkg, INSTALL)
+    trans.run()
+    if trans:
+        ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
