@@ -36,13 +36,17 @@ of interesting setups. When a package has no explicit priority,
 the channel priority is used. The channel priority may be
 changed using the 'channel' command, and defaults to 0 when
 not set.
+
+Notice that negatives priorities must be preceded by '--' in
+the command line, otherwise they'll be interpreted as command
+line options.
 """)
 
 EXAMPLES=_("""
 smart priority --set pkgname 100
-smart priority --set pkgname mychannel -200
-smart priority --remove pkgname 100
-smart priority --remove pkgname mychannel -200
+smart priority --set pkgname mychannel -- -200
+smart priority --remove pkgname
+smart priority --remove pkgname mychannel
 smart priority --show
 smart priority --show pkgname
 """)
