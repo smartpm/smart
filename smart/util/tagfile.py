@@ -22,12 +22,19 @@
 
 class TagFile(dict):
 
-    def __init__(self, filename):
-        self._filename = filename
-        self._file = open(filename)
+    def __init__(self, file):
+        if type(file) is str:
+            self._filename = file
+            self._file = open(file)
+        else:
+            self._filename = None
+            self._file = file
         self._offset = 0
 
     def __getstate__(self):
+        if not self._filename:
+            raise TypeError, "Can't pickle TagFile instance " \
+                             "constructed with file object"
         return self._filename
 
     def __setstate__(self, state):
@@ -73,4 +80,4 @@ class TagFile(dict):
             pass
         return bool(self)
 
-from ctagfile import *
+#from ctagfile import *

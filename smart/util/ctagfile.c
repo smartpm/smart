@@ -38,6 +38,7 @@ staticforward PyTypeObject TagFile_Type;
 
 typedef struct {
     PyDictObject dict;
+    PyObject *_fileobj;
     char *_filename;
     FILE *_file;
     long  _offset;
@@ -49,18 +50,30 @@ typedef struct {
 static int
 TagFile_init(TagFileObject *self, PyObject *args)
 {
-    PyObject *filename;
+    PyObject *file;
     PyObject *noargs = PyTuple_New(0);
     if (PyDict_Type.tp_init((PyObject *)self, noargs, NULL) < 0)
         return -1;
     Py_DECREF(noargs);
-    if (!PyArg_ParseTuple(args, "O!", &PyString_Type, &filename))
+    if (!PyArg_ParseTuple(args, "O", &file))
         return -1;
-    self->_filename = strdup(STR(filename));
-    self->_file = fopen(self->_filename, "r");
-    if (!self->_file) {
-        PyErr_SetFromErrnoWithFilename(PyExc_IOError, self->_filename);
-        return -1;
+    if (PyString_Check(file)) {
+        self->_filename = strdup(STR(file));
+        self->_file = fopen(self->_filename, "r");
+        if (!self->_file) {
+            PyErr_SetFromErrnoWithFilename(PyExc_IOError, self->_filename);
+            return -1;
+        }
+    } else {
+        PyObject *attr;
+        attr = PyObject_GetAttrString(file, "read");
+        if (!attr)
+            return -1;
+        attr = PyObject_GetAttrString(file, "seek");
+        if (!attr)
+            return -1;
+        Py_INCREF(file);
+        self->_fileobj = file;
     }
     return 0;
 }
@@ -68,16 +81,25 @@ TagFile_init(TagFileObject *self, PyObject *args)
 static void
 TagFile_dealloc(TagFileObject *self)
 {
-    free(self->_filename);
-    free(self->_buf);
-    if (self->_file)
-        fclose(self->_file);
+    if (self->_fileobj) {
+        Py_DECREF(self->_fileobj);
+    } else {
+        free(self->_filename);
+        free(self->_buf);
+        if (self->_file)
+            fclose(self->_file);
+    }
     ((PyObject *)self)->ob_type->tp_free((PyObject *)self);
 }
 
 static PyObject *
 TagFile__getstate__(TagFileObject *self, PyObject *args)
 {
+    if (self->_fileobj) {
+        PyErr_SetString(PyExc_ValueError, "Can't pickle TagFile instance "
+                                          "constructed with file object");
+        return NULL;
+    }
     return PyString_FromString(self->_filename);
 }
 
@@ -107,9 +129,17 @@ TagFile_setOffset(TagFileObject *self, PyObject *offset)
     }
     self->_bufread = 0;
     self->_offset = PyInt_AsLong(offset);
-    if (fseek(self->_file, self->_offset, SEEK_SET) == -1) {
-        PyErr_SetFromErrnoWithFilename(PyExc_IOError, self->_filename);
-        return NULL;
+    if (self->_fileobj) {
+        PyObject *res = PyObject_CallMethod(self->_fileobj,
+                                            "seek", "O", offset);
+        if (!res)
+            return NULL;
+        Py_DECREF(res);
+    } else {
+        if (fseek(self->_file, self->_offset, SEEK_SET) == -1) {
+            PyErr_SetFromErrnoWithFilename(PyExc_IOError, self->_filename);
+            return NULL;
+        }
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -130,6 +160,7 @@ TagFile_advanceSection(TagFileObject *self, PyObject *args)
     int read, pos;
     int valuepos;
     int c, skip;
+    int eof = 0;
 
     PyObject *key, *value;
 
@@ -149,16 +180,47 @@ TagFile_advanceSection(TagFileObject *self, PyObject *args)
                 if (!self->_buf)
                     return PyErr_NoMemory();
             }
-            read = fread(self->_buf+self->_bufread, sizeof(char),
-                         self->_bufsize-self->_bufread-2, self->_file);
-            if (feof(self->_file)) {
+            if (self->_fileobj) {
+                PyObject *res;
+                res = PyObject_CallMethod(self->_fileobj, "read", "i",
+                                          self->_bufsize-self->_bufread-2);
+                if (!res)
+                    return NULL;
+                if (!PyString_Check(res)) {
+                    PyErr_SetString(PyExc_ValueError,
+                                    "file.read() returned non-string");
+                    Py_DECREF(res);
+                    return NULL;
+                }
+                read = PyString_GET_SIZE(res);
+                if (read > self->_bufsize-self->_bufread-2) {
+                    PyErr_SetString(PyExc_ValueError,
+                                    "file.read() returned more data than "
+                                    "requested");
+                    Py_DECREF(res);
+                    return NULL;
+                }
+                if (read == 0)
+                    eof = 1;
+                else
+                    memcpy(self->_buf+self->_bufread,
+                           PyString_AS_STRING(res), read);
+                Py_DECREF(res);
+            } else {
+                read = fread(self->_buf+self->_bufread, sizeof(char),
+                             self->_bufsize-self->_bufread-2, self->_file);
+                if (feof(self->_file)) {
+                    eof = 1;
+                } else if (ferror(self->_file)) {
+                    PyErr_SetFromErrnoWithFilename(PyExc_IOError,
+                                                   self->_filename);
+                    return NULL;
+                }
+            }
+            if (eof) {
                 *(self->_buf+pos+read) = '\n';
                 *(self->_buf+pos+read+1) = '\n';
                 read += 2;
-            } else if (ferror(self->_file)) {
-                PyErr_SetFromErrnoWithFilename(PyExc_IOError,
-                                               self->_filename);
-                return NULL;
             }
             self->_bufread += read;
         }
@@ -180,7 +242,7 @@ TagFile_advanceSection(TagFileObject *self, PyObject *args)
             if (pos != self->_bufread) {
                 sectionstart = pos;
                 skip = 0;
-            } else if (feof(self->_file)) {
+            } else if (eof) {
                 sectionstart = sectionend = pos;
                 goto found;
             } else {
