@@ -16,6 +16,14 @@ Downloading and committing
 - The committer may choose to install packages in chunks (cdroms,
   for early usage of packages, for getting security upgrades
   installed quickly, etc).
+- Partial installer might be based on removing from the transaction
+  what it doesn't have, instead of sorting what it has, like APT.
+- Partial installer may copy to the fixed disk only these entries
+  for which there are missing pre-requires.
+- Removable repositories are normal repositories with special media
+  ID, and a mark saying where the removable media mounting point
+  starts.
+- Removable repositories may be remote as well.
 - May have multiple frontends (graphical/interactive, command line/one
   shot, etc).
 

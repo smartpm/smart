@@ -93,6 +93,7 @@ class RPMHeaderLoader(Loader):
         Pkg = RPMPackage
         Prv = RPMProvides
         NPrv = RPMNameProvides
+        PreReq = RPMPreRequires
         Req = RPMRequires
         Upg = RPMUpgrades
         Obs = RPMObsoletes
@@ -137,7 +138,9 @@ class RPMHeaderLoader(Loader):
                         r = CM.get(f[i]&CF)
                         if ((r is not None and r != "=") or
                             ((Prv, ni, vi) not in prvdict)):
-                            reqdict[(Req, ni, r, vi)] = True
+                            # RPMSENSE_PREREQ
+                            reqdict[(f[i]&64 and PreReq or Req,
+                                     ni, r, vi)] = True
                 reqargs = reqdict.keys()
             else:
                 reqargs = None

@@ -122,7 +122,7 @@ class Policy(object):
         return 0
 
 class PolicyInstall(Policy):
-    """Give precedence to keeping functionality in the system."""
+    """Give precedence for keeping functionality in the system."""
 
     def getWeight(self, changeset):
         weight = 0
@@ -634,6 +634,59 @@ class Transaction(object):
                         if weight < bestweight:
                             bestweight = weight
                             changeset.setState(cs)
+
+class ChangeSetSplitter:
+    # An upgrade should never be split from the old package erasure!
+
+    def __init__(self, changeset):
+        self._changeset = changeset
+        self._forcerequires = False
+        self._locked = {}
+
+    def getForceRequires(self):
+        return self._userequires
+
+    def setForceRequires(self, flag):
+        self._forcerequires = flag
+
+    def getLocked(self, pkg):
+        return pkg in self._locked
+
+    def setLocked(self, pkg, flag):
+        if flag:
+            self._locked[pkg] = True
+        else:
+            if pkg in self._locked:
+                del self._locked[pkg]
+
+    def setLockedSet(self, set):
+        self._locked.clear()
+        self._locked.update(set)
+
+    def resetLocked(self):
+        self._locked.clear()
+
+    def include(self, changeset, pkg):
+        set = changeset.getSet()
+        selfset = self._changeset.getSet()
+        # Try to include pkg in the changeset, if it won't
+        # require changing the state of other locked packages.
+        # If installing, add every requires/pre-requires for pkg
+        # If removing, remove every requires/pre-requires for pkg
+        pass
+
+    def exclude(self, changeset, pkg):
+        # Try to exclude package from the changeset, it it won't
+        # have to change the state of other locked packages.
+        pass
+
+    def includeAll(self, changeset):
+        # Do everything that doesn't change locked packages
+        pass
+
+    def excludeAll(self, changeset):
+        # Keep everything that doesn't change locked packages
+        pass
 
 def sortUpgrades(pkgs):
     upgpkgs = {}

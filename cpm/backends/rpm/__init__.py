@@ -9,7 +9,8 @@ import os, re
 from rpm import archscore
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides",
-           "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes"]
+           "RPMPreRequires", "RPMRequires", "RPMUpgrades",
+           "RPMConflicts", "RPMObsoletes"]
 
 class RPMMatcher(Matcher):
     def __init__(self, str):
@@ -112,6 +113,7 @@ class RPMDepends(Depends):
             return True
         return checkdep(prv.version, self.relation, self.version)
 
+class RPMPreRequires(RPMDepends,PreRequires): pass
 class RPMRequires(RPMDepends,Requires): pass
 class RPMUpgrades(RPMDepends,Upgrades): pass
 class RPMConflicts(RPMDepends,Conflicts): pass

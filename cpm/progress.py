@@ -66,6 +66,8 @@ class Progress:
 
     def set(self, current, total, data={}):
         self._lock.acquire()
+        if current > total:
+            current = total
         self._progress = (current, total, data)
         if current == total:
             self._lasttime = 0
@@ -74,7 +76,10 @@ class Progress:
     def add(self, value):
         self._lock.acquire()
         current, total, data = self._progress
-        self._progress = (current+value, total, data)
+        current += value
+        if current > total:
+            current = total
+        self._progress = (current, total, data)
         if current == total:
             self._lasttime = 0
         self._lock.release()
@@ -100,6 +105,8 @@ class Progress:
         if subkey not in self._subtopic:
             self._subtopic[subkey] = ""
             self._lasttime = 0
+        if subcurrent > subtotal:
+            subcurrent = subtotal
         if subcurrent == subtotal:
             self._lasttime = 0
         self._subprogress[subkey] = (subcurrent, subtotal, fragment, subdata)
@@ -111,8 +118,10 @@ class Progress:
             self._lock.release()
             return
         subcurrent, subtotal, fragment, subdata = self._subprogress[subkey]
-        self._subprogress[subkey] = (subcurrent+value, subtotal,
-                                     fragment, subdata)
+        subcurrent += value
+        if subcurrent > subtotal:
+            subcurrent = subtotal
+        self._subprogress[subkey] = (subcurrent, subtotal, fragment, subdata)
         if subcurrent == subtotal:
             self._lasttime = 0
         self._lock.release()

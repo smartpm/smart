@@ -566,6 +566,8 @@ class URLLIB2Handler(Handler):
 
                 if "content-length" in info:
                     total = int(info["content-length"])
+                elif size:
+                    total = size
 
                 if "content-range" in info:
                     openmode = "a"

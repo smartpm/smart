@@ -139,6 +139,7 @@ class Depends(object):
             rc = cmp(self.version, other.version)
         return rc
 
+class PreRequires(Depends): pass
 class Requires(Depends): pass
 class Upgrades(Depends): pass
 class Conflicts(Depends): pass

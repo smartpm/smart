@@ -1,7 +1,7 @@
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
-from cpm.cache import Provides
+from cpm.cache import Provides, PreRequires
 from cpm import *
 import string
 import re
@@ -16,6 +16,8 @@ def parse_options(argv):
                       help="show provides for the given packages")
     parser.add_option("--requires", action="store_true",
                       help="show requires for the given packages")
+    parser.add_option("--prerequires", action="store_true",
+                      help="show requires selecting only pre-dependencies")
     parser.add_option("--upgrades", action="store_true",
                       help="show upgrades for the given packages")
     parser.add_option("--conflicts", action="store_true",
@@ -182,10 +184,12 @@ def main(opts):
                             if opts.installed and not cnfpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (cnfpkg, prv)
-        if pkg.requires and (opts.requires or whorequires):
+        if pkg.requires and (opts.requires or opts.prerequires or whorequires):
             pkg.requires.sort()
             first = True
             for req in pkg.requires:
+                if opts.prerequires and not isinstance(req, PreRequires):
+                    continue
                 if whorequires:
                     for whoreq in whorequires:
                         if req.matches(whoreq):
@@ -195,7 +199,10 @@ def main(opts):
                 if first:
                     first = False
                     print "  Requires:"
-                print "   ", req
+                if isinstance(req, PreRequires):
+                    print "   ", req, "[pre]"
+                else:
+                    print "   ", req
                 if opts.providedby and req.providedby:
                     print "      Provided By:"
                     for prv in req.providedby:
