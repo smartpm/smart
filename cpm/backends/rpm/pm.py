@@ -12,23 +12,28 @@ class RPMPackageManager(PackageManager):
         prog = self.getProgress()
         prog.setTopic("Committing transaction...")
 
-        # Build obsoletes relations.
-        obsoleting = {}
-        obsoleted = {}
+        # Compute upgrading/upgraded packages
+        upgrading = {}
+        upgraded = {}
         for pkg in install:
-            for prv in pkg.provides:
-                for obs in prv.obsoletedby:
-                    for obspkg in obs.packages:
-                        if obspkg in install:
-                            obsoleted[pkg] = True
-                            obsoleting[obspkg] = True
-
+            for upg in pkg.upgrades:
+                for prv in upg.providedby:
+                    upgd = []
+                    for prvpkg in prv.packages:
+                        if prvpkg.installed:
+                            if prvpkg not in remove:
+                                break
+                            upgd.append(prvpkg)
+                    else:
+                        if upgd:
+                            upgrading[pkg] = True
+                            upgraded.update(dict.fromkeys(upgd))
         ts = rpm.ts()
         packages = 0
         for pkg in install:
             loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
-            mode = pkg in obsoleting and "u" or "i"
+            mode = pkg in upgrading and "u" or "i"
             path = pkgpath[pkg]
             fd = os.open(path, os.O_RDONLY)
             h = ts.hdrFromFdno(fd)
@@ -36,7 +41,7 @@ class RPMPackageManager(PackageManager):
             ts.addInstall(h, (info, path), mode)
             packages += 1
         for pkg in remove:
-            if pkg not in obsoleted:
+            if pkg not in upgraded:
                 version = pkg.version
                 if ":" in version:
                     version = version[version.find(":")+1:]
