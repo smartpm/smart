@@ -242,7 +242,7 @@ class Fetcher(object):
         if not progress:
             prog.stop()
         if self._cancel:
-            raise FetcherCancelled, "Fetch cancelled"
+            raise FetcherCancelled, "Cancelled"
 
     def _uncompress(self, item, localpath, uncomphandler):
         try:
@@ -1370,9 +1370,7 @@ class PyCurlHandler(FetcherHandler):
                 url = item.getURL()
                 multi.remove_handle(handle)
                 userhost = (url.user, url.host, url.port)
-                # May it be reused, even stopping unfinished?
-                self._inactive[handle] = userhost
-            del self._active[:]
+            self._active.clear()
             self._lock.release()
 
         num = 1
@@ -1501,6 +1499,7 @@ class PyCurlHandler(FetcherHandler):
                             local = open(localpathpart, openmode)
                         except (IOError, OSError), e:
                             item.setFailed("%s: %s" % (localpathpart, e))
+                            continue
 
                         handle.item = item
                         handle.local = local
