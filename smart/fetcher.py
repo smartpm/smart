@@ -1053,6 +1053,8 @@ class URLLIBHandler(FetcherHandler):
             def prompt_user_passwd(self, host, realm):
                 return self.user, self.passwd
             def http_error_default(self, url, fp, errcode, errmsg, headers):
+                if not fp:
+                    fp = open("/dev/null")
                 info = urllib.addinfourl(fp, headers, "http:" + url)
                 info.errcode = errcode
                 info.errmsg = errmsg
