@@ -153,6 +153,7 @@ void KSmartTray::runUpgrades()
                                  "Couldn't run 'smart upgrade'.");
         } else {
             state = StateUpgrading;
+            QToolTip::remove(&sysTray);
             QToolTip::add(&sysTray, "Running Smart Package Manager...");
         }
     }
@@ -181,6 +182,7 @@ void KSmartTray::processDone(KProcess *)
                     state = StateWaiting;
                     lastKnownStatus = "";
                 } else {
+                    QToolTip::remove(&sysTray);
                     QToolTip::add(&sysTray,
                                   "Verifying upgradable packages...");
                     state = StateChecking;
@@ -231,7 +233,10 @@ void KSmartTray::processDone(KProcess *)
         sysTray.checkAction.setEnabled(true);
         sysTray.stopAction.setEnabled(false);
         if (!lastKnownStatus.isEmpty())
+        {
+            QToolTip::remove(&sysTray);
             QToolTip::add(&sysTray, lastKnownStatus);
+        }
         else
             QToolTip::remove(&sysTray);
     }
