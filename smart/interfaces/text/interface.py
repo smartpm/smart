@@ -91,7 +91,7 @@ class TextInterface(Interface):
         print "Insert one or more of the following removable channels:"
         print
         for channel in channels:
-            print "   ", channel.getName()
+            print "   ", str(channel)
         print
         return self.askOkCancel("Continue", True)
 
