@@ -1,3 +1,4 @@
+- Lazy PackageInfo creation, to speed up getGroup() access.
 - Mirror system
 - Ordering system
 - Removable media handling

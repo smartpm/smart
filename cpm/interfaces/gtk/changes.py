@@ -129,13 +129,7 @@ class GtkChanges:
         self._pv.setPackages(packages, changeset)
 
         # Expand first level
-        treeview = self._pv.getTreeView()
-        treemodel = treeview.get_model()
-        child = treemodel.iter_children(None)
-        while child:
-            path = treemodel.get_path(child)
-            treeview.expand_row(path, False)
-            child = treemodel.iter_next(child)
+        self._pv.setExpanded([(x,) for x in packages])
 
         self._result = False
         self._window.show()

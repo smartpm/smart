@@ -72,16 +72,6 @@ class GtkPackageInfo(gtk.Alignment):
 
         self._pkg = pkg
 
-        descrbuf = self._descrtv.get_buffer()
-        descrbuf.set_text("")
-
-        contbuf = self._conttv.get_buffer()
-        contbuf.set_text("")
-
-        self._relations.setPackages([])
-
-        if not pkg: return
-
         if _pagenum is not None:
             num = _pagenum
         else:
@@ -90,6 +80,10 @@ class GtkPackageInfo(gtk.Alignment):
         if num == 0:
 
             # Update summary/description.
+
+            descrbuf = self._descrtv.get_buffer()
+            descrbuf.set_text("")
+            if not pkg: return
 
             iter = descrbuf.get_end_iter()
             for loader in pkg.loaders:
@@ -111,6 +105,10 @@ class GtkPackageInfo(gtk.Alignment):
 
             # Update contents.
 
+            contbuf = self._conttv.get_buffer()
+            contbuf.set_text("")
+            if not pkg: return
+
             iter = contbuf.get_end_iter()
             for loader in pkg.loaders:
                 if loader.getInstalled():
@@ -122,6 +120,10 @@ class GtkPackageInfo(gtk.Alignment):
                 contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
 
         elif num == 2:
+
+            if not pkg:
+                self._relations.setPackages([])
+                return
 
             self._setRelations(pkg)
 

@@ -25,6 +25,8 @@ class GtkInteractiveInterface(GtkInterface):
         self._progress.set_transient_for(self._window)
         self._hassubprogress.set_transient_for(self._window)
 
+        self._watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
+
         self._topvbox = gtk.VBox()
         self._topvbox.show()
         self._window.add(self._topvbox)
@@ -80,32 +82,22 @@ class GtkInteractiveInterface(GtkInterface):
         menuitem = gtk.MenuItem("_View")
         submenu = gtk.Menu()
         submenu.show()
-        submenuitem = gtk.MenuItem("_Log Window")
-        submenuitem.connect("activate", lambda x: self._log.show())
-        submenuitem.show()
-        submenu.add(submenuitem)
-        submenuitem = gtk.SeparatorMenuItem()
-        submenuitem.show()
-        submenu.add(submenuitem)
 
-        submenuitem = gtk.MenuItem("Filter")
-        submenuitem.show()
         filters = sysconf.get("package-filters", {})
-        subsubmenu = gtk.Menu()
-        subsubmenuitem = None
         for label, filter in [("Hide Installed", "hide-installed"),
                               ("Hide Uninstalled", "hide-uninstalled"),
-                              ("Hide Marked", "hide-marked"),
                               ("Hide Unmarked", "hide-unmarked")]:
-            subsubmenuitem = gtk.CheckMenuItem(label)
+            submenuitem = gtk.CheckMenuItem(label)
             if filter in filters:
-                subsubmenuitem.set_active(True)
-            subsubmenuitem.connect("toggled",
-                                   lambda x, y: self.togglePackageFilter(y),
-                                   filter)
-            subsubmenuitem.show()
-            subsubmenu.add(subsubmenuitem)
-        submenuitem.set_submenu(subsubmenu)
+                submenuitem.set_active(True)
+            submenuitem.connect("toggled",
+                                lambda x, y: self.togglePackageFilter(y),
+                                filter)
+            submenuitem.show()
+            submenu.add(submenuitem)
+
+        submenuitem = gtk.SeparatorMenuItem()
+        submenuitem.show()
         submenu.add(submenuitem)
 
         submenuitem = gtk.MenuItem("Tree Style")
@@ -126,6 +118,15 @@ class GtkInteractiveInterface(GtkInterface):
             subsubmenuitem.show()
             subsubmenu.add(subsubmenuitem)
         submenuitem.set_submenu(subsubmenu)
+        submenu.add(submenuitem)
+
+        submenuitem = gtk.SeparatorMenuItem()
+        submenuitem.show()
+        submenu.add(submenuitem)
+
+        submenuitem = gtk.MenuItem("_Log Window")
+        submenuitem.connect("activate", lambda x: self._log.show())
+        submenuitem.show()
         submenu.add(submenuitem)
 
         menuitem.set_submenu(submenu)
@@ -234,6 +235,8 @@ class GtkInteractiveInterface(GtkInterface):
             if self.confirmChange(oldchangeset, newchangeset):
                 oldchangeset.setState(newchangeset)
                 self._pv.queue_draw()
+                if "hide-unmarked" in sysconf.get("package-filters", {}):
+                    self.refreshPackages()
         transaction.setChangeSet(oldchangeset)
 
     def setPackageTree(self, mode):
@@ -241,9 +244,19 @@ class GtkInteractiveInterface(GtkInterface):
             sysconf.set("package-tree", mode)
             self.refreshPackages()
 
+    def setBusy(self, flag):
+        if flag:
+            self._window.window.set_cursor(self._watch)
+            while gtk.events_pending():
+                gtk.main_iteration()
+        else:
+            self._window.window.set_cursor(None)
+
     def refreshPackages(self):
         if not self._ctrl:
             return
+
+        self.setBusy(True)
 
         tree = sysconf.get("package-tree", "groups")
         ctrl = self._ctrl
@@ -252,14 +265,13 @@ class GtkInteractiveInterface(GtkInterface):
         filters = sysconf.get("package-filters", {})
 
         if filters:
-            if "hide-installed" in filters:
-                packages = [x for x in packages if not x.installed]
+            changeset = self._transaction.getChangeSet()
             if "hide-uninstalled" in filters:
                 packages = [x for x in packages if x.installed]
-            if "hide-marked" in filters:
-                pass
             if "hide-unmarked" in filters:
-                pass
+                packages = [x for x in packages if x in changeset]
+            if "hide-installed" in filters:
+                packages = [x for x in packages if not x.installed]
 
         if tree == "groups":
             groups = {}
@@ -312,11 +324,14 @@ class GtkInteractiveInterface(GtkInterface):
         else:
             groups = packages
 
-        self._pv.setPackages(groups, self._transaction.getChangeSet())
+        self._pv.setPackages(groups, self._transaction.getChangeSet(),
+                             keepstate=True)
 
         if filters:
             self.showStatus("There are filters being applied!")
         else:
             self.hideStatus()
+
+        self.setBusy(False)
 
 # vim:ts=4:sw=4:et

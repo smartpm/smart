@@ -162,21 +162,109 @@ class GtkPackageView(gtk.Alignment):
     def setExpandPackage(self, flag):
         self._expandpackage = flag
 
+    def getCursor(self):
+        treeview = self._treeview
+        model = treeview.get_model()
+        path = treeview.get_cursor()[0]
+        if not path:
+            return None
+        cursor = [None]*len(path)
+        for i in range(len(path)):
+            iter = model.get_iter(path[:i+1])
+            cursor[i] = model.get_value(iter, 0)
+        return cursor
+
+    def setCursor(self, cursor):
+        if not cursor:
+            return
+        treeview = self._treeview
+        model = treeview.get_model()
+        iter = None
+        for i in range(len(cursor)):
+            cursori = cursor[i]
+            iter = model.iter_children(iter)
+            while iter:
+                value = model.get_value(iter, 0)
+                if value == cursori:
+                    break
+                iter = model.iter_next(iter)
+            else:
+                break
+        else:
+            path = model.get_path(iter)
+            treeview.set_cursor(path)
+            treeview.scroll_to_cell(path)
+
+    def getExpanded(self):
+        expanded = []
+        treeview = self._treeview
+        model = treeview.get_model()
+        def set(treeview, path, data):
+            item = [None]*len(path)
+            for i in range(len(path)):
+                iter = model.get_iter(path[:i+1])
+                item[i] = model.get_value(iter, 0)
+            expanded.append(tuple(item))
+        treeview.map_expanded_rows(set, None)
+        return expanded
+
+    def setExpanded(self, expanded):
+        if not expanded:
+            return
+        treeview = self._treeview
+        model = treeview.get_model()
+        cache = {}
+        for item in expanded:
+            item = tuple(item)
+            iter = None
+            for i in range(len(item)):
+                cached = cache.get(item[:i+1])
+                if cached:
+                    iter = cached
+                    continue
+                itemi = item[i]
+                iter = model.iter_children(iter)
+                while iter:
+                    value = model.get_value(iter, 0)
+                    if value == itemi:
+                        cache[item[:i+1]] = iter
+                        treeview.expand_row(model.get_path(iter), False)
+                        break
+                    iter = model.iter_next(iter)
+                else:
+                    break
+
     def setChangeSet(self, changeset):
         if changeset is None:
             self._changeset = {}
         else:
             self._changeset = changeset
 
-    def setPackages(self, packages, changeset=None):
+    def setPackages(self, packages, changeset=None, keepstate=False):
+        treeview = self._treeview
+        if not packages:
+            model = treeview.get_model()
+            if model:
+                model.clear()
+                treeview.queue_draw()
+            return
         self.setChangeSet(changeset)
+        if keepstate:
+            if treeview.get_model():
+                expanded = self.getExpanded()
+                cursor = self.getCursor()
+            else:
+                keepstate = False
         if isinstance(packages, list):
             model = gtk.ListStore(gobject.TYPE_PYOBJECT)
         elif isinstance(packages, dict):
             model = gtk.TreeStore(gobject.TYPE_PYOBJECT)
         self._setPackage(None, model, None, packages)
-        self._treeview.set_model(model)
-        self._treeview.queue_draw()
+        treeview.set_model(model)
+        if keepstate:
+            self.setExpanded(expanded)
+            self.setCursor(cursor)
+        treeview.queue_draw()
 
     def _setPackage(self, report, model, parent, item):
         if type(item) is list:
