@@ -154,7 +154,7 @@ class Fetcher(object):
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
-                    raise Error, "invalid size (expected %d, got %d)" % \
+                    raise Error, "unexpected size (expected %d, got %d)" % \
                                  (size, lsize)
             filemd5 = self.getInfo(url, "md5")
             if filemd5:
@@ -226,8 +226,8 @@ class URL(object):
             self.passwd = ""
         self.host, self.port = urllib.splitport(host)
         self.path, self.query = urllib.splitquery(rest)
-        self.user = urllib.unquote(self.user)
-        self.passwd = urllib.unquote(self.passwd)
+        self.user = self.user and urllib.unquote(self.user) or ""
+        self.passwd = self.passwd and urllib.unquote(self.passwd) or ""
         self.path = urllib.unquote(self.path)
 
     def __str__(self):
@@ -403,7 +403,7 @@ class FTPHandler(Handler):
             else:
                 size = fetcher.getInfo(url, "size")
                 if size and size != total:
-                    raise Error, "server reports invalid size"
+                    raise Error, "server reports unexpected size"
 
             if (not mtime or not os.path.isfile(localpath) or
                 mtime != os.path.getmtime(localpath) or
@@ -578,7 +578,7 @@ class URLLIB2Handler(Handler):
                     openmode = "w"
 
                 if size and total and size != total:
-                    raise Error, "server reports invalid size"
+                    raise Error, "server reports unexpected size"
 
                 try:
                     local = open(localpathpart, openmode)
@@ -860,5 +860,117 @@ else:
     for scheme in schemes:
         if scheme != "file":
             Fetcher.setHandler(scheme, PyCurlHandler)
+
+class SCPHandler(Handler):
+
+    MAXACTIVE = 5
+    MAXPERHOST = 2
+
+    def __init__(self, *args):
+        Handler.__init__(self, *args)
+        self._active = [] # urlobj
+        self._lock = thread.allocate_lock()
+
+    def tick(self):
+        import ftplib
+        self._lock.acquire()
+        if self._queue:
+            if len(self._active) < self.MAXACTIVE:
+                for i in range(len(self._queue)-1,-1,-1):
+                    url = self._queue[i]
+                    urlobj = URL(url)
+                    hostactive = [x for x in self._active
+                                  if x.host == urlobj.host]
+                    if len(hostactive) < self.MAXPERHOST:
+                        del self._queue[i]
+                        self._active.append(urlobj)
+                        urlobj.total = None
+                        urlobj.localpath = None
+                        thread.start_new_thread(self.fetch, (urlobj,))
+        prog = self._progress
+        for urlobj in self._active:
+            if urlobj.total and urlobj.localpath:
+                try:
+                    size = os.path.getsize(urlobj.localpath)
+                except OSError:
+                    pass
+                else:
+                    prog.setSub(urlobj.original, size, urlobj.total, 1)
+                    prog.show()
+        self._lock.release()
+        return bool(self._queue or self._active)
+
+    def fetch(self, urlobj):
+        from cpm.util.ssh import SSH
+
+        fetcher = self._fetcher
+        url = urlobj.original
+        prog = self._progress
+
+        prog.setSubTopic(url, os.path.basename(urlobj.path))
+        prog.setSub(url, 0, 1, 1)
+        prog.show()
+
+        if not urlobj.user:
+            import pwd
+            urlobj.user = pwd.getpwuid(os.getuid()).pw_name
+
+        if urlobj.host[-1] == ":":
+            urlobj.host = urlobj.host[:-1]
+        ssh = SSH(urlobj.user, urlobj.host, urlobj.passwd)
+
+        try:
+            localpath = fetcher.getLocalPath(url)
+
+            mtime = None
+            total = None
+
+            size = fetcher.getInfo(url, "size")
+
+            status, output = ssh.ssh("stat -c '%%Y %%s' %s"
+                                     % urlobj.path)
+            if status == 0:
+                tokens = output.split()
+                mtime = int(tokens[0])
+                total = int(tokens[1])
+                if size and size != total:
+                    raise Error, "server reports unexpected size"
+            elif size:
+                total = size
+
+            urlobj.total = total
+
+            if (not mtime or not os.path.isfile(localpath) or
+                mtime != os.path.getmtime(localpath) or
+                not fetcher.validate(url, localpath)):
+
+                urlobj.localpath = localpath+".part"
+
+                status, output = ssh.rscp(urlobj.path, urlobj.localpath)
+                if status != 0:
+                    raise Error, output
+
+                os.rename(urlobj.localpath, localpath)
+
+                if mtime:
+                    os.utime(localpath, (mtime, mtime))
+
+                valid, reason = fetcher.validate(url, localpath, True)
+                if not valid:
+                    raise Error, reason
+
+        except (Error, IOError, OSError), e:
+            fetcher.setFailed(url, str(e))
+        else:
+            fetcher.setSucceeded(url, localpath)
+
+        prog.setSubDone(url)
+        prog.show()
+
+        self._lock.acquire()
+        self._active.remove(urlobj)
+        self._lock.release()
+
+Fetcher.setHandler("scp", SCPHandler)
 
 # vim:ts=4:sw=4:et

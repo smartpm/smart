@@ -167,7 +167,11 @@ def main(opts):
                         for reqpkg in req.packages:
                             if opts.installed and not reqpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (reqpkg, prv)
+                            if isinstance(req, PreRequires):
+                                print "       ", "%s (%s) [pre]" % \
+                                      (reqpkg, prv)
+                            else:
+                                print "       ", "%s (%s)" % (reqpkg, prv)
                 if opts.upgradedby and prv.upgradedby:
                     print "      Upgraded By:"
                     for upg in prv.upgradedby:

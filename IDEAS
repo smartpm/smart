@@ -27,6 +27,18 @@ Downloading and committing
 - May have multiple frontends (graphical/interactive, command line/one
   shot, etc).
 
+Repositories
+------------
+
+- Implement rpm-metadata support.
+- Implement an "auto-repository", which downloads the needed info and
+  uses that info to load one or more repositories (mirrors?).
+
+Random
+------
+
+- Implement ISO downloading system.
+
 RPM coloring
 ------------
 
@@ -85,5 +97,15 @@ Files:
 http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/Packages.gz
 http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/Packages
 http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/whois_4.5.25-1_i386.deb
+
+Slackware repository
+--------------------
+
+slackpkg: http://slackpkg.sourceforge.net/
+swaret: http://www.swaret.org/
+slapt-get: http://software.jaos.org/
+
+ftp://ftp.nluug.nl/pub/os/Linux/distr/slackware/slackware-current/
+ftp://ftp.slackware.com/pub/slackware/slackware-current/
 
 vim:ts=4:sw=4:et
