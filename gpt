@@ -36,12 +36,15 @@ Usage: gpt command [options] [arguments]
 Available commands:
     query
     install
+    reinstall
     upgrade
     remove
+    fix
     update
     channel
     flag
     config
+    priority
 
 Run "gpt command --help" for more information.
 """
