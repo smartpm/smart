@@ -1,4 +1,4 @@
-from gepeto.option import OptionParser
+from gepeto.option import OptionParser, append_all
 from gepeto.channel import *
 from gepeto import *
 import os
@@ -7,22 +7,27 @@ USAGE="gpt channel [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
-    parser.add_option("--add", action="store_true",
+    parser.defaults["add"] = []
+    parser.defaults["set"] = []
+    parser.defaults["remove"] = []
+    parser.defaults["enable"] = []
+    parser.defaults["disable"] = []
+    parser.defaults["show"] = None
+    parser.add_option("--add", action="callback", callback=append_all,
                       help="arguments are key=value pairs defining a "
                            "channel, or a filename/url pointing to "
                            "a channel description")
-    parser.add_option("--set", action="store_true",
-                      help="arguments are key=value pairs defining a "
-                           "channel, or a filename/url pointing to "
-                           "a channel description")
-    parser.add_option("--remove", action="store_true",
+    parser.add_option("--set", action="callback", callback=append_all,
+                      help="argument is an alias, and one or more key=value "
+                           "pair modifying a channel")
+    parser.add_option("--remove", action="callback", callback=append_all,
                       help="arguments are channel aliases to be removed")
-    parser.add_option("--show", action="store_true",
+    parser.add_option("--show", action="callback", callback=append_all,
                       help="show channels with aliases given as arguments "
                            "or all channels, if no argument was given")
-    parser.add_option("--enable", action="store_true",
+    parser.add_option("--enable", action="callback", callback=append_all,
                       help="arguments are channel aliases to be enabled")
-    parser.add_option("--disable", action="store_true",
+    parser.add_option("--disable", action="callback", callback=append_all,
                       help="arguments are channel aliases to be disabled")
     parser.add_option("--force", action="store_true",
                       help="execute without asking")
@@ -36,8 +41,8 @@ def main(opts, ctrl):
     
     if opts.add:
 
-        if len(opts.args) == 1:
-            arg = opts.args[0]
+        if len(opts.add) == 1:
+            arg = opts.add[0]
             if os.path.isfile(arg):
                 data = open(arg).read()
                 newchannels = parseChannelDescription(data)
@@ -55,7 +60,7 @@ def main(opts, ctrl):
             newchannels = {}
             channel = {}
             alias = None
-            for arg in opts.args:
+            for arg in opts.add:
                 if "=" not in arg:
                     raise Error, "Argument '%s' has no '='" % arg
                 key, value = arg.split("=")
@@ -97,12 +102,12 @@ def main(opts, ctrl):
                             alias = res
                     channels[alias] = channel
 
-    elif opts.set:
+    if opts.set:
 
-        if not opts.args:
+        if not opts.set:
             raise Error, "Invalid arguments"
 
-        alias = opts.args.pop(0)
+        alias = opts.set.pop(0)
         if "=" in alias:
             raise Error, "First argument must be the channel alias"
         if alias not in channels:
@@ -110,7 +115,7 @@ def main(opts, ctrl):
         oldchannel = channels[alias]
 
         channel = {}
-        for arg in opts.args:
+        for arg in opts.set:
             if "=" not in arg:
                 raise Error, "Argument '%s' has no '='" % arg
             key, value = arg.split("=")
@@ -136,29 +141,33 @@ def main(opts, ctrl):
             if not oldchannel[key]:
                 del oldchannel[key]
 
-    elif opts.remove:
+    if opts.remove:
 
-        for alias in opts.args:
+        for alias in opts.remove:
             if alias not in channels:
                 continue
             if opts.force or iface.askYesNo("Remove channel '%s'" % alias):
                 del channels[alias]
 
-    elif opts.enable or opts.disable:
+    if opts.enable:
 
-        for alias in opts.args:
+        for alias in opts.enable:
             if alias not in channels:
                 continue
             channel = channels[alias]
-            if opts.enable:
-                if "disabled" in channel:
-                    del channel["disabled"]
-            else:
-                channel["disabled"] = "yes"
+            if "disabled" in channel:
+                del channel["disabled"]
 
-    elif opts.show:
+    if opts.disable:
 
-        for alias in opts.args or channels:
+        for alias in opts.disable:
+            if alias not in channels:
+                continue
+            channels[alias]["disabled"] = "yes"
+
+    if opts.show is not None:
+
+        for alias in opts.show or channels:
             if alias not in channels:
                 continue
             channel = channels[alias]

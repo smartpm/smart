@@ -1,4 +1,4 @@
-from gepeto.option import OptionParser
+from gepeto.option import OptionParser, append_all
 from gepeto import *
 import string
 import re
@@ -7,15 +7,20 @@ USAGE="gpt flag [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
-    parser.add_option("--set", action="store_true",
-                      help="set flag given as first argument for "
-                           "'name relation version' given in the following "
-                           "arguments")
-    parser.add_option("--remove", action="store_true",
-                      help="unset flag given as first argument for "
-                           "'name relation version' given in the following "
-                           "arguments")
-    parser.add_option("--show", action="store_true",
+    parser.defaults["set"] = []
+    parser.defaults["remove"] = []
+    parser.defaults["show"] = None
+    parser.add_option("--set", action="callback", callback=append_all,
+                      help="set flags given in pairs of flag name/target, "
+                           "where targets may use just the package "
+                           "name, or the package name, relation, and "
+                           "version, such as: lock 'python > 1.0'")
+    parser.add_option("--remove", action="callback", callback=append_all,
+                      help="remove flags given in pairs of flag name/target, "
+                           "where targets may use just the package "
+                           "name, or the package name, relation, and "
+                           "version, such as: lock 'python > 1.0'")
+    parser.add_option("--show", action="callback", callback=append_all,
                       help="show packages with the flags given as arguments "
                            "or all flags if no argument was given")
     parser.add_option("--force", action="store_true",
@@ -31,16 +36,15 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+?)\s*"
 def main(opts, ctrl):
     flags = sysconf.get("package-flags", setdefault={})
 
-    if opts.set or opts.remove:
+    for args in (opts.set, opts.remove):
 
-        if len(opts.args) < 2:
+        if len(args) % 2 != 0:
             raise Error, "Invalid arguments"
 
-        flag = opts.args[0].strip()
+        for i in range(0, len(args), 2):
+            flag, target = args[i:i+2]
 
-        for arg in opts.args[1:]:
-
-            m = TARGETRE.match(arg)
+            m = TARGETRE.match(target)
             if not m:
                 raise Error, "Invalid target: %s" % arg
 
@@ -51,19 +55,21 @@ def main(opts, ctrl):
 
             tup = (g["rel"], g["version"])
 
-            if opts.set:
+            if args is opts.set:
                 if tup not in lst:
                     lst.append(tup)
             else:
                 if tup in lst:
                     lst.remove(tup)
+                    if not lst:
+                        del names[g["name"]]
 
-        if opts.remove and flags.get(flag) == {}:
-            del flags[flag]
+                if flags.get(flag) == {}:
+                    del flags[flag]
 
-    elif opts.show:
+    if opts.show is not None:
 
-        showflags = opts.args or flags.keys()
+        showflags = opts.show or flags.keys()
         showflags.sort()
 
         for flag in showflags:

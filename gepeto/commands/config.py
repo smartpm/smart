@@ -1,4 +1,4 @@
-from gepeto.option import OptionParser
+from gepeto.option import OptionParser, append_all
 from gepeto import *
 import pprint
 import string
@@ -8,12 +8,15 @@ USAGE="gpt config [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
-    parser.add_option("--set", action="append", default=[],
-                      help="set given option")
-    parser.add_option("--show", action="append", default=[],
-                      help="show given option")
-    parser.add_option("--remove", action="append", default=[],
-                      help="remove given option")
+    parser.defaults["set"] = []
+    parser.defaults["show"] = []
+    parser.defaults["remove"] = []
+    parser.add_option("--set", action="callback", callback=append_all,
+                      help="set given key=value options")
+    parser.add_option("--show", action="callback", callback=append_all,
+                      help="show given options")
+    parser.add_option("--remove", action="callback", callback=append_all,
+                      help="remove given options")
     parser.add_option("--dump", action="store_true",
                       help="show all options")
     parser.add_option("--force", action="store_true",
