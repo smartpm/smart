@@ -19,12 +19,11 @@ class CommandLineFeedback(ControlFeedback):
     def packageManagerCreated(self, pm):
         pm.setProgress(self._progress)
 
-    def fetcherStarting(self, fetcher):
-        print
-
     def packageManagerStarting(self, fetcher):
         print
 
+    def packageManagerFinished(self, fetcher):
+        print
 
 def initCmdLine(opts=None):
     sysconf = XMLSysConfig()
@@ -49,6 +48,7 @@ def confirmChanges(trans):
     report = Report(trans.getCache(), trans.getChangeSet())
     report.compute()
 
+    print
     if report.upgrading or report.installing:
         pkgs = report.upgrading.keys()+report.installing.keys()
         pkgs.sort()

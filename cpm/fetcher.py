@@ -123,13 +123,17 @@ class Fetcher(object):
         self.runLocal()
         if self._caching is ALWAYS:
             return
-        prog = self._progress
-        prog.reset()
-        prog.setTopic("Fetching %s..." % what)
         total = 0
         for handler in handlers:
             total += len(handler.getQueue())
+        if total == 0:
+            return
+        prog = self._progress
+        prog.reset()
+        prog.setHasSub(True)
+        prog.setTopic("Fetching %s..." % what)
         prog.set(0, total)
+        prog.show()
         for handler in handlers:
             handler.start()
         active = handlers[:]

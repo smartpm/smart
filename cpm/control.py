@@ -3,6 +3,7 @@ from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
 from cpm import *
+import os
 
 class Control:
 
@@ -43,6 +44,10 @@ class Control:
     def fetchRepositories(self, repositories=None, caching=ALWAYS):
         if not repositories:
             repositories = self._repositories
+        localdir = os.path.join(sysconf.get("data-dir"), "repositories/")
+        if not os.path.isdir(localdir):
+            os.makedirs(localdir)
+        self._fetcher.setLocalDir(localdir, mangle=True)
         self._fetcher.setCaching(caching)
         self._feedback.fetcherStarting(self._fetcher)
         for repos in repositories:
@@ -55,6 +60,10 @@ class Control:
         fetcher = self._fetcher
         fetcher.reset()
         fetcher.setCaching(caching)
+        localdir = os.path.join(sysconf.get("data-dir"), "packages/")
+        if not os.path.isdir(localdir):
+            os.makedirs(localdir)
+        self._fetcher.setLocalDir(localdir, mangle=False)
         pkgurl = {}
         for pkg in packages:
             loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]

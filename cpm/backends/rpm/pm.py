@@ -10,7 +10,10 @@ class RPMPackageManager(PackageManager):
     def commit(self, install, remove, pkgpath):
 
         prog = self.getProgress()
+        prog.reset()
+        prog.setHasSub(True)
         prog.setTopic("Committing transaction...")
+        prog.show()
 
         # Compute upgrading/upgraded packages
         upgrading = {}
@@ -72,9 +75,10 @@ class RPMPackageManager(PackageManager):
             raise Error, "\n".join(problines)
         ts.order()
         ts.setProbFilter(0)
-        prog.set(0, packages)
+        prog.set(0, packages or 1)
         cb = RPMCallback(prog)
         probs = ts.run(cb, None)
+        prog.setDone()
         if probs:
             raise Error, "\n".join([x[0] for x in probs])
 

@@ -807,6 +807,7 @@ class Transaction(object):
         self._policy.runStarting()
 
         changeset = self._changeset
+        isinst = changeset.installed
         locked = self._policy.getLockedSet().copy()
         pending = []
 

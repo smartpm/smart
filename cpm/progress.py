@@ -11,14 +11,21 @@ class Progress:
 
     def reset(self):
         self._topic = ""
-        self._progress = None # (current, total, data)
+        self._progress = (0, 0, {}) # (current, total, data)
         self._lastshown = None
+        self._hassub = False
         self._subtopic = {}
         self._subprogress = {} # (subcurrent, subtotal, fragment, subdata)
         self._sublastshown = {}
         self._subdone = {}
         self._lasttime = 0
         self._lock = thread.allocate_lock()
+
+    def setHasSub(self, flag):
+        self._hassub = flag
+
+    def getHasSub(self):
+        return self._hassub
 
     def show(self):
         now = time.time()
@@ -30,7 +37,7 @@ class Progress:
         subexpose = []
         for subkey in self._subprogress.keys():
             subcurrent, subtotal, fragment, subdata = self._subprogress[subkey]
-            subpercent = int(100*float(subcurrent)/subtotal)
+            subpercent = int(100*float(subcurrent)/(subtotal or 1))
             if fragment:
                 current += int(fragment*float(subpercent)/100)
             subtopic = self._subtopic.get(subkey)
@@ -49,7 +56,7 @@ class Progress:
                 del self._subtopic[subkey]
             subexpose.append((subkey, subtopic, subpercent, subdata))
         topic = self._topic
-        percent = int(100*float(current)/total)
+        percent = int(100*float(current)/(total or 1))
         if subexpose:
             for info in subexpose:
                 self.expose(topic, percent, *info)
@@ -180,10 +187,12 @@ class RPMStyleProgress(Progress):
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         out = sys.stdout
-        if subkey:
+        if self._hassub:
             if topic != self._lasttopic:
                 self._lasttopic = topic
                 print topic
+            if not subkey:
+                return
             if subpercent != 100:
                 now = time.time()
                 if subkey == self._lastsubkey:
@@ -200,10 +209,8 @@ class RPMStyleProgress(Progress):
                     self._lastsubkeystart = 0
             current = subpercent
             topic = subtopic
-        elif not self._subprogress and not self._subdone:
-            current = percent
         else:
-            return
+            current = percent
         hashes = int(self.HASHES*current/100)
         n = data.get("item-number")
         if n:
