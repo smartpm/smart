@@ -291,6 +291,8 @@ class Control(object):
 
         # Get channels directory and check the necessary locks.
         channelsdir = os.path.join(sysconf.get("data-dir"), "channels/")
+        userchannelsdir = os.path.join(sysconf.get("user-data-dir"),
+                                       "channels/")
         if not os.path.isdir(channelsdir):
             try:
                 os.makedirs(channelsdir)
@@ -381,13 +383,14 @@ class Control(object):
                     pkgconf.setFlag("new", pkg.name, "=", pkg.version)
 
         # Remove unused files from channels directory.
-        if os.access(channelsdir, os.W_OK):
-            aliases = self._channels.copy()
-            aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
-            for entry in os.listdir(channelsdir):
-                sep = entry.find("%%")
-                if sep == -1 or entry[:sep] not in aliases:
-                    os.unlink(os.path.join(channelsdir, entry))
+        for dir in (channelsdir, userchannelsdir):
+            if os.access(dir, os.W_OK):
+                aliases = self._channels.copy()
+                aliases.update(dict.fromkeys(sysconf.get("channels", ())))
+                for entry in os.listdir(dir):
+                    sep = entry.find("%%")
+                    if sep == -1 or entry[:sep] not in aliases:
+                        os.unlink(os.path.join(dir, entry))
 
         # Change back to a shared lock.
         self._pathlocks.lock(channelsdir)

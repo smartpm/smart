@@ -64,9 +64,10 @@ SUCCEEDED = Enum("SUCCEEDED")
 
 BLOCKSIZE = 16384
 
-DISTROFILE = "/usr/lib/smart/distro.py"
-PLUGINSDIR = "/usr/lib/smart/plugins/"
-DATADIR    = "/var/lib/smart/"
-CONFFILE   = "config"
+DISTROFILE  = "/usr/lib/smart/distro.py"
+PLUGINSDIR  = "/usr/lib/smart/plugins/"
+DATADIR     = "/var/lib/smart/"
+USERDATADIR = "~/.smart/"
+CONFFILE    = "config"
 
 # vim:ts=4:sw=4:et

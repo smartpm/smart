@@ -75,7 +75,8 @@ def init(command=None, argv=None,
          datadir=None, configfile=None,
          gui=False, shell=False, interface=None,
          forcelocks=False, loglevel=None):
-    from smart.const import DEBUG, INFO, WARNING, ERROR, DISTROFILE, DATADIR
+    from smart.const import DEBUG, INFO, WARNING, ERROR, DISTROFILE
+    from smart.const import DATADIR, USERDATADIR
     from smart.interface import Interface, createInterface
     from smart.sysconfig import SysConfig
     from smart.pkgconfig import PkgConfig
@@ -95,6 +96,7 @@ def init(command=None, argv=None,
         sysconf.set("log-level", level, soft=True)
     if datadir:
         sysconf.set("data-dir", os.path.expanduser(datadir), soft=True)
+    sysconf.set("user-data-dir", os.path.expanduser(USERDATADIR), soft=True)
     ctrl = Control(configfile, forcelocks)
     if gui:
         ifacename = sysconf.get("default-gui", "gtk")

@@ -115,6 +115,13 @@ class URPMIChannel(PackageChannel):
                     fetcher.getCaching() != ALWAYS):
                     linkpath = fetcher.getLocalPath(hdlitem)
                     linkpath = linkpath[:-2]+"gz"
+                    if not os.access(os.path.dirname(linkpath), os.W_OK):
+                        dirname = os.path.join(sysconf.get("user-data-dir"),
+                                               "channels")
+                        basename = os.path.basename(linkpath)
+                        if not os.path.isdir(dirname):
+                            os.makedirs(dirname)
+                        linkpath = os.path.join(dirname, basename)
                     if os.path.isfile(linkpath):
                         os.unlink(linkpath)
                     os.symlink(localpath, linkpath)
