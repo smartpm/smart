@@ -20,7 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.const import BLOCKSIZE
-import md5, os
+import resource
+import fcntl
+import md5
+import os
 
 def compareFiles(path1, path2):
     if not os.path.isfile(path1) or not os.path.isfile(path2):
@@ -40,3 +43,20 @@ def compareFiles(path1, path2):
     if path1sum.digest() != path2sum.digest():
         return False
     return True
+
+def setCloseOnExec(fd):
+    try:
+        flags = fcntl.fcntl(fd, fcntl.F_GETFL, 0)
+        flags |= fcntl.FD_CLOEXEC
+        fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+    except IOError:
+        pass
+
+def setCloseOnExecAll():
+    for fd in range(3,resource.getrlimit(resource.RLIMIT_NOFILE)[1]):
+        try:
+            flags = fcntl.fcntl(fd, fcntl.F_GETFL, 0)
+            flags |= fcntl.FD_CLOEXEC
+            fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+        except IOError:
+            pass

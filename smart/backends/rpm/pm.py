@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 #from smart.backends.rpm.rpmver import splitarch
+from smart.util.filetools import setCloseOnExec
 from smart.backends.rpm.crpmver import splitarch
 from smart.sorter import ChangeSetSorter, LoopError
 from smart.const import INSTALL, REMOVE
@@ -185,6 +186,7 @@ class RPMCallback:
                 os.dup2(pipe[1], 2)
                 os.close(pipe[1])
                 self.rpmout = pipe[0]
+                setCloseOnExec(self.rpmout)
                 flags = fcntl.fcntl(self.rpmout, fcntl.F_GETFL, 0)
                 flags |= os.O_NONBLOCK
                 fcntl.fcntl(self.rpmout, fcntl.F_SETFL, flags)
@@ -226,9 +228,7 @@ class RPMCallback:
             iface.debug("Processing %s in %s" % (pkgstr, path))
             self.topic = "Output from %s:" % pkgstr
             self.fd = os.open(path, os.O_RDONLY)
-            flags = fcntl.fcntl(self.fd, fcntl.F_GETFD, 0)
-            flags |= fcntl.FD_CLOEXEC
-            fcntl.fcntl(self.fd, fcntl.F_SETFD, flags)
+            setCloseOnExec(self.fd)
             return self.fd
         
         elif what == rpm.RPMCALLBACK_INST_CLOSE_FILE:

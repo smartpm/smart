@@ -21,8 +21,8 @@
 #
 from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from smart.channel import createChannel, FileChannel
+from smart.util.filetools import compareFiles, setCloseOnExecAll
 from smart.util.objdigest import getObjectDigest
-from smart.util.filetools import compareFiles
 from smart.util.pathlocks import PathLocks
 from smart.util.strtools import strToBool
 from smart.media import MediaSet
@@ -328,6 +328,8 @@ class Control(object):
     def commitChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
         if confirm and not iface.confirmChangeSet(changeset):
             return False
+
+        setCloseOnExecAll()
 
         pmpkgs = {}
         for pkg in changeset:
