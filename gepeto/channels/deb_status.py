@@ -33,7 +33,7 @@ class DebStatusChannel(Channel):
 
     def fetch(self, fetcher, progress):
         path = os.path.join(sysconf.get("deb-root", "/"),
-                            "/var/lib/dpkg/status")
+                            "var/lib/dpkg/status")
         self._loader = DebTagFileLoader(path)
         self._loader.setInstalled(True)
         self._loader.setChannel(self)

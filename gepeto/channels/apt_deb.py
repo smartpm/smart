@@ -187,7 +187,7 @@ class APTDEBChannel(Channel):
                 #    except (IOError, ValueError):
                 #        pass
                 localpath = pkgitem.getTargetPath()
-                loader = DebTagFileLoader(localpath, self._getURL())
+                loader = DebTagFileLoader(localpath, self._baseurl)
                 loader.setChannel(self)
                 self._loader.append(loader)
             else:
