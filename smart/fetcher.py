@@ -532,7 +532,7 @@ class FetchItem(object):
                 self.progress(self._current, self._total)
 
     def setSucceeded(self, targetpath, fetchedsize=0):
-        if self._status in (RUNNING, WAITING):
+        if self._status is not FAILED:
             self._status = SUCCEEDED
             self._targetpath = targetpath
             if self._starttime:
@@ -547,13 +547,12 @@ class FetchItem(object):
                 self._progress.show()
 
     def setFailed(self, reason):
-        if self._status in (RUNNING, WAITING):
-            self._status = FAILED
-            self._failedreason = reason
-            if self._starttime:
-                self._mirror.addInfo(failed=1)
-                self._progress.setSubStopped(self._urlobj.original)
-                self._progress.show()
+        self._status = FAILED
+        self._failedreason = reason
+        if self._starttime:
+            self._mirror.addInfo(failed=1)
+            self._progress.setSubStopped(self._urlobj.original)
+            self._progress.show()
 
     def setCancelled(self):
         self.setFailed(_("Cancelled"))
