@@ -19,6 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from gepeto import Error
 import optparse
 import textwrap
 import sys, os
@@ -43,7 +44,8 @@ class HelpFormatter(optparse.HelpFormatter):
 
     def format_option(self, option):
         help = option.help
-        option.help = help.capitalize()
+        if help:
+            option.help = help.capitalize()
         result = optparse.HelpFormatter.format_option(self, option)
         option.help = help
         return result
@@ -76,6 +78,9 @@ class OptionParser(optparse.OptionParser):
                 formatter.dedent()
         result += "\n"
         return result
+
+    def error(self, msg):
+        raise Error, msg
 
 def append_all(option, opt, value, parser):
     if option.dest is None:
