@@ -44,11 +44,15 @@ def main(opts, ctrl):
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         pkgs = matcher.filter(cache.getPackages())
-        pkgs = [x for x in pkgs if not x.installed]
         if not pkgs:
-            raise Error, "'%s' matches no uninstalled packages" % arg
+            raise Error, "'%s' matches no packages" % arg
         if len(pkgs) > 1:
             sortUpgrades(pkgs)
+        if pkgs[0].installed:
+            raise Error, "%s matches '%s' and is already installed" % \
+                         (pkgs[0], arg)
+        pkgs = [x for x in pkgs if not x.installed]
+        if len(pkgs) > 1:
             iface.warning("'%s' matches multiple packages, selecting: %s" % \
                           (arg, pkgs[0]))
         pkg = pkgs[0]
