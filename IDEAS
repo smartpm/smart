@@ -170,6 +170,7 @@ High level interface
 
 - Implement a higher level interface for package selection.
 
+http://bugzilla.conectiva.com.br/show_bug.cgi?id=11124
 http://fedora.redhat.com/projects/anaconda-installer/images/screenshot-0002.png
 http://people.debian.org/~mvo/synaptic/ideas/synaptic-app-idea2.png
 

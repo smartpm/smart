@@ -1,4 +1,4 @@
-- Removable media handling
 - Support extra flags for rpm backend package manager (like
   --replacefiles, --root, etc).
 - Support for selecting packages by provided dependencies.
+- Show download size before starting fetching.
