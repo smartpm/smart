@@ -1,5 +1,5 @@
-from epm.transaction import Transaction, upgradePackages
-from epm.transaction import PolicyInstall, PolicyGlobalUpgrade
+from epm.transaction import Transaction
+from epm.transaction import PolicyUpgrade
 from epm.matcher import MasterMatcher
 from epm.option import OptionParser
 from epm.control import Control
@@ -22,17 +22,19 @@ def main(opts):
     cache = ctrl.getCache()
     trans = Transaction(cache)
     pkgs = cache.getPackages()
+    trans.setPolicy(PolicyUpgrade())
     if opts.args:
-        trans.setPolicy(PolicyInstall())
+        newpkgs = []
         for arg in opts.args:
             matcher = MasterMatcher(arg)
-            pkgs = matcher.filter(pkgs)
-    else:
-        trans.setPolicy(PolicyGlobalUpgrade())
+            fpkgs = matcher.filter(pkgs)
+            if not fpkgs:
+                raise Error, "'%s' matches no uninstalled packages" % arg
+            newpkgs.extend(fpkgs)
+        pkgs = dict.fromkeys(newpkgs).keys()
     pkgs = [x for x in pkgs if x.installed]
-    if not pkgs:
-        raise Error, "'%s' matches no uninstalled packages" % arg
-    upgradePackages(trans, pkgs)
+    trans.upgrade(pkgs)
+    print trans
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

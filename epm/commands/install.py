@@ -31,8 +31,10 @@ def main(opts):
             raise Error, "'%s' matches multiple packages: %s" % \
                          (arg, ", ".join([str(x) for x in pkgs]))
         else:
-            trans.install(pkgs[-1])
-    trans.run()
+            pkg = pkgs[0]
+            trans.install(pkg)
+            policy.setLocked(pkg, True)
+    print trans
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

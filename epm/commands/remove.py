@@ -28,10 +28,10 @@ def main(opts):
             if pkg.installed:
                 found = True
                 trans.remove(pkg)
+                policy.setLocked(pkg, True)
     if not found:
         raise Error, "no packages matched given arguments"
-    else:
-        trans.run()
+    print trans
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

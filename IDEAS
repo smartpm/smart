@@ -31,6 +31,12 @@ About upgrades:
     - Ask packages for the upgrade candidates.
     - Support cache 'sorters'?
 
+About distribution upgrade:
+    - Split available packages into "installable sets".
+    - Compute an installable set by understanding which packages have
+      excluding relations with each other.
+    - Check weight of every installable set and choose the best one.
+
 About commands:
     - Introduce 'fix' command.
     - Introduce 'install' command.
