@@ -67,43 +67,51 @@ class Report(object):
                 continue
             if changeset.get(pkg) is REMOVE:
                 self.remove[pkg] = True
+                lst = None
                 for prv in pkg.provides:
                     for upg in prv.upgradedby:
                         for upgpkg in upg.packages:
                             if changeset.get(upgpkg) is INSTALL:
-                                if pkg in self.upgraded:
-                                    self.upgraded[pkg].append(upgpkg)
+                                if lst:
+                                    if upgpkg not in lst:
+                                        lst.append(upgpkg)
                                 else:
-                                    self.upgraded[pkg] = [upgpkg]
+                                    lst = self.upgraded[pkg] = [upgpkg]
+                lst = None
                 for upg in pkg.upgrades:
                     for prv in upg.providedby:
                         for prvpkg in prv.packages:
                             if changeset.get(prvpkg) is INSTALL:
-                                if pkg in self.downgraded:
-                                    self.downgraded[pkg].append(prvpkg)
+                                if lst:
+                                    if prvpkg not in lst:
+                                        lst.append(prvpkg)
                                 else:
-                                    self.downgraded[pkg] = [prvpkg]
+                                    lst = self.downgraded[pkg] = [prvpkg]
                 if (pkg not in self.upgraded and
                     pkg not in self.downgraded):
                     self.removed[pkg] = True
             elif changeset.get(pkg) is INSTALL:
                 self.install[pkg] = True
+                lst = None
                 for upg in pkg.upgrades:
                     for prv in upg.providedby:
                         for prvpkg in prv.packages:
                             if prvpkg.installed:
-                                if pkg in self.upgrading:
-                                    self.upgrading[pkg].append(prvpkg)
+                                if lst:
+                                    if prvpkg not in lst:
+                                        lst.append(prvpkg)
                                 else:
-                                    self.upgrading[pkg] = [prvpkg]
+                                    lst = self.upgrading[pkg] = [prvpkg]
+                lst = None
                 for prv in pkg.provides:
                     for upg in prv.upgradedby:
                         for upgpkg in upg.packages:
                             if upgpkg.installed:
-                                if pkg in self.downgrading:
-                                    self.downgrading[pkg].append(upgpkg)
+                                if lst:
+                                    if upgpkg not in lst:
+                                        lst.append(upgpkg)
                                 else:
-                                    self.downgrading[pkg] = [upgpkg]
+                                    lst = self.downgrading[pkg] = [upgpkg]
                 if (pkg not in self.upgrading and
                     pkg not in self.downgrading):
                     self.installing[pkg] = True

@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.const import ERROR, WARNING, DEBUG
+from smart.interfaces.gtk import getPixbuf
 import gtk, gobject
 import locale
 
@@ -31,6 +32,7 @@ class GtkLog(gtk.Window):
         gtk.Window.__init__(self)
         self.__gobject_init__()
 
+        self.set_icon(getPixbuf("smart"))
         self.set_title("Log")
         self.set_geometry_hints(min_width=400, min_height=300)
         self.set_modal(True)

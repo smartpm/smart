@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.interfaces.gtk import getPixbuf
 from smart import *
 import gobject, gtk
 
@@ -27,6 +28,7 @@ class GtkPriorities(object):
     def __init__(self, parent=None):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Priorities")
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
@@ -195,6 +197,7 @@ class PriorityCreator(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("New Package Priority")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -304,6 +307,7 @@ class GtkSinglePriority(object):
     def __init__(self, parent=None):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Package Priority")
         self._window.set_modal(True)
         self._window.set_transient_for(parent)

@@ -21,6 +21,7 @@
 #
 from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
+from smart.interfaces.gtk import getPixbuf
 import gobject, gtk
 import posixpath
 import thread
@@ -43,6 +44,7 @@ class GtkProgress(Progress, gtk.Window):
         else:
             self.set_size_request(300, 80)
 
+        self.set_icon(getPixbuf("smart"))
         self.set_title("Operation Progress")
         self.set_modal(True)
         self.set_position(gtk.WIN_POS_CENTER)

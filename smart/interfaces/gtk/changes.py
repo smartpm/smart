@@ -30,6 +30,7 @@ class GtkChanges(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Change Summary")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)

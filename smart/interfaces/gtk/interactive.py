@@ -169,6 +169,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._changeset = None
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Smart Package Manager %s" % VERSION)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=640, min_height=480)

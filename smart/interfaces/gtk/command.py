@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.gtk.interface import GtkInterface
+from smart.interfaces.gtk import getPixbuf
 from smart import *
 import time
 import gtk
@@ -53,6 +54,7 @@ class GtkStatus(object):
 
     def __init__(self):
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Status")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)

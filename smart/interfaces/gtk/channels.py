@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.interfaces.gtk import getPixbuf
 from smart.util.strtools import strToBool
 from smart.channel import *
 from smart import *
@@ -33,6 +34,7 @@ class GtkChannels(object):
         self._changed = False
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Channels")
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
@@ -275,6 +277,7 @@ class GtkChannelSelector(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Select Channels")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -379,6 +382,7 @@ class ChannelEditor(object):
         self._tooltips = gtk.Tooltips()
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Edit Channel")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -550,6 +554,7 @@ class TypeSelector(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("New Channel")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -645,6 +650,7 @@ class MethodSelector(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("New Channel")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -745,6 +751,7 @@ class MountPointSelector(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("New Channel")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)

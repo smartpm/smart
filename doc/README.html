@@ -6,7 +6,7 @@
 <meta name="generator" content="Docutils 0.3.6: http://docutils.sourceforge.net/" />
 <title>Smart Package Manager</title>
 <meta name="author" content="Gustavo Niemeyer" />
-<meta name="date" content="2004-11-22 15:05:37 -0200 (Mon, 22 Nov 2004)" />
+<meta name="date" content="2004-11-23 13:17:31 -0200 (Tue, 23 Nov 2004)" />
 <link rel="stylesheet" href="default.css" type="text/css" />
 </head>
 <body>
@@ -20,9 +20,9 @@
 <tr><th class="docinfo-name">Contact:</th>
 <td><a class="first last reference" href="mailto:niemeyer&#64;conectiva.com">niemeyer&#64;conectiva.com</a></td></tr>
 <tr><th class="docinfo-name">Revision:</th>
-<td>338</td></tr>
+<td>349</td></tr>
 <tr><th class="docinfo-name">Date:</th>
-<td>2004-11-22 15:05:37 -0200 (Mon, 22 Nov 2004)</td></tr>
+<td>2004-11-23 13:17:31 -0200 (Tue, 23 Nov 2004)</td></tr>
 </tbody>
 </table>
 <div class="document" id="smart-package-manager">
@@ -49,9 +49,11 @@
 </li>
 <li><a class="reference" href="#study-cases" id="id17" name="id17">Study Cases</a><ul>
 <li><a class="reference" href="#case-1-apt" id="id18" name="id18">Case 1 - APT</a></li>
+<li><a class="reference" href="#case-2-apt-yum" id="id19" name="id19">Case 2 - APT &amp; YUM</a></li>
+<li><a class="reference" href="#case-3-apt-yum" id="id20" name="id20">Case 3 - APT &amp; YUM</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#credits" id="id19" name="id19">Credits</a></li>
+<li><a class="reference" href="#credits" id="id21" name="id21">Credits</a></li>
 </ul>
 </div>
 <div class="section" id="overview">
@@ -264,7 +266,7 @@ smart --gui install foobar
 <pre class="literal-block">
 smart --gui
 </pre>
-<p>Similarly, to open the following command would open the shell interface:</p>
+<p>Similarly, the following command would open the shell interface:</p>
 <pre class="literal-block">
 smart --shell
 </pre>
@@ -317,6 +319,9 @@ module without requiring changes in other tools.</p>
 <h1><a class="toc-backref" href="#id17" name="study-cases">Study Cases</a></h1>
 <p>In this section will be described real cases showing <cite>Smart</cite> behavior
 in comparison with other tools, or handling unusual situations.</p>
+<p>Notice that Smart was not tunned to work in any of these cases, and
+the reason it works is because handling unusual situations was the
+initial project goal.</p>
 <div class="section" id="case-1-apt">
 <h2><a class="toc-backref" href="#id18" name="case-1-apt">Case 1 - APT</a></h2>
 <p>This case happened in a real world environment where a weakness in
@@ -423,9 +428,199 @@ Confirm changes (Y/n)?
 </pre>
 <p>Done.</p>
 </div>
+<div class="section" id="case-2-apt-yum">
+<h2><a class="toc-backref" href="#id19" name="case-2-apt-yum">Case 2 - APT &amp; YUM</a></h2>
+<p>This is another real case, and is being reproduced in a controlled
+environment for tests with YUM, APT-RPM, and Smart.</p>
+<p>The issue is, a package named <cite>A</cite> requires package <cite>BCD</cite> explicitly, and
+RPM detects implicit dependencies between <cite>A</cite> and <cite>libB</cite>, <cite>libC</cite>, and <cite>libD</cite>.
+Package <cite>BCD</cite> provides <cite>libB</cite>, <cite>libC</cite>, and <cite>libD</cite>, but additionally there
+is a package <cite>B</cite> providing <cite>libB</cite>, a package <cite>C</cite> providing <cite>libC</cite>, and
+a package <cite>D</cite> providing <cite>libD</cite>.</p>
+<p>In other words, there's a package <cite>A</cite> which requires four different symbols,
+and one of these symbols is provided by a single package <cite>BCD</cite>, which happens
+to provide all symbols needed by <cite>A</cite>. There are also packages <cite>B</cite>, <cite>C</cite>, and <cite>D</cite>,
+that provide some of the symbols required by <cite>A</cite>, but can't satisfy all
+dependencies without <cite>BCD</cite>.</p>
+<p>The expected behavior for an operation asking to install <cite>A</cite> is obviously
+selecting <cite>BCD</cite> to satisfy <cite>A</cite>'s dependencies, on the other hand, <cite>YUM</cite> and
+APT fail to deliver that as a guaranted operation, as is shown
+below.</p>
+<p>First, let's see how YUM deals with the problem:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% yum install A
+Setting up Install Process
+Setting up Repo:  localpub
+repomd.xml                100% |=========================|  951 B    00:00
+Reading repository metadata in from local files
+localpub  : ################################################## 5/5
+Resolving Dependencies
+--&gt; Populating transaction set with selected packages. Please wait.
+---&gt; Downloading header for A to pack into transaction set.
+A-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+---&gt; Package A.i386 0:1.0-1cl set to be installed
+--&gt; Running transaction check
+--&gt; Processing Dependency: libD for package: A
+--&gt; Processing Dependency: libC for package: A
+--&gt; Processing Dependency: libB for package: A
+--&gt; Processing Dependency: BCD for package: A
+--&gt; Restarting Dependency Resolution with new changes.
+--&gt; Populating transaction set with selected packages. Please wait.
+---&gt; Downloading header for D to pack into transaction set.
+D-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+---&gt; Package D.i386 0:1.0-1cl set to be installed
+---&gt; Downloading header for C to pack into transaction set.
+C-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+---&gt; Package C.i386 0:1.0-1cl set to be installed
+---&gt; Downloading header for B to pack into transaction set.
+B-1.0-1cl.i386.rpm        100% |=========================| 1.0 kB    00:00
+---&gt; Package B.i386 0:1.0-1cl set to be installed
+---&gt; Downloading header for BCD to pack into transaction set.
+BCD-1.0-1cl.i386.rpm      100% |=========================| 1.0 kB    00:00
+---&gt; Package BCD.i386 0:1.0-1cl set to be installed
+--&gt; Running transaction check
+
+Dependencies Resolved
+Transaction Listing:
+  Install: A.i386 0:1.0-1cl
+
+Performing the following to resolve dependencies:
+  Install: B.i386 0:1.0-1cl
+  Install: BCD.i386 0:1.0-1cl
+  Install: C.i386 0:1.0-1cl
+  Install: D.i386 0:1.0-1cl
+Is this ok [y/N]:
+</pre>
+<p>YUM selected <strong>all</strong> packages for installation, even though <cite>BCD</cite>
+alone would satisfy <cite>A</cite>'s dependencies.</p>
+<p>Let's see how APT deals with that:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% apt-get install A
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following extra packages will be installed:
+  B BCD
+The following NEW packages will be installed:
+  A B BCD
+0 upgraded, 3 newly installed, 0 removed and 0 not upgraded.
+Need to get 0B/4055B of archives.
+After unpacking 0B of additional disk space will be used.
+Do you want to continue? [Y/n] n
+</pre>
+<p>As a coincidence, APT did a better job, and selected only <cite>B</cite> and
+<cite>BCD</cite> to satisfy <cite>A</cite>'s dependency, which is still not right.</p>
+<p>Now, let's see how Smart would solve the problem:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% smart install A
+Updating cache...               ######################################## [100%]
+
+Computing transaction...
+
+Installed packages (2):
+  A-1.0-1cl&#64;i386     BCD-1.0-1cl&#64;i386
+
+2.7kb of package files are needed.
+
+Confirm changes (Y/n)?
+</pre>
+<p>Smart correctly selected only <cite>BCD</cite>, since it's necessary anyway, and
+solves all dependencies.</p>
+</div>
+<div class="section" id="case-3-apt-yum">
+<h2><a class="toc-backref" href="#id20" name="case-3-apt-yum">Case 3 - APT &amp; YUM</a></h2>
+<p>That's another interesting case which was tested with APT-RPM and YUM.</p>
+<p>In this case, there's a package <cite>A</cite> version 1.0 installed in the
+system, and there are two versions available for upgrading: 1.5 and 2.0.
+Version 1.5 may be installed without problems, but version 2.0 has a
+dependency on <cite>B</cite>, which is not available anywhere.</p>
+<p>In this case, the best possibility is upgrading to 1.5, since upgrading
+to 2.0 is not an option.</p>
+<p>Let's see how APT reacts to this situation:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% apt-get upgrade A
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following packages have been kept back
+  A
+0 upgraded, 0 newly installed, 0 removed and 1 not upgraded.
+</pre>
+<p>APT seems to refuse to upgrade <cite>A</cite>, even though version 1.5 might be
+installed without problems.</p>
+<p>What happens when forcing APT to install <cite>A</cite>:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% apt-get install A
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+
+Since you only requested a single operation it is extremely likely that
+the package is simply not installable and a bug report against
+that package should be filed.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+  A: Depends: B but it is not installable
+E: Broken packages
+</pre>
+<p>It really refuses to install the newest version, and doesn't consider
+the possibility of using version 1.5.</p>
+<p>Now, let's see how YUM would handle it:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% yum update
+Setting up Update Process
+Setting up Repo:  localpub
+repomd.xml                100% |=========================|  951 B    00:00
+Reading repository metadata in from local files
+localpub  : ################################################## 3/3
+Resolving Dependencies
+--&gt; Populating transaction set with selected packages. Please wait.
+---&gt; Package A.i386 0:2.0-1cl set to be updated
+--&gt; Running transaction check
+
+Dependencies Resolved
+Transaction Listing:
+  Update: A.i386 0:2.0-1cl
+Is this ok [y/N]: y
+Downloading Packages:
+Running Transaction Test
+Finished Transaction Test
+Transaction Test Succeeded
+Running Transaction
+Updating: A 100 % done 1/2
+
+Updated: A.i386 0:2.0-1cl
+Complete!
+</pre>
+<p>It succeeded installing version 2.0, and failed to report a
+problem, as shown below:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% rpm -V A
+Unsatisfied dependencies for A-2.0-1cl: B
+</pre>
+<p>Now, let's see how Smart would behave in the same situation:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% ./smart.py upgrade
+Loading cache...
+Updating cache...               ######################################## [100%]
+
+Computing transaction...
+
+Upgrading packages (1):
+  A-1.5-1cl&#64;i386
+
+1.3kb of package files are needed.
+
+Confirm changes (Y/n)?
+</pre>
+<p>Smart correctly selects the intermediate version 1.5, which is the
+only viable possibility given the current options.</p>
+</div>
 </div>
 <div class="section" id="credits">
-<h1><a class="toc-backref" href="#id19" name="credits">Credits</a></h1>
+<h1><a class="toc-backref" href="#id21" name="credits">Credits</a></h1>
 <p>This is the credit section, where people and institutions that
 have somehow contributed to the project are mentioned.</p>
 <table class="docutils field-list" frame="void" rules="none">

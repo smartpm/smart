@@ -140,6 +140,7 @@ class XMLParser(object):
                          (NS_COMMON, "Location"),
                          (NS_COMMON, "Format"),
                          (NS_COMMON, "CheckSum"),
+                         (NS_COMMON, "File"),
                          (NS_RPM, "Group"),
                          (NS_RPM, "Entry"),
                          (NS_RPM, "Requires"),
@@ -276,8 +277,7 @@ class XMLParser(object):
             self._cnfdict[(RPMConflicts, name, relation, version)] = True
 
     def handleFileEnd(self, name, attrs, data):
-        if lastname == self.PROVIDES:
-            self._prvdict[(RPMProvides, data, None, None)]
+        self._filedict[data] = True
 
     def handlePackageStart(self, name, attrs):
         if attrs.get("type") != "rpm":

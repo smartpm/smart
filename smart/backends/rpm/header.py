@@ -292,16 +292,18 @@ class RPMHeaderListLoader(RPMHeaderLoader):
             while h:
                 yield h, offset
                 h, offset = rpm.readHeaderFromFD(file.fileno())
-                prog.add(1)
-                prog.show()
+                if offset:
+                    prog.add(1)
+                    prog.show()
         else:
             while h:
                 yield h, offset
                 h, offset = rpm.readHeaderFromFD(file.fileno())
-                div, mod = divmod(offset-lastoffset+mod, 2500)
-                lastoffset = offset
-                prog.add(div)
-                prog.show()
+                if offset:
+                    div, mod = divmod(offset-lastoffset+mod, 2500)
+                    lastoffset = offset
+                    prog.add(div)
+                    prog.show()
         file.close()
 
     def getHeadersHDL(self, prog):

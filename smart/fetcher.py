@@ -426,7 +426,7 @@ class FetchItem(object):
             subdata = {}
             subdata["current"] = sizeToStr(current)
             subdata["total"] = sizeToStr(total)
-            subdata["speed"] = sizeTimeToSpeed(total,
+            subdata["speed"] = sizeTimeToSpeed(current,
                                                time.time()-self._starttime)
             self._progress.setSub(self._urlobj.original, current, total, 1,
                                   subdata)

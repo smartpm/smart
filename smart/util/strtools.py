@@ -50,12 +50,12 @@ class ShortURL(object):
 def sizeToStr(bytes):
     if bytes is None:
         return "Unknown"
-    if bytes < 1000:
+    if bytes < 1024:
         return "%db" % bytes
-    elif bytes < 1000000:
-        return "%.1fkb" % (bytes/1000.)
+    elif bytes < 1024000:
+        return "%.1fkb" % (bytes/1024.)
     else:
-        return "%.1fMb" % (bytes/1000000.)
+        return "%.1fMb" % (bytes/1024000.)
 
 def sizeTimeToSpeed(bytes, time):
     if bytes is None:
@@ -63,12 +63,12 @@ def sizeTimeToSpeed(bytes, time):
     if time < 1:
         time = 1
     speed = bytes/float(time)
-    if speed < 1000:
+    if speed < 1024:
         return "%db/s" % speed
-    elif speed < 1000000:
-        return "%.1fkb/s" % (speed/1000.)
+    elif speed < 1024000:
+        return "%.1fkB/s" % (speed/1024.)
     else:
-        return "%.1fMb/s" % (speed/1000000.)
+        return "%.1fMB/s" % (speed/1024000.)
 
 _nulltrans = string.maketrans('', '')
 def isRegEx(s):

@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.interfaces.gtk import getPixbuf
 from smart import *
 import gobject, gtk
 import re
@@ -30,6 +31,7 @@ class GtkFlags(object):
     def __init__(self, parent=None):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("Flags")
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
@@ -287,6 +289,7 @@ class FlagCreator(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("New Flag")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
@@ -367,6 +370,7 @@ class TargetCreator(object):
     def __init__(self):
 
         self._window = gtk.Window()
+        self._window.set_icon(getPixbuf("smart"))
         self._window.set_title("New Target")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
