@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-03-07 15:16-0300\n"
+"POT-Creation-Date: 2005-03-15 14:53-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -781,51 +781,51 @@ msgstr ""
 msgid "Will ask RPM to order it."
 msgstr ""
 
-#: smart/backends/rpm/pm.py:154
+#: smart/backends/rpm/pm.py:152
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:154
 #, python-format
 msgid "%s requires %s"
 msgstr ""
 
-#: smart/backends/rpm/pm.py:156
+#: smart/backends/rpm/pm.py:154
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:156
 #, python-format
 msgid "%s conflicts with %s"
 msgstr ""
 
-#: smart/backends/rpm/pm.py:240
+#: smart/backends/rpm/pm.py:238
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:240
 #, python-format
 msgid "Processing %s in %s"
 msgstr ""
 
-#: smart/backends/rpm/pm.py:241 smart/backends/rpm/pm.py:276
+#: smart/backends/rpm/pm.py:239 smart/backends/rpm/pm.py:274
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:241
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:276
 #, python-format
 msgid "Output from %s:"
 msgstr ""
 
-#: smart/backends/rpm/pm.py:256 smart/backends/slack/pm.py:59
+#: smart/backends/rpm/pm.py:254 smart/backends/slack/pm.py:59
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:256
 #: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:59
 #, python-format
 msgid "Installing %s"
 msgstr ""
 
-#: smart/backends/rpm/pm.py:267
+#: smart/backends/rpm/pm.py:265
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:267
 msgid "Preparing..."
 msgstr ""
 
-#: smart/backends/rpm/pm.py:281 smart/backends/rpm/pm.py:295
+#: smart/backends/rpm/pm.py:279 smart/backends/rpm/pm.py:293
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:281
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:295
 #, python-format
 msgid "Cleaning %s"
 msgstr ""
 
-#: smart/backends/rpm/pm.py:283 smart/backends/rpm/pm.py:297
+#: smart/backends/rpm/pm.py:281 smart/backends/rpm/pm.py:295
 #: smart/backends/slack/pm.py:87
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:283
 #: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:297
@@ -834,14 +834,14 @@ msgstr ""
 msgid "Removing %s"
 msgstr ""
 
-#: smart/backends/rpm/header.py:310
+#: smart/backends/rpm/header.py:315
 #: build/lib.linux-i686-2.4/smart/backends/rpm/header.py:310
 msgid ""
 "Your rpm module has no support for readHeaderFromFD()!\n"
 "As a consequence, Smart will consume extra memory."
 msgstr ""
 
-#: smart/backends/rpm/header.py:409 smart/backends/rpm/header.py:437
+#: smart/backends/rpm/header.py:414 smart/backends/rpm/header.py:442
 #: build/lib.linux-i686-2.4/smart/backends/rpm/header.py:409
 #: build/lib.linux-i686-2.4/smart/backends/rpm/header.py:437
 msgid "Package list with no CRPMTAG_FILENAME tag"
@@ -2463,6 +2463,26 @@ msgstr ""
 msgid "Mirror already exists!"
 msgstr ""
 
+#: smart/interfaces/gtk/mirrors.py:164
+msgid "New Mirror"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:185
+msgid "Origin URL:"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:195
+msgid "Mirror URL:"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:243
+msgid "No origin provided!"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:247
+msgid "No mirror provided!"
+msgstr ""
+
 #: smart/media.py:182 build/lib.linux-i686-2.4/smart/media.py:182
 msgid "/proc/mounts not found"
 msgstr ""
@@ -3812,7 +3832,7 @@ msgstr ""
 msgid "Configuration is in readonly mode."
 msgstr ""
 
-#: build/scripts-2.4/smart.py:25 smart.py:25
+#: build/scripts-2.4/smart.py:25
 msgid "error: Python 2.3 or later required"
 msgstr ""
 
