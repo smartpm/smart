@@ -36,6 +36,7 @@ UI = """
         <menuitem action="hide-installed"/>
         <menuitem action="hide-uninstalled"/>
         <menuitem action="hide-unmarked"/>
+        <menuitem action="hide-old"/>
         <separator/>
         <menuitem action="expand-all"/>
         <menuitem action="collapse-all"/>
@@ -154,7 +155,8 @@ class GtkInteractiveInterface(GtkInterface):
         for name, label in [("hide-non-upgrades", "Hide Non-upgrades"),
                             ("hide-installed", "Hide Installed"),
                             ("hide-uninstalled", "Hide Uninstalled"),
-                            ("hide-unmarked", "Hide Unmarked")]:
+                            ("hide-unmarked", "Hide Unmarked"),
+                            ("hide-old", "Hide Old")]:
             action = gtk.ToggleAction(name, label, "", "")
             if name in filters:
                 action.set_active(True)
@@ -488,6 +490,8 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = [x for x in packages if x in changeset]
             if "hide-installed" in filters:
                 packages = [x for x in packages if not x.installed]
+            if "hide-old" in filters:
+                packages = sysconf.filterByFlag("new", packages)
 
         if self._searchbar.get_property("visible"):
             search = [re.compile("\s+".join(x.split()))

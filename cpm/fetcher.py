@@ -138,11 +138,9 @@ class Fetcher(object):
             for url in self._items:
                 item = self._items[url]
                 if item.getStatus() == FAILED:
-                    print "Current URL:", item.getURL()
                     if (item.getRetries() < self.MAXRETRIES and
                         item.setNextURL()):
                         item.reset()
-                        print "Next URL:", item.getURL()
                         handler = self.getHandlerInstance(item)
                         handler.enqueue(item)
                         if handler not in active:

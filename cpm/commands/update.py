@@ -17,6 +17,14 @@ def main(opts, ctrl):
     channels = ctrl.getChannels()
     if opts.args:
         channels = [x for x in channels if x.getAlias() in opts.args]
-    ctrl.fetchChannels(channels, caching=NEVER)
+    if channels:
+        ctrl.updateCache()
+        ctrl.updateCache(channels, caching=NEVER)
+        cache = ctrl.getCache()
+        newpackages = sysconf.filterByFlag("new", cache.getPackages())
+        if not newpackages:
+            iface.showStatus("There are no new packages.")
+        else:
+            iface.showStatus("There are %d new packages." % len(newpackages))
 
 # vim:ts=4:sw=4:et

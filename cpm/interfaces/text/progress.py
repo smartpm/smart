@@ -24,6 +24,7 @@ class TextProgress(Progress):
     def stop(self):
         Progress.stop(self)
         self._shorturl.reset()
+        print
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         out = sys.stdout

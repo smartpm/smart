@@ -2,6 +2,7 @@
 from cpm.interfaces.gtk import getPixbuf
 from cpm.const import INSTALL, REMOVE
 import gobject, gtk
+from cpm import *
 
 class PixbufCellRenderer(gtk.GenericCellRenderer):
 
@@ -123,6 +124,7 @@ class GtkPackageView(gtk.Alignment):
 
         self._ipixbuf = getPixbuf("package-installed")
         self._apixbuf = getPixbuf("package-available")
+        self._npixbuf = getPixbuf("package-new")
         self._fpixbuf = getPixbuf("folder")
         self._Ipixbuf = getPixbuf("package-install")
         self._Rpixbuf = getPixbuf("package-remove")
@@ -131,14 +133,18 @@ class GtkPackageView(gtk.Alignment):
         value = model.get_value(iter, 0)
         if not hasattr(value, "name"):
             cell.set_property("pixbuf", self._fpixbuf)
-        elif value.installed:
-            if self._changeset.get(value) is REMOVE:
+            return
+        pkg = value
+        if pkg.installed:
+            if self._changeset.get(pkg) is REMOVE:
                 cell.set_property("pixbuf", self._Rpixbuf)
             else:
                 cell.set_property("pixbuf", self._ipixbuf)
         else:
-            if self._changeset.get(value) is INSTALL:
+            if self._changeset.get(pkg) is INSTALL:
                 cell.set_property("pixbuf", self._Ipixbuf)
+            elif sysconf.testFlag("new", pkg):
+                cell.set_property("pixbuf", self._npixbuf)
             else:
                 cell.set_property("pixbuf", self._apixbuf)
 

@@ -92,12 +92,7 @@ class Control:
             self._sysconfchannels.append(channel)
             self._channels.append(channel)
 
-    def updateCache(self, fetchchannels=None, caching=ALWAYS):
-        self._cache.unload()
-        self.fetchChannels(fetchchannels, caching=caching)
-        self._cache.load()
-
-    def fetchChannels(self, channels=None, caching=ALWAYS):
+    def updateCache(self, channels=None, caching=ALWAYS):
         if channels is None:
             self.reloadSysConfChannels()
             channels = self._channels
@@ -111,6 +106,10 @@ class Control:
             progress = Progress()
         else:
             progress = iface.getProgress(self._fetcher, True)
+            oldpkgs = {}
+            for pkg in self._cache.getPackages():
+                oldpkgs[(pkg.name, pkg.version)] = True
+        self._cache.unload()
         progress.start()
         steps = 0
         for channel in channels:
@@ -127,6 +126,12 @@ class Control:
         progress.setStopped()
         progress.show()
         progress.stop()
+        self._cache.load()
+        if caching is not ALWAYS:
+            sysconf.clearFlag("new")
+            for pkg in self._cache.getPackages():
+                if (pkg.name, pkg.version) not in oldpkgs:
+                    sysconf.setFlag("new", pkg.name, "=", pkg.version)
 
     def fetchPackages(self, packages, caching=OPTIONAL):
         fetcher = self._fetcher

@@ -12,8 +12,7 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
-    ctrl.fetchChannels()
-    ctrl.loadCache()
+    ctrl.updateCache()
     import __main__
     __main__.ctrl = ctrl
     __main__.cache = ctrl.getCache()

@@ -75,9 +75,9 @@ class SysConfig:
         if option in self._softmap:
             del self._weakmap[option]
 
-    def setFlag(self, flag, name, version=None, relation=None):
-        map = self.get("package-flags", setdefault={})
-        names = map.get(flag)
+    def setFlag(self, flag, name, relation=None, version=None):
+        flags = self.get("package-flags", setdefault={})
+        names = flags.get(flag)
         if names:
             lst = names.get(name)
             if lst:
@@ -85,7 +85,26 @@ class SysConfig:
             else:
                 names[name] = [(relation, version)]
         else:
-            map[flag] = {name: [(relation, version)]}
+            flags[flag] = {name: [(relation, version)]}
+
+    def clearFlag(self, flag, name=None, relation=None, version=None):
+        flags = self.get("package-flags", {})
+        if flag not in flags:
+            return
+        if not name:
+            del flags[flag]
+            return
+        names = flags.get(flag)
+        lst = names.get(name)
+        if lst is not None:
+            try:
+                lst.remove((relation, version))
+            except ValueError:
+                pass
+            if not lst:
+                del names[name]
+        if not names:
+            del flags[flag]
 
     def testFlag(self, flag, pkg):
         names = self.get("package-flags", {}).get(flag)

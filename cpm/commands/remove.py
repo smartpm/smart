@@ -14,8 +14,7 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
-    ctrl.fetchChannels()
-    ctrl.loadCache()
+    ctrl.updateCache()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyRemove)
     found = False
