@@ -167,8 +167,11 @@ class spawn:
         If the child file descriptor was opened outside of this class
         (passed to the constructor) then this does not close it.
         """
-        if self.__child_fd_owner:
-            self.close()
+        try: # CNC:2003-09-23
+            if self.__child_fd_owner:
+                self.close()
+        except OSError:
+            pass
 
     def __spawn(self):
         """This starts the given command in a child process. This does
@@ -213,6 +216,7 @@ class spawn:
                 except OSError:
                     pass
 
+            os.environ["LANG"] = "C"
             os.execvp(self.command, self.args)
 
         # Parent
@@ -269,7 +273,7 @@ class spawn:
             new[3] = new[3] | termios.ECHO # lflags
         else:
             new[3] = new[3] & ~termios.ECHO # lflags
-        termios.tcsetattr(self.child_fd, termios.TCSANOW, new)
+        termios.tcsetattr(self.child_fd, termios.TCSADRAIN, new)
 
     def setlog (self, fileobject):
         """This sets logging output to go to the given fileobject.
@@ -464,10 +468,10 @@ class spawn:
         # use try/finally to ensure state gets restored
         try:
             # EOF is recognized when ICANON is set, so make sure it is set.
-            termios.tcsetattr(fd, termios.TCSANOW, new)
+            termios.tcsetattr(fd, termios.TCSADRAIN, new)
             os.write (self.child_fd, '%c' % termios.CEOF)
         finally:
-            termios.tcsetattr(fd, termios.TCSANOW, old) # restore state
+            termios.tcsetattr(fd, termios.TCSADRAIN, old) # restore state
 
     def eof (self):
         """This returns 1 if the EOF exception was raised at some point.
@@ -812,7 +816,7 @@ class spawn:
         try:
             self.__interact_copy(escape_character)
         finally:
-            tty.tcsetattr(self.STDIN_FILENO, tty.TCSANOW, mode)
+            tty.tcsetattr(self.STDIN_FILENO, tty.TCSAFLUSH, mode)
 
     def __interact_writen(self, fd, data):
         """This is used by the interact() method.
@@ -912,8 +916,8 @@ def _split_command_line(command_line):
         arg_list.append(arg)
     return arg_list
 
+import shlex
 def _split_command_line(command_line):
-    import shlex
     return shlex.split(command_line)
 
 ####################
