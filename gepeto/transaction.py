@@ -1294,21 +1294,20 @@ class ChangeSetSplitter(object):
 
         if pkg not in set:
             raise Error, "Package '%s' is not in changeset" % pkg
-        if pkg in subset:
-            locked[pkg] = True
-            return
         if pkg in locked:
             raise Error, "Package '%s' is locked" % pkg
 
         locked[pkg] = True
 
+        op = subset[pkg] = set[pkg]
         try:
-            op = subset[pkg] = set[pkg]
             if op is INSTALL:
                 self._install(subset, pkg, locked)
             else:
                 self._remove(subset, pkg, locked)
-        except Error:
+        except Error, e:
+            if self.DEBUG:
+                print "FAILED: Including %s of %s: %s" % (strop, pkg, e)
             del subset[pkg]
             raise
 
@@ -1326,22 +1325,23 @@ class ChangeSetSplitter(object):
 
         if pkg not in set:
             raise Error, "Package '%s' is not in changeset" % pkg
-        if pkg not in subset:
-            locked[pkg] = True
-            return
         if pkg in locked:
             raise Error, "Package '%s' is locked" % pkg
 
         locked[pkg] = True
 
+        if pkg in subset:
+            del subset[pkg]
+
         op = set[pkg]
         try:
-            del subset[pkg]
             if op is INSTALL:
                 self._remove(subset, pkg, locked)
             elif op is REMOVE:
                 self._install(subset, pkg, locked)
-        except Error:
+        except Error, e:
+            if self.DEBUG:
+                print "FAILED: Excluding %s of %s: %s" % (strop, pkg, e)
             subset[pkg] = op
             raise
 

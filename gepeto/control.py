@@ -313,7 +313,7 @@ class Control(object):
             for channel in channels:
                 if not self._achanset.isAvailable(channel):
                     for pkg in channels[channel]:
-                        if pkg not in donecs:
+                        if pkg not in donecs and pkg not in copypkgpaths:
                             splitter.exclude(cs, pkg)
             cs = cs.difference(donecs)
             donecs.update(cs)
@@ -337,7 +337,8 @@ class Control(object):
                             pminstall.append(pkg)
                         elif cs.get(pkg) is REMOVE:
                             pmremove.append(pkg)
-                    pmclass().commit(pminstall, pmremove, pkgpaths)
+                    if sysconf.get("commit", True):
+                        pmclass().commit(pminstall, pmremove, pkgpaths)
 
                 datadir = sysconf.get("data-dir")
                 for pkg in pkgpaths:
@@ -564,7 +565,9 @@ class ChannelSorter(object):
         rc = -cmp(isinstance(self.channel, FileChannel),
                   isinstance(other.channel, FileChannel))
         if rc == 0:
-            rc = -cmp(self.channel.isRemovable(), other.channel.isRemovable())
+            rc = cmp(self.channel.isRemovable(), other.channel.isRemovable())
+            if rc and sysconf.get("prefer-removable"):
+                rc *= -1
         return rc
 
 def getChannelsWithPackages(packages):
