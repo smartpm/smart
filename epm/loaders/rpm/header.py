@@ -105,8 +105,7 @@ class RPMHeaderLoader(RPMLoader):
 
             pkg = self.newPackage((name, version),
                                   prvargs, reqargs, obsargs, cnfargs)
-            pkg._loader = self
-            pkg._offset = offset
+            pkg.loaderinfo[self] = offset
             self._offsets[offset] = pkg
 
 class RPMHeaderListLoader(RPMHeaderLoader):
@@ -126,7 +125,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
 
     def getInfo(self, pkg):
         file = open(self._filename)
-        file.seek(pkg.offset)
+        file.seek(pkg.loaderinfo[self])
         h, offset = rpm.readHeaderFromFD(file.fileno())
         info = RPMHeaderPackageInfo(self, h)
         file.close()
@@ -180,7 +179,7 @@ class RPMDBLoader(RPMHeaderLoader):
 
     def getInfo(self, pkg):
         ts = rpm.ts()
-        mi = ts.dbMatch(0, pkg._offset)
+        mi = ts.dbMatch(0, pkg.loaderinfo[self])
         return RPMHeaderPackageInfo(self, mi.next())
 
     def getURL(self):

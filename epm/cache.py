@@ -8,9 +8,22 @@ class Package(object):
         self.obsoletes = []
         self.conflicts = []
         self.installed = False
+        self.loaderinfo = {}
 
-    def getInfo(self):
-        return None
+    def equals(self, other):
+        fk = dict.fromkeys
+        if (self.name != other.name or
+            self.version != other.version or
+            len(self.provides) != len(other.provides) or
+            len(self.requires) != len(other.requires) or
+            len(self.obsoletes) != len(other.obsoletes) or
+            len(self.conflicts) != len(other.conflicts) or
+            fk(self.provides) != fk(other.provides) or
+            fk(self.requires) != fk(other.requires) or
+            fk(self.obsoletes) != fk(other.obsoletes) or
+            fk(self.conflicts) != fk(other.conflicts)):
+            return False
+        return True
 
     def __str__(self):
         return "%s-%s" % (self.name, self.version)
@@ -52,7 +65,10 @@ class Provides(object):
         return self.name
 
     def __cmp__(self, other):
-        return cmp(self.name, other.name)
+        rc = cmp(self.name, other.name)
+        if rc == 0:
+            rc = cmp(self.version, other.version)
+        return rc
 
 class Depends(object):
     def __init__(self, name, version=None, relation=None):
@@ -72,7 +88,10 @@ class Depends(object):
             return self.name
 
     def __cmp__(self, other):
-        return cmp(self.name, other.name)
+        rc = cmp(self.name, other.name)
+        if rc == 0:
+            rc = cmp(self.version, other.version)
+        return rc
 
 class Requires(Depends): pass
 class Obsoletes(Depends): pass
@@ -95,6 +114,9 @@ class Loader(object):
 
     def setInstalled(self, flag):
         self._installed = flag
+
+    def getInfo(self, pkg):
+        return None
 
     def reset(self):
         self._packages = []
@@ -165,15 +187,7 @@ class Loader(object):
     def newPackage(self, pkgargs, prvargs, reqargs, obsargs, cnfargs):
         cache = self._cache
         pkg = self.Package(*pkgargs)
-        pkg.installed = self._installed
-        self._packages.append(pkg)
-        cache._packages.append(pkg)
-        lst = cache._pkgnames.get(pkg.name)
-        if lst is not None:
-            lst.append(pkg)
-        else:
-            cache._pkgnames[pkg.name] = [pkg]
-
+        relpkgs = []
         if prvargs:
             for args in prvargs:
                 prv = cache._prvmap.get(args)
@@ -186,7 +200,8 @@ class Loader(object):
                     else:
                         cache._prvnames[prv.name] = [prv]
                     cache._provides.append(prv)
-                prv.packages.append(pkg)
+                relpkgs.append(prv.packages)
+                #prv.packages.append(pkg)
                 pkg.provides.append(prv)
 
         if reqargs:
@@ -201,7 +216,8 @@ class Loader(object):
                     else:
                         cache._reqnames[req.name] = [req]
                     cache._requires.append(req)
-                req.packages.append(pkg)
+                relpkgs.append(req.packages)
+                #req.packages.append(pkg)
                 pkg.requires.append(req)
 
         if obsargs:
@@ -216,7 +232,8 @@ class Loader(object):
                     else:
                         cache._obsnames[obs.name] = [obs]
                     cache._obsoletes.append(obs)
-                obs.packages.append(pkg)
+                relpkgs.append(obs.packages)
+                #obs.packages.append(pkg)
                 pkg.obsoletes.append(obs)
 
         if cnfargs:
@@ -231,8 +248,35 @@ class Loader(object):
                     else:
                         cache._cnfnames[cnf.name] = [cnf]
                     cache._conflicts.append(cnf)
-                cnf.packages.append(pkg)
+                relpkgs.append(cnf.packages)
+                #cnf.packages.append(pkg)
                 pkg.conflicts.append(cnf)
+
+        found = False
+        lst = cache._pkgmap.get(pkgargs)
+        if lst is not None:
+            for lstpkg in lst:
+                if pkg.equals(lstpkg):
+                    pkg = lstpkg
+                    found = True
+                    break
+            else:
+                lst.append(pkg)
+        else:
+            cache._pkgmap[pkgargs] = [pkg]
+
+        if not found:
+            cache._packages.append(pkg)
+            lst = cache._pkgnames.get(pkg.name)
+            if lst is not None:
+                lst.append(pkg)
+            else:
+                cache._pkgnames[pkg.name] = [pkg]
+            for pkgs in relpkgs:
+                pkgs.append(pkg)
+
+        pkg.installed |= self._installed
+        self._packages.append(pkg)
 
         return pkg
 
@@ -291,6 +335,7 @@ class Cache(object):
         self._reqnames = {}
         self._obsnames = {}
         self._cnfnames = {}
+        self._pkgmap = {}
         self._prvmap = {}
         self._reqmap = {}
         self._obsmap = {}

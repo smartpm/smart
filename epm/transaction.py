@@ -41,7 +41,6 @@ class PolicyRemove(Policy):
                 weight += 1
         return weight
 
-
 class OverWeight(Exception): pass
 class Failed(Exception): pass
 
@@ -294,7 +293,6 @@ class Transaction:
                                                  REASON_REQUIRES,
                                                  reqpkg, pkg)
             except Failed:
-                pass
                 backtrack[:] = savedbt
 
             # Queue is over. Consider alternatives.
@@ -317,14 +315,14 @@ class Transaction:
                 while backtrack:
                     pkg, op, reason, pkg1, pkg2, state = backtrack.pop()
                     self.setState(state)
+                    opmap[pkg] = (op, reason, pkg1, pkg2)
                     break
-                    if getweight(self) < bestweight:
-                        break
+                    #if getweight(self) < bestweight:
+                    #    break
                 else:
                     break
                 self.queue.append((pkg, op))
                 touched[pkg] = True
-                opmap[pkg] = (op, reason, pkg1, pkg2)
                 if i == ilim:
                     print "Starting weight: %d" % getweight(self)
                     i = 0
@@ -340,7 +338,6 @@ class Transaction:
                 for p in opmap:
                     o, r, p1, p2 = opmap[p]
                     if o == OPER_INSTALL:
-                        #print "I", p, r, p1, p2
                         print "I", p
                     else:
                         print "R", p

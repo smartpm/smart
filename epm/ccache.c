@@ -16,6 +16,8 @@
         Py_DECREF(res); \
     } while (0)
 
+#define STR(obj) PyString_AS_STRING(obj)
+
 staticforward PyTypeObject Package_Type;
 staticforward PyTypeObject Provides_Type;
 staticforward PyTypeObject Depends_Type;
@@ -31,6 +33,7 @@ typedef struct {
     PyObject *obsoletes;
     PyObject *conflicts;
     PyObject *installed;
+    PyObject *loaderinfo;
 } PackageObject;
 
 typedef struct {
@@ -77,6 +80,7 @@ typedef struct {
     PyObject *_reqnames;
     PyObject *_obsnames;
     PyObject *_cnfnames;
+    PyObject *_pkgmap;
     PyObject *_prvmap;
     PyObject *_reqmap;
     PyObject *_obsmap;
@@ -97,6 +101,7 @@ Package_init(PackageObject *self, PyObject *args)
     self->conflicts = PyList_New(0);
     Py_INCREF(Py_False);
     self->installed = Py_False;
+    self->loaderinfo = PyDict_New();
     return 0;
 }
 
@@ -110,6 +115,7 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->obsoletes);
     Py_XDECREF(self->conflicts);
     Py_XDECREF(self->installed);
+    Py_XDECREF(self->loaderinfo);
     self->ob_type->tp_free((PyObject *)self);
 }
 
@@ -121,9 +127,7 @@ Package_str(PackageObject *self)
                         "package name or version is not string");
         return NULL;
     }
-    return PyString_FromFormat("%s-%s",
-                               PyString_AsString(self->name),
-                               PyString_AsString(self->version));
+    return PyString_FromFormat("%s-%s", STR(self->name), STR(self->version));
 }
 
 static int
@@ -137,8 +141,8 @@ Package_compare(PackageObject *self, PackageObject *other)
                             "package name is not string");
             return -1;
         }
-        self_name = PyString_AsString(self->name);
-        other_name = PyString_AsString(other->name);
+        self_name = STR(self->name);
+        other_name = STR(other->name);
         rc = strcmp(self_name, other_name);
         if (rc == 0) {
             const char *self_version, *other_version;
@@ -148,8 +152,8 @@ Package_compare(PackageObject *self, PackageObject *other)
                                 "package version is not string");
                 return -1;
             }
-            self_version = PyString_AsString(self->version);
-            other_version = PyString_AsString(other->version);
+            self_version = STR(self->version);
+            other_version = STR(other->version);
             rc = strcmp(self_version, other_version);
         }
     }
@@ -157,13 +161,85 @@ Package_compare(PackageObject *self, PackageObject *other)
 }
 
 static PyObject *
-Package_getInfo(PackageObject *self, PyObject *args)
+Package_equals(PackageObject *self, PackageObject *other)
 {
-    Py_RETURN_NONE;
+    int i, j, ilen, jlen;
+    PyObject *ret = Py_True;
+
+    if (!PyObject_IsInstance((PyObject *)other, (PyObject *)&Package_Type)) {
+        PyErr_SetString(PyExc_TypeError, "package expected");
+        return NULL;
+    }
+
+    if (strcmp(STR(self->name), STR(other->name)) != 0 ||
+        strcmp(STR(self->version), STR(other->version)) != 0 ||
+        PyList_GET_SIZE(self->provides) != PyList_GET_SIZE(other->provides) ||
+        PyList_GET_SIZE(self->requires) != PyList_GET_SIZE(other->requires) ||
+        PyList_GET_SIZE(self->obsoletes) != PyList_GET_SIZE(other->obsoletes) ||
+        PyList_GET_SIZE(self->conflicts) != PyList_GET_SIZE(other->conflicts)) {
+        ret = Py_False;
+        goto exit;
+    }
+
+    ilen = PyList_GET_SIZE(self->provides);
+    jlen = PyList_GET_SIZE(other->provides);
+    for (i = 0; i != ilen; i++) {
+        PyObject *item = PyList_GET_ITEM(self->provides, i);
+        for (j = 0; j != jlen; j++)
+            if (item == PyList_GET_ITEM(other->provides, j))
+                break;
+        if (j == jlen) {
+            ret = Py_False;
+            goto exit;
+        }
+    }
+
+    ilen = PyList_GET_SIZE(self->requires);
+    jlen = PyList_GET_SIZE(other->requires);
+    for (i = 0; i != ilen; i++) {
+        PyObject *item = PyList_GET_ITEM(self->requires, i);
+        for (j = 0; j != jlen; j++)
+            if (item == PyList_GET_ITEM(other->requires, j))
+                break;
+        if (j == jlen) {
+            ret = Py_False;
+            goto exit;
+        }
+    }
+
+    ilen = PyList_GET_SIZE(self->obsoletes);
+    jlen = PyList_GET_SIZE(other->obsoletes);
+    for (i = 0; i != ilen; i++) {
+        PyObject *item = PyList_GET_ITEM(self->obsoletes, i);
+        for (j = 0; j != jlen; j++)
+            if (item == PyList_GET_ITEM(other->obsoletes, j))
+                break;
+        if (j == jlen) {
+            ret = Py_False;
+            goto exit;
+        }
+    }
+
+    ilen = PyList_GET_SIZE(self->conflicts);
+    jlen = PyList_GET_SIZE(other->conflicts);
+    for (i = 0; i != ilen; i++) {
+        PyObject *item = PyList_GET_ITEM(self->conflicts, i);
+        for (j = 0; j != jlen; j++)
+            if (item == PyList_GET_ITEM(other->conflicts, j))
+                break;
+        if (j == jlen) {
+            ret = Py_False;
+            goto exit;
+        }
+    }
+
+exit:
+    Py_INCREF(ret);
+    return ret;
 }
 
 static PyMethodDef Package_methods[] = {
-    {"getInfo", (PyCFunction)Package_getInfo, METH_NOARGS, NULL},
+    {"equals", (PyCFunction)Package_equals, METH_O, NULL},
     {NULL, NULL}
 };
 
@@ -176,6 +252,7 @@ static PyMemberDef Package_members[] = {
     {"obsoletes", T_OBJECT, OFF(obsoletes), 0, 0},
     {"conflicts", T_OBJECT, OFF(conflicts), 0, 0},
     {"installed", T_OBJECT, OFF(installed), 0, 0},
+    {"loaderinfo", T_OBJECT, OFF(loaderinfo), 0, 0},
     {NULL}
 };
 #undef OFF
@@ -264,9 +341,8 @@ Provides_str(ProvidesObject *self)
             PyErr_SetString(PyExc_TypeError, "package version is not string");
             return NULL;
         }
-        return PyString_FromFormat("%s = %s",
-                                   PyString_AsString(self->name),
-                                   PyString_AsString(self->version));
+        return PyString_FromFormat("%s = %s", STR(self->name),
+                                              STR(self->version));
     }
     Py_INCREF(self->name);
     return self->name;
@@ -277,15 +353,9 @@ Provides_compare(ProvidesObject *self, ProvidesObject *other)
 {
     int rc = -1;
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Provides_Type)) {
-        const char *self_name, *other_name;
-        if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
-            PyErr_SetString(PyExc_TypeError,
-                            "package name is not string");
-            return -1;
-        }
-        self_name = PyString_AsString(self->name);
-        other_name = PyString_AsString(other->name);
-        rc = strcmp(self_name, other_name);
+        rc = strcmp(STR(self->name), STR(other->name));
+        if (rc == 0)
+            rc = strcmp(STR(self->version), STR(other->version));
     }
     return rc > 0 ? 1 : ( rc < 0 ? -1 : 0);
 }
@@ -395,10 +465,9 @@ Depends_str(DependsObject *self)
                             "package version or relation is not string");
             return NULL;
         }
-        return PyString_FromFormat("%s %s %s",
-                                   PyString_AsString(self->name),
-                                   PyString_AsString(self->relation),
-                                   PyString_AsString(self->version));
+        return PyString_FromFormat("%s %s %s", STR(self->name),
+                                               STR(self->relation),
+                                               STR(self->version));
     }
     Py_INCREF(self->name);
     return self->name;
@@ -415,8 +484,8 @@ Depends_compare(DependsObject *self, DependsObject *other)
                             "package name is not string");
             return -1;
         }
-        self_name = PyString_AsString(self->name);
-        other_name = PyString_AsString(other->name);
+        self_name = STR(self->name);
+        other_name = STR(other->name);
         rc = strcmp(self_name, other_name);
     }
     return rc > 0 ? 1 : ( rc < 0 ? -1 : 0);
@@ -574,6 +643,12 @@ Loader_setInstalled(LoaderObject *self, PyObject *flag)
 }
 
 PyObject *
+Loader_getInfo(LoaderObject *self, PyObject *pkg)
+{
+    Py_RETURN_NONE;
+}
+
+PyObject *
 Loader_reset(LoaderObject *self, PyObject *args)
 {
     PyDict_Clear(self->_packages);
@@ -629,6 +704,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     PyObject *pkg;
     PackageObject *pkgobj;
 
+    PyObject *relpkgs;
     PyObject *lst;
 
     CacheObject *cache;
@@ -651,30 +727,8 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
     pkgobj = (PackageObject *)pkg;
 
-    /* pkg.installed = self._installed */
-    Py_DECREF(pkgobj->installed);
-    pkgobj->installed = self->_installed;
-    Py_INCREF(pkgobj->installed);
-
-    /* self._packages.append(pkg) */
-    PyList_Append(self->_packages, pkg);
-    /* cache._packages.append(pkg) */
-    PyList_Append(cache->_packages, pkg);
-
-    /*
-       lst = cache._pkgnames.get(pkg.name)
-       if lst is not None:
-           lst.append(pkg)
-       else:
-           cache._pkgnames[pkg.name] = [pkg]
-    */
-
-    lst = PyDict_GetItem(cache->_pkgnames, pkgobj->name);
-    if (!lst) {
-        lst = PyList_New(0);
-        PyDict_SetItem(cache->_pkgnames, pkgobj->name, lst);
-    }
-    PyList_Append(lst, pkg);
+    /* relpkgs = [] */
+    relpkgs = PyList_New(0);
 
     /* if prvargs: */
     if (prvargs) {
@@ -682,7 +736,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
         int i = 0;    
         int len = PyList_Size(prvargs);
         for (; i != len; i++) {
-            PyObject *args = PyList_GetItem(prvargs, i);
+            PyObject *args = PyList_GET_ITEM(prvargs, i);
             ProvidesObject *prvobj;
             PyObject *prv;
             
@@ -724,8 +778,8 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 PyList_Append(cache->_provides, prv);
             }
 
-            /* prv.packages.append(pkg) */
-            PyList_Append(prvobj->packages, pkg);
+            /* relpkgs.append(prv.packages) */
+            PyList_Append(relpkgs, prvobj->packages);
 
             /* pkg.provides.append(prv) */
             PyList_Append(pkgobj->provides, prv);
@@ -738,7 +792,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
         int i = 0;    
         int len = PyList_Size(reqargs);
         for (; i != len; i++) {
-            PyObject *args = PyList_GetItem(reqargs, i);
+            PyObject *args = PyList_GET_ITEM(reqargs, i);
             DependsObject *reqobj;
             PyObject *req;
             
@@ -780,8 +834,8 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 PyList_Append(cache->_requires, req);
             }
 
-            /* req.packages.append(pkg) */
-            PyList_Append(reqobj->packages, pkg);
+            /* relpkgs.append(req.packages) */
+            PyList_Append(relpkgs, reqobj->packages);
 
             /* pkg.requires.append(req) */
             PyList_Append(pkgobj->requires, req);
@@ -794,7 +848,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
         int i = 0;    
         int len = PyList_Size(obsargs);
         for (; i != len; i++) {
-            PyObject *args = PyList_GetItem(obsargs, i);
+            PyObject *args = PyList_GET_ITEM(obsargs, i);
             DependsObject *obsobj;
             PyObject *obs;
             
@@ -836,8 +890,8 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 PyList_Append(cache->_obsoletes, obs);
             }
 
-            /* obs.packages.append(pkg) */
-            PyList_Append(obsobj->packages, pkg);
+            /* relpkgs.append(obs.packages) */
+            PyList_Append(relpkgs, obsobj->packages);
 
             /* pkg.obsoletes.append(obs) */
             PyList_Append(pkgobj->obsoletes, obs);
@@ -850,7 +904,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
         int i = 0;    
         int len = PyList_Size(cnfargs);
         for (; i != len; i++) {
-            PyObject *args = PyList_GetItem(cnfargs, i);
+            PyObject *args = PyList_GET_ITEM(cnfargs, i);
             DependsObject *cnfobj;
             PyObject *cnf;
             
@@ -892,13 +946,99 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 PyList_Append(cache->_conflicts, cnf);
             }
 
-            /* cnf.packages.append(pkg) */
-            PyList_Append(cnfobj->packages, pkg);
+            /* relpkgs.append(cnf.packages) */
+            PyList_Append(relpkgs, cnfobj->packages);
 
             /* pkg.conflicts.append(cnf) */
             PyList_Append(pkgobj->conflicts, cnf);
         }
     }
+
+    /* found = False */
+    int found = 0;
+    /* lst = cache._pkgmap.get(pkgargs) */
+    lst = PyDict_GetItem(cache->_pkgmap, pkgargs);
+    /* if lst is not None: */
+    if (lst) {
+        /* for lstpkg in lst: */
+        int i = 0;    
+        int len = PyList_Size(lst);
+        for (; i != len; i++) {
+            PyObject *lstpkg = PyList_GET_ITEM(lst, i);
+            /* if pkg.equals(lstpkg): */
+            PyObject *ret = Package_equals((PackageObject *)pkg,
+                                           (PackageObject *)lstpkg);
+            if (!ret) return NULL;
+            if (ret == Py_True) {
+                /* pkg = lstpkg */
+                Py_DECREF(pkg);
+                pkg = lstpkg;
+                Py_INCREF(pkg);
+                /* found = True */
+                found = 1;
+                /* break */
+                break;
+            }
+            Py_DECREF(ret);
+        }
+        /* else: */
+        if (!found)
+            /* lst.append(pkg) */
+            PyList_Append(lst, pkg);
+    }
+    /* else: */
+    if (!found) {
+        /* cache._pkgmap[pkgargs] = [pkg] */
+        lst = PyList_New(1);
+        Py_INCREF(pkg);
+        PyList_SET_ITEM(lst, 0, pkg);
+        PyDict_SetItem(cache->_pkgmap, pkgargs, lst);
+        Py_DECREF(lst);
+    }
+
+    /* if not found: */
+    if (!found) {
+        int i, len;
+
+        /* cache._packages.append(pkg) */
+        PyList_Append(cache->_packages, pkg);
+
+        /*
+           lst = cache._pkgnames.get(pkg.name)
+           if lst is not None:
+               lst.append(pkg)
+           else:
+               cache._pkgnames[pkg.name] = [pkg]
+        */
+        lst = PyDict_GetItem(cache->_pkgnames, pkgobj->name);
+        if (!lst) {
+            lst = PyList_New(0);
+            PyDict_SetItem(cache->_pkgnames, pkgobj->name, lst);
+        }
+        PyList_Append(lst, pkg);
+
+        /* for pkgs in relpkgs: */
+        len = PyList_GET_SIZE(relpkgs);
+        for (i = 0; i != len; i++) {
+            PyObject *pkgs = PyList_GET_ITEM(relpkgs, i);
+            /* pkgs.append(pkg) */
+            PyList_Append(pkgs, pkg);
+        }
+    }
+
+    /* This will leak if it returns earlier, but any early
+     * returns are serious bugs, so let's KISS here. */
+    Py_DECREF(relpkgs);
+
+    /* pkg.installed |= self._installed */
+    if (self->_installed == Py_True) {
+        Py_DECREF(pkgobj->installed);
+        pkgobj->installed = self->_installed;
+        Py_INCREF(pkgobj->installed);
+    }
+
+    /* self._packages.append(pkg) */
+    PyList_Append(self->_packages, pkg);
 
     return pkg;
 }
@@ -994,6 +1134,7 @@ error:
 static PyMethodDef Loader_methods[] = {
     {"setCache", (PyCFunction)Loader_setCache, METH_O, NULL},
     {"setInstalled", (PyCFunction)Loader_setInstalled, METH_O, NULL},
+    {"getInfo", (PyCFunction)Loader_getInfo, METH_O, NULL},
     {"reset", (PyCFunction)Loader_reset, METH_NOARGS, NULL},
     {"load", (PyCFunction)Loader_load, METH_NOARGS, NULL},
     {"unload", (PyCFunction)Loader_unload, METH_NOARGS, NULL},
@@ -1078,6 +1219,7 @@ Cache_init(CacheObject *self, PyObject *args)
     self->_reqnames = PyDict_New();
     self->_obsnames = PyDict_New();
     self->_cnfnames = PyDict_New();
+    self->_pkgmap = PyDict_New();
     self->_prvmap = PyDict_New();
     self->_reqmap = PyDict_New();
     self->_obsmap = PyDict_New();
@@ -1099,6 +1241,7 @@ Cache_dealloc(CacheObject *self)
     Py_XDECREF(self->_reqnames);
     Py_XDECREF(self->_obsnames);
     Py_XDECREF(self->_cnfnames);
+    Py_XDECREF(self->_pkgmap);
     Py_XDECREF(self->_prvmap);
     Py_XDECREF(self->_reqmap);
     Py_XDECREF(self->_obsmap);
@@ -1250,7 +1393,7 @@ Cache_loadFileProvides(CacheObject *self, PyObject *args)
     for (i = 0; i != len; i++) {
         DependsObject *req =
             (DependsObject *)PyList_GET_ITEM(self->_requires, i);
-        if (PyString_AsString(req->name)[0] == '/') {
+        if (STR(req->name)[0] == '/') {
             Py_INCREF(req->name);
             Py_INCREF(Py_True);
             PyDict_SetItem(fndict, req->name, Py_True);
@@ -1288,9 +1431,8 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
                 /* if .......: */
                 if (req->relation == Py_None ||
                     (PyString_Check(prv->version) &&
-                     strcmp(PyString_AsString(req->relation), "=") == 0 &&
-                     strcmp(PyString_AsString(req->version),
-                            PyString_AsString(prv->version)) == 0)) {
+                     strcmp(STR(req->relation), "=") == 0 &&
+                     strcmp(STR(req->version), STR(prv->version)) == 0)) {
                     /* req.providedby.append(prv) */
                     PyList_Append(req->providedby, (PyObject *)prv);
                     /* prv.requiredby.append(req) */
@@ -1324,9 +1466,8 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
                 /* if .......: */
                 if (obs->relation == Py_None ||
                     (PyString_Check(prv->version) &&
-                     strcmp(PyString_AsString(obs->relation), "=") == 0 &&
-                     strcmp(PyString_AsString(obs->version),
-                            PyString_AsString(prv->version)) == 0)) {
+                     strcmp(STR(obs->relation), "=") == 0 &&
+                     strcmp(STR(obs->version), STR(prv->version)) == 0)) {
                     /* obs.providedby.append(prv) */
                     PyList_Append(obs->providedby, (PyObject *)prv);
                     /* prv.obsoletedby.append(obs) */
@@ -1360,9 +1501,8 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
                 /* if .......: */
                 if (cnf->relation == Py_None ||
                     (PyString_Check(prv->version) &&
-                     strcmp(PyString_AsString(cnf->relation), "=") == 0 &&
-                     strcmp(PyString_AsString(cnf->version),
-                            PyString_AsString(prv->version)) == 0)) {
+                     strcmp(STR(cnf->relation), "=") == 0 &&
+                     strcmp(STR(cnf->version), STR(prv->version)) == 0)) {
                     /* cnf.providedby.append(prv) */
                     PyList_Append(cnf->providedby, (PyObject *)prv);
                     /* prv.conflictedby.append(cnf) */

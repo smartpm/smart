@@ -148,11 +148,7 @@ def main(opts):
         packages = newpackages
 
     packages.sort()
-    lastpkg = None
     for pkg in packages:
-        if pkg == lastpkg:
-            continue
-        lastpkg = pkg
         print pkg
         if pkg.provides and (opts.provides or whoprovides):
             pkg.provides.sort()
@@ -174,37 +170,25 @@ def main(opts):
                     print "      Required By:"
                     for req in prv.requiredby:
                         req.packages.sort()
-                        lastreqpkg = None
                         for reqpkg in req.packages:
-                            if reqpkg == lastreqpkg:
-                                continue
                             if opts.installed and not reqpkg.installed:
                                 continue
-                            lastreqpkg = reqpkg
                             print "       ", "%s (%s)" % (reqpkg, prv)
                 if opts.obsoletedby and prv.obsoletedby:
                     print "      Obsoleted By:"
                     for obs in prv.obsoletedby:
                         obs.packages.sort()
-                        lastobspkg = None
                         for obspkg in obs.packages:
-                            if obspkg == lastobspkg:
-                                continue
                             if opts.installed and not obspkg.installed:
                                 continue
-                            lastobspkg = obspkg
                             print "       ", "%s (%s)" % (obspkg, prv)
                 if opts.conflictedby and prv.conflictedby:
                     print "      Conflicted By:"
                     for cnf in prv.conflictedby:
                         cnf.packages.sort()
-                        lastcnfpkg = None
                         for cnfpkg in cnf.packages:
-                            if cnfpkg == lastcnfpkg:
-                                continue
                             if opts.installed and not cnfpkg.installed:
                                 continue
-                            lastcnfpkg = cnfpkg
                             print "       ", "%s (%s)" % (cnfpkg, prv)
         if pkg.requires and (opts.requires or whorequires):
             pkg.requires.sort()
@@ -224,13 +208,9 @@ def main(opts):
                     print "      Provided By:"
                     for prv in req.providedby:
                         prv.packages.sort()
-                        lastprvpkg = None
                         for prvpkg in prv.packages:
-                            if prvpkg == lastprvpkg:
-                                continue
                             if opts.installed and not prvpkg.installed:
                                 continue
-                            lastprvpkg = prvpkg
                             print "       ", "%s (%s)" % (prvpkg, prv)
         if pkg.obsoletes and (opts.obsoletes or whoobsoletes):
             pkg.obsoletes.sort()
@@ -250,13 +230,9 @@ def main(opts):
                     print "      Provided By:"
                     for prv in obs.providedby:
                         prv.packages.sort()
-                        lastprvpkg = None
                         for prvpkg in prv.packages:
-                            if prvpkg == lastprvpkg:
-                                continue
                             if opts.installed and not prvpkg.installed:
                                 continue
-                            lastprvpkg = prvpkg
                             print "       ", "%s (%s)" % (prvpkg, prv)
         if pkg.conflicts and (opts.conflicts or whoconflicts):
             pkg.conflicts.sort()
@@ -276,13 +252,9 @@ def main(opts):
                     print "      Provided By:"
                     for prv in cnf.providedby:
                         prv.packages.sort()
-                        lastprvpkg = None
                         for prvpkg in prv.packages:
-                            if prvpkg == lastprvpkg:
-                                continue
                             if opts.installed and not prvpkg.installed:
                                 continue
-                            lastprvpkg = prvpkg
                             print "       ", "%s (%s)" % (prvpkg, prv)
 
     ctrl.standardFinalize()
