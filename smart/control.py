@@ -118,7 +118,7 @@ class Control(object):
     def restoreMediaState(self):
         self._mediaset.restoreState()
 
-    __stateversion__ = 1
+    __stateversion__ = 2
 
     def loadSysConf(self, confpath=None):
         loaded = False
