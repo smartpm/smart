@@ -47,7 +47,7 @@ def main(argv):
                 import traceback
                 traceback.print_exc()
                 sys.exit(1)
-            raise Error, "invalid command '%s'" % command
+            raise Error, "invalid command '%s'" % opts.command
         cmdopts = command_module.parse_options(opts.argv)
         opts.__dict__.update(cmdopts.__dict__)
         command_module.main(opts)

@@ -12,7 +12,15 @@ REASON_OBSOLETES,
 REASON_CONFLICTS,
 ) = range(1,5)
 
+class Max:
+    def __cmp__(self, other):
+        return 1
+    def __int__(self):
+        return 123456789
+
 FAILED = 100000000
+
+MAX = Max()
 
 class Policy:
     def __init__(self):
@@ -33,6 +41,9 @@ class Policy:
 
     def getWeight(self, trans):
         return 0
+
+    def getStartingWeight(self, trans):
+        return MAX
 
 class PolicyInstall(Policy):
     """Give precedence to keeping functionality in the system."""
@@ -59,15 +70,18 @@ class PolicyRemove(Policy):
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
-            if reason != REASON_REQUESTED:
+            if reason == REASON_REQUESTED:
+                continue
+            if op == OPER_REMOVE:
                 weight += 1
+            elif op == OPER_INSTALL:
+                weight += 5
         return weight
 
 class PolicyGlobalUpgrade(Policy):
     """Give precedence to the choice with more upgrades and smaller impact."""
 
     def getWeight(self, trans):
-        trans = self._trans
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
@@ -81,6 +95,9 @@ class PolicyGlobalUpgrade(Policy):
             elif op == OPER_INSTALL:
                 weight += 1
         return weight
+
+    def getStartingWeight(self, trans):
+        return self.getWeight(trans)
 
 def recursiveRequiredBy(pkg, set):
     set[pkg] = True
@@ -132,7 +149,7 @@ class Transaction:
         self.queue[:] = state[2]
 
     def getWeight(self):
-        return self.policy.getWeight()
+        return self.policy.getWeight(self)
 
     def getInstalled(self, pkg):
         elem = self.operation.get(pkg)
@@ -187,8 +204,8 @@ class Transaction:
         isinst = self.getInstalled
         bt = self.backtrack
 
-        beststate = None
-        bestweight = "MAX"
+        beststate = self.getState()
+        bestweight = self.policy.getStartingWeight(self)
 
         getweight = self.policy.getWeight
         locked.update(self.policy.getLockedSet())
@@ -370,7 +387,7 @@ class Transaction:
                     print "Alternatives/Weight: %d/%d" % (len(bt), weight)
                 #print "Found %d alternative(s)." % len(bt)
                 if weight < bestweight:
-                    print "Replacing beststate (%d < %s)" % (weight, str(bestweight))
+                    print "Replacing beststate (%d < %d)" % (weight, bestweight)
                     beststate = self.getState()
                     bestweight = weight
                 pkg, op, reason, pkg1, pkg2, state = bt.pop()
@@ -430,7 +447,7 @@ class Transaction:
         self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
         self.operation[pkg] = (OPER_REMOVE, reason, pkg1, pkg2)
 
-def upgradePackages(self, trans, pkgs):
+def upgradePackages(trans, pkgs):
     locked = trans.getLocked()
     isinst = trans.getInstalled
 
@@ -451,11 +468,9 @@ def upgradePackages(self, trans, pkgs):
     UpgradeSorter(upgpkgs).sort()
 
     print [str(x) for x in upgpkgs]
-    import sys
-    sys.exit(0)
     
     beststate = trans.getState()
-    bestweight = trans.getWeight()
+    bestweight = trans.getPolicy().getStartingWeight(trans)
     for pkg in upgpkgs:
         if pkg in locked:
             continue
@@ -468,7 +483,7 @@ def upgradePackages(self, trans, pkgs):
         else:
             trans.setState(beststate)
 
-    print "Global upgrade:"
+    print "Upgrade:"
     for pkg in trans.operation:
         o, r, p1, p2 = trans.operation[pkg]
         if o == OPER_INSTALL:
