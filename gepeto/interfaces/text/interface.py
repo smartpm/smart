@@ -70,21 +70,21 @@ class TextInterface(Interface):
         report.compute()
 
         print
-        pkgs = report.upgrading.keys() + \
-               report.downgrading.keys() + \
-               report.installing.keys()
+        pkgs = report.install.keys()
         if pkgs:
             pkgs.sort()
             print "The following packages are being installed:"
             for pkg in pkgs:
-                print "   ", pkg
+                if pkg.installed:
+                    print "   ", pkg, "(reinstalled)"
+                else:
+                    print "   ", pkg
                 for upgpkg in report.upgrading.get(pkg, ()):
                     print "       Upgrades:", upgpkg
                 for upgpkg in report.downgrading.get(pkg, ()):
                     print "       Downgrades:", upgpkg
             print
-        pkgs = [x for x in report.removed
-                if x not in report.upgraded and x not in report.downgraded]
+        pkgs = report.removed.keys()
         if pkgs:
             pkgs.sort()
             print "The following packages are being removed:"

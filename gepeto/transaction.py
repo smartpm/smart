@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.const import INSTALL, REMOVE, UPGRADE, FIX
+from gepeto.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL
 from gepeto.cache import PreRequires
 from gepeto import *
 
@@ -58,6 +58,8 @@ class ChangeSet(dict):
         return ChangeSet(self._cache, self)
 
     def set(self, pkg, op):
+        if self.get(pkg) is op:
+            return
         if op is INSTALL:
             if pkg.installed:
                 if pkg in self:
@@ -369,7 +371,7 @@ class Transaction(object):
 
     def _install(self, pkg, changeset, locked, pending, depth=0):
         #print "[%03d] _install(%s)" % (depth, pkg)
-        depth += 1
+        #depth += 1
 
         locked[pkg] = True
         changeset.set(pkg, INSTALL)
@@ -453,7 +455,7 @@ class Transaction(object):
 
     def _remove(self, pkg, changeset, locked, pending, depth=0):
         #print "[%03d] _remove(%s)" % (depth, pkg)
-        depth += 1
+        #depth += 1
 
         if pkg.essential:
             raise Failed, "Can't remove %s: it's an essential package"
@@ -514,7 +516,7 @@ class Transaction(object):
 
     def _updown(self, pkg, changeset, locked, depth=0):
         #print "[%03d] _updown(%s)" % (depth, pkg)
-        depth += 1
+        #depth += 1
 
         isinst = changeset.installed
         getpriority = self._policy.getPriority
@@ -609,7 +611,7 @@ class Transaction(object):
 
     def _pending(self, changeset, locked, pending, depth=0):
         #print "[%03d] _pending(%s)" % depth
-        depth += 1
+        #depth += 1
 
         isinst = changeset.installed
         getweight = self._policy.getWeight
@@ -784,7 +786,7 @@ class Transaction(object):
 
     def _upgrade(self, pkgs, changeset, locked, pending, depth=0):
         #print "[%03d] _upgrade()" % depth
-        depth += 1
+        #depth += 1
 
         isinst = changeset.installed
         getweight = self._policy.getWeight
@@ -814,7 +816,7 @@ class Transaction(object):
 
     def _fix(self, pkgs, changeset, locked, pending, depth=0):
         #print "[%03d] _fix()" % depth
-        depth += 1
+        #depth += 1
 
         getweight = self._policy.getWeight
         isinst = changeset.installed
@@ -942,17 +944,21 @@ class Transaction(object):
                 if op is INSTALL:
                     if not isinst(pkg) and pkg in locked:
                         raise Failed, "Can't install %s: it's locked" % pkg
-                    changeset.set(pkg, op)
+                    changeset.set(pkg, INSTALL)
                 elif op is REMOVE:
                     if isinst(pkg) and pkg in locked:
                         raise Failed, "Can't remove %s: it's locked" % pkg
-                    changeset.set(pkg, op)
+                    changeset.set(pkg, REMOVE)
+                elif op is REINSTALL:
+                    if pkg in locked:
+                        raise Failed, "Can't reinstall %s: it's locked" % pkg
+                    changeset[pkg] = INSTALL
 
             upgpkgs = []
             fixpkgs = []
             for pkg in self._queue:
                 op = self._queue[pkg]
-                if op is INSTALL:
+                if op is INSTALL or op is REINSTALL:
                     self._install(pkg, changeset, locked, pending)
                 elif op is REMOVE:
                     self._remove(pkg, changeset, locked, pending)

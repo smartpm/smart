@@ -19,7 +19,8 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.transaction import Transaction, ChangeSet, INSTALL, REMOVE, UPGRADE
+from gepeto.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL
+from gepeto.transaction import Transaction, ChangeSet
 from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from gepeto.interfaces.gtk.mirrors import GtkMirrors
@@ -418,17 +419,19 @@ class GtkInteractiveInterface(GtkInterface):
                 self._changeset.setState(changeset)
                 self.changedMarks()
 
-    def togglePackage(self, pkg):
+    def togglePackage(self, pkg, reinstall=False):
         transaction = Transaction(self._ctrl.getCache(), policy=PolicyInstall)
         transaction.setState(self._changeset)
         if pkg.installed:
-            if self._changeset.get(pkg) is REMOVE:
+            if reinstall:
+                transaction.enqueue(pkg, REINSTALL)
+            elif pkg in self._changeset:
                 transaction.enqueue(pkg, INSTALL)
             else:
                 transaction.setPolicy(PolicyRemove)
                 transaction.enqueue(pkg, REMOVE)
         else:
-            if self._changeset.get(pkg) is INSTALL:
+            if pkg in self._changeset:
                 transaction.enqueue(pkg, REMOVE)
             else:
                 transaction.enqueue(pkg, INSTALL)
@@ -478,6 +481,12 @@ class GtkInteractiveInterface(GtkInterface):
                 names.setdefault(pkg.name, []).append((None, None))
                 self._pv.queue_draw()
             item.connect("activate", lock_all)
+        menu.append(item)
+        if pkg.installed:
+            item = gtk.MenuItem("Reinstall")
+            def reinstall(x):
+                self.togglePackage(pkg, reinstall=True)
+            item.connect("activate", reinstall)
         menu.append(item)
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)

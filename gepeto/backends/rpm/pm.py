@@ -54,7 +54,10 @@ class RPMPackageManager(PackageManager):
                             upgraded.update(dict.fromkeys(upgd))
         ts = rpm.ts()
         packages = 0
+        reinstall = False
         for pkg in install:
+            if pkg.installed:
+                reinstall = True
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
             mode = pkg in upgrading and "u" or "i"
@@ -98,7 +101,11 @@ class RPMPackageManager(PackageManager):
                 problines.append(line)
             raise Error, "\n".join(problines)
         ts.order()
-        ts.setProbFilter(rpm.RPMPROB_FILTER_OLDPACKAGE)
+        probfilter = rpm.RPMPROB_FILTER_OLDPACKAGE
+        if reinstall:
+            probfilter |= rpm.RPMPROB_FILTER_REPLACEPKG
+            probfilter |= rpm.RPMPROB_FILTER_REPLACEOLDFILES
+        ts.setProbFilter(probfilter)
         prog.set(0, packages or 1)
         cb = RPMCallback(prog)
         cb.grabOutput(True)

@@ -152,6 +152,7 @@ class GtkPackageView(gtk.Alignment):
         self._fpixbuf = getPixbuf("folder")
         self._Ipixbuf = getPixbuf("package-install")
         self._Rpixbuf = getPixbuf("package-remove")
+        self._rpixbuf = getPixbuf("package-reinstall")
 
     def _setPixbuf(self, treeview, cell, model, iter):
         value = model.get_value(iter, 0)
@@ -162,6 +163,8 @@ class GtkPackageView(gtk.Alignment):
         if pkg.installed:
             if self._changeset.get(pkg) is REMOVE:
                 cell.set_property("pixbuf", self._Rpixbuf)
+            elif self._changeset.get(pkg) is INSTALL:
+                cell.set_property("pixbuf", self._rpixbuf)
             elif sysconf.testFlag("lock", pkg):
                 cell.set_property("pixbuf", self._ilpixbuf)
             else:

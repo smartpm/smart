@@ -27,6 +27,7 @@ REMOVE  = 2
 
 UPGRADE = 3
 FIX     = 4
+REINSTALL = 5
 
 OPTIONAL = 1
 NEVER    = 2

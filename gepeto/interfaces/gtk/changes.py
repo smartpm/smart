@@ -87,7 +87,7 @@ class GtkChanges:
         report.compute()
         
         class Sorter(str):
-            ORDER = ["Remove", "Install", "Downgrade", "Upgrade"]
+            ORDER = ["Remove", "Downgrade", "Reinstall", "Install", "Upgrade"]
             def _index(self, s):
                 i = 0
                 for os in self.ORDER:
@@ -104,6 +104,7 @@ class GtkChanges:
 
         if report.install:
             install = {}
+            reinstall = {}
             upgrade = {}
             downgrade = {}
             lst = report.install.keys()
@@ -130,12 +131,16 @@ class GtkChanges:
                         if cnfpkg in done:
                             continue
                         package.setdefault("Conflicts", []).append(cnfpkg)
-                if pkg in report.upgrading:
+                if pkg.installed:
+                    reinstall[pkg] = package
+                elif pkg in report.upgrading:
                     upgrade[pkg] = package
                 elif pkg in report.downgrading:
                     downgrade[pkg] = package
                 else:
                     install[pkg] = package
+            if reinstall:
+                packages[Sorter("Reinstall (%d)" % len(reinstall))] = reinstall
             if install:
                 packages[Sorter("Install (%d)" % len(install))] = install
             if upgrade:
