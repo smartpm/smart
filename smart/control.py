@@ -616,7 +616,7 @@ class Control(object):
         failed = fetcher.getFailedSet()
         if failed:
             raise Error, _("Failed to download packages:\n") + \
-                         "\n".join(["    %s: %s" % (url, failed[url])
+                         "\n".join([u"    %s: %s" % (url, failed[url])
                                     for url in failed])
         pkgpaths = {}
         for pkg in packages:
