@@ -1,11 +1,12 @@
-from epm.matcher import Matcher
-from epm.cache import *
 #from rpmver import checkdep, vercmp
 from crpmver import checkdep, vercmp
+from epm.matcher import Matcher
+from epm.cache import *
 import string
 import os, re
 
-__all__ = ["RPMPackage", "RPMProvides", "RPMDepends", "RPMLoader"]
+__all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMRequires",
+           "RPMObsoletes", "RPMConflicts"]
 
 class RPMMatcher(Matcher):
     def __init__(self, str):
@@ -54,14 +55,8 @@ class RPMPackage(Package):
                 rc = vercmp(self.version, other.version)
         return rc
 
-class RPMProvides(Provides):
-
-    def getObsoletedBy(self):
-        lst = []
-        for obs in self.obsoletedby:
-            lst.append((obs, [x for x in obs.packages
-                                 if x.name == obs.name]))
-        return lst
+class RPMProvides(Provides): pass
+class RPMNameProvides(RPMProvides): pass
 
 class RPMDepends(Depends):
 
@@ -74,14 +69,9 @@ class RPMDepends(Depends):
 
 class RPMObsoletes(RPMDepends,Obsoletes):
 
-    def getProvidedBy(self):
-        lst = []
-        for prv in self.providedby:
-            lst.append((prv, [x for x in prv.packages
-                                 if x.name == prv.name]))
-        return lst
-
     def matches(self, prov):
+        if prov.__class__ != RPMNameProvides:
+            return False
         if self.name != prov.name:
             return False
         if self.version and not prov.version:
@@ -92,12 +82,5 @@ class RPMObsoletes(RPMDepends,Obsoletes):
 
 class RPMRequires(RPMDepends,Requires): pass
 class RPMConflicts(RPMDepends,Conflicts): pass
-
-class RPMLoader(Loader):
-    Package = RPMPackage
-    Provides = RPMProvides
-    Requires = RPMRequires
-    Obsoletes = RPMObsoletes
-    Conflicts = RPMConflicts
 
 # vim:ts=4:sw=4:et

@@ -1,5 +1,5 @@
-from epm.loaders.rpm import RPMLoader
-from epm.cache import PackageInfo
+from epm.cache import Loader, PackageInfo
+from epm.loaders.rpm import *
 import posixpath
 import rpm
 
@@ -37,7 +37,7 @@ class RPMHeaderPackageInfo(PackageInfo):
             url = posixpath.join(url, self._loader.getFileName(self))
         return url
 
-class RPMHeaderLoader(RPMLoader):
+class RPMHeaderLoader(Loader):
  
     COMPFLAGS = rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_GREATER|rpm.RPMSENSE_LESS
 
@@ -51,12 +51,18 @@ class RPMHeaderLoader(RPMLoader):
         return []
 
     def reset(self):
-        RPMLoader.reset(self)
+        Loader.reset(self)
         self._offsets = {}
 
     def load(self):
         CM = self.COMPMAP
         CF = self.COMPFLAGS
+        Pkg = RPMPackage
+        Prv = RPMProvides
+        NPrv = RPMNameProvides
+        Req = RPMRequires
+        Obs = RPMObsoletes
+        Cnf = RPMConflicts
         for h, offset in self.getHeaders():
 
             name = h[1000] # RPMTAG_NAME
@@ -72,8 +78,13 @@ class RPMHeaderLoader(RPMLoader):
             v = h[1113] # RPMTAG_PROVIDEVERSION
             prvdict = {}
             for i in range(len(n)):
-                if not n[i].startswith("config("):
-                    prvdict[(n[i], v[i] or None)] = True
+                ni = n[i]
+                if not ni.startswith("config("):
+                    vi = v[i]
+                    if ni == name and vi == version:
+                        prvdict[(NPrv, n[i], v[i] or None)] = True
+                    else:
+                        prvdict[(Prv, n[i], v[i] or None)] = True
             prvargs = prvdict.keys()
 
             n = h[1049] # RPMTAG_REQUIRENAME
@@ -87,8 +98,8 @@ class RPMHeaderLoader(RPMLoader):
                         vi = v[i] or None
                         r = CM.get(f[i]&CF)
                         if ((r is not None and r != "=") or
-                            ((ni, vi) not in prvdict)):
-                            reqdict[(ni, vi, r)] = True
+                            ((Prv, ni, vi) not in prvdict)):
+                            reqdict[(Req, ni, vi, r)] = True
                 reqargs = reqdict.keys()
             else:
                 reqargs = None
@@ -97,22 +108,22 @@ class RPMHeaderLoader(RPMLoader):
             if n:
                 f = h[1114] # RPMTAG_OBSOLETEFLAGS
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
-                obsargs = [(n[i], v[i] or None, CM.get(f[i]&CF))
+                obsargs = [(Obs, n[i], v[i] or None, CM.get(f[i]&CF))
                            for i in range(len(n))]
-                obsargs.append((name, version, '<'))
+                obsargs.append((Obs, name, version, '<'))
             else:
-                obsargs = [(name, version, '<')]
+                obsargs = [(Obs, name, version, '<')]
 
             n = h[1054] # RPMTAG_CONFLICTNAME
             if n:
                 f = h[1053] # RPMTAG_CONFLICTFLAGS
                 v = h[1055] # RPMTAG_CONFLICTVERSION
-                cnfargs = [(n[i], v[i] or None, CM.get(f[i]&CF))
+                cnfargs = [(Cnf, n[i], v[i] or None, CM.get(f[i]&CF))
                            for i in range(len(n))]
             else:
                 cnfargs = None
 
-            pkg = self.newPackage((name, version),
+            pkg = self.newPackage((Pkg, name, version),
                                   prvargs, reqargs, obsargs, cnfargs)
             pkg.loaderinfo[self] = offset
             self._offsets[offset] = pkg
@@ -156,7 +167,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         while h:
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
                 if fn in fndict:
-                    self.newProvides(self._offsets[offset], fn)
+                    self.newProvides(self._offsets[offset], RPMProvides, fn)
             h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
 
@@ -203,7 +214,7 @@ class RPMDBLoader(RPMHeaderLoader):
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
             h = mi.next()
             while h:
-                self.newProvides(self._offsets[mi.instance()], fn)
+                self.newProvides(self._offsets[mi.instance()], RPMProvides, fn)
                 h = mi.next()
 
 class RPMFileLoader(RPMHeaderLoader):
@@ -239,7 +250,7 @@ class RPMFileLoader(RPMHeaderLoader):
         h = ts.hdrFromFdno(file.fileno())
         for fn in h[1027]: # RPMTAG_OLDFILENAMES
             if fn in fndict:
-                self.newProvides(self._offsets[offset], fn)
+                self.newProvides(self._offsets[offset], RPMProvides, fn)
         file.close()
 
 try:

@@ -59,24 +59,6 @@ class Provides(object):
         self.obsoletedby = []
         self.conflictedby = []
 
-    def getRequiredBy(self):
-        lst = []
-        for req in self.requiredby:
-            lst.append((req, req.packages))
-        return lst
-
-    def getObsoletedBy(self):
-        lst = []
-        for obs in self.obsoletedby:
-            lst.append((obs, obs.packages))
-        return lst
-
-    def getConflictedBy(self):
-        lst = []
-        for cnf in self.conflictedby:
-            lst.append((cnf, cnf.packages))
-        return lst
-
     def __str__(self):
         if self.version:
             return "%s = %s" % (self.name, self.version)
@@ -95,12 +77,6 @@ class Depends(object):
         self.relation = relation
         self.packages = []
         self.providedby = []
-
-    def getProvidedBy(self):
-        lst = []
-        for prv in self.providedby:
-            lst.append((prv, prv.packages))
-        return lst
 
     def matches(self, prv):
         return False
@@ -122,12 +98,6 @@ class Obsoletes(Depends): pass
 class Conflicts(Depends): pass
 
 class Loader(object):
-    Package = Package
-    Provides = Provides
-    Requires = Requires
-    Obsoletes = Obsoletes
-    Conflicts = Conflicts
-
     def __init__(self):
         self._cache = None
         self._installed = False
@@ -210,13 +180,13 @@ class Loader(object):
 
     def newPackage(self, pkgargs, prvargs, reqargs, obsargs, cnfargs):
         cache = self._cache
-        pkg = self.Package(*pkgargs)
+        pkg = pkgargs[0](*pkgargs[1:])
         relpkgs = []
         if prvargs:
             for args in prvargs:
                 prv = cache._prvmap.get(args)
                 if not prv:
-                    prv = self.Provides(*args)
+                    prv = args[0](*args[1:])
                     cache._prvmap[args] = prv
                     lst = cache._prvnames.get(prv.name)
                     if lst is not None:
@@ -231,7 +201,7 @@ class Loader(object):
             for args in reqargs:
                 req = cache._reqmap.get(args)
                 if not req:
-                    req = self.Requires(*args)
+                    req = args[0](*args[1:])
                     cache._reqmap[args] = req
                     lst = cache._reqnames.get(req.name)
                     if lst is not None:
@@ -246,7 +216,7 @@ class Loader(object):
             for args in obsargs:
                 obs = cache._obsmap.get(args)
                 if not obs:
-                    obs = self.Obsoletes(*args)
+                    obs = args[0](*args[1:])
                     cache._obsmap[args] = obs
                     lst = cache._obsnames.get(obs.name)
                     if lst is not None:
@@ -261,7 +231,7 @@ class Loader(object):
             for args in cnfargs:
                 cnf = cache._obsmap.get(args)
                 if not cnf:
-                    cnf = self.Conflicts(*args)
+                    cnf = args[0](*args[1:])
                     cache._obsmap[args] = cnf
                     lst = cache._cnfnames.get(cnf.name)
                     if lst is not None:
@@ -300,12 +270,12 @@ class Loader(object):
 
         return pkg
 
-    def newProvides(self, pkg, name, version=None):
+    def newProvides(self, pkg, prvclass, name, version=None):
         cache = self._cache
-        args = (name, version)
+        args = (prvclass, name, version)
         prv = cache._prvmap.get(args)
         if not prv:
-            prv = self.Provides(*args)
+            prv = prvclass(name, version)
             cache._prvmap[args] = prv
             lst = cache._prvnames.get(prv.name)
             if lst is not None:
@@ -328,7 +298,8 @@ class Loader(object):
                             del cache._reqnames[req.name]
                         else:
                             lst.remove(req)
-                        reqargs = (req.name, req.version, req.relation)
+                        reqargs = (req.__class__,
+                                   req.name, req.version, req.relation)
                         del cache._reqmap[reqargs]
 
 class LoaderSet(list):

@@ -74,16 +74,16 @@ class UpgradeSorter(Sorter):
 def recursiveRequiredBy(pkg, set):
     set[pkg] = True
     for prv in pkg.provides:
-        for req, reqpkgs in prv.getRequiredBy():
-            for reqpkg in reqpkgs:
+        for req in prv.requiredby:
+            for reqpkg in req.packages:
                 if reqpkg not in set:
                     recursiveRequiredBy(reqpkg, set)
 
 def recursiveObsoletes(pkg, set):
     set[pkg] = True
     for obs in pkg.obsoletes:
-        for prv, prvpkgs in obs.getProvidedBy():
-            for prvpkg in prvpkgs:
+        for prv in obs.providedby:
+            for prvpkg in prv.packages:
                 if prvpkg not in set:
                     recursiveObsoletes(prvpkg, set)
 

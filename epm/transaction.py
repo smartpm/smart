@@ -85,16 +85,16 @@ class PolicyGlobalUpgrade(Policy):
 def recursiveRequiredBy(pkg, set):
     set[pkg] = True
     for prv in pkg.provides:
-        for req, reqpkgs in prv.getRequiredBy():
-            for reqpkg in reqpkgs:
+        for req in prv.requiredby:
+            for reqpkg in req.packages:
                 if reqpkg not in set:
                     recursiveRequiredBy(reqpkg, set)
 
 def recursiveObsoletes(pkg, set):
     set[pkg] = True
     for obs in pkg.obsoletes:
-        for prv, prvpkgs in obs.getProvidedBy():
-            for prvpkg in prvpkgs:
+        for prv in obs.providedby:
+            for prvpkg in prv.packages:
                 if prvpkg not in set:
                     recursiveObsoletes(prvpkg, set)
 
@@ -159,19 +159,19 @@ class Transaction:
 
         # We don't want to upgrade/downgrade that package.
         for obs in pkg.obsoletes:
-            for prv, prvpkgs in obs.getProvidedBy():
-                for prvpkg in prvpkgs:
+            for prv in obs.providedby:
+                for prvpkg in prv.packages:
                     self.locked[prvpkg] = True
         for prv in pkg.provides:
-            for obs, obspkgs in prv.getObsoletedBy():
-                for obspkg in obspkgs:
+            for obs in prv.obsoletedby:
+                for obspkg in obs.packages:
                     self.locked[obspkg] = True
 
     def upgrade(self, pkg):
         obspkgs = {}
         for prv in pkg.provides:
-            for obs, obspkgs_ in prv.getObsoletedBy():
-                for obspkg in obspkgs_:
+            for obs in prv.obsoletedby:
+                for obspkg in obs.packages:
                     obspkgs[obspkg] = True
         if obspkgs:
             obspkgs = obspkgs.keys()
@@ -211,8 +211,8 @@ class Transaction:
 
                         # Remove packages obsoleted by this one.
                         for obs in pkg.obsoletes:
-                            for prv, prvpkgs in obs.getProvidedBy():
-                                for prvpkg in prvpkgs:
+                            for prv in obs.providedby:
+                                for prvpkg in prv.packages:
                                     if not isinst(prvpkg):
                                         continue
                                     if prvpkg in locked:
@@ -223,8 +223,8 @@ class Transaction:
 
                         # Remove packages obsoleting this one.
                         for prv in pkg.provides:
-                            for obs, obspkgs in prv.getObsoletedBy():
-                                for obspkg in obspkgs:
+                            for obs in prv.obsoletedby:
+                                for obspkg in obs.packages:
                                     if not isinst(obspkg):
                                         continue
                                     if obspkg in locked:
@@ -235,8 +235,8 @@ class Transaction:
 
                         # Remove packages conflicted by this one.
                         for cnf in pkg.conflicts:
-                            for prv, prvpkgs in cnf.getProvidedBy():
-                                for prvpkg in prvpkgs:
+                            for prv in cnf.providedby:
+                                for prvpkg in prv.packages:
                                     if not isinst(prvpkg):
                                         continue
                                     if prvpkg in locked:
@@ -247,8 +247,8 @@ class Transaction:
 
                         # Remove packages conflicting with this one.
                         for prv in pkg.provides:
-                            for cnf, cnfpkgs in prv.getConflictedBy():
-                                for cnfpkg in cnfpkgs:
+                            for cnf in prv.conflictedby:
+                                for cnfpkg in cnf.packages:
                                     if not isinst(cnfpkg):
                                         continue
                                     if cnfpkg in locked:
@@ -263,8 +263,8 @@ class Transaction:
                             # Check if someone is already providing it.
                             prvpkgs = {}
                             found = False
-                            for prv, prvpkgs_ in req.getProvidedBy():
-                                for prvpkg in prvpkgs_:
+                            for prv in req.providedby:
+                                for prvpkg in prv.packages:
                                     if isinst(prvpkg):
                                         found = True
                                         break
@@ -303,9 +303,9 @@ class Transaction:
 
                         # Remove packages requiring this one.
                         for prv in pkg.provides:
-                            for req, reqpkgs in prv.getRequiredBy():
+                            for req in prv.requiredby:
                                 # Check if someone installed is requiring it.
-                                for reqpkg in reqpkgs:
+                                for reqpkg in req.packages:
                                     if isinst(reqpkg):
                                         break
                                 else:
@@ -316,8 +316,8 @@ class Transaction:
                                 # providing it.
                                 prvpkgs = {}
                                 found = False
-                                for prv, prvpkgs_ in req.getProvidedBy():
-                                    for prvpkg in prvpkgs_:
+                                for prv in req.providedby:
+                                    for prvpkg in prv.packages:
                                         if prvpkg is pkg:
                                             continue
                                         if isinst(prvpkg):
@@ -341,11 +341,11 @@ class Transaction:
                                         bt.append((prvpkg,
                                                    OPER_INSTALL,
                                                    REASON_REQUIRES,
-                                                   reqpkgs[0], pkg,
+                                                   reqpkg, pkg,
                                                    self.getState()))
 
                                 # Then, remove requiring packages.
-                                for reqpkg in reqpkgs:
+                                for reqpkg in req.packages:
                                     if not isinst(reqpkg):
                                         continue
                                     if reqpkg in locked:
@@ -405,8 +405,8 @@ class Transaction:
         # Look for packages obsoleting the removed
         # package (upgrade) as an alternative.
         for prv in pkg.provides:
-            for obs, obspkgs in prv.getObsoletedBy():
-                for obspkg in obspkgs:
+            for obs in prv.obsoletedby:
+                for obspkg in obs.packages:
                     if obspkg in self.locked or self.getInstalled(obspkg):
                         continue
                     self.backtrack.append((obspkg,
@@ -416,8 +416,8 @@ class Transaction:
         # Look for packages obsoleted by the removed
         # package (downgrade) as an alternative.
         for obs in pkg.obsoletes:
-            for prv, prvpkgs in obs.getProvidedBy():
-                for prvpkg in prvpkgs:
+            for prv in obs.providedby:
+                for prvpkg in prv.packages:
                     if prvpkg in self.locked or self.getInstalled(prvpkg):
                         continue
                     self.backtrack.append((prvpkg,
@@ -439,8 +439,8 @@ def upgradePackages(self, trans, pkgs):
     for pkg in pkgs:
         if isinst(pkg):
             for prv in pkg.provides:
-                for obs, obspkgs in prv.getObsoletedBy():
-                    for obspkg in obspkgs:
+                for obs in prv.obsoletedby:
+                    for obspkg in obs.packages:
                         if obspkg in locked or obspkg in upgpkgs:
                             continue
                         upgpkgs[obspkg] = True

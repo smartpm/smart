@@ -60,11 +60,6 @@ typedef struct {
     PyObject *_cache;
     PyObject *_packages;
     PyObject *_installed;
-    PyObject *Package;
-    PyObject *Provides;
-    PyObject *Requires;
-    PyObject *Obsoletes;
-    PyObject *Conflicts;
 } LoaderObject;
 
 typedef struct {
@@ -330,81 +325,6 @@ Provides_dealloc(ProvidesObject *self)
 }
 
 static PyObject *
-Provides_getRequiredBy(ProvidesObject *self)
-{
-    /* lst = [] */
-    PyObject *lst = PyList_New(0);
-    int i, len;
-    /* for req in self.requiredby: */
-    len = PyList_GET_SIZE(self->requiredby);
-    for (i = 0; i != len; i++) {
-        /* lst.append((req, req.packages)) */
-        PyObject *tuple = PyTuple_New(2);
-        DependsObject *reqobj;
-        PyObject *req = PyList_GET_ITEM(self->requiredby, i);
-        reqobj = (DependsObject *)req;
-        Py_INCREF(req);
-        Py_INCREF(reqobj->packages);
-        PyTuple_SET_ITEM(tuple, 0, req);
-        PyTuple_SET_ITEM(tuple, 1, reqobj->packages);
-        PyList_Append(lst, tuple);
-        Py_DECREF(tuple);
-    }
-    /* return lst */
-    return lst;
-}
-
-static PyObject *
-Provides_getObsoletedBy(ProvidesObject *self)
-{
-    /* lst = [] */
-    PyObject *lst = PyList_New(0);
-    int i, len;
-    /* for obs in self.obsoletedby: */
-    len = PyList_GET_SIZE(self->obsoletedby);
-    for (i = 0; i != len; i++) {
-        /* lst.append((obs, obs.packages)) */
-        PyObject *tuple = PyTuple_New(2);
-        DependsObject *obsobj;
-        PyObject *obs = PyList_GET_ITEM(self->obsoletedby, i);
-        obsobj = (DependsObject *)obs;
-        Py_INCREF(obs);
-        Py_INCREF(obsobj->packages);
-        PyTuple_SET_ITEM(tuple, 0, obs);
-        PyTuple_SET_ITEM(tuple, 1, obsobj->packages);
-        PyList_Append(lst, tuple);
-        Py_DECREF(tuple);
-    }
-    /* return lst */
-    return lst;
-}
-
-static PyObject *
-Provides_getConflictedBy(ProvidesObject *self)
-{
-    /* lst = [] */
-    PyObject *lst = PyList_New(0);
-    int i, len;
-    /* for cnf in self.conflictedby: */
-    len = PyList_GET_SIZE(self->conflictedby);
-    for (i = 0; i != len; i++) {
-        /* lst.append((cnf, cnf.packages)) */
-        PyObject *tuple = PyTuple_New(2);
-        DependsObject *cnfobj;
-        PyObject *cnf = PyList_GET_ITEM(self->conflictedby, i);
-        cnfobj = (DependsObject *)cnf;
-        Py_INCREF(cnf);
-        Py_INCREF(cnfobj->packages);
-        PyTuple_SET_ITEM(tuple, 0, cnf);
-        PyTuple_SET_ITEM(tuple, 1, cnfobj->packages);
-        PyList_Append(lst, tuple);
-        Py_DECREF(tuple);
-    }
-    /* return lst */
-    return lst;
-}
-
-static PyObject *
 Provides_str(ProvidesObject *self)
 {
     if (!PyString_Check(self->name)) {
@@ -447,13 +367,6 @@ static PyMemberDef Provides_members[] = {
 };
 #undef OFF
 
-static PyMethodDef Provides_methods[] = {
-    {"getRequiredBy", (PyCFunction)Provides_getRequiredBy, METH_NOARGS, NULL},
-    {"getObsoletedBy", (PyCFunction)Provides_getObsoletedBy, METH_NOARGS, NULL},
-    {"getConflictedBy", (PyCFunction)Provides_getConflictedBy, METH_NOARGS, NULL},
-    {NULL, NULL}
-};
-
 statichere PyTypeObject Provides_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
@@ -483,7 +396,7 @@ statichere PyTypeObject Provides_Type = {
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
     0,                      /*tp_iternext*/
-    Provides_methods,       /*tp_methods*/
+    0,                      /*tp_methods*/
     Provides_members,       /*tp_members*/
     0,                      /*tp_getset*/
     0,                      /*tp_base*/
@@ -523,31 +436,6 @@ Depends_dealloc(DependsObject *self)
     Py_XDECREF(self->packages);
     Py_XDECREF(self->providedby);
     self->ob_type->tp_free((PyObject *)self);
-}
-
-static PyObject *
-Depends_getProvidedBy(DependsObject *self)
-{
-    /* lst = [] */
-    PyObject *lst = PyList_New(0);
-    int i, len;
-    /* for prv in self.providedby: */
-    len = PyList_GET_SIZE(self->providedby);
-    for (i = 0; i != len; i++) {
-        /* lst.append((prv, prv.packages)) */
-        PyObject *tuple = PyTuple_New(2);
-        ProvidesObject *prvobj;
-        PyObject *prv = PyList_GET_ITEM(self->providedby, i);
-        prvobj = (ProvidesObject *)prv;
-        Py_INCREF(prv);
-        Py_INCREF(prvobj->packages);
-        PyTuple_SET_ITEM(tuple, 0, prv);
-        PyTuple_SET_ITEM(tuple, 1, prvobj->packages);
-        PyList_Append(lst, tuple);
-        Py_DECREF(tuple);
-    }
-    /* return lst */
-    return lst;
 }
 
 static PyObject *
@@ -599,7 +487,6 @@ Depends_compare(DependsObject *self, DependsObject *other)
 }
 
 static PyMethodDef Depends_methods[] = {
-    {"getProvidedBy", (PyCFunction)Depends_getProvidedBy, METH_NOARGS, NULL},
     {"matches", (PyCFunction)Depends_matches, METH_O, NULL},
     {NULL, NULL}
 };
@@ -694,48 +581,6 @@ Loader_setCache(LoaderObject *self, PyObject *cache)
         return NULL;
     }
 
-    Py_XDECREF(self->Package);
-    self->Package = PyObject_GetAttrString((PyObject*)self, "Package");
-    if (!self->Package ||
-        !PyObject_IsSubclass(self->Package, (PyObject *)&Package_Type)) {
-        PyErr_SetString(PyExc_TypeError, "bad loader.Package member");
-        return NULL;
-    }
-    Py_INCREF(self->Package);
-
-    Py_XDECREF(self->Provides);
-    self->Provides = PyObject_GetAttrString((PyObject*)self, "Provides");
-    if (!self->Provides ||
-        !PyObject_IsSubclass(self->Provides, (PyObject *)&Provides_Type)) {
-        PyErr_SetString(PyExc_TypeError, "bad loader.Provides member");
-        return NULL;
-    }
-    Py_INCREF(self->Provides);
-    Py_XDECREF(self->Requires);
-    self->Requires = PyObject_GetAttrString((PyObject*)self, "Requires");
-    if (!self->Requires ||
-        !PyObject_IsSubclass(self->Requires, (PyObject *)&Depends_Type)) {
-        PyErr_SetString(PyExc_TypeError, "bad loader.Requires member");
-        return NULL;
-    }
-    Py_INCREF(self->Requires);
-    Py_XDECREF(self->Obsoletes);
-    self->Obsoletes = PyObject_GetAttrString((PyObject*)self, "Obsoletes");
-    if (!self->Obsoletes ||
-        !PyObject_IsSubclass(self->Obsoletes, (PyObject *)&Depends_Type)) {
-        PyErr_SetString(PyExc_TypeError, "bad loader.Obsoletes member");
-        return NULL;
-    }
-    Py_INCREF(self->Obsoletes);
-    Py_XDECREF(self->Conflicts);
-    self->Conflicts = PyObject_GetAttrString((PyObject*)self, "Conflicts");
-    if (!self->Conflicts ||
-        !PyObject_IsSubclass(self->Conflicts, (PyObject *)&Depends_Type)) {
-        PyErr_SetString(PyExc_TypeError, "bad loader.Conflicts member");
-        return NULL;
-    }
-    Py_INCREF(self->Conflicts);
-
     Py_INCREF(cache);
     self->_cache = cache;
     Py_RETURN_NONE;
@@ -808,6 +653,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     PyObject *reqargs;
     PyObject *obsargs;
     PyObject *cnfargs;
+    PyObject *callargs;
     
     PyObject *pkg;
     PackageObject *pkgobj;
@@ -829,8 +675,15 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                           mylist, &obsargs, mylist, &cnfargs))
         return NULL;
 
-    /* pkg = self.Package(*pkgargs) */
-    pkg = PyObject_CallObject(self->Package, pkgargs);
+    if (PyTuple_GET_SIZE(pkgargs) < 2) {
+        PyErr_SetString(PyExc_ValueError, "invalid pkgargs tuple");
+        return NULL;
+    }
+
+    /* pkg = pkgargs[0](*pkgargs[1:]) */
+    callargs = PyTuple_GetSlice(pkgargs, 1, PyTuple_GET_SIZE(pkgargs));
+    pkg = PyObject_CallObject(PyTuple_GET_ITEM(pkgargs, 0), callargs);
+    Py_DECREF(callargs);
     if (!pkg) return NULL;
 
     pkgobj = (PackageObject *)pkg;
@@ -860,8 +713,14 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
             /* if not prv: */
             if (!prv) {
-                /* prv = self.Provides(*args) */
-                prv = PyObject_CallObject(self->Provides, args);
+                if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
+                    PyErr_SetString(PyExc_ValueError, "invalid prvargs tuple");
+                    return NULL;
+                }
+                /* prv = args[0](*args[1:]) */
+                callargs = PyTuple_GetSlice(args, 1, PyTuple_GET_SIZE(args));
+                prv = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
+                Py_DECREF(callargs);
                 if (!prv) return NULL;
                 prvobj = (ProvidesObject *)prv;
 
@@ -918,8 +777,14 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
             /* if not req: */
             if (!req) {
-                /* req = self.Requires(*args) */
-                req = PyObject_CallObject(self->Requires, args);
+                if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
+                    PyErr_SetString(PyExc_ValueError, "invalid reqargs tuple");
+                    return NULL;
+                }
+                /* req = args[0](*args[1:]) */
+                callargs = PyTuple_GetSlice(args, 1, PyTuple_GET_SIZE(args));
+                req = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
+                Py_DECREF(callargs);
                 if (!req) return NULL;
                 reqobj = (DependsObject *)req;
 
@@ -976,8 +841,14 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
             /* if not obs: */
             if (!obs) {
-                /* obs = self.Obsoletes(*args) */
-                obs = PyObject_CallObject(self->Obsoletes, args);
+                if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
+                    PyErr_SetString(PyExc_ValueError, "invalid obsargs tuple");
+                    return NULL;
+                }
+                /* obs = args[0](*args[1:]) */
+                callargs = PyTuple_GetSlice(args, 1, PyTuple_GET_SIZE(args));
+                obs = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
+                Py_DECREF(callargs);
                 if (!obs) return NULL;
                 obsobj = (DependsObject *)obs;
 
@@ -1034,8 +905,14 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
             /* if not cnf: */
             if (!cnf) {
-                /* cnf = self.Conflicts(*args) */
-                cnf = PyObject_CallObject(self->Conflicts, args);
+                if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
+                    PyErr_SetString(PyExc_ValueError, "invalid cnfargs tuple");
+                    return NULL;
+                }
+                /* cnf = args[0](*args[1:]) */
+                callargs = PyTuple_GetSlice(args, 1, PyTuple_GET_SIZE(args));
+                cnf = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
+                Py_DECREF(callargs);
                 if (!cnf) return NULL;
                 cnfobj = (DependsObject *)cnf;
 
@@ -1165,6 +1042,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
 {
     PackageObject *pkgobj;
     PyObject *pkg;
+    PyObject *prvclass;
     PyObject *name;
     PyObject *version = Py_None;
 
@@ -1181,7 +1059,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
     }
     cache = (CacheObject *)self->_cache;
 
-    if (!PyArg_ParseTuple(_args, "OO!|O!", &pkg,
+    if (!PyArg_ParseTuple(_args, "OOO!|O!", &pkg, &prvclass,
                           &PyString_Type, &name, &PyString_Type, &version))
         return NULL;
 
@@ -1191,15 +1069,23 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
         return NULL;
     }
 
+    if (!PyObject_IsSubclass(prvclass, (PyObject *)&Provides_Type)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "second argument must be a Provides subclass");
+        return NULL;
+    }
+
     pkgobj = (PackageObject *)pkg;
 
-    /* args = (name, version) */
-    args = PyTuple_New(2);
+    /* args = (prvclass, name, version) */
+    args = PyTuple_New(3);
     if (!args) return NULL;
+    Py_INCREF(prvclass);
     Py_INCREF(name);
     Py_INCREF(version);
-    PyTuple_SetItem(args, 0, name);
-    PyTuple_SetItem(args, 1, version);
+    PyTuple_SET_ITEM(args, 0, prvclass);
+    PyTuple_SET_ITEM(args, 1, name);
+    PyTuple_SET_ITEM(args, 2, version);
     
     /* prv = cache._prvmap.get(args) */
     prv = PyDict_GetItem(cache->_prvmap, args);
@@ -1207,8 +1093,8 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
 
     /* if not prv: */
     if (!prv) {
-        /* prv = self.Provides(*args) */
-        prv = PyObject_CallObject(self->Provides, args);
+        /* prv = prvclass(name, version) */
+        prv = PyObject_CallFunction(prvclass, "(OO)", name, version);
         if (!prv) goto error;
         prvobj = (ProvidesObject *)prv;
 
@@ -1283,11 +1169,14 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
                                 PyList_SetSlice(lst, j, j+1, NULL);
                         }
                     }
-                    reqargs = PyTuple_New(3);
-                    /* reqargs = (req.name, req.version, req.relation) */
-                    PyTuple_SetItem(reqargs, 0, reqobj->name);
-                    PyTuple_SetItem(reqargs, 1, reqobj->version);
-                    PyTuple_SetItem(reqargs, 2, reqobj->relation);
+                    /* reqargs = (req.__class__,
+                                  req.name, req.version, req.relation) */
+                    reqargs = PyTuple_New(4);
+                    PyTuple_SetItem(reqargs, 0,
+                                    PyObject_GetAttrString(req, "__class__"));
+                    PyTuple_SetItem(reqargs, 1, reqobj->name);
+                    PyTuple_SetItem(reqargs, 2, reqobj->version);
+                    PyTuple_SetItem(reqargs, 3, reqobj->relation);
                     /* del cache._reqmap[reqargs] */
                     PyDict_DelItem(cache->_reqmap, reqargs);
                 }
@@ -1323,11 +1212,6 @@ static PyMemberDef Loader_members[] = {
     {"_cache", T_OBJECT, OFF(_cache), RO, "Cache object"},
     {"_packages", T_OBJECT, OFF(_packages), RO, "Package list"},
     {"_installed", T_OBJECT, OFF(_installed), RO, "Installed flag"},
-    {"Package", T_OBJECT, OFF(Package), 0, "Package class"},
-    {"Provides", T_OBJECT, OFF(Provides), 0, "Provides class"},
-    {"Requires", T_OBJECT, OFF(Requires), 0, "Requires class"},
-    {"Obsoletes", T_OBJECT, OFF(Obsoletes), 0, "Obsoletes class"},
-    {"Conflicts", T_OBJECT, OFF(Conflicts), 0, "Conflicts class"},
     {NULL}
 };
 #undef OFF
