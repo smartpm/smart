@@ -31,6 +31,9 @@ from smart import *
 import pwd
 import os
 
+# Avoid segfault due to strange linkage order. Remove this ASAP.
+import pyexpat
+
 USAGE=_("smart command [options] [arguments]")
 
 DESCRIPTION=_("""
