@@ -57,6 +57,7 @@ gpt channel --show
 gpt channel --show mychannel > mychannel.txt
 gpt channel --add ./mychannel.txt
 gpt channel --add http://some.url/mychannel.txt
+gpt channel --add /mnt/cdrom
 """
 
 def build_types():
@@ -96,10 +97,12 @@ def parse_options(argv):
     parser.defaults["disable"] = []
     parser.defaults["show"] = None
     parser.add_option("--add", action="callback", callback=append_all,
-                      help="argument is either an alias and one or more "
+                      help="argument is an alias and one or more "
                            "key=value pairs defining a channel, or a "
                            "filename/url pointing to a channel description "
-                           "in the same format used by --show")
+                           "in the same format used by --show, or a "
+                           "directory path where autodetection will be "
+                           "tried")
     parser.add_option("--set", action="callback", callback=append_all,
                       help="argument is an alias, and one or more key=value "
                            "pairs modifying a channel")
@@ -116,10 +119,6 @@ def parse_options(argv):
                       help="execute without asking")
     parser.add_option("--help-type", action="store", metavar="TYPE",
                       help="show further information about given type")
-    parser.add_option("--detect", action="store", metavar="PATH",
-                      help="detect local channels in given path")
-    parser.add_option("--detect-media", action="store_true",
-                      help="detect channels in local medias")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -143,25 +142,36 @@ def main(opts, ctrl):
 
         if len(opts.add) == 1:
             arg = opts.add[0]
-            if os.path.isfile(arg):
+            if os.path.isdir(arg):
+                newchannels = detectLocalChannels(arg)
+            elif os.path.isfile(arg):
+                newchannels = []
                 data = open(arg).read()
-                newchannels = parseChannelsDescription(data)
+                descriptions = parseChannelsDescription(data)
+                for alias in descriptions:
+                    channel = descriptions[alias]
+                    channel["alias"] = alias
+                    newchannels.append(channel)
             elif ":/" in arg:
                 succ, fail = ctrl.downloadURLs([arg], "channel description")
                 if fail:
                     raise Error, "Unable to fetch channel description: %s" \
                                  % fail[arg]
                 data = open(succ[arg]).read()
-                newchannels = parseChannelsDescription(data)
+                newchannels = []
+                descriptions = parseChannelsDescription(data)
+                for alias in descriptions:
+                    channel = descriptions[alias]
+                    channel["alias"] = alias
+                    newchannels.append(channel)
                 os.unlink(succ[arg])
             else:
                 raise Error, "File not found: %s" % arg
         else:
-            newchannels = {}
-            channel = {}
             alias = opts.add.pop(0).strip()
             if not alias:
                 raise Error, "Channel has no alias"
+            channel = {"alias": alias}
             for arg in opts.add:
                 if "=" not in arg:
                     raise Error, "Argument '%s' has no '='" % arg
@@ -169,36 +179,49 @@ def main(opts, ctrl):
                 channel[key.strip()] = value.strip()
             if "type" not in channel:
                 raise Error, "Channel has no type"
+            newchannels = [channel]
 
-            newchannels[alias] = channel
-
-        for alias in newchannels:
-            channel = newchannels[alias]
+        newaliases = []
+        for channel in newchannels:
             type = channel.get("type")
-            desc = createChannelDescription(type, alias, channel)
-            if not desc:
-                continue
             if not opts.force:
+                info = getChannelInfo(type)
                 print
-                print desc
+                for field, name, descr in DEFAULTFIELDS:
+                    if field in channel:
+                        print "%s: %s" % (name, channel[field])
+                for field, name, descr in info.fields:
+                    if field in channel:
+                        print "%s: %s" % (name, channel[field])
                 print
-                res = raw_input("Include this channel (y/N)? ").strip()
-            if opts.force or res and res[0].lower() == "y":
+            if opts.force or iface.askYesNo("Include this channel"):
                 try:
-                    createChannel(type, alias, channel)
+                    createChannel(type, "alias", channel)
                 except Error, e:
                     iface.error("Invalid channel: %s" % e)
                 else:
                     try:
-                        while alias in channels:
-                            iface.info("Channel alias '%s' is already in use."
-                                       % alias)
-                            res = raw_input("Choose another one: ").strip()
-                            if res:
-                                alias = res
+                        alias = channel.get("alias")
+                        while not alias or alias in channels:
+                            if alias:
+                                print "Channel alias '%s' is already in use." \
+                                      % alias
+                            alias = raw_input("Channel alias: ").strip()
+                        if "alias" in channel:
+                            del channel["alias"]
                         channels[alias] = channel
+                        newaliases.append(alias)
                     except KeyboardInterrupt:
-                        pass
+                        print
+
+        removable = [x for x in newaliases if channels[x].get("removable")]
+        if removable:
+            print
+            print "Updating removable channels..."
+            print
+            import update
+            updateopts = update.parse_options(removable)
+            update.main(updateopts, ctrl)
 
     if opts.set:
 
@@ -274,96 +297,5 @@ def main(opts, ctrl):
             if desc:
                 print desc
                 print
-
-    if opts.detect or opts.detect_media:
-
-        def getFieldName(field, info):
-            for key, name, descr in DEFAULTFIELDS:
-                if key == field:
-                    return name
-            for key, name, descr in info.fields:
-                if key == field:
-                    return name
-            return field
-
-        paths = []
-
-        if opts.detect:
-            paths.append(opts.detect)
-
-        mediaset = None
-        if opts.detect_media:
-            mediaset = MediaSet()
-            mediaset.mountAll()
-            for media in mediaset:
-                paths.append(media.getMountPoint())
-
-        aliases = []
-        foundchannel = False
-        for path in paths:
-
-            for channel in detectLocalChannels(path):
-
-                type = channel["type"]
-
-                foundchannel = True
-
-                info = getChannelInfo(type)
-
-                print
-                print "Channel of type '%s' detected:" % type
-                print
-                for field, name, descr in DEFAULTFIELDS:
-                    if field == "type":
-                        continue
-                    if field in channel:
-                        print "%s: %s" % (name, channel[field])
-                for field, name, descr in info.fields:
-                    if field == "type":
-                        continue
-                    if field in channel:
-                        print "%s: %s" % (name, channel[field])
-                print
-                if opts.force or iface.askYesNo("Include this channel"):
-                    alias = channel.get("alias")
-                    while not alias:
-                        res = raw_input("Channel alias: ").strip()
-                        if res in channels:
-                            print "Channel alias '%s' is already in use." % res
-                        else:
-                            alias = res
-                    if "alias" in channel:
-                        del channel["alias"]
-
-                    name = channel.get("name")
-                    if not name:
-                        name = raw_input("Channel name: ").strip()
-                        if name:
-                            channel["name"] = name
-                    
-                    try:
-                        aliases.append(alias)
-                        createChannel(type, alias, channel)
-                    except Error, e:
-                        iface.error("Invalid channel: %s" % e)
-                    else:
-                        channels[alias] = channel
-
-                    print
-
-        if aliases:
-            ctrl.reloadSysConfChannels()
-            channels = [x for x in ctrl.getChannels()
-                        if x.getAlias() in aliases]
-
-            # First, load current cache to keep track of new packages.
-            ctrl.updateCache()
-            ctrl.updateCache(channels, caching=NEVER)
-
-        if not foundchannel:
-            print "No new channels found."
-            
-        if mediaset:
-            mediaset.restoreState()
 
 # vim:ts=4:sw=4:et

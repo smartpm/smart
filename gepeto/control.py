@@ -93,6 +93,12 @@ class Control(object):
     def getFetcher(self):
         return self._fetcher
 
+    def getMediaSet(self):
+        return self._mediaset
+
+    def restoreMediaState(self):
+        self._mediaset.restoreState()
+
     def loadCache(self):
         self._cache.load()
 

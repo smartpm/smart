@@ -104,6 +104,7 @@ def main(argv):
             command.main(opts, ctrl)
         iface.finish()
         ctrl.saveSysConf()
+        ctrl.restoreMediaState()
     except Error, e:
         if opts.log_level == "debug":
             import traceback
