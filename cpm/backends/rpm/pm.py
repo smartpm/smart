@@ -10,8 +10,7 @@ class RPMPackageManager(PackageManager):
     def commit(self, install, remove, pkgpath):
 
         prog = self.getProgress()
-        prog.start()
-        prog.setHasSub(True)
+        prog.start(True)
         prog.setTopic("Committing transaction...")
         prog.show()
 

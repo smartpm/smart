@@ -129,8 +129,7 @@ class Fetcher(object):
         if total == 0:
             return
         prog = self._progress
-        prog.start()
-        prog.setHasSub(True)
+        prog.start(True)
         prog.setTopic("Fetching %s..." % what)
         prog.set(0, total)
         prog.show()

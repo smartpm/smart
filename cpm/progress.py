@@ -18,25 +18,18 @@ class Progress:
         self._lasttime = 0
         self._lock = thread.allocate_lock()
 
-    def start(self):
-        pass
+    def start(self, hassub=False):
+        self._hassub = hassub
 
     def stop(self):
         self._topic = ""
         self._progress = (0, 0, {})
         self._lastshown = None
-        self._hassub = False
         self._subtopic.clear()
         self._subprogress.clear()
         self._sublastshown.clear()
         self._subdone.clear()
         self._lasttime = 0
-
-    def setHasSub(self, flag):
-        self._hassub = flag
-
-    def getHasSub(self):
-        return self._hassub
 
     def show(self):
         now = time.time()
@@ -246,9 +239,8 @@ def test():
     prog = RPMStyleProgress()
     data = {"item-number": 0}
     total, subtotal = 100, 100
-    prog.start()
+    prog.start(True)
     prog.setTopic("Installing packages...")
-    prog.setHasSub(True)
     for n in range(1,total+1):
         data["item-number"] = n
         prog.set(n, total)
