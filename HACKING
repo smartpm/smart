@@ -2,9 +2,10 @@
 Code Conventions
 ----------------
 
+- Classes must be new-style, and named LikeThis.
+- Functions and methods are named likeThis().
 - Variables and attributes are named likethis.
 - Private and protected attributes are named _likethis.
 - Private methods where name clashing with subclasses is probable
   (e.g. Progress) are named __likethis.
-- Methods are named likeThis().
-- All classes must be new-style.
+- Identation is 4 expanded spaces.
