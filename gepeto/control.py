@@ -27,7 +27,8 @@ from gepeto.fetcher import Fetcher
 from gepeto.cache import Cache
 from gepeto.const import *
 from gepeto import *
-import os, md5
+import sys, os
+import md5
 
 class Control(object):
 
@@ -202,6 +203,17 @@ class Control(object):
             fetcher.enqueue(url)
         fetcher.run(what=what)
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
+
+    def dumpURLs(self, trans, output=None):
+        if output is None:
+            output = sys.stderr
+        changeset = trans.getChangeSet()
+        for pkg in changeset:
+            if changeset[pkg] is INSTALL:
+                loader = [x for x in pkg.loaders if not x.getInstalled()][0]
+                info = loader.getInfo(pkg)
+                for url in info.getURLs():
+                    print >>output, url
 
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
         if not confirm or iface.confirmTransaction(trans):

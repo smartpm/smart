@@ -32,6 +32,8 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")
+    parser.add_option("--dump-urls", action="store_true",
+                      help="dump needed urls and don't commit operation")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -58,7 +60,9 @@ def main(opts, ctrl):
         iface.showStatus("No interesting upgrades available!")
     else:
         iface.hideStatus()
-        if opts.stepped:
+        if opts.dump_urls:
+            ctrl.dumpURLs(trans)
+        elif opts.stepped:
             ctrl.commitTransactionStepped(trans)
         else:
             ctrl.commitTransaction(trans)

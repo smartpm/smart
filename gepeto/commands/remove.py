@@ -31,6 +31,10 @@ USAGE="gpt remove [options] packages"
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
     opts, args = parser.parse_args(argv)
+    parser.add_option("--stepped", action="store_true",
+                      help="split operation in steps")
+    parser.add_option("--dump-urls", action="store_true",
+                      help="dump needed urls and don't commit operation")
     opts.args = args
     return opts
 
@@ -51,6 +55,11 @@ def main(opts, ctrl):
     trans.run()
     iface.hideStatus()
     if trans:
-        ctrl.commitTransaction(trans)
+        if opts.dump_urls:
+            ctrl.dumpURLs(trans)
+        elif opts.stepped:
+            ctrl.commitTransactionStepped(trans)
+        else:
+            ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
