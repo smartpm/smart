@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.backends.deb.debver import vercmp, checkdep
+from smart.backends.deb.debver import vercmp, checkdep, splitrelease
 from smart.backends.deb.pm import DebPackageManager
 from smart.util.strtools import isGlob
 from smart.cache import *
