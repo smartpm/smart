@@ -1,4 +1,5 @@
 from cpm.const import OPTIONAL, ALWAYS, NEVER
+from cpm.uncompress import Uncompressor
 from cpm.progress import Progress
 from cpm import *
 import tempfile
@@ -14,11 +15,16 @@ class Fetcher(object):
 
     def __init__(self):
         self._progress = Progress()
+        self._uncompressor = Uncompressor()
+        self._uncompressing = 0
         self._localdir = tempfile.gettempdir()
         self._mangle = False
         self._caching = OPTIONAL
         self._handlers = {}
         self.reset()
+
+    def getUncompressor(self):
+        return self._uncompressor
 
     def reset(self):
         self._validators = {}
@@ -52,10 +58,22 @@ class Fetcher(object):
     def setSucceeded(self, url, localpath):
         self._succeeded[url] = localpath
 
-    def setInfo(self, url, size=None, md5=None, sha=None):
-        if md5: md5 = md5.lower()
-        if sha: sha = sha.lower()
-        self._info[url] = {"size": size, "md5": md5, "sha": sha}
+    def setInfo(self, url, **info):
+        # Known used info kinds:
+        #
+        # - md5, sha: file digest
+        # - size: file size
+        # - uncomp: Whether to uncompress or not
+        # - uncomp_{md5,sha,size}: uncompressed equivalents
+        #
+        for kind in ("md5", "sha", "uncomp_md5", "uncomp_sha"):
+            value = info.get(kind)
+            if value:
+                info[kind] = value.lower()
+        try:
+            self._info[url].update(info)
+        except KeyError:
+            self._info[url] = info
 
     def getInfo(self, url, kind, default=None):
         return self._info.get(url, {}).get(kind, default)
@@ -104,10 +122,6 @@ class Fetcher(object):
         handlers = self._handlers.values()
         self.runLocal()
         if self._caching is ALWAYS:
-            for handler in handlers:
-                for url in handler.getQueue()[:]:
-                    handler.dequeue(url)
-                    self.setFailed(url, "local file not found")
             return
         prog = self._progress
         prog.reset()
@@ -119,13 +133,48 @@ class Fetcher(object):
         for handler in handlers:
             handler.start()
         active = handlers[:]
-        while active:
+        uncomp = self._uncompressor
+        uncompchecked = {}
+        while active or self._uncompressing:
             for handler in active[:]:
                 if not handler.tick():
                     active.remove(handler)
+            for url in self._succeeded:
+                if not self.getInfo(url, "uncomp"):
+                    continue
+                localpath = self._succeeded[url]
+                if localpath in uncompchecked:
+                    continue
+                uncompchecked[localpath] = True
+                uncomphandler = uncomp.getHandler(localpath)
+                if not uncomphandler:
+                    continue
+                uncomppath = uncomphandler.getTargetPath(localpath)
+                if (not self.hasStrongValidate(url, uncomp=True) or
+                    not self.validate(url, uncomppath, uncomp=True)):
+                    self._uncompressing += 1
+                    thread.start_new_thread(self._uncompress,
+                                            (url, localpath,
+                                             uncomphandler))
             time.sleep(0.1)
         for handler in handlers:
             handler.stop()
+
+    def _uncompress(self, url, localpath, uncomphandler):
+        try:
+            uncomphandler.uncompress(localpath)
+        except Error, e:
+            del self._succeeded[url]
+            self.setFailed(url, str(e))
+        else:
+            uncomppath = uncomphandler.getTargetPath(localpath)
+            valid, reason = self.validate(url, uncomppath,
+                                          withreason=True, uncomp=True)
+            if not valid:
+                self.setFailed(url, reason)
+            else:
+                self.setSucceeded(url, uncomppath)
+        self._uncompressing -= 1
 
     def setHandler(self, scheme, klass):
         self._registry[scheme] = klass
@@ -146,17 +195,32 @@ class Fetcher(object):
             self._handlers[scheme] = handler
         return handler
 
-    def validate(self, url, localpath, withreason=False):
+    def hasStrongValidate(self, url, uncomp=False):
+        if uncomp:
+            prefix = "uncomp_"
+        else:
+            prefix = ""
+        info = self._info.get(url)
+        return info and (info.get(prefix+"md5") or info.get(prefix+"sha"))
+
+    def validate(self, url, localpath, withreason=False, uncomp=False):
         try:
             if not os.path.isfile(localpath):
                 raise Error, "file not found"
-            size = self.getInfo(url, "size")
+
+            if uncomp:
+                uncompprefix = "uncomp_"
+            else:
+                uncompprefix = ""
+
+            size = self.getInfo(url, uncompprefix+"size")
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
                     raise Error, "unexpected size (expected %d, got %d)" % \
                                  (size, lsize)
-            filemd5 = self.getInfo(url, "md5")
+
+            filemd5 = self.getInfo(url, uncompprefix+"md5")
             if filemd5:
                 import md5
                 digest = md5.md5()
@@ -170,7 +234,7 @@ class Fetcher(object):
                     raise Error, "invalid MD5 (expected %s, got %s)" % \
                                  (filemd5, lfilemd5)
             else:
-                filesha = self.getInfo(url, "sha")
+                filesha = self.getInfo(url, uncompprefix+"sha")
                 if filesha:
                     import sha
                     digest = sha.sha()
@@ -252,7 +316,8 @@ class URL(object):
             url += self.query
         return url
 
-class Handler(object):
+
+class FetcherHandler(object):
     def __init__(self, fetcher, progress):
         self._fetcher = fetcher
         self._progress = progress
@@ -277,39 +342,86 @@ class Handler(object):
     def tick(self):
         return False
 
-    def runLocal(self):
+    def getLocalPath(self, url):
+        return self._fetcher.getLocalPath(url)
+
+    def runLocal(self, caching=None):
         fetcher = self._fetcher
-        if fetcher.getCaching() is not NEVER:
+        if not caching:
+            caching = fetcher.getCaching()
+        if caching is not NEVER:
+            uncompressor = fetcher.getUncompressor()
             for i in range(len(self._queue)-1,-1,-1):
                 url = self._queue[i]
-                localpath = fetcher.getLocalPath(url)
-                if fetcher.validate(url, localpath):
+                localpath = self.getLocalPath(url)
+                uncomphandler = uncompressor.getHandler(localpath)
+                if uncomphandler and fetcher.getInfo(url, "uncomp"):
+                    uncomppath = uncomphandler.getTargetPath(localpath)
+                    valid, reason = fetcher.validate(url, uncomppath,
+                                                     withreason=True,
+                                                     uncomp=True)
+                    if valid and not fetcher.hasStrongValidate(url, True):
+                        valid, reason = fetcher.validate(url, localpath,
+                                                         withreason=True)
+                    localpath = uncomppath
+                else:
+                    valid, reason = fetcher.validate(url, localpath,
+                                                     withreason=True)
+                if valid:
                     del self._queue[i]
                     fetcher.setSucceeded(url, localpath)
+                elif caching is ALWAYS:
+                    del self._queue[i]
+                    fetcher.setFailed(url, reason)
 
-class FileHandler(Handler):
+class FileHandler(FetcherHandler):
+
+    def getLocalPath(self, url):
+        return URL(url).path
 
     def runLocal(self):
+        # First, handle compressed files without uncompressed
+        # versions available.
         fetcher = self._fetcher
-        for url in self._queue:
-            urlobj = URL(url)
-            valid, reason = fetcher.validate(url, urlobj.path, True)
-            if valid:
-                fetcher.setSucceeded(url, urlobj.path)
-            else:
-                fetcher.setFailed(url, reason)
-        del self._queue[:]
+        uncompressor = fetcher.getUncompressor()
+        for i in range(len(self._queue)-1,-1,-1):
+            url = self._queue[i]
+            localpath = self.getLocalPath(url)
+            uncomphandler = uncompressor.getHandler(localpath)
+            if (uncomphandler and not
+                os.path.isfile(uncomphandler.getTargetPath(localpath))):
+                valid, reason = fetcher.validate(url, localpath,
+                                                 withreason=True)
+                if valid:
+                    linkpath = self._fetcher.getLocalPath(url)
+                    if os.path.isfile(linkpath):
+                        os.unlink(linkpath)
+                    os.symlink(localpath, linkpath)
+                    uncomppath = uncomphandler.getTargetPath(linkpath)
+                    uncomphandler.uncompress(linkpath)
+                    valid, reason = fetcher.validate(url, uncomppath,
+                                                     withreason=True,
+                                                     uncomp=True)
+                    os.unlink(linkpath)
+                if valid:
+                    fetcher.setSucceeded(url, uncomppath)
+                else:
+                    fetcher.setFailed(url, reason)
+                del self._queue[i]
+
+        # Then, everything else.
+        FetcherHandler.runLocal(self, caching=ALWAYS)
 
 Fetcher.setHandler("file", FileHandler)
 
-class FTPHandler(Handler):
+class FTPHandler(FetcherHandler):
 
     MAXACTIVE = 5
     MAXINACTIVE = 5
     MAXPERHOST = 2
 
     def __init__(self, *args):
-        Handler.__init__(self, *args)
+        FetcherHandler.__init__(self, *args)
         self._active = {}   # ftp -> host
         self._inactive = {} # ftp -> (user, host, port)
         self._lock = thread.allocate_lock()
@@ -380,7 +492,7 @@ class FTPHandler(Handler):
         try:
             ftp.cwd(os.path.dirname(urlobj.path))
             filename = os.path.basename(urlobj.path)
-            localpath = fetcher.getLocalPath(url)
+            localpath = self.getLocalPath(url)
 
             mtime = None
             total = None
@@ -442,7 +554,8 @@ class FTPHandler(Handler):
 
                 os.rename(localpathpart, localpath)
 
-                valid, reason = fetcher.validate(url, localpath, True)
+                valid, reason = fetcher.validate(url, localpath,
+                                                 withreason=True)
                 if not valid:
                     if openmode == "a":
                         # Try again, from the very start.
@@ -484,7 +597,7 @@ class FTPHandler(Handler):
 
 Fetcher.setHandler("ftp", FTPHandler)
 
-class URLLIB2Handler(Handler):
+class URLLIB2Handler(FetcherHandler):
 
     MAXACTIVE = 1 # urllib2 is not thread safe
     USECACHEDFTP = True
@@ -492,13 +605,16 @@ class URLLIB2Handler(Handler):
     _openerinstalled = False
 
     def __init__(self, *args):
-        Handler.__init__(self, *args)
+        FetcherHandler.__init__(self, *args)
         if not URLLIB2Handler._openerinstalled:
             from cpm.util import urllib2
             URLLIB2Handler._openerinstalled = True
+            handlerlist = []
             if self.USECACHEDFTP:
-                opener = urllib2.build_opener(urllib2.CacheFTPHandler)
-                urllib2.install_opener(opener)
+                handlerlist.append(urllib2.CacheFTPHandler)
+            handlerlist.append(urllib2.GopherHandler)
+            opener = urllib2.build_opener(urllib2.CacheFTPHandler)
+            urllib2.install_opener(opener)
         self._active = 0
         self._lock = thread.allocate_lock()
 
@@ -535,7 +651,7 @@ class URLLIB2Handler(Handler):
 
             try:
 
-                localpath = fetcher.getLocalPath(url)
+                localpath = self.getLocalPath(url)
                 current = 0
                 total = None
 
@@ -600,7 +716,8 @@ class URLLIB2Handler(Handler):
 
                 os.rename(localpathpart, localpath)
 
-                valid, reason = fetcher.validate(url, localpath, True)
+                valid, reason = fetcher.validate(url, localpath,
+                                                 withreason=True)
                 if not valid:
                     if openmode == "a":
                         # Try again, from the very start.
@@ -649,7 +766,7 @@ Fetcher.setHandler("http", URLLIB2Handler)
 Fetcher.setHandler("https", URLLIB2Handler)
 Fetcher.setHandler("gopher", URLLIB2Handler)
 
-class PyCurlHandler(Handler):
+class PyCurlHandler(FetcherHandler):
 
     MAXACTIVE = 5
     MAXINACTIVE = 5
@@ -657,7 +774,7 @@ class PyCurlHandler(Handler):
 
     def __init__(self, *args):
         import pycurl
-        Handler.__init__(self, *args)
+        FetcherHandler.__init__(self, *args)
         self._active = {}   # handle -> (scheme, host)
         self._inactive = {} # handle -> (user, host, port)
         self._multi = pycurl.CurlMulti()
@@ -711,8 +828,8 @@ class PyCurlHandler(Handler):
                 userhost = (urlobj.user, urlobj.host, urlobj.port)
                 self._inactive[handle] = userhost
 
-                valid, reason = fetcher.validate(urlobj.original,
-                                                 localpath, True)
+                valid, reason = fetcher.validate(urlobj.original, localpath,
+                                                 withreason=True)
                 if valid:
                     fetcher.setSucceeded(urlobj.original, localpath)
                 elif handle.resuming:
@@ -770,7 +887,7 @@ class PyCurlHandler(Handler):
                             handle = pycurl.Curl()
                             self._active[handle] = schemehost
 
-                        localpath = fetcher.getLocalPath(url)
+                        localpath = self.getLocalPath(url)
                         localpathpart = localpath+".part"
 
                         size = fetcher.getInfo(url, "size")
@@ -861,13 +978,13 @@ else:
         if scheme != "file":
             Fetcher.setHandler(scheme, PyCurlHandler)
 
-class SCPHandler(Handler):
+class SCPHandler(FetcherHandler):
 
     MAXACTIVE = 5
     MAXPERHOST = 2
 
     def __init__(self, *args):
-        Handler.__init__(self, *args)
+        FetcherHandler.__init__(self, *args)
         self._active = [] # urlobj
         self._lock = thread.allocate_lock()
 
@@ -920,7 +1037,7 @@ class SCPHandler(Handler):
         ssh = SSH(urlobj.user, urlobj.host, urlobj.passwd)
 
         try:
-            localpath = fetcher.getLocalPath(url)
+            localpath = self.getLocalPath(url)
 
             mtime = None
             total = None
@@ -955,7 +1072,8 @@ class SCPHandler(Handler):
                 if mtime:
                     os.utime(localpath, (mtime, mtime))
 
-                valid, reason = fetcher.validate(url, localpath, True)
+                valid, reason = fetcher.validate(url, localpath,
+                                                 withreason=True)
                 if not valid:
                     raise Error, reason
 

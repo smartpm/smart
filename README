@@ -42,4 +42,16 @@ Downloading system:
 - Multi-threaded
 - Download resuming
 - Timestamp checking
+- Parallel threaded uncompression
+- Natively supported schemes:
+	- file
+	- ftp
+	- http
+	- https
+	- scp
+- Additional schemes when pycurl is available:
+	- ftps
+	- telnet
+	- dict
+	- ldap
 

@@ -53,7 +53,8 @@ def main(argv):
             import traceback
             traceback.print_exc()
             sys.exit(1)
-        sys.stderr.write("\nerror: %s\n" % str(e))
+        for line in str(e).split("\n"):
+            sys.stderr.write("\nerror: %s\n" % str(e))
         sys.exit(1)
     except KeyboardInterrupt:
         if opts.log_level == "debug":

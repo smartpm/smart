@@ -47,10 +47,36 @@ class RPMPackageManager(PackageManager):
                     version = version[version.find(":")+1:]
                 version, arch = splitarch(version)
                 ts.addErase("%s-%s" % (pkg.name, version))
+        probs = ts.check()
+        if probs:
+            problines = []
+            for prob in probs:
+                name1 = "%s-%s-%s" % prob[0]
+                name2, version = prob[1]
+                if version:
+                    sense = prob[2]
+                    name2 += " "
+                    if sense & rpm.RPMSENSE_LESS:
+                        name2 += "<"
+                    elif sense & rpm.RPMSENSE_GREATER:
+                        name2 += ">"
+                    if sense & rpm.RPMSENSE_EQUAL:
+                        name2 += "="
+                    name2 += " "
+                    name2 += version
+                if prob[4] & rpm.RPMDEP_SENSE_REQUIRES:
+                    line = "%s is required by %s" % (name1, name2)
+                else:
+                    line = "%s conflicts with %s" % (name1, name2)
+                problines.append(line)
+            raise Error, "\n".join(problines)
         ts.order()
+        ts.setProbFilter(0)
         prog.set(0, packages)
         cb = RPMCallback(prog)
-        ts.run(cb, None)
+        probs = ts.run(cb, None)
+        if probs:
+            raise Error, "\n".join([x[0] for x in probs])
 
 class RPMCallback:
     def __init__(self, prog):
@@ -91,3 +117,4 @@ class RPMCallback:
             self.prog.setSubDone(infopath)
             self.prog.show()
 
+# vim:ts=4:sw=4:et

@@ -14,6 +14,7 @@ class RPMHeaderListRepository(Repository):
     def fetch(self, fetcher):
         fetcher.reset()
         fetcher.enqueue(self._hdlurl)
+        fetcher.setInfo(self._hdlurl, uncomp=True)
         fetcher.run("header list for '%s'" % self._name)
         failed = fetcher.getFailedSet()
         if failed:

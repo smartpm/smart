@@ -52,14 +52,26 @@ class APTRPMRepository(Repository):
         for comp in self._comps:
             pkglist = "base/pkglist."+comp
             url = posixpath.join(self._baseurl, pkglist)
-            urlcomp[url] = comp
-            try:
-                md5, size = md5sum[pkglist]
-            except KeyError:
+            if pkglist+".bz2" in md5sum:
+                upkglist = pkglist
+                pkglist += ".bz2"
+                url += ".bz2"
+            elif pkglist+".gz" in md5sum:
+                upkglist = pkglist
+                pkglist += ".gz"
+                url += ".gz"
+            elif pkglist not in md5sum:
                 logger.warning("component '%s' is not in release file" % comp)
+                continue
             else:
-                fetcher.enqueue(url)
-                fetcher.setInfo(url, size=size, md5=md5)
+                upkglist = None
+            urlcomp[url] = comp
+            fetcher.enqueue(url)
+            info = {"uncomp": True}
+            info["md5"], info["size"] = md5sum[pkglist]
+            if upkglist:
+                info["uncomp_md5"], info["uncomp_size"] = md5sum[upkglist]
+            fetcher.setInfo(url, **info)
         fetcher.run("package lists for '%s'" % self._name)
         succeeded = fetcher.getSucceededSet()
         for url in urlcomp:

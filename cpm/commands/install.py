@@ -35,7 +35,6 @@ def main(opts):
         trans.install(pkg)
         policy.setLocked(pkg, True)
     trans.minimize()
-    print trans
-    #ctrl.commitTransaction(trans)
+    ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
