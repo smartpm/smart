@@ -20,15 +20,16 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.option import OptionParser
-from gepeto.const import VERSION
-from gepeto import init
-from gepeto import *
-import sys, os
-import pwd
-
+import sys
 if sys.version_info < (2, 3):
     sys.exit("error: python 2.3 or later required")
+
+from gepeto.const import VERSION, DEBUG
+from gepeto.option import OptionParser
+from gepeto import init
+from gepeto import *
+import pwd
+import os
 
 HELP = """\
 Usage: gpt command [options] [arguments]
@@ -82,6 +83,7 @@ def main(argv):
     # Get the right $HOME, even when using sudo.
     if os.getuid() == 0:
         os.environ["HOME"] = pwd.getpwuid(0)[5]
+    opts = None
     try:
         opts = parse_options(argv)
         ctrl = init(opts)
@@ -94,7 +96,6 @@ def main(argv):
                 commands = getattr(gepeto, "commands")
                 command = getattr(commands, opts.command)
             except (ImportError, AttributeError):
-                from gepeto.const import DEBUG
                 if opts.log_level == DEBUG:
                     import traceback
                     traceback.print_exc()
@@ -106,7 +107,7 @@ def main(argv):
         ctrl.saveSysConf()
         ctrl.restoreMediaState()
     except Error, e:
-        if opts.log_level == "debug":
+        if opts and opts.log_level == "debug":
             import traceback
             traceback.print_exc()
         if iface.object:
@@ -115,7 +116,7 @@ def main(argv):
             sys.stderr.write("error: %s\n" % e)
         sys.exit(1)
     except KeyboardInterrupt:
-        if opts.log_level == "debug":
+        if opts and opts.log_level == "debug":
             import traceback
             traceback.print_exc()
             sys.exit(1)
