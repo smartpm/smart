@@ -58,6 +58,17 @@ Repositories
 - Implement an "auto-repository", which downloads the needed info and
   uses that info to load one or more repositories (mirrors?).
 
+Remote systems
+--------------
+
+- Implement RemoteChannel, RemoteLoader, and RemotePackageManager.
+- Implement "daemon" command, which waits for connections, and when
+  connected, creates a local Control with the given channel
+  information, loads packages for the given channels, and sends
+  the loaded packages for being used in a remote loader. It also
+  handles downloading and committing packages to local a
+  PackageManager when instructed by a remote Control.
+
 Random
 ------
 
@@ -185,6 +196,10 @@ Manual of dpkg:
 
 http://sistemac.carnet.hr/paketi/dpkg-full/
 
+About ordering:
+
+http://lists.debian.org/deity/1998/03/msg00036.html
+
 Slackware repository
 --------------------
 
@@ -233,6 +248,7 @@ High level interface
 
 - Implement a higher level interface for package selection.
 
+http://geeklog.eyesopened.nl/ubdates/
 http://bugzilla.conectiva.com.br/show_bug.cgi?id=11124
 http://fedora.redhat.com/projects/anaconda-installer/images/screenshot-0002.png
 http://people.debian.org/~mvo/synaptic/ideas/synaptic-app-idea2.png

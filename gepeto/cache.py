@@ -70,17 +70,20 @@ class Package(object):
                 channelpriority = priority
         return channelpriority+self.priority
 
+    def __repr__(self):
+        return str(self)
+
     def __str__(self):
         return "%s-%s" % (self.name, self.version)
 
-    def __cmp__(self, other):
-        # Basic comparison. Should be overloaded.
+    def __lt__(self, other):
+        # This is used for sorting, and should be overloaded.
         rc = -1
         if isinstance(other, Package):
             rc = cmp(self.name, other.name)
             if rc == 0:
                 rc = cmp(self.version, other.version)
-        return rc
+        return rc == -1
 
 class PackageInfo(object):
     def __init__(self, package):

@@ -19,8 +19,8 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#from gepeto.backends.deb.pm import DebPackageManager
 from gepeto.backends.deb.debver import vercmp, checkdep
+from gepeto.backends.deb.pm import DebPackageManager
 from gepeto.util.strtools import isGlob
 from gepeto.matcher import Matcher
 from gepeto.cache import *
@@ -115,7 +115,7 @@ class DebMatcher(Matcher):
 
 class DebPackage(Package):
 
-    packagemanager = None
+    packagemanager = DebPackageManager
     matcher = DebMatcher
 
     def matches(self, relation, version):
@@ -123,13 +123,13 @@ class DebPackage(Package):
             return True
         return checkdep(self.version, relation, version)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         rc = -1
         if type(other) is DebPackage:
             rc = cmp(self.name, other.name)
             if rc == 0 and self.version != other.version:
                 rc = vercmp(self.version, other.version)
-        return rc
+        return rc == -1
 
 class DebProvides(Provides): pass
 class DebNameProvides(DebProvides): pass

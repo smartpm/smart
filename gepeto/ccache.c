@@ -170,6 +170,12 @@ Package_dealloc(PackageObject *self)
 }
 
 static PyObject *
+Package_repr(PackageObject *self)
+{
+    return PyObject_Str((PyObject *)self);
+}
+
+static PyObject *
 Package_str(PackageObject *self)
 {
     if (!PyString_Check(self->name) || !PyString_Check(self->version)) {
@@ -180,16 +186,22 @@ Package_str(PackageObject *self)
     return PyString_FromFormat("%s-%s", STR(self->name), STR(self->version));
 }
 
-static int
-Package_compare(PackageObject *self, PackageObject *other)
+static PyObject *
+Package_richcompare(PackageObject *self, PackageObject *other, int op)
 {
     int rc = -1;
+    if (op == Py_EQ) {
+        return PyBool_FromLong(self == other);
+    } else if (op != Py_LT) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Package_Type)) {
         const char *self_name, *other_name;
         if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError,
                             "package name is not string");
-            return -1;
+            return NULL;
         }
         self_name = STR(self->name);
         other_name = STR(other->name);
@@ -200,14 +212,20 @@ Package_compare(PackageObject *self, PackageObject *other)
                 !PyString_Check(other->version)) {
                 PyErr_SetString(PyExc_TypeError,
                                 "package version is not string");
-                return -1;
+                return NULL;
             }
             self_version = STR(self->version);
             other_version = STR(other->version);
             rc = strcmp(self_version, other_version);
         }
     }
-    return rc > 0 ? 1 : ( rc < 0 ? -1 : 0);
+    if (rc == -1) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    } else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 }
 
 static PyObject *
@@ -381,12 +399,12 @@ statichere PyTypeObject Package_Type = {
 	0,			/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
-	(cmpfunc)Package_compare, /*tp_compare*/
-	0,			/*tp_repr*/
+	0,			/*tp_compare*/
+	(reprfunc)Package_repr,/*tp_repr*/
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
 	0,			/*tp_as_mapping*/
-	0,			/*tp_hash*/
+	(hashfunc)_Py_HashPointer, /*tp_hash*/
     0,                      /*tp_call*/
     (reprfunc)Package_str,  /*tp_str*/
     PyObject_GenericGetAttr,/*tp_getattro*/
@@ -396,7 +414,7 @@ statichere PyTypeObject Package_Type = {
     0,                      /*tp_doc*/
     0,                      /*tp_traverse*/
     0,                      /*tp_clear*/
-    0,                      /*tp_richcompare*/
+    (richcmpfunc)Package_richcompare, /*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
     0,                      /*tp_iternext*/

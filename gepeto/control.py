@@ -558,8 +558,8 @@ class ChannelSorter(object):
     def __init__(self, channel):
         self.channel = channel
     def __cmp__(self, other):
-        rc = -cmp(isinstance(self.channel, FileChannel),
-                  isinstance(other.channel, FileChannel))
+        rc = cmp(isinstance(self.channel, FileChannel),
+                 isinstance(other.channel, FileChannel))
         if rc == 0:
             rc = cmp(self.channel.isRemovable(), other.channel.isRemovable())
             if rc and sysconf.get("prefer-removable"):

@@ -101,13 +101,13 @@ class SlackPackage(Package):
             return True
         return False
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         rc = -1
         if type(other) is SlackPackage:
             rc = cmp(self.name, other.name)
             if rc == 0 and self.version != other.version:
                 rc = vercmp(self.version, other.version)
-        return rc
+        return rc == -1
 
 class SlackProvides(Provides): pass
 

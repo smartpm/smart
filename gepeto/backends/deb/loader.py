@@ -133,10 +133,13 @@ class DebTagFileLoader(Loader):
             version = section.get("version")
 
             prvargs = [(NPrv, name, version)]
+            prvdict = {name: True}
             value = section.get("provides")
             if value:
                 for prvname in value.split(","):
-                    prvargs.append((Prv, prvname.strip()))
+                    prvname = prvname.strip()
+                    prvargs.append((Prv, prvname))
+                    prvdict[prvname] = True
 
             reqargs = []
             value = section.get("depends")
@@ -171,6 +174,8 @@ class DebTagFileLoader(Loader):
             if value:
                 for descr in value.split(","):
                     n, r, v = parseversion(descr)
+                    if not v and n in prvdict:
+                        continue
                     cnfargs.append((Cnf, n, r, v))
 
             pkg = self.buildPackage((Pkg, name, version),

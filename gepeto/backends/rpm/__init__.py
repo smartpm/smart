@@ -156,7 +156,7 @@ class RPMPackage(Package):
         ver, arch = splitarch(version)
         return checkdep(selfver, relation, ver)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         rc = -1
         if type(other) is RPMPackage:
             rc = cmp(self.name, other.name)
@@ -167,7 +167,7 @@ class RPMPackage(Package):
                     rc = vercmp(self.version, other.version)
                 if rc == 0:
                     rc = -cmp(archscore(selfarch), archscore(otherarch))
-        return rc
+        return rc == -1
 
 class RPMProvides(Provides): pass
 class RPMNameProvides(RPMProvides): pass

@@ -44,24 +44,27 @@ class RPMPackageManager(PackageManager):
         upgrading = {}
         upgraded = {}
         for pkg in changeset.keys():
-            if changeset[pkg] is INSTALL:
-                for upg in pkg.upgrades:
-                    for prv in upg.providedby:
-                        prvpkgs = []
-                        for prvpkg in prv.packages:
-                            if prvpkg.installed:
-                                # If any upgraded package will stay in
-                                # the system, this is not really an
-                                # upgrade.
-                                if changeset.get(prvpkg) is not REMOVE:
-                                    break
-                                prvpkgs.append(prvpkg)
-                        else:
-                            if upgd:
-                                upgrading[pkg] = True
-                                for prvpkg in prvpkgs:
-                                    upgraded[prvpkg] = True
-                                    del changeset[prvpkg]
+            if changeset.get(pkg) is INSTALL:
+                upgpkgs = [upgpkg for prv in pkg.provides
+                                  for upg in prv.upgradedby
+                                  for upgpkg in upg.packages
+                                  if upgpkg.installed]
+                upgpkgs.extend([prvpkg for upg in pkg.upgrades
+                                       for prv in upg.providedby
+                                       for prvpkg in prv.packages
+                                       if prvpkg.installed])
+                if upgpkgs:
+                    for upgpkg in upgpkgs:
+                        # If any upgraded package will stay in the system,
+                        # this is not really an upgrade for rpm.
+                        if changeset.get(upgpkg) is not REMOVE:
+                            break
+                    else:
+                        upgrading[pkg] = True
+                        for upgpkg in upgpkgs:
+                            upgraded[upgpkg] = True
+                            if upgpkg in changeset:
+                                del changeset[upgpkg]
 
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
 
@@ -69,15 +72,18 @@ class RPMPackageManager(PackageManager):
         # ordering job on erasures.
         try:
             sorter = ChangeSetSorter(changeset)
+            sysconf.set("sorting", True, weak=True)
             sorted = sorter.getSorted()
             forcerpmorder = False
-        except LoopError, e:
-            iface.error("Found unbreakable loops:")
-            for loop in e.loops:
-                for path in sorter.getLoopPaths(loop):
-                    path = ["%s [%s]" % (x[0], x[1] is INSTALL and "I" or "R")
-                            for x in path]
-                    iface.error("    "+" -> ".join(path))
+        except LoopError:
+            lines = ["Found unbreakable loops:"]
+            for path in sorter.getLoopPaths(sorter.getLoops()):
+                path = ["%s [%s]" % (pkg, op is INSTALL and "I" or "R")
+                        for pkg, op in path]
+                lines.append("    "+" -> ".join(path))
+            lines.append("Will ask RPM to order it.")
+            iface.error("\n".join(lines))
+            sys.exit(1)
             forcerpmorder = True
         del sorter
 
