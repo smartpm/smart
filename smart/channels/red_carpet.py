@@ -20,7 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.redcarpet import RPMRedCarpetLoader
-from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.channel import PackageChannel
 from smart import *
@@ -62,42 +61,14 @@ class RedCarpetChannel(PackageChannel):
 
         return True
 
-def create(type, alias, data):
-    name = None
-    priority = 0
-    manual = False
-    removable = False
-    baseurl = None
-    if isinstance(data, dict):
-        name = data.get("name")
-        priority = data.get("priority", 0)
-        manual = strToBool(data.get("manual", False))
-        removable = strToBool(data.get("removable", False))
-        baseurl = data.get("baseurl")
-        packageinfourl = data.get("packageinfourl")
-    elif getattr(data, "tag", None) == "channel":
-        for n in data.getchildren():
-            if n.tag == "name":
-                name = n.text
-            elif n.tag == "priority":
-                priority = n.text
-            elif n.tag == "manual":
-                manual = strToBool(n.text)
-            elif n.tag == "removable":
-                removable = strToBool(n.text)
-            elif n.tag == "baseurl":
-                baseurl = n.text
-            elif n.tag == "packageinfourl":
-                packageinfourl = n.text
-    else:
-        raise ChannelDataError
-    if not baseurl:
-        raise Error, "Channel '%s' has no baseurl" % alias
-    try:
-        priority = int(priority)
-    except ValueError:
-        raise Error, "Invalid priority"
-    return RPMRedCarpetChannel(baseurl, packageinfourl,
-                               type, alias, name, manual, removable, priority)
+def create(alias, data):
+    return RPMRedCarpetChannel(data["baseurl"],
+                               data["packageinfourl"],
+                               data["type"],
+                               alias,
+                               data["name"],
+                               data["manual"],
+                               data["removable"],
+                               data["priority"])
 
 # vim:ts=4:sw=4:et

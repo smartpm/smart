@@ -20,12 +20,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+kind = "mirror"
+
 name = "Mirror Information"
 
 description = """
 Mirror information file.
 """
 
-fields = [("url", "Mirror File URL",
+fields = [("url", "Mirror File URL", str, None,
            "URL for the mirror information file")]
-

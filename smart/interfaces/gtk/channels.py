@@ -349,9 +349,10 @@ class GtkChannelSelector(object):
         channels = sysconf.get("channels", {})
         for alias in channels:
             channel = channels[alias]
-            self._treemodel.append((False, alias,
-                                    channel.get("type", ""),
-                                    channel.get("name", "")))
+            if not channel.get("disabled"):
+                self._treemodel.append((False, alias,
+                                        channel.get("type", ""),
+                                        channel.get("name", "")))
 
     def show(self):
         self.fill()
@@ -422,92 +423,85 @@ class ChannelEditor(object):
         button.connect("clicked", lambda x: gtk.main_quit())
         bbox.pack_start(button)
 
-    def addField(self, key, label, text, editable=True,
-                 small=False, tip=None, spin=False):
-        label = gtk.Label("%s:" % label)
-        label.set_alignment(1.0, 0.5)
-        label.show()
-        self._table.attach(label, 0, 1, self._fieldn, self._fieldn+1,
-                           gtk.FILL, gtk.FILL)
-        if spin:
-            entry = gtk.SpinButton()
-            entry.set_increments(1, 10)
-            entry.set_numeric(True)
-            entry.set_range(-100000,+100000)
-            entry.set_value(int(text or 0))
-        else:
-            entry = gtk.Entry()
-            entry.set_text(text)
-        entry.set_property("sensitive", bool(editable))
-        entry.show()
-        if small or spin:
-            if spin:
-                entry.set_width_chars(8)
-            else:
-                entry.set_width_chars(20)
-            align = gtk.Alignment(0.0, 0.5, 0.0, 0.0)
-            align.add(entry)
-            align.show()
+    def addField(self, key, label, value, ftype,
+                 editable=True, tip=None, needed=False):
+
+        if ftype is bool:
+            widget = gtk.CheckButton(label)
+            widget.set_active(value)
+            align = gtk.Alignment(0.0, 0.5)
+            align.add(widget)
             child = align
         else:
-            entry.set_width_chars(40)
-            child = entry
+            _label = gtk.Label("%s:" % label)
+            _label.set_alignment(1.0, 0.5)
+            _label.show()
+            self._table.attach(_label, 0, 1, self._fieldn, self._fieldn+1,
+                               gtk.FILL, gtk.FILL)
+            if tip:
+                self._tooltips.set_tip(_label, tip)
+            if ftype is int:
+                widget = gtk.SpinButton()
+                widget.set_increments(1, 10)
+                widget.set_numeric(True)
+                widget.set_range(-100000,+100000)
+                widget.set_value(value)
+                widget.set_width_chars(8)
+                align = gtk.Alignment(0.0, 0.5, 0.0, 0.0)
+                align.add(widget)
+                align.show()
+                child = align
+            elif ftype is str:
+                widget = gtk.Entry()
+                widget.set_text(value)
+                if key in ("alias", "type"):
+                    widget.set_width_chars(20)
+                    align = gtk.Alignment(0.0, 0.5, 0.0, 0.0)
+                    align.add(widget)
+                    align.show()
+                    child = align
+                else:
+                    child = widget
+                    widget.set_width_chars(40)
+            else:
+                raise Error, "Don't know how to handle %s fields" % ftype
+
+        child.show_all()
+
+        widget.set_property("sensitive", bool(editable))
+        if tip:
+            self._tooltips.set_tip(widget, tip)
+
         self._table.attach(child, 1, 2, self._fieldn, self._fieldn+1,
                            gtk.EXPAND|gtk.FILL, gtk.FILL)
-        self._fields[key] = entry
+        self._fields[key] = widget
         self._fieldn += 1
-        if tip:
-            self._tooltips.set_tip(label, tip)
-            self._tooltips.set_tip(entry, tip)
 
-    def show(self, alias, channel, editalias=False):
+    def show(self, alias, oldchannel, editalias=False):
         self._table.foreach(self._table.remove)
 
-        # Basic fields
-        self.addField("alias", "Alias", alias or "",
-                      editable=editalias, small=True)
-        self.addField("type", "Type", channel.get("type", ""),
-                      editable=False, small=True)
+        if len(oldchannel) > 1:
+            # This won't be needed once old format channels
+            # are converted.
+            channel = parseChannelData(oldchannel)
+        else:
+            channel = oldchannel.copy()
 
-        # Checkboxes
-        enabled = gtk.CheckButton("Enabled")
-        enabled.set_active(not strToBool(channel.get("disabled")))
-        enabled.show()
-        align = gtk.Alignment(0.0, 0.5)
-        align.add(enabled)
-        align.show()
-        self._table.attach(align, 1, 2, self._fieldn, self._fieldn+1,
-                           gtk.EXPAND|gtk.FILL, gtk.FILL)
-        self._fieldn += 1
+        info = getChannelInfo(channel.get("type"))
 
-        manual = gtk.CheckButton("Manual updates")
-        manual.set_active(strToBool(channel.get("manual")))
-        manual.show()
-        align = gtk.Alignment(0.0, 0.5)
-        align.add(manual)
-        align.show()
-        self._table.attach(align, 1, 2, self._fieldn, self._fieldn+1,
-                           gtk.EXPAND|gtk.FILL, gtk.FILL)
-        self._fieldn += 1
-
-        removable = gtk.CheckButton("Removable")
-        removable.set_active(strToBool(channel.get("removable")))
-        removable.show()
-        align = gtk.Alignment(0.0, 0.5)
-        align.add(removable)
-        align.show()
-        self._table.attach(align, 1, 2, self._fieldn, self._fieldn+1,
-                           gtk.EXPAND|gtk.FILL, gtk.FILL)
-        self._fieldn += 1
-
-        # Other common fields:
-        self.addField("name", "Name", channel.get("name", ""))
-
-        # Specific fields:
-        for key, name, descr in getChannelInfo(channel.get("type")).fields:
+        for key, label, ftype, default, descr in info.fields:
+            if key == "type" or (key == "alias" and not editalias):
+                editable = False
+            else:
+                editable = True
+            if key == "alias":
+                value = alias
+            else:
+                value = channel.get(key, default)
+                if value is None:
+                    value = ftype()
             tip = "\n".join(textwrap.wrap(text=descr, width=40))
-            self.addField(key, name, channel.get(key, ""), tip=tip,
-                          spin=(key == "priority"))
+            self.addField(key, label, value, ftype, editable, tip)
 
         self._window.show()
 
@@ -515,47 +509,36 @@ class ChannelEditor(object):
         while True:
             gtk.main()
             if self._result:
-                newchannel = channel.copy()
-                if not enabled.get_active():
-                    newchannel["disabled"] = "yes"
-                elif "disabled" in channel:
-                    del newchannel["disabled"]
-                if manual.get_active():
-                    newchannel["manual"] = "yes"
-                elif "manual" in channel:
-                    del newchannel["manual"]
-                if removable.get_active():
-                    newchannel["removable"] = "yes"
-                elif "removable" in channel:
-                    del newchannel["removable"]
+                newchannel = {}
+                for key, label, ftype, default, descr in info.fields:
+                    widget = self._fields[key]
+                    if ftype == str:
+                        newchannel[key] = widget.get_text().strip()
+                    elif ftype == int:
+                        newchannel[key] = int(widget.get_text())
+                    elif ftype == bool:
+                        newchannel[key] = widget.get_active()
+                    else:
+                        raise Error, "Don't know how to handle %s fields" % \
+                                     ftype
                 try:
-                    for key in self._fields:
-                        if key != "type":
-                            entry = self._fields[key]
-                            value = entry.get_text().strip()
-                            if key == "alias":
-                                if not editalias:
-                                    continue
-                                if not value:
-                                    raise Error, "Invalid alias!"
-                                if (value != alias and 
-                                    sysconf.has(("channels", value))):
-                                    raise Error, "Alias already in use!"
-                                if not alias:
-                                    alias = value
-                                newchannel[key] = value
-                            elif not value and key in newchannel:
-                                del newchannel[key]
-                            else:
-                                newchannel[key] = value
-                    createChannel(newchannel.get("type"), alias, newchannel)
+                    if editalias:
+                        value = newchannel["alias"]
+                        if not value:
+                            raise Error, "Invalid alias!"
+                        if (value != alias and 
+                            sysconf.has(("channels", value))):
+                            raise Error, "Alias already in use!"
+                        if not alias:
+                            alias = value
+                    createChannel(alias, newchannel)
                 except Error, e:
                     self._result = False
                     iface.error(str(e))
                     continue
                 else:
-                    channel.clear()
-                    channel.update(newchannel)
+                    oldchannel.clear()
+                    oldchannel.update(newchannel)
             break
 
         self._window.hide()

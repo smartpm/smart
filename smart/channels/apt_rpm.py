@@ -20,8 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.header import RPMPackageListLoader
-from smart.channel import PackageChannel, ChannelDataError
-from smart.util.strtools import strToBool
+from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.cache import LoaderSet
 from smart import *
@@ -209,47 +208,15 @@ class APTRPMChannel(PackageChannel):
 
         return True
 
-def create(type, alias, data):
-    name = None
-    priority = 0
-    manual = False
-    removable = False
-    baseurl = None
-    comps = None
-    fingerprint = None
-    if isinstance(data, dict):
-        name = data.get("name")
-        baseurl = data.get("baseurl")
-        comps = (data.get("components") or "").split()
-        priority = data.get("priority", 0)
-        manual = strToBool(data.get("manual", False))
-        removable = strToBool(data.get("removable", False))
-        fingerprint = data.get("fingerprint")
-    elif getattr(data, "tag", None) == "channel":
-        for n in data.getchildren():
-            if n.tag == "name":
-                name = n.text
-            elif n.tag == "priority":
-                priority = n.text
-            elif n.tag == "manual":
-                manual = strToBool(n.text)
-            elif n.tag == "removable":
-                removable = strToBool(n.text)
-            elif n.tag == "baseurl":
-                baseurl = n.text
-            elif n.tag == "components":
-                comps = n.text.split()
-    else:
-        raise ChannelDataError
-    if not baseurl:
-        raise Error, "Channel '%s' has no baseurl" % alias
-    if not comps:
-        raise Error, "Channel '%s' has no components" % alias
-    try:
-        priority = int(priority)
-    except ValueError:
-        raise Error, "Invalid priority"
-    return APTRPMChannel(baseurl, comps, fingerprint,
-                         type, alias, name, manual, removable, priority)
+def create(alias, data):
+    return APTRPMChannel(data["baseurl"],
+                         data["components"].split(),
+                         data["fingerprint"],
+                         data["type"],
+                         alias,
+                         data["name"],
+                         data["manual"],
+                         data["removable"],
+                         data["priority"])
 
 # vim:ts=4:sw=4:et

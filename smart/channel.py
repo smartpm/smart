@@ -22,22 +22,6 @@
 from smart import *
 import os
 
-DEFAULTFIELDS = [("alias", "Alias",
-                  "Unique identification for the channel."),
-                 ("type", "Type", "Channel type"),
-                 ("name", "Name", "Channel name"),
-                 ("manual", "Manual updates",
-                  "If set to a true value ('yes', 'true', etc), "
-                  "the given channel will only be updated when "
-                  "manually selected."),
-                 ("disabled", "Disabled",
-                  "If set to a true value ('yes', 'true', etc), "
-                  "the given channel won't be used."),
-                 ("removable", "Removable",
-                  "If set to a true value ('yes', 'true', etc), "
-                  "the given channel will be considered as being "
-                  "available in a removable media (cdrom, etc).")]
-
 class Channel(object):
     def __init__(self, type, alias, name=None,
                  manualupdate=False, removable=False):
@@ -132,43 +116,119 @@ class MirrorChannel(Channel):
     def getMirrors(self):
         return self._mirrors
 
-class ChannelDataError(Error): pass
+# (key, label, needed, type, description)
+DEFAULTFIELDS = [("alias", "Alias", str, None,
+                  "Unique identification for the channel."),
+                 ("type", "Type", str, None,
+                  "Channel type"),
+                 ("name", "Name", str, "",
+                  "Channel name"),
+                 ("manual", "Manual updates", bool, False,
+                  "If set to a true value, the given channel "
+                  "will only be updated when manually selected."),
+                 ("disabled", "Disabled", bool, False,
+                  "If set to a true value, the given channel "
+                  "won't be used."),
+                 ("removable", "Removable", bool, False,
+                  "If set to a true value, the given channel will "
+                  "be considered as being available in a removable "
+                  "media (cdrom, etc).")]
 
-def createChannel(type, alias, data):
+KINDFIELDS = {"package":
+              [("priority", "Priority", int, 0,
+                "Default priority assigned to all packages "
+                "available in this channel (0 if not set). If "
+                "the exact same package is available in more "
+                "than one channel, the highest priority is used.")]}
+
+def createChannel(alias, data):
+    data = parseChannelData(data)
+    type = data.get("type", "").replace('-', '_').lower()
     try:
-        xtype = type.replace('-', '_').lower()
-        smart = __import__("smart.channels."+xtype)
+        smart = __import__("smart.channels."+type)
         channels = getattr(smart, "channels")
-        channel = getattr(channels, xtype)
+        channel = getattr(channels, type)
     except (ImportError, AttributeError):
         from smart.const import DEBUG
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, "Invalid channel type '%s'" % type
-    try:
-        return channel.create(type, alias, data)
-    except ChannelDataError:
-        raise Error, "Channel type %s doesn't support %s" % (type, `data`)
+        raise Error, "Unable to create channel of type '%s'" % type
+    data = data.copy()
+    info = getChannelInfo(data.get("type"))
+    for key, label, ftype, default, descr in info.fields:
+        if key == "alias":
+            continue
+        if key not in data:
+            data[key] = default
+    return channel.create(alias, data)
 
-def createChannelDescription(type, alias, data):
-    lines = []
-    lines.append("[%s]" % alias)
-    lines.append("type = %s" % type)
-    first = ("name",)
-    for key in first:
-        if key in ("type", "alias"):
+def createChannelDescription(alias, data):
+    ctype = data.get("type")
+    if not ctype:
+        raise Error, "Channel has no type"
+    info = getChannelInfo(ctype)
+    if not info:
+        raise Error, "Unknown channel type: %s" % ctype
+    lines = ["[%s]" % alias]
+    for key, label, ftype, default, descr in info.fields:
+        if key == "alias":
             continue
-        if key in data:
-            lines.append("%s = %s" % (key, data[key]))
-    keys = data.keys()
-    keys.sort()
-    for key in keys:
-        if key in ("type", "alias"):
+        value = data.get(key)
+        if type(value) is str:
+            value = value.strip()
+        if not value or value == default:
+            if default is None:
+                raise Error, "%s (%s) is a needed field for '%s' channels" \
+                             % (label, key, ctype)
             continue
-        if key not in first:
-            lines.append("%s = %s" % (key, data[key]))
+        if type(value) is bool:
+            value = value and "yes" or "no"
+        elif type(value) is not str:
+            value = str(value)
+        lines.append("%s = %s" % (key, value))
     return "\n".join(lines)
+
+def parseChannelData(data):
+    ctype = data.get("type")
+    if not ctype:
+        raise Error, "Channel has no type"
+    info = getChannelInfo(ctype)
+    if not info:
+        raise Error, "Unknown channel type: %s" % ctype
+    newdata = {}
+    for key, label, ftype, default, descr in info.fields:
+        if key == "alias":
+            continue
+        value = data.get(key)
+        if type(value) is str:
+            value = value.strip()
+        if not value or value == default:
+            if default is None:
+                raise Error, "%s (%s) is a needed field for '%s' channels"\
+                             % (label, key, ctype)
+            continue
+        if type(value) is str:
+            if ftype is bool:
+                value = value.lower()
+                if value in ("y", "yes", "true", "1"):
+                    value = True
+                elif value in ("n", "no", "false", "0"):
+                    value = False
+                else:
+                    raise Error, "Invalid value for '%s' (%s) field: %s" % \
+                                 (label, key, `value`)
+            elif ftype is not str:
+                try:
+                    value = ftype(value)
+                except ValueError:
+                    raise Error, "Invalid value for '%s' (%s) field: %s" % \
+                                 (label, key, `value`)
+        elif type(value) is not ftype:
+            raise Error, "Invalid value for '%s' (%s) field: %s" % \
+                         (label, key, `value`)
+        newdata[key] = value
+    return newdata
 
 def parseChannelsDescription(data):
     channels = {}
@@ -187,6 +247,8 @@ def parseChannelsDescription(data):
         elif current is not None and not line[0] == "#" and "=" in line:
             key, value = line.split("=")
             current[key.strip().lower()] = value.strip()
+    for alias in channels:
+        channels[alias] = parseChannelData(channels[alias])
     return channels
 
 def getChannelInfo(type):
@@ -201,6 +263,13 @@ def getChannelInfo(type):
             import traceback
             traceback.print_exc()
         raise Error, "Invalid channel type '%s'" % type
+    if not hasattr(info, "_fixed"):
+        info._fixed = True
+        fields = []
+        fields.extend(DEFAULTFIELDS)
+        fields.extend(KINDFIELDS.get(info.kind, []))
+        fields.extend(info.fields)
+        info.fields = fields
     return info
 
 def getAllChannelInfos():

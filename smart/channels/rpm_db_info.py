@@ -20,14 +20,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+kind = "package"
+
 name = "RPM Installed Packages"
 
 description = """
 Installed packages from the local RPM database.
 """
 
-fields = [("priority", "Priority",
-           "Default priority assigned to all packages "
-           "available in this channel (0 if not set). If "
-           "the exact same package is available in more "
-           "than one channel, the highest priority is used.")]
+fields = []

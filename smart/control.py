@@ -178,12 +178,10 @@ class Control(object):
         channels = sysconf.get("channels", ())
         for alias in channels:
             data = channels[alias]
+            # Remove strToBool from here ASAP!
             if strToBool(data.get("disabled")):
                 continue
-            type = data.get("type")
-            if not type:
-                raise Error, "Channel without type in configuration"
-            channel = createChannel(type, alias, data)
+            channel = createChannel(alias, data)
             self._sysconfchannels.append(channel)
             self._channels.append(channel)
 

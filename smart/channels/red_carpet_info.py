@@ -20,20 +20,17 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+kind = "package"
+
 name = "Red Carpet Channel"
 
 description = """
 Channel for the Red Carpet package tool.
 """
 
-fields = [("priority", "Priority",
-           "Default priority assigned to all packages "
-           "available in this channel (0 if not set). If "
-           "the exact same package is available in more "
-           "than one channel, the highest priority is used."),
-          ("baseurl", "Base URL for packages",
+fields = [("baseurl", "Base URL for packages", str, None,
            "URL where packages are found"),
-          ("packageinfourl", "URL for packageinfo XML",
+          ("packageinfourl", "URL for packageinfo XML", str, "",
            "URL for packageinfo.xml.gz including filename "
            "(option may be ommitted if file is named packageinfo.xml.gz "
            "and is inside the base url)")]

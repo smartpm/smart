@@ -19,7 +19,6 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.channel import createChannel, PackageChannel
 from smart import *
 import gobject, gtk
 
@@ -414,8 +413,7 @@ class GtkSinglePriority(object):
         channels = sysconf.get("channels")
         for alias in channels:
             channel = channels[alias]
-            if not isinstance(createChannel(channel.get("type"), alias,
-                                            channel), PackageChannel):
+            if not getChannelInfo(channel.get("type")).kind == "package":
                 continue
             name = channel.get("name")
             if not name:

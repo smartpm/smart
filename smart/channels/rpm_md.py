@@ -21,7 +21,6 @@
 #
 from smart.backends.rpm.metadata import RPMMetaDataLoader
 from smart.util.elementtree import ElementTree
-from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.channel import PackageChannel
 from smart import *
@@ -101,39 +100,13 @@ class RPMMetaDataChannel(PackageChannel):
 
         return True
 
-def create(type, alias, data):
-    name = None
-    priority = 0
-    baseurl = None
-    manual = False
-    removable = False
-    if isinstance(data, dict):
-        name = data.get("name")
-        priority = data.get("priority", 0)
-        manual = strToBool(data.get("manual", False))
-        removable = strToBool(data.get("removable", False))
-        baseurl = data.get("baseurl")
-    elif getattr(data, "tag", None) == "channel":
-        for n in data.getchildren():
-            if n.tag == "name":
-                name = n.text
-            elif n.tag == "priority":
-                priority = n.text
-            elif n.tag == "manual":
-                manual = strToBool(n.text)
-            elif n.tag == "removable":
-                removable = strToBool(n.text)
-            elif n.tag == "baseurl":
-                baseurl = n.text
-    else:
-        raise ChannelDataError
-    if not baseurl:
-        raise Error, "Channel '%s' has no baseurl" % alias
-    try:
-        priority = int(priority)
-    except ValueError:
-        raise Error, "Invalid priority"
-    return RPMMetaDataChannel(baseurl,
-                              type, alias, name, manual, removable, priority)
+def create(alias, data):
+    return RPMMetaDataChannel(data["baseurl"],
+                              data["type"],
+                              alias,
+                              data["name"],
+                              data["manual"],
+                              data["removable"],
+                              data["priority"])
 
 # vim:ts=4:sw=4:et

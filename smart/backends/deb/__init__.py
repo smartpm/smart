@@ -112,11 +112,6 @@ class DebMatcher(Matcher):
                             pass
                     self._options.append((name, version))
 
-    def coexists(self, other):
-        if not isinstance(other, DebPackage):
-            return True
-        return False
-
     def matches(self, obj):
         for name, version in self._options:
             if type(name) is str:
@@ -137,6 +132,11 @@ class DebPackage(Package):
 
     packagemanager = DebPackageManager
     matcher = DebMatcher
+    
+    def coexists(self, other):
+        if not isinstance(other, DebPackage):
+            return True
+        return False
 
     def matches(self, relation, version):
         if not relation:

@@ -21,7 +21,6 @@
 #
 from smart.backends.rpm.header import URPMILoader
 from smart.const import SUCCEEDED, FAILED, ALWAYS, NEVER
-from smart.util.strtools import strToBool
 from smart.channel import PackageChannel
 from smart import *
 import posixpath
@@ -98,45 +97,14 @@ class URPMIChannel(PackageChannel):
 
         return True
 
-def create(type, alias, data):
-    name = None
-    priority = 0
-    manual = False
-    removable = False
-    hdlurl = None
-    baseurl = None
-    if isinstance(data, dict):
-        name = data.get("name")
-        priority = data.get("priority", 0)
-        manual = strToBool(data.get("manual", False))
-        removable = strToBool(data.get("removable", False))
-        hdlurl = data.get("hdlurl")
-        baseurl = data.get("baseurl")
-    elif getattr(data, "tag", None) == "channel":
-        for n in data.getchildren():
-            if n.tag == "name":
-                name = n.text
-            elif n.tag == "priority":
-                priority = n.text
-            elif n.tag == "manual":
-                manual = strToBool(n.text)
-            elif n.tag == "removable":
-                removable = strToBool(n.text)
-            elif n.tag == "hdlurl":
-                hdlurl = n.text
-            elif n.tag == "baseurl":
-                baseurl = n.text
-    else:
-        raise ChannelDataError
-    if not hdlurl:
-        raise Error, "Channel '%s' has no hdlurl" % alias
-    if not baseurl:
-        raise Error, "Channel '%s' has no baseurl" % alias
-    try:
-        priority = int(priority)
-    except ValueError:
-        raise Error, "Invalid priority"
-    return URPMIChannel(hdlurl, baseurl,
-                        type, alias, name, manual, removable, priority)
+def create(alias, data):
+    return URPMIChannel(data["hdlurl"],
+                        data["baseurl"],
+                        data["type"],
+                        alias,
+                        data["name"],
+                        data["manual"],
+                        data["removable"],
+                        data["priority"])
 
 # vim:ts=4:sw=4:et

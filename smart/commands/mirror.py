@@ -140,6 +140,8 @@ def read_mirrors(ctrl, filename):
 
 def main(ctrl, opts):
 
+    ctrl.updateCache()
+
     if opts.add:
         if len(opts.add) == 1:
             opts.add = read_mirrors(ctrl, opts.add[0])
@@ -198,6 +200,7 @@ def main(ctrl, opts):
         from smart.mirror import MirrorSystem
         mirrorsystem = MirrorSystem()
         penalities = mirrorsystem.getPenalities().copy()
+        mirrors = sysconf.get("mirrors", {})
         for origin in mirrors:
             if origin not in penalities:
                 penalities[origin] = 0

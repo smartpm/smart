@@ -40,9 +40,7 @@ The following channel types are available:
 
 %(types)s
 
-The following information is common to all channel types:
-
-%(fields)s
+Use --help-type <type> for more information.
 """
 
 EXAMPLES="""
@@ -70,23 +68,24 @@ def build_types():
 
 def format_fields(fields):
     result = []
-    maxkey = max([len(x[0]) for x in fields])
-    for key, name, description in fields:
-        if not description:
-            description = name
+    maxkey = max([len(x[0])+(x[3] is None and 4 or 0) for x in fields])
+    for key, label, ftype, default, descr in fields:
+        if not descr:
+            descr = label
         indent = " "*(5+maxkey)
-        lines = textwrap.wrap(text=description, width=70,
+        lines = textwrap.wrap(text=descr, width=70,
                               initial_indent=indent,
                               subsequent_indent=indent)
-        name = lines.pop(0).strip()
-        result.append("  %s%s - %s" % (key, " "*(maxkey-len(key)), name))
+        label = lines.pop(0).strip()
+        if default is None:
+            key += " (*)"
+        result.append("  %s%s - %s" % (key, " "*(maxkey-len(key)), label))
         for line in lines:
             result.append(line)
     return "\n".join(result)
 
 def parse_options(argv):
-    description = DESCRIPTION % {"types": build_types(),
-                                 "fields": format_fields(DEFAULTFIELDS)}
+    description = DESCRIPTION % {"types": build_types()}
     parser = OptionParser(usage=USAGE,
                           description=description,
                           examples=EXAMPLES)
@@ -131,8 +130,10 @@ def main(ctrl, opts):
         print
         print info.description.strip()
         print
-        print "Custom Fields:"
+        print "Fields:"
         print format_fields(info.fields)
+        print
+        print "(*) These fields are necessary for this type."
         print
         sys.exit(0)
     
@@ -169,14 +170,14 @@ def main(ctrl, opts):
             alias = opts.add.pop(0).strip()
             if not alias:
                 raise Error, "Channel has no alias"
-            channel = {"alias": alias}
+            channel = {}
             for arg in opts.add:
                 if "=" not in arg:
                     raise Error, "Argument '%s' has no '='" % arg
                 key, value = arg.split("=")
                 channel[key.strip()] = value.strip()
-            if "type" not in channel:
-                raise Error, "Channel has no type"
+            channel = parseChannelData(channel)
+            channel["alias"] = alias
             newchannels = [channel]
 
         newaliases = []
@@ -185,18 +186,15 @@ def main(ctrl, opts):
             if not opts.force:
                 info = getChannelInfo(type)
                 print
-                for field, name, descr in DEFAULTFIELDS:
+                for key, label, ftype, default, descr in info.fields:
                     if field in channel:
-                        print "%s: %s" % (name, channel[field])
-                for field, name, descr in info.fields:
-                    if field in channel:
-                        print "%s: %s" % (name, channel[field])
+                        print "%s: %s" % (label, channel[key])
                 print
             if opts.force or iface.askYesNo("Include this channel"):
                 try:
-                    createChannel(type, "alias", channel)
+                    createChannel("alias", channel)
                 except Error, e:
-                    iface.error("Invalid channel: %s" % e)
+                    raise
                 else:
                     try:
                         alias = channel.get("alias")
@@ -205,8 +203,7 @@ def main(ctrl, opts):
                                 print "Channel alias '%s' is already in use." \
                                       % alias
                             alias = raw_input("Channel alias: ").strip()
-                        if "alias" in channel:
-                            del channel["alias"]
+                        del channel["alias"]
                         sysconf.set(("channels", alias), channel)
                         newaliases.append(alias)
                     except KeyboardInterrupt:
@@ -248,10 +245,8 @@ def main(ctrl, opts):
         for key in channel.keys():
             if not channel[key]:
                 del channel[key]
-        try:
-            createChannel(channel.get("type"), alias, channel)
-        except Error, e:
-            raise Error, "Invalid channel: %s" % e
+
+        createChannel(alias, channel)
 
         sysconf.set(("channels", alias), channel)
 
@@ -282,8 +277,8 @@ def main(ctrl, opts):
             if not channel:
                 iface.warning("Channel '%s' not found." % alias)
             else:
-                desc = createChannelDescription(channel.get("type"),
-                                                alias, channel)
+                desc = createChannelDescription(alias,
+                                                parseChannelData(channel))
                 if desc:
                     print desc
                     print

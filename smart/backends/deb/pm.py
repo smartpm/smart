@@ -97,7 +97,7 @@ class DebSorter(ElementSorter):
                                        for prvpkg in prv.packages])
                 for upgpkg in upgpkgs:
                     if changeset.get(upgpkg) is REMOVE:
-                        self.addSuccessor(elem, (upgpkg, REMOVE), OPTIONAL)
+                        self.addSuccessor(config, (upgpkg, REMOVE), OPTIONAL)
 
                 # Conflicted packages being removed must go in
                 # before this package's installation.
@@ -109,7 +109,7 @@ class DebSorter(ElementSorter):
                                        for cnfpkg in cnf.packages])
                 for cnfpkg in cnfpkgs:
                     if changeset.get(cnfpkg) is REMOVE:
-                        self.addSuccessor((cnfpkg, REMOVE), elem, ENFORCE)
+                        self.addSuccessor((cnfpkg, REMOVE), unpack, ENFORCE)
 
 class DebPackageManager(PackageManager):
 
@@ -136,8 +136,9 @@ class DebPackageManager(PackageManager):
                                        if prvpkg.installed])
                 if upgpkgs:
                     for upgpkg in upgpkgs:
-                        assert changeset.get(upgpkg) is REMOVE
-                        assert upgpkg not in upgraded
+                        assert changeset.get(upgpkg) is REMOVE, \
+                               "Installing %s while %s is kept?" % \
+                               (pkg, upgpkg)
                         upgraded[upgpkg] = pkg
 
         try:
@@ -183,6 +184,9 @@ class DebPackageManager(PackageManager):
                           INSTALL: "install"}
                 print "[%s] %s" % (opname[op], pkg)
                 pkgs.append(pkg)
+
+            if not pkgs:
+                continue
 
             args = baseargs[:]
 

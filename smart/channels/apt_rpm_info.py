@@ -20,22 +20,19 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+kind = "package"
+
 name = "APT-RPM Repository"
 
 description = """
 Repositories created for APT-RPM.
 """
 
-fields = [("priority", "Priority",
-           "Default priority assigned to all packages "
-           "available in this channel (0 if not set). If "
-           "the exact same package is available in more "
-           "than one channel, the highest priority is used."),
-          ("baseurl", "Base URL",
+fields = [("baseurl", "Base URL", str, None,
            "Base URL of APT-RPM repository, where base/ is located."),
-          ("components", "Components",
+          ("components", "Components", str, None,
            "Space separated list of components."),
-          ("fingerprint", "Fingerprint",
+          ("fingerprint", "Fingerprint", str, "",
            "GPG fingerprint of key signing the channel.")]
 
 def detectLocalChannels(path, media):

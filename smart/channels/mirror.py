@@ -19,7 +19,6 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.channel import MirrorChannel
 from smart import *
@@ -60,30 +59,12 @@ class StandardMirrorChannel(MirrorChannel):
             raise Error, "\n".join(lines)
         return True
 
-def create(type, alias, data):
-    name = None
-    manual = False
-    removable = False
-    url = None
-    if isinstance(data, dict):
-        name = data.get("name")
-        manual = strToBool(data.get("manual", False))
-        removable = strToBool(data.get("removable", False))
-        url = data.get("url")
-    elif getattr(data, "tag", None) == "channel":
-        for n in data.getchildren():
-            if n.tag == "name":
-                name = n.text
-            elif n.tag == "manual":
-                manual = strToBool(n.text)
-            elif n.tag == "removable":
-                removable = strToBool(n.text)
-            elif n.tag == "url":
-                url = n.text
-    else:
-        raise ChannelDataError
-    if not url:
-        raise Error, "Channel '%s' has no url" % alias
-    return StandardMirrorChannel(url, type, alias, name, manual, removable)
+def create(alias, data):
+    return StandardMirrorChannel(data["url"],
+                                 data["type"],
+                                 alias,
+                                 data["name"],
+                                 data["manual"],
+                                 data["removable"])
 
 # vim:ts=4:sw=4:et
