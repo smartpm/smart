@@ -650,7 +650,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     if (!pkg) return NULL;
 
     pkgobj = (PackageObject *)pkg;
-    
+
     /* pkg.installed = self._installed */
     Py_DECREF(pkgobj->installed);
     pkgobj->installed = self->_installed;
@@ -1286,15 +1286,16 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             for (j = 0; j != reqlen; j++) {
                 DependsObject *req = (DependsObject *)PyList_GET_ITEM(lst, j);
                 /* if .......: */
-                if (req->relation == Py_None || prv->version == Py_None ||
-                    (strcmp(PyString_AsString(req->relation), "=") == 0 &&
+                if (req->relation == Py_None ||
+                    (PyString_Check(prv->version) &&
+                     strcmp(PyString_AsString(req->relation), "=") == 0 &&
                      strcmp(PyString_AsString(req->version),
                             PyString_AsString(prv->version)) == 0)) {
                     /* req.providedby.append(prv) */
                     PyList_Append(req->providedby, (PyObject *)prv);
                     /* prv.requiredby.append(req) */
                     PyList_Append(prv->requiredby, (PyObject *)req);
-                } else if (prv->version != Py_None) {
+                } else {
                     PyObject *ret = 
                         PyObject_CallMethod((PyObject *)req, "matches",
                                             "O", (PyObject *)prv);
@@ -1321,15 +1322,16 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             for (j = 0; j != obslen; j++) {
                 DependsObject *obs = (DependsObject *)PyList_GET_ITEM(lst, j);
                 /* if .......: */
-                if (obs->relation == Py_None || prv->version == Py_None ||
-                    (strcmp(PyString_AsString(obs->relation), "=") == 0 &&
+                if (obs->relation == Py_None ||
+                    (PyString_Check(prv->version) &&
+                     strcmp(PyString_AsString(obs->relation), "=") == 0 &&
                      strcmp(PyString_AsString(obs->version),
                             PyString_AsString(prv->version)) == 0)) {
                     /* obs.providedby.append(prv) */
                     PyList_Append(obs->providedby, (PyObject *)prv);
                     /* prv.obsoletedby.append(obs) */
                     PyList_Append(prv->obsoletedby, (PyObject *)obs);
-                } else if (prv->version != Py_None) {
+                } else {
                     PyObject *ret = 
                         PyObject_CallMethod((PyObject *)obs, "matches",
                                             "O", (PyObject *)prv);
@@ -1356,15 +1358,16 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             for (j = 0; j != cnflen; j++) {
                 DependsObject *cnf = (DependsObject *)PyList_GET_ITEM(lst, j);
                 /* if .......: */
-                if (cnf->relation == Py_None || prv->version == Py_None ||
-                    (strcmp(PyString_AsString(cnf->relation), "=") == 0 &&
+                if (cnf->relation == Py_None ||
+                    (PyString_Check(prv->version) &&
+                     strcmp(PyString_AsString(cnf->relation), "=") == 0 &&
                      strcmp(PyString_AsString(cnf->version),
                             PyString_AsString(prv->version)) == 0)) {
                     /* cnf.providedby.append(prv) */
                     PyList_Append(cnf->providedby, (PyObject *)prv);
                     /* prv.conflictedby.append(cnf) */
                     PyList_Append(prv->conflictedby, (PyObject *)cnf);
-                } else if (prv->version != Py_None) {
+                } else {
                     PyObject *ret = 
                         PyObject_CallMethod((PyObject *)cnf, "matches",
                                             "O", (PyObject *)prv);

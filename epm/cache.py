@@ -372,28 +372,25 @@ class Cache(object):
             lst = self._reqnames.get(prv.name)
             if lst:
                 for req in lst:
-                    if (req.relation is None or prv.version is None or
-                        (req.relation == "=" and
-                         prv.version == req.version) or
-                        (prv.version and req.matches(prv))):
+                    if (req.relation is None or
+                        (req.relation == "=" and prv.version == req.version) or
+                        req.matches(prv)):
                         req.providedby.append(prv)
                         prv.requiredby.append(req)
             lst = self._obsnames.get(prv.name)
             if lst:
                 for obs in lst:
-                    if (not obs.relation or not prv.version or
-                        (obs.relation == "=" and
-                         prv.version == obs.version) or
-                        (prv.version and obs.matches(prv))):
+                    if (obs.relation is None or
+                        (obs.relation == "=" and prv.version == obs.version) or
+                        obs.matches(prv)):
                         obs.providedby.append(prv)
                         prv.obsoletedby.append(obs)
             lst = self._cnfnames.get(prv.name)
             if lst:
                 for cnf in lst:
-                    if (not cnf.relation or not prv.version or
-                        (cnf.relation == "=" and
-                         prv.version == cnf.version) or
-                        (prv.version and cnf.matches(prv))):
+                    if (cnf.relation is None or
+                        (cnf.relation == "=" and prv.version == cnf.version) or
+                        cnf.matches(prv)):
                         cnf.providedby.append(prv)
                         prv.conflictedby.append(cnf)
 
