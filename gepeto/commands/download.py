@@ -29,45 +29,40 @@ import string
 import re
 import os
 
-USAGE="gpt install [options] package ..."
+USAGE="gpt download [options] package ..."
 
 DESCRIPTION="""
-This command will install one or more packages in the
-system. If a new version of an already installed package
-is available, it will be selected for installation.
+This command allows downloading one or more given packages.
 """
 
 EXAMPLES="""
-gpt install pkgname
-gpt install '*kgna*'
-gpt install pkgname-1.0
-gpt install pkgname-1.0-1
-gpt install pkgname1 pkgname2
+gpt download pkgname
+gpt download '*kgna*'
+gpt download pkgname-1.0
+gpt download pkgname-1.0-1
+gpt download pkgname1 pkgname2
+gpt download pkgname --dump-urls 2> pkgname-url.txt
 """
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
-    parser.add_option("--stepped", action="store_true",
-                      help="split operation in steps")
+    parser.defaults["target"] = os.getcwd()
+    parser.add_option("--target", action="store", metavar="DIR",
+                      help="packages will be saved in given directory")
     parser.add_option("--dump-urls", action="store_true",
-                      help="dump needed urls and don't commit operation")
+                      help="dump needed urls and don't download packages")
     opts, args = parser.parse_args(argv)
     opts.args = args
+    if not os.path.isdir(opts.target):
+        raise Error, "Directory not found:", opts.target
     return opts
 
 def main(opts, ctrl):
-    for arg in opts.args[:]:
-        if '/' in arg and os.path.isfile(arg):
-            ctrl.addFileChannel(arg)
-            opts.args.remove(arg)
     ctrl.updateCache()
     cache = ctrl.getCache()
-    trans = Transaction(cache, PolicyInstall)
-    for channel in ctrl.getFileChannels():
-        for pkg in channel.getLoader().getPackages():
-            trans.enqueue(pkg, INSTALL)
+    packages = []
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         pkgs = matcher.filter(cache.getPackages())
@@ -75,24 +70,12 @@ def main(opts, ctrl):
             raise Error, "'%s' matches no packages" % arg
         if len(pkgs) > 1:
             sortUpgrades(pkgs)
-        if pkgs[0].installed:
-            raise Error, "%s matches '%s' and is already installed" % \
-                         (pkgs[0], arg)
-        pkgs = [x for x in pkgs if not x.installed]
-        if len(pkgs) > 1:
             iface.warning("'%s' matches multiple packages, selecting: %s" % \
                           (arg, pkgs[0]))
-        pkg = pkgs[0]
-        trans.enqueue(pkg, INSTALL)
-    iface.showStatus("Computing transaction...")
-    trans.run()
-    iface.hideStatus()
-    if trans:
-        if opts.dump_urls:
-            ctrl.dumpTransactionURLs(trans)
-        elif opts.stepped:
-            ctrl.commitTransactionStepped(trans)
-        else:
-            ctrl.commitTransaction(trans)
+        packages.append(pkgs[0])
+    if opts.dump_urls:
+        ctrl.dumpURLs(packages)
+    else:
+        ctrl.fetchPackages(packages, targetdir=opts.target)
 
 # vim:ts=4:sw=4:et

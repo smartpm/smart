@@ -186,14 +186,17 @@ class Control(object):
                 if (pkg.name, pkg.version) not in oldpkgs:
                     sysconf.setFlag("new", pkg.name, "=", pkg.version)
 
-    def fetchPackages(self, packages, caching=OPTIONAL):
+    def fetchPackages(self, packages, caching=OPTIONAL, targetdir=None):
         fetcher = self._fetcher
         fetcher.reset()
         fetcher.setCaching(caching)
-        localdir = os.path.join(sysconf.get("data-dir"), "packages/")
-        if not os.path.isdir(localdir):
-            os.makedirs(localdir)
-        self._fetcher.setLocalDir(localdir, mangle=False)
+        if targetdir is None:
+            localdir = os.path.join(sysconf.get("data-dir"), "packages/")
+            if not os.path.isdir(localdir):
+                os.makedirs(localdir)
+            self._fetcher.setLocalDir(localdir, mangle=False)
+        else:
+            self._fetcher.setLocalDir(targetdir, mangle=False)
         pkgitems = {}
         for pkg in packages:
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
@@ -226,16 +229,23 @@ class Control(object):
         fetcher.run(what=what)
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
-    def dumpURLs(self, trans, output=None):
+    def dumpTransactionURLs(self, trans, output=None):
+        changeset = trans.getChangeSet()
+        self.dumpURLs([x for x in changeset if changeset[x] is INSTALL])
+
+    def dumpURLs(self, packages, output=None):
         if output is None:
             output = sys.stderr
-        changeset = trans.getChangeSet()
-        for pkg in changeset:
-            if changeset[pkg] is INSTALL:
-                loader = [x for x in pkg.loaders if not x.getInstalled()][0]
-                info = loader.getInfo(pkg)
-                for url in info.getURLs():
-                    print >>output, url
+        urls = []
+        for pkg in packages:
+            loaders = [x for x in pkg.loaders if not x.getInstalled()]
+            if not loaders:
+                raise Error, "Package %s is not available for downloading" \
+                             % pkg
+            info = loaders[0].getInfo(pkg)
+            urls.extend(info.getURLs())
+        for url in urls:
+            print >>output, url
 
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
         if not confirm or iface.confirmTransaction(trans):

@@ -79,7 +79,7 @@ def main(opts, ctrl):
     else:
         iface.hideStatus()
         if opts.dump_urls:
-            ctrl.dumpURLs(trans)
+            ctrl.dumpTransactionURLs(trans)
         elif opts.stepped:
             ctrl.commitTransactionStepped(trans)
         else:

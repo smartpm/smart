@@ -39,6 +39,7 @@ Available commands:
     reinstall
     upgrade
     remove
+    download
     fix
     update
     flag
