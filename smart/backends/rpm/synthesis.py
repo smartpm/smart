@@ -146,7 +146,7 @@ class URPMISynthesisLoader(Loader):
                 if epoch != "0":
                     version = "%s:%s" % (epoch, version)
 
-                dot = rfind(".")
+                dot = version.rfind(".")
                 if dot == -1:
                     arch = "unknown"
                 else:
