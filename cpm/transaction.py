@@ -1,4 +1,3 @@
-from cpm.sorter import ObsoletesSorter
 from cpm.const import INSTALL, REMOVE
 from cpm import *
 
@@ -128,31 +127,32 @@ class PolicyInstall(Policy):
     def getWeight(self, changeset):
         weight = 0
         set = changeset.getSet()
-        # Compute obsoleting/obsoleted packages
-        obsoleting = {}
-        obsoleted = {}
+        # Compute upgrading/upgraded packages
+        upgrading = {}
+        upgraded = {}
         for pkg in set:
-            for prv in pkg.provides:
-                for obs in prv.obsoletedby:
-                    for obspkg in obs.packages:
-                        if set.get(obspkg) is INSTALL:
-                            obsoleted[pkg] = True
-                            obsoleting[obspkg] = True
+            for upg in pkg.upgrades:
+                for prv in upg.providedby:
+                    for prvpkg in prv.packages:
+                        if prvpkg.installed:
+                            upgrading[pkg] = True
+                            if set.get(prvpkg) is REMOVE:
+                                upgraded[pkg] = True
         for pkg in set:
             op = set[pkg]
             if op is REMOVE:
-                if pkg not in obsoleted:
+                if pkg in upgraded:
+                    # Upgrading a package that will be removed
+                    # is better than upgrading a package that will
+                    # stay in the system.
+                    weight -= 1
+                else:
                     weight += 20
             elif op is INSTALL:
-                if pkg in obsoleting:
-                    weight += 1
+                if pkg in upgrading:
+                    weight += 2
                 else:
-                    for npkg in self._cache.getPackages(pkg.name):
-                        if npkg.installed:
-                            weight += 2
-                            break
-                    else:
-                        weight += 3
+                    weight += 3
         return weight
 
 class PolicyRemove(Policy):
@@ -174,24 +174,34 @@ class PolicyUpgrade(Policy):
     def getWeight(self, changeset):
         weight = 0
         set = changeset.getSet()
-        # Compute obsoleting/obsoleted packages
-        obsoleting = {}
-        obsoleted = {}
+        # Compute upgrading/upgraded packages
+        upgrading = {}
+        upgraded = {}
         for pkg in set:
-            for prv in pkg.provides:
-                for obs in prv.obsoletedby:
-                    for obspkg in obs.packages:
-                        if set.get(obspkg) is INSTALL:
-                            obsoleted[pkg] = True
-                            obsoleting[obspkg] = True
+            for upg in pkg.upgrades:
+                for prv in upg.providedby:
+                    for prvpkg in prv.packages:
+                        if prvpkg.installed:
+                            # Check if another package has already upgraded
+                            # this one. Two different packages upgrading the
+                            # same package is not valuable.
+                            if prvpkg not in upgraded:
+                                upgrading[pkg] = True
+                                if set.get(prvpkg) is REMOVE:
+                                    upgraded[prvpkg] = True
         for pkg in set:
             op = set[pkg]
             if op is REMOVE:
-                if pkg not in obsoleted:
-                    weight += 20 
+                if pkg in upgraded:
+                    # Upgrading a package that will be removed
+                    # is better than upgrading a package that will
+                    # stay in the system.
+                    weight -= 1
+                else:
+                    weight += 20
             else:
-                if pkg in obsoleting:
-                    weight -= 5
+                if pkg in upgrading:
+                    weight -= 4
                 else:
                     weight += 1
         return weight
@@ -248,9 +258,16 @@ class Transaction(object):
     def _remove(self, pkg, changeset, locked):
         getweight = self._policy.getWeight
         alternatives = []
-        # Check if any upgrade would get rid of the problem.
-        for obs in pkg.obsoletes:
-            for prv in obs.providedby:
+        cs = changeset.copy()
+        self.remove(pkg, cs, locked)
+        alternatives.append((getweight(cs), cs))
+
+        locked = locked.copy()
+        locked[pkg] = True
+
+        # Check if upgrading is possible.
+        for upg in pkg.upgrades:
+            for prv in upg.providedby:
                 for prvpkg in prv.packages:
                     if prvpkg not in locked:
                         cs = changeset.copy()
@@ -260,26 +277,20 @@ class Transaction(object):
                             pass
                         else:
                             alternatives.append((getweight(cs), cs))
-        # Check if any downgrade would get rid of the problem.
+
+        # Check if downgrading is possible.
         for prv in pkg.provides:
-            for obs in prv.obsoletedby:
-                for obspkg in obs.packages:
-                    if obspkg not in locked:
+            for upg in prv.upgradedby:
+                for upgpkg in upg.packages:
+                    if upgpkg not in locked:
                         cs = changeset.copy()
                         try:
-                            self.install(obspkg, cs, locked)
+                            self.install(upgpkg, cs, locked)
                         except Failed:
                             pass
                         else:
                             alternatives.append((getweight(cs), cs))
-        cs = changeset.copy()
-        try:
-            self.remove(pkg, cs, locked)
-        except Failed:
-            if not alternatives:
-                raise
-        else:
-            alternatives.append((getweight(cs), cs))
+
         alternatives.sort()
         changeset.setState(alternatives[0][1])
 
@@ -296,30 +307,6 @@ class Transaction(object):
         changeset.setInstall(pkg)
         isinst = changeset.isInstalled
         getweight = self._policy.getWeight
-
-        # Remove packages obsoleted by this one.
-        for obs in pkg.obsoletes:
-            for prv in obs.providedby:
-                for prvpkg in prv.packages:
-                    if not isinst(prvpkg):
-                        continue
-                    if prvpkg in locked:
-                        raise Failed, "can't install %s: obsoleted package " \
-                                      "%s is locked" % (pkg, prvpkg)
-                    # Since the package is being obsoleted, we
-                    # don't check any alternatives.
-                    self.remove(prvpkg, changeset, locked)
-
-        # Remove packages obsoleting this one.
-        for prv in pkg.provides:
-            for obs in prv.obsoletedby:
-                for obspkg in obs.packages:
-                    if not isinst(obspkg):
-                        continue
-                    if obspkg in locked:
-                        raise Failed, "can't install %s: it's obsoleted by " \
-                                      "the locked package %s" % (pkg, obspkg)
-                    self._remove(obspkg, changeset, locked)
 
         # Remove packages conflicted by this one.
         for cnf in pkg.conflicts:
@@ -381,20 +368,27 @@ class Transaction(object):
                 # More than one package provide it.
                 alternatives = []
                 failures = []
-                prvpkgs = [(-pkg.precedence, prvpkg) for prvpkg in prvpkgs]
-                prvpkgs.sort()
-                lastprecedence = None
-                for precedence, prvpkg in prvpkgs:
-                    if precedence != lastprecedence and alternatives:
-                        break
-                    lastprecedence = precedence
-                    try:
-                        cs = changeset.copy()
-                        self.install(prvpkg, cs, locked)
-                    except Failed, e:
-                        failures.append(str(e))
+                preceddct = {}
+                for prvpkg in prvpkgs:
+                    lst = preceddct.get(prvpkg.precedence)
+                    if lst:
+                        lst.append(prvpkg)
                     else:
-                        alternatives.append((getweight(cs), cs))
+                        preceddct[prvpkg.precedence] = [prvpkg]
+                precedlst = [(-x, preceddct[x]) for x in preceddct]
+                precedlst.sort()
+                for preced, prvpkgs in precedlst:
+                    sortUpgrades(prvpkgs)
+                    for prvpkg in prvpkgs:
+                        try:
+                            cs = changeset.copy()
+                            self.install(prvpkg, cs, locked)
+                        except Failed, e:
+                            failures.append(str(e))
+                        else:
+                            alternatives.append((getweight(cs), cs))
+                    if alternatives:
+                        break
                 if not alternatives:
                     raise Failed, "can't install %s: all packages providing " \
                                   "%s failed to install: %s" \
@@ -456,11 +450,32 @@ class Transaction(object):
                 alternatives = []
                 failures = []
                 lckd = locked.copy()
+                lckd.update(dict.fromkeys(prvpkgs))
                 
                 # Try to install other providing packages.
+                preceddct = {}
+                for prvpkg in prvpkgs:
+                    lst = preceddct.get(prvpkg.precedence)
+                    if lst:
+                        lst.append(prvpkg)
+                    else:
+                        preceddct[prvpkg.precedence] = [prvpkg]
+                precedlst = [(-x, preceddct[x]) for x in preceddct]
+                precedlst.sort()
+                for preced, prvpkgs in precedlst:
+                    sortUpgrades(prvpkgs)
+                    for prvpkg in prvpkgs:
+                        try:
+                            cs = changeset.copy()
+                            self.install(prvpkg, cs, locked)
+                        except Failed, e:
+                            failures.append(str(e))
+                        else:
+                            alternatives.append((getweight(cs), cs))
+                    if alternatives:
+                        break
                 if prvpkgs:
                     for prvpkg in prvpkgs:
-                        lckd[prvpkg] = True
                         try:
                             cs = changeset.copy()
                             self.install(prvpkg, cs, locked)
@@ -508,18 +523,18 @@ class Transaction(object):
         if type(pkgs) is not list:
             pkgs = [pkgs]
 
-        # Find packages obsoleting given packages.
+        # Find packages upgrading given packages.
         upgpkgs = {}
         for pkg in pkgs:
             if isinst(pkg):
                 for prv in pkg.provides:
-                    for obs in prv.obsoletedby:
-                        for obspkg in obs.packages:
-                            if (obspkg in locked or
-                                obspkg in upgpkgs or
-                                isinst(obspkg)):
+                    for upg in prv.upgradedby:
+                        for upgpkg in upg.packages:
+                            if (upgpkg in locked or
+                                upgpkg in upgpkgs or
+                                isinst(upgpkg)):
                                 continue
-                            upgpkgs[obspkg] = True
+                            upgpkgs[upgpkg] = True
 
         self.evalBestState(upgpkgs.keys(), changeset, locked,
                            install=True, keep=True)
@@ -619,6 +634,34 @@ class Transaction(object):
                         if weight < bestweight:
                             bestweight = weight
                             changeset.setState(cs)
+
+def sortUpgrades(pkgs):
+    upgpkgs = {}
+    for pkg in pkgs:
+        dct = {}
+        rupg = recursiveUpgrades(pkg, dct)
+        del dct[pkg]
+        upgpkgs[pkg] = dct
+    pkgs.sort()
+    pkgs.reverse()
+    newpkgs = []
+    for pkg in pkgs:
+        pkgupgs = upgpkgs[pkg]
+        for i in range(len(newpkgs)):
+            if newpkgs[i] in pkgupgs:
+                newpkgs.insert(i, pkg)
+                break
+        else:
+            newpkgs.append(pkg)
+    pkgs[:] = newpkgs
+
+def recursiveUpgrades(pkg, set):
+    set[pkg] = True
+    for upg in pkg.upgrades:
+        for prv in upg.providedby:
+            for prvpkg in prv.packages:
+                if prvpkg not in set:
+                    recursiveUpgrades(prvpkg, set)
 
 try:
     import psyco

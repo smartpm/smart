@@ -30,7 +30,7 @@ typedef struct {
     PyObject *version;
     PyObject *provides;
     PyObject *requires;
-    PyObject *obsoletes;
+    PyObject *upgrades;
     PyObject *conflicts;
     PyObject *installed;
     PyObject *essential;
@@ -44,7 +44,7 @@ typedef struct {
     PyObject *version;
     PyObject *packages;
     PyObject *requiredby;
-    PyObject *obsoletedby;
+    PyObject *upgradedby;
     PyObject *conflictedby;
 } ProvidesObject;
 
@@ -73,17 +73,17 @@ typedef struct {
     PyObject *_packages;
     PyObject *_provides;
     PyObject *_requires;
-    PyObject *_obsoletes;
+    PyObject *_upgrades;
     PyObject *_conflicts;
     PyObject *_pkgnames;
     PyObject *_prvnames;
     PyObject *_reqnames;
-    PyObject *_obsnames;
+    PyObject *_upgnames;
     PyObject *_cnfnames;
     PyObject *_pkgmap;
     PyObject *_prvmap;
     PyObject *_reqmap;
-    PyObject *_obsmap;
+    PyObject *_upgmap;
     PyObject *_cnfmap;
 } CacheObject;
 
@@ -111,7 +111,7 @@ Package_init(PackageObject *self, PyObject *args)
     Py_INCREF(self->version);
     self->provides = PyList_New(0);
     self->requires = PyList_New(0);
-    self->obsoletes = PyList_New(0);
+    self->upgrades = PyList_New(0);
     self->conflicts = PyList_New(0);
     Py_INCREF(Py_False);
     self->installed = Py_False;
@@ -128,7 +128,7 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->version);
     Py_XDECREF(self->provides);
     Py_XDECREF(self->requires);
-    Py_XDECREF(self->obsoletes);
+    Py_XDECREF(self->upgrades);
     Py_XDECREF(self->conflicts);
     Py_XDECREF(self->installed);
     Py_XDECREF(self->essential);
@@ -193,7 +193,7 @@ Package_equals(PackageObject *self, PackageObject *other)
         strcmp(STR(self->version), STR(other->version)) != 0 ||
         PyList_GET_SIZE(self->provides) != PyList_GET_SIZE(other->provides) ||
         PyList_GET_SIZE(self->requires) != PyList_GET_SIZE(other->requires) ||
-        PyList_GET_SIZE(self->obsoletes) != PyList_GET_SIZE(other->obsoletes) ||
+        PyList_GET_SIZE(self->upgrades) != PyList_GET_SIZE(other->upgrades) ||
         PyList_GET_SIZE(self->conflicts) != PyList_GET_SIZE(other->conflicts)) {
         ret = Py_False;
         goto exit;
@@ -225,12 +225,12 @@ Package_equals(PackageObject *self, PackageObject *other)
         }
     }
 
-    ilen = PyList_GET_SIZE(self->obsoletes);
-    jlen = PyList_GET_SIZE(other->obsoletes);
+    ilen = PyList_GET_SIZE(self->upgrades);
+    jlen = PyList_GET_SIZE(other->upgrades);
     for (i = 0; i != ilen; i++) {
-        PyObject *item = PyList_GET_ITEM(self->obsoletes, i);
+        PyObject *item = PyList_GET_ITEM(self->upgrades, i);
         for (j = 0; j != jlen; j++)
-            if (item == PyList_GET_ITEM(other->obsoletes, j))
+            if (item == PyList_GET_ITEM(other->upgrades, j))
                 break;
         if (j == jlen) {
             ret = Py_False;
@@ -300,7 +300,7 @@ static PyMemberDef Package_members[] = {
     {"version", T_OBJECT, OFF(version), 0, 0},
     {"provides", T_OBJECT, OFF(provides), 0, 0},
     {"requires", T_OBJECT, OFF(requires), 0, 0},
-    {"obsoletes", T_OBJECT, OFF(obsoletes), 0, 0},
+    {"upgrades", T_OBJECT, OFF(upgrades), 0, 0},
     {"conflicts", T_OBJECT, OFF(conflicts), 0, 0},
     {"installed", T_OBJECT, OFF(installed), 0, 0},
     {"essential", T_OBJECT, OFF(essential), 0, 0},
@@ -365,7 +365,7 @@ Provides_init(ProvidesObject *self, PyObject *args)
     Py_INCREF(self->version);
     self->packages = PyList_New(0);
     self->requiredby = PyList_New(0);
-    self->obsoletedby = PyList_New(0);
+    self->upgradedby = PyList_New(0);
     self->conflictedby = PyList_New(0);
     return 0;
 }
@@ -377,7 +377,7 @@ Provides_dealloc(ProvidesObject *self)
     Py_XDECREF(self->version);
     Py_XDECREF(self->packages);
     Py_XDECREF(self->requiredby);
-    Py_XDECREF(self->obsoletedby);
+    Py_XDECREF(self->upgradedby);
     Py_XDECREF(self->conflictedby);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -419,7 +419,7 @@ static PyMemberDef Provides_members[] = {
     {"version", T_OBJECT, OFF(version), 0, 0},
     {"packages", T_OBJECT, OFF(packages), 0, 0},
     {"requiredby", T_OBJECT, OFF(requiredby), 0, 0},
-    {"obsoletedby", T_OBJECT, OFF(obsoletedby), 0, 0},
+    {"upgradedby", T_OBJECT, OFF(upgradedby), 0, 0},
     {"conflictedby", T_OBJECT, OFF(conflictedby), 0, 0},
     {NULL}
 };
@@ -767,7 +767,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     PyObject *pkgargs;
     PyObject *prvargs;
     PyObject *reqargs;
-    PyObject *obsargs;
+    PyObject *upgargs;
     PyObject *cnfargs;
     PyObject *callargs;
     
@@ -788,7 +788,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "O!O&O&O&O&", &PyTuple_Type, &pkgargs,
                           mylist, &prvargs, mylist, &reqargs,
-                          mylist, &obsargs, mylist, &cnfargs))
+                          mylist, &upgargs, mylist, &cnfargs))
         return NULL;
 
     if (PyTuple_GET_SIZE(pkgargs) < 2) {
@@ -935,67 +935,67 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
         }
     }
 
-    /* if obsargs: */
-    if (obsargs) {
-        /* for args in obsargs: */
+    /* if upgargs: */
+    if (upgargs) {
+        /* for args in upgargs: */
         int i = 0;    
-        int len = PyList_GET_SIZE(obsargs);
+        int len = PyList_GET_SIZE(upgargs);
         for (; i != len; i++) {
-            PyObject *args = PyList_GET_ITEM(obsargs, i);
-            DependsObject *obsobj;
-            PyObject *obs;
+            PyObject *args = PyList_GET_ITEM(upgargs, i);
+            DependsObject *upgobj;
+            PyObject *upg;
             
             if (!PyTuple_Check(args)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "item in obsargs is not a tuple");
+                                "item in upgargs is not a tuple");
                 return NULL;
             }
 
-            /* obs = cache._obsmap.get(args) */
-            obs = PyDict_GetItem(cache->_obsmap, args);
-            obsobj = (DependsObject *)obs;
+            /* upg = cache._upgmap.get(args) */
+            upg = PyDict_GetItem(cache->_upgmap, args);
+            upgobj = (DependsObject *)upg;
 
-            /* if not obs: */
-            if (!obs) {
+            /* if not upg: */
+            if (!upg) {
                 if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
-                    PyErr_SetString(PyExc_ValueError, "invalid obsargs tuple");
+                    PyErr_SetString(PyExc_ValueError, "invalid upgargs tuple");
                     return NULL;
                 }
-                /* obs = args[0](*args[1:]) */
+                /* upg = args[0](*args[1:]) */
                 callargs = PyTuple_GetSlice(args, 1, PyTuple_GET_SIZE(args));
-                obs = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
+                upg = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
                 Py_DECREF(callargs);
-                if (!obs) return NULL;
-                obsobj = (DependsObject *)obs;
+                if (!upg) return NULL;
+                upgobj = (DependsObject *)upg;
 
-                /* cache._obsmap[args] = obs */
-                PyDict_SetItem(cache->_obsmap, args, obs);
-                Py_DECREF(obs);
+                /* cache._upgmap[args] = upg */
+                PyDict_SetItem(cache->_upgmap, args, upg);
+                Py_DECREF(upg);
 
                 /*
-                   lst = cache._obsnames.get(obs.name)
+                   lst = cache._upgnames.get(upg.name)
                    if lst is not None:
-                       lst.append(obs)
+                       lst.append(upg)
                    else:
-                       cache._obsnames[obs.name] = [obs]
+                       cache._upgnames[upg.name] = [upg]
                 */
-                lst = PyDict_GetItem(cache->_obsnames, obsobj->name);
+                lst = PyDict_GetItem(cache->_upgnames, upgobj->name);
                 if (!lst) {
                     lst = PyList_New(0);
-                    PyDict_SetItem(cache->_obsnames, obsobj->name, lst);
+                    PyDict_SetItem(cache->_upgnames, upgobj->name, lst);
                     Py_DECREF(lst);
                 }
-                PyList_Append(lst, obs);
+                PyList_Append(lst, upg);
 
-                /* cache._obsoletes.append(obs) */
-                PyList_Append(cache->_obsoletes, obs);
+                /* cache._upgrades.append(upg) */
+                PyList_Append(cache->_upgrades, upg);
             }
 
-            /* relpkgs.append(obs.packages) */
-            PyList_Append(relpkgs, obsobj->packages);
+            /* relpkgs.append(upg.packages) */
+            PyList_Append(relpkgs, upgobj->packages);
 
-            /* pkg.obsoletes.append(obs) */
-            PyList_Append(pkgobj->obsoletes, obs);
+            /* pkg.upgrades.append(upg) */
+            PyList_Append(pkgobj->upgrades, upg);
         }
     }
 
@@ -1299,15 +1299,15 @@ Loader_newProvides(LoaderObject *self, PyObject *args)
 }
 
 PyObject *
-Loader_newObsoletes(LoaderObject *self, PyObject *args)
+Loader_newRequires(LoaderObject *self, PyObject *args)
 {
     PackageObject *pkgobj;
     PyObject *pkg;
-    PyObject *obsargs;
+    PyObject *reqargs;
     PyObject *callargs;
 
-    DependsObject *obsobj;
-    PyObject *obs;
+    DependsObject *reqobj;
+    PyObject *req;
     PyObject *lst;
 
     CacheObject *cache;
@@ -1318,7 +1318,7 @@ Loader_newObsoletes(LoaderObject *self, PyObject *args)
     }
     cache = (CacheObject *)self->_cache;
 
-    if (!PyArg_ParseTuple(args, "OO", &pkg, &obsargs))
+    if (!PyArg_ParseTuple(args, "OO", &pkg, &reqargs))
         return NULL;
 
     if (!PyObject_IsInstance(pkg, (PyObject *)&Package_Type)) {
@@ -1329,59 +1329,235 @@ Loader_newObsoletes(LoaderObject *self, PyObject *args)
 
     pkgobj = (PackageObject *)pkg;
 
-    /* obs = cache._obsmap.get(obsargs) */
-    obs = PyDict_GetItem(cache->_obsmap, obsargs);
-    obsobj = (DependsObject *)obs;
+    /* req = cache._reqmap.get(reqargs) */
+    req = PyDict_GetItem(cache->_reqmap, reqargs);
+    reqobj = (DependsObject *)req;
 
-    /* if not obs: */
-    if (!obs) {
+    /* if not req: */
+    if (!req) {
 
-        if (!PyTuple_Check(obsargs) || PyTuple_GET_SIZE(obsargs) < 2) {
-            PyErr_SetString(PyExc_ValueError, "invalid obsargs tuple");
+        if (!PyTuple_Check(reqargs) || PyTuple_GET_SIZE(reqargs) < 2) {
+            PyErr_SetString(PyExc_ValueError, "invalid reqargs tuple");
             return NULL;
         }
 
-        /* obs = obsargs[0](*obsargs[1:]) */
-        callargs = PyTuple_GetSlice(obsargs, 1, PyTuple_GET_SIZE(obsargs));
-        obs = PyObject_CallObject(PyTuple_GET_ITEM(obsargs, 0), callargs);
+        /* req = reqargs[0](*reqargs[1:]) */
+        callargs = PyTuple_GetSlice(reqargs, 1, PyTuple_GET_SIZE(reqargs));
+        req = PyObject_CallObject(PyTuple_GET_ITEM(reqargs, 0), callargs);
         Py_DECREF(callargs);
-        if (!obs) return NULL;
-        obsobj = (DependsObject *)obs;
+        if (!req) return NULL;
+        reqobj = (DependsObject *)req;
 
-        if (!PyObject_IsInstance(obs, (PyObject *)&Depends_Type)) {
+        if (!PyObject_IsInstance(req, (PyObject *)&Depends_Type)) {
             PyErr_SetString(PyExc_TypeError,
-                            "instance must be an Obsoletes subclass");
+                            "instance must be a Requires child");
             return NULL;
         }
 
-        /* cache._obsmap[obsargs] = obs */
-        PyDict_SetItem(cache->_obsmap, obsargs, obs);
-        Py_DECREF(obs);
+        /* cache._reqmap[reqargs] = req */
+        PyDict_SetItem(cache->_reqmap, reqargs, req);
+        Py_DECREF(req);
 
         /*
-           lst = cache._obsnames.get(obs.name)
+           lst = cache._reqnames.get(req.name)
            if lst is not None:
-               lst.append(obs)
+               lst.append(req)
            else:
-               cache._obsnames[obs.name] = [obs]
+               cache._reqnames[req.name] = [req]
         */
-        lst = PyDict_GetItem(cache->_obsnames, obsobj->name);
+        lst = PyDict_GetItem(cache->_reqnames, reqobj->name);
         if (!lst) {
             lst = PyList_New(0);
-            PyDict_SetItem(cache->_obsnames, obsobj->name, lst);
+            PyDict_SetItem(cache->_reqnames, reqobj->name, lst);
             Py_DECREF(lst);
         }
-        PyList_Append(lst, obs);
+        PyList_Append(lst, req);
 
-        /* cache._obsoletes[obs.name] = [obs] */
-        PyList_Append(cache->_obsoletes, obs);
+        /* cache._requires[req.name] = [req] */
+        PyList_Append(cache->_requires, req);
     }
 
-    /* obs.packages.append(pkg) */
-    PyList_Append(obsobj->packages, pkg);
+    /* req.packages.append(pkg) */
+    PyList_Append(reqobj->packages, pkg);
 
-    /* pkg.obsoletes.append(obs) */
-    PyList_Append(pkgobj->obsoletes, obs);
+    /* pkg.requires.append(req) */
+    PyList_Append(pkgobj->requires, req);
+
+    Py_RETURN_NONE;
+}
+
+PyObject *
+Loader_newUpgrades(LoaderObject *self, PyObject *args)
+{
+    PackageObject *pkgobj;
+    PyObject *pkg;
+    PyObject *upgargs;
+    PyObject *callargs;
+
+    DependsObject *upgobj;
+    PyObject *upg;
+    PyObject *lst;
+
+    CacheObject *cache;
+
+    if (!self->_cache) {
+        PyErr_SetString(PyExc_TypeError, "cache not set");
+        return NULL;
+    }
+    cache = (CacheObject *)self->_cache;
+
+    if (!PyArg_ParseTuple(args, "OO", &pkg, &upgargs))
+        return NULL;
+
+    if (!PyObject_IsInstance(pkg, (PyObject *)&Package_Type)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "first argument must be a Package instance");
+        return NULL;
+    }
+
+    pkgobj = (PackageObject *)pkg;
+
+    /* upg = cache._upgmap.get(upgargs) */
+    upg = PyDict_GetItem(cache->_upgmap, upgargs);
+    upgobj = (DependsObject *)upg;
+
+    /* if not upg: */
+    if (!upg) {
+
+        if (!PyTuple_Check(upgargs) || PyTuple_GET_SIZE(upgargs) < 2) {
+            PyErr_SetString(PyExc_ValueError, "invalid upgargs tuple");
+            return NULL;
+        }
+
+        /* upg = upgargs[0](*upgargs[1:]) */
+        callargs = PyTuple_GetSlice(upgargs, 1, PyTuple_GET_SIZE(upgargs));
+        upg = PyObject_CallObject(PyTuple_GET_ITEM(upgargs, 0), callargs);
+        Py_DECREF(callargs);
+        if (!upg) return NULL;
+        upgobj = (DependsObject *)upg;
+
+        if (!PyObject_IsInstance(upg, (PyObject *)&Depends_Type)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "instance must be an Upgrades child");
+            return NULL;
+        }
+
+        /* cache._upgmap[upgargs] = upg */
+        PyDict_SetItem(cache->_upgmap, upgargs, upg);
+        Py_DECREF(upg);
+
+        /*
+           lst = cache._upgnames.get(upg.name)
+           if lst is not None:
+               lst.append(upg)
+           else:
+               cache._upgnames[upg.name] = [upg]
+        */
+        lst = PyDict_GetItem(cache->_upgnames, upgobj->name);
+        if (!lst) {
+            lst = PyList_New(0);
+            PyDict_SetItem(cache->_upgnames, upgobj->name, lst);
+            Py_DECREF(lst);
+        }
+        PyList_Append(lst, upg);
+
+        /* cache._upgrades[upg.name] = [upg] */
+        PyList_Append(cache->_upgrades, upg);
+    }
+
+    /* upg.packages.append(pkg) */
+    PyList_Append(upgobj->packages, pkg);
+
+    /* pkg.upgrades.append(upg) */
+    PyList_Append(pkgobj->upgrades, upg);
+
+    Py_RETURN_NONE;
+}
+
+PyObject *
+Loader_newConflicts(LoaderObject *self, PyObject *args)
+{
+    PackageObject *pkgobj;
+    PyObject *pkg;
+    PyObject *cnfargs;
+    PyObject *callargs;
+
+    DependsObject *cnfobj;
+    PyObject *cnf;
+    PyObject *lst;
+
+    CacheObject *cache;
+
+    if (!self->_cache) {
+        PyErr_SetString(PyExc_TypeError, "cache not set");
+        return NULL;
+    }
+    cache = (CacheObject *)self->_cache;
+
+    if (!PyArg_ParseTuple(args, "OO", &pkg, &cnfargs))
+        return NULL;
+
+    if (!PyObject_IsInstance(pkg, (PyObject *)&Package_Type)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "first argument must be a Package instance");
+        return NULL;
+    }
+
+    pkgobj = (PackageObject *)pkg;
+
+    /* cnf = cache._cnfmap.get(cnfargs) */
+    cnf = PyDict_GetItem(cache->_cnfmap, cnfargs);
+    cnfobj = (DependsObject *)cnf;
+
+    /* if not cnf: */
+    if (!cnf) {
+
+        if (!PyTuple_Check(cnfargs) || PyTuple_GET_SIZE(cnfargs) < 2) {
+            PyErr_SetString(PyExc_ValueError, "invalid cnfargs tuple");
+            return NULL;
+        }
+
+        /* cnf = cnfargs[0](*cnfargs[1:]) */
+        callargs = PyTuple_GetSlice(cnfargs, 1, PyTuple_GET_SIZE(cnfargs));
+        cnf = PyObject_CallObject(PyTuple_GET_ITEM(cnfargs, 0), callargs);
+        Py_DECREF(callargs);
+        if (!cnf) return NULL;
+        cnfobj = (DependsObject *)cnf;
+
+        if (!PyObject_IsInstance(cnf, (PyObject *)&Depends_Type)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "instance must be a Conflicts child");
+            return NULL;
+        }
+
+        /* cache._cnfmap[cnfargs] = cnf */
+        PyDict_SetItem(cache->_cnfmap, cnfargs, cnf);
+        Py_DECREF(cnf);
+
+        /*
+           lst = cache._cnfnames.get(cnf.name)
+           if lst is not None:
+               lst.append(cnf)
+           else:
+               cache._cnfnames[cnf.name] = [cnf]
+        */
+        lst = PyDict_GetItem(cache->_cnfnames, cnfobj->name);
+        if (!lst) {
+            lst = PyList_New(0);
+            PyDict_SetItem(cache->_cnfnames, cnfobj->name, lst);
+            Py_DECREF(lst);
+        }
+        PyList_Append(lst, cnf);
+
+        /* cache._conflicts[cnf.name] = [cnf] */
+        PyList_Append(cache->_conflicts, cnf);
+    }
+
+    /* cnf.packages.append(pkg) */
+    PyList_Append(cnfobj->packages, pkg);
+
+    /* pkg.conflicts.append(cnf) */
+    PyList_Append(pkgobj->conflicts, cnf);
 
     Py_RETURN_NONE;
 }
@@ -1404,7 +1580,9 @@ static PyMethodDef Loader_methods[] = {
     {"reload", (PyCFunction)Loader_reload, METH_NOARGS, NULL},
     {"newPackage", (PyCFunction)Loader_newPackage, METH_VARARGS, NULL},
     {"newProvides", (PyCFunction)Loader_newProvides, METH_VARARGS, NULL},
-    {"newObsoletes", (PyCFunction)Loader_newObsoletes, METH_VARARGS, NULL},
+    {"newRequires", (PyCFunction)Loader_newRequires, METH_VARARGS, NULL},
+    {"newUpgrades", (PyCFunction)Loader_newUpgrades, METH_VARARGS, NULL},
+    {"newConflicts", (PyCFunction)Loader_newConflicts, METH_VARARGS, NULL},
     {NULL, NULL}
 };
 
@@ -1474,17 +1652,17 @@ Cache_init(CacheObject *self, PyObject *args)
     self->_packages = PyList_New(0);
     self->_provides = PyList_New(0);
     self->_requires = PyList_New(0);
-    self->_obsoletes = PyList_New(0);
+    self->_upgrades = PyList_New(0);
     self->_conflicts = PyList_New(0);
     self->_pkgnames = PyDict_New();
     self->_prvnames = PyDict_New();
     self->_reqnames = PyDict_New();
-    self->_obsnames = PyDict_New();
+    self->_upgnames = PyDict_New();
     self->_cnfnames = PyDict_New();
     self->_pkgmap = PyDict_New();
     self->_prvmap = PyDict_New();
     self->_reqmap = PyDict_New();
-    self->_obsmap = PyDict_New();
+    self->_upgmap = PyDict_New();
     self->_cnfmap = PyDict_New();
     return 0;
 }
@@ -1497,17 +1675,17 @@ Cache_dealloc(CacheObject *self)
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_provides);
     Py_XDECREF(self->_requires);
-    Py_XDECREF(self->_obsoletes);
+    Py_XDECREF(self->_upgrades);
     Py_XDECREF(self->_conflicts);
     Py_XDECREF(self->_pkgnames);
     Py_XDECREF(self->_prvnames);
     Py_XDECREF(self->_reqnames);
-    Py_XDECREF(self->_obsnames);
+    Py_XDECREF(self->_upgnames);
     Py_XDECREF(self->_cnfnames);
     Py_XDECREF(self->_pkgmap);
     Py_XDECREF(self->_prvmap);
     Py_XDECREF(self->_reqmap);
-    Py_XDECREF(self->_obsmap);
+    Py_XDECREF(self->_upgmap);
     Py_XDECREF(self->_cnfmap);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -1546,7 +1724,7 @@ Cache_reset(CacheObject *self, PyObject *args)
             prvobj = (ProvidesObject *)prv;
             RESET_LIST(prvobj->packages);
             RESET_LIST(prvobj->requiredby);
-            RESET_LIST(prvobj->obsoletedby);
+            RESET_LIST(prvobj->upgradedby);
             RESET_LIST(prvobj->conflictedby);
         }
         len = PyList_GET_SIZE(self->_requires);
@@ -1558,14 +1736,14 @@ Cache_reset(CacheObject *self, PyObject *args)
             RESET_LIST(reqobj->packages);
             RESET_LIST(reqobj->providedby);
         }
-        len = PyList_GET_SIZE(self->_obsoletes);
+        len = PyList_GET_SIZE(self->_upgrades);
         for (i = 0; i != len; i++) {
-            DependsObject *obsobj;
-            PyObject *obs;
-            obs = PyList_GET_ITEM(self->_obsoletes, i);
-            obsobj = (DependsObject *)obs;
-            RESET_LIST(obsobj->packages);
-            RESET_LIST(obsobj->providedby);
+            DependsObject *upgobj;
+            PyObject *upg;
+            upg = PyList_GET_ITEM(self->_upgrades, i);
+            upgobj = (DependsObject *)upg;
+            RESET_LIST(upgobj->packages);
+            RESET_LIST(upgobj->providedby);
         }
         len = PyList_GET_SIZE(self->_conflicts);
         for (i = 0; i != len; i++) {
@@ -1580,16 +1758,16 @@ Cache_reset(CacheObject *self, PyObject *args)
     RESET_LIST(self->_packages);
     RESET_LIST(self->_provides);
     RESET_LIST(self->_requires);
-    RESET_LIST(self->_obsoletes);
+    RESET_LIST(self->_upgrades);
     RESET_LIST(self->_conflicts);
     PyDict_Clear(self->_pkgnames);
     PyDict_Clear(self->_prvnames);
     PyDict_Clear(self->_reqnames);
-    PyDict_Clear(self->_obsnames);
+    PyDict_Clear(self->_upgnames);
     PyDict_Clear(self->_cnfnames);
     PyDict_Clear(self->_prvmap);
     PyDict_Clear(self->_reqmap);
-    PyDict_Clear(self->_obsmap);
+    PyDict_Clear(self->_upgmap);
     PyDict_Clear(self->_cnfmap);
     Py_RETURN_NONE;
 }
@@ -1736,25 +1914,25 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             }
         }
 
-        /* lst = self._obsnames.get(prv.name) */
-        lst = PyDict_GetItem(self->_obsnames, prv->name);
+        /* lst = self._upgnames.get(prv.name) */
+        lst = PyDict_GetItem(self->_upgnames, prv->name);
 
         /* if lst: */
         if (lst) {
 
-            /* for obs in lst: */
-            int obslen = PyList_GET_SIZE(lst);
-            for (j = 0; j != obslen; j++) {
-                DependsObject *obs = (DependsObject *)PyList_GET_ITEM(lst, j);
-                /* if obs.matches(prv): */
-                PyObject *ret = PyObject_CallMethod((PyObject *)obs, "matches",
+            /* for upg in lst: */
+            int upglen = PyList_GET_SIZE(lst);
+            for (j = 0; j != upglen; j++) {
+                DependsObject *upg = (DependsObject *)PyList_GET_ITEM(lst, j);
+                /* if upg.matches(prv): */
+                PyObject *ret = PyObject_CallMethod((PyObject *)upg, "matches",
                                                     "O", (PyObject *)prv);
                 if (!ret) return NULL;
                 if (PyObject_IsTrue(ret)) {
-                    /* obs.providedby.append(prv) */
-                    PyList_Append(obs->providedby, (PyObject *)prv);
-                    /* prv.obsoletedby.append(obs) */
-                    PyList_Append(prv->obsoletedby, (PyObject *)obs);
+                    /* upg.providedby.append(prv) */
+                    PyList_Append(upg->providedby, (PyObject *)prv);
+                    /* prv.upgradedby.append(upg) */
+                    PyList_Append(prv->upgradedby, (PyObject *)upg);
                 }
                 Py_DECREF(ret);
             }
@@ -1846,17 +2024,17 @@ Cache_getRequires(CacheObject *self, PyObject *args)
 }
 
 PyObject *
-Cache_getObsoletes(CacheObject *self, PyObject *args)
+Cache_getUpgrades(CacheObject *self, PyObject *args)
 {
     PyObject *name = NULL;
     PyObject *lst;
     if (!PyArg_ParseTuple(args, "|O!", &PyString_Type, &name))
         return NULL;
     if (!name) {
-        Py_INCREF(self->_obsoletes);
-        return self->_obsoletes;
+        Py_INCREF(self->_upgrades);
+        return self->_upgrades;
     }
-    lst = PyDict_GetItem(self->_obsnames, name);
+    lst = PyDict_GetItem(self->_upgnames, name);
     if (!lst)
         lst = PyList_New(0);
     else
@@ -1897,7 +2075,7 @@ static PyMethodDef Cache_methods[] = {
     {"getPackages", (PyCFunction)Cache_getPackages, METH_VARARGS, NULL},
     {"getProvides", (PyCFunction)Cache_getProvides, METH_VARARGS, NULL},
     {"getRequires", (PyCFunction)Cache_getRequires, METH_VARARGS, NULL},
-    {"getObsoletes", (PyCFunction)Cache_getObsoletes, METH_VARARGS, NULL},
+    {"getUpgrades", (PyCFunction)Cache_getUpgrades, METH_VARARGS, NULL},
     {"getConflicts", (PyCFunction)Cache_getConflicts, METH_VARARGS, NULL},
     {NULL, NULL}
 };
@@ -1909,16 +2087,16 @@ static PyMemberDef Cache_members[] = {
     {"_packages", T_OBJECT, OFF(_packages), RO, 0},
     {"_provides", T_OBJECT, OFF(_provides), RO, 0},
     {"_requires", T_OBJECT, OFF(_requires), RO, 0},
-    {"_obsoletes", T_OBJECT, OFF(_obsoletes), RO, 0},
+    {"_upgrades", T_OBJECT, OFF(_upgrades), RO, 0},
     {"_conflicts", T_OBJECT, OFF(_conflicts), RO, 0},
     {"_pkgnames", T_OBJECT, OFF(_pkgnames), RO, 0},
     {"_prvnames", T_OBJECT, OFF(_prvnames), RO, 0},
     {"_reqnames", T_OBJECT, OFF(_reqnames), RO, 0},
-    {"_obsnames", T_OBJECT, OFF(_obsnames), RO, 0},
+    {"_upgnames", T_OBJECT, OFF(_upgnames), RO, 0},
     {"_cnfnames", T_OBJECT, OFF(_cnfnames), RO, 0},
     {"_prvmap", T_OBJECT, OFF(_prvmap), RO, 0},
     {"_reqmap", T_OBJECT, OFF(_reqmap), RO, 0},
-    {"_obsmap", T_OBJECT, OFF(_obsmap), RO, 0},
+    {"_upgmap", T_OBJECT, OFF(_upgmap), RO, 0},
     {"_cnfmap", T_OBJECT, OFF(_cnfmap), RO, 0},
     {NULL}
 };

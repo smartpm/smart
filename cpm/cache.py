@@ -5,7 +5,7 @@ class Package(object):
         self.version = version
         self.provides = []
         self.requires = []
-        self.obsoletes = []
+        self.upgrades = []
         self.conflicts = []
         self.installed = False
         self.essential = False
@@ -19,11 +19,11 @@ class Package(object):
             self.version != other.version or
             len(self.provides) != len(other.provides) or
             len(self.requires) != len(other.requires) or
-            len(self.obsoletes) != len(other.obsoletes) or
+            len(self.upgrades) != len(other.upgrades) or
             len(self.conflicts) != len(other.conflicts) or
             fk(self.provides) != fk(other.provides) or
             fk(self.requires) != fk(other.requires) or
-            fk(self.obsoletes) != fk(other.obsoletes) or
+            fk(self.upgrades) != fk(other.upgrades) or
             fk(self.conflicts) != fk(other.conflicts)):
             return False
         return True
@@ -32,9 +32,9 @@ class Package(object):
         # These two packages with the same name may coexist?
         # Use this for cases where two different packages have the
         # same name-version. In these cases, mapping the issue to a
-        # conflicts/obsoletes relation is impossible, since the relation
+        # conflicts/upgrades relation is impossible, since the relation
         # would match the package itself. *DO NOT* use this as a
-        # shortcut for other kinds of conflicts/obsoletes. The
+        # shortcut for other kinds of conflicts/upgrades. The
         # transaction system handles these cases differently.
         return self.version != other.version
 
@@ -90,7 +90,7 @@ class Provides(object):
         self.version = version
         self.packages = []
         self.requiredby = []
-        self.obsoletedby = []
+        self.upgradedby = []
         self.conflictedby = []
 
     def __str__(self):
@@ -128,7 +128,7 @@ class Depends(object):
         return rc
 
 class Requires(Depends): pass
-class Obsoletes(Depends): pass
+class Upgrades(Depends): pass
 class Conflicts(Depends): pass
 
 class Loader(object):
@@ -212,30 +212,30 @@ class Loader(object):
                         lst.append(req)
                     else:
                         cache._reqnames[req.name] = [req]
-            for obs in pkg.obsoletes:
-                obs.packages.append(obs)
-                args = (obs.name, obs.version, obs.relation)
-                if not cache._obsmap.get(args):
-                    cache._obsoletes.append(obs)
-                    cache._obsmap[args] = obs
-                    lst = cache._obsnames.get(obs.name)
+            for upg in pkg.upgrades:
+                upg.packages.append(upg)
+                args = (upg.name, upg.version, upg.relation)
+                if not cache._upgmap.get(args):
+                    cache._upgrades.append(upg)
+                    cache._upgmap[args] = upg
+                    lst = cache._upgnames.get(upg.name)
                     if lst is not None:
-                        lst.append(obs)
+                        lst.append(upg)
                     else:
-                        cache._obsnames[obs.name] = [obs]
+                        cache._upgnames[upg.name] = [upg]
             for cnf in pkg.conflicts:
                 cnf.packages.append(pkg)
                 args = (cnf.name, cnf.version, cnf.relation)
-                if not cache._obsmap.get(args):
+                if not cache._upgmap.get(args):
                     cache._conflicts.append(cnf)
-                    cache._obsmap[args] = cnf
+                    cache._upgmap[args] = cnf
                     lst = cache._cnfnames.get(cnf.name)
                     if lst is not None:
                         lst.append(cnf)
                     else:
                         cache._cnfnames[cnf.name] = [cnf]
 
-    def newPackage(self, pkgargs, prvargs, reqargs, obsargs, cnfargs):
+    def newPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
         cache = self._cache
         pkg = pkgargs[0](*pkgargs[1:])
         relpkgs = []
@@ -269,27 +269,27 @@ class Loader(object):
                 relpkgs.append(req.packages)
                 pkg.requires.append(req)
 
-        if obsargs:
-            for args in obsargs:
-                obs = cache._obsmap.get(args)
-                if not obs:
-                    obs = args[0](*args[1:])
-                    cache._obsmap[args] = obs
-                    lst = cache._obsnames.get(obs.name)
+        if upgargs:
+            for args in upgargs:
+                upg = cache._upgmap.get(args)
+                if not upg:
+                    upg = args[0](*args[1:])
+                    cache._upgmap[args] = upg
+                    lst = cache._upgnames.get(upg.name)
                     if lst is not None:
-                        lst.append(obs)
+                        lst.append(upg)
                     else:
-                        cache._obsnames[obs.name] = [obs]
-                    cache._obsoletes.append(obs)
-                relpkgs.append(obs.packages)
-                pkg.obsoletes.append(obs)
+                        cache._upgnames[upg.name] = [upg]
+                    cache._upgrades.append(upg)
+                relpkgs.append(upg.packages)
+                pkg.upgrades.append(upg)
 
         if cnfargs:
             for args in cnfargs:
-                cnf = cache._obsmap.get(args)
+                cnf = cache._upgmap.get(args)
                 if not cnf:
                     cnf = args[0](*args[1:])
-                    cache._obsmap[args] = cnf
+                    cache._upgmap[args] = cnf
                     lst = cache._cnfnames.get(cnf.name)
                     if lst is not None:
                         lst.append(cnf)
@@ -358,20 +358,50 @@ class Loader(object):
                                    req.name, req.relation, req.version)
                         del cache._reqmap[reqargs]
 
-    def newObsoletes(self, pkg, obsargs):
+    def newRequires(self, pkg, reqargs):
         cache = self._cache
-        obs = cache._obsmap.get(obsargs)
-        if not obs:
-            obs = obsargs[0](*obsargs[1:])
-            cache._obsmap[obsargs] = obs
-            lst = cache._obsnames.get(obs.name)
+        req = cache._reqmap.get(reqargs)
+        if not req:
+            req = reqargs[0](*reqargs[1:])
+            cache._reqmap[reqargs] = req
+            lst = cache._reqnames.get(req.name)
             if lst is not None:
-                lst.append(obs)
+                lst.append(req)
             else:
-                cache._obsnames[obs.name] = [obs]
-            cache._obsoletes.append(obs)
-        obs.packages.append(pkg)
-        pkg.obsoletes.append(obs)
+                cache._reqnames[req.name] = [req]
+            cache._requires.append(req)
+        req.packages.append(pkg)
+        pkg.requires.append(req)
+
+    def newUpgrades(self, pkg, upgargs):
+        cache = self._cache
+        upg = cache._upgmap.get(upgargs)
+        if not upg:
+            upg = upgargs[0](*upgargs[1:])
+            cache._upgmap[upgargs] = upg
+            lst = cache._upgnames.get(upg.name)
+            if lst is not None:
+                lst.append(upg)
+            else:
+                cache._upgnames[upg.name] = [upg]
+            cache._upgrades.append(upg)
+        upg.packages.append(pkg)
+        pkg.upgrades.append(upg)
+
+    def newConflicts(self, pkg, cnfargs):
+        cache = self._cache
+        cnf = cache._cnfmap.get(cnfargs)
+        if not cnf:
+            cnf = cnfargs[0](*cnfargs[1:])
+            cache._cnfmap[cnfargs] = cnf
+            lst = cache._cnfnames.get(cnf.name)
+            if lst is not None:
+                lst.append(cnf)
+            else:
+                cache._cnfnames[cnf.name] = [cnf]
+            cache._conflicts.append(cnf)
+        cnf.packages.append(pkg)
+        pkg.conflicts.append(cnf)
 
 class LoaderSet(list):
 
@@ -430,17 +460,17 @@ class Cache(object):
         self._packages = []
         self._provides = []
         self._requires = []
-        self._obsoletes = []
+        self._upgrades = []
         self._conflicts = []
         self._pkgnames = {}
         self._prvnames = {}
         self._reqnames = {}
-        self._obsnames = {}
+        self._upgnames = {}
         self._cnfnames = {}
         self._pkgmap = {}
         self._prvmap = {}
         self._reqmap = {}
-        self._obsmap = {}
+        self._upgmap = {}
         self._cnfmap = {}
 
     def setProgress(self, prog):
@@ -456,30 +486,30 @@ class Cache(object):
             for prv in self._provides:
                 del prv.packages[:]
                 del prv.requiredby[:]
-                del prv.obsoletedby[:]
+                del prv.upgradedby[:]
                 del prv.conflictedby[:]
             for req in self._requires:
                 del req.packages[:]
                 del req.providedby[:]
-            for obs in self._obsoletes:
-                del obs.packages[:]
-                del obs.providedby[:]
+            for upg in self._upgrades:
+                del upg.packages[:]
+                del upg.providedby[:]
             for cnf in self._conflicts:
                 del cnf.packages[:]
                 del cnf.providedby[:]
         del self._packages[:]
         del self._provides[:]
         del self._requires[:]
-        del self._obsoletes[:]
+        del self._upgrades[:]
         del self._conflicts[:]
         self._pkgnames.clear()
         self._prvnames.clear()
         self._reqnames.clear()
-        self._obsnames.clear()
+        self._upgnames.clear()
         self._cnfnames.clear()
         self._prvmap.clear()
         self._reqmap.clear()
-        self._obsmap.clear()
+        self._upgmap.clear()
         self._cnfmap.clear()
 
     def addLoader(self, loader):
@@ -541,12 +571,12 @@ class Cache(object):
                     if req.matches(prv):
                         req.providedby.append(prv)
                         prv.requiredby.append(req)
-            lst = self._obsnames.get(prv.name)
+            lst = self._upgnames.get(prv.name)
             if lst:
-                for obs in lst:
-                    if obs.matches(prv):
-                        obs.providedby.append(prv)
-                        prv.obsoletedby.append(obs)
+                for upg in lst:
+                    if upg.matches(prv):
+                        upg.providedby.append(prv)
+                        prv.upgradedby.append(upg)
             lst = self._cnfnames.get(prv.name)
             if lst:
                 for cnf in lst:
@@ -572,11 +602,11 @@ class Cache(object):
         else:
             return self._reqnames.get(name, [])
 
-    def getObsoletes(self, name=None):
+    def getUpgrades(self, name=None):
         if not name:
-            return self._obsoletes
+            return self._upgrades
         else:
-            return self._obsnames.get(name, [])
+            return self._upgnames.get(name, [])
 
     def getConflicts(self, name=None):
         if not name:

@@ -8,8 +8,8 @@ import os, re
 
 from rpm import archscore
 
-__all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMRequires",
-           "RPMObsoletes", "RPMConflicts"]
+__all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides",
+           "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes"]
 
 class RPMMatcher(Matcher):
     def __init__(self, str):
@@ -105,27 +105,28 @@ class RPMNameProvides(RPMProvides): pass
 
 class RPMDepends(Depends):
 
-    def matches(self, prov):
-        if self.name != prov.name:
+    def matches(self, prv):
+        if self.name != prv.name:
             return False
-        if not self.version or not prov.version:
+        if not self.version or not prv.version:
             return True
-        return checkdep(prov.version, self.relation, self.version)
-
-class RPMObsoletes(RPMDepends,Obsoletes):
-
-    def matches(self, prov):
-        if prov.__class__ != RPMNameProvides:
-            return False
-        if self.name != prov.name:
-            return False
-        if self.version and not prov.version:
-            return False
-        if not self.version and prov.version:
-            return True
-        return checkdep(prov.version, self.relation, self.version)
+        return checkdep(prv.version, self.relation, self.version)
 
 class RPMRequires(RPMDepends,Requires): pass
+class RPMUpgrades(RPMDepends,Upgrades): pass
 class RPMConflicts(RPMDepends,Conflicts): pass
+
+class RPMObsoletes(Depends):
+
+    def matches(self, prv):
+        if prv.__class__ != RPMNameProvides:
+            return False
+        if self.name != prv.name:
+            return False
+        if self.version and not prv.version:
+            return False
+        if not self.version and prv.version:
+            return True
+        return checkdep(prv.version, self.relation, self.version)
 
 # vim:ts=4:sw=4:et

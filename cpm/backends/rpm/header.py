@@ -88,6 +88,7 @@ class RPMHeaderLoader(Loader):
         Prv = RPMProvides
         NPrv = RPMNameProvides
         Req = RPMRequires
+        Upg = RPMUpgrades
         Obs = RPMObsoletes
         Cnf = RPMConflicts
         prog = self._progress
@@ -135,15 +136,6 @@ class RPMHeaderLoader(Loader):
             else:
                 reqargs = None
 
-            n = h[1090] # RPMTAG_OBSOLETENAME
-            if n:
-                f = h[1114] # RPMTAG_OBSOLETEFLAGS
-                v = h[1115] # RPMTAG_OBSOLETEVERSION
-                obsargs = [(Obs, n[i], CM.get(f[i]&CF), v[i] or None)
-                           for i in range(len(n))]
-            else:
-                obsargs = None
-
             n = h[1054] # RPMTAG_CONFLICTNAME
             if n:
                 f = h[1053] # RPMTAG_CONFLICTFLAGS
@@ -153,8 +145,21 @@ class RPMHeaderLoader(Loader):
             else:
                 cnfargs = None
 
+            n = h[1090] # RPMTAG_OBSOLETENAME
+            if n:
+                f = h[1114] # RPMTAG_OBSOLETEFLAGS
+                v = h[1115] # RPMTAG_OBSOLETEVERSION
+                upgargs = [(Obs, n[i], CM.get(f[i]&CF), v[i] or None)
+                           for i in range(len(n))]
+                if not cnfargs:
+                    cnfargs = upgargs
+                else:
+                    cnfargs.extend(upgargs)
+            else:
+                upgargs = None
+
             pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
-                                  prvargs, reqargs, obsargs, cnfargs)
+                                  prvargs, reqargs, upgargs, cnfargs)
             pkg.loaderinfo[self] = offset
             self._offsets[offset] = pkg
 
@@ -165,9 +170,11 @@ class RPMHeaderLoader(Loader):
         else:
             mver = {}
         for pkg in self._packages:
+            version, arch = splitarch(pkg.version)
+            args = (Obs, pkg.name, '<', version)
+            self.newUpgrades(pkg, args)
             if pkg not in mver:
-                version, arch = splitarch(pkg.version)
-                self.newObsoletes(pkg, (Obs, pkg.name, '<', version))
+                self.newConflicts(pkg, args)
 
 class RPMHeaderListLoader(RPMHeaderLoader):
 

@@ -1,5 +1,4 @@
-from cpm.transaction import Transaction, PolicyInstall
-from cpm.sorter import ObsoletesSorter
+from cpm.transaction import Transaction, PolicyInstall, sortUpgrades
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
@@ -29,7 +28,7 @@ def main(opts):
         if not pkgs:
             raise Error, "'%s' matches no uninstalled packages" % arg
         if len(pkgs) > 1:
-            pkgs = ObsoletesSorter(pkgs).sort()
+            sortUpgrades(pkgs)
             print "'%s' matches multiple packages, selecting: %s" % \
                   (arg, pkgs[0])
         pkg = pkgs[0]

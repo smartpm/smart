@@ -16,16 +16,16 @@ def parse_options(argv):
                       help="show provides for the given packages")
     parser.add_option("--requires", action="store_true",
                       help="show requires for the given packages")
+    parser.add_option("--upgrades", action="store_true",
+                      help="show upgrades for the given packages")
     parser.add_option("--conflicts", action="store_true",
                       help="show conflicts for the given packages")
-    parser.add_option("--obsoletes", action="store_true",
-                      help="show requires for the given packages")
     parser.add_option("--providedby", action="store_true",
                       help="show packages providing dependencies")
     parser.add_option("--requiredby", action="store_true",
                       help="show packages requiring provided information")
-    parser.add_option("--obsoletedby", action="store_true",
-                      help="show packages obsoleting provided information")
+    parser.add_option("--upgradedby", action="store_true",
+                      help="show packages upgrading provided information")
     parser.add_option("--conflictedby", action="store_true",
                       help="show packages conflicting with provided information")
     parser.add_option("--whoprovides", action="append", default=[], metavar="DEP",
@@ -35,8 +35,8 @@ def parse_options(argv):
     parser.add_option("--whoconflicts", action="append", default=[], metavar="DEP",
                       help="show only packages conflicting with the given "
                            "dependency")
-    parser.add_option("--whoobsoletes", action="append", default=[], metavar="DEP",
-                      help="show only packages obsoleting the given dependency")
+    parser.add_option("--whoupgrades", action="append", default=[], metavar="DEP",
+                      help="show only packages upgrading the given dependency")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -84,19 +84,19 @@ def main(opts):
                     whorequires.append(Provides(req.name, version))
         else:
             whorequires.append(Provides(name, version))
-    whoobsoletes = []
-    for name in opts.whoobsoletes:
+    whoupgrades = []
+    for name in opts.whoupgrades:
         if '=' in name:
             name, version = name.split('=')
         else:
             version = None
         if isre(name):
             p = re.compile(name)
-            for obs in cache.getObsoletes():
-                if p.match(obs.name):
-                    whoobsoletes.append(Provides(obs.name, version))
+            for upg in cache.getUpgrades():
+                if p.match(upg.name):
+                    whoupgrades.append(Provides(upg.name, version))
         else:
-            whoobsoletes.append(Provides(name, version))
+            whoupgrades.append(Provides(name, version))
     whoconflicts = []
     for name in opts.whoconflicts:
         if '=' in name:
@@ -111,7 +111,7 @@ def main(opts):
         else:
             whoconflicts.append(Provides(name, version))
 
-    if whoprovides or whorequires or whoobsoletes or whoconflicts:
+    if whoprovides or whorequires or whoupgrades or whoconflicts:
         newpackages = []
         for whoprv in whoprovides:
             for prv in cache.getProvides(whoprv.name):
@@ -125,10 +125,10 @@ def main(opts):
                     for pkg in req.packages:
                         if pkg in packages:
                             newpackages.append(pkg)
-        for whoobs in whoobsoletes:
-            for obs in cache.getObsoletes(whoobs.name):
-                if obs.matches(whoobs):
-                    for pkg in obs.packages:
+        for whoupg in whoupgrades:
+            for upg in cache.getUpgrades(whoupg.name):
+                if upg.matches(whoupg):
+                    for pkg in upg.packages:
                         if pkg in packages:
                             newpackages.append(pkg)
         for whocnf in whoconflicts:
@@ -166,14 +166,14 @@ def main(opts):
                             if opts.installed and not reqpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (reqpkg, prv)
-                if opts.obsoletedby and prv.obsoletedby:
-                    print "      Obsoleted By:"
-                    for obs in prv.obsoletedby:
-                        obs.packages.sort()
-                        for obspkg in obs.packages:
-                            if opts.installed and not obspkg.installed:
+                if opts.upgradedby and prv.upgradedby:
+                    print "      Upgraded By:"
+                    for upg in prv.upgradedby:
+                        upg.packages.sort()
+                        for upgpkg in upg.packages:
+                            if opts.installed and not upgpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (obspkg, prv)
+                            print "       ", "%s (%s)" % (upgpkg, prv)
                 if opts.conflictedby and prv.conflictedby:
                     print "      Conflicted By:"
                     for cnf in prv.conflictedby:
@@ -204,23 +204,23 @@ def main(opts):
                             if opts.installed and not prvpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (prvpkg, prv)
-        if pkg.obsoletes and (opts.obsoletes or whoobsoletes):
-            pkg.obsoletes.sort()
+        if pkg.upgrades and (opts.upgrades or whoupgrades):
+            pkg.upgrades.sort()
             first = True
-            for obs in pkg.obsoletes:
-                if whoobsoletes:
-                    for whoobs in whoobsoletes:
-                        if obs.matches(whoobs):
+            for upg in pkg.upgrades:
+                if whoupgrades:
+                    for whoupg in whoupgrades:
+                        if upg.matches(whoupg):
                             break
                     else:
                         continue
                 if first:
                     first = False
-                    print "  Obsoletes:"
-                print "   ", obs
-                if opts.providedby and obs.providedby:
+                    print "  Upgrades:"
+                print "   ", upg
+                if opts.providedby and upg.providedby:
                     print "      Provided By:"
-                    for prv in obs.providedby:
+                    for prv in upg.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
                             if opts.installed and not prvpkg.installed:
