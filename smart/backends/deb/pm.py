@@ -56,13 +56,11 @@ class DebSorter(ElementSorter):
             # their dependencies are reinstalled.
             for req in pkg.requires:
                 group = ElementOrGroup()
-                ugroup = ElementOrGroup()
                 for prv in req.providedby:
                     for prvpkg in prv.packages:
                         if changeset.get(prvpkg) is INSTALL:
                             if op is INSTALL:
-                                group.addSuccessor((prvpkg, CONFIG), config)
-                                ugroup.addSuccessor((prvpkg, UNPACK), unpack)
+                                group.addSuccessor((prvpkg, CONFIG), unpack)
                             else:
                                 group.addSuccessor((prvpkg, CONFIG), remove)
                         elif prvpkg.installed:
@@ -81,7 +79,6 @@ class DebSorter(ElementSorter):
                     else:
                         kind = OPTIONAL
                     self.addGroup(group, kind)
-                    self.addGroup(ugroup, OPTIONAL)
 
             if op is INSTALL:
 
