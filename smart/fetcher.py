@@ -655,7 +655,12 @@ class FetcherHandler(object):
                     valid, reason = fetcher.validate(item, uncomppath,
                                                      withreason=True,
                                                      uncomp=True)
-                    if valid and not fetcher.hasStrongValidate(item, True):
+                    if not valid and fetcher.validate(item, localpath):
+                        uncomphandler.uncompress(localpath)
+                        valid, reason = fetcher.validate(item, uncomppath,
+                                                         withreason=True,
+                                                         uncomp=True)
+                    elif valid and not fetcher.hasStrongValidate(item, True):
                         valid, reason = fetcher.validate(item, localpath,
                                                          withreason=True)
                     localpath = uncomppath
@@ -721,28 +726,30 @@ class FileHandler(FetcherHandler):
                     continue
                 elif not item.getInfo("uncomp"):
                     continue
+
                 localpath = self.getLocalPath(item)
                 uncomphandler = uncompressor.getHandler(localpath)
-                if (uncomphandler and not
-                    os.path.isfile(uncomphandler.getTargetPath(localpath))):
-                    valid, reason = fetcher.validate(item, localpath,
-                                                     withreason=True)
-                    if valid:
-                        linkpath = self._fetcher.getLocalPath(item)
-                        if os.path.isfile(linkpath):
+                if uncomphandler:
+                    uncomppath = uncomphandler.getTargetPath(localpath)
+                    if not fetcher.validate(item, uncomppath, uncomp=True):
+                        valid, reason = fetcher.validate(item, localpath,
+                                                         withreason=True)
+                        if valid:
+                            linkpath = self._fetcher.getLocalPath(item)
+                            if os.path.isfile(linkpath):
+                                os.unlink(linkpath)
+                            os.symlink(localpath, linkpath)
+                            uncomppath = uncomphandler.getTargetPath(linkpath)
+                            uncomphandler.uncompress(linkpath)
+                            valid, reason = fetcher.validate(item, uncomppath,
+                                                             withreason=True,
+                                                             uncomp=True)
                             os.unlink(linkpath)
-                        os.symlink(localpath, linkpath)
-                        uncomppath = uncomphandler.getTargetPath(linkpath)
-                        uncomphandler.uncompress(linkpath)
-                        valid, reason = fetcher.validate(item, uncomppath,
-                                                         withreason=True,
-                                                         uncomp=True)
-                        os.unlink(linkpath)
-                    if valid:
-                        item.setSucceeded(uncomppath)
-                    else:
-                        item.setFailed(reason)
-                    del self._queue[i]
+                        if valid:
+                            item.setSucceeded(uncomppath)
+                        else:
+                            item.setFailed(reason)
+                        del self._queue[i]
 
             # Then, everything else, but the items selected in self._forcecopy
             FetcherHandler.runLocal(self, caching=ALWAYS)

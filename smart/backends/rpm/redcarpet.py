@@ -300,10 +300,14 @@ class XMLParser(object):
         self._lastoffset = 0
         self._mod = 0
         self._progress = iface.getProgress(self._loader._cache)
+
         self._file = open(self._loader._filename)
-
-        parser.ParseFile(open(self._loader._filename))
-
+        try:
+            parser.ParseFile(open(self._loader._filename))
+        except expat.ExpatError, e:
+            iface.error(_("Error parsing %s: %s") %
+                        (self._loader._filename, str(e)))
         self.updateProgress()
+        self._file.close()
 
 # vim:ts=4:sw=4:et

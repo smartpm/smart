@@ -1,12 +1,13 @@
+# translation of smart.po to 
 # This file is distributed under the same license as the PACKAGE package.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER, 2004.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: newsmart\n"
+"Project-Id-Version: smart\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-12-06 17:52-0200\n"
-"PO-Revision-Date: 2004-12-06 17:53-0200\n"
+"POT-Creation-Date: 2004-12-07 16:05-0200\n"
+"PO-Revision-Date: 2004-12-07 16:07-0200\n"
 "Last-Translator: \n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -204,6 +205,12 @@ msgstr ""
 #: smart/backends/rpm/header.py:396 smart/backends/rpm/header.py:424
 msgid "Package list with no CRPMTAG_FILENAME tag"
 msgstr "Lista de pacotes sem a tag CRPMTAG_FILENAME"
+
+#: smart/backends/rpm/metadata.py:365 smart/backends/rpm/metadata.py:459
+#: smart/backends/rpm/redcarpet.py:308
+#, python-format
+msgid "Error parsing %s: %s"
+msgstr "Erro processando %s: %s"
 
 #: smart/backends/rpm/pm.py:83
 msgid "Will ask RPM to order it."
@@ -2074,11 +2081,11 @@ msgstr "Esquema não suportado: %s"
 msgid "Invalid URL: %s"
 msgstr "URL inválida: %s"
 
-#: smart/fetcher.py:815
+#: smart/fetcher.py:822
 msgid "Media not found"
 msgstr "Mídia não encontrada"
 
-#: smart/fetcher.py:939 smart/fetcher.py:1127 smart/fetcher.py:1677
+#: smart/fetcher.py:946 smart/fetcher.py:1134 smart/fetcher.py:1684
 msgid "Server reports unexpected size"
 msgstr "Servidor reportou um tamanho inesperado"
 

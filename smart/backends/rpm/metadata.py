@@ -357,11 +357,15 @@ class XMLParser(object):
         self._lastoffset = 0
         self._mod = 0
         self._progress = iface.getProgress(self._loader._cache)
+
         self._file = open(self._loader._filename)
-
-        parser.ParseFile(self._file)
-
+        try:
+            parser.ParseFile(self._file)
+        except expat.ExpatError, e:
+            iface.error(_("Error parsing %s: %s") %
+                        (self._loader._filename, str(e)))
         self.updateProgress()
+        self._file.close()
 
 class XMLFileListsParser(object):
 
@@ -449,7 +453,12 @@ class XMLFileListsParser(object):
         parser.returns_unicode = False
 
         file = open(self._loader._filelistsname)
-        parser.ParseFile(file)
+        try:
+            parser.ParseFile(file)
+        except expat.ExpatError, e:
+            iface.error(_("Error parsing %s: %s") %
+                        (self._loader._filelistsname, str(e)))
         file.close()
+
 
 # vim:ts=4:sw=4:et

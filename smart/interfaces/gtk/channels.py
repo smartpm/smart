@@ -129,7 +129,7 @@ class GtkChannels(object):
 
     def fill(self):
         self._treemodel.clear()
-        channels = sysconf.get("channels", ())
+        channels = sysconf.get("channels", {})
         aliases = channels.keys()
         aliases.sort()
         for alias in aliases:
