@@ -21,7 +21,7 @@
 #
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.filetools import getFileDigest
-from smart.backends.deb import DEBARCH
+from smart.backends.deb.base import DEBARCH
 from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, NEVER
 from smart import *
