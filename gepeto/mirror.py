@@ -70,9 +70,8 @@ class MirrorSystem(object):
             mirrordata = data[mirror]
             penality = 0
             if mirrordata["size"] and mirrordata["time"] >= 1:
-                penality += (mirrordata["size"]/1000000.)/ \
-                             float(mirrordata["time"])
-            penality += mirrordata["failed"]
+                penality += (mirrordata["size"]/1000000.)/mirrordata["time"]
+            penality += mirrordata["failed"]*((penality or 1)*0.1)
             if penality:
                 self._penality[mirror] = penality
 
