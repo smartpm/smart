@@ -167,32 +167,32 @@ def main(opts, ctrl, updatecache=True):
             whoconflicts.append(Provides(name, version))
 
     if whoprovides or whorequires or whoupgrades or whoconflicts:
-        newpackages = []
+        newpackages = {}
         for whoprv in whoprovides:
             for prv in cache.getProvides(whoprv.name):
                 if not whoprv.version or prv.name == prv.version:
                     for pkg in prv.packages:
                         if pkg in packages:
-                            newpackages.append(pkg)
+                            newpackages[pkg] = True
         for whoreq in whorequires:
             for req in cache.getRequires(whoreq.name):
                 if req.matches(whoreq):
                     for pkg in req.packages:
                         if pkg in packages:
-                            newpackages.append(pkg)
+                            newpackages[pkg] = True
         for whoupg in whoupgrades:
             for upg in cache.getUpgrades(whoupg.name):
                 if upg.matches(whoupg):
                     for pkg in upg.packages:
                         if pkg in packages:
-                            newpackages.append(pkg)
+                            newpackages[pkg] = True
         for whocnf in whoconflicts:
             for cnf in cache.getConflicts(whocnf.name):
                 if cnf.matches(whocnf):
                     for pkg in cnf.packages:
                         if pkg in packages:
-                            newpackages.append(pkg)
-        packages = newpackages
+                            newpackages[pkg] = True
+        packages = newpackages.keys()
 
     hasname = []
     for token in opts.name:
@@ -211,20 +211,20 @@ def main(opts, ctrl, updatecache=True):
         hasdescription.append(re.compile(token, re.I))
 
     if hasname or hassummary or hasdescription:
-        newpackages = []
+        newpackages = {}
         for pkg in cache.getPackages():
             for pattern in hasname:
                 if pattern.search(pkg.name):
-                    newpackages.append(pkg)
+                    newpackages[pkg] = True
             if hassummary or hasdescription:
                 info = pkg.loaders.keys()[0].getInfo(pkg)
                 for pattern in hassummary:
                     if pattern.search(info.getSummary()):
-                        newpackages.append(pkg)
+                        newpackages[pkg] = True
                 for pattern in hasdescription:
                     if pattern.search(info.getDescription()):
-                        newpackages.append(pkg)
-        packages = newpackages
+                        newpackages[pkg] = True
+        packages = newpackages.keys()
 
     packages.sort()
     for pkg in packages:
