@@ -91,6 +91,6 @@ class TextInterface(Interface):
             for pkg in pkgs:
                 print "   ", pkg
             print
-        return self.askYesNo("Confirm changes")
+        return self.askYesNo("Confirm changes", True)
 
 # vim:ts=4:sw=4:et
