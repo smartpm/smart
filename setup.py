@@ -34,7 +34,7 @@ def copy_tree(*args, **kwargs):
 distutils.file_util.copy_file = copy_file
 distutils.dir_util.copy_tree = copy_tree
 
-PYTHONLIB = get_python_lib()
+PYTHONLIB = get_python_lib(1)
 
 I18NFILES = []
 for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
