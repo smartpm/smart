@@ -40,6 +40,7 @@ class MediaSet(object):
                 if mountpoint not in mountpoints:
                     mountpoints[mountpoint] = media
                     self._medias.append(media)
+        self._medias.sort()
 
     def resetState(self):
         for media in self._medias:
@@ -90,9 +91,13 @@ class MediaSet(object):
 
 class Media(object):
 
-    def __init__(self, mountpoint, device=None):
+    order = 1000
+
+    def __init__(self, mountpoint, device=None, type=None, options=None):
         self._mountpoint = os.path.normpath(mountpoint)
         self._device = device
+        self._type = type
+        self._options = options
         self.resetState()
 
     def resetState(self):
@@ -109,6 +114,12 @@ class Media(object):
 
     def getDevice(self):
         return self._device
+
+    def getType(self):
+        return self._type
+
+    def getOptions(self):
+        return self._options
 
     def isMounted(self):
         if not os.path.isfile("/proc/mounts"):
@@ -155,13 +166,23 @@ class Media(object):
                 return True
         return False
 
+    def __lt__(self, other):
+        return self.order < other.order
+
 class MountMedia(Media):
 
     def mount(self):
         if self.isMounted():
             return True
-        status, output = commands.getstatusoutput("mount %s" %
-                                                  self._mountpoint)
+        if self._device:
+            cmd = "mount %s %s" % (self._device, self._mountpoint)
+            if self._type:
+                cmd += " -t %s" % self._type
+        else:
+            cmd = "mount %s" % self._mountpoint
+        if self._options:
+            cmd += " -o %s" % self._options
+        status, output = commands.getstatusoutput(cmd)
         if status != 0:
             iface.debug(output)
             return False
@@ -184,6 +205,8 @@ class BasicMedia(MountMedia, UmountMedia):
 
 class AutoMountMedia(UmountMedia):
 
+    order = 500
+
     def mount(self):
         try:
             os.listdir(self._mountpoint)
@@ -191,6 +214,22 @@ class AutoMountMedia(UmountMedia):
             return False
         else:
             return True
+
+class ImageMedia(BasicMedia):
+
+    order = 100
+
+    def mount(self):
+        if not os.path.isdir(self._mountpoint):
+            os.mkdir(self._mountpoint)
+        BasicMedia.mount(self)
+
+    def umount(self):
+        BasicMedia.umount(self)
+        try:
+            os.rmdir(self._mountpoint)
+        except OSError:
+            pass
 
 def discoverFstabMedias():
     result = []
@@ -236,5 +275,30 @@ def discoverAutoMountMedias():
                         result.append(AutoMountMedia(mountpoint, device))
     return result
 
-hooks.register("discover-medias", discoverAutoMountMedias, priority=400)
+hooks.register("discover-medias", discoverAutoMountMedias)
 
+def discoverImageMedias():
+    result = []
+    mntdir = os.path.join(sysconf.get("data-dir"), "mnt")
+    if not os.path.isdir(mntdir):
+        try:
+            os.makedirs(mntdir)
+        except OSError:
+            return result
+    elif not os.access(mntdir, os.W_OK):
+        return result
+    basenames = {}
+    for path in sysconf.get("image-medias", ()):
+        if os.path.isfile(path):
+            path = os.path.normpath(path)
+            dirname, basename = os.path.split(path)
+            if basename in basenames:
+                suffix = 1
+                while basename+(".%d" % suffix) in basenames:
+                    suffix += 1
+                basename = basename+(".%d" % suffix)
+            mountpoint = os.path.join(mntdir, basename)
+            result.append(ImageMedia(mountpoint, path, options="loop"))
+    return result
+
+hooks.register("discover-medias", discoverImageMedias)

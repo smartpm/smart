@@ -74,9 +74,11 @@ class URPMIChannel(PackageChannel):
         item = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
         fetcher.run(progress=progress)
         if item.getStatus() == FAILED:
-            lines = ["Failed acquiring information for '%s':" % self,
-                     "%s: %s" % (item.getURL(), failed)]
-            raise Error, "\n".join(lines)
+            if fetcher.getCaching() is NEVER:
+                lines = ["Failed acquiring information for '%s':" % self,
+                         "%s: %s" % (item.getURL(), failed)]
+                raise Error, "\n".join(lines)
+            return False
         else:
             localpath = item.getTargetPath()
             if localpath.endswith(".cz"):

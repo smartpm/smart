@@ -138,7 +138,10 @@ class APTRPMChannel(PackageChannel):
                 sfile.close()
                 os.unlink(rname)
                 os.unlink(sname)
-                raise
+                if fetcher.getCaching() is NEVER:
+                    raise
+                else:
+                    return False
             else:
                 os.unlink(rname)
                 os.unlink(sname)
@@ -205,9 +208,11 @@ class APTRPMChannel(PackageChannel):
                 errorlines.append("%s: %s" % (pkgitem.getURL(),
                                               pkgitem.getFailedReason()))
         if errorlines:
-            errorlines.insert(0, "Failed acquiring information for '%s':" %
-                                 self)
-            raise Error, "\n".join(errorlines)
+            if fetcher.getCaching() is NEVER:
+                errorlines.insert(0, "Failed acquiring information for '%s':" %
+                                     self)
+                raise Error, "\n".join(errorlines)
+            return False
 
         self._digest = digest
 

@@ -99,10 +99,12 @@ class RPMMetaDataChannel(PackageChannel):
             loader = RPMMetaDataLoader(localpath, self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
-        else:
+        elif fetcher.getCaching() is NEVER:
             lines = ["Failed acquiring information for '%s':" % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
+        else:
+            return False
 
         self._digest = digest
 

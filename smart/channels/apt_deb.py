@@ -137,7 +137,10 @@ class APTDEBChannel(PackageChannel):
             except Error, e:
                 progress.add(self.getFetchSteps()-2)
                 progress.show()
-                raise
+                if fetcher.getCaching() is NEVER:
+                    raise
+                else:
+                    return False
 
         # Fetch component package lists and release files
         fetcher.reset()
@@ -201,9 +204,11 @@ class APTDEBChannel(PackageChannel):
                                               pkgitem.getFailedReason()))
 
         if errorlines:
-            errorlines.insert(0, "Failed acquiring information for '%s':" %
-                                 self)
-            raise Error, "\n".join(errorlines)
+            if fetcher.getCaching() is NEVER:
+                errorlines.insert(0, "Failed acquiring information for '%s':" %
+                                     self)
+                raise Error, "\n".join(errorlines)
+            return False
 
         self._digest = digest
 
