@@ -59,17 +59,17 @@ class GtkChannels(object):
             return True
         self._window.connect("delete-event", delete)
 
-        self._vbox = gtk.VBox()
-        self._vbox.set_border_width(10)
-        self._vbox.set_spacing(10)
-        self._vbox.show()
-        self._window.add(self._vbox)
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
 
-        self._scrollwin = gtk.ScrolledWindow()
-        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self._scrollwin.show()
-        self._vbox.add(self._scrollwin)
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.show()
+        vbox.add(sw)
 
         self._treemodel = gtk.ListStore(gobject.TYPE_INT,
                                         gobject.TYPE_STRING,
@@ -78,7 +78,7 @@ class GtkChannels(object):
         self._treeview = gtk.TreeView(self._treemodel)
         self._treeview.set_rules_hint(True)
         self._treeview.show()
-        self._scrollwin.add(self._treeview)
+        sw.add(self._treeview)
 
         renderer = gtk.CellRendererToggle()
         renderer.set_property("xpad", 3)
@@ -104,15 +104,15 @@ class GtkChannels(object):
         bbox.set_spacing(10)
         bbox.set_layout(gtk.BUTTONBOX_END)
         bbox.show()
-        self._vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, expand=False)
 
-        self._newbutton = gtk.Button(stock="gtk-new")
-        self._newbutton.show()
-        self._newbutton.connect("clicked", lambda x: self.newChannel())
-        bbox.pack_start(self._newbutton)
+        button = gtk.Button(stock="gtk-new")
+        button.show()
+        button.connect("clicked", lambda x: self.newChannel())
+        bbox.pack_start(button)
 
-        self._deletebutton = gtk.Button(stock="gtk-delete")
-        self._deletebutton.show()
+        button = gtk.Button(stock="gtk-delete")
+        button.show()
         def clicked(x):
             selection = self._treeview.get_selection()
             model, iter = selection.get_selected()
@@ -120,8 +120,8 @@ class GtkChannels(object):
                 return
             alias = model.get_value(iter, 1)
             self.delChannel(alias)
-        self._deletebutton.connect("clicked", clicked)
-        bbox.pack_start(self._deletebutton)
+        button.connect("clicked", clicked)
+        bbox.pack_start(button)
 
         self._propbutton = gtk.Button(stock="gtk-properties")
         self._propbutton.show()
@@ -132,13 +132,13 @@ class GtkChannels(object):
                 return
             alias = model.get_value(iter, 1)
             self.editChannel(alias)
-        self._propbutton.connect("clicked", clicked)
-        bbox.pack_start(self._propbutton)
+        button.connect("clicked", clicked)
+        bbox.pack_start(button)
 
-        self._closebutton = gtk.Button(stock="gtk-close")
-        self._closebutton.show()
-        self._closebutton.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(self._closebutton)
+        button = gtk.Button(stock="gtk-close")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
 
     def fill(self):
         self._treemodel.clear()
@@ -204,17 +204,17 @@ class GtkChannelSelector(object):
             return True
         self._window.connect("delete-event", delete)
 
-        self._vbox = gtk.VBox()
-        self._vbox.set_border_width(10)
-        self._vbox.set_spacing(10)
-        self._vbox.show()
-        self._window.add(self._vbox)
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
 
         self._scrollwin = gtk.ScrolledWindow()
         self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
         self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
         self._scrollwin.show()
-        self._vbox.add(self._scrollwin)
+        vbox.add(self._scrollwin)
 
         self._treemodel = gtk.ListStore(gobject.TYPE_INT,
                                         gobject.TYPE_STRING,
@@ -249,20 +249,20 @@ class GtkChannelSelector(object):
         bbox.set_spacing(10)
         bbox.set_layout(gtk.BUTTONBOX_END)
         bbox.show()
-        self._vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, expand=False)
 
-        self._okbutton = gtk.Button(stock="gtk-ok")
-        self._okbutton.show()
+        button = gtk.Button(stock="gtk-ok")
+        button.show()
         def clicked(x):
             self._result = True
             gtk.main_quit()
-        self._okbutton.connect("clicked", clicked)
-        bbox.pack_start(self._okbutton)
+        button.connect("clicked", clicked)
+        bbox.pack_start(button)
 
-        self._cancelbutton = gtk.Button(stock="gtk-cancel")
-        self._cancelbutton.show()
-        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(self._cancelbutton)
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
 
     def fill(self):
         self._treemodel.clear()
@@ -307,40 +307,40 @@ class ChannelEditor(object):
             return True
         self._window.connect("delete-event", delete)
 
-        self._vbox = gtk.VBox()
-        self._vbox.set_border_width(10)
-        self._vbox.set_spacing(10)
-        self._vbox.show()
-        self._window.add(self._vbox)
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
 
         self._table = gtk.Table()
         self._table.set_row_spacings(10)
         self._table.set_col_spacings(10)
         self._table.show()
-        self._vbox.pack_start(self._table)
+        vbox.pack_start(self._table)
 
         sep = gtk.HSeparator()
         sep.show()
-        self._vbox.pack_start(sep, expand=False)
+        vbox.pack_start(sep, expand=False)
 
         bbox = gtk.HButtonBox()
         bbox.set_spacing(10)
         bbox.set_layout(gtk.BUTTONBOX_END)
         bbox.show()
-        self._vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, expand=False)
 
-        self._okbutton = gtk.Button(stock="gtk-ok")
-        self._okbutton.show()
+        button = gtk.Button(stock="gtk-ok")
+        button.show()
         def clicked(x):
             self._result = True
             gtk.main_quit()
-        self._okbutton.connect("clicked", clicked)
-        bbox.pack_start(self._okbutton)
+        button.connect("clicked", clicked)
+        bbox.pack_start(button)
 
-        self._cancelbutton = gtk.Button(stock="gtk-cancel")
-        self._cancelbutton.show()
-        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(self._cancelbutton)
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
 
     def addField(self, key, label, text, editable=True,
                  small=False, tip=None, spin=False):
@@ -470,17 +470,17 @@ class ChannelCreator(object):
             return True
         self._window.connect("delete-event", delete)
 
-        self._vbox = gtk.VBox()
-        self._vbox.set_border_width(10)
-        self._vbox.set_spacing(10)
-        self._vbox.show()
-        self._window.add(self._vbox)
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
 
         table = gtk.Table()
         table.set_row_spacings(10)
         table.set_col_spacings(10)
         table.show()
-        self._vbox.pack_start(table)
+        vbox.pack_start(table)
         
         label = gtk.Label("Alias:")
         label.set_alignment(1.0, 0.5)
@@ -506,26 +506,26 @@ class ChannelCreator(object):
 
         sep = gtk.HSeparator()
         sep.show()
-        self._vbox.pack_start(sep, expand=False)
+        vbox.pack_start(sep, expand=False)
 
         bbox = gtk.HButtonBox()
         bbox.set_spacing(10)
         bbox.set_layout(gtk.BUTTONBOX_END)
         bbox.show()
-        self._vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, expand=False)
 
-        self._okbutton = gtk.Button(stock="gtk-ok")
-        self._okbutton.show()
+        button = gtk.Button(stock="gtk-ok")
+        button.show()
         def clicked(x):
             self._result = True
             gtk.main_quit()
-        self._okbutton.connect("clicked", clicked)
+        button.connect("clicked", clicked)
         bbox.pack_start(self._okbutton)
 
-        self._cancelbutton = gtk.Button(stock="gtk-cancel")
-        self._cancelbutton.show()
-        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(self._cancelbutton)
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
 
     def show(self):
         self._typevbox.foreach(self._typevbox.remove)
