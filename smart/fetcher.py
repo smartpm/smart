@@ -26,6 +26,7 @@ from smart.media import MediaSet
 from smart.const import *
 from smart import *
 import tempfile
+import socket
 import urllib
 import string
 import thread
@@ -756,7 +757,7 @@ class FTPHandler(FetcherHandler):
     def connect(self, ftp, item, active):
         item.start()
         url = item.getURL()
-        import socket, ftplib
+        import ftplib
         try:
             ftp.connect(url.host, url.port)
             ftp.login(url.user, url.passwd)
@@ -780,7 +781,7 @@ class FTPHandler(FetcherHandler):
             self.fetch(ftp, item)
 
     def fetch(self, ftp, item):
-        import socket, ftplib
+        import ftplib
 
         fetcher = self._fetcher
         url = item.getURL()
@@ -1055,8 +1056,12 @@ class URLLIBHandler(FetcherHandler):
                 else:
                     item.setFailed(remote.errmsg)
 
-            except (IOError, OSError, Error), e:
-                item.setFailed(str(e))
+            except (IOError, OSError, Error, socket.error), e:
+                try:
+                    errmsg = str(e[1])
+                except IndexError:
+                    errmsg = str(e)
+                item.setFailed(errmsg)
 
         self._lock.acquire()
         self._active -= 1

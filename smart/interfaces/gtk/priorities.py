@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.gtk import getPixbuf
+from smart.channel import getChannelInfo
 from smart import *
 import gobject, gtk
 

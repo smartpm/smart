@@ -20,67 +20,93 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.header import URPMILoader
+from smart.util.filetools import getFileDigest
 from smart.const import SUCCEEDED, FAILED, ALWAYS, NEVER
 from smart.channel import PackageChannel
 from smart import *
 import posixpath
+import re
 import os
 
 class URPMIChannel(PackageChannel):
 
-    def __init__(self, hdlurl, baseurl, *args):
+    def __init__(self, baseurl, hdlurl, *args):
         super(URPMIChannel, self).__init__(*args)
-        self._hdlurl = hdlurl
         self._baseurl = baseurl
+        if hdlurl:
+            self._hdlurl = hdlurl
+        else:
+            self._hdlurl = posixpath.join(self._baseurl, "hdlist.cz")
+        self._compareurl = self._hdlurl
 
     def getCacheCompareURLs(self):
-        return [posixpath.join(self._baseurl, "MD5SUM")]
+        return [self._compareurl]
 
     def getFetchSteps(self):
-        return 2
+        return 3
 
     def fetch(self, fetcher, progress):
 
         fetcher.reset()
 
-        url = posixpath.join(self._baseurl, "MD5SUM")
-        item = fetcher.enqueue(url)
+        self._compareurl = self._hdlurl
+
+        hdlbaseurl, basename = os.path.split(self._hdlurl)
+        md5url = posixpath.join(hdlbaseurl, "MD5SUM")
+        item = fetcher.enqueue(md5url)
         fetcher.run(progress=progress)
         hdlmd5 = None
         failed = item.getFailedReason()
-        if failed:
-            progress.add(1)
-            if fetcher.getCaching() is NEVER:
-                lines = ["Failed acquiring information for '%s':" % self,
-                         "%s: %s" % (item.getURL(), failed)]
-                raise Error, "\n".join(lines)
-            return False
+        if not failed:
+            self._compareurl = md5url
+            digest = getFileDigest(item.getTargetPath())
+            if digest == self._digest:
+                progress.add(2)
+                return True
 
-
-        digest = getFileDigest(item.getTargetPath())
-        if digest == self._digest:
-            progress.add(1)
-            return True
-        self.removeLoaders()
-
-        basename = posixpath.basename(self._hdlurl)
-        for line in open(item.getTargetPath()):
-            md5, name = line.split()
-            if name == basename:
-                hdlmd5 = md5
-                break
+            basename = posixpath.basename(self._hdlurl)
+            for line in open(item.getTargetPath()):
+                md5, name = line.split()
+                if name == basename:
+                    hdlmd5 = md5
+                    break
 
         fetcher.reset()
-        item = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
+        hdlitem = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
+
+        if self._hdlurl.endswith("/list"):
+            listitem = None
+        else:
+            m = re.compile(r"/hdlist(.*)\.").search(self._hdlurl)
+            suffix = m and m.group(1) or ""
+            listurl = posixpath.join(hdlbaseurl, "list%s" % suffix)
+            listitem = fetcher.enqueue(listurl, uncomp=True)
+
         fetcher.run(progress=progress)
-        if item.getStatus() == FAILED:
+
+        if hdlitem.getStatus() == FAILED:
             if fetcher.getCaching() is NEVER:
                 lines = ["Failed acquiring information for '%s':" % self,
-                         "%s: %s" % (item.getURL(), failed)]
+                         "%s: %s" % (hdlitem.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
         else:
-            localpath = item.getTargetPath()
+            localpath = hdlitem.getTargetPath()
+            digestpath = None
+            if listitem and listitem.getStatus() == SUCCEEDED:
+                if self._compareurl == self._hdlurl:
+                    self._compareurl = listurl
+                    digestpath = localpath
+                listpath = listitem.getTargetPath()
+            else:
+                listpath = None
+                if self._compareurl == self._hdlurl:
+                    digestpath = localpath
+            if digestpath:
+                digest = getFileDigest(digestpath)
+                if digest == self._digest:
+                    return True
+            self.removeLoaders()
             if localpath.endswith(".cz"):
                 if (not os.path.isfile(localpath[:-3]) or
                     fetcher.getCaching() != ALWAYS):
@@ -100,7 +126,7 @@ class URPMIChannel(PackageChannel):
                             raise
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
-            loader = URPMILoader(localpath, self._baseurl)
+            loader = URPMILoader(localpath, self._baseurl, listpath)
             loader.setChannel(self)
             self._loaders.append(loader)
 
@@ -109,8 +135,8 @@ class URPMIChannel(PackageChannel):
         return True
 
 def create(alias, data):
-    return URPMIChannel(data["hdlurl"],
-                        data["baseurl"],
+    return URPMIChannel(data["baseurl"],
+                        data["hdlurl"],
                         data["type"],
                         alias,
                         data["name"],

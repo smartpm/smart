@@ -28,7 +28,8 @@ description = """
 Repository created for Mandrake's URPMI package manager.
 """
 
-fields = [("hdlurl", "Header List URL", str, None,
-           "URL for the header list"),
-          ("baseurl", "Base URL", str, None,
-           "Base URL where MD5SUM file is found")]
+fields = [("baseurl", "Base URL", str, None,
+           "Base URL where RPMS/ directory is found"),
+          ("hdlurl", "Header List URL", str, "",
+           "URL for header list. If it's hdlist.cz inside "
+           "the given base URL, may be left empty.")]
