@@ -51,6 +51,9 @@ class ChangeSet(object):
 
     def copy(self):
         return ChangeSet(self)
+
+    def __nonzero__(self):
+        return bool(self._opmap)
     
     def __str__(self):
         l = []
@@ -194,6 +197,9 @@ class Transaction(object):
     def getRemoveList(self):
         set = self._changeset.getSet()
         return [pkg for pkg in set if set[pkg] is REMOVE]
+
+    def __nonzero__(self):
+        return bool(self._changeset)
 
     def __str__(self):
         return str(self._changeset)

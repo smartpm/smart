@@ -36,8 +36,11 @@ def main(opts):
     pkgs = [x for x in pkgs if x.installed]
     print "Computing upgrade..."
     trans.upgrade(pkgs)
-    trans.minimize()
-    print "Preparing package manager..."
-    ctrl.commitTransaction(trans)
+    if not trans:
+        print "No upgrades available!"
+    else:
+        trans.minimize()
+        print "Preparing package manager..."
+        ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
