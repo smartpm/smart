@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.slack.loader import SlackSiteLoader
+from smart.util.filetools import getFileDigest
 from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart import *

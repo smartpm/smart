@@ -21,6 +21,8 @@
 #
 from smart.backends.slack.loader import SlackDBLoader
 from smart.channel import PackageChannel
+from smart import *
+import os
 
 class SlackSysChannel(PackageChannel):
 
