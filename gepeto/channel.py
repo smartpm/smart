@@ -89,6 +89,20 @@ class Channel(object):
     def fetch(self, fetcher, progress):
         pass
 
+class FileChannel(Channel):
+    def __init__(self, filename, name=None, description=None, priority=0):
+        alias = os.path.abspath(filename)
+        if name is None:
+            name = os.path.basename(filename)
+        if not os.path.isfile(filename):
+            raise Error, "File not found: %s" % filename
+        super(FileChannel, self).__init__("file", alias, name, description,
+                                          priority, manualupdate=True)
+        loaders = filter(None, hooks.call("FileChannel.getLoader", filename))
+        if not loaders:
+            raise Error, "Unable to find loader for file: %s" % filename
+        self._loader = loaders[0]
+
 class ChannelDataError(Error): pass
 
 def createChannel(type, alias, data):

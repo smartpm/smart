@@ -23,9 +23,11 @@ from gepeto.transaction import Transaction, PolicyInstall, sortUpgrades
 from gepeto.transaction import INSTALL, REINSTALL
 from gepeto.matcher import MasterMatcher
 from gepeto.option import OptionParser
+from gepeto.channel import FileChannel
 from gepeto import *
 import string
 import re
+import os
 
 USAGE="gpt install [options] package ..."
 
@@ -56,9 +58,16 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
+    for arg in opts.args[:]:
+        if '/' in arg and os.path.isfile(arg):
+            ctrl.addFileChannel(arg)
+            opts.args.remove(arg)
     ctrl.updateCache()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
+    for channel in ctrl.getFileChannels():
+        for pkg in channel.getLoader().getPackages():
+            trans.enqueue(pkg, INSTALL)
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         pkgs = matcher.filter(cache.getPackages())

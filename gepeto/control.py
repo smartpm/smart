@@ -20,8 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
+from gepeto.channel import createChannel, FileChannel
 from gepeto.util.strtools import strToBool
-from gepeto.channel import createChannel
 from gepeto.progress import Progress
 from gepeto.fetcher import Fetcher
 from gepeto.cache import Cache
@@ -53,6 +53,25 @@ class Control(object):
         if channel in self._sysconfchannels:
             raise Error, "Channel is in system configuration"
         self._channels.remove(channel)
+
+    def getFileChannels(self):
+        return [x for x in self._channels if isinstance(x, FileChannel)]
+
+    def addFileChannel(self, filename):
+        if not self._sysconfchannels:
+            # Give a chance for backends to register
+            # themselves on FileChannel hooks.
+            self.reloadSysConfChannels()
+        self._channels.append(FileChannel(filename))
+
+    def removeFileChannel(self, filename):
+        for channel in self._channels:
+            if (isinstance(channel, FileChannel) and
+                channel.getAlias() == os.path.abspath(filename)):
+                self._filechannels.remove(channel)
+                break
+        else:
+            raise Error, "Channel not found for '%s'" % filename
 
     def getCache(self):
         return self._cache

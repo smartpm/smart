@@ -22,7 +22,10 @@
 from gettext import translation
 import os
 
-__all__ = ["sysconf", "iface", "Error", "_"]
+from gepeto.hook import Hooks
+hooks = Hooks()
+
+__all__ = ["sysconf", "iface", "hooks", "Error", "_"]
 
 class Error(Exception): pass
 
@@ -72,5 +75,6 @@ def init(opts=None):
         execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
                               "sysconf": sysconf})
     return ctrl
+
 
 # vim:ts=4:sw=4:et

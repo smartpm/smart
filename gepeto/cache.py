@@ -230,10 +230,13 @@ class Conflicts(Depends): pass
 
 class Loader(object):
     def __init__(self):
+        self._packages = []
         self._channel = None
         self._cache = None
         self._installed = False
-        self._packages = []
+
+    def getPackages(self):
+        return self._packages
 
     def getChannel(self):
         return self._channel
@@ -504,6 +507,12 @@ class Loader(object):
         pkg.conflicts.append(cnf)
 
 class LoaderSet(list):
+
+    def getPackages(self):
+        packages = []
+        for loader in self:
+            packages.extend(loader.getPackages())
+        return packages
 
     def getChannel(self):
         if self:

@@ -416,6 +416,14 @@ class RPMDirLoader(RPMHeaderLoader):
                 if fn in fndict:
                     self.newProvides(self._offsets[i], (RPMProvides, fn))
 
+def getFileChannelLoader(filename):
+    if filename.endswith(".rpm") and not filename.endswith(".src.rpm"):
+        dirname, basename = os.path.split(filename)
+        return RPMDirLoader(dirname, basename)
+    return None
+
+hooks.register("FileChannel.getLoader", getFileChannelLoader)
+
 try:
     import psyco
 except ImportError:

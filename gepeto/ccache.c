@@ -85,9 +85,9 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
+    PyObject *_packages;
     PyObject *_channel;
     PyObject *_cache;
-    PyObject *_packages;
     PyObject *_installed;
 } LoaderObject;
 
@@ -722,6 +722,13 @@ Loader_dealloc(LoaderObject *self)
     Py_XDECREF(self->_installed);
     Py_XDECREF(self->_cache);
     self->ob_type->tp_free((PyObject *)self);
+}
+
+PyObject *
+Loader_getPackages(LoaderObject *self, PyObject *args)
+{
+    Py_INCREF(self->_packages);
+    return self->_packages;
 }
 
 PyObject *
@@ -1697,6 +1704,7 @@ Loader_newConflicts(LoaderObject *self, PyObject *args)
 }
 
 static PyMethodDef Loader_methods[] = {
+    {"getPackages", (PyCFunction)Loader_getPackages, METH_NOARGS, NULL},
     {"getChannel", (PyCFunction)Loader_getChannel, METH_NOARGS, NULL},
     {"setChannel", (PyCFunction)Loader_setChannel, METH_O, NULL},
     {"getCache", (PyCFunction)Loader_getCache, METH_NOARGS, NULL},
