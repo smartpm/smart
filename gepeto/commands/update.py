@@ -47,8 +47,15 @@ def main(opts, ctrl):
     cache = ctrl.getCache()
     newpackages = sysconf.filterByFlag("new", cache.getPackages())
     if not newpackages:
-        iface.showStatus("There are no new packages.")
+        iface.showStatus("Channels have no new packages.")
     else:
-        iface.showStatus("There are %d new packages." % len(newpackages))
+        if len(newpackages) <= 10:
+            info = ":\n"
+            for pkg in newpackages:
+                info += "    %s\n" % pkg
+        else:
+            info = "."
+        iface.showStatus("Channels have %d new packages%s"
+                         % (len(newpackages), info))
 
 # vim:ts=4:sw=4:et
