@@ -1,5 +1,7 @@
 - Removable media handling
 - Support extra flags for rpm backend package manager (equivalent
   to --replacefiles).
-- Implement support for installing local files.
-- Implement directory channels.
+- Support for installing local files.
+- Directory channels.
+- Support for selecting packages by provided dependencies.
+- Support for downloading packages without installing them.

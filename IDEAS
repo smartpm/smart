@@ -152,6 +152,20 @@ http://rpms.subpop.net/channels.xml.gz
 Examples of cases where the upgrading algorithm is better
 ---------------------------------------------------------
 
-http://bugzilla.atrpms.net/show_bug.cgi?id=160
+- Package A requires a dependency provided by B-1.0. B-1.0
+  is then upgraded to B-2.0, but the dependency needed by A
+  is moved to package C. When an upgrade is done, will
+  package B-1.0 be upgraded to B-2.0 and C be installed,
+  or will A be removed?
+  (http://bugzilla.atrpms.net/show_bug.cgi?id=160)
+
+- Package A requires an implicit dependency, which is provided
+  by package B, C and D. OTOH, package A has an explicit
+  dependency on package C. Will package B and D be selected
+  for installation, even though the dependency is satisfied
+  by C, which must necessarily be installed?
+
+- Package A is obsoleted by B and C, and they don't conflict.
+  Will package B and C be selected for installation?
 
 vim:ts=4:sw=4:et
