@@ -33,13 +33,7 @@ class Package(object):
 
     def coexists(self, other):
         # These two packages with the same name may coexist?
-        # Use this for cases where two different packages have the
-        # same name-version. In these cases, mapping the issue to a
-        # conflicts/upgrades relation is impossible, since the relation
-        # would match the package itself. *DO NOT* use this as a
-        # shortcut for other kinds of conflicts/upgrades. The
-        # transaction system handles these cases differently.
-        return self.version != other.version
+        return False
 
     def matches(self, relation, version):
         return False

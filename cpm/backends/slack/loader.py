@@ -16,10 +16,10 @@ class SlackPackageInfo(PackageInfo):
         return "Slackware"
 
     def getSummary(self):
-        return self._info.get("summary")
+        return self._info.get("summary", "")
 
     def getDescription(self):
-        return self._info.get("description")
+        return self._info.get("description", "")
 
     def getURL(self):
         info = self._info

@@ -1,6 +1,7 @@
 from cpm.backends.rpm.pm import RPMPackageManager
 #from rpmver import checkdep, vercmp, splitarch
 from crpmver import checkdep, vercmp, splitarch
+from cpm.packageflags import PackageFlags
 from cpm.util.strtools import isRegEx
 from cpm.matcher import Matcher
 from cpm.cache import *
@@ -14,6 +15,7 @@ __all__ = ["RPMPackage", "RPMFlagPackage", "RPMProvides", "RPMNameProvides",
            "RPMObsoletes"]
 
 class RPMMatcher(Matcher):
+
     def __init__(self, str):
         Matcher.__init__(self, str)
         self._options = [] # (name, version)
@@ -115,9 +117,13 @@ class RPMPackage(Package):
         return True
 
     def coexists(self, other):
-        if not issubclass(other, RPMPackage):
+        if not isinstance(other, RPMPackage):
             return True
-        # Do not accept two archs at the same time for now
+        pkgflags = PackageFlags(sysconf.get("package-flags", {}))
+        if pkgflags.test("multi-arch", self):
+            return True
+        if not pkgflags.test("multi-version", self):
+            return False
         selfver, selfarch = splitarch(self.version)
         otherver, otherarch = splitarch(other.version)
         return selfver != otherver

@@ -22,13 +22,13 @@ class RPMRedCarpetPackageInfo(PackageInfo):
         return self._info.get("size")
 
     def getDescription(self):
-        return self._info.get("description")
+        return self._info.get("description", "")
 
     def getSummary(self):
-        return self._info.get("summary")
+        return self._info.get("summary", "")
 
     def getGroup(self):
-        return self._info.get("group")
+        return self._info.get("group", "")
 
     def getMD5(self):
         return self._info.get("md5")
@@ -207,12 +207,7 @@ class RPMRedCarpetLoader(Loader):
         else:
             version = "%s-%s" % (self._version, self._release)
 
-        obstup = (RPMObsoletes, name, '<', version)
-        self._upgdict[obstup] = True
-        self._fpkg.name = name
-        self._fpkg.version = version
-        if not self._pkgflags.test("multi-version", self._fpkg):
-            self._cnfdict[obstup] = True
+        self._upgdict[(RPMObsoletes, name, '<', version)] = True
 
         reqargs = [x for x in self._reqdict
                    if (RPMProvides, x[1], x[3]) not in self._prvdict]
@@ -236,8 +231,6 @@ class RPMRedCarpetLoader(Loader):
         self._resetPackage()
         
     def load(self):
-        self._pkgflags = PackageFlags(sysconf.get("package-flags", {}))
-        self._fpkg = RPMFlagPackage()
         self._progress = iface.getProgress(self._cache)
 
         parser = expat.ParserCreate(namespace_separator=" ")

@@ -317,7 +317,7 @@ class Transaction(object):
                     self._remove(cnfpkg, changeset, locked, pending, depth)
                     pending.append((PENDING_UPDOWN, cnfpkg))
 
-        # Remove packages with the same name-version that can't
+        # Remove packages with the same name that can't
         # coexist with this one.
         namepkgs = self._cache.getPackages(pkg.name)
         for namepkg in namepkgs:
