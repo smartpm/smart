@@ -23,11 +23,17 @@ CRPMTAG_UPDATE_URL        = 1000023
 
 class RPMHeaderPackageInfo(PackageInfo):
 
-    def __init__(self, package, loader, header):
+    class LazyHeader(object):
+        def __get__(self, obj, type):
+            obj._h = obj._loader.getHeader(obj._package)
+            return obj._h
+
+    _h = LazyHeader()
+
+    def __init__(self, package, loader):
         PackageInfo.__init__(self, package)
         self._loader = loader
         self._path = None
-        self._h = header
 
     def getURL(self):
         url = self._loader.getURL()
@@ -48,7 +54,7 @@ class RPMHeaderPackageInfo(PackageInfo):
         return self._h[rpm.RPMTAG_SUMMARY]
 
     def getGroup(self):
-        return self._h[rpm.RPMTAG_GROUP]
+        return self._package._group
 
     def getPathList(self):
         if self._path is None:
@@ -89,6 +95,9 @@ class RPMHeaderLoader(Loader):
 
     def getHeaders(self, prog):
         return []
+
+    def getInfo(self, pkg):
+        return RPMHeaderPackageInfo(pkg, self)
 
     def reset(self):
         Loader.reset(self)
@@ -184,6 +193,7 @@ class RPMHeaderLoader(Loader):
             pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
                                   prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
+            pkg._group = h[rpm.RPMTAG_GROUP]
             self._offsets[offset] = pkg
 
 class RPMHeaderListLoader(RPMHeaderLoader):
@@ -206,13 +216,12 @@ class RPMHeaderListLoader(RPMHeaderLoader):
             prog.show()
         file.close()
 
-    def getInfo(self, pkg):
+    def getHeader(self, pkg):
         file = open(self._filename)
         file.seek(pkg.loaders[self])
         h, offset = rpm.readHeaderFromFD(file.fileno())
-        info = RPMHeaderPackageInfo(pkg, self, h)
         file.close()
-        return info
+        return h
 
     def getURL(self):
         return self._baseurl
@@ -294,10 +303,10 @@ class RPMDBLoader(RPMHeaderLoader):
             prog.add(1)
             prog.show()
 
-    def getInfo(self, pkg):
+    def getHeader(self, pkg):
         ts = rpm.ts()
         mi = ts.dbMatch(0, pkg.loaders[self])
-        return RPMHeaderPackageInfo(pkg, self, mi.next())
+        return mi.next()
 
     def getURL(self):
         return None
@@ -339,13 +348,12 @@ class RPMFileLoader(RPMHeaderLoader):
         prog.add(1)
         prog.show()
 
-    def getInfo(self, pkg):
+    def getHeader(self, pkg):
         file = open(self._filename)
         ts = rpm.ts()
         h = ts.hdrFromFdno(file.fileno())
-        info = RPMHeaderPackageInfo(pkg, self, h)
         file.close()
-        return info
+        return h
 
     def getURL(self):
         return "file://"
