@@ -1,5 +1,5 @@
 from epm.cache import Loader, PackageInfo
-from epm.loaders.rpm import *
+from epm.backends.rpm import *
 import posixpath
 import rpm
 
@@ -155,10 +155,10 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         return info
 
     def getURL(self):
-        return self.baseurl
+        return self._baseurl
 
     def getFileName(self, info):
-        h = info.header
+        h = info._h
         return "%s-%s-%s.%s.rpm" % (h[rpm.RPMTAG_NAME],
                                     h[rpm.RPMTAG_VERSION],
                                     h[rpm.RPMTAG_RELEASE],
@@ -177,10 +177,11 @@ class RPMHeaderListLoader(RPMHeaderLoader):
 class RPMPackageListLoader(RPMHeaderListLoader):
 
     def getFileName(self, info):
-        filename = info.header[CRPMTAG_FILENAME]
+        h = info._h
+        filename = h[CRPMTAG_FILENAME]
         if not filename:
             raise Error, "package list with no CRPMTAG_FILENAME tag"
-        directory = info.header[CRPMTAG_DIRECTORY]
+        directory = h[CRPMTAG_DIRECTORY]
         if directory:
             filename = posixpath.join(directory, filename)
         return filename

@@ -30,10 +30,10 @@ def main(opts):
                 trans.remove(pkg)
                 policy.setLocked(pkg, True)
     if not found:
-        raise Error, "no packages matched given arguments"
+        raise Error, "no installed packages matched given arguments"
     print trans
     print "Running transaction"
-    from epm.packagemanagers.rpmpm import RPMPackageManager
+    from epm.backends.rpm.pm import RPMPackageManager
     pm = RPMPackageManager()
     pm.commit(trans)
     ctrl.standardFinalize()

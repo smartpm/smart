@@ -1,5 +1,5 @@
-from epm.packagemanager import PackageManager
-from epm.loaders.rpm import RPMPackage
+from epm.backends.rpm import RPMPackage
+from epm.pm import PackageManager
 from epm.transaction import *
 from epm import *
 
@@ -32,7 +32,7 @@ class RPMPackageManager(PackageManager):
             if op is INSTALL:
                 loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
                 info = loader.getInfo(pkg)
-                mode = pkg in obsoletes and "u" or "i"
+                mode = pkg in obsoleting and "u" or "i"
                 ts.addInstall(info.getHeader(), info, mode)
             elif pkg not in obsoleted:
                 version = pkg.version
@@ -49,7 +49,7 @@ class RPMStandardCallback:
         self.progressTotal = 0
         self.progressCurrent = 0
 
-    def __call__(self, what, bytes, total, info, data):
+    def __call__(self, what, amount, total, info, data):
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             url = info.getURL()
@@ -78,7 +78,7 @@ class RPMStandardCallback:
             self.hashesPrinted = 0
             self.progressTotal = 1
             self.progressCurrent = 0
-            sys.stdout.write("%-28s", "Preparing...")
+            sys.stdout.write("%-28s" % "Preparing...")
             sys.stdout.flush()
 
         elif what == rpm.RPMCALLBACK_TRANS_STOP:

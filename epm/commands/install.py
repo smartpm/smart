@@ -35,6 +35,10 @@ def main(opts):
             trans.install(pkg)
             policy.setLocked(pkg, True)
     print trans
+    print "Running transaction"
+    from epm.backends.rpm.pm import RPMPackageManager
+    pm = RPMPackageManager()
+    pm.commit(trans)
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et
