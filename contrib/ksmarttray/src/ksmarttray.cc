@@ -108,6 +108,8 @@ KSmartTray::KSmartTray()
 
 void KSmartTray::internalCheckUpgrades(bool manual)
 {
+    if (!manual && blinkTimer.isActive())
+        return;
     if (state == StateWaiting) {
         sysTray.checkAction.setEnabled(false);
         sysTray.stopAction.setEnabled(true);
