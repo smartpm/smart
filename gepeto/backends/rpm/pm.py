@@ -94,8 +94,8 @@ class RPMPackageManager(PackageManager):
                         name2 += "="
                     name2 += " "
                     name2 += version
-                if prob[4] & rpm.RPMDEP_SENSE_REQUIRES:
-                    line = "%s is required by %s" % (name1, name2)
+                if prob[4] == rpm.RPMDEP_SENSE_REQUIRES:
+                    line = "%s requires %s" % (name1, name2)
                 else:
                     line = "%s conflicts with %s" % (name1, name2)
                 problines.append(line)
