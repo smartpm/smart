@@ -113,10 +113,12 @@ class URPMIChannel(PackageChannel):
             if localpath.endswith(".cz"):
                 if (not os.path.isfile(localpath[:-3]) or
                     fetcher.getCaching() != ALWAYS):
-                    linkpath = localpath[:-2]+"gz"
+                    linkpath = fetcher.getLocalPath(hdlitem)
+                    linkpath = linkpath[:-2]+"gz"
                     if os.path.isfile(linkpath):
                         os.unlink(linkpath)
                     os.symlink(localpath, linkpath)
+                    localpath = linkpath
                     uncompressor = fetcher.getUncompressor()
                     uncomphandler = uncompressor.getHandler(linkpath)
                     try:
