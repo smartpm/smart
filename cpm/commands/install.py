@@ -1,4 +1,5 @@
 from cpm.transaction import Transaction, PolicyInstall
+from cpm.sorter import ObsoletesSorter
 from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
@@ -19,7 +20,7 @@ def main(opts):
     ctrl.fetchRepositories()
     ctrl.loadCache()
     cache = ctrl.getCache()
-    policy = PolicyInstall()
+    policy = PolicyInstall(cache)
     trans = Transaction(cache, policy)
     for arg in opts.args:
         matcher = MasterMatcher(arg)
@@ -28,13 +29,14 @@ def main(opts):
         if not pkgs:
             raise Error, "'%s' matches no uninstalled packages" % arg
         if len(pkgs) > 1:
-            raise Error, "'%s' matches multiple packages: %s" % \
-                         (arg, ", ".join([str(x) for x in pkgs]))
-        else:
-            pkg = pkgs[0]
-            trans.install(pkg)
-            policy.setLocked(pkg, True)
+            pkgs = ObsoletesSorter(pkgs).sort()
+            print "'%s' matches multiple packages, selecting: %s" % \
+                  (arg, pkgs[0])
+        pkg = pkgs[0]
+        trans.install(pkg)
+        policy.setLocked(pkg, True)
     trans.minimize()
-    ctrl.commitTransaction(trans)
+    #ctrl.commitTransaction(trans)
+    print trans
 
 # vim:ts=4:sw=4:et

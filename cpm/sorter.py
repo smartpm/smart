@@ -30,6 +30,9 @@ class ObsoletesSorter(Sorter):
     def sort(self, lst=None):
         if not lst:
             lst = self._list
+        lst = lst[:]
+        lst.sort()
+        lst.reverse()
         mylst = []
         for pkg in lst:
             obspkgs = self._obspkgs[pkg]
@@ -39,8 +42,7 @@ class ObsoletesSorter(Sorter):
                     break
             else:
                 mylst.append(pkg)
-        lst[:] = mylst
-        return lst
+        return mylst
 
 class RequireNumSorter(Sorter):
     def __init__(self, lst):
@@ -57,19 +59,6 @@ class RequireNumSorter(Sorter):
 
     def cmp(self, pkg1, pkg2):
         return -cmp(self._reqpkgs[pkg1], self._reqpkgs[pkg2])
-
-class UpgradeSorter(Sorter):
-    def __init__(self, lst):
-        Sorter.__init__(self, lst)
-        self._reqnsrtr = RequireNumSorter(lst)
-        self._obssrtr = ObsoletesSorter(lst)
-
-    def sort(self, lst=None):
-        if not lst:
-            lst = self._list
-        self._reqnsrtr.sort(lst)
-        self._obssrtr.sort(lst)
-        return lst
 
 def recursiveRequiredBy(pkg, set):
     set[pkg] = True

@@ -51,8 +51,8 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     PyObject *name;
-    PyObject *version;
     PyObject *relation;
+    PyObject *version;
     PyObject *packages;
     PyObject *providedby;
 } DependsObject;
@@ -280,9 +280,17 @@ Package_coexists(PackageObject *self, PackageObject *other)
     return ret;
 }
 
+static PyObject *
+Package_matches(PackageObject *self, PackageObject *args)
+{
+    Py_INCREF(Py_False);
+    return Py_False;
+}
+
 static PyMethodDef Package_methods[] = {
     {"equals", (PyCFunction)Package_equals, METH_O, NULL},
     {"coexists", (PyCFunction)Package_coexists, METH_O, NULL},
+    {"matches", (PyCFunction)Package_matches, METH_VARARGS, NULL},
     {NULL, NULL}
 };
 
@@ -467,11 +475,11 @@ Depends_init(DependsObject *self, PyObject *args)
     self->version = Py_None;
     self->relation = Py_None;
     if (!PyArg_ParseTuple(args, "O!|OO", &PyString_Type, &self->name,
-                          &self->version, &self->relation))
+                          &self->relation, &self->version))
         return -1;
     Py_INCREF(self->name);
-    Py_INCREF(self->version);
     Py_INCREF(self->relation);
+    Py_INCREF(self->version);
     self->packages = PyList_New(0);
     self->providedby = PyList_New(0);
     return 0;
@@ -481,8 +489,8 @@ static void
 Depends_dealloc(DependsObject *self)
 {
     Py_XDECREF(self->name);
-    Py_XDECREF(self->version);
     Py_XDECREF(self->relation);
+    Py_XDECREF(self->version);
     Py_XDECREF(self->packages);
     Py_XDECREF(self->providedby);
     self->ob_type->tp_free((PyObject *)self);
@@ -544,8 +552,8 @@ static PyMethodDef Depends_methods[] = {
 #define OFF(x) offsetof(DependsObject, x)
 static PyMemberDef Depends_members[] = {
     {"name", T_OBJECT, OFF(name), 0, 0},
-    {"version", T_OBJECT, OFF(version), 0, 0},
     {"relation", T_OBJECT, OFF(relation), 0, 0},
+    {"version", T_OBJECT, OFF(version), 0, 0},
     {"packages", T_OBJECT, OFF(packages), 0, 0},
     {"providedby", T_OBJECT, OFF(providedby), 0, 0},
     {NULL}
@@ -1146,17 +1154,15 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 }
 
 PyObject *
-Loader_newProvides(LoaderObject *self, PyObject *_args)
+Loader_newProvides(LoaderObject *self, PyObject *args)
 {
     PackageObject *pkgobj;
     PyObject *pkg;
-    PyObject *prvclass;
-    PyObject *name;
-    PyObject *version = Py_None;
+    PyObject *prvargs;
+    PyObject *callargs;
 
     ProvidesObject *prvobj;
     PyObject *prv;
-    PyObject *args;
     PyObject *lst;
 
     CacheObject *cache;
@@ -1167,8 +1173,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
     }
     cache = (CacheObject *)self->_cache;
 
-    if (!PyArg_ParseTuple(_args, "OOO!|O!", &pkg, &prvclass,
-                          &PyString_Type, &name, &PyString_Type, &version))
+    if (!PyArg_ParseTuple(args, "OO", &pkg, &prvargs))
         return NULL;
 
     if (!PyObject_IsInstance(pkg, (PyObject *)&Package_Type)) {
@@ -1177,37 +1182,35 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
         return NULL;
     }
 
-    if (!PyObject_IsSubclass(prvclass, (PyObject *)&Provides_Type)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "second argument must be a Provides subclass");
-        return NULL;
-    }
-
     pkgobj = (PackageObject *)pkg;
 
-    /* args = (prvclass, name, version) */
-    args = PyTuple_New(3);
-    if (!args) return NULL;
-    Py_INCREF(prvclass);
-    Py_INCREF(name);
-    Py_INCREF(version);
-    PyTuple_SET_ITEM(args, 0, prvclass);
-    PyTuple_SET_ITEM(args, 1, name);
-    PyTuple_SET_ITEM(args, 2, version);
-    
-    /* prv = cache._prvmap.get(args) */
-    prv = PyDict_GetItem(cache->_prvmap, args);
+    /* prv = cache._prvmap.get(prvargs) */
+    prv = PyDict_GetItem(cache->_prvmap, prvargs);
     prvobj = (ProvidesObject *)prv;
 
     /* if not prv: */
     if (!prv) {
-        /* prv = prvclass(name, version) */
-        prv = PyObject_CallFunction(prvclass, "(OO)", name, version);
-        if (!prv) goto error;
+
+        if (!PyTuple_Check(prvargs) || PyTuple_GET_SIZE(prvargs) < 2) {
+            PyErr_SetString(PyExc_ValueError, "invalid prvargs tuple");
+            return NULL;
+        }
+
+        /* prv = prvargs[0](*prvargs[1:]) */
+        callargs = PyTuple_GetSlice(prvargs, 1, PyTuple_GET_SIZE(prvargs));
+        prv = PyObject_CallObject(PyTuple_GET_ITEM(prvargs, 0), callargs);
+        Py_DECREF(callargs);
+        if (!prv) return NULL;
         prvobj = (ProvidesObject *)prv;
 
-        /* cache._prvmap[args] = prv */
-        PyDict_SetItem(cache->_prvmap, args, prv);
+        if (!PyObject_IsInstance(prv, (PyObject *)&Provides_Type)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "instance must be a Provides subclass");
+            return NULL;
+        }
+
+        /* cache._prvmap[prvargs] = prv */
+        PyDict_SetItem(cache->_prvmap, prvargs, prv);
         Py_DECREF(prv);
 
         /*
@@ -1237,7 +1240,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
 
 
     /* if name[0] == "/": */
-    if (STR(name)[0] == '/') {
+    if (STR(prvobj->name)[0] == '/') {
         /* for req in pkg.requires[:]: */
         int i;
         for (i = PyList_GET_SIZE(pkgobj->requires)-1; i != -1; i--) {
@@ -1246,7 +1249,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
             reqobj = (DependsObject *)req;
             /* if req.name == name: */
             if (STR(reqobj->name)[0] == '/' &&
-                strcmp(STR(reqobj->name), STR(name)) == 0) {
+                strcmp(STR(reqobj->name), STR(prvobj->name)) == 0) {
                 int j;
                 /* pkg.requires.remove(req) */
                 PyList_SetSlice(pkgobj->requires, i, i+1, NULL);
@@ -1278,13 +1281,13 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
                         }
                     }
                     /* reqargs = (req.__class__,
-                                  req.name, req.version, req.relation) */
+                                  req.name, req.relation, req.version) */
                     reqargs = PyTuple_New(4);
                     PyTuple_SetItem(reqargs, 0,
                                     PyObject_GetAttrString(req, "__class__"));
                     PyTuple_SetItem(reqargs, 1, reqobj->name);
-                    PyTuple_SetItem(reqargs, 2, reqobj->version);
                     PyTuple_SetItem(reqargs, 3, reqobj->relation);
+                    PyTuple_SetItem(reqargs, 2, reqobj->version);
                     /* del cache._reqmap[reqargs] */
                     PyDict_DelItem(cache->_reqmap, reqargs);
                 }
@@ -1292,13 +1295,95 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
         }
     }
 
-    Py_DECREF(args);
+    Py_RETURN_NONE;
+}
+
+PyObject *
+Loader_newObsoletes(LoaderObject *self, PyObject *args)
+{
+    PackageObject *pkgobj;
+    PyObject *pkg;
+    PyObject *obsargs;
+    PyObject *callargs;
+
+    DependsObject *obsobj;
+    PyObject *obs;
+    PyObject *lst;
+
+    CacheObject *cache;
+
+    if (!self->_cache) {
+        PyErr_SetString(PyExc_TypeError, "cache not set");
+        return NULL;
+    }
+    cache = (CacheObject *)self->_cache;
+
+    if (!PyArg_ParseTuple(args, "OO", &pkg, &obsargs))
+        return NULL;
+
+    if (!PyObject_IsInstance(pkg, (PyObject *)&Package_Type)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "first argument must be a Package instance");
+        return NULL;
+    }
+
+    pkgobj = (PackageObject *)pkg;
+
+    /* obs = cache._obsmap.get(obsargs) */
+    obs = PyDict_GetItem(cache->_obsmap, obsargs);
+    obsobj = (DependsObject *)obs;
+
+    /* if not obs: */
+    if (!obs) {
+
+        if (!PyTuple_Check(obsargs) || PyTuple_GET_SIZE(obsargs) < 2) {
+            PyErr_SetString(PyExc_ValueError, "invalid obsargs tuple");
+            return NULL;
+        }
+
+        /* obs = obsargs[0](*obsargs[1:]) */
+        callargs = PyTuple_GetSlice(obsargs, 1, PyTuple_GET_SIZE(obsargs));
+        obs = PyObject_CallObject(PyTuple_GET_ITEM(obsargs, 0), callargs);
+        Py_DECREF(callargs);
+        if (!obs) return NULL;
+        obsobj = (DependsObject *)obs;
+
+        if (!PyObject_IsInstance(obs, (PyObject *)&Depends_Type)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "instance must be an Obsoletes subclass");
+            return NULL;
+        }
+
+        /* cache._obsmap[obsargs] = obs */
+        PyDict_SetItem(cache->_obsmap, obsargs, obs);
+        Py_DECREF(obs);
+
+        /*
+           lst = cache._obsnames.get(obs.name)
+           if lst is not None:
+               lst.append(obs)
+           else:
+               cache._obsnames[obs.name] = [obs]
+        */
+        lst = PyDict_GetItem(cache->_obsnames, obsobj->name);
+        if (!lst) {
+            lst = PyList_New(0);
+            PyDict_SetItem(cache->_obsnames, obsobj->name, lst);
+            Py_DECREF(lst);
+        }
+        PyList_Append(lst, obs);
+
+        /* cache._obsoletes[obs.name] = [obs] */
+        PyList_Append(cache->_obsoletes, obs);
+    }
+
+    /* obs.packages.append(pkg) */
+    PyList_Append(obsobj->packages, pkg);
+
+    /* pkg.obsoletes.append(obs) */
+    PyList_Append(pkgobj->obsoletes, obs);
 
     Py_RETURN_NONE;
-
-error:
-    Py_DECREF(args);
-    return NULL;
 }
 
 static PyMethodDef Loader_methods[] = {
@@ -1319,6 +1404,7 @@ static PyMethodDef Loader_methods[] = {
     {"reload", (PyCFunction)Loader_reload, METH_NOARGS, NULL},
     {"newPackage", (PyCFunction)Loader_newPackage, METH_VARARGS, NULL},
     {"newProvides", (PyCFunction)Loader_newProvides, METH_VARARGS, NULL},
+    {"newObsoletes", (PyCFunction)Loader_newObsoletes, METH_VARARGS, NULL},
     {NULL, NULL}
 };
 

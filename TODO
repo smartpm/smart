@@ -7,4 +7,3 @@
 - Transaction reporting system, which computes differences between
   transactions, and changes being introduced by a transaction
   (upgrades, downgrades, reinstalls, etc).
-- Implement package markup/flagging.

@@ -1,5 +1,8 @@
+#from cpm.backends.rpm.rpmver import splitarch
+from cpm.backends.rpm.crpmver import splitarch
 from cpm.cache import Loader, PackageInfo
 from cpm.backends.rpm import *
+from cpm import *
 import stat
 import rpm
 import os
@@ -127,7 +130,7 @@ class RPMHeaderLoader(Loader):
                         r = CM.get(f[i]&CF)
                         if ((r is not None and r != "=") or
                             ((Prv, ni, vi) not in prvdict)):
-                            reqdict[(Req, ni, vi, r)] = True
+                            reqdict[(Req, ni, r, vi)] = True
                 reqargs = reqdict.keys()
             else:
                 reqargs = None
@@ -136,17 +139,16 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1114] # RPMTAG_OBSOLETEFLAGS
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
-                obsargs = [(Obs, n[i], v[i] or None, CM.get(f[i]&CF))
+                obsargs = [(Obs, n[i], CM.get(f[i]&CF), v[i] or None)
                            for i in range(len(n))]
-                obsargs.append((Obs, name, version, '<'))
             else:
-                obsargs = [(Obs, name, version, '<')]
+                obsargs = None
 
             n = h[1054] # RPMTAG_CONFLICTNAME
             if n:
                 f = h[1053] # RPMTAG_CONFLICTFLAGS
                 v = h[1055] # RPMTAG_CONFLICTVERSION
-                cnfargs = [(Cnf, n[i], v[i] or None, CM.get(f[i]&CF))
+                cnfargs = [(Cnf, n[i], CM.get(f[i]&CF), v[i] or None)
                            for i in range(len(n))]
             else:
                 cnfargs = None
@@ -155,6 +157,17 @@ class RPMHeaderLoader(Loader):
                                   prvargs, reqargs, obsargs, cnfargs)
             pkg.loaderinfo[self] = offset
             self._offsets[offset] = pkg
+
+        pkgflags = sysconf.get("package-flags")
+        if pkgflags:
+            mver = dict.fromkeys(pkgflags.filter("multi-version",
+                                                 self._packages))
+        else:
+            mver = {}
+        for pkg in self._packages:
+            if pkg not in mver:
+                version, arch = splitarch(pkg.version)
+                self.newObsoletes(pkg, (Obs, pkg.name, '<', version))
 
 class RPMHeaderListLoader(RPMHeaderLoader):
 
@@ -201,7 +214,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         while h:
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
                 if fn in fndict:
-                    self.newProvides(self._offsets[offset], RPMProvides, fn)
+                    self.newProvides(self._offsets[offset], (RPMProvides, fn))
             h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
 
@@ -256,7 +269,8 @@ class RPMDBLoader(RPMHeaderLoader):
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
             h = mi.next()
             while h:
-                self.newProvides(self._offsets[mi.instance()], RPMProvides, fn)
+                self.newProvides(self._offsets[mi.instance()],
+                                 (RPMProvides, fn))
                 h = mi.next()
 
 class RPMFileLoader(RPMHeaderLoader):
@@ -297,7 +311,7 @@ class RPMFileLoader(RPMHeaderLoader):
         h = ts.hdrFromFdno(file.fileno())
         for fn in h[1027]: # RPMTAG_OLDFILENAMES
             if fn in fndict:
-                self.newProvides(self._offsets[offset], RPMProvides, fn)
+                self.newProvides(self._offsets[offset], (RPMProvides, fn))
         file.close()
 
 try:

@@ -6,7 +6,7 @@ from cpm import *
 class Control:
 
     def __init__(self, feedback=None):
-        self._repositories = sysconf.get("repositories")
+        self._repositories = sysconf.get("repositories", [])
         if not feedback:
             feedback = ControlFeedback()
         self._feedback = feedback

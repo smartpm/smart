@@ -1,3 +1,5 @@
+#from cpm.backends.rpm.rpmver import splitarch
+from cpm.backends.rpm.crpmver import splitarch
 from cpm.pm import PackageManager
 from cpm import *
 import sys, os
@@ -38,6 +40,7 @@ class RPMPackageManager(PackageManager):
                 version = pkg.version
                 if ":" in version:
                     version = version[version.find(":")+1:]
+                version, arch = splitarch(version)
                 ts.addErase("%s-%s" % (pkg.name, version))
         ts.order()
         prog.set(0, packages)

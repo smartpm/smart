@@ -23,7 +23,7 @@ def main(opts):
     cache = ctrl.getCache()
     trans = Transaction(cache)
     pkgs = cache.getPackages()
-    trans.setPolicy(PolicyUpgrade())
+    trans.setPolicy(PolicyUpgrade(cache))
     if opts.args:
         newpkgs = []
         for arg in opts.args:
@@ -40,7 +40,7 @@ def main(opts):
         print "No upgrades available!"
     else:
         trans.minimize()
-        print "Preparing package manager..."
-        ctrl.commitTransaction(trans)
+        print trans
+        #ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et

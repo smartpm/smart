@@ -1,5 +1,6 @@
-from cpm.elementtree import ElementTree
 from cpm.repository import createRepository
+from cpm.packageflags import PackageFlags
+from cpm.elementtree import ElementTree
 from cpm import *
 import os
 
@@ -69,6 +70,9 @@ class XMLSysConfig(SysConfig):
         for node in root.getchildren():
             if node.tag == "repositories":
                 for node in node.getchildren():
+                    if node.tag != "repository":
+                        raise Error, "invalid repositories entry in %s" % \
+                                     conffile
                     type = node.get("type")
                     if not type:
                         raise Error, "repository without type in %s" % conffile
@@ -80,7 +84,32 @@ class XMLSysConfig(SysConfig):
                     else:
                         names[name] = True
                     repositories.append(repos)
-
         self.set("repositories", repositories)
+
+        pkgflags = PackageFlags()
+        for node in root.getchildren():
+            if node.tag == "flags":
+                for node in node.getchildren():
+                    if node.tag != "flag":
+                        raise Error, "invalid flags entry in %s" % conffile
+                    flag = node.get("name")
+                    for fnode in node.getchildren():
+                        if fnode.tag != "package":
+                            raise Error, "invalid flag entry in %s" % conffile
+                        tokens = fnode.text.split()
+                        if tokens:
+                            ltokens = len(tokens)
+                            if ltokens != 1 and ltokens != 3:
+                                raise Error, "invalid flag package entry " \
+                                             "in %s" % conffile
+                            name = tokens[0]
+                            if ltokens == 3: 
+                                relation = tokens[1]
+                                version = tokens[2]
+                            else:
+                                relation = None
+                                version = None
+                            pkgflags.add(flag, name, relation, version)
+        self.set("package-flags", pkgflags)
 
 # vim:ts=4:sw=4:et

@@ -19,7 +19,7 @@ def main(opts):
     ctrl = Control(opts)
     ctrl.standardInit()
     cache = ctrl.getCache()
-    policy = PolicyRemove()
+    policy = PolicyRemove(cache)
     trans = Transaction(cache, policy)
     found = False
     for arg in opts.args:

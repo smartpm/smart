@@ -38,6 +38,9 @@ class Package(object):
         # transaction system handles these cases differently.
         return self.version != other.version
 
+    def matches(self, relation, version):
+        return False
+
     def __str__(self):
         return "%s-%s" % (self.name, self.version)
 
@@ -102,10 +105,10 @@ class Provides(object):
         return rc
 
 class Depends(object):
-    def __init__(self, name, version=None, relation=None):
+    def __init__(self, name, relation=None, version=None):
         self.name = name
-        self.version = version
         self.relation = relation
+        self.version = version
         self.packages = []
         self.providedby = []
 
@@ -324,13 +327,12 @@ class Loader(object):
 
         return pkg
 
-    def newProvides(self, pkg, prvclass, name, version=None):
+    def newProvides(self, pkg, prvargs):
         cache = self._cache
-        args = (prvclass, name, version)
-        prv = cache._prvmap.get(args)
+        prv = cache._prvmap.get(prvargs)
         if not prv:
-            prv = prvclass(name, version)
-            cache._prvmap[args] = prv
+            prv = prvargs[0](*prvargs[1:])
+            cache._prvmap[prvargs] = prv
             lst = cache._prvnames.get(prv.name)
             if lst is not None:
                 lst.append(prv)
@@ -353,8 +355,23 @@ class Loader(object):
                         else:
                             lst.remove(req)
                         reqargs = (req.__class__,
-                                   req.name, req.version, req.relation)
+                                   req.name, req.relation, req.version)
                         del cache._reqmap[reqargs]
+
+    def newObsoletes(self, pkg, obsargs):
+        cache = self._cache
+        obs = cache._obsmap.get(obsargs)
+        if not obs:
+            obs = obsargs[0](*obsargs[1:])
+            cache._obsmap[obsargs] = obs
+            lst = cache._obsnames.get(obs.name)
+            if lst is not None:
+                lst.append(obs)
+            else:
+                cache._obsnames[obs.name] = [obs]
+            cache._provides.append(obs)
+        obs.packages.append(pkg)
+        pkg.obsoletes.append(obs)
 
 class LoaderSet(list):
 

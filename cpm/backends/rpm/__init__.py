@@ -82,6 +82,11 @@ class RPMPackage(Package):
         otherver, otherarch = splitarch(other.version)
         return selfver != otherver
 
+    def matches(self, relation, version):
+        if not relation:
+            return True
+        return checkdep(self.version, relation, version)
+
     def __cmp__(self, other):
         rc = -1
         if type(other) is RPMPackage:

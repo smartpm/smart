@@ -1,6 +1,6 @@
-from cpm.sorter import UpgradeSorter, ObsoletesSorter
+from cpm.sorter import ObsoletesSorter
 from cpm.const import INSTALL, REMOVE
-from cpm import Error
+from cpm import *
 
 class ChangeSet(object):
     def __init__(self, state=None):
@@ -66,11 +66,28 @@ class ChangeSet(object):
         return "".join(l)
 
 class Policy(object):
-    def __init__(self):
+    def __init__(self, cache):
+        self._cache = cache
         self._locked = {}
+        self._upgradelocked = {}
+        self._downgradelocked = {}
+        pkgflags = sysconf.get("package-flags")
+        if pkgflags:
+            lock = pkgflags.filter("lock", cache.getPackages())
+            self._locked = dict.fromkeys(lock)
+            lock = pkgflags.filter("upgrade-lock", cache.getPackages())
+            self._upgradelocked = dict.fromkeys(lock)
+            lock = pkgflags.filter("downgrade-lock", cache.getPackages())
+            self._downgradelocked = dict.fromkeys(lock)
 
     def getLocked(self, pkg):
         return pkg in self._locked
+
+    def getUpgradeLocked(self, pkg):
+        return pkg in self._upgradelocked
+
+    def getDowngradeLocked(self, pkg):
+        return pkg in self._downgradelocked
 
     def setLocked(self, pkg, flag):
         if flag:
@@ -79,8 +96,28 @@ class Policy(object):
             if pkg in self._locked:
                 del self._locked[pkg]
 
+    def setUpgradeLocked(self, pkg, flag):
+        if flag:
+            self._upgradelocked[pkg] = True
+        else:
+            if pkg in self._upgradelocked:
+                del self._upgradelocked[pkg]
+
+    def setDowngradeLocked(self, pkg, flag):
+        if flag:
+            self._downgradelocked[pkg] = True
+        else:
+            if pkg in self._downgradelocked:
+                del self._downgradelocked[pkg]
+
     def getLockedSet(self):
         return self._locked
+
+    def getUpgradeLockedSet(self):
+        return self._upgradelocked
+
+    def getDowngradeLockedSet(self):
+        return self._upgradelocked
 
     def getWeight(self, changeset):
         return 0
@@ -110,7 +147,12 @@ class PolicyInstall(Policy):
                 if pkg in obsoleting:
                     weight += 1
                 else:
-                    weight += 3
+                    for npkg in self._cache.getPackages(pkg.name):
+                        if npkg.installed:
+                            weight += 2
+                            break
+                    else:
+                        weight += 3
         return weight
 
 class PolicyRemove(Policy):
@@ -131,7 +173,6 @@ class PolicyUpgrade(Policy):
 
     def getWeight(self, changeset):
         weight = 0
-        weight = 0
         set = changeset.getSet()
         # Compute obsoleting/obsoleted packages
         obsoleting = {}
@@ -148,7 +189,7 @@ class PolicyUpgrade(Policy):
             if op is REMOVE:
                 if pkg not in obsoleted:
                     weight += 20 
-            elif op is INSTALL:
+            else:
                 if pkg in obsoleting:
                     weight -= 5
                 else:
@@ -243,14 +284,14 @@ class Transaction(object):
         changeset.setState(alternatives[0][1])
 
     def install(self, pkg, changeset=None, locked=None):
-        if not locked:
+        if locked is None:
             locked = self._policy.getLockedSet().copy()
         else:
             locked = locked.copy()
         if pkg in locked:
             raise Failed, "can't install %s: it's locked" % pkg
         locked[pkg] = True
-        if not changeset:
+        if changeset is None:
             changeset = self._changeset
         changeset.setInstall(pkg)
         isinst = changeset.isInstalled
@@ -366,14 +407,14 @@ class Transaction(object):
     def remove(self, pkg, changeset=None, locked=None):
         if pkg.essential:
             raise Failed, "can't remove %s: it's an essential package"
-        if not locked:
+        if locked is None:
             locked = self._policy.getLockedSet().copy()
         else:
             locked = locked.copy()
         if pkg in locked:
             raise Failed, "can't remove %s: it's locked" % pkg
         locked[pkg] = True
-        if not changeset:
+        if changeset is None:
             changeset = self._changeset
         changeset.setRemove(pkg)
         isinst = changeset.isInstalled
@@ -430,7 +471,9 @@ class Transaction(object):
 
                 # Then, remove every requiring package, or
                 # upgrade/downgrade them to something which
-                # does not require this dependency (notice lckd).
+                # does not require this dependency. lckd ensures
+                # that the providing packages we just checked won't
+                # be considered alternatives again.
                 cs = changeset.copy()
                 try:
                     for reqpkg in req.packages:
@@ -452,8 +495,13 @@ class Transaction(object):
                 alternatives.sort()
                 changeset.setState(alternatives[0][1])
 
-    def upgrade(self, pkgs, changeset=None):
-        if not changeset:
+    def upgrade(self, pkgs, changeset=None, locked=None):
+        if locked is None:
+            locked = self._policy.getLockedSet().copy()
+            locked.update(self._policy.getUpgradeLockedSet())
+        else:
+            locked = locked.copy()
+        if changeset is None:
             changeset = self._changeset
         isinst = changeset.isInstalled
 
@@ -467,15 +515,22 @@ class Transaction(object):
                 for prv in pkg.provides:
                     for obs in prv.obsoletedby:
                         for obspkg in obs.packages:
-                            if obspkg in upgpkgs or isinst(obspkg):
+                            if (obspkg in locked or
+                                obspkg in upgpkgs or
+                                isinst(obspkg)):
                                 continue
                             upgpkgs[obspkg] = True
 
-        self.evalBestState(upgpkgs.keys(), changeset, install=True, keep=True)
+        self.evalBestState(upgpkgs.keys(), changeset, locked,
+                           install=True, keep=True)
 
-    def evalBestState(self, pkgs, changeset=None,
+    def evalBestState(self, pkgs, changeset=None, locked=None,
                       install=False, remove=False, keep=False, upgrade=False):
-        if not changeset:
+        if locked is None:
+            locked = self._policy.getLockedSet().copy()
+        else:
+            locked = locked.copy()
+        if changeset is None:
             changeset = self._changeset
         getweight = self._policy.getWeight
 
@@ -493,7 +548,7 @@ class Transaction(object):
             if install:
                 try:
                     cs = changeset.copy()
-                    self.install(pkg, cs)
+                    self.install(pkg, cs, locked)
                 except Failed, e:
                     failures.append(str(e))
                 else:
@@ -502,7 +557,7 @@ class Transaction(object):
             if remove:
                 try:
                     cs = changeset.copy()
-                    self.remove(pkg, cs)
+                    self.remove(pkg, cs, locked)
                 except Failed, e:
                     failures.append(str(e))
                 else:
@@ -511,7 +566,7 @@ class Transaction(object):
             if upgrade:
                 try:
                     cs = changeset.copy()
-                    self.upgrade(pkg, cs)
+                    self.upgrade(pkg, cs, locked)
                 except Failed, e:
                     failures.append(str(e))
                 else:
@@ -528,9 +583,9 @@ class Transaction(object):
             changeset.setState(state)
 
     def minimize(self, changeset=None, locked=None):
-        if not changeset:
+        if changeset is None:
             changeset = self._changeset
-        if not locked:
+        if locked is None:
             locked = self._policy.getLockedSet().copy()
         else:
             locked = locked.copy()
