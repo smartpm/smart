@@ -21,9 +21,11 @@
 #
 from smart.cache import Loader, PackageInfo
 from smart.util.tagfile import TagFile
+from smart.channel import FileChannel
 from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb.base import *
 from smart import *
+from cStringIO import StringIO
 import locale
 import stat
 import os
@@ -45,15 +47,12 @@ class DebPackageInfo(PackageInfo):
 
     def getURLs(self):
         url = self._loader.getURL()
-        if url and "filename" in self._dict:
-            return [os.path.join(url, self._dict["filename"])]
+        if url:
+            return [os.path.join(url, self._loader.getFileName(self))]
         return []
 
     def getSize(self, url):
-        size = self._dict.get("size")
-        if size:
-            return long(size)
-        return None
+        return self._loader.getSize(self)
 
     def getMD5(self, url):
         return self._dict.get("md5sum")
@@ -79,43 +78,21 @@ class DebPackageInfo(PackageInfo):
     def getGroup(self):
         return self._loader.getSection(self._package)
 
-class DebTagFileLoader(Loader):
+class DebTagLoader(Loader):
 
-    def __init__(self, filename, baseurl=None):
+    def __init__(self, baseurl=None):
         Loader.__init__(self)
-        self._filename = filename
         self._baseurl = baseurl
-        self._tagfile = TagFile(self._filename)
         self._sections = {}
 
-    def getLoadSteps(self):
-        return os.path.getsize(self._filename)/800
+    def getURL(self):
+        return self._baseurl
 
     def getSection(self, pkg):
         return self._sections[pkg]
 
-    def getSections(self, prog):
-        tf = self._tagfile
-        tf.setOffset(0)
-        lastoffset = offset = mod = 0
-        while tf.advanceSection():
-            yield tf, offset
-            offset = tf.getOffset()
-            div, mod = divmod(offset-lastoffset+mod, 800)
-            prog.add(div)
-            prog.show()
-            lastoffset = offset
-
     def getInfo(self, pkg):
         return DebPackageInfo(pkg, self)
-
-    def getDict(self, pkg):
-        self._tagfile.setOffset(pkg.loaders[self])
-        self._tagfile.advanceSection()
-        return self._tagfile.copy()
-
-    def getURL(self):
-        return self._baseurl
 
     def reset(self):
         Loader.reset(self)
@@ -184,5 +161,144 @@ class DebTagFileLoader(Loader):
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
             self._sections[pkg] = intern(section.get("section", ""))
+
+    def getSections(self, prog):
+        raise TypeError, "Subclasses of DebTagLoader must " \
+                         "implement the getSections() method"
+
+    def getDict(self, pkg):
+        raise TypeError, "Subclasses of DebTagLoader must " \
+                         "implement the getDict() method"
+
+    def getFileName(self, info):
+        return self._baseurl
+        raise TypeError, "Subclasses of DebTagLoader must " \
+                         "implement the getFileName() method"
+
+
+class DebTagFileLoader(DebTagLoader):
+
+    def __init__(self, filename, baseurl=None):
+        DebTagLoader.__init__(self, baseurl)
+        self._filename = filename
+        self._tagfile = TagFile(self._filename)
+
+    def getLoadSteps(self):
+        return os.path.getsize(self._filename)/800
+
+    def getSections(self, prog):
+        tf = self._tagfile
+        tf.setOffset(0)
+        lastoffset = offset = mod = 0
+        while tf.advanceSection():
+            yield tf, offset
+            offset = tf.getOffset()
+            div, mod = divmod(offset-lastoffset+mod, 800)
+            prog.add(div)
+            prog.show()
+            lastoffset = offset
+
+    def getDict(self, pkg):
+        self._tagfile.setOffset(pkg.loaders[self])
+        self._tagfile.advanceSection()
+        return self._tagfile.copy()
+
+    def getFileName(self, info):
+        return info._dict.get("filename")
+
+    def getSize(self, info):
+        size = info._dict.get("size")
+        if size:
+            return long(size)
+        return None
+
+class DebDirLoader(DebTagLoader):
+
+    def __init__(self, dir, filename=None):
+        DebTagLoader.__init__(self, "file:///")
+        self._dir = os.path.abspath(dir)
+        if filename:
+            self._filenames = [filename]
+        else:
+            self._filenames = [x for x in os.listdir(dir)
+                                  if x.endswith(".deb")]
+
+    def getLoadSteps(self):
+        return len(self._filenames)
+
+    def getSections(self, prog):
+        for i, filename in enumerate(self._filenames):
+            filepath = os.path.join(self._dir, filename)
+            control = getControl(filepath)
+            tf = TagFile(StringIO(control))
+            tf.advanceSection()
+            yield (tf, i)
+            prog.add(1)
+            prog.show()
+
+    def getDict(self, pkg):
+        filename = self._filenames[pkg.loaders[self]]
+        filepath = os.path.join(self._dir, filename)
+        control = getControl(filepath)
+        tf = TagFile(StringIO(control))
+        tf.advanceSection()
+        return tf
+
+    def getFileName(self, info):
+        pkg = info.getPackage()
+        filename = self._filenames[pkg.loaders[self]]
+        filepath = os.path.join(self._dir, filename)
+        while filepath.startswith("/"):
+            filepath = filepath[1:]
+        return filepath
+
+    def getSize(self, info):
+        pkg = info.getPackage()
+        filename = self._filenames[pkg.loaders[self]]
+        return os.path.getsize(os.path.join(self._dir, filename))
+
+class DebFileChannel(FileChannel):
+
+    def fetch(self, fetcher, progress):
+        digest = os.path.getmtime(self._filename)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        dirname, basename = os.path.split(self._filename)
+        loader = DebDirLoader(dirname, basename)
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
+        return True
+
+def createFileChannel(filename):
+    if filename.endswith(".deb"):
+        return DebFileChannel(filename)
+    return None
+
+hooks.register("create-file-channel", createFileChannel)
+
+def getControl(filename):
+    from cStringIO import StringIO
+    from tarfile import TarFile
+    file = open(filename)
+    if file.read(8) != "!<arch>\n":
+        raise ValueError, "Invalid file"
+    while True:
+        name = file.read(16)
+        date = file.read(12)
+        uid = file.read(6)
+        gid = file.read(6)
+        mode = file.read(8)
+        size = file.read(10)
+        magic = file.read(2)
+        if name == "control.tar.gz  ":
+            data = file.read(int(size))
+            sio = StringIO(data)
+            control = TarFile.gzopen("", fileobj=sio).extractfile("control")
+            return control.read()
+        else:
+            file.seek(int(size), 1)
+    return None
 
 # vim:ts=4:sw=4:et
