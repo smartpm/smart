@@ -123,8 +123,8 @@ class GtkChannels(object):
         button.connect("clicked", clicked)
         bbox.pack_start(button)
 
-        self._propbutton = gtk.Button(stock="gtk-properties")
-        self._propbutton.show()
+        button = gtk.Button(stock="gtk-properties")
+        button.show()
         def clicked(x):
             selection = self._treeview.get_selection()
             model, iter = selection.get_selected()
@@ -520,7 +520,7 @@ class ChannelCreator(object):
             self._result = True
             gtk.main_quit()
         button.connect("clicked", clicked)
-        bbox.pack_start(self._okbutton)
+        bbox.pack_start(button)
 
         button = gtk.Button(stock="gtk-cancel")
         button.show()

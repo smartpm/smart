@@ -3,6 +3,7 @@ from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from gepeto.interfaces.gtk.mirrors import GtkMirrors
 from gepeto.interfaces.gtk.flags import GtkFlags
+from gepeto.interfaces.gtk.priorities import GtkPriorities
 from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
@@ -36,6 +37,7 @@ UI = """
         <menuitem action="edit-channels"/>
         <menuitem action="edit-mirrors"/>
         <menuitem action="edit-flags"/>
+        <menuitem action="edit-priorities"/>
     </menu>
     <menu action="view">
         <menuitem action="hide-non-upgrades"/>
@@ -103,7 +105,9 @@ ACTIONS = [
     ("edit-mirrors", None, "_Mirrors", None,
      "Edit mirrors", "self.editMirrors()"),
     ("edit-flags", None, "_Flags", None,
-     "Edit flags", "self.editFlags()"),
+     "Edit package flags", "self.editFlags()"),
+    ("edit-priorities", None, "_Priorities", None,
+     "Edit package priorities", "self.editPriorities()"),
 
     ("view", None, "_View"),
     ("tree-style", None, "_Tree Style"),
@@ -456,6 +460,9 @@ class GtkInteractiveInterface(GtkInterface):
 
     def editFlags(self):
         GtkFlags().show()
+
+    def editPriorities(self):
+        GtkPriorities().show()
 
     def setBusy(self, flag):
         if flag:

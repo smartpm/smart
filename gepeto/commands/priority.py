@@ -66,7 +66,7 @@ def main(opts, ctrl):
         showpriorities = opts.args or priorities.keys()
         showpriorities.sort()
 
-        for name in opts.args or priorities:
+        for name in showpriorities:
             pkgpriorities = priorities.get(name)
             aliases = pkgpriorities.keys()
             aliases.sort()
