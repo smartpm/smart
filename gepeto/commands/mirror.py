@@ -181,8 +181,16 @@ def main(opts, ctrl):
 
         from gepeto.mirror import MirrorSystem
         mirrorsystem = MirrorSystem()
-        penalities = mirrorsystem.getPenalities()
-        for url in penalities:
-            print "%s %d" % (url, penalities[url])
+        penalities = mirrorsystem.getPenalities().copy()
+        for origin in mirrors:
+            if origin not in penalities:
+                penalities[origin] = 0
+            for mirror in mirrors[origin]:
+                if mirror not in penalities:
+                    penalities[origin] = 0
+        penalities = [(y, x) for x, y in penalities.items()]
+        penalities.sort()
+        for penality, url in penalities:
+            print "%s %d" % (url, penality)
 
 # vim:ts=4:sw=4:et
