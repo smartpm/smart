@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from cpm.interfaces.gtk import getImage
+from cpm.interfaces.gtk import getPixbuf
 import gobject, gtk
 
 class PackageViewCellRenderer(gtk.GenericCellRenderer):
@@ -17,8 +17,8 @@ class PackageViewCellRenderer(gtk.GenericCellRenderer):
         self.__gobject_init__()
         self.object = None
         self.spacing = 5 
-        self._ipixbuf = getImage("package-installed").get_pixbuf()
-        self._apixbuf = getImage("package-available").get_pixbuf()
+        self._ipixbuf = getPixbuf("package-installed")
+        self._apixbuf = getPixbuf("package-available")
 
     def do_set_property(self, pspec, value):
         if pspec.name == "object":
@@ -113,12 +113,12 @@ class GtkPackageView:
         column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         self._treeview.append_column(column)
 
-        #self._ipixbuf = getImage("package-install").get_pixbuf()
-        #self._Ipixbuf = getImage("package-installed").get_pixbuf()
-        #self._apixbuf = getImage("package-available").get_pixbuf()
-        #rpixbuf = getImage("package-remove").get_pixbuf()
-        #upixbuf = getImage("package-upgrade").get_pixbuf()
-        #dpixbuf = getImage("package-downgrade").get_pixbuf()
+        #self._ipixbuf = getPixbuf("package-install")
+        #self._Ipixbuf = getPixbuf("package-installed")
+        #self._apixbuf = getPixbuf("package-available")
+        #rpixbuf = getPixbuf("package-remove")
+        #upixbuf = getPixbuf("package-upgrade")
+        #dpixbuf = getPixbuf("package-downgrade")
 
     def getScrolledWindow(self):
         return self._scrollwin

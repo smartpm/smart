@@ -19,16 +19,15 @@ def create(interactive):
         from cpm.interfaces.gtk.command import GtkCommandInterface
         return GtkCommandInterface()
     
-_icons = {}
+_pixbuf = {}
 
-def getImage(name):
-    if name not in _icons:
+def getPixbuf(name):
+    if name not in _pixbuf:
         filename = getImagePath(name)
         if os.path.isfile(filename):
-            image = gtk.Image()
-            image.set_from_file(filename)
-            _icons[name] = image
+            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            _pixbuf[name] = pixbuf
         else:
             raise Error, "image '%s' not found"
-    return _icons[name]
+    return _pixbuf[name]
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from cpm.interfaces.gtk import getImage
+from cpm.interfaces.gtk import getPixbuf
 from cpm.report import Report
 import gobject, gtk
 
@@ -88,11 +88,11 @@ class GtkChanges:
 
         self._treemodel.clear()
         
-        ipixbuf = getImage("package-install").get_pixbuf()
-        Ipixbuf = getImage("package-installed").get_pixbuf()
-        rpixbuf = getImage("package-remove").get_pixbuf()
-        upixbuf = getImage("package-upgrade").get_pixbuf()
-        dpixbuf = getImage("package-downgrade").get_pixbuf()
+        ipixbuf = getPixbuf("package-install")
+        Ipixbuf = getPixbuf("package-installed")
+        rpixbuf = getPixbuf("package-remove")
+        upixbuf = getPixbuf("package-upgrade")
+        dpixbuf = getPixbuf("package-downgrade")
         if report.install:
             iterlabel = "Install (%d)" % len(report.install)
             iiter = self._treemodel.append(None, (ipixbuf, iterlabel))
