@@ -385,7 +385,7 @@ class RPMDirLoader(RPMHeaderLoader):
         return h
 
     def getURL(self):
-        return "file://"
+        return "file:///"
 
     def getFileName(self, info):
         pkg = info.getPackage()
