@@ -241,7 +241,9 @@ class GtkPackageView(gtk.Alignment):
                 if value == cursori:
                     bestiter = iter
                     break
-                if value < cursori:
+                # Convert to str to protect against comparing
+                # packages and strings.
+                if str(value) < str(cursori):
                     bestiter = iter
                 iter = model.iter_next(iter)
             else:
