@@ -60,7 +60,7 @@ def parse_options(argv):
     parser.add_option("--check-update", action="store_true",
                       help="check if there are upgrades to be done, and "
                            "update the known upgrades")
-    parser.add_option("--force", action="store_true",
+    parser.add_option("-y", "--yes", action="store_true",
                       help="do not ask for confirmation")
     opts, args = parser.parse_args(argv)
     opts.args = args
@@ -118,7 +118,7 @@ def main(ctrl, opts):
         iface.showStatus("No interesting upgrades available.")
     else:
         iface.hideStatus()
-        confirm = not opts.force
+        confirm = not opts.yes
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
         elif opts.download:

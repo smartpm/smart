@@ -51,7 +51,7 @@ def parse_options(argv):
                       help="dump needed urls and don't commit operation")
     parser.add_option("--download", action="store_true",
                       help="download packages and don't commit operation")
-    parser.add_option("--force", action="store_true",
+    parser.add_option("-y", "--yes", action="store_true",
                       help="do not ask for confirmation")
     opts, args = parser.parse_args(argv)
     opts.args = args
@@ -78,7 +78,7 @@ def main(ctrl, opts):
     trans.run()
     iface.hideStatus()
     if trans:
-        confirm = not opts.force
+        confirm = not opts.yes
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
         elif opts.download:

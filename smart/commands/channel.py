@@ -114,7 +114,7 @@ def parse_options(argv):
                       help="enable channels with given aliases")
     parser.add_option("--disable", action="callback", callback=append_all,
                       help="disable channels with given aliases")
-    parser.add_option("--force", action="store_true",
+    parser.add_option("-y", "--yes", action="store_true",
                       help="execute without asking")
     parser.add_option("--help-type", action="store", metavar="TYPE",
                       help="show further information about given type")
@@ -183,14 +183,14 @@ def main(ctrl, opts):
         newaliases = []
         for channel in newchannels:
             type = channel.get("type")
-            if not opts.force:
+            if not opts.yes:
                 info = getChannelInfo(type)
                 print
                 for key, label, ftype, default, descr in info.fields:
                     if key in channel:
                         print "%s: %s" % (label, channel[key])
                 print
-            if opts.force or iface.askYesNo("Include this channel"):
+            if opts.yes or iface.askYesNo("Include this channel"):
                 try:
                     createChannel("alias", channel)
                 except Error, e:
@@ -252,7 +252,7 @@ def main(ctrl, opts):
 
     if opts.remove:
         for alias in opts.remove:
-            if (not sysconf.has(("channels", alias)) or opts.force or
+            if (not sysconf.has(("channels", alias)) or opts.yes or
                 iface.askYesNo("Remove channel '%s'" % alias)):
                 if not sysconf.remove(("channels", alias)):
                     iface.warning("Channel '%s' not found." % alias)
