@@ -89,9 +89,6 @@ class PackageInfo(object):
     def getPackage(self):
         return self._package
 
-    def getURLs(self):
-        return []
-
     def getDescription(self):
         return ""
 
@@ -116,31 +113,34 @@ class PackageInfo(object):
     def pathIsSpecial(self, path):
         return None
 
-    def getSize(self):
-        return 0
-
     def getInstalledSize(self):
         return 0
 
-    def getMD5(self):
+    def getURLs(self):
+        return []
+
+    def getSize(self, url):
+        return 0
+
+    def getMD5(self, url):
         return None
 
-    def getSHA(self):
+    def getSHA(self, url):
         return None
 
-    def validate(self, localpath, withreason=False):
+    def validate(self, url, localpath, withreason=False):
         try:
             if not os.path.isfile(localpath):
                 raise Error, "File not found"
 
-            size = self.getSize()
+            size = self.getSize(url)
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
                     raise Error, "Unexpected size (expected %d, got %d)" % \
                                  (size, lsize)
 
-            filemd5 = self.getMD5()
+            filemd5 = self.getMD5(url)
             if filemd5:
                 import md5
                 digest = md5.md5()
@@ -154,7 +154,7 @@ class PackageInfo(object):
                     raise Error, "Invalid MD5 (expected %s, got %s)" % \
                                  (filemd5, lfilemd5)
             else:
-                filesha = self.getSHA()
+                filesha = self.getSHA(url)
                 if filesha:
                     import sha
                     digest = sha.sha()

@@ -246,7 +246,8 @@ class Fetcher(object):
 
             validate = item.getInfo(uncompprefix+"validate")
             if validate:
-                valid, reason = validate(localpath, withreason=True)
+                valid, reason = validate(item.getOriginalURL(),
+                                         localpath, withreason=True)
                 if valid is not None:
                     if withreason:
                         return valid, reason
@@ -724,9 +725,9 @@ class FTPHandler(FetcherHandler):
                         raise Error, reason
                 else:
                     if total:
-                        fetchedsize = total
-                        if rest:
-                            fetchedsize -= rest
+                        fetchedsize = total-(rest or 0)
+                    elif not rest:
+                        fetchedsize = os.path.getsize(localpath)
                     else:
                         fetchedsize = None
                     item.setSucceeded(localpath, fetchedsize)
@@ -891,6 +892,8 @@ class URLLIBHandler(FetcherHandler):
                 else:
                     if total:
                         fetchedsize = total-partsize
+                    elif not partsize:
+                        fetchedsize = os.path.getsize(localpath)
                     else:
                         fetchedsize = None
                     item.setSucceeded(localpath, fetchedsize)
@@ -1056,6 +1059,8 @@ class URLLIB2Handler(FetcherHandler):
                 else:
                     if total:
                         fetchedsize = total-partsize
+                    elif not partsize:
+                        fetchedsize = os.path.getsize(localpath)
                     else:
                         fetchedsize = None
                     item.setSucceeded(localpath, fetchedsize)

@@ -65,10 +65,10 @@ class RPMHeaderPackageInfo(PackageInfo):
             return [url]
         return []
 
-    def getSize(self):
+    def getSize(self, url):
         return self._loader.getSize(self)
 
-    def getMD5(self):
+    def getMD5(self, url):
         return self._loader.getMD5(self)
 
     def getDescription(self):

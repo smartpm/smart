@@ -44,8 +44,14 @@ class RPMMetaDataPackageInfo(PackageInfo):
             return [url]
         return []
 
-    def getSize(self):
+    def getSize(self, url):
         return self._info.get("size")
+
+    def getMD5(self, url):
+        return self._info.get("md5")
+
+    def getSHA(self, url):
+        return self._info.get("sha")
 
     def getDescription(self):
         return self._info.get("description", "")
@@ -55,12 +61,6 @@ class RPMMetaDataPackageInfo(PackageInfo):
 
     def getGroup(self):
         return self._info.get("group", "")
-
-    def getMD5(self):
-        return self._info.get("md5")
-
-    def getSHA(self):
-        return self._info.get("sha")
 
 
 class RPMMetaDataLoader(Loader):
