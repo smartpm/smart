@@ -83,19 +83,13 @@ class TextInterface(Interface):
                 for upgpkg in report.downgrading.get(pkg, ()):
                     print "       Downgrades:", upgpkg
             print
-        pkgs = report.upgraded.keys() + \
-               report.downgraded.keys() + \
-               report.removed.keys()
+        pkgs = [x for x in report.removed
+                if x not in report.upgraded and x not in report.downgraded]
         if pkgs:
             pkgs.sort()
             print "The following packages are being removed:"
             for pkg in pkgs:
                 print "   ", pkg
-                for upgpkg in report.upgraded.get(pkg, ()):
-                    print "       Upgraded by:", upgpkg
-                for upgpkg in report.downgraded.get(pkg, ()):
-                    print "       Downgraded by:", upgpkg
-
             print
         return self.askYesNo("Confirm changes")
 

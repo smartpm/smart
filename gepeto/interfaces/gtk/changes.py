@@ -86,10 +86,26 @@ class GtkChanges:
         report = Report(changeset)
         report.compute()
         
+        class Sorter(str):
+            ORDER = ["Remove", "Install", "Downgrade", "Upgrade"]
+            def _index(self, s):
+                i = 0
+                for os in self.ORDER:
+                    if os.startswith(s):
+                        return i
+                    i += 1
+                return i
+            def __cmp__(self, other):
+                return cmp(self._index(str(self)), self._index(str(other)))
+            def __lt__(self, other):
+                return cmp(self, other) < 0
+
         packages = {}
 
         if report.install:
             install = {}
+            upgrade = {}
+            downgrade = {}
             lst = report.install.keys()
             lst.sort()
             for pkg in lst:
@@ -114,8 +130,18 @@ class GtkChanges:
                         if cnfpkg in done:
                             continue
                         package.setdefault("Conflicts", []).append(cnfpkg)
-                install[pkg] = package
-            packages["Install (%d)" % len(report.install)] = install
+                if pkg in report.upgrading:
+                    upgrade[pkg] = package
+                elif pkg in report.downgrading:
+                    downgrade[pkg] = package
+                else:
+                    install[pkg] = package
+            if install:
+                packages[Sorter("Install (%d)" % len(install))] = install
+            if upgrade:
+                packages[Sorter("Upgrade (%d)" % len(upgrade))] = upgrade
+            if downgrade:
+                packages[Sorter("Downgrade (%d)" % len(downgrade))] = downgrade
 
         if report.remove:
             remove = {}
@@ -124,14 +150,8 @@ class GtkChanges:
             for pkg in lst:
                 package = {}
                 done = {}
-                if pkg in report.upgraded:
-                    for upgpkg in report.upgraded[pkg]:
-                        package.setdefault("Upgraded By", []).append(upgpkg)
-                        done[upgpkg] = True
-                if pkg in report.downgraded:
-                    for dwnpkg in report.downgraded[pkg]:
-                        package.setdefault("Downgraded By", []).append(dwnpkg)
-                        done[dwnpkg] = True
+                if pkg in report.upgraded or pkg in report.downgraded:
+                    continue
                 if pkg in report.requires:
                     for reqpkg in report.requires[pkg]:
                         package.setdefault("Requires", []).append(reqpkg)
@@ -144,7 +164,8 @@ class GtkChanges:
                             continue
                         package.setdefault("Conflicts", []).append(cnfpkg)
                 remove[pkg] = package
-            packages["Remove (%d)" % len(report.remove)] = remove
+            if remove:
+                packages[Sorter("Remove (%d)" % len(report.remove))] = remove
 
         if keep:
             packages["Keep (%d)" % len(keep)] = keep
