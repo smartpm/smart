@@ -210,8 +210,8 @@ class RPMHeaderLoader(Loader):
             else:
                 upgargs = [obstup]
 
-            pkg = self.newPackage((Pkg, name, versionarch),
-                                  prvargs, reqargs, upgargs, cnfargs)
+            pkg = self.buildPackage((Pkg, name, versionarch),
+                                    prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
             pkg._group = h[rpm.RPMTAG_GROUP]
             self._offsets[offset] = pkg
@@ -265,10 +265,11 @@ class RPMHeaderListLoader(RPMHeaderLoader):
     def loadFileProvides(self, fndict):
         file = open(self._filename)
         h, offset = rpm.readHeaderFromFD(file.fileno())
+        bfp = self.buildFileProvides
         while h:
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
                 if fn in fndict and offset in self._offsets:
-                    self.newProvides(self._offsets[offset], (RPMProvides, fn))
+                    bfp(self._offsets[offset], (RPMProvides, fn))
             h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
 
@@ -345,13 +346,14 @@ class RPMDBLoader(RPMHeaderLoader):
 
     def loadFileProvides(self, fndict):
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
+        bfp = self.buildFileProvides
         for fn in fndict.keys():
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
             h = mi.next()
             while h:
                 i = mi.instance()
                 if i in self._offsets:
-                    self.newProvides(self._offsets[i], (RPMProvides, fn))
+                    bfp(self._offsets[i], (RPMProvides, fn))
                 h = mi.next()
 
 class RPMDirLoader(RPMHeaderLoader):
@@ -409,6 +411,7 @@ class RPMDirLoader(RPMHeaderLoader):
 
     def loadFileProvides(self, fndict):
         ts = rpm.ts()
+        bfp = self.buildFileProvides
         for i, filename in enumerate(self._filenames):
             if i not in self._offsets:
                 continue
@@ -417,7 +420,7 @@ class RPMDirLoader(RPMHeaderLoader):
             file.close()
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
                 if fn in fndict:
-                    self.newProvides(self._offsets[i], (RPMProvides, fn))
+                    bfp(self._offsets[i], (RPMProvides, fn))
 
 def getFileChannelLoader(filename):
     if filename.endswith(".rpm") and not filename.endswith(".src.rpm"):

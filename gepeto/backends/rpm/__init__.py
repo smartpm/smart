@@ -20,8 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.backends.rpm.pm import RPMPackageManager
-#from rpmver import checkdep, vercmp, splitarch
 from crpmver import checkdep, vercmp, splitarch
+#from rpmver import checkdep, vercmp, splitarch
 from gepeto.util.strtools import isGlob
 from gepeto.matcher import Matcher
 from gepeto.cache import *

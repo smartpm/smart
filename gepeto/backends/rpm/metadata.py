@@ -264,8 +264,8 @@ class RPMMetaDataLoader(Loader):
         cnfargs = self._cnfdict.keys()
         upgargs = self._upgdict.keys()
 
-        pkg = self.newPackage((RPMPackage, name, versionarch,
-                               prvargs, reqargs, upgargs, cnfargs)
+        pkg = self.buildPackage((RPMPackage, name, versionarch),
+                                prvargs, reqargs, upgargs, cnfargs)
         pkg.loaders[self] = self._info
 
         self._fileprovides.setdefault(pkg, []).extend(self._filedict.keys())
@@ -288,10 +288,11 @@ class RPMMetaDataLoader(Loader):
             RPMPackage.ignoreprereq = False
 
     def loadFileProvides(self, fndict):
+        bfp = self.buildFileProvides
         for pkg in self._fileprovides:
             for fn in self._fileprovides[pkg]:
                 if fn in fndict:
-                    self.newProvides(pkg, (RPMProvides, fn))
+                    bfp(pkg, (RPMProvides, fn))
 
     def getInfo(self, pkg):
         return RPMMetaDataPackageInfo(pkg, pkg.loaders[self])

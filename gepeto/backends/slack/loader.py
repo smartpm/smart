@@ -130,8 +130,8 @@ class SlackLoader(Loader):
             prvargs = [(SlackProvides, name, version)]
             upgargs = [(SlackUpgrades, name, "<", version)]
 
-            pkg = self.newPackage((SlackPackage, name, version),
-                                  prvargs, reqargs, upgargs, cnfargs)
+            pkg = self.buildPackage((SlackPackage, name, version),
+                                    prvargs, reqargs, upgargs, cnfargs)
 
             if self._baseurl:
                 info["baseurl"] = self._baseurl

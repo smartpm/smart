@@ -27,10 +27,10 @@ class Package(object):
     def __init__(self, name, version):
         self.name = name
         self.version = version
-        self.provides = []
-        self.requires = []
-        self.upgrades = []
-        self.conflicts = []
+        self.provides = ()
+        self.requires = ()
+        self.upgrades = ()
+        self.conflicts = ()
         self.installed = False
         self.essential = False
         self.priority = 0
@@ -181,9 +181,9 @@ class Provides(object):
         self.name = name
         self.version = version
         self.packages = []
-        self.requiredby = []
-        self.upgradedby = []
-        self.conflictedby = []
+        self.requiredby = ()
+        self.upgradedby = ()
+        self.conflictedby = ()
 
     def __str__(self):
         if self.version:
@@ -204,7 +204,7 @@ class Depends(object):
         self.relation = relation
         self.version = version
         self.packages = []
-        self.providedby = []
+        self.providedby = ()
 
     def matches(self, prv):
         return False
@@ -274,126 +274,56 @@ class Loader(object):
     def loadFileProvides(self, fndict):
         pass
 
-    def reload(self):
-        cache = self._cache
-        cache._packages.extend(self._packages)
-        for pkg in self._packages:
-            lst = cache._pkgnames.get(pkg.name)
-            if lst is not None:
-                lst.append(pkg)
-            else:
-                cache._pkgnames[pkg.name] = [pkg]
-            for prv in pkg.provides:
-                prv.packages.append(pkg)
-                args = (prv.name, prv.version)
-                if not cache._prvmap.get(args):
-                    cache._provides.append(prv)
-                    cache._prvmap[args] = prv
-                    lst = cache._prvnames.get(prv.name)
-                    if lst is not None:
-                        lst.append(prv)
-                    else:
-                        cache._prvnames[prv.name] = [prv]
-            for req in pkg.requires:
-                req.packages.append(pkg)
-                args = (req.name, req.version, req.relation)
-                if not cache._reqmap.get(args):
-                    cache._requires.append(req)
-                    cache._reqmap[args] = req
-                    lst = cache._reqnames.get(req.name)
-                    if lst is not None:
-                        lst.append(req)
-                    else:
-                        cache._reqnames[req.name] = [req]
-            for upg in pkg.upgrades:
-                upg.packages.append(upg)
-                args = (upg.name, upg.version, upg.relation)
-                if not cache._upgmap.get(args):
-                    cache._upgrades.append(upg)
-                    cache._upgmap[args] = upg
-                    lst = cache._upgnames.get(upg.name)
-                    if lst is not None:
-                        lst.append(upg)
-                    else:
-                        cache._upgnames[upg.name] = [upg]
-            for cnf in pkg.conflicts:
-                cnf.packages.append(pkg)
-                args = (cnf.name, cnf.version, cnf.relation)
-                if not cache._upgmap.get(args):
-                    cache._conflicts.append(cnf)
-                    cache._upgmap[args] = cnf
-                    lst = cache._cnfnames.get(cnf.name)
-                    if lst is not None:
-                        lst.append(cnf)
-                    else:
-                        cache._cnfnames[cnf.name] = [cnf]
-
-    def newPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
+    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
         cache = self._cache
         pkg = pkgargs[0](*pkgargs[1:])
         relpkgs = []
         if prvargs:
+            pkg.provides = []
             for args in prvargs:
-                prv = cache._prvmap.get(args)
+                prv = cache._objmap.get(args)
                 if not prv:
                     prv = args[0](*args[1:])
-                    cache._prvmap[args] = prv
-                    lst = cache._prvnames.get(prv.name)
-                    if lst is not None:
-                        lst.append(prv)
-                    else:
-                        cache._prvnames[prv.name] = [prv]
+                    cache._objmap[args] = prv
                     cache._provides.append(prv)
                 relpkgs.append(prv.packages)
                 pkg.provides.append(prv)
 
         if reqargs:
+            pkg.requires = []
             for args in reqargs:
-                req = cache._reqmap.get(args)
+                req = cache._objmap.get(args)
                 if not req:
                     req = args[0](*args[1:])
-                    cache._reqmap[args] = req
-                    lst = cache._reqnames.get(req.name)
-                    if lst is not None:
-                        lst.append(req)
-                    else:
-                        cache._reqnames[req.name] = [req]
+                    cache._objmap[args] = req
                     cache._requires.append(req)
                 relpkgs.append(req.packages)
                 pkg.requires.append(req)
 
         if upgargs:
+            pkg.upgrades = []
             for args in upgargs:
-                upg = cache._upgmap.get(args)
+                upg = cache._objmap.get(args)
                 if not upg:
                     upg = args[0](*args[1:])
-                    cache._upgmap[args] = upg
-                    lst = cache._upgnames.get(upg.name)
-                    if lst is not None:
-                        lst.append(upg)
-                    else:
-                        cache._upgnames[upg.name] = [upg]
+                    cache._objmap[args] = upg
                     cache._upgrades.append(upg)
                 relpkgs.append(upg.packages)
                 pkg.upgrades.append(upg)
 
         if cnfargs:
+            pkg.conflicts = []
             for args in cnfargs:
-                cnf = cache._upgmap.get(args)
+                cnf = cache._objmap.get(args)
                 if not cnf:
                     cnf = args[0](*args[1:])
-                    cache._upgmap[args] = cnf
-                    lst = cache._cnfnames.get(cnf.name)
-                    if lst is not None:
-                        lst.append(cnf)
-                    else:
-                        cache._cnfnames[cnf.name] = [cnf]
+                    cache._objmap[args] = cnf
                     cache._conflicts.append(cnf)
                 relpkgs.append(cnf.packages)
                 pkg.conflicts.append(cnf)
 
         found = False
-        lst = cache._pkgmap.get(pkgargs)
+        lst = cache._objmap.get(pkgargs)
         if lst is not None:
             for lstpkg in lst:
                 if pkg.equals(lstpkg):
@@ -403,15 +333,10 @@ class Loader(object):
             else:
                 lst.append(pkg)
         else:
-            cache._pkgmap[pkgargs] = [pkg]
+            cache._objmap[pkgargs] = [pkg]
 
         if not found:
             cache._packages.append(pkg)
-            lst = cache._pkgnames.get(pkg.name)
-            if lst is not None:
-                lst.append(pkg)
-            else:
-                cache._pkgnames[pkg.name] = [pkg]
             for pkgs in relpkgs:
                 pkgs.append(pkg)
 
@@ -420,91 +345,25 @@ class Loader(object):
 
         return pkg
 
-    def newProvides(self, pkg, prvargs):
+    def buildFileProvides(self, pkg, prvargs):
         cache = self._cache
-        prv = cache._prvmap.get(prvargs)
+        prv = cache._objmap.get(prvargs)
         if not prv:
             prv = prvargs[0](*prvargs[1:])
-            cache._prvmap[prvargs] = prv
-            lst = cache._prvnames.get(prv.name)
-            if lst is not None:
-                lst.append(prv)
-            else:
-                cache._prvnames[prv.name] = [prv]
+            cache._objmap[prvargs] = prv
             cache._provides.append(prv)
-
-        if prv in pkg.provides:
+        elif prv in pkg.provides:
             return
 
         prv.packages.append(pkg)
         pkg.provides.append(prv)
 
-        if prv.name[0] == "/":
-            for req in pkg.requires[:]:
-                if req.name == prv.name:
-                    pkg.requires.remove(req)
-                    req.packages.remove(pkg)
-                    if not req.packages:
-                        cache._requires.remove(req)
-                        lst = cache._reqnames[req.name]
-                        if len(lst) == 1:
-                            del cache._reqnames[req.name]
-                        else:
-                            lst.remove(req)
-                        reqargs = (req.__class__,
-                                   req.name, req.relation, req.version)
-                        del cache._reqmap[reqargs]
-
-    def newRequires(self, pkg, reqargs):
-        cache = self._cache
-        req = cache._reqmap.get(reqargs)
-        if not req:
-            req = reqargs[0](*reqargs[1:])
-            cache._reqmap[reqargs] = req
-            lst = cache._reqnames.get(req.name)
-            if lst is not None:
-                lst.append(req)
-            else:
-                cache._reqnames[req.name] = [req]
-            cache._requires.append(req)
-        if req in pkg.requires:
-            return
-        req.packages.append(pkg)
-        pkg.requires.append(req)
-
-    def newUpgrades(self, pkg, upgargs):
-        cache = self._cache
-        upg = cache._upgmap.get(upgargs)
-        if not upg:
-            upg = upgargs[0](*upgargs[1:])
-            cache._upgmap[upgargs] = upg
-            lst = cache._upgnames.get(upg.name)
-            if lst is not None:
-                lst.append(upg)
-            else:
-                cache._upgnames[upg.name] = [upg]
-            cache._upgrades.append(upg)
-        if upg in pkg.upgrades:
-            return
-        upg.packages.append(pkg)
-        pkg.upgrades.append(upg)
-
-    def newConflicts(self, pkg, cnfargs):
-        cache = self._cache
-        cnf = cache._cnfmap.get(cnfargs)
-        if not cnf:
-            cnf = cnfargs[0](*cnfargs[1:])
-            cache._cnfmap[cnfargs] = cnf
-            lst = cache._cnfnames.get(cnf.name)
-            if lst is not None:
-                lst.append(cnf)
-            else:
-                cache._cnfnames[cnf.name] = [cnf]
-            cache._conflicts.append(cnf)
-        if cnf in pkg.conflicts:
-            return
-        cnf.packages.append(pkg)
-        pkg.conflicts.append(cnf)
+        for req in pkg.requires[:]:
+            if req.name == prv.name:
+                pkg.requires.remove(req)
+                req.packages.remove(pkg)
+                if not req.packages:
+                    cache._requires.remove(req)
 
 class LoaderSet(list):
 
@@ -566,16 +425,7 @@ class Cache(object):
         self._requires = []
         self._upgrades = []
         self._conflicts = []
-        self._pkgnames = {}
-        self._prvnames = {}
-        self._reqnames = {}
-        self._upgnames = {}
-        self._cnfnames = {}
-        self._pkgmap = {}
-        self._prvmap = {}
-        self._reqmap = {}
-        self._upgmap = {}
-        self._cnfmap = {}
+        self._objmap = {}
 
     def reset(self, deps=False):
         # Do not lose references to current objects, since
@@ -600,16 +450,7 @@ class Cache(object):
         del self._requires[:]
         del self._upgrades[:]
         del self._conflicts[:]
-        self._pkgnames.clear()
-        self._prvnames.clear()
-        self._reqnames.clear()
-        self._upgnames.clear()
-        self._cnfnames.clear()
-        self._pkgmap.clear()
-        self._prvmap.clear()
-        self._reqmap.clear()
-        self._upgmap.clear()
-        self._cnfmap.clear()
+        self._objmap.clear()
 
     def addLoader(self, loader):
         if loader:
@@ -637,11 +478,7 @@ class Cache(object):
             loader.reset()
             loader.load()
         self.loadFileProvides()
-        self._pkgmap.clear()
-        self._prvmap.clear()
-        self._reqmap.clear()
-        self._upgmap.clear()
-        self._cnfmap.clear()
+        self._objmap.clear()
         self.linkDeps()
         prog.add(1)
         prog.show()
@@ -652,13 +489,6 @@ class Cache(object):
         for loader in self._loaders:
             loader.unload()
 
-    def reload(self):
-        self.reset(True)
-        for loader in self._loaders:
-            loader.reload()
-        self.loadFileProvides()
-        self.linkDeps()
-
     def loadFileProvides(self):
         fndict = {}
         for req in self._requires:
@@ -668,55 +498,94 @@ class Cache(object):
             loader.loadFileProvides(fndict)
 
     def linkDeps(self):
+        reqnames = {}
+        for req in self._requires:
+            lst = reqnames.get(req.name)
+            if lst:
+                lst.append(req)
+            else:
+                reqnames[req.name] = [req]
+        upgnames = {}
+        for upg in self._upgrades:
+            lst = upgnames.get(upg.name)
+            if lst:
+                lst.append(upg)
+            else:
+                upgnames[upg.name] = [upg]
+        cnfnames = {}
+        for cnf in self._conflicts:
+            lst = cnfnames.get(cnf.name)
+            if lst:
+                lst.append(cnf)
+            else:
+                cnfnames[cnf.name] = [cnf]
         for prv in self._provides:
-            lst = self._reqnames.get(prv.name)
+            lst = reqnames.get(prv.name)
             if lst:
                 for req in lst:
                     if req.matches(prv):
-                        req.providedby.append(prv)
-                        prv.requiredby.append(req)
-            lst = self._upgnames.get(prv.name)
+                        if req.providedby:
+                            req.providedby.append(prv)
+                        else:
+                            req.providedby = [prv]
+                        if prv.requiredby:
+                            prv.requiredby.append(req)
+                        else:
+                            prv.requiredby = [req]
+            lst = upgnames.get(prv.name)
             if lst:
                 for upg in lst:
                     if upg.matches(prv):
-                        upg.providedby.append(prv)
-                        prv.upgradedby.append(upg)
-            lst = self._cnfnames.get(prv.name)
+                        if upg.providedby:
+                            upg.providedby.append(prv)
+                        else:
+                            upg.providedby = [prv]
+                        if prv.upgradedby:
+                            prv.upgradedby.append(upg)
+                        else:
+                            prv.upgradedby = [upg]
+            lst = cnfnames.get(prv.name)
             if lst:
                 for cnf in lst:
                     if cnf.matches(prv):
-                        cnf.providedby.append(prv)
-                        prv.conflictedby.append(cnf)
+                        if cnf.providedby:
+                            cnf.providedby.append(prv)
+                        else:
+                            cnf.providedby = [prv]
+                        if prv.conflictedby:
+                            prv.conflictedby.append(cnf)
+                        else:
+                            prv.conlfictedby = [cnf]
 
     def getPackages(self, name=None):
         if not name:
             return self._packages
         else:
-            return self._pkgnames.get(name, [])
+            return [x for x in self._packages if x.name == name]
 
     def getProvides(self, name=None):
         if not name:
             return self._provides
         else:
-            return self._prvnames.get(name, [])
+            return [x for x in self._provides if x.name == name]
 
     def getRequires(self, name=None):
         if not name:
             return self._requires
         else:
-            return self._reqnames.get(name, [])
+            return [x for x in self._requires if x.name == name]
 
     def getUpgrades(self, name=None):
         if not name:
             return self._upgrades
         else:
-            return self._upgnames.get(name, [])
+            return [x for x in self._upgrades if x.name == name]
 
     def getConflicts(self, name=None):
         if not name:
             return self._conflicts
         else:
-            return self._cnfnames.get(name, [])
+            return [x for x in self._conflicts if x.name == name]
 
 from ccache import *
 
