@@ -21,6 +21,8 @@
 #
 from smart import _
 
+from smart.util.distance import *
+
 import posixpath
 import string
 import md5

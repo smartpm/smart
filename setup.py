@@ -78,6 +78,8 @@ Smart Package Manager is a next generation package handling tool.
                                ["smart/backends/deb/cdebver.c"]),
                      Extension("smart.util.ctagfile",
                                ["smart/util/ctagfile.c"]),
+                     Extension("smart.util.cdistance",
+                               ["smart/util/cdistance.c"]),
                     ],
       data_files = I18NFILES +
                    [(PYTHONLIB+"/smart/interfaces/images", 
