@@ -479,6 +479,8 @@ class URL(object):
             self.user = ""
             self.passwd = ""
         self.host, self.port = urllib.splitport(host)
+        if self.host.startswith("[") and self.host.endswith("]"):
+            self.host = self.host[1:-1]
         self.path, self.query = urllib.splitquery(rest)
         self.user = self.user and urllib.unquote(self.user) or ""
         self.passwd = self.passwd and urllib.unquote(self.passwd) or ""
