@@ -127,8 +127,7 @@ class MirrorElement(object):
         self.origin = origin
         self.mirror = mirror
 
-        if (self.origin and self.origin[-1] == "/" and
-            self.mirror and self.mirror[-1] != "/"):
+        if origin and mirror and origin[-1] == "/" and mirror[-1] != "/":
             self.mirror += "/"
 
     def __cmp__(self, other):
