@@ -31,6 +31,8 @@ from smart.interfaces.gtk.packageinfo import GtkPackageInfo
 from smart.interfaces.gtk.interface import GtkInterface
 from smart.interfaces.gtk import getPixbuf
 from smart.const import NEVER, VERSION
+from smart.searcher import Searcher
+from smart.cache import Package
 from smart import *
 import shlex, re
 import fnmatch
@@ -306,7 +308,7 @@ class GtkInteractiveInterface(GtkInterface):
         hbox.show()
         searchtable.attach(hbox, 1, 2, 1, 2)
 
-        self._searchname = gtk.RadioButton(None, _("Name"))
+        self._searchname = gtk.RadioButton(None, _("Automatic"))
         self._searchname.set_active(True)
         self._searchname.connect("clicked", lambda x: self.refreshPackages())
         self._searchname.show()
@@ -315,10 +317,6 @@ class GtkInteractiveInterface(GtkInterface):
         self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
         self._searchdesc.show()
         hbox.pack_start(self._searchdesc, False)
-        self._searchpath = gtk.RadioButton(self._searchname, _("Content"))
-        self._searchpath.connect("clicked", lambda x: self.refreshPackages())
-        self._searchpath.show()
-        hbox.pack_start(self._searchpath, False)
 
         # Packages and information
 
@@ -716,9 +714,39 @@ class GtkInteractiveInterface(GtkInterface):
 
         tree = sysconf.get("package-tree", "groups")
         ctrl = self._ctrl
-        packages = ctrl.getCache().getPackages()
-
         changeset = self._changeset
+
+        if self._searchbar.get_property("visible"):
+
+            searcher = Searcher()
+            dosearch = False
+            if self._searchdesc.get_active():
+                text = self._searchentry.get_text().strip()
+                if text:
+                    dosearch = True
+                    searcher.addDescription(text)
+                    searcher.addSummary(text)
+            else:
+                try:
+                    tokens = shlex.split(self._searchentry.get_text())
+                except ValueError:
+                    pass
+                else:
+                    if tokens:
+                        dosearch = True
+                        for tok in tokens:
+                            searcher.addAuto(tok)
+
+            packages = []
+            if dosearch:
+                self._ctrl.getCache().search(searcher)
+                for ratio, obj in searcher.getResults():
+                    if isinstance(obj, Package):
+                        packages.append(obj)
+                    else:
+                        packages.extend(obj.packages)
+        else:
+            packages = ctrl.getCache().getPackages()
 
         filters = self._filters
         if filters:
@@ -747,39 +775,6 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = [x for x in packages if not x.installed]
             if "hide-old" in filters:
                 packages = pkgconf.filterByFlag("new", packages)
-
-        if self._searchbar.get_property("visible"):
-            search = []
-            for tok in shlex.split(self._searchentry.get_text()):
-                tok = fnmatch.translate(tok)[:-1].replace(r"\ ", " ")
-                tok = r"\s+".join(tok.split())
-                search.append(re.compile(tok))
-            if not search:
-                packages = []
-            else:
-                desc = self._searchdesc.get_active()
-                path = self._searchpath.get_active()
-                newpackages = []
-                for pkg in packages:
-                    for pat in search:
-                        if desc:
-                            info = pkg.loaders.keys()[0].getInfo(pkg)
-                            if pat.search(info.getDescription()):
-                                newpackages.append(pkg)
-                                break
-                        elif path:
-                            info = pkg.loaders.keys()[0].getInfo(pkg)
-                            for path in info.getPathList():
-                                if pat.search(path):
-                                   newpackages.append(pkg)
-                                   break
-                            else:
-                                continue
-                            break
-                        elif pat.search(pkg.name):
-                            newpackages.append(pkg)
-                            break
-                packages = newpackages
 
         if tree == "groups":
             groups = {}
