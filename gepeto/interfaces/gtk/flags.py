@@ -2,12 +2,12 @@
 from gepeto import *
 import gobject, gtk
 
-class GtkMirrors(object):
+class GtkFlags(object):
 
     def __init__(self):
 
         self._window = gtk.Window()
-        self._window.set_title("Mirrors")
+        self._window.set_title("Flags")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -16,54 +16,119 @@ class GtkMirrors(object):
             return True
         self._window.connect("delete-event", delete)
 
+        topvbox = gtk.VBox()
+        topvbox.set_border_width(10)
+        topvbox.set_spacing(10)
+        topvbox.show()
+        self._window.add(topvbox)
+
+        tophbox = gtk.HBox()
+        tophbox.set_spacing(20)
+        tophbox.show()
+        topvbox.add(tophbox)
+
+        # Left side
         vbox = gtk.VBox()
-        vbox.set_border_width(10)
-        vbox.set_spacing(10)
+        tophbox.set_spacing(10)
         vbox.show()
-        self._window.add(vbox)
+        tophbox.pack_start(vbox)
 
-        self._scrollwin = gtk.ScrolledWindow()
-        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self._scrollwin.show()
-        vbox.add(self._scrollwin)
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.show()
+        vbox.add(sw)
 
-        self._treemodel = gtk.TreeStore(gobject.TYPE_STRING)
-        self._treeview = gtk.TreeView(self._treemodel)
-        self._treeview.set_rules_hint(True)
-        self._treeview.set_headers_visible(False)
-        self._treeview.show()
-        self._scrollwin.add(self._treeview)
+        self._flagsmodel = gtk.TreeStore(gobject.TYPE_STRING)
+        self._flagsview = gtk.TreeView(self._flagsmodel)
+        self._flagsview.set_rules_hint(True)
+        self._flagsview.show()
+        sw.add(self._flagsview)
 
         renderer = gtk.CellRendererText()
         renderer.set_property("xpad", 3)
         renderer.set_property("editable", True)
-        renderer.connect("edited", self.rowEdited)
-        self._treeview.insert_column_with_attributes(-1, "Mirror", renderer,
-                                                     text=0)
+        renderer.connect("edited", self.flagEdited)
+        self._flagsview.insert_column_with_attributes(-1, "Flags", renderer,
+                                                      text=0)
+
+        bbox = gtk.HButtonBox()
+        bbox.set_border_width(5)
+        bbox.set_spacing(10)
+        bbox.set_layout(gtk.BUTTONBOX_SPREAD)
+        bbox.show()
+        vbox.pack_start(bbox, expand=False)
+
+        button = gtk.Button(stock="gtk-new")
+        button.show()
+        button.connect("clicked", lambda x: self.newFlag())
+        bbox.pack_start(button)
+
+        button = gtk.Button(stock="gtk-delete")
+        button.show()
+        button.connect("clicked", lambda x: self.delFlag())
+        bbox.pack_start(button)
+
+        # Right side
+        vbox = gtk.VBox()
+        tophbox.set_spacing(10)
+        vbox.show()
+        tophbox.pack_start(vbox)
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.show()
+        vbox.add(sw)
+
+        self._targetsmodel = gtk.TreeStore(gobject.TYPE_STRING)
+        self._targetsview = gtk.TreeView(self._targetsmodel)
+        self._targetsview.set_rules_hint(True)
+        self._targetsview.show()
+        sw.add(self._targetsview)
+
+        renderer = gtk.CellRendererText()
+        renderer.set_property("xpad", 3)
+        renderer.set_property("editable", True)
+        renderer.connect("edited", self.flagEdited)
+        self._targetsview.insert_column_with_attributes(-1, "Targets",
+                                                        renderer, text=0)
+
+        bbox = gtk.HButtonBox()
+        bbox.set_border_width(5)
+        bbox.set_spacing(10)
+        bbox.set_layout(gtk.BUTTONBOX_SPREAD)
+        bbox.show()
+        vbox.pack_start(bbox, expand=False)
+
+        button = gtk.Button(stock="gtk-new")
+        button.show()
+        button.connect("clicked", lambda x: self.newTarget())
+        bbox.pack_start(button)
+
+        button = gtk.Button(stock="gtk-delete")
+        button.show()
+        button.connect("clicked", lambda x: self.delTarget())
+        bbox.pack_start(button)
+
+        # Bottom
+        sep = gtk.HSeparator()
+        sep.show()
+        topvbox.pack_start(sep, expand=False)
 
         bbox = gtk.HButtonBox()
         bbox.set_spacing(10)
         bbox.set_layout(gtk.BUTTONBOX_END)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
+        topvbox.pack_start(bbox, expand=False)
 
-        self._newbutton = gtk.Button(stock="gtk-new")
-        self._newbutton.show()
-        self._newbutton.connect("clicked", lambda x: self.newMirror())
-        bbox.pack_start(self._newbutton)
-
-        self._deletebutton = gtk.Button(stock="gtk-delete")
-        self._deletebutton.show()
-        self._deletebutton.connect("clicked", lambda x: self.delMirror())
-        bbox.pack_start(self._deletebutton)
-
-        self._closebutton = gtk.Button(stock="gtk-close")
-        self._closebutton.show()
-        self._closebutton.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(self._closebutton)
+        button = gtk.Button(stock="gtk-close")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
 
     def fill(self):
+        return
         self._treemodel.clear()
         mirrors = sysconf.get("mirrors", setdefault={})
         for origin in mirrors:
@@ -78,7 +143,8 @@ class GtkMirrors(object):
         gtk.main()
         self._window.hide()
 
-    def newMirror(self):
+    def newFlag(self):
+        return
         selection = self._treeview.get_selection()
         model, iter = selection.get_selected()
         if iter:
@@ -99,7 +165,8 @@ class GtkMirrors(object):
         self.fill()
 
 
-    def delMirror(self):
+    def delFlag(self):
+        return
         selection = self._treeview.get_selection()
         model, iter = selection.get_selected()
         if not iter:
@@ -118,7 +185,8 @@ class GtkMirrors(object):
                 del mirrors[origin]
         self.fill()
 
-    def rowEdited(self, cell, row, newtext):
+    def flagEdited(self, cell, row, newtext):
+        return
         model = self._treemodel
         iter = model.get_iter_from_string(row)
         path = model.get_path(iter)

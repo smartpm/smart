@@ -2,6 +2,7 @@ from gepeto.transaction import Transaction, ChangeSet, INSTALL, REMOVE, UPGRADE
 from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from gepeto.interfaces.gtk.mirrors import GtkMirrors
+from gepeto.interfaces.gtk.flags import GtkFlags
 from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
@@ -34,6 +35,7 @@ UI = """
         <separator/>
         <menuitem action="edit-channels"/>
         <menuitem action="edit-mirrors"/>
+        <menuitem action="edit-flags"/>
     </menu>
     <menu action="view">
         <menuitem action="hide-non-upgrades"/>
@@ -100,6 +102,8 @@ ACTIONS = [
      "Edit channels", "self.editChannels()"),
     ("edit-mirrors", None, "_Mirrors", None,
      "Edit mirrors", "self.editMirrors()"),
+    ("edit-flags", None, "_Flags", None,
+     "Edit flags", "self.editFlags()"),
 
     ("view", None, "_View"),
     ("tree-style", None, "_Tree Style"),
@@ -445,12 +449,13 @@ class GtkInteractiveInterface(GtkInterface):
             self.refreshPackages()
 
     def editChannels(self):
-        channels = GtkChannels()
-        channels.show()
+        GtkChannels().show()
 
     def editMirrors(self):
-        mirrors = GtkMirrors()
-        mirrors.show()
+        GtkMirrors().show()
+
+    def editFlags(self):
+        GtkFlags().show()
 
     def setBusy(self, flag):
         if flag:
