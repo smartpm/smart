@@ -177,6 +177,7 @@ class GtkChannels(object):
                 alias = newchannel["alias"]
                 del newchannel["alias"]
                 channels[alias] = newchannel
+                self._changed = True
 
         elif method in ("descriptionpath", "descriptionurl"):
 
@@ -221,6 +222,7 @@ class GtkChannels(object):
                     alias = newchannel["alias"]
                     del newchannel["alias"]
                     channels[alias] = newchannel
+                    self._changed = True
 
         elif method in ("detectmedia", "detectpath"):
 
@@ -248,13 +250,14 @@ class GtkChannels(object):
                     alias = newchannel["alias"]
                     del newchannel["alias"]
                     channels[alias] = newchannel
+                    self._changed = True
             
             if not foundchannel:
                 iface.error("No channels detected!")
                 return
 
-        self._changed = True
-        self.fill()
+        if self._changed:
+            self.fill()
 
     def editChannel(self, alias):
         self.enableDisable()
@@ -637,12 +640,12 @@ class TypeSelector(object):
                  getAllChannelInfos().items()]
         infos.sort()
         for name, type in infos:
+            if not self._type:
+                self._type = type
             radio = gtk.RadioButton(radio, name)
             radio.connect("activate", lambda x: self._ok.activate())
             radio.connect("toggled", type_toggled, type)
             radio.show()
-            if not self._type:
-                self._type = type
             self._typevbox.pack_start(radio)
 
         self._window.show()
@@ -734,6 +737,8 @@ class MethodSelector(object):
                                "Detect channel in media (CDROM, DVD, etc)"),
                               ("detectpath",
                                "Detect channel in local path")]:
+            if not self._method:
+                self._method = method
             radio = gtk.RadioButton(radio, descr)
             radio.connect("activate", lambda x: ok.activate())
             radio.connect("toggled", method_toggled, method)
@@ -805,7 +810,7 @@ class MountPointSelector(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-ok")
+        self._ok = button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
             self._result = True
@@ -829,11 +834,12 @@ class MountPointSelector(object):
         n = 0
         for media in iface.getControl().getMediaSet():
             mp = media.getMountPoint()
-            radio = gtk.RadioButton(radio, mp)
-            radio.connect("toggled", mp_toggled, mp)
-            radio.show()
             if not self._mp:
                 self._mp = mp
+            radio = gtk.RadioButton(radio, mp)
+            radio.connect("activate", lambda x: self._ok.activate())
+            radio.connect("toggled", mp_toggled, mp)
+            radio.show()
             self._mpvbox.pack_start(radio)
             n += 1
 
