@@ -608,7 +608,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         item = gtk.MenuItem("Priority")
         def priority(x):
-            GtkSinglePriority().show(pkgs[0])
+            GtkSinglePriority(self._window).show(pkgs[0])
             self._pi.setPackage(pkgs[0])
         item.connect("activate", priority)
         if len(pkgs) != 1:
@@ -659,13 +659,13 @@ class GtkInteractiveInterface(GtkInterface):
             self.rebuildCache()
 
     def editMirrors(self):
-        GtkMirrors().show()
+        GtkMirrors(self._window).show()
 
     def editFlags(self):
-        GtkFlags().show()
+        GtkFlags(self._window).show()
 
     def editPriorities(self):
-        GtkPriorities().show()
+        GtkPriorities(self._window).show()
 
     def setBusy(self, flag):
         if flag:

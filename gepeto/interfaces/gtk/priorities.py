@@ -24,11 +24,12 @@ import gobject, gtk
 
 class GtkPriorities(object):
 
-    def __init__(self):
+    def __init__(self, parent=None):
 
         self._window = gtk.Window()
         self._window.set_title("Priorities")
         self._window.set_modal(True)
+        self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
@@ -312,11 +313,12 @@ class PriorityCreator(object):
 
 class GtkSinglePriority(object):
 
-    def __init__(self):
+    def __init__(self, parent=None):
 
         self._window = gtk.Window()
         self._window.set_title("Package Priority")
         self._window.set_modal(True)
+        self._window.set_transient_for(parent)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
