@@ -1,24 +1,23 @@
 from gettext import translation
-import logging
-import sys
 
-__all__ = ["Error", "logger", "_"]
+__all__ = ["sysconf", "logger", "Error", "_"]
+
+def init(_sysconf, _logger):
+    global sysconf, logger
+    sysconf = _sysconf
+    logger = _logger
+    import sys
+    for name, module in sys.modules.items():
+        if name.startswith("cpm.") or ".cpm." in name:
+            if hasattr(module, "sysconf") and module.sysconf is None:
+                module.sysconf = sysconf
+            if hasattr(module, "logger") and module.logger is None:
+                module.logger = logger
+
+sysconf = None
+logger = None
 
 class Error(Exception): pass
-
-def getlogger():
-    class Formatter(logging.Formatter):
-        def format(self, record):
-            record.llevelname = record.levelname.lower()
-            return logging.Formatter.format(self, record)
-    formatter = Formatter("%(llevelname)s: %(message)s")
-    handler = logging.StreamHandler(sys.stderr)
-    handler.setFormatter(formatter)
-    logger = logging.getLogger("cpm")
-    logger.addHandler(handler)
-    return logger
-
-logger = getlogger()
 
 try:
     _ = translation("cpm").ugettext

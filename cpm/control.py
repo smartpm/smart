@@ -1,45 +1,31 @@
-from cpm.elementtree import ElementTree
-from cpm.committer import Committer
-from cpm.progress import Progress
 from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
 from cpm import *
-import sys, os
-
-CONFIGFILES = [
-    ("~/.cpm/config", "~/.cpm/"),
-    ("/etc/cpm.conf", "/var/state/cpm"),
-]
-
-CACHEFORMAT = 1
 
 class Control:
 
-    def __init__(self, options):
-        self._progress = Progress()
-        self._options = options
-        self._config = None
-        self._reps = []
+    def __init__(self, feedback=None):
+        self._repositories = sysconf.get("repositories")
+        if not feedback:
+            feedback = ControlFeedback()
+        self._feedback = feedback
         self._cache = Cache()
-        self._datadir = None
+        feedback.cacheCreated(self._cache)
         self._fetcher = Fetcher()
-        self._committer = Committer()
+        feedback.fetcherCreated(self._fetcher)
 
-    def getProgress(self):
-        return self._progress
+    def setFeedback(self, feedback):
+        self._feedback = feedback
 
-    def setProgress(self, prog):
-        self._progress = prog
+    def getFeedback(self, feedback):
+        return self._feedback
 
     def getRepositories(self):
-        return self._reps
+        return self._repositories
 
-    def getOptions(self):
-        return self._options
-
-    def getConfig(self):
-        return self._config
+    def setRepositories(self, repositories):
+        self._repositories = repositories
 
     def getCache(self):
         return self._cache
@@ -47,107 +33,91 @@ class Control:
     def getFetcher(self):
         return self._fetcher
 
-    def setFetcher(self):
-        self._fetcher = fetcher
-
-    def getCommitter(self):
-        return self._committer
-
-    def setCommitter(self, committer):
-        self._committer = committer
-
     def loadCache(self):
-        self._cache.setProgress(self._progress)
         self._cache.load()
 
     def reloadCache(self):
-        self._cache.setProgress(self._progress)
         self._cache.reload()
 
-    def update(self):
-        self._cache.setProgress(self._progress)
-        self._fetcher.setProgress(self._progress)
-        self.readConfig()
-        self.loadRepositories()
-        self._fetcher.setCaching(NEVER)
-        self.acquireRepositories()
-        self._fetcher.setCaching(OPTIONAL)
+    def fetchRepositories(self, repositories=None, caching=ALWAYS):
+        if not repositories:
+            repositories = self._repositories
+        self._fetcher.setCaching(caching)
+        self._feedback.fetcherStarting(self._fetcher)
+        for repos in repositories:
+            self._cache.removeLoader(repos.getLoader())
+            repos.fetch(self._fetcher)
+            self._cache.addLoader(repos.getLoader())
+        self._feedback.fetcherFinished(self._fetcher)
 
-    def standardInit(self):
-        self._cache.setProgress(self._progress)
-        self._fetcher.setProgress(self._progress)
-        self.readConfig()
-        self.loadRepositories()
-        self._fetcher.setCaching(ALWAYS)
-        self.acquireRepositories()
-        self._fetcher.setCaching(OPTIONAL)
-        self.loadCache()
+    def fetchPackages(self, packages, caching=OPTIONAL):
+        fetcher = self._fetcher
+        fetcher.reset()
+        fetcher.setCaching(caching)
+        pkgurl = {}
+        for pkg in packages:
+            loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
+            info = loader.getInfo(pkg)
+            url = info.getURL()
+            pkgurl[pkg] = url
+            fetcher.enqueue(url)
+        self._feedback.fetcherStarting(fetcher)
+        fetcher.run("packages")
+        self._feedback.fetcherFinished(fetcher)
+        failed = fetcher.getFailedSet()
+        if failed:
+            raise Error, "failed to download packages:\n" + \
+                         "\n".join(["    %s: %s" % (url, failed[url])
+                                    for url in failed])
+        succeeded = self._fetcher.getSucceededSet()
+        pkgpath = {}
+        for pkg in packages:
+            pkgpath[pkg] = succeeded[pkgurl[pkg]]
+        return pkgpath
 
-    def standardFinalize(self):
+    def commitTransaction(self, trans, caching=OPTIONAL):
+        install = trans.getInstallList()
+        remove = trans.getRemoveList()
+        pkgpath = self.fetchPackages(install, caching)
+        pmpkgs = {}
+        for pkg in install+remove:
+            pmclass = pkg.packagemanager
+            if pmclass not in pmmap:
+                pmpkgs[pmclass] = [pkg]
+            else:
+                pmpkgs[pmclass].append(pkg)
+        install = dict.fromkeys(install)
+        remove  = dict.fromkeys(remove)
+        for pmclass in pmpkgs:
+            pm = pmclass()
+            self._feedback.packageManagerCreated(pm)
+            pminstall = [pkg for pkg in pmpkgs[pmclass] if pkg in install]
+            pmremove  = [pkg for pkg in pmpkgs[pmclass] if pkg in remove]
+            self._feedback.packageManagerStarting(pm)
+            pm.commit(pminstall, pmremove, pkgpath)
+            self._feedback.packageManagerFinished(pm)
+
+class ControlFeedback:
+
+    def cacheCreated(self, cache):
         pass
 
-    def readConfig(self):
-        root = None
-        opts = self._options
-        if opts.conffile:
-            if not os.path.isfile(opts.conffile):
-                raise Error, "configuration file not found: "+opts.conffile
-            logger.debug("parsing configuration file: "+opts.conffile)
-            root = ElementTree.parse(opts.conffile).getroot()
-        else:
-            for conffile, datadir in CONFIGFILES:
-                conffile = os.path.expanduser(conffile)
-                if os.path.isfile(conffile):
-                    logger.debug("parsing configuration file: "+conffile)
-                    root = ElementTree.parse(conffile).getroot()
-                    datadir = os.path.expanduser(datadir)
-                    logger.debug("data directory set to: "+datadir)
-                    self._datadir = datadir
-                    break
-            else:
-                raise Error, "no configuration file found in: " + \
-                             " ".join(CONFIGFILES)
-        self._config = root
+    def fetcherCreated(self, fetcher):
+        pass
 
-    def importRepository(self, type):
-        try:
-            xtype = type.replace('-', '_').lower()
-            cpm_module = __import__("cpm.repositories."+xtype)
-            reps_module = getattr(cpm_module, "repositories")
-            rep_module = getattr(reps_module, xtype)
-        except (ImportError, AttributeError):
-            if self._options.loglevel == "debug":
-                import traceback
-                traceback.print_exc()
-                sys.exit(1)
-            raise Error, "invalid repository type '%s'" % type
+    def fetcherStarting(self, fetcher):
+        pass
 
-        return rep_module.repository
+    def fetcherFinished(self, fetcher):
+        pass
 
-    def loadRepositories(self, name=None):
-        for node in self._config.getchildren():
-            if node.tag == "repositories":
-                for node in node.getchildren():
-                    if not name or node.get("name") == name:
-                        Repository = self.importRepository(node.get("type"))
-                        self._reps.append(Repository(node))
+    def packageManagerCreated(self, pm):
+        pass
 
-    def acquireRepositories(self):
-        for rep in self._reps:
-            self._cache.removeLoader(rep.getLoader())
-            rep.acquire(self._fetcher)
-            self._cache.addLoader(rep.getLoader())
+    def packageManagerStarting(self, pm):
+        pass
 
-    def acquireAndCommit(self, trans):
-        committer = self._committer
-        committer.setProgress(self._progress)
-        committer.setFetcher(self._fetcher)
-        committer.acquireAndCommit(trans)
-
-    def acquire(self, trans):
-        committer = self._committer
-        committer.setProgress(self._progress)
-        committer.setFetcher(self._fetcher)
-        committer.acquire(trans)
+    def packageManagerFinished(self, pm):
+        pass
 
 # vim:ts=4:sw=4:et

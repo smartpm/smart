@@ -1,8 +1,7 @@
 from cpm.transaction import Transaction, PolicyInstall
 from cpm.matcher import MasterMatcher
-from cpm.option import OptionParser
-from cpm.control import Control
 from cpm.cmdline import initCmdLine
+from cpm.option import OptionParser
 from cpm import *
 import string
 import re
@@ -16,9 +15,9 @@ def parse_options(argv):
     return opts
 
 def main(opts):
-    ctrl = Control(opts)
-    initCmdLine(ctrl)
-    ctrl.standardInit()
+    ctrl = initCmdLine(opts)
+    ctrl.fetchRepositories()
+    ctrl.loadCache()
     cache = ctrl.getCache()
     policy = PolicyInstall()
     trans = Transaction(cache, policy)
@@ -36,7 +35,6 @@ def main(opts):
             trans.install(pkg)
             policy.setLocked(pkg, True)
     trans.minimize()
-    ctrl.acquireAndCommit(trans)
-    ctrl.standardFinalize()
+    ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et

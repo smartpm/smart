@@ -1,12 +1,11 @@
 from cpm.pm import PackageManager
-from cpm.transaction import INSTALL, REMOVE
 from cpm import *
 import sys, os
 import rpm
 
 class RPMPackageManager(PackageManager):
 
-    def commit(self, set, pkgpath):
+    def commit(self, install, remove, pkgpath):
 
         prog = self.getProgress()
         prog.setTopic("Committing transaction...")
@@ -24,19 +23,18 @@ class RPMPackageManager(PackageManager):
 
         ts = rpm.ts()
         packages = 0
-        for pkg in set:
-            op = set[pkg]
-            if op is INSTALL:
-                loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
-                info = loader.getInfo(pkg)
-                mode = pkg in obsoleting and "u" or "i"
-                path = pkgpath[pkg]
-                fd = os.open(path, os.O_RDONLY)
-                h = ts.hdrFromFdno(fd)
-                os.close(fd)
-                ts.addInstall(h, (info, path), mode)
-                packages += 1
-            elif pkg not in obsoleted:
+        for pkg in install:
+            loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
+            info = loader.getInfo(pkg)
+            mode = pkg in obsoleting and "u" or "i"
+            path = pkgpath[pkg]
+            fd = os.open(path, os.O_RDONLY)
+            h = ts.hdrFromFdno(fd)
+            os.close(fd)
+            ts.addInstall(h, (info, path), mode)
+            packages += 1
+        for pkg in remove:
+            if pkg not in obsoleted:
                 version = pkg.version
                 if ":" in version:
                     version = version[version.find(":")+1:]

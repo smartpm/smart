@@ -1,7 +1,8 @@
 from cpm.cache import Loader, PackageInfo
 from cpm.backends.rpm import *
-import posixpath
+import stat
 import rpm
+import os
 
 CRPMTAG_FILENAME          = 1000000
 CRPMTAG_FILESIZE          = 1000001
@@ -21,6 +22,7 @@ class RPMHeaderPackageInfo(PackageInfo):
     def __init__(self, package, loader, header):
         PackageInfo.__init__(self, package)
         self._loader = loader
+        self._path = None
         self._h = header
 
     def getDescription(self):
@@ -29,13 +31,34 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getSummary(self):
         return self._h[rpm.RPMTAG_SUMMARY]
 
-    def getFileList(self):
-        return self._h[rpm.RPMTAG_OLDFILENAMES]
+    def getPathList(self):
+        if self._path is None:
+            self._path = {}
+            paths = self._h[rpm.RPMTAG_OLDFILENAMES]
+            modes = self._h[rpm.RPMTAG_FILEMODES]
+            for i in range(len(paths)):
+                self._path[paths[i]] = modes[i]
+        return self._path.keys()
+
+    def pathIsDir(self, path):
+        return stat.S_ISDIR(self._path[path])
+
+    def pathIsLink(self, path):
+        return stat.S_ISLNK(self._path[path])
+
+    def pathIsFile(self, path):
+        return stat.S_ISREG(self._path[path])
+
+    def pathIsSpecial(self, path):
+        mode = self._path[path]
+        return not (stat.S_ISDIR(mode) or
+                    stat.S_ISLNK(mode) or
+                    stat.S_ISREG(mode))
 
     def getURL(self):
         url = self._loader.getURL()
         if url:
-            url = posixpath.join(url, self._loader.getFileName(self))
+            url = os.path.join(url, self._loader.getFileName(self))
         return url
 
 class RPMHeaderLoader(Loader):
@@ -66,14 +89,19 @@ class RPMHeaderLoader(Loader):
         Cnf = RPMConflicts
         prog = self._progress
         for h, offset in self.getHeaders():
+            arch = h[1022] # RPMTAG_ARCH
+            if rpm.archscore(arch) == 0:
+                continue
 
             name = h[1000] # RPMTAG_NAME
             epoch = h[1003] # RPMTAG_EPOCH
             if epoch is not None:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
+                #version = "%s:%s-%s.%s" % (epoch, h[1001], h[1002], arch)
                 version = "%s:%s-%s" % (epoch, h[1001], h[1002])
             else:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
+                #version = "%s-%s.%s" % (h[1001], h[1002], arch)
                 version = "%s-%s" % (h[1001], h[1002])
 
             n = h[1047] # RPMTAG_PROVIDENAME
@@ -188,7 +216,7 @@ class RPMPackageListLoader(RPMHeaderListLoader):
             raise Error, "package list with no CRPMTAG_FILENAME tag"
         directory = h[CRPMTAG_DIRECTORY]
         if directory:
-            filename = posixpath.join(directory, filename)
+            filename = os.path.join(directory, filename)
         return filename
 
 class RPMDBLoader(RPMHeaderLoader):

@@ -13,6 +13,7 @@ class Package(object):
         self.loaderinfo = {}
 
     def equals(self, other):
+        # These two packages are exactly the same?
         fk = dict.fromkeys
         if (self.name != other.name or
             self.version != other.version or
@@ -27,11 +28,21 @@ class Package(object):
             return False
         return True
 
+    def coexists(self, other):
+        # These two packages with the same name may coexist?
+        # Use this for cases where two different packages have the
+        # same name-version. In these cases, mapping the issue to a
+        # conflicts/obsoletes relation is impossible, since the relation
+        # would match the package itself. *DO NOT* use this as a
+        # shortcut for other kinds of conflicts/obsoletes. The
+        # transaction system handles these cases differently.
+        return self.version != other.version
+
     def __str__(self):
         return "%s-%s" % (self.name, self.version)
 
     def __cmp__(self, other):
-        # Basic comparison. Must be overloaded.
+        # Basic comparison. Should be overloaded.
         rc = -1
         if isinstance(other, Package):
             rc = cmp(self.name, other.name)
@@ -52,8 +63,20 @@ class PackageInfo(object):
     def getSummary(self):
         return ""
 
-    def getFileList(self):
+    def getPathList(self):
         return []
+
+    def pathIsDir(self, path):
+        return None
+
+    def pathIsLink(self, path):
+        return None
+
+    def pathIsFile(self, path):
+        return None
+
+    def pathIsSpecial(self, path):
+        return None
 
     def getURL(self):
         return None
@@ -107,10 +130,20 @@ class Conflicts(Depends): pass
 
 class Loader(object):
     def __init__(self):
+        self._repository = None
         self._cache = None
         self._installed = False
         self._progress = None
         self.reset()
+
+    def getRepository(self):
+        return self._repository
+
+    def setRepository(self, repository):
+        self._repository = repository
+
+    def getCache(self):
+        return self._cache
 
     def setCache(self, cache):
         self._cache = cache
@@ -324,6 +357,20 @@ class Loader(object):
                         del cache._reqmap[reqargs]
 
 class LoaderSet(list):
+
+    def getRepository(self):
+        if self:
+            return self[0].getRepository()
+        return None
+
+    def setRepository(self, repository):
+        for loader in self:
+            loader.setRepository(repository)
+
+    def getCache(self):
+        if self:
+            return self[0].getCache()
+        return None
 
     def setCache(self, cache):
         for loader in self:

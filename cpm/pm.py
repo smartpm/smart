@@ -1,7 +1,8 @@
+from progress import Progress
 
 class PackageManager:
     def __init__(self):
-        self._progress = None
+        self._progress = Progress()
 
     def setProgress(self, prog):
         self._progress = prog
@@ -9,7 +10,7 @@ class PackageManager:
     def getProgress(self):
         return self._progress
 
-    def commit(self, set, pkgpath):
+    def commit(self, install, remove, pkgpath):
         pass
 
 # vim:ts=4:sw=4:et

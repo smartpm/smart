@@ -8,7 +8,6 @@ import thread
 import time
 import os
 
-
 class Fetcher(object):
 
     _registry = {}
@@ -102,7 +101,7 @@ class Fetcher(object):
         return os.path.join(self._localdir, filename)
 
     def enqueue(self, url, **info):
-        self.setInfo(**info)
+        self.setInfo(url, **info)
         handler = self.getHandlerInstance(url)
         handler.enqueue(url)
 
@@ -247,9 +246,12 @@ class Handler(object):
 class FileHandler(Handler):
 
     def start(self):
+        import shutil
         for url in self._queue:
             urlobj = URL(url)
             if os.path.isfile(urlobj.path):
+                localpath = self._fetcher.getLocalPath(url)
+                shutil.copyfile(urlobj.path, localpath)
                 self._fetcher.setSucceeded(url, urlobj.path)
             else:
                 self._fetcher.setFailed(url, "file not found")
@@ -313,7 +315,10 @@ class FTPHandler(Handler):
         except socket.error, e:
             prog.setSubDone(url)
             prog.show()
-            self.setFailed(url, str(e))
+            self._fetcher.setFailed(url, str(e[1]))
+            self._lock.acquire()
+            del self._active[ftp]
+            self._lock.release()
         else:
             self.fetch(ftp, urlobj)
 

@@ -1,9 +1,7 @@
 
 - PreRequires handling
 - Architecture handling
-- Package Manager system
 - Ordering system
-- Problem solving
-- Upgrade logic
-- Installation logic
-- Fetcher system
+- Download restoring (timestamp or digest) and
+  uncompressing in fetcher
+- Dynamic auto-fetching of local data even when caching=NEVER.

@@ -46,9 +46,6 @@ class RPMPackage(Package):
     packagemanager = RPMPackageManager
     matcher = RPMMatcher
 
-    def getInfo(self):
-        return self._loader.getInfo(self)
-
     def __cmp__(self, other):
         rc = -1
         if isinstance(other, Package):

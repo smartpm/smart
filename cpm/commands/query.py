@@ -1,5 +1,5 @@
+from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
-from cpm.control import Control
 from cpm.cache import Provides
 from cpm import *
 import string
@@ -41,8 +41,9 @@ def parse_options(argv):
     return opts
 
 def main(opts):
-    ctrl = Control(opts)
-    ctrl.standardInit()
+    ctrl = initCmdLine(opts)
+    ctrl.fetchRepositories()
+    ctrl.loadCache()
 
     whoprovides = []
     nulltrans = string.maketrans('', '')
@@ -256,7 +257,5 @@ def main(opts):
                             if opts.installed and not prvpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (prvpkg, prv)
-
-    ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

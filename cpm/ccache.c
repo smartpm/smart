@@ -59,6 +59,7 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
+    PyObject *_repository;
     PyObject *_cache;
     PyObject *_packages;
     PyObject *_installed;
@@ -85,6 +86,20 @@ typedef struct {
     PyObject *_obsmap;
     PyObject *_cnfmap;
 } CacheObject;
+
+#if 0
+static PyObject *
+getSysConf(void)
+{
+    PyObject *module, *sysconf = NULL;
+    module = PyImport_ImportModule("cpm");
+    if (module) {
+        sysconf = PyObject_GetAttrString(module, "sysconf");
+        Py_DECREF(module);
+    }
+    return sysconf;
+}
+#endif
 
 static int
 Package_init(PackageObject *self, PyObject *args)
@@ -241,8 +256,33 @@ exit:
     return ret;
 }
 
+static PyObject *
+Package_coexists(PackageObject *self, PackageObject *other)
+{
+    PyObject *ret;
+
+    if (!PyObject_IsInstance((PyObject *)other, (PyObject *)&Package_Type)) {
+        PyErr_SetString(PyExc_TypeError, "package expected");
+        return NULL;
+    }
+
+    if (!PyString_Check(self->version) || !PyString_Check(other->version)) {
+        PyErr_SetString(PyExc_TypeError, "package version is not string");
+        return NULL;
+    }
+
+    if (strcmp(STR(self->version), STR(other->version)) == 0)
+        ret = Py_False;
+    else
+        ret = Py_True;
+
+    Py_INCREF(ret);
+    return ret;
+}
+
 static PyMethodDef Package_methods[] = {
     {"equals", (PyCFunction)Package_equals, METH_O, NULL},
+    {"coexists", (PyCFunction)Package_coexists, METH_O, NULL},
     {NULL, NULL}
 };
 
@@ -561,6 +601,8 @@ Loader_init(LoaderObject *self, PyObject *args)
 {
     if (!PyArg_ParseTuple(args, ""))
         return -1;
+    Py_INCREF(Py_None);
+    self->_repository = Py_None;
     self->_packages = PyList_New(0);
     Py_INCREF(Py_False);
     self->_installed = Py_False;
@@ -572,11 +614,35 @@ Loader_init(LoaderObject *self, PyObject *args)
 static void
 Loader_dealloc(LoaderObject *self)
 {
+    Py_XDECREF(self->_repository);
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_installed);
     Py_XDECREF(self->_cache);
     Py_XDECREF(self->_progress);
     self->ob_type->tp_free((PyObject *)self);
+}
+
+PyObject *
+Loader_getRepository(LoaderObject *self, PyObject *args)
+{
+    Py_INCREF(self->_repository);
+    return self->_repository;
+}
+
+PyObject *
+Loader_setRepository(LoaderObject *self, PyObject *repository)
+{
+    Py_DECREF(self->_repository);
+    self->_repository = repository;
+    Py_INCREF(self->_repository);
+    Py_RETURN_NONE;
+}
+
+PyObject *
+Loader_getCache(LoaderObject *self, PyObject *args)
+{
+    Py_INCREF(self->_cache);
+    return self->_cache;
 }
 
 PyObject *
@@ -1236,6 +1302,9 @@ error:
 }
 
 static PyMethodDef Loader_methods[] = {
+    {"getRepository", (PyCFunction)Loader_getRepository, METH_NOARGS, NULL},
+    {"setRepository", (PyCFunction)Loader_setRepository, METH_O, NULL},
+    {"getCache", (PyCFunction)Loader_getCache, METH_NOARGS, NULL},
     {"setCache", (PyCFunction)Loader_setCache, METH_O, NULL},
     {"getInstalled", (PyCFunction)Loader_getInstalled, METH_NOARGS, NULL},
     {"setInstalled", (PyCFunction)Loader_setInstalled, METH_O, NULL},
@@ -1255,6 +1324,7 @@ static PyMethodDef Loader_methods[] = {
 
 #define OFF(x) offsetof(LoaderObject, x)
 static PyMemberDef Loader_members[] = {
+    {"_repository", T_OBJECT, OFF(_repository), RO, 0},
     {"_cache", T_OBJECT, OFF(_cache), RO, 0},
     {"_packages", T_OBJECT, OFF(_packages), RO, 0},
     {"_installed", T_OBJECT, OFF(_installed), RO, 0},

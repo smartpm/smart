@@ -299,6 +299,14 @@ class Transaction(object):
                                       "the locked package %s" % (pkg, cnfpkg)
                     self._remove(cnfpkg, changeset, locked)
 
+        # Remove packages with the same name-version that can't
+        # coexist with this one.
+        namepkgs = self._cache.getPackages(pkg.name)
+        for namepkg in namepkgs:
+            if (namepkg is not pkg and isinst(namepkg) and
+                not pkg.coexists(namepkg)):
+                self.remove(namepkg, changeset, locked)
+
         # Install packages required by this one.
         for req in pkg.requires:
 

@@ -1,5 +1,4 @@
 from cpm.option import OptionParser
-from cpm.control import Control
 from cpm.cmdline import initCmdLine
 from cpm import *
 import string
@@ -14,9 +13,9 @@ def parse_options(argv):
     return opts
 
 def main(opts):
-    ctrl = Control(opts)
-    initCmdLine(ctrl)
-    ctrl.standardInit()
+    ctrl = initCmdLine(opts)
+    ctrl.fetchRepositories()
+    ctrl.loadCache()
     import __main__
     __main__.ctrl = ctrl
     __main__.cache = ctrl.getCache()

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from cpm.option import OptionParser
 from cpm import *
-import logging
+import cpm
 import sys
 
 VERSION = "0.0.1"
@@ -25,7 +25,6 @@ def parse_options(argv):
                       help="set logging level to LEVEL (debug, info, "
                            "warning, error)", default="warning")
     opts, args = parser.parse_args()
-    logger.setLevel(logging.getLevelName(opts.loglevel.upper()))
     if len(args) < 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -54,7 +53,10 @@ def main(argv):
             import traceback
             traceback.print_exc()
             sys.exit(1)
-        sys.stderr.write("error: %s\n" % str(e))
+        sys.stderr.write("\nerror: %s\n" % str(e))
+        sys.exit(1)
+    except KeyboardInterrupt:
+        sys.stderr.write("\nInterrupted\n")
         sys.exit(1)
 
 if __name__ == "__main__":

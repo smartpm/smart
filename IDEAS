@@ -1,70 +1,81 @@
 
-A problem fixer and an upgrader are the same thing, but with
-different "fixing" algorithms.
+Transaction system
+------------------
 
-Introduce "locking" in fixer and upgrader.
+- Support transaction diffing.
 
-Needed structures:
-    - Configuration: handles configuration issues. Subclasses are
-      responsible for reading information from configuration files.
-      May be accessed by any object in the system.
-    - Interface: handles interface related callbacks, and issues
-      regarding the frontend. May be accessed by any object in the
-      system.
-    - Control: responsible for the logic part of the system. Shouldn't
-      need subclassing, and should only be visible to the frontend.
+Commands
+--------
 
-About cache:
-    - Introduce multiple loaders per package, with equals() to
-      compare exact package match (same type and relations).
+- Introduce 'fix' command.
+- Introduce a mixed-mode command, allowing to install/remove/upgrade.
 
-About problem fixer:
-    - Use backtracking?
-    - Support partial problem fixing.
-    - Support fixing score?
-    - Check if a problem is solvable at all.
-    - Check what's the most problematic package in the set of
-      installed ones.
+Downloading and committing
+--------------------------
 
-How to fix a broken package:
-    - Upgrade the package (best option).
-    - Downgrade the package.
-    - Remove the given package (and its dependents) (worst option).
+- The committer may choose to install packages in chunks (cdroms,
+  for early usage of packages, for getting security upgrades
+  installed quickly, etc).
+- May have multiple frontends (graphical/interactive, command line/one
+  shot, etc).
 
-About transaction system:
-    - Support reason for change.
-    - Support changes over a partially broken system.
-    - Support transaction diffing.
-    - Support transaction quality measuring?
+RPM coloring
+------------
 
-About upgrades:
-    - Ask packages for the upgrade candidates.
-    - Support cache 'sorters'?
+<jbj> color of a package is union of file colors within.
+<jbj> color of a dependency is union of file colors that have the dependency.
+<jbj> color of a transaction is union of package colors.
+<jbj> %_transaction_color is affinity mask.
+<jbj> technically color=1 upgrades color=1, color=2 upgrades color=2. different
+      arch is incidental.
+<jbj> and color for file maps eaxctly to elf32/elf64 magic in file.
+<jbj> dependency color is computed, not stored. there are arrays to attch
+      variable number of dependencies to files, gory but straightforward.
+<jbj> so starting pt and count saved for each file, depends dict contains 'P'
+      or 'R' in 0xff000000 iirc, to determine whether index is into
+      provides/requires, 0x00ffffff is index into {N,EVR,F} tag arrays.
+<jbj> disjoint dependency graphs, each color is it's own graph, not too scary.
+<jbj> the far more important issue is that files, not packages, have
+      dependencies attached. that means a ppkg starts to become a lightweight
+      container manifest rather than current heavyweight blob.
+<jbj> btw, all the arrays are now sorted too, so bsearch becomes possible.
+<jbj> hash still better, but rpm always been addicted to bsearch for uglix
+      portability hysteria ;-)
+<jbj> many-to-one is impossible map. one-to-many through filelist, see rpm -q
+      --file{require,provide} 
+<jbj> --filerequires displays only DEPENDSDICT(X,N) iff
+      value & 0xff000000 == 'R'
+<jbj> filedependsN is the number of deps starting at filedpendsX indexed
+      through dependsdict that are attached to a file.
 
-About distribution upgrade:
-    - Split available packages into "installable sets".
-    - Compute an installable set by understanding which packages have
-      excluding relations with each other.
-    - Check weight of every installable set and choose the best one.
+Package list sorting
+--------------------
 
-About commands:
-    - Introduce 'fix' command.
-    - Introduce 'install' command.
-    - Introduce 'upgrade' command.
-    - Introduce 'remove' command.
-    - Use same idea as rpm's cmdline about upgrade/install.
-    - Introduce a mixed-mode command, allowing to install/remove/upgrade.
+<jbj> niemeyer: just the voices in my head. ther is 1 degree of freedom for
+tsort. FIFO/LIFO are perfectly ok, but the goal of ordering in an install is to
+create as many leaf nodes as soon as possible, number of immediate descendants
+in sub-tree is/was easy weight (because available in Knuth's tsort algorithm).
+better weight is number of nodes in sub-tree, not just descendants. --chainsaw
+seemed obvious thing to do
+<jbj> heh, stare at mutisets, think about permutation groups and cycles.
+multiply inherited dependencies (i.e. node has multiple possible "parents") is
+then a forbidden permutation on the permutation group.
 
-About downloading and committing:
-    - Introduce the idea of a committer, responsible for downloading
-      and committing.
-    - The committer may choose to install packages in chunks (cdroms,
-      for early usage of packages, for getting security upgrades
-      installed quickly, etc).
-    - May have multiple frontends (graphical/interactive, command line/one
-      shot, etc).
-    - Introduce a generic progress system.
-    - Turn the rpm standard progress meter into something generic and
-      useful for any backend (working on top of a generic progress system).
+Debian repository
+-----------------
+
+Fix of the "whois"-package to work with the new registrar of the .org-domains
+(Added 2003-01-31, last checked 2004-04-16) (Download as text) - maintained by
+dreamind at dreamind dot de 
+Packages: whois
+Architectures: i386
+deb http://www.dreamind.de/debian/ woody-fixes main 
+deb-src http://www.dreamind.de/debian/ woody-fixes main
+      
+Files:
+
+http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/Packages.gz
+http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/Packages
+http://www.dreamind.de/debian/dists/woody-fixes/main/binary-i386/whois_4.5.25-1_i386.deb
 
 vim:ts=4:sw=4:et
