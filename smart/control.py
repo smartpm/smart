@@ -221,7 +221,8 @@ class Control(object):
                      self._channels,
                      self._sysconfchannels) = state
                     for alias in self._channels.keys():
-                        if alias not in self._sysconfchannels:
+                        if (alias not in channels or
+                            channels[alias].get("disabled")):
                             self.removeChannel(alias)
                 cachefile.close()
                 iface.hideStatus()
@@ -247,7 +248,7 @@ class Control(object):
             self._channels[alias] = channel
 
         for alias in self._sysconfchannels:
-            if alias not in channels:
+            if alias not in channels or channels[alias].get("disabled"):
                 self.removeChannel(alias)
 
     def rebuildDynamicChannels(self):

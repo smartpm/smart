@@ -1,92 +1,272 @@
+=======================
+ Smart Package Manager
+=======================
+:Author: Gustavo Niemeyer
+:Contact: niemeyer@conectiva.com
+:Revision: $Rev$
+:Date: $Date$
 
+.. contents::
+
+--------
+Overview
+--------
+
+The **Smart Package Manager** project has the ambitious objective of
+creating smart and portable algorithms for solving adequately the
+problem of managing software upgrading and installation. This tool
+works in all major distributions, and will bring notable advantages
+over native tools currently in use (APT, APT-RPM, YUM, URPMI, etc).
+
+From `The Free On-line Dictionary of Computing`::
+
+    smart
+
+        1. <programming> Said of a program that does the {Right Thing}
+        in a wide variety of complicated circumstances. (...)
+
+
+--------
 Features
 --------
 
-Global:
+Modular
+-------
 
-- Modular.
-- Interface creation is simple.
-- Backend based, completely package-manager-agnostic.
-- Easily portable for any package manager.
+Smart has been developed with modularity and flexibility in mind. It's
+completely backend-based, and package-manager-agnostic. Support is
+currently implemented for **RPM**, **DPKG**, and **Slackware**
+package management systems, and porting it to new systems should be
+very easy.
 
-Priority system:
 
-- Packages with higher priorities are considered a better option
-  even when package versions state otherwise.
-- Using priorities one may avoid unwanted upgrades, force downgrades,
-  select packages in given channels as preferential, and other kinds
-  of interesting setups.
-- When a package has no explicit priority, the channel priority is
-  used. The channel priority may be changed using the 'channel'
-  command, and defaults to 0 when not set.
+Smart Transactions
+------------------
 
-Mirror system:
+That's one of the most interesting aspects of Smart Package Manager,
+and the one who has motivated calling it `smart`. Computing
+transactions respecting the relations involved in the package
+management world may become an unpleasant task when thousands of
+packages and relations are being considered, or even when just
+a few complex relations turn the most obvious choice into the
+unwanted one.
 
-- Mirrors are URLs that supposedly provide the same contents as
-  are available in other URLs, named origins.
-- There is no internal restriction on the kind of information
-  which is mirrored. Once an origin URL is provided, and one or
-  more mirror URLs are provided, these mirrors will be considered
-  for any file which is going to be fetched from an URL starting
-  with the origin URL.
-- Whether the mirror will be chosen or not will depend on the
-  history of downloads from this mirror and from other mirrors for
-  the same URL.
-- Mirrors are automatically balanced so that the faster mirrors
-  and with less errors are chosen.
-- When errors occur, the next mirror is tried.
+While other softwares try to find a possible solution to satisfy
+the relations involved in some user-requested operation, and
+sometimes even fail to do so [1]_, Smart goes beyond it. In the
+kernel of Smart Package Manager lives an algorithm that will
+not only find a solution, if one is available, but will find
+the best solution. This is done by quickly weighting every
+possible solution with a pluggable policy, which redefines
+the term "best" depending on the operation goal (install,
+remove, upgrade, etc).
 
-Cache system:
+This behavior has many interesting consequences. In upgrades,
+for instance, while precedence is given to newer versions,
+intermediate versions may get selected if they result in a
+better global result for the system. Packages may even be
+reinstalled, if different packages with the same name-version
+pair have different relations, and the one not installed
+is a considered better option.
 
-- Recognizes multiple versions of the same package name.
-- Package names decoupled from the upgrade procedure. Only
-  thing that matters is upgrades relations, which are
-  introduced implicitly by the loader system, when
-  necessary.
+Another important goal achieved with the transaction algorithm
+is that, even though it is able to check and fix relations in
+the whole system, it will work even when there are broken
+relations in installed packages. Only relations related to
+the operation being made is checked for correctness.
 
-Dependency solving algorithm:
+.. [1] Check `Study Cases`_ for real cases where the algorithm
+       works better than what is implemented in other softwares.
 
-- Very fast.
-- Works by computing weights for different alternatives.
-- Different notions of weight implemented by separate policies.
-  Policies for upgrading, removing and installing are implemented.
-- Upgrades select the best option, not the latest available version.
-- Algorithm is smart enough to even reinstall a package if
-  necessary, if it detects that different packages with same
-  name-version have different relations, and the one not installed
-  is a better option.
-- Works with broken packages in the system. Only packages which
-  are related to the operations being made will be checked for
-  correctness (may be instructed to fix everything if desired).
+Multiple Interfaces
+-------------------
 
-Downloading system:
+Smart has multiple native and completely integrated interfaces:
 
-- Very fast
-- Easily extensible
-- Multi-threaded
-- Download resuming
+- Command line interface, with several useful subcommands: update,
+  install, reinstall, upgrade, remove, check, fix, download, search,
+  and more.
+
+- Shell interface, with command and argument completion, making it
+  easy to perform multiple operations quickly using a local or
+  remote terminal.
+
+- Graphic interface, offering the friendliness of visual
+  user interaction.
+
+- Command line interface with graphic feedback, allowing one to
+  integrate the power of command line with graphic environments.
+
+Besides these interfaces, ksmarttray is also included in the smart
+package. It notifies users about available updates using a KDE
+tray icon.
+
+Channels
+--------
+
+Channels are the way Smart becomes aware about external repositories
+of information. Many different channel types are supported, depending
+on the backend and kind of information desired:
+
+- APT-DEB Repository
+- APT-RPM Repository
+- DPKG Installed Packages
+- Mirror Information
+- Red Carpet Channel
+- RPM Directory
+- RPM Header List
+- RPM MetaData (YUM)
+- RPM Installed Packages
+- Slackware Repository
+- Slackware Installed Packages
+- URPMI Repository
+
+Priority Handling
+-----------------
+
+Priorities are a powerful way to easily handle integration
+of multiple channels and explicit user setups regarding
+preferred package versions.
+
+Basically, packages with higher priorities are considered a
+better option to be installed in the system, even when package
+versions state otherwise. Priorities may be individually
+assigned to all packages in given channels, to all packages
+with given names, and to packages with given names inside
+given channels.
+
+With custom priority setups, it becomes possible to avoid
+unwanted upgrades, force downgrades, select packages in given
+channels as preferential, and other kinds of interesting setups.
+
+Autobalancing Mirror System
+---------------------------
+
+Smart offers a very flexible mirror support. Mirrors are URLs
+that supposedly provide the same contents as are available in
+other URLs, named origins. There is no internal restriction on
+the kind of information which is mirrored. Once an origin URL
+is provided, and one or more mirror URLs are provided, these
+mirrors will be considered for any file which is going to be
+fetched from an URL starting with the origin URL.
+
+Mirror precedence is dynamically computed based on the history
+of downloads of all mirrors available for a given origin URL
+(including the origin site itself). The fastest mirrors and
+with less errors are chosen. When errors occur, the next
+mirror in the queue is tried.
+
+For instance, if a mirror `http://mirror.url/path/` is provided
+for the origin `ftp://origin.url/other/path/`, and a file in
+`ftp://origin.url/other/path/subpath/somefile` is going to be
+fetched, the mirror will be considered for being used, and the
+URL `http://mirror.url/path/subpath/somefile` will be used if
+the mirror is chosen. Notice that strings are compared and
+replaced without any pre-processing, so that it's possible to
+use different schemes (ftp, http, etc) in mirror entries, and
+even URLs ending in prefixes of directory entries.
+
+Downloading Mechanism
+---------------------
+
+Smart has a fast parallel downloading mechanism, allowing multiple
+connections to be used for one or more sites. The mechanism
+supports:
+
+- Resuming
 - Timestamp checking
-- Parallel threaded uncompression
-- Natively supported schemes:
-	- file
-	- ftp
-	- http
-	- https
-	- scp
-- Additional schemes when pycurl is available:
-	- ftps
-	- telnet
-	- dict
-	- ldap
+- Parallel uncompression
+- Autodetection of FTP user limit
+- Cached file validation
 
-Supported channel/repository formats
-------------------------------------
+and more.
 
-- APT-RPM
-- URPMI
-- RPM metadata
-- Plain RPM header lists
-- Local directory with RPM files
-- Red Carpet
-- Slackware Package Repository
+At that moment, the following schemes are nativelly supported:
+
+- file
+- ftp
+- http
+- https
+- scp
+
+Additionally, the following schemes are supported when pycurl is
+available:
+
+- ftps
+- telnet
+- dict
+- ldap
+
+Removable Media Support
+-----------------------
+.
+
+-----------
+Screenshots
+-----------
+.
+
+-------------
+Running Smart
+-------------
+.
+
+-----------------
+Configuring Smart
+-----------------
+.
+
+--------------------------------------
+Using Smart with your own distribution
+--------------------------------------
+.
+
+Conectiva Linux
+---------------
+.
+
+Fedora Linux
+------------
+.
+
+Debian Linux
+------------
+.
+
+Mandrake Linux
+--------------
+.
+
+Slackware Linux
+---------------
+.
+
+Suse Linux
+----------
+.
+
+.. _Study Cases:
+
+-----------
+Study Cases
+-----------
+.
+
+------
+Thanks
+------
+.
+
+Conectiva -> For the wonderful environment, and for supporting me
+Cavassin -> For believing
+APT-RPM -> Experience on packaging
+Jeff Johnson -> RPM discussions
+Seth Vidal -> RPM metadata discussions
+Michael Vogt -> For Synaptic ideas that were used
+Sebastian -> GTK interface package icons
+TaQ & PiterPunk @ #slackware-br -> Slackware discussions
+Herton -> For setting up distributions whenever necessary
+Andreas -> For ideas, discussions, tests, etc.
+Arnaldo -> Mirror Channels
+mdz -> DEB ordering help
 

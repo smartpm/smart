@@ -156,7 +156,7 @@ class RPMHeaderLoader(Loader):
 
             name = h[1000] # RPMTAG_NAME
             epoch = h[1003] # RPMTAG_EPOCH
-            if epoch is not None:
+            if epoch and epoch != "0":
                 # RPMTAG_VERSION, RPMTAG_RELEASE
                 version = "%s:%s-%s" % (epoch, h[1001], h[1002])
             else:
@@ -232,20 +232,71 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         self._baseurl = baseurl
         self._count = count
 
+        self._checkRPM()
+
+    def __getstate__(self):
+        state = RPMHeaderLoader.__getstate__(self)
+        if "_hdl" in state:
+            del state["_hdl"]
+        return state
+
+    def __setstate__(self, state):
+        RPMHeaderLoader.__setstate__(self, state)
+        self._checkRPM()
+
+    def _checkRPM(self):
+        if not hasattr(rpm, "readHeaderFromFD"):
+
+            if (not hasattr(self.__class__, "WARNED") and
+                sysconf.get("no-rpm-readHeaderFromFD", 0) < 3):
+
+                self.__class__.WARNED = True
+                sysconf.set("no-rpm-readHeaderFromFD",
+                            sysconf.get("no-rpm-readHeaderFromFD", 0)+1)
+                iface.warning("Your rpm module has no support for "
+                              "readHeaderFromFD()!\n"
+                              "As a consequence, Smart will consume "
+                              "extra memory.")
+
+            self.__class__.getHeaders = self.getHeadersHDL
+            self.__class__.getHeader = self.getHeaderHDL
+            self.__class__.loadFileProvides = self.loadFileProvidesHDL
+
+            self._hdl = rpm.readHeaderListFromFile(self._filename)
+
     def getLoadSteps(self):
         if self._count is None:
-            return len(rpm.readHeaderListFromFile(self._filename))
+            if hasattr(rpm, "readHeaderFromFD"):
+                return os.path.getsize(self._filename)/2500
+            else:
+                return len(rpm.readHeaderListFromFile(self._filename))
         return self._count
 
     def getHeaders(self, prog):
         file = open(self._filename)
+        lastoffset = mod = 0
         h, offset = rpm.readHeaderFromFD(file.fileno())
-        while h:
+        if self._count:
+            while h:
+                yield h, offset
+                h, offset = rpm.readHeaderFromFD(file.fileno())
+                prog.add(1)
+                prog.show()
+        else:
+            while h:
+                yield h, offset
+                h, offset = rpm.readHeaderFromFD(file.fileno())
+                div, mod = divmod(offset-lastoffset+mod, 2500)
+                lastoffset = offset
+                prog.add(div)
+                prog.show()
+        file.close()
+
+    def getHeadersHDL(self, prog):
+        for offset, h in enumerate(self._hdl):
             yield h, offset
-            h, offset = rpm.readHeaderFromFD(file.fileno())
             prog.add(1)
             prog.show()
-        file.close()
 
     def getHeader(self, pkg):
         file = open(self._filename)
@@ -253,6 +304,9 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
         return h
+
+    def getHeaderHDL(self, pkg):
+        return self._hdl[pkg.loaders[self]]
 
     def getURL(self):
         return self._baseurl
@@ -281,6 +335,14 @@ class RPMHeaderListLoader(RPMHeaderLoader):
                     bfp(self._offsets[offset], (RPMProvides, fn, None))
             h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
+
+    def loadFileProvidesHDL(self, fndict):
+        bfp = self.buildFileProvides
+        for offset, h in enumerate(self._hdl):
+            for fn in h[1027]: # RPMTAG_OLDFILENAMES
+                fn = fndict.get(fn)
+                if fn and offset in self._offsets:
+                    bfp(self._offsets[offset], (RPMProvides, fn, None))
 
 class RPMPackageListLoader(RPMHeaderListLoader):
 

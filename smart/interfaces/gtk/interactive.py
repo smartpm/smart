@@ -166,7 +166,7 @@ class GtkInteractiveInterface(GtkInterface):
     def __init__(self, ctrl):
         GtkInterface.__init__(self, ctrl)
 
-        self._changeset = ChangeSet(self._ctrl.getCache())
+        self._changeset = None
 
         self._window = gtk.Window()
         self._window.set_title("Smart Package Manager %s" % VERSION)
@@ -321,7 +321,6 @@ class GtkInteractiveInterface(GtkInterface):
         self._vpaned.pack1(self._pv, True)
 
         self._pi = GtkPackageInfo()
-        self._pi.setChangeSet(self._changeset)
         self._pi.show()
         self._pv.connect("package_selected",
                          lambda x, y: self._pi.setPackage(y))
@@ -349,6 +348,8 @@ class GtkInteractiveInterface(GtkInterface):
         self.setCatchExceptions(True)
         self._window.show()
         self._ctrl.reloadChannels()
+        self._changeset = ChangeSet(self._ctrl.getCache())
+        self._pi.setChangeSet(self._changeset)
         self._progress.hide()
         self.refreshPackages()
         gtk.main()

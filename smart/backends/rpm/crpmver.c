@@ -101,15 +101,15 @@ static int
 vercmpparts(const char *e1, const char *v1, const char *r1,
             const char *e2, const char *v2, const char *r2)
 {
+    int e1i = 0;
+    int e2i = 0;
     int rc;
-    if (e1 && !e2) return 1;
-    if (!e1 && e2) return -1;
-    if (e1 && e2) {
-        int e1i = atoi(e1);
-        int e2i = atoi(e2);
-        if (e1i < e2i) return -1;
-        if (e1i > e2i) return 1;
-    }
+    if (e1 && *e1) 
+        e1i = atoi(e1);
+    if (e2 && *e2) 
+        e2i = atoi(e2);
+    if (e1i > e2i) return 1;
+    if (e1i < e2i) return -1;
     rc = vercmppart(v1, v2);
     if (rc)
         return rc;

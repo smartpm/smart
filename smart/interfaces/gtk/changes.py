@@ -181,8 +181,9 @@ class GtkChanges(object):
 
         dsize = report.getDownloadSize()
         size = report.getInstallSize() - report.getRemoveSize()
+        sizestr = ""
         if dsize:
-            sizestr = "%s of package files are needed. " % sizeToStr(dsize)
+            sizestr += "%s of package files are needed. " % sizeToStr(dsize)
         if size > 0:
             sizestr += "%s will be used." % sizeToStr(size)
         elif size < 0:

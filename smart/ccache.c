@@ -538,7 +538,7 @@ static PyMemberDef Package_members[] = {
 statichere PyTypeObject Package_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
-	"cache.Package",	/*tp_name*/
+	"smart.cache.Package",	/*tp_name*/
 	sizeof(PackageObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
 	(destructor)Package_dealloc, /*tp_dealloc*/
@@ -706,7 +706,7 @@ static PyMemberDef Provides_members[] = {
 statichere PyTypeObject Provides_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
-	"cache.Provides",	/*tp_name*/
+	"smart.cache.Provides",	/*tp_name*/
 	sizeof(ProvidesObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
 	(destructor)Provides_dealloc, /*tp_dealloc*/
@@ -894,7 +894,7 @@ static PyMemberDef Depends_members[] = {
 statichere PyTypeObject Depends_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
-	"cache.Depends",	/*tp_name*/
+	"smart.cache.Depends",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
 	(destructor)Depends_dealloc, /*tp_dealloc*/
@@ -1634,7 +1634,7 @@ static PyMemberDef Loader_members[] = {
 statichere PyTypeObject Loader_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
-	"cache.Loader",	/*tp_name*/
+	"smart.cache.Loader",	/*tp_name*/
 	sizeof(LoaderObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
 	(destructor)Loader_dealloc, /*tp_dealloc*/
@@ -2686,7 +2686,7 @@ static PyMemberDef Cache_members[] = {
 statichere PyTypeObject Cache_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
-	"cache.Cache",	/*tp_name*/
+	"smart.cache.Cache",	/*tp_name*/
 	sizeof(CacheObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
 	(destructor)Cache_dealloc, /*tp_dealloc*/

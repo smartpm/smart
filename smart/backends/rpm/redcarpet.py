@@ -29,16 +29,19 @@ import os
 
 from xml.parsers import expat
 
+BYTESPERPKG = 3000
+
 class RPMRedCarpetPackageInfo(PackageInfo):
 
-    def __init__(self, package, info):
+    def __init__(self, package, loader, info):
         PackageInfo.__init__(self, package)
+        self._loader = loader
         self._info = info
 
     def getURLs(self):
         url = self._info.get("location")
         if url:
-            return [url]
+            return [posixpath.join(self._loader._baseurl, url)]
         return []
 
     def getSize(self, url):
@@ -66,11 +69,40 @@ class RPMRedCarpetLoader(Loader):
         Loader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
+        self._fileprovides = {}
+
+    def reset(self):
+        Loader.reset(self)
+        self._fileprovides.clear()
+
+    def loadFileProvides(self, fndict):
+        bfp = self.buildFileProvides
+        for pkg in self._fileprovides:
+            for fn in self._fileprovides[pkg]:
+                if fn in fndict:
+                    bfp(pkg, (RPMProvides, fn, None))
+
+    def getInfo(self, pkg):
+        return RPMRedCarpetPackageInfo(pkg, pkg.loaders[self])
+
+    def getLoadSteps(self):
+        return 0
+
+    def load(self):
+        XMLParser(self).parse()
+
+
+class XMLParser(object):
+
+    def __init__(self, loader):
+        self._loader = loader
+
+        self._lastoffset = 0
+        self._mod = 0
+        self._progress = None
 
         self._queue = []
-        self._data = None
-
-        self._fileprovides = {}
+        self._data = ""
 
         self._name = None
         self._epoch = None
@@ -95,25 +127,19 @@ class RPMRedCarpetLoader(Loader):
                      "Section", "History", "Update", "Epoch", "Version",
                      "Release", "FileName", "FileSize", "Description",
                      "Requires", "Provides", "Conflicts", "Obsoletes", "Dep"):
-            handlername = "_handle%sStart" % attr
+            handlername = "handle%sStart" % attr
             handler = getattr(self, handlername, None)
             lattr = attr.lower()
             if handler:
                 self._starthandler[lattr] = handler
-            handlername = "_handle%sEnd" % attr
+            handlername = "handle%sEnd" % attr
             handler = getattr(self, handlername, None)
             if handler:
                 self._endhandler[lattr] = handler
             setattr(self, attr.upper(), lattr)
 
-    def reset(self):
-        Loader.reset(self)
-        del self._queue[:]
-        self._resetPackage()
-        self._fileprovides.clear()
-
-    def _resetPackage(self):
-        self._data = None
+    def resetPackage(self):
+        self._data = ""
         self._name = None
         self._epoch = None
         self._version = None
@@ -126,7 +152,7 @@ class RPMRedCarpetLoader(Loader):
         self._filedict.clear()
         self._info = {}
 
-    def _startElement(self, name, attrs):
+    def startElement(self, name, attrs):
         if self._skip:
             return
         handler = self._starthandler.get(name)
@@ -135,7 +161,7 @@ class RPMRedCarpetLoader(Loader):
         self._data = ""
         self._queue.append((name, attrs))
 
-    def _endElement(self, name):
+    def endElement(self, name):
         if self._skip:
             if name == self._skip:
                 self._skip = None
@@ -150,47 +176,47 @@ class RPMRedCarpetLoader(Loader):
             handler(name, attrs, self._data)
         self._data = ""
 
-    def _charData(self, data):
+    def charData(self, data):
         self._data += data
 
-    def _handleNameEnd(self, name, attrs, data):
+    def handleNameEnd(self, name, attrs, data):
         self._name = data
 
-    def _handleEpochEnd(self, name, attrs, data):
+    def handleEpochEnd(self, name, attrs, data):
         self._epoch = data
 
-    def _handleVersionEnd(self, name, attrs, data):
+    def handleVersionEnd(self, name, attrs, data):
         self._version = data
 
-    def _handleReleaseEnd(self, name, attrs, data):
+    def handleReleaseEnd(self, name, attrs, data):
         self._release = data
 
-    def _handleArchEnd(self, name, attrs, data):
+    def handleArchEnd(self, name, attrs, data):
         if rpm.archscore(data) == 0:
             self._skip = self.PACKAGE
         else:
             self._arch = data
 
-    def _handleSectionEnd(self, name, attrs, data):
-        self._info["group"] = data
+    def handleSectionEnd(self, name, attrs, data):
+        self._info["group"] = intern(data)
 
-    def _handleSummaryEnd(self, name, attrs, data):
+    def handleSummaryEnd(self, name, attrs, data):
         self._info["summary"] = data
 
-    def _handleDescriptionEnd(self, name, attrs, data):
+    def handleDescriptionEnd(self, name, attrs, data):
         if self._queue[-1][0] == self.PACKAGE:
             self._info["description"] = data
 
-    def _handleFileNameEnd(self, name, attrs, data):
-        self._info["location"] = posixpath.join(self._baseurl, data)
+    def handleFileNameEnd(self, name, attrs, data):
+        self._info["location"] = data
 
-    def _handleFileSizeEnd(self, name, attrs, data):
+    def handleFileSizeEnd(self, name, attrs, data):
         self._info["size"] = int(data)
 
-    def _handleUpdateEnd(self, name, attrs, data):
+    def handleUpdateEnd(self, name, attrs, data):
         self._skip = self.HISTORY
 
-    def _handleDepEnd(self, name, attrs, data):
+    def handleDepEnd(self, name, attrs, data):
         name = attrs.get("name")
         if not name or name[:7] in ("rpmlib(", "config("):
             return
@@ -199,7 +225,7 @@ class RPMRedCarpetLoader(Loader):
             v = attrs.get("version")
             r = attrs.get("release")
             version = v
-            if e:
+            if e and e != "0":
                 version = "%s:%s" % (e, version)
             if r:
                 version = "%s-%s" % (version, r)
@@ -222,11 +248,12 @@ class RPMRedCarpetLoader(Loader):
         elif lastname == self.CONFLICTS:
             self._cnfdict[(RPMConflicts, name, relation, version)] = True
 
-    def _handlePackageEnd(self, name, attrs, data):
+    def handlePackageEnd(self, name, attrs, data):
         name = self._name
+        epoch = self._epoch
 
-        if self._epoch:
-            version = "%s:%s-%s" % (self._epoch, self._version, self._release)
+        if epoch and epoch != "0":
+            version = "%s:%s-%s" % (epoch, self._version, self._release)
         else:
             version = "%s-%s" % (self._version, self._release)
         versionarch = "%s.%s" % (version, self._arch)
@@ -245,40 +272,38 @@ class RPMRedCarpetLoader(Loader):
                 prvargs[i] = (RPMNameProvides, tup[1], versionarch)
                 break
 
-        pkg = self.buildPackage((RPMPackage, name, versionarch),
-                                prvargs, reqargs, upgargs, cnfargs)
-        pkg.loaders[self] = self._info
+        pkg = self._loader.buildPackage((RPMPackage, name, versionarch),
+                                        prvargs, reqargs, upgargs, cnfargs)
+        pkg.loaders[self._loader] = self._info
 
-        self._fileprovides.setdefault(pkg, []).extend(self._filedict.keys())
+        self._loader._fileprovides.setdefault(pkg, []) \
+                                  .extend(self._loader._filedict.keys())
 
-        self._resetPackage()
-        
-    def load(self):
-        self._progress = iface.getProgress(self._cache)
+        self.resetPackage()
 
+        self.updateProgress()
+
+    def updateProgress(self):
+        offset = self._file.tell()
+        div, self._mod = divmod(offset-self._lastoffset+self._mod, BYTESPERPKG)
+        self._lastoffset = offset
+        self._progress.add(div)
+        self._progress.show()
+ 
+    def parse(self):
         parser = expat.ParserCreate(namespace_separator=" ")
-        parser.StartElementHandler = self._startElement
-        parser.EndElementHandler = self._endElement
-        parser.CharacterDataHandler = self._charData
+        parser.StartElementHandler = self.startElement
+        parser.EndElementHandler = self.endElement
+        parser.CharacterDataHandler = self.charData
         parser.returns_unicode = False
 
-        try:
-            RPMPackage.ignoreprereq = True
-            parser.ParseFile(open(self._filename))
-        finally:
-            RPMPackage.ignoreprereq = False
+        self._lastoffset = 0
+        self._mod = 0
+        self._progress = iface.getProgress(self._loader._cache)
+        self._file = open(self._loader._filename)
 
-    def loadFileProvides(self, fndict):
-        bfp = self.buildFileProvides
-        for pkg in self._fileprovides:
-            for fn in self._fileprovides[pkg]:
-                if fn in fndict:
-                    bfp(pkg, (RPMProvides, fn, None))
+        parser.ParseFile(open(self._filename))
 
-    def getInfo(self, pkg):
-        return RPMRedCarpetPackageInfo(pkg, pkg.loaders[self])
-
-    def getLoadSteps(self):
-        return 0
+        self.updateProgress()
 
 # vim:ts=4:sw=4:et

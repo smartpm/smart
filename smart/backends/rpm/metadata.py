@@ -32,17 +32,23 @@ from xml.parsers import expat
 NS_COMMON = "http://linux.duke.edu/metadata/common"
 NS_RPM    = "http://linux.duke.edu/metadata/rpm"
 
+BYTESPERPKG = 3000
+
 class RPMMetaDataPackageInfo(PackageInfo):
 
-    def __init__(self, package, info):
+    def __init__(self, package, loader, info):
         PackageInfo.__init__(self, package)
+        self._loader = loader
         self._info = info
 
     def getURLs(self):
         url = self._info.get("location")
         if url:
-            return [url]
+            return [posixpath.join(self._loader._baseurl, url)]
         return []
+
+    def getInstalledSize(self):
+        return self._info.get("installed_size")
 
     def getSize(self, url):
         return self._info.get("size")
@@ -65,17 +71,46 @@ class RPMMetaDataPackageInfo(PackageInfo):
 
 class RPMMetaDataLoader(Loader):
  
-    COMPMAP = { "EQ":"=", "LT":"<", "LE":"<=", "GT":">", "GE":">="}
-
     def __init__(self, filename, baseurl):
         Loader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
+        self._fileprovides = {}
+
+    def reset(self):
+        Loader.reset(self)
+        self._fileprovides.clear()
+
+    def loadFileProvides(self, fndict):
+        bfp = self.buildFileProvides
+        for pkg in self._fileprovides:
+            for fn in self._fileprovides[pkg]:
+                if fn in fndict:
+                    bfp(pkg, (RPMProvides, fn, None))
+
+    def getInfo(self, pkg):
+        return RPMMetaDataPackageInfo(pkg, self, pkg.loaders[self])
+
+    def getLoadSteps(self):
+        return os.path.getsize(self._filename)/BYTESPERPKG
+
+    def load(self):
+        XMLParser(self).parse()
+
+
+class XMLParser(object):
+
+    COMPMAP = { "EQ":"=", "LT":"<", "LE":"<=", "GT":">", "GE":">="}
+
+    def __init__(self, loader):
+        self._loader = loader
+
+        self._lastoffset = 0
+        self._mod = 0
+        self._progress = None
 
         self._queue = []
-        self._data = None
-
-        self._fileprovides = {}
+        self._data = ""
 
         self._name = None
         self._version = None
@@ -104,32 +139,26 @@ class RPMMetaDataLoader(Loader):
                          (NS_COMMON, "Size"),
                          (NS_COMMON, "Location"),
                          (NS_COMMON, "Format"),
-                         (NS_COMMON, "Group"),
                          (NS_COMMON, "CheckSum"),
+                         (NS_RPM, "Group"),
                          (NS_RPM, "Entry"),
                          (NS_RPM, "Requires"),
                          (NS_RPM, "Provides"),
                          (NS_RPM, "Conflicts"),
                          (NS_RPM, "Obsoletes")):
-            handlername = "_handle%sStart" % attr
+            handlername = "handle%sStart" % attr
             handler = getattr(self, handlername, None)
             nsattr = "%s %s" % (ns, attr.lower())
             if handler:
                 self._starthandler[nsattr] = handler
-            handlername = "_handle%sEnd" % attr
+            handlername = "handle%sEnd" % attr
             handler = getattr(self, handlername, None)
             if handler:
                 self._endhandler[nsattr] = handler
             setattr(self, attr.upper(), nsattr)
 
-    def reset(self):
-        Loader.reset(self)
-        del self._queue[:]
-        self._resetPackage()
-        self._fileprovides.clear()
-
-    def _resetPackage(self):
-        self._data = None
+    def resetPackage(self):
+        self._data = ""
         self._name = None
         self._version = None
         self._arch = None
@@ -138,18 +167,19 @@ class RPMMetaDataLoader(Loader):
         self._upgdict.clear()
         self._cnfdict.clear()
         self._filedict.clear()
+        # Do not clear it. pkg.loaders has a reference.
         self._info = {}
 
-    def _startElement(self, name, attrs):
+    def startElement(self, name, attrs):
         if self._skip:
             return
         handler = self._starthandler.get(name)
         if handler:
             handler(name, attrs)
-        self._data = None
+        self._data = ""
         self._queue.append((name, attrs))
 
-    def _endElement(self, name):
+    def endElement(self, name):
         if self._skip:
             if name == self._skip:
                 self._skip = None
@@ -162,48 +192,47 @@ class RPMMetaDataLoader(Loader):
         handler = self._endhandler.get(name)
         if handler:
             handler(name, attrs, self._data)
-        self._data = None
+        self._data = ""
 
-    def _charData(self, data):
-        self._data = data
+    def charData(self, data):
+        self._data += data
 
-    def _handleArchEnd(self, name, attrs, data):
+    def handleArchEnd(self, name, attrs, data):
         if rpm.archscore(data) == 0:
             self._skip = self.PACKAGE
         else:
             self._arch = data
 
-    def _handleNameEnd(self, name, attrs, data):
+    def handleNameEnd(self, name, attrs, data):
         self._name = data
 
-    def _handleVersionEnd(self, name, attrs, data):
+    def handleVersionEnd(self, name, attrs, data):
         e = attrs.get("epoch")
-        if e:
+        if e and e != "0":
             self._version = "%s:%s-%s" % (e, attrs.get("ver"), attrs.get("rel"))
         else:
             self._version = "%s-%s" % (attrs.get("ver"), attrs.get("rel"))
 
-    def _handleSummaryEnd(self, name, attrs, data):
+    def handleSummaryEnd(self, name, attrs, data):
         self._info["summary"] = data
 
-    def _handleDescriptionEnd(self, name, attrs, data):
+    def handleDescriptionEnd(self, name, attrs, data):
         self._info["description"] = data
 
-    def _handleSizeEnd(self, name, attrs, data):
+    def handleSizeEnd(self, name, attrs, data):
         self._info["size"] = int(attrs.get("package"))
         self._info["installed_size"] = int(attrs.get("installed"))
 
-    def _handleCheckSumEnd(self, name, attrs, data):
+    def handleCheckSumEnd(self, name, attrs, data):
         self._info[attrs.get("type")] = data
 
-    def _handleLocationEnd(self, name, attrs, data):
-        self._info["location"] = posixpath.join(self._baseurl,
-                                                attrs.get("href"))
+    def handleLocationEnd(self, name, attrs, data):
+        self._info["location"] = attrs.get("href")
 
-    def _handleGroupEnd(self, name, attrs, data):
-        self._info["group"] = data
+    def handleGroupEnd(self, name, attrs, data):
+        self._info["group"] = intern(data)
 
-    def _handleEntryEnd(self, name, attrs, data):
+    def handleEntryEnd(self, name, attrs, data):
         name = attrs.get("name")
         if not name or name[:7] in ("rpmlib(", "config("):
             return
@@ -225,7 +254,10 @@ class RPMMetaDataLoader(Loader):
             relation = None
         lastname = self._queue[-1][0]
         if lastname == self.REQUIRES:
-            self._reqdict[(RPMRequires, name, relation, version)] = True
+            if attrs.get("pre") == "1":
+                self._reqdict[(RPMPreRequires, name, relation, version)] = True
+            else:
+                self._reqdict[(RPMRequires, name, relation, version)] = True
         elif lastname == self.PROVIDES:
             if name[0] == "/":
                 self._filedict[name] = True
@@ -243,15 +275,15 @@ class RPMMetaDataLoader(Loader):
         elif lastname == self.CONFLICTS:
             self._cnfdict[(RPMConflicts, name, relation, version)] = True
 
-    def _handleFileEnd(self, name, attrs, data):
+    def handleFileEnd(self, name, attrs, data):
         if lastname == self.PROVIDES:
             self._prvdict[(RPMProvides, data, None, None)]
 
-    def _handlePackageStart(self, name, attrs):
+    def handlePackageStart(self, name, attrs):
         if attrs.get("type") != "rpm":
             self._skip = self.PACKAGE
 
-    def _handlePackageEnd(self, name, attrs, data):
+    def handlePackageEnd(self, name, attrs, data):
         name = self._name
         version = self._version
         versionarch = "%s.%s" % (version, self._arch)
@@ -264,40 +296,38 @@ class RPMMetaDataLoader(Loader):
         cnfargs = self._cnfdict.keys()
         upgargs = self._upgdict.keys()
 
-        pkg = self.buildPackage((RPMPackage, name, versionarch),
-                                prvargs, reqargs, upgargs, cnfargs)
-        pkg.loaders[self] = self._info
+        pkg = self._loader.buildPackage((RPMPackage, name, versionarch),
+                                        prvargs, reqargs, upgargs, cnfargs)
+        pkg.loaders[self._loader] = self._info
 
-        self._fileprovides.setdefault(pkg, []).extend(self._filedict.keys())
+        self._loader._fileprovides.setdefault(pkg, []) \
+                                  .extend(self._filedict.keys())
 
-        self._resetPackage()
-        
-    def load(self):
-        self._progress = iface.getProgress(self._cache)
+        self.resetPackage()
 
+        self.updateProgress()
+
+    def updateProgress(self):
+        offset = self._file.tell()
+        div, self._mod = divmod(offset-self._lastoffset+self._mod, BYTESPERPKG)
+        self._lastoffset = offset
+        self._progress.add(div)
+        self._progress.show()
+
+    def parse(self):
         parser = expat.ParserCreate(namespace_separator=" ")
-        parser.StartElementHandler = self._startElement
-        parser.EndElementHandler = self._endElement
-        parser.CharacterDataHandler = self._charData
+        parser.StartElementHandler = self.startElement
+        parser.EndElementHandler = self.endElement
+        parser.CharacterDataHandler = self.charData
         parser.returns_unicode = False
 
-        try:
-            RPMPackage.ignoreprereq = True
-            parser.ParseFile(open(self._filename))
-        finally:
-            RPMPackage.ignoreprereq = False
+        self._lastoffset = 0
+        self._mod = 0
+        self._progress = iface.getProgress(self._loader._cache)
+        self._file = open(self._loader._filename)
 
-    def loadFileProvides(self, fndict):
-        bfp = self.buildFileProvides
-        for pkg in self._fileprovides:
-            for fn in self._fileprovides[pkg]:
-                if fn in fndict:
-                    bfp(pkg, (RPMProvides, fn, None))
+        parser.ParseFile(self._file)
 
-    def getInfo(self, pkg):
-        return RPMMetaDataPackageInfo(pkg, pkg.loaders[self])
-
-    def getLoadSteps(self):
-        return 0
+        self.updateProgress()
 
 # vim:ts=4:sw=4:et

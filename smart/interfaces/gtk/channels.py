@@ -498,8 +498,8 @@ class ChannelEditor(object):
                 value = alias
             else:
                 value = channel.get(key, default)
-                if value is None:
-                    value = ftype()
+            if value is None:
+                value = ftype()
             tip = "\n".join(textwrap.wrap(text=descr, width=40))
             self.addField(key, label, value, ftype, editable, tip)
 

@@ -47,15 +47,12 @@ def vercmp(s1, s2):
 #        0: first and second are the same version
 #       -1: second is newer than first
 def vercmpparts(e1, v1, r1, e2, v2, r2):
-    if e1 and not e2:
-        return 1
-    if not e1 and e2:
-        return -1
-    if e1 and e2:
-        if e1 < e2:
-            return -1
-        if e1 > e2:
-            return 1
+    if e1: e1 = int(e1)
+    else:  e1 = 0
+    if e2: e2 = int(e2)
+    else:  e2 = 0
+    if e1 > e2: return 1
+    if e1 < e2: return -1
     rc = vercmppart(v1, v2)
     if rc:
         return rc

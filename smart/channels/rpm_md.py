@@ -104,6 +104,8 @@ class RPMMetaDataChannel(PackageChannel):
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
 
+        self._digest = digest
+
         return True
 
 def create(alias, data):

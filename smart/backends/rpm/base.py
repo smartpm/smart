@@ -118,24 +118,13 @@ class RPMPackage(Package):
     packagemanager = RPMPackageManager
     matcher = RPMMatcher
 
-    ignoreprereq = False
-
-    def __getstate__(self):
-        return Package.__getstate__(self) + \
-               (self.ignoreprereq,)
-
-    def __setstate__(self, state):
-        Package.__setstate__(self, state[:-1])
-        if state[-1]:
-            self.ignorepreqreq = True
-
     def equals(self, other):
-        if not self.ignoreprereq:
-            return Package.equals(self, other)
+        if self.name != other.name or self.version != other.version:
+            return False
+        if Package.equals(self, other):
+            return True
         fk = dict.fromkeys
-        if (self.name != other.name or
-            self.version != other.version or
-            len(self.upgrades) != len(other.upgrades) or
+        if (len(self.upgrades) != len(other.upgrades) or
             len(self.conflicts) != len(other.conflicts) or
             fk(self.upgrades) != fk(other.upgrades) or
             fk(self.conflicts) != fk(other.conflicts) or
