@@ -628,7 +628,7 @@ class Cache(object):
                         if prv.conflictedby:
                             prv.conflictedby.append(cnf)
                         else:
-                            prv.conlfictedby = [cnf]
+                            prv.conflictedby = [cnf]
 
     def getPackages(self, name=None):
         if not name:
