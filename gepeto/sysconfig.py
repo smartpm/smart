@@ -171,6 +171,12 @@ class SysConfig(object):
                             break
         return fpkgs
 
+    def getVersionsWithFlag(self, flag, name):
+        names = self.get("package-flags", setdefault={}).get(flag, {})
+        if names:
+            return names.get(name)
+        return []
+
     def getPriority(self, pkg):
         priority = None
         priorities = self.get("package-priorities", {}).get(pkg.name)
