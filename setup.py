@@ -39,7 +39,7 @@ PYTHONLIB = get_python_lib()
 I18NFILES = []
 for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
     targetpath = os.path.dirname(os.path.join(sys.prefix, "share", filepath))
-    I18NFILES.append((targetpath, filepath))
+    I18NFILES.append((targetpath, [filepath]))
 
 setup(name="smart",
       version = VERSION,

@@ -9,3 +9,5 @@ graft contrib/ksmarttray/admin
 recursive-include contrib/smart-update *.c Makefile
 
 recursive-include contrib/patches *
+
+recursive-include locale *.po *.mo
