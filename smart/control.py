@@ -367,12 +367,13 @@ class Control(object):
                     pkgconf.setFlag("new", pkg.name, "=", pkg.version)
 
         # Remove unused files from channels directory.
-        aliases = self._channels.copy()
-        aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
-        for entry in os.listdir(channelsdir):
-            sep = entry.find("%%")
-            if sep == -1 or entry[:sep] not in aliases:
-                os.unlink(os.path.join(channelsdir, entry))
+        if os.access(channelsdir, os.W_OK):
+            aliases = self._channels.copy()
+            aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
+            for entry in os.listdir(channelsdir):
+                sep = entry.find("%%")
+                if sep == -1 or entry[:sep] not in aliases:
+                    os.unlink(os.path.join(channelsdir, entry))
 
         # Change back to a shared lock.
         self._pathlocks.lock(channelsdir)
