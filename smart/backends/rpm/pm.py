@@ -113,12 +113,10 @@ class RPMPackageManager(PackageManager):
                 ts.addInstall(h, (info, path), mode)
                 packages += 1
             else:
-                version = pkg.version
-                if ":" in version:
-                    version = version[version.find(":")+1:]
-                version, arch = splitarch(version)
+                loader = [x for x in pkg.loaders if x.getInstalled()][0]
+                offset = pkg.loaders[loader]
                 try:
-                    ts.addErase("%s-%s" % (pkg.name, version))
+                    ts.addErase(offset)
                 except rpm.error, e:
                     raise Error, "%s-%s: %s" % \
                                  (pkg.name, pkg.version, unicode(e))
