@@ -57,7 +57,6 @@ class GtkInterface(Interface):
                                              or gtk.RESPONSE_NO)
         response = dialog.run()
         dialog.destroy()
-        print response
         if response == gtk.RESPONSE_YES:
             return True
         elif response == gtk.RESPONSE_NO:
@@ -78,7 +77,6 @@ class GtkInterface(Interface):
                                              or gtk.RESPONSE_CANCEL)
         response = dialog.run()
         dialog.destroy()
-        print response
         if response == gtk.RESPONSE_OK:
             return True
         elif response == gtk.RESPONSE_CANCEL:
