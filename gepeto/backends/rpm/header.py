@@ -316,10 +316,7 @@ class RPMDBLoader(RPMHeaderLoader):
         self.setInstalled(True)
 
     def getLoadSteps(self):
-        ts = rpm.ts(sysconf.get("rpm-root", "/"))
-        i = 0
-        for h in ts.dbMatch(): i += 1
-        return i
+        return 1
 
     def getHeaders(self, prog):
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
@@ -327,8 +324,10 @@ class RPMDBLoader(RPMHeaderLoader):
         for h in mi:
             if h[1000] != "gpg-pubkey": # RPMTAG_NAME
                 yield h, mi.instance()
+            prog.addTotal(1)
             prog.add(1)
             prog.show()
+        prog.add(1)
 
     def getHeader(self, pkg):
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
