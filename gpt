@@ -61,7 +61,7 @@ gpt install --help
 gpt install pkgname
 gpt --gui
 gpt --gui install pkgname
-gpt
+gpt --shell
 """
 
 def parse_options(argv):
@@ -79,6 +79,8 @@ def parse_options(argv):
                            "warning, error)")
     parser.add_option("--gui", action="store_true",
                       help="use the default graphic interface")
+    parser.add_option("--shell", action="store_true",
+                      help="use the default shell interface")
     parser.add_option("--interface", metavar="NAME",
                       help="use the given interface")
     parser.add_option("-o", "--option", action="append", default=[],
@@ -91,6 +93,9 @@ def parse_options(argv):
     else:
         opts.command = None
         opts.argv = []
+    if not (opts.command or opts.gui or opts.shell):
+        parser.print_help()
+        sys.exit(1)
     return opts
 
 def set_config_options(options):

@@ -64,12 +64,17 @@ def init(opts=None):
             datadir = os.path.expanduser(opts.data_dir)
             sysconf.set("data-dir", datadir, soft=True)
     ctrl = Control(opts and opts.config_file)
-    if opts and opts.gui:
-        ifacename = sysconf.get("default-gui", "gtk")
-    elif opts and opts.interface:
-        ifacename = opts.interface
-    else:
-        ifacename = "text"
+    if opts:
+        if opts.gui:
+            ifacename = sysconf.get("default-gui", "gtk")
+        elif opts.shell:
+            ifacename = sysconf.get("default-shell", "text")
+            if opts.command:
+                raise Error, "Can't use commands with shell interfaces"
+        elif opts.interface:
+            ifacename = opts.interface
+        else:
+            raise Error, "No interface selected"
     iface.object = createInterface(ifacename, ctrl,
                                    not bool(opts and opts.command))
 
