@@ -91,7 +91,7 @@ class Fetcher(object):
         if isinstance(obj, URL):
             url = obj.original
         elif isinstance(obj, FetchItem):
-            url = obj.getURL().original
+            url = obj.getOriginalURL()
         elif type(obj) is str:
             url = obj
         else:
@@ -652,7 +652,7 @@ class FTPHandler(FetcherHandler):
                 raise
 
             filename = os.path.basename(url.path)
-            localpath = self.getLocalPath(url)
+            localpath = self.getLocalPath(item)
 
             mtime = None
             total = None
