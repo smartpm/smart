@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from cpm.option import OptionParser
-from cpm import *
 import cpm
 import sys
 
@@ -23,7 +22,7 @@ def parse_options(argv):
                            "~/.cpm/config or /etc/cpm.conf)")
     parser.add_option("--log-level", metavar="LEVEL",
                       help="set logging level to LEVEL (debug, info, "
-                           "warning, error)", default="info")
+                           "warning, error)")
     parser.add_option("--gui", action="store_true",
                       help="try to use a graphic interface")
     opts, args = parser.parse_args()
@@ -46,17 +45,17 @@ def main(argv):
                 import traceback
                 traceback.print_exc()
                 sys.exit(1)
-            raise Error, "invalid command '%s'" % opts.command
+            raise cpm.Error, "invalid command '%s'" % opts.command
         cmdopts = command_module.parse_options(opts.argv)
         opts.__dict__.update(cmdopts.__dict__)
         command_module.main(opts)
-    except Error, e:
+    except cpm.Error, e:
         if opts.log_level == "debug":
             import traceback
             traceback.print_exc()
             sys.exit(1)
-        if logger:
-            logger.error(str(e))
+        if cpm.logger:
+            cpm.logger.error(str(e))
         else:
             sys.stderr.write("error: %s\n" % e)
         sys.exit(1)

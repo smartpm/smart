@@ -765,16 +765,19 @@ class Transaction(object):
     def enqueue(self, pkg, op):
         if op is UPGRADE:
             isinst = self._changeset.installed
-            for prv in pkg.provides:
-                for upg in prv.upgradedby:
-                    _upgpkgs = {}
-                    for upgpkg in upg.packages:
-                        if isinst(upgpkg):
-                            break
-                        _upgpkgs[upgpkg] = True
-                    else:
-                        for upgpkg in _upgpkgs:
-                            self._queue[upgpkg] = op
+            _upgpkgs = {}
+            try:
+                for prv in pkg.provides:
+                    for upg in prv.upgradedby:
+                        for upgpkg in upg.packages:
+                            if isinst(upgpkg):
+                                raise StopIteration
+                            _upgpkgs[upgpkg] = True
+            except StopIteration:
+                pass
+            else:
+                for upgpkg in _upgpkgs:
+                    self._queue[upgpkg] = op
         else:
             self._queue[pkg] = op
 

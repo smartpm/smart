@@ -1,5 +1,5 @@
 from cpm.transaction import Transaction, PolicyRemove, REMOVE
-from cpm.cmdline import initCmdLine, confirmChanges
+from cpm.cmdline import initCmdLine
 from cpm.matcher import MasterMatcher
 from cpm.option import OptionParser
 from cpm import *
@@ -32,5 +32,7 @@ def main(opts):
     trans.run()
     if trans:
         ctrl.commitTransaction(trans)
+
+    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et

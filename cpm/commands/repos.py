@@ -12,7 +12,7 @@ def parse_options(argv):
                       help="arguments are key=value pairs defining a "
                            "repository, or a filename/url pointing to "
                            "a repository description")
-    parser.add_option("--del", action="store_true", dest="delete",
+    parser.add_option("--remove", action="store_true",
                       help="arguments are repository names to be removed")
     parser.add_option("--show", action="store_true",
                       help="show repositories with names given as arguments "
@@ -62,8 +62,10 @@ def main(opts):
 
             replst.append(rep)
 
-        changed = False
-        curreplst = sysconf.get("repositories", [], setdefault=True)
+        curreplst = sysconf.get("repositories")
+        if curreplst is None:
+            curreplst = []
+            sysconf.set("repositories", curreplst)
         for rep in replst:
             desc = createRepositoryDescription(rep)
             if not desc:
@@ -86,32 +88,23 @@ def main(opts):
                         if res:
                             name = res
                     rep["name"] = name
-                    changed = True
                     curreplst.append(rep)
 
-        if changed:
-            ctrl.saveSysConf()
-
-    elif opts.delete:
+    elif opts.remove:
 
         replst = sysconf.get("repositories", [])
 
-        changed = False
         for arg in opts.args:
 
             if [x for x in replst if x.get("name") == arg]:
                 res = raw_input("Remove repository '%s' (y/N)? " % arg).strip()
                 if res and res[0].lower() == "y":
-                    changed = True
                     replst = [x for x in replst if x.get("name") != arg]
 
-        if changed:
-            sysconf.set("repositories", replst)
+        sysconf.set("repositories", replst)
             ctrl.saveSysConf()
 
     elif opts.enable or opts.disable:
-
-        changed = False
 
         replst = sysconf.get("repositories", [])
 
@@ -122,10 +115,6 @@ def main(opts):
                         del rep["disabled"]
                 else:
                     rep["disabled"] = "yes"
-                changed = True
-        
-        if changed:
-            ctrl.saveSysConf()
 
     elif opts.show:
 
@@ -138,5 +127,7 @@ def main(opts):
             if desc:
                 print desc
             print
+
+    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et

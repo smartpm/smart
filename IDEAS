@@ -108,4 +108,9 @@ slapt-get: http://software.jaos.org/
 ftp://ftp.nluug.nl/pub/os/Linux/distr/slackware/slackware-current/
 ftp://ftp.slackware.com/pub/slackware/slackware-current/
 
+Examples of cases where the upgrading algorithm is better
+---------------------------------------------------------
+
+http://bugzilla.atrpms.net/show_bug.cgi?id=160
+
 vim:ts=4:sw=4:et

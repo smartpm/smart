@@ -1,7 +1,7 @@
 from cpm.util.elementtree import ElementTree
 from cpm.repository import createRepository
 from cpm.packageflags import PackageFlags
-from cpm.const import DATADIR
+from cpm.const import DATADIR, INFO
 from cpm import *
 import cPickle
 import os
@@ -10,10 +10,19 @@ class SysConfig:
 
     def __init__(self):
         self._map = {}
-        self.set("data-dir", os.path.expanduser(DATADIR))
+        self._weakmap = {}
+        self._softmap = {}
+        self.set("log-level", INFO, weak=True)
+        self.set("data-dir", os.path.expanduser(DATADIR), weak=True)
 
     def getMap(self):
         return self._map
+
+    def getWeakMap(self):
+        return self._weakmap
+
+    def getSoftMap(self):
+        return self._softmap
 
     def load(self, filepath):
         filepath = os.path.expanduser(filepath)
@@ -30,9 +39,6 @@ class SysConfig:
                 self._map.update(cPickle.load(file))
         file.close()
 
-        if "data-dir" not in self._map:
-            self.set("data-dir", os.path.expanduser(DATADIR))
-
     def save(self, filepath):
         filepath = os.path.expanduser(filepath)
         if os.path.isfile(filepath):
@@ -41,17 +47,30 @@ class SysConfig:
         cPickle.dump(self._map, file, 2)
         file.close()
 
-    def get(self, option, default=None, setdefault=False):
-        if setdefault:
-            return self._map.setdefault(option, default)
-        else:
-            return self._map.get(option, default)
+    def get(self, option, default=None):
+        value = self._softmap.get(option)
+        if value is None:
+            value = self._map.get(option)
+            if value is None:
+                value = self._weakmap.get(option, default)
+        return value
 
-    def set(self, option, value):
-        self._map[option] = value
+    def set(self, option, value, weak=False, soft=False):
+        if soft:
+            self._softmap[option] = value
+        elif weak:
+            self._weakmap[option] = value
+        else:
+            self._map[option] = value
+            if option in self._softmap:
+                del self._softmap[option]
 
     def remove(self, option):
         if option in self._map:
-            self._map[option]
+            del self._map[option]
+        if option in self._weakmap:
+            del self._weakmap[option]
+        if option in self._softmap:
+            del self._weakmap[option]
 
 # vim:ts=4:sw=4:et

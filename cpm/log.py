@@ -2,6 +2,8 @@ from cpm.const import ERROR, WARNING, INFO, DEBUG
 from cpm import *
 import sys
 
+__all__ = ["ERROR", "WARNING", "INFO", "DEBUG", "Logger"]
+
 class Logger:
 
     def error(self, msg):
@@ -27,6 +29,5 @@ class Logger:
             for line in msg.split("\n"):
                 sys.stderr.write("%s: %s\n" % (prefix, line))
         else:
-            msg = msg[0].upper()+msg[1:]
             sys.stderr.write("%s\n" % msg.rstrip())
 

@@ -111,6 +111,7 @@ class RPMCallback:
                 fcntl.fcntl(self.rpmout, fcntl.F_SETFL, flags)
         else:
             if self.rpmout:
+                self._rpmout()
                 os.dup2(sys.stdout.fileno(), 1)
                 os.dup2(sys.stderr.fileno(), 2)
                 sys.stdout.close()
@@ -122,17 +123,20 @@ class RPMCallback:
                 os.close(self.rpmout)
                 self.rpmout = None
 
-    def __call__(self, what, amount, total, infopath, data):
-
+    def _rpmout(self):
         if self.rpmout:
             try:
-                output = os.read(self.rpmout, 1024)
+                output = os.read(self.rpmout, 8192)
             except OSError, e:
                 if e[0] != errno.EWOULDBLOCK:
                     raise
             else:
                 if output:
                     logger.info(output)
+
+    def __call__(self, what, amount, total, infopath, data):
+
+        self._rpmout()
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath

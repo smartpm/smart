@@ -4,12 +4,13 @@ from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
 from cpm import *
-import os
+import os, md5
 
 class Control:
 
     def __init__(self):
         self._conffile = CONFFILE
+        self._confdigest = None
         self._replst = []
         self._sysconfreplst = []
         self._cache = Cache()
@@ -46,19 +47,30 @@ class Control:
         self._cache.reload()
 
     def loadSysConf(self, conffile=None):
+        loaded = False
         if conffile:
             conffile = os.path.expanduser(conffile)
             if not os.path.isfile(conffile):
                 raise Error, "configuration file not found: %s" % conffile
             sysconf.load(conffile)
+            loaded = True
         else:
             conffile = os.path.expanduser(CONFFILE)
             if os.path.isfile(conffile):
                 sysconf.load(conffile)
+                loaded = True
         self._conffile = conffile
+        if loaded:
+            self._confdigest = md5.md5(str(sysconf.getMap())).digest()
+        else:
+            self._confdigest = None
 
     def saveSysConf(self, conffile=None):
         if not conffile:
+            confdigest = md5.md5(str(sysconf.getMap())).digest()
+            if confdigest == self._confdigest:
+                return
+            self._confdigest = confdigest
             conffile = self._conffile
         conffile = os.path.expanduser(conffile)
         sysconf.save(conffile)

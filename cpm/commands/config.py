@@ -11,9 +11,9 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE)
     parser.add_option("--set", action="append", default=[],
                       help="set given option")
-    parser.add_option("--get", action="append", default=[],
-                      help="get given option")
-    parser.add_option("--del", dest="delete", action="append", default=[],
+    parser.add_option("--show", action="append", default=[],
+                      help="show given option")
+    parser.add_option("--remove", action="append", default=[],
                       help="remove given option")
     parser.add_option("--dump", action="store_true",
                       help="show all options")
@@ -54,8 +54,6 @@ def getSubName(name, d, create=False):
 
 def main(opts):
     ctrl = initCmdLine(opts)
-
-    changed = False
 
     for opt in opts.set:
 
@@ -115,9 +113,7 @@ def main(opts):
                 pass
         set(value)
 
-        changed = True
-
-    for opt in opts.delete:
+    for opt in opts.remove:
 
         m = DELRE.match(opt)
         if not m:
@@ -149,14 +145,11 @@ def main(opts):
                     continue
                 raise Error, "option '%s' not found" % g["name"]
             
-        changed = True
-
-
-    for opt in opts.get:
+    for opt in opts.show:
 
         m = GETRE.match(opt)
         if not m:
-            raise Error, "invalid --get argument: %s" % opt
+            raise Error, "invalid --show argument: %s" % opt
 
         g = m.groupdict()
 
@@ -183,8 +176,7 @@ def main(opts):
 
         pprint.pprint(value)
 
-    if changed:
-        ctrl.saveSysConf()
+    ctrl.saveSysConf()
 
     if opts.dump:
         pprint.pprint(sysconf.getMap())

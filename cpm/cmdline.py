@@ -48,9 +48,13 @@ class TextFeedback(ControlFeedback):
 
 def initCmdLine(opts=None):
     sysconf = SysConfig()
-    sysconf.set("log-level", WARNING)
     from cpm import init
-    init(sysconf, Logger())
+    if opts and opts.gui:
+        from cpm.gui.gtk.logger import GtkLogger
+        logger = GtkLogger()
+    else:
+        logger = Logger()
+    init(sysconf, logger)
     ctrl = Control()
     if opts and opts.gui:
         from cpm.gui.gtk.feedback import GtkFeedback
@@ -63,9 +67,7 @@ def initCmdLine(opts=None):
                  "debug": DEBUG, "info": INFO}.get(opts.log_level)
         if level is None:
             raise Error, "unknown log level"
-        sysconf.set("log-level", level)
-    else:
-        sysconf.set("log-level", INFO)
+        sysconf.set("log-level", level, soft=True)
     return ctrl
 
 

@@ -13,7 +13,7 @@ def parse_options(argv):
                       help="set flag given as first argument for "
                            "'name relation version' given in the following "
                            "arguments")
-    parser.add_option("--del", action="store_true", dest="delete",
+    parser.add_option("--remove", action="store_true",
                       help="unset flag given as first argument for "
                            "'name relation version' given in the following "
                            "arguments")
@@ -33,11 +33,9 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+)\s*"
 def main(opts):
     ctrl = initCmdLine(opts)
 
-    changed = False
-
     pkgflags = sysconf.get("package-flags", {}, setdefault=True)
 
-    if opts.set or opts.delete:
+    if opts.set or opts.remove:
 
         if len(opts.args) < 2:
             raise Error, "no flag name or target provided"
@@ -60,13 +58,11 @@ def main(opts):
             if opts.set:
                 if tup not in lst:
                     lst.append(tup)
-                    changed = True
             else:
                 if tup in lst:
                     lst.remove(tup)
-                    changed = True
 
-        if opts.delete and pkgflags.get(flag) == {}:
+        if opts.remove and pkgflags.get(flag) == {}:
             del pkgflags[flag]
 
     elif opts.get or opts.show:
@@ -87,7 +83,6 @@ def main(opts):
                         print "   ", name
             print
 
-    if changed:
-        ctrl.saveSysConf()
+    ctrl.saveSysConf()
 
 # vim:ts=4:sw=4:et
