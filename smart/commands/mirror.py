@@ -118,6 +118,8 @@ def main(ctrl, opts):
 
     if opts.add:
 
+        sysconf.assertWritable()
+
         if len(opts.add) == 1:
             opts.add = read_mirrors(opts.add[0])
 
@@ -133,6 +135,8 @@ def main(ctrl, opts):
                 mirrors[origin] = [mirror]
 
     if opts.remove:
+
+        sysconf.assertWritable()
 
         if len(opts.remove) == 1:
             opts.remove = read_mirrors(opts.remove[0])
@@ -156,6 +160,8 @@ def main(ctrl, opts):
 
     if opts.remove_all:
 
+        sysconf.assertWritable()
+
         for origin in opts.remove_all:
             if origin in mirrors:
                 del mirrors[origin]
@@ -163,6 +169,8 @@ def main(ctrl, opts):
                 raise Error, "Origin not found"
 
     if opts.clear_history is not None:
+
+        sysconf.assertWritable()
         
         if opts.clear_history:
             history[:] = [x for x in history if x[0] not in opts.clear_history]

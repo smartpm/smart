@@ -69,6 +69,8 @@ def main(ctrl, opts):
 
     if opts.set:
 
+        sysconf.assertWritable()
+
         if len(opts.args) == 2:
             name, priority = opts.args
             alias = None
@@ -85,6 +87,8 @@ def main(ctrl, opts):
         priorities.setdefault(name, {})[alias] = priority
 
     elif opts.remove:
+
+        sysconf.assertWritable()
 
         if len(opts.args) == 1:
             name = opts.args[0]

@@ -42,6 +42,7 @@ class SysConfig(object):
         self._map = {}
         self._weakmap = {}
         self._softmap = {}
+        self._readonly = False
         self.set("log-level", INFO, weak=True)
         self.set("data-dir", os.path.expanduser(DATADIR), weak=True)
 
@@ -53,6 +54,17 @@ class SysConfig(object):
 
     def getSoftMap(self):
         return self._softmap
+
+    def getReadOnly(self):
+        return self._readonly
+
+    def setReadOnly(self, flag):
+        self._readonly = flag
+
+    def assertWritable(self):
+        if self._readonly:
+            raise Error, "Configuration is in readonly mode " \
+                         "(perhaps with root?)"
 
     def load(self, filepath):
         filepath = os.path.expanduser(filepath)
@@ -96,12 +108,14 @@ class SysConfig(object):
         elif weak:
             self._weakmap[option] = value
         else:
+            self.assertWritable()
             self._map[option] = value
             if option in self._softmap:
                 del self._softmap[option]
 
     def remove(self, option):
         if option in self._map:
+            self.assertWritable()
             del self._map[option]
         if option in self._weakmap:
             del self._weakmap[option]
@@ -109,6 +123,7 @@ class SysConfig(object):
             del self._weakmap[option]
 
     def setFlag(self, flag, name, relation=None, version=None):
+        self.assertWritable()
         flags = self.get("package-flags", setdefault={})
         names = flags.get(flag)
         if names:
@@ -122,6 +137,7 @@ class SysConfig(object):
             flags[flag] = {name: [(relation, version)]}
 
     def clearFlag(self, flag, name=None, relation=None, version=None):
+        self.assertWritable()
         flags = self.get("package-flags", {})
         if flag not in flags:
             return
@@ -192,6 +208,7 @@ class SysConfig(object):
         return priority
 
     def setPriority(self, name, channelalias, priority):
+        self.assertWritable()
         priorities = self.get("package-priorities", setdefault={})
         priorities.setdefault(name, {})[channelalias] = priority
 

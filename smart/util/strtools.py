@@ -21,6 +21,7 @@
 #
 import posixpath
 import string
+import md5
 
 class ShortURL(object):
     def __init__(self, maxlen):

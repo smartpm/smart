@@ -140,6 +140,8 @@ def main(ctrl, opts):
     
     if opts.add:
 
+        sysconf.assertWritable()
+
         if len(opts.add) == 1:
             arg = opts.add[0]
             if os.path.isdir(arg):
@@ -226,6 +228,8 @@ def main(ctrl, opts):
 
     if opts.set:
 
+        sysconf.assertWritable()
+
         if not opts.set:
             raise Error, "Invalid arguments"
 
@@ -265,6 +269,8 @@ def main(ctrl, opts):
 
     if opts.remove:
 
+        sysconf.assertWritable()
+
         for alias in opts.remove:
             if alias not in channels:
                 continue
@@ -272,6 +278,8 @@ def main(ctrl, opts):
                 del channels[alias]
 
     if opts.enable:
+
+        sysconf.assertWritable()
 
         for alias in opts.enable:
             if alias not in channels:
@@ -281,6 +289,8 @@ def main(ctrl, opts):
                 del channel["disabled"]
 
     if opts.disable:
+
+        sysconf.assertWritable()
 
         for alias in opts.disable:
             if alias not in channels:

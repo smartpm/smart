@@ -101,6 +101,9 @@ def main(ctrl, opts):
     globals["false"] = False
     globals["no"] = False
 
+    if opts.set or opts.remove:
+        sysconf.assertWritable():
+
     for opt in opts.set:
 
         m = SETRE.match(opt)

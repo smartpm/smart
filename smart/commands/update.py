@@ -50,6 +50,8 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
+    sysconf.assertWritable()
+
     ctrl.reloadSysConfChannels()
     if opts.args:
         channels = [x for x in ctrl.getChannels() if x.getAlias() in opts.args]

@@ -21,9 +21,10 @@
 #
 from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from smart.channel import createChannel, FileChannel
+from smart.util.objdigest import getObjectDigest
 from smart.util.filetools import compareFiles
-from smart.media import MediaSet
 from smart.util.strtools import strToBool
+from smart.media import MediaSet
 from smart.progress import Progress
 from smart.fetcher import Fetcher
 from smart.cache import Cache
@@ -123,21 +124,24 @@ class Control(object):
                 loaded = True
         self._conffile = conffile
         if loaded:
-            self._confdigest = md5.md5(str(sysconf.getMap())).digest()
+            self._confdigest = getObjectDigest(sysconf.getMap())
         else:
             self._confdigest = None
+        dirname = os.path.dirname(conffile)
+        while not os.path.isdir(dirname):
+            dirname, basename = os.path.split(dirname)
+        sysconf.setReadOnly(not os.access(dirname, os.W_OK))
 
     def saveSysConf(self, conffile=None):
         if not conffile:
-            confdigest = md5.md5(str(sysconf.getMap())).digest()
+            if sysconf.getReadOnly():
+                return
+            confdigest = getObjectDigest(sysconf.getMap())
             if confdigest == self._confdigest:
                 return
             self._confdigest = confdigest
             conffile = self._conffile
         conffile = os.path.expanduser(conffile)
-        dirname = os.path.dirname(conffile)
-        if not os.path.isdir(dirname) or os.access(dirname, os.W_OK):
-            sysconf.save(conffile)
 
     def reloadSysConfChannels(self):
         for channel in self._sysconfchannels:
