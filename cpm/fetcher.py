@@ -185,7 +185,6 @@ class URL(object):
             self.passwd = ""
         self.host, self.port = urllib.splitport(host)
         self.path, self.query = urllib.splitquery(rest)
-
         self.user = urllib.unquote(self.user)
         self.passwd = urllib.unquote(self.passwd)
         self.path = urllib.unquote(self.path)
@@ -229,7 +228,7 @@ class Handler(object):
         self._queue.remove(url)
 
     def start(self):
-        pass
+        self._queue.sort()
 
     def stop(self):
         pass
@@ -253,7 +252,7 @@ Fetcher.setHandler("file", FileHandler)
 class FTPHandler(Handler):
 
     MAXACTIVE = 5
-    MAXINACTIVE = 10
+    MAXINACTIVE = 5
     MAXPERHOST = 2
 
     def __init__(self, *args):
@@ -296,7 +295,7 @@ class FTPHandler(Handler):
         url = urlobj.original
         prog = self._progress
         # XXX Ask topic for the interface?
-        prog.setSubTopic(url, os.path.basename(url))
+        prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
         prog.show()
         import socket
@@ -315,7 +314,7 @@ class FTPHandler(Handler):
         url = urlobj.original
         prog = self._progress
         # XXX Ask topic for the interface?
-        prog.setSubTopic(url, os.path.basename(url))
+        prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
         prog.show()
         try:
@@ -381,9 +380,6 @@ class URLLIB2Handler(Handler):
         self._active = 0
         self._lock = thread.allocate_lock()
 
-    def start(self):
-        self._queue.sort()
-
     def tick(self):
         self._lock.acquire()
         if self._queue:
@@ -407,7 +403,7 @@ class URLLIB2Handler(Handler):
 
             try:
                 # XXX Ask topic for the interface?
-                prog.setSubTopic(url, os.path.basename(url))
+                prog.setSubTopic(url, os.path.basename(URL(url).path))
                 prog.setSub(url, 0, 1, 1)
                 prog.show()
                 remote = urllib2.urlopen(url)
@@ -446,44 +442,127 @@ class URLLIB2Handler(Handler):
         self._active -= 1
         self._lock.release()
 
+#Fetcher.setHandler("ftp", URLLIB2Handler)
 Fetcher.setHandler("http", URLLIB2Handler)
 Fetcher.setHandler("https", URLLIB2Handler)
 Fetcher.setHandler("gopher", URLLIB2Handler)
 
 class PyCurlHandler(Handler):
 
-    MAXHANDLERS = 10
+    MAXACTIVE = 5
+    MAXINACTIVE = 5
+    MAXPERHOST = 2
 
-    def __init__(self, fetcher, url, progress):
+    def __init__(self, *args):
         import pycurl
-        Handler.__init__(self, fetcher, url, progress)
+        Handler.__init__(self, *args)
+        self._active = {}   # handle -> (scheme, host)
+        self._inactive = {} # handle -> (user, host, port)
         self._multi = pycurl.CurlMulti()
-        self._handler = pycurl.Curl()
-        self._handler.setopt(pycurl.URL, url)
-        self._handler.setopt(pycurl.NOPROGRESS, 0)
-        self._handler.setopt(pycurl.PROGRESSFUNCTION, self.progress)
+        self._lock = thread.allocate_lock()
 
-    def progress(self, downtotal, downcurrent, uptotal, upcurrent):
-        self._progress.setSub(self, downcurrent, downtotal)
+    def start(self):
+        self._queue.sort()
+        thread.start_new_thread(self.perform, ())
 
-    def acquire(self):
+    def tick(self):
         import pycurl
-        try:
-            localpath = self._fetcher.getLocalPath(self._url)
-            try:
-                local = open(localpath, "w")
-            except (IOError, OSError), e:
-                raise IOError, "%s: %s" % (localpath, e)
-            self._handler.setopt(pycurl.WRITEDATA, local)
-            self._handler.perform()
-            local.close()
-        except (IOError, OSError), e:
-            self.error(str(e))
-            self._status = FAILED
-        else:
-            self._status = SUCCEEDED
-            self._filename = localpath
+        prog = self._progress
+        multi = self._multi
+        num = 1
+        while num != 0:
+            self._lock.acquire()
+            num, succeeded, failed = multi.info_read()
+            self._lock.release()
+            for handle in succeeded:
+                urlobj = handle.urlobj
+                prog.setSubDone(urlobj.original)
+                prog.show()
+                self._lock.acquire()
+                multi.remove_handle(handle)
+                self._lock.release()
+                del self._active[handle]
+                userhost = (urlobj.user, urlobj.host, urlobj.port)
+                self._inactive[handle] = userhost
+                self._fetcher.setSucceeded(urlobj.original, handle.localpath)
+            for handle, errno, errmsg in failed:
+                urlobj = handle.urlobj
+                prog.setSubDone(urlobj.original)
+                prog.show()
+                self._lock.acquire()
+                multi.remove_handle(handle)
+                self._lock.release()
+                del self._active[handle]
+                userhost = (urlobj.user, urlobj.host, urlobj.port)
+                self._inactive[handle] = userhost
+                self._fetcher.setFailed(urlobj.original, errmsg)
+        if self._queue:
+            if len(self._active) < self.MAXACTIVE:
+                for i in range(len(self._queue)-1,-1,-1):
+                    url = self._queue[i]
+                    urlobj = URL(url)
+                    schemehost = (urlobj.scheme, urlobj.host)
+                    hostactive = [x for x in self._active
+                                     if self._active[x] == schemehost]
+                    if len(hostactive) < self.MAXPERHOST:
+                        del self._queue[i]
+                        localpath = self._fetcher.getLocalPath(url)
+                        try:
+                            local = open(localpath, "w")
+                        except (IOError, OSError), e:
+                            self._fetcher.setFailed(url, "%s: %s" %
+                                                    (localpath, e))
+                        userhost = (urlobj.user, urlobj.host, urlobj.port)
+                        for handle in self._inactive:
+                            if self._inactive[handle] == userhost:
+                                del self._inactive[handle]
+                                self._active[handle] = schemehost
+                                break
+                        else:
+                            if len(self._inactive) > self.MAXINACTIVE:
+                                del self._inactive[handle]
+                            handle = pycurl.Curl()
+                            self._active[handle] = schemehost
+                        prog.setSubTopic(url, os.path.basename(urlobj.path))
+                        prog.setSub(url, 0, 1, 1)
+                        prog.show()
+                        def progress(downtotal, downcurrent,
+                                     uptotal, upcurrent, url=url):
+                            if not downtotal:
+                                prog.setSub(url, 0, 1, 1)
+                            else:
+                                prog.setSub(url, downcurrent, downtotal, 1)
+                            prog.show()
+                        handle.urlobj = urlobj
+                        handle.localpath = localpath
+                        handle.setopt(pycurl.URL, url)
+                        handle.setopt(pycurl.NOPROGRESS, 0)
+                        handle.setopt(pycurl.PROGRESSFUNCTION, progress)
+                        handle.setopt(pycurl.WRITEDATA, local)
+                        self._lock.acquire()
+                        multi.add_handle(handle)
+                        self._lock.release()
+        return bool(self._queue or self._active)
 
-#Fetcher.setHandler("ftp", PyCurlHandler)
+    def perform(self):
+        import pycurl
+        multi = self._multi
+        mp = pycurl.E_CALL_MULTI_PERFORM
+        while self._queue or self._active:
+            self._lock.acquire()
+            res = mp
+            while res == mp:
+                res, num = multi.perform()
+            self._lock.release()
 
-# vim:ts=4:sw=4
+try:
+    import pycurl
+except ImportError:
+    pass
+else:
+    schemes = pycurl.version_info()[-1]
+    for scheme in schemes:
+        if scheme != "file":
+            Fetcher.setHandler(scheme, PyCurlHandler)
+
+# vim:ts=4:sw=4:et

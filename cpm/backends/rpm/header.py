@@ -38,9 +38,6 @@ class RPMHeaderPackageInfo(PackageInfo):
             url = posixpath.join(url, self._loader.getFileName(self))
         return url
 
-    def getHeader(self):
-        return self._h
-
 class RPMHeaderLoader(Loader):
  
     COMPFLAGS = rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_GREATER|rpm.RPMSENSE_LESS
