@@ -419,12 +419,15 @@ class RPMDBLoader(RPMHeaderLoader):
         bfp = self.buildFileProvides
         for fn in fndict:
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
-            h = mi.next()
-            while h:
-                i = mi.instance()
-                if i in self._offsets:
-                    bfp(self._offsets[i], (RPMProvides, fn, None))
+            try:
                 h = mi.next()
+                while h:
+                    i = mi.instance()
+                    if i in self._offsets:
+                        bfp(self._offsets[i], (RPMProvides, fn, None))
+                    h = mi.next()
+            except StopIteration:
+                pass
 
 class RPMDirLoader(RPMHeaderLoader):
 
