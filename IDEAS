@@ -43,5 +43,18 @@ About commands:
     - Introduce 'upgrade' command.
     - Introduce 'remove' command.
     - Use same idea as rpm's cmdline about upgrade/install.
+    - Introduce a mixed-mode command, allowing to install/remove/upgrade.
+
+About downloading and committing:
+    - Introduce the idea of a committer, responsible for downloading
+      and committing.
+    - The committer may choose to install packages in chunks (cdroms,
+      for early usage of packages, for getting security upgrades
+      installed quickly, etc).
+    - May have multiple frontends (graphical/interactive, command line/one
+      shot, etc).
+    - Introduce a generic progress system.
+    - Turn the rpm standard progress meter into something generic and
+      useful for any backend (working on top of a generic progress system).
 
 vim:ts=4:sw=4:et
