@@ -100,9 +100,8 @@ class RPMHeaderLoader(RPMLoader):
                 v = h[1055] # RPMTAG_CONFLICTVERSION
                 cnfargs = [(n[i], v[i] or None, CM.get(f[i]&CF))
                            for i in range(len(n))]
-                cnfargs.append((name, version, '>'))
             else:
-                cnfargs = [(name, version, '>')]
+                cnfargs = None
 
             pkg = self.newPackage((name, version),
                                   prvargs, reqargs, obsargs, cnfargs)

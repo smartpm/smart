@@ -29,8 +29,18 @@ class RPMDepends(Depends):
             return True
         return checkdep(prov.version, self.relation, self.version)
 
+class RPMObsoletes(RPMDepends,Obsoletes):
+
+    def matches(self, prov):
+        if self.name != prov.name:
+            return False
+        if self.version and not prov.version:
+            return False
+        if not self.version and prov.version:
+            return True
+        return checkdep(prov.version, self.relation, self.version)
+
 class RPMRequires(RPMDepends,Requires): pass
-class RPMObsoletes(RPMDepends,Obsoletes): pass
 class RPMConflicts(RPMDepends,Conflicts): pass
 
 class RPMLoader(Loader):
