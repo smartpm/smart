@@ -77,7 +77,7 @@ class DebPackageInfo(PackageInfo):
         return ""
 
     def getGroup(self):
-        return self._package._section
+        return self._loader.getSection(self._package)
 
 class DebTagFileLoader(Loader):
 
@@ -86,9 +86,13 @@ class DebTagFileLoader(Loader):
         self._filename = filename
         self._baseurl = baseurl
         self._tagfile = TagFile(self._filename)
+        self._sections = {}
 
     def getLoadSteps(self):
         return os.path.getsize(self._filename)/800
+
+    def getSection(self, pkg):
+        return self._sections[pkg]
 
     def getSections(self, prog):
         tf = self._tagfile
@@ -146,7 +150,7 @@ class DebTagFileLoader(Loader):
             if value:
                 for prvname in value.split(","):
                     prvname = prvname.strip()
-                    prvargs.append((Prv, prvname, None))
+                    prvargs.append((Prv, intern(prvname), None))
                     prvdict[prvname] = True
 
             reqargs = []
@@ -155,9 +159,9 @@ class DebTagFileLoader(Loader):
                 for relation in parserelations(value):
                     if type(relation) is not list:
                         n, r, v = relation
-                        reqargs.append((Req, n, r, v))
+                        reqargs.append((Req, intern(n), r, v))
                     else:
-                        reqargs.append((OrReq, tuple(relation))
+                        reqargs.append((OrReq, tuple(relation)))
             value = section.get("pre-depends")
             if value:
                 for relation in parserelations(value):
@@ -165,7 +169,7 @@ class DebTagFileLoader(Loader):
                         n, r, v = relation
                         reqargs.append((PreReq, n, r, v))
                     else:
-                        reqargs.append((OrPreReq, tuple(relation))
+                        reqargs.append((OrPreReq, tuple(relation)))
 
             upgargs = [(Upg, name, '<', version)]
 
@@ -181,6 +185,6 @@ class DebTagFileLoader(Loader):
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
-            pkg._section = section.get("section", "")
+            self._sections[pkg] = intern(section.get("section", ""))
 
 # vim:ts=4:sw=4:et

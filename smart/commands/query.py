@@ -382,4 +382,6 @@ def main(ctrl, opts, reloadchannels=True):
                                 name = str(prvpkg)
                             print "       ", "%s (%s)" % (name, prv)
 
+    print
+
 # vim:ts=4:sw=4:et

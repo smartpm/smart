@@ -209,9 +209,7 @@ class Control(object):
                     state = cPickle.load(cachefile)
                     if state[0] != self.__stateversion__:
                         raise StateVersionError
-                except (StateVersionError,
-                        cPickle.UnpicklingError,
-                        ImportError):
+                except:
                     if sysconf.get("log-level") == DEBUG:
                         import traceback
                         traceback.print_exc()
@@ -312,9 +310,6 @@ class Control(object):
         for channel in channels:
             steps += channel.getFetchSteps()
         progress.set(0, steps)
-
-        # Yeah! Lots of memory! :-)
-        #self._cache.unload()
 
         # Rebuild mirror information.
         self.reloadMirrors()

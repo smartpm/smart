@@ -171,12 +171,12 @@ class DebRequires(DebDepends,Requires): pass
 class DebOrDepends(Depends):
 
     def __init__(self, nrv):
-        name = " | ".join((x[2] and " ".join(x) or x[0]) for x in nrv)
+        name = " | ".join([(x[2] and " ".join(x) or x[0]) for x in nrv])
         Depends.__init__(self, name, None, None)
         self._nrv = nrv
 
     def getInitArgs(self):
-        return (self.__class__, self._nrv, self.name)
+        return (self.__class__, self._nrv)
 
     def getMatchNames(self):
         return [x[0] for x in self._nrv]
@@ -195,7 +195,7 @@ class DebOrDepends(Depends):
         return False
 
     def __reduce__(self):
-        return (self.__class__, (self._nrv, self.name))
+        return (self.__class__, (self._nrv,))
 
 class DebOrRequires(DebOrDepends,Requires): pass
 class DebOrPreRequires(DebOrDepends,PreRequires): pass
