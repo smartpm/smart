@@ -63,13 +63,16 @@ gobject.type_register(ProgressCellRenderer)
 
 class GtkProgress(Progress):
 
-    def __init__(self):
+    def __init__(self, parent=None):
         Progress.__init__(self)
 
         self._window = gtk.Window()
         self._window.set_title("Operation Progress")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
+        
+        if parent:
+            self._window.set_transient_for(parent)
 
         self._vbox = gtk.VBox()
         self._vbox.set_border_width(10)

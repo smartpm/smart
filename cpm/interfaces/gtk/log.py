@@ -3,8 +3,13 @@ import gtk
 
 class GtkLog:
 
-    def __init__(self):
+    def __init__(self, parent=None):
+
         self._window = gtk.Window()
+
+        if parent:
+            self._window.set_transient_for(parent)
+
         self._window.set_title("Log")
         self._window.set_geometry_hints(min_width=400, min_height=300)
         self._window.set_modal(True)

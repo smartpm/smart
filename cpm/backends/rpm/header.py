@@ -47,13 +47,19 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getSummary(self):
         return self._h[rpm.RPMTAG_SUMMARY]
 
+    def getGroup(self):
+        return self._h[rpm.RPMTAG_GROUP]
+
     def getPathList(self):
         if self._path is None:
-            self._path = {}
             paths = self._h[rpm.RPMTAG_OLDFILENAMES]
             modes = self._h[rpm.RPMTAG_FILEMODES]
-            for i in range(len(paths)):
-                self._path[paths[i]] = modes[i]
+            if modes:
+                self._path = {}
+                for i in range(len(paths)):
+                    self._path[paths[i]] = modes[i]
+            else:
+                self._path = dict.fromkeys(paths, 0)
         return self._path.keys()
 
     def pathIsDir(self, path):
@@ -177,7 +183,7 @@ class RPMHeaderLoader(Loader):
 
             pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
                                   prvargs, reqargs, upgargs, cnfargs)
-            pkg.loaderinfo[self] = offset
+            pkg.loaders[self] = offset
             self._offsets[offset] = pkg
 
 class RPMHeaderListLoader(RPMHeaderLoader):
@@ -202,7 +208,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
 
     def getInfo(self, pkg):
         file = open(self._filename)
-        file.seek(pkg.loaderinfo[self])
+        file.seek(pkg.loaders[self])
         h, offset = rpm.readHeaderFromFD(file.fileno())
         info = RPMHeaderPackageInfo(pkg, self, h)
         file.close()
@@ -290,7 +296,7 @@ class RPMDBLoader(RPMHeaderLoader):
 
     def getInfo(self, pkg):
         ts = rpm.ts()
-        mi = ts.dbMatch(0, pkg.loaderinfo[self])
+        mi = ts.dbMatch(0, pkg.loaders[self])
         return RPMHeaderPackageInfo(pkg, self, mi.next())
 
     def getURL(self):

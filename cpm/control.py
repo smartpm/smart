@@ -114,7 +114,7 @@ class Control:
         self._fetcher.setLocalDir(localdir, mangle=False)
         pkgurl = {}
         for pkg in packages:
-            loader = [x for x in pkg.loaderinfo if not x.getInstalled()][0]
+            loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
             url = info.getURL()
             pkgurl[pkg] = url

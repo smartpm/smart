@@ -10,7 +10,7 @@ class Package(object):
         self.installed = False
         self.essential = False
         self.precedence = 0
-        self.loaderinfo = {}
+        self.loaders = {}
 
     def equals(self, other):
         # These two packages are exactly the same?
@@ -67,6 +67,9 @@ class PackageInfo(object):
         return ""
 
     def getSummary(self):
+        return ""
+
+    def getGroup(self):
         return ""
 
     def getPathList(self):

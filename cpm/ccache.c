@@ -35,7 +35,7 @@ typedef struct {
     PyObject *installed;
     PyObject *essential;
     PyObject *precedence;
-    PyObject *loaderinfo;
+    PyObject *loaders;
 } PackageObject;
 
 typedef struct {
@@ -127,7 +127,7 @@ Package_init(PackageObject *self, PyObject *args)
     self->installed = Py_False;
     self->essential = Py_False;
     self->precedence = PyInt_FromLong(0);
-    self->loaderinfo = PyDict_New();
+    self->loaders = PyDict_New();
     return 0;
 }
 
@@ -143,7 +143,7 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->installed);
     Py_XDECREF(self->essential);
     Py_XDECREF(self->precedence);
-    Py_XDECREF(self->loaderinfo);
+    Py_XDECREF(self->loaders);
     self->ob_type->tp_free((PyObject *)self);
 }
 
@@ -315,7 +315,7 @@ static PyMemberDef Package_members[] = {
     {"installed", T_OBJECT, OFF(installed), 0, 0},
     {"essential", T_OBJECT, OFF(essential), 0, 0},
     {"precedence", T_OBJECT, OFF(precedence), 0, 0},
-    {"loaderinfo", T_OBJECT, OFF(loaderinfo), 0, 0},
+    {"loaders", T_OBJECT, OFF(loaders), 0, 0},
     {NULL}
 };
 #undef OFF
