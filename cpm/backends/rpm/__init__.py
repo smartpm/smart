@@ -89,9 +89,6 @@ class RPMPackage(Package):
             fk(self.provides) != fk(other.provides) or
             fk(self.upgrades) != fk(other.upgrades) or
             fk(self.conflicts) != fk(other.conflicts)):
-            print fk(self.provides) != fk(other.provides)
-            print [x for x in self.provides]
-            print [x for x in other.provides]
             return False
         sreqs = fk(self.requires)
         oreqs = fk(other.requires)

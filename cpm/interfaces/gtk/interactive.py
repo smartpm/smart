@@ -5,6 +5,7 @@ from cpm.interfaces.gtk.packageinfo import GtkPackageInfo
 from cpm.interfaces.gtk.interface import GtkInterface
 from cpm.const import NEVER
 from cpm import *
+import shlex, re
 import gtk
 
 UI = """
@@ -25,11 +26,13 @@ UI = """
         <separator/>
         <menuitem action="upgrade-all"/>
         <separator/>
+        <menuitem action="find"/>
+        <separator/>
         <menuitem action="edit-channels"/>
         <menuitem action="edit-preferences"/>
     </menu>
     <menu action="view">
-        <menuitem action="show-upgrades"/>
+        <menuitem action="hide-non-upgrades"/>
         <menuitem action="hide-installed"/>
         <menuitem action="hide-uninstalled"/>
         <menuitem action="hide-unmarked"/>
@@ -48,6 +51,19 @@ UI = """
         <menuitem action="log-window"/>
     </menu>
 </menubar>
+<toolbar>
+    <toolitem action="update-all-channels"/>
+    <separator/>
+    <toolitem action="exec-changes"/>
+    <separator/>
+    <toolitem action="undo"/>
+    <toolitem action="redo"/>
+    <toolitem action="clear-changes"/>
+    <separator/>
+    <toolitem action="upgrade-all"/>
+    <separator/>
+    <toolitem action="find"/>
+</toolbar>
 </ui>
 """
 
@@ -56,7 +72,7 @@ ACTIONS = [
     ("update-channels", "gtk-refresh", "Update Channels...", None,
      "Update given channels", "self.updateChannels()"),
     ("update-all-channels", "gtk-refresh", "Update All Channels", None,
-     "Update given channels", "self.updateChannels()"),
+     "Update all channels", "self.updateAllChannels()"),
     ("exec-changes", "gtk-execute", "Execute Changes...", "<control>c",
      "Apply marked changes", "self.applyChanges()"),
     ("quit", "gtk-quit", "_Quit", "<control>q",
@@ -71,6 +87,8 @@ ACTIONS = [
      "Clear all changes", "self.clearChanges()"),
     ("upgrade-all", "gtk-go-up", "Upgrade All...", None,
      "Upgrade all packages", "self.upgradeAll()"),
+    ("find", "gtk-find", "Find...", "<control>f",
+     "Find packages", "self.toggleSearch()"),
     ("edit-channels", None, "Channels", None,
      "Edit channels", ""),
     ("edit-preferences", "gtk-preferences", "_Preferences", None,
@@ -133,7 +151,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._actions.add_actions(compileActions(ACTIONS, globals))
 
         filters = sysconf.get("package-filters", {})
-        for name, label in [("show-upgrades", "Show Upgrades"),
+        for name, label in [("hide-non-upgrades", "Hide Non-upgrades"),
                             ("hide-installed", "Hide Installed"),
                             ("hide-uninstalled", "Hide Uninstalled"),
                             ("hide-unmarked", "Hide Unmarked")]:
@@ -164,12 +182,91 @@ class GtkInteractiveInterface(GtkInterface):
         self._menubar = self._ui.get_widget("/menubar")
         self._topvbox.pack_start(self._menubar, False)
 
+        self._toolbar = self._ui.get_widget("/toolbar")
+        self._toolbar.set_style(gtk.TOOLBAR_ICONS)
+        self._topvbox.pack_start(self._toolbar, False)
+
         self._window.add_accel_group(self._ui.get_accel_group())
 
-        self._undomenuitem = self._ui.get_widget("/menubar/edit/undo")
-        self._undomenuitem.set_sensitive(False)
-        self._redomenuitem = self._ui.get_widget("/menubar/edit/redo")
-        self._redomenuitem.set_sensitive(False)
+        self._execmenuitem = self._ui.get_action("/menubar/file/exec-changes")
+        self._execmenuitem.set_property("sensitive", False)
+        self._clearmenuitem = self._ui.get_action("/menubar/edit/clear-changes")
+        self._clearmenuitem.set_property("sensitive", False)
+        self._undomenuitem = self._ui.get_action("/menubar/edit/undo")
+        self._undomenuitem.set_property("sensitive", False)
+        self._redomenuitem = self._ui.get_action("/menubar/edit/redo")
+        self._redomenuitem.set_property("sensitive", False)
+
+        # Search bar
+
+        self._searchbar = gtk.Alignment()
+        self._searchbar.set(0, 0, 1, 1)
+        self._searchbar.set_padding(3, 3, 0, 0)
+        self._topvbox.pack_start(self._searchbar, False)
+
+        searchvp = gtk.Viewport()
+        searchvp.set_shadow_type(gtk.SHADOW_OUT)
+        searchvp.show()
+        self._searchbar.add(searchvp)
+
+        searchtable = gtk.Table(1, 1)
+        searchtable.set_row_spacings(5)
+        searchtable.set_col_spacings(5)
+        searchtable.set_border_width(5)
+        searchtable.show()
+        searchvp.add(searchtable)
+
+        label = gtk.Label("Search:")
+        label.show()
+        searchtable.attach(label, 0, 1, 0, 1, 0, 0)
+
+        self._searchentry = gtk.Entry()
+        self._searchentry.connect("activate", lambda x: self.refreshPackages())
+        self._searchentry.show()
+        searchtable.attach(self._searchentry, 1, 2, 0, 1)
+
+        button = gtk.Button()
+        button.set_relief(gtk.RELIEF_NONE)
+        button.connect("clicked", lambda x: self.refreshPackages())
+        button.show()
+        searchtable.attach(button, 2, 3, 0, 1, 0, 0)
+        image = gtk.Image()
+        image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+        image.show()
+        button.add(image)
+
+        align = gtk.Alignment()
+        align.set(1, 0, 0, 0)
+        align.set_padding(0, 0, 10, 0)
+        align.show()
+        searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
+        button = gtk.Button()
+        button.set_size_request(20, 20)
+        button.set_relief(gtk.RELIEF_NONE)
+        button.connect("clicked", lambda x: self.toggleSearch())
+        button.show()
+        align.add(button)
+        image = gtk.Image()
+        image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
+        image.show()
+        button.add(image)
+
+        hbox = gtk.HBox()
+        hbox.set_spacing(10)
+        hbox.show()
+        searchtable.attach(hbox, 1, 2, 1, 2)
+
+        self._searchname = gtk.RadioButton(None, "Name")
+        self._searchname.set_active(True)
+        self._searchname.connect("clicked", lambda x: self.refreshPackages())
+        self._searchname.show()
+        hbox.pack_start(self._searchname, False)
+        self._searchdesc = gtk.RadioButton(self._searchname, "Description")
+        self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
+        self._searchdesc.show()
+        hbox.pack_start(self._searchdesc, False)
+
+        # Packages and information
 
         self._vpaned = gtk.VPaned()
         self._vpaned.show()
@@ -231,6 +328,7 @@ class GtkInteractiveInterface(GtkInterface):
             self._changeset.clear()
             self._ctrl.updateCache()
             self.refreshPackages()
+            self.changedMarks()
         self._progress.hide()
 
     def clearChanges(self):
@@ -297,9 +395,9 @@ class GtkInteractiveInterface(GtkInterface):
         if self._undo:
             state = self._undo.pop(0)
             if not self._undo:
-                self._undomenuitem.set_sensitive(False)
+                self._undomenuitem.set_property("sensitive", False)
             self._redo.insert(0, self._changeset.getPersistentState())
-            self._redomenuitem.set_sensitive(True)
+            self._redomenuitem.set_property("sensitive", True)
             self._changeset.setPersistentState(state)
             self.changedMarks()
 
@@ -307,9 +405,9 @@ class GtkInteractiveInterface(GtkInterface):
         if self._redo:
             state = self._redo.pop(0)
             if not self._redo:
-                self._redomenuitem.set_sensitive(False)
+                self._redomenuitem.set_property("sensitive", False)
             self._undo.insert(0, self._changeset.getPersistentState())
-            self._undomenuitem.set_sensitive(True)
+            self._undomenuitem.set_property("sensitive", True)
             self._changeset.setPersistentState(state)
             self.changedMarks()
 
@@ -317,8 +415,8 @@ class GtkInteractiveInterface(GtkInterface):
         self._undo.insert(0, self._changeset.getPersistentState())
         del self._redo[:]
         del self._undo[20:]
-        self._undomenuitem.set_sensitive(True)
-        self._redomenuitem.set_sensitive(False)
+        self._undomenuitem.set_property("sensitive", True)
+        self._redomenuitem.set_property("sensitive", False)
 
     def setTreeStyle(self, mode):
         if mode != sysconf.get("package-tree"):
@@ -338,6 +436,15 @@ class GtkInteractiveInterface(GtkInterface):
             self.refreshPackages()
         else:
             self._pv.queue_draw()
+        self._execmenuitem.set_property("sensitive", bool(self._changeset))
+        self._clearmenuitem.set_property("sensitive", bool(self._changeset))
+
+    def toggleSearch(self):
+        visible = not self._searchbar.get_property('visible')
+        self._searchbar.set_property('visible', visible)
+        self.refreshPackages()
+        if visible:
+            self._searchentry.grab_focus()
 
     def refreshPackages(self):
         if not self._ctrl:
@@ -354,7 +461,7 @@ class GtkInteractiveInterface(GtkInterface):
         changeset = self._changeset
 
         if filters:
-            if "show-upgrades" in filters:
+            if "hide-non-upgrades" in filters:
                 newpackages = {}
                 for pkg in packages:
                     if pkg.installed:
@@ -377,6 +484,26 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = [x for x in packages if x in changeset]
             if "hide-installed" in filters:
                 packages = [x for x in packages if not x.installed]
+
+        if self._searchbar.get_property("visible"):
+            search = [re.compile("\s+".join(x.split()))
+                      for x in shlex.split(self._searchentry.get_text())]
+            if not search:
+                packages = []
+            else:
+                desc = self._searchdesc.get_active()
+                newpackages = []
+                for pkg in packages:
+                    for pat in search:
+                        if desc:
+                            info = pkg.loaders.keys()[0].getInfo(pkg)
+                            if pat.search(info.getDescription()):
+                                newpackages.append(pkg)
+                                break
+                        elif pat.search(pkg.name):
+                            newpackages.append(pkg)
+                            break
+                packages = newpackages
 
         if tree == "groups":
             groups = {}

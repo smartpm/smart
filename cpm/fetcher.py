@@ -37,14 +37,14 @@ class Fetcher(object):
 
     def getSucceededSet(self):
         set = {}
-        for item in self._items:
+        for item in self._items.values():
             if item.getStatus() == SUCCEEDED:
                 set[item.getOriginalURL()] = item.getTargetPath()
         return set
 
     def getFailedSet(self):
         set = {}
-        for item in self._items:
+        for item in self._items.values():
             if item.getStatus() == FAILED:
                 set[item.getOriginalURL()] = item.getFailedReason()
         return set
@@ -138,8 +138,11 @@ class Fetcher(object):
             for url in self._items:
                 item = self._items[url]
                 if item.getStatus() == FAILED:
+                    print "Current URL:", item.getURL()
                     if (item.getRetries() < self.MAXRETRIES and
                         item.setNextURL()):
+                        item.reset()
+                        print "Next URL:", item.getURL()
                         handler = self.getHandlerInstance(item)
                         handler.enqueue(item)
                         if handler not in active:
@@ -294,6 +297,7 @@ class FetchItem(object):
         self._failedreason = None
         self._targetpath = None
         self._starttime = None
+        url = self._urlobj.original
         if self._progress.getSub(url):
             self._progress.setSubStopped(url)
             self._progress.show()

@@ -109,7 +109,7 @@ class RPMRedCarpetLoader(Loader):
         handler = self._starthandler.get(name)
         if handler:
             handler(name, attrs)
-        self._data = None
+        self._data = ""
         self._queue.append((name, attrs))
 
     def _endElement(self, name):
@@ -125,10 +125,10 @@ class RPMRedCarpetLoader(Loader):
         handler = self._endhandler.get(name)
         if handler:
             handler(name, attrs, self._data)
-        self._data = None
+        self._data = ""
 
     def _charData(self, data):
-        self._data = data
+        self._data += data
 
     def _handleNameEnd(self, name, attrs, data):
         self._name = data
