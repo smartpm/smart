@@ -71,17 +71,17 @@ remove, upgrade, etc).
 
 This behavior has many interesting consequences. In upgrades,
 for instance, while precedence is given to newer versions,
-intermediate versions may get selected if they result in a
+intermediate versions may get selected if they bring a
 better global result for the system. Packages may even be
 reinstalled, if different packages with the same name-version
 pair have different relations, and the one not installed
-is a considered better option.
+is considered a better option.
 
 Another important goal achieved with the transaction algorithm
 is that, even though it is able to check and fix relations in
 the whole system, it will work even when there are broken
 relations in installed packages. Only relations related to
-the operation being made is checked for correctness.
+the operation being made are checked for correctness.
 
 .. [1] Check `Case Studies`_ for real cases where the algorithm
        works better than what is implemented in other softwares.
@@ -105,7 +105,7 @@ Smart has multiple native and completely integrated interfaces:
 - Command line interface with graphic feedback, allowing one to
   integrate the power of command line with graphic environments.
 
-Besides these interfaces, ksmarttray is also included in the smart
+Besides these interfaces, ksmarttray is also included in the Smart
 package. It notifies users about available updates using a KDE
 tray icon.
 
