@@ -86,7 +86,7 @@ class GtkMirrors(object):
 
     def fill(self):
         self._treemodel.clear()
-        mirrors = sysconf.get("mirrors", setdefault={})
+        mirrors = sysconf.get("mirrors", {})
         for origin in mirrors:
             parent = self._treemodel.append(None, (origin,))
             for mirror in mirrors[origin]:
@@ -111,12 +111,7 @@ class GtkMirrors(object):
             origin = ""
         origin, mirror = MirrorCreator().show(origin)
         if origin and mirror:
-            mirrors = sysconf.get("mirrors", setdefault={})
-            if origin in mirrors:
-                if mirror not in mirrors[origin]:
-                    mirrors[origin].append(mirror)
-            else:
-                mirrors[origin] = [mirror]
+            sysconf.add(("mirrors", origin), mirror, unique=True)
         self.fill()
 
 
@@ -126,41 +121,36 @@ class GtkMirrors(object):
         if not iter:
             return
         path = model.get_path(iter)
-        mirrors = sysconf.get("mirrors", setdefault={})
         if len(path) == 1:
             origin = model.get_value(iter, 0)
-            del mirrors[origin]
+            sysconf.remove(("mirrors", origin))
         else:
             mirror = model.get_value(iter, 0)
             iter = model.get_iter(path[:1])
             origin = model.get_value(iter, 0)
-            mirrors[origin].remove(mirror)
-            if not mirrors[origin]:
-                del mirrors[origin]
+            sysconf.remove(("mirrors", origin), mirror)
         self.fill()
 
     def rowEdited(self, cell, row, newtext):
         model = self._treemodel
         iter = model.get_iter_from_string(row)
         path = model.get_path(iter)
-        mirrors = sysconf.get("mirrors", setdefault={})
         oldtext = model.get_value(iter, 0)
         if newtext == oldtext:
             return
         if len(path) == 1:
-            if newtext in mirrors:
+            if sysconf.has(("mirrors", newtext)):
                 iface.error("Origin already exists!")
             else:
-                mirrors[newtext] = mirrors[oldtext]
-                del mirrors[oldtext]
+                sysconf.move(("mirrors", oldtext), ("mirrors", newtext))
                 model.set_value(iter, 0, newtext)
         else:
             origin = model.get_value(model.get_iter(path[1:]), 0)
-            if newtext in mirrors[origin]:
+            if sysconf.has(("mirrors", origin), newtext):
                 iface.error("Mirror already exists!")
             else:
-                mirrors[origin].append(newtext)
-                mirrors[origin].remove(oldtext)
+                sysconf.remove(("mirrors", origin), oldtext)
+                sysconf.add(("mirrors", origin), newtext, unique=True)
                 model.set_value(iter, 0, newtext)
 
 class MirrorCreator(object):

@@ -26,5 +26,10 @@ description = """
 Local directory with RPM packages.
 """
 
-fields = [("path", "Directory Path",
+fields = [("priority", "Priority",
+           "Default priority assigned to all packages "
+           "available in this channel (0 if not set). If "
+           "the exact same package is available in more "
+           "than one channel, the highest priority is used."),
+          ("path", "Directory Path",
            "Path of directory containing RPM packages.")]

@@ -191,19 +191,17 @@ class GtkInteractiveInterface(GtkInterface):
         self._actions = gtk.ActionGroup("Actions")
         self._actions.add_actions(compileActions(ACTIONS, globals))
 
-        filters = sysconf.get("package-filters", {})
+        self._filters = {}
         for name, label in [("hide-non-upgrades", "Hide Non-upgrades"),
                             ("hide-installed", "Hide Installed"),
                             ("hide-uninstalled", "Hide Uninstalled"),
                             ("hide-unmarked", "Hide Unmarked"),
                             ("hide-old", "Hide Old")]:
             action = gtk.ToggleAction(name, label, "", "")
-            if name in filters:
-                action.set_active(True)
             action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
             self._actions.add_action(action)
 
-        treestyle = sysconf.get("package-tree", {})
+        treestyle = sysconf.get("package-tree")
         lastaction = None
         for name, label in [("groups", "Groups"),
                             ("channels", "Channels"),
@@ -399,12 +397,10 @@ class GtkInteractiveInterface(GtkInterface):
         return self._changes.showChangeSet(self._changeset)
 
     def toggleFilter(self, filter):
-        filters = sysconf.get("package-filters", {})
-        if filter in filters:
-            del filters[filter]
+        if filter in self._filters:
+            del self._filters[filter]
         else:
-            filters[filter] = True
-        sysconf.set("package-filters", filters)
+            self._filters[filter] = True
         self.refreshPackages()
 
     def upgradeAll(self):
@@ -520,8 +516,7 @@ class GtkInteractiveInterface(GtkInterface):
         inconsistent = False
         thislocked = None
         alllocked = None
-        names = sysconf.get("package-flags", setdefault={}) \
-                                    .setdefault("lock", {})
+        names = pkgconf.getFlagTargets("lock")
         if [pkg for pkg in pkgs if pkg in self._changeset]:
             inconsistent = True
         else:
@@ -532,7 +527,7 @@ class GtkInteractiveInterface(GtkInterface):
                     newalllocked = len(names[pkg.name]) > 1
                 else:
                     newthislocked = False
-                    newalllocked = sysconf.testFlag("lock", pkg)
+                    newalllocked = pkgconf.testFlag("lock", pkg)
                 if (thislocked is not None and thislocked != newthislocked or
                     alllocked is not None and alllocked != newalllocked):
                     inconsistent = True
@@ -549,7 +544,7 @@ class GtkInteractiveInterface(GtkInterface):
                 image.set_from_pixbuf(getPixbuf("package-available"))
             def unlock_this(x):
                 for pkg in pkgs:
-                    names[pkg.name].remove(("=", pkg.version))
+                    pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
                 self._pv.queue_draw()
                 self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_this)
@@ -561,7 +556,7 @@ class GtkInteractiveInterface(GtkInterface):
                 image.set_from_pixbuf(getPixbuf("package-available-locked"))
             def lock_this(x):
                 for pkg in pkgs:
-                    names.setdefault(pkg.name, []).append(("=", pkg.version))
+                    pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
                 self._pv.queue_draw()
                 self._pi.setPackage(pkgs[0])
             item.connect("activate", lock_this)
@@ -579,7 +574,7 @@ class GtkInteractiveInterface(GtkInterface):
                 image.set_from_pixbuf(getPixbuf("package-available"))
             def unlock_all(x):
                 for pkg in pkgs:
-                    del names[pkg.name]
+                    pkgconf.clearFlag("lock", pkg.name)
                 self._pv.queue_draw()
                 self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_all)
@@ -591,7 +586,7 @@ class GtkInteractiveInterface(GtkInterface):
                 image.set_from_pixbuf(getPixbuf("package-available-locked"))
             def lock_all(x):
                 for pkg in pkgs:
-                    names.setdefault(pkg.name, []).append((None, None))
+                    pkgconf.setFlag("lock", pkg.name)
                 self._pv.queue_draw()
                 self._pi.setPackage(pkgs[0])
             item.connect("activate", lock_all)
@@ -670,7 +665,7 @@ class GtkInteractiveInterface(GtkInterface):
             self._window.window.set_cursor(None)
 
     def changedMarks(self):
-        if "hide-unmarked" in sysconf.get("package-filters", {}):
+        if "hide-unmarked" in self._filters:
             self.refreshPackages()
         else:
             self._pv.queue_draw()
@@ -694,10 +689,9 @@ class GtkInteractiveInterface(GtkInterface):
         ctrl = self._ctrl
         packages = ctrl.getCache().getPackages()
 
-        filters = sysconf.get("package-filters", {})
-
         changeset = self._changeset
 
+        filters = self._filters
         if filters:
             if "hide-non-upgrades" in filters:
                 newpackages = {}
@@ -723,7 +717,7 @@ class GtkInteractiveInterface(GtkInterface):
             if "hide-installed" in filters:
                 packages = [x for x in packages if not x.installed]
             if "hide-old" in filters:
-                packages = sysconf.filterByFlag("new", packages)
+                packages = pkgconf.filterByFlag("new", packages)
 
         if self._searchbar.get_property("visible"):
             search = []
@@ -812,11 +806,6 @@ class GtkInteractiveInterface(GtkInterface):
             groups = packages
 
         self._pv.setPackages(groups, changeset, keepstate=True)
-
-        if filters:
-            self.showStatus("There are filters being applied!")
-        else:
-            self.hideStatus()
 
         self.setBusy(False)
 

@@ -23,7 +23,7 @@ from gettext import translation
 from smart.hook import Hooks
 import os
 
-__all__ = ["sysconf", "iface", "hooks", "Error", "_"]
+__all__ = ["sysconf", "pkgconf", "iface", "hooks", "Error", "_"]
 
 class Error(Exception): pass
 
@@ -41,6 +41,7 @@ class Proxy:
         return "<Proxy for '%s'>" % repr(self.object)
 
 sysconf = Proxy()
+pkgconf = Proxy()
 iface = Proxy()
 hooks = Hooks()
 
@@ -48,14 +49,18 @@ def init(command=None, argv=None,
          datadir=None, configfile=None,
          gui=False, shell=False, interface=None,
          forcelocks=False, loglevel=None):
-    from smart.const import DEBUG, INFO, WARNING, ERROR, DISTROFILE
+    from smart.const import DEBUG, INFO, WARNING, ERROR, DISTROFILE, DATADIR
     from smart.interface import Interface, createInterface
     from smart.sysconfig import SysConfig
+    from smart.pkgconfig import PkgConfig
     from smart.interface import Interface
     from smart.control import Control
 
     iface.object = Interface(None)
     sysconf.object = SysConfig()
+    pkgconf.object = PkgConfig(sysconf.object)
+    sysconf.set("log-level", INFO, weak=True)
+    sysconf.set("data-dir", DATADIR, weak=True)
     if loglevel:
         level = {"error": ERROR, "warning": WARNING,
                  "debug": DEBUG, "info": INFO}.get(loglevel)
@@ -93,7 +98,8 @@ def init(command=None, argv=None,
     # Run distribution script, if available.
     if os.path.isfile(DISTROFILE):
         execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
-                              "sysconf": sysconf, "hooks": hooks})
+                              "sysconf": sysconf, "pkgconf": pkgconf,
+                              "hooks": hooks})
 
     return ctrl
 

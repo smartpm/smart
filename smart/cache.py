@@ -60,12 +60,12 @@ class Package(object):
         return False
 
     def getPriority(self):
-        priority = sysconf.getPriority(self)
+        priority = pkgconf.getPriority(self)
         if priority is not None:
             return priority
         channelpriority = None
         for loader in self.loaders:
-            priority = loader.getChannel().getPriority()
+            priority = loader.getChannel().getInfo("priority")
             if channelpriority is None or priority > channelpriority:
                 channelpriority = priority
         return channelpriority+self.priority

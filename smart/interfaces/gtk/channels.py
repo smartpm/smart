@@ -126,7 +126,7 @@ class GtkChannels(object):
 
     def fill(self):
         self._treemodel.clear()
-        channels = sysconf.get("channels", setdefault={})
+        channels = sysconf.get("channels", ())
         for alias in channels:
             channel = channels[alias]
             self._treemodel.append((not strToBool(channel.get("disabled")),
@@ -135,17 +135,15 @@ class GtkChannels(object):
                                     channel.get("name", "")))
 
     def enableDisable(self):
-        channels = sysconf.get("channels", setdefault={})
         for row in self._treemodel:
-            channel = channels[row[1]]
+            disabled = strToBool(sysconf.get(("channels", row[1], "disabled")))
             if row[0]:
-                if "disabled" in channel:
-                    if strToBool(channel.get("disabled")):
-                        self._changed = True
-                    del channel["disabled"]
+                if disabled:
+                    sysconf.remove(("channels", row[1], "disabled"))
+                    self._changed = True
             else:
-                if not strToBool(channel.get("disabled")):
-                    channel["disabled"] = "yes"
+                if not disabled:
+                    sysconf.set(("channels", row[1], "disabled"), "yes")
                     self._changed = True
             
     def show(self):
@@ -164,7 +162,6 @@ class GtkChannels(object):
             return
 
         editor = ChannelEditor()
-        channels = sysconf.get("channels", setdefault={})
 
         if method == "manual":
 
@@ -176,7 +173,7 @@ class GtkChannels(object):
             if editor.show(None, newchannel, editalias=True):
                 alias = newchannel["alias"]
                 del newchannel["alias"]
-                channels[alias] = newchannel
+                sysconf.set(("channels", alias), newchannel)
                 self._changed = True
 
         elif method in ("descriptionpath", "descriptionurl"):
@@ -221,7 +218,7 @@ class GtkChannels(object):
                 if editor.show(alias, newchannel, editalias=True):
                     alias = newchannel["alias"]
                     del newchannel["alias"]
-                    channels[alias] = newchannel
+                    sysconf.set(("channels", alias), newchannel)
                     self._changed = True
 
         elif method in ("detectmedia", "detectpath"):
@@ -249,7 +246,7 @@ class GtkChannels(object):
                                editalias=True):
                     alias = newchannel["alias"]
                     del newchannel["alias"]
-                    channels[alias] = newchannel
+                    sysconf.set(("channels", alias), newchannel)
                     self._changed = True
             
             if not foundchannel:
@@ -261,18 +258,17 @@ class GtkChannels(object):
 
     def editChannel(self, alias):
         self.enableDisable()
-        channels = sysconf.get("channels", setdefault={})
-        channel = channels[alias]
+        channel = sysconf.get(("channels", alias), {})
         editor = ChannelEditor()
         if editor.show(alias, channel):
+            sysconf.set(("channels", alias), channel)
             self._changed = True
             self.fill()
 
     def delChannel(self, alias):
-        channels = sysconf.get("channels", setdefault={})
-        del channels[alias]
-        self._changed = True
-        self.fill()
+        if sysconf.remove(("channels", alias)):
+            self._changed = True
+            self.fill()
 
 class GtkChannelSelector(object):
 
@@ -350,7 +346,7 @@ class GtkChannelSelector(object):
 
     def fill(self):
         self._treemodel.clear()
-        channels = sysconf.get("channels", setdefault={})
+        channels = sysconf.get("channels", {})
         for alias in channels:
             channel = channels[alias]
             self._treemodel.append((False, alias,
@@ -438,7 +434,7 @@ class ChannelEditor(object):
             entry.set_increments(1, 10)
             entry.set_numeric(True)
             entry.set_range(-100000,+100000)
-            entry.set_value(int(text))
+            entry.set_value(int(text or 0))
         else:
             entry = gtk.Entry()
             entry.set_text(text)
@@ -505,16 +501,13 @@ class ChannelEditor(object):
         self._fieldn += 1
 
         # Other common fields:
-        self.addField("priority", "Priority", channel.get("priority", "0"),
-                      spin=True)
         self.addField("name", "Name", channel.get("name", ""))
-        self.addField("description", "Description",
-                      channel.get("description", ""))
 
         # Specific fields:
         for key, name, descr in getChannelInfo(channel.get("type")).fields:
             tip = "\n".join(textwrap.wrap(text=descr, width=40))
-            self.addField(key, name, channel.get(key, ""), tip=tip)
+            self.addField(key, name, channel.get(key, ""), tip=tip,
+                          spin=(key == "priority"))
 
         self._window.show()
 
@@ -546,7 +539,7 @@ class ChannelEditor(object):
                                 if not value:
                                     raise Error, "Invalid alias!"
                                 if (value != alias and 
-                                    value in sysconf.get("channels", {})):
+                                    sysconf.has(("channels", value))):
                                     raise Error, "Alias already in use!"
                                 if not alias:
                                     alias = value

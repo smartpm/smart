@@ -44,7 +44,7 @@ class Fetcher(object):
         self._mediaset = MediaSet()
         self._uncompressing = 0
         self._localdir = tempfile.gettempdir()
-        self._mirror = MirrorSystem()
+        self._mirrorsystem = MirrorSystem()
         self._mangle = False
         self._caching = OPTIONAL
         self._items = {}
@@ -81,6 +81,9 @@ class Fetcher(object):
 
     def getMediaSet(self):
         return self._mediaset
+
+    def getMirrorSystem(self):
+        return self._mirrorsystem
 
     def getCaching(self):
         return self._caching
@@ -125,7 +128,7 @@ class Fetcher(object):
     def enqueue(self, url, **info):
         if url in self._items:
             raise Error, "%s is already in the queue" % url
-        mirror = self._mirror.get(url)
+        mirror = self._mirrorsystem.get(url)
         item = FetchItem(self, url, mirror)
         self._items[url] = item
         if info:

@@ -28,15 +28,35 @@ GRANULARITY = 100
 class MirrorSystem(object):
 
     def __init__(self):
-        self._mirrors = sysconf.get("mirrors", setdefault={})
-        self._history = sysconf.get("mirrors-history", setdefault=[])
-        self._changed = True
+        self._mirrors = {}
+        self._history = []
         self._penality = {}
+        self._changed = False
+        self._historychanged = False
+
+    def getMirrors(self):
+        return self._mirrors
+
+    def setMirrors(self, mirrors):
+        self._changed = True
+        self._mirrors = mirrors
+
+    def getHistory(self):
+        return self._history
+
+    def setHistory(self, history):
+        self._changed = True
+        self._history = history
+        self._historychanged = False
+
+    def getHistoryChanged(self):
+        return self._historychanged
 
     def addInfo(self, mirror, **info):
         if mirror:
             self._changed = True
             self._history.insert(0, (mirror, info))
+            self._historychanged = True
             del self._history[HISTORYSIZE:]
 
     def get(self, url): 

@@ -34,7 +34,7 @@ class MediaSet(object):
         self.restoreState()
         del self._medias[:]
         mountpoints = {}
-        for lst in hooks.call("Media.discover"):
+        for lst in hooks.call("discover-medias"):
             for media in lst:
                 mountpoint = media.getMountPoint()
                 if mountpoint not in mountpoints:
@@ -213,7 +213,7 @@ def discoverFstabMedias():
                 result.append(BasicMedia(mountpoint, device))
     return result
 
-hooks.register("Media.discover", discoverFstabMedias)
+hooks.register("discover-medias", discoverFstabMedias)
 
 def discoverAutoMountMedias():
     result = []
@@ -236,6 +236,5 @@ def discoverAutoMountMedias():
                         result.append(AutoMountMedia(mountpoint, device))
     return result
 
-hooks.register("Media.discover", discoverAutoMountMedias,
-               priority=400)
+hooks.register("discover-medias", discoverAutoMountMedias, priority=400)
 

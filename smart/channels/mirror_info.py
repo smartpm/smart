@@ -20,18 +20,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-name = "URPMI Repository"
+name = "Mirror Information"
 
 description = """
-Repository created for Mandrake's URPMI package manager.
+Mirror information file.
 """
 
-fields = [("priority", "Priority",
-           "Default priority assigned to all packages "
-           "available in this channel (0 if not set). If "
-           "the exact same package is available in more "
-           "than one channel, the highest priority is used."),
-          ("hdlurl", "Header List URL",
-           "URL for the header list"),
-          ("baseurl", "Base URL",
-           "Base URL where MD5SUM file is found")]
+fields = [("url", "Mirror File URL",
+           "URL for the mirror information file")]
+

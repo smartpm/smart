@@ -89,53 +89,28 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+?)\s*"
 
 def main(ctrl, opts):
 
-    flags = sysconf.get("package-flags", setdefault={})
-
-    if opts.set or opts.remove:
-        sysconf.assertWritable()
-
     for args in (opts.set, opts.remove):
-
         if len(args) % 2 != 0:
             raise Error, "Invalid arguments"
-
         for i in range(0, len(args), 2):
             flag, target = args[i:i+2]
-
             m = TARGETRE.match(target)
             if not m:
                 raise Error, "Invalid target: %s" % arg
-
-            g = m.groupdict()
-
-            names = flags.setdefault(flag, {})
-            lst = names.setdefault(g["name"], [])
-
-            tup = (g["rel"], g["version"])
-
             if args is opts.set:
-                if tup not in lst:
-                    lst.append(tup)
+                pkgconf.setFlag(flag, m.group("name"),
+                                m.group("rel"), m.group("version"))
             else:
-                if tup in lst:
-                    lst.remove(tup)
-                    if not lst:
-                        del names[g["name"]]
-
-                if flags.get(flag) == {}:
-                    del flags[flag]
+                pkgconf.clearFlag(flag, m.group("name"),
+                                  m.group("rel"), m.group("version"))
 
     if opts.show is not None:
-
-        showflags = opts.show or flags.keys()
+        showflags = opts.show or pkgconf.getFlagNames()
         showflags.sort()
-
         for flag in showflags:
             flag = flag.strip()
-
             print flag
-
-            names = flags.get(flag, {})
+            names = pkgconf.getFlagTargets(flag)
             nameslst = names.keys()
             nameslst.sort()
             for name in nameslst:

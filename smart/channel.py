@@ -26,13 +26,6 @@ DEFAULTFIELDS = [("alias", "Alias",
                   "Unique identification for the channel."),
                  ("type", "Type", "Channel type"),
                  ("name", "Name", "Channel name"),
-                 ("description", "Description",
-                  "Channel description"),
-                 ("priority", "Priority",
-                  "Default priority assigned to all packages "
-                  "available in this channel (0 if not set). If "
-                  "the exact same package is available in more "
-                  "than one channel, the highest priority is used."),
                  ("manual", "Manual updates",
                   "If set to a true value ('yes', 'true', etc), "
                   "the given channel will only be updated when "
@@ -46,16 +39,12 @@ DEFAULTFIELDS = [("alias", "Alias",
                   "available in a removable media (cdrom, etc).")]
 
 class Channel(object):
-
-    def __init__(self, type, alias, name=None, description=None,
-                 priority=0, manualupdate=False, removable=False):
+    def __init__(self, type, alias, name=None,
+                 manualupdate=False, removable=False):
         self._type = type
         self._alias = alias
         self._name = name
-        self._description = description
-        self._priority = priority
-        self._loader = None
-        self._loadorder = 1000
+        self._fetchorder = 1000
         self._manualupdate = manualupdate
         self._removable = removable
 
@@ -68,31 +57,14 @@ class Channel(object):
     def getName(self):
         return self._name
 
-    def __str__(self):
-        return self._name or self._alias
-
-    def getDescription(self):
-        return self._description
-
-    def getPriority(self):
-        return self._priority
-
     def hasManualUpdate(self):
         return self._removable or self._manualupdate
 
     def isRemovable(self):
         return self._removable
 
-    def getLoader(self):
-        return self._loader
-
-    def getLoadOrder(self):
-        return self._loadorder
-
-    def __cmp__(self, other):
-        if isinstance(other, Channel):
-            return cmp(self._loadorder, other._loadorder)
-        return -1
+    def getFetchOrder(self):
+        return self._fetchorder
 
     def getFetchSteps(self):
         return 0
@@ -114,21 +86,52 @@ class Channel(object):
         """
         pass
 
-class FileChannel(Channel):
-    def __init__(self, filename, name=None, description=None, priority=0):
-        alias = os.path.abspath(filename)
+    def __lt__(self, other):
+        if isinstance(other, Channel):
+            return cmp(self._fetchorder, other._fetchorder) == -1
+        return True
+
+    def __str__(self):
+        return self._name or self._alias
+
+
+class PackageChannel(Channel):
+    def __init__(self, type, alias, name=None,
+                 manualupdate=False, removable=False, priority=0):
+        super(PackageChannel, self).__init__(type, alias, name,
+                                             manualupdate, removable)
+        self._loader = None
+        self._priority = priority
+
+    def getLoader(self):
+        return self._loader
+
+    def getPriority(self):
+        return self._priority
+
+class FileChannel(PackageChannel):
+    def __init__(self, filename, name=None, priority=0):
+        self._filename = filename = os.path.abspath(filename)
         if name is None:
             name = os.path.basename(filename)
         if not os.path.isfile(filename):
             raise Error, "File not found: %s" % filename
-        super(FileChannel, self).__init__("file", alias, name, description,
-                                          priority, manualupdate=True)
-        loaders = filter(None, hooks.call("FileChannel.getLoader", filename))
-        if not loaders:
-            raise Error, "Unable to find loader for file: %s" % filename
-        self._loader = loaders[0]
-        self._loader.setChannel(self)
+        super(PackageChannel, self).__init__("file", filename, name,
+                                             manualupdate=True,
+                                             priority=priority)
 
+    def getFileName(self):
+        return self._filename
+
+class MirrorChannel(Channel):
+    def __init__(self, type, alias, name=None,
+                 manualupdate=False, removable=False):
+        super(MirrorChannel, self).__init__(type, alias, name,
+                                             manualupdate, removable)
+        self._mirrors = {}
+
+    def getMirrors(self):
+        return self._mirrors
 
 class ChannelDataError(Error): pass
 
@@ -153,7 +156,7 @@ def createChannelDescription(type, alias, data):
     lines = []
     lines.append("[%s]" % alias)
     lines.append("type = %s" % type)
-    first = ("name", "description")
+    first = ("name",)
     for key in first:
         if key in ("type", "alias"):
             continue

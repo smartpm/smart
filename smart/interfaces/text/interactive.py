@@ -441,7 +441,7 @@ class Interpreter(Cmd):
         if opts.installed:
             pkgs = [x for x in pkgs if x.installed]
         if opts.new:
-            pkgs = sysconf.filterByFlag("new", pkgs)
+            pkgs = pkgconf.filterByFlag("new", pkgs)
         if args:
             newpkgs = []
             for arg in args:
@@ -523,7 +523,7 @@ class Interpreter(Cmd):
             channels = None
         self._ctrl.updateCache(channels, caching=NEVER)
         cache = self._ctrl.getCache()
-        newpackages = sysconf.filterByFlag("new", cache.getPackages())
+        newpackages = pkgconf.filterByFlag("new", cache.getPackages())
         if not newpackages:
             iface.showStatus("Channels have no new packages.")
         else:

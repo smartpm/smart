@@ -77,7 +77,7 @@ def main(ctrl, opts):
     ctrl.updateCache()
     failed = not ctrl.updateCache(channels, caching=NEVER)
     cache = ctrl.getCache()
-    newpackages = sysconf.filterByFlag("new", cache.getPackages())
+    newpackages = pkgconf.filterByFlag("new", cache.getPackages())
     if not newpackages:
         iface.showStatus("Channels have no new packages.")
     else:

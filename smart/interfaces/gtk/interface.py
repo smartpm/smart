@@ -24,6 +24,7 @@ from smart.interfaces.gtk.changes import GtkChanges
 from smart.interfaces.gtk.log import GtkLog
 from smart.interface import Interface
 from smart.fetcher import Fetcher
+from smart.const import DEBUG
 from smart import *
 import gtk
 import sys
@@ -166,7 +167,7 @@ class GtkInterface(Interface):
     # Non-standard interface methods
 
     def _excepthook(self, type, value, tb):
-        if type is Error:
+        if type is Error and not sysconf.get("log-level") is DEBUG:
             iface.error(str(value[0]))
         else:
             import traceback

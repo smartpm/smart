@@ -163,7 +163,7 @@ class RPMPackage(Package):
         otherver, otherarch = splitarch(other.version)
         if getArchColor(selfarch) != getArchColor(otherarch):
             return True
-        if not sysconf.testFlag("multi-version", self):
+        if not pkgconf.testFlag("multi-version", self):
             return False
         return selfver != otherver
 

@@ -19,10 +19,13 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.const import DATADIR, INFO
 from smart import *
 import cPickle
-import os
+import sys, os
+import copy
+import re
+
+NOTHING = object()
 
 class SysConfig(object):
     """System configuration class.
@@ -30,36 +33,40 @@ class SysConfig(object):
     It has three different kinds of opition maps, regarding the
     persistence and priority that maps are queried.
 
-    normal - Options are persistent.
-    soft   - Options are not persistent, and have a higher priority
-             than any persistent option.
-    weak   - Options are not persistent, and have a lower priority
-             than any persistent option.
+    hard - Options are persistent.
+    soft - Options are not persistent, and have a higher priority
+           than persistent options.
+    weak - Options are not persistent, and have a lower priority
+           than persistent options.
     """
 
 
-    def __init__(self):
-        self._map = {}
-        self._weakmap = {}
+    def __init__(self, root=()):
+        self._hardmap = {}
         self._softmap = {}
+        self._weakmap = {}
         self._readonly = False
-        self.set("log-level", INFO, weak=True)
-        self.set("data-dir", os.path.expanduser(DATADIR), weak=True)
+        self._modified = False
+        self._config = self
 
-    def getMap(self):
-        return self._map
+    def __getstate__(self):
+        return self._hardmap
 
-    def getWeakMap(self):
-        return self._weakmap
-
-    def getSoftMap(self):
-        return self._softmap
+    def __setstate__(self, state):
+        self._hardmap.clear()
+        self._hardmap.update(state)
 
     def getReadOnly(self):
         return self._readonly
 
     def setReadOnly(self, flag):
         self._readonly = flag
+
+    def getModified(self):
+        return self._modified
+
+    def resetModified(self):
+        self._modified = False
 
     def assertWritable(self):
         if self._readonly:
@@ -70,14 +77,14 @@ class SysConfig(object):
         if not os.path.isfile(filepath):
             raise Error, "file not found: %s" % filepath
         file = open(filepath)
-        self._map.clear()
+        self._hardmap.clear()
         try:
-            self._map.update(cPickle.load(file))
+            self._hardmap.update(cPickle.load(file))
         except:
             if os.path.isfile(filepath+".old"):
                 file.close()
                 file = open(filepath+".old")
-                self._map.update(cPickle.load(file))
+                self._hardmap.update(cPickle.load(file))
         file.close()
 
     def save(self, filepath):
@@ -88,128 +95,243 @@ class SysConfig(object):
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
         file = open(filepath, "w")
-        cPickle.dump(self._map, file, 2)
+        cPickle.dump(self._hardmap, file, 2)
         file.close()
 
-    def get(self, option, default=None, setdefault=None):
-        if setdefault is not None:
-            return self._map.setdefault(option, setdefault)
-        value = self._softmap.get(option)
-        if value is None:
-            value = self._map.get(option)
-            if value is None:
-                value = self._weakmap.get(option, default)
+    def _traverse(self, obj, path, default=NOTHING, setvalue=NOTHING):
+        queue = list(path)
+        marker = NOTHING
+        newobj = obj
+        while queue:
+            obj = newobj
+            elem = queue.pop(0)
+            if type(obj) is dict:
+                newobj = obj.get(elem, marker)
+            elif type(obj) in (tuple, list):
+                if type(elem) is int:
+                    try:
+                        newobj = obj[elem]
+                    except IndexError:
+                        newobj = marker
+                elif elem in obj:
+                    newobj = elem
+                else:
+                    newobj = marker
+            else:
+                if queue:
+                    path = path[:-len(queue)]
+                raise Error, "Can't traverse %s (%s): %s" % \
+                             (type(obj), pathTupleToString(path), str(obj))
+            if newobj is marker:
+                break
+        if newobj is not marker:
+            if setvalue is not marker:
+                newobj = obj[elem] = setvalue
+        else:
+            if setvalue is marker:
+                newobj = default
+            else:
+                while True:
+                    if len(queue) > 0:
+                        if type(queue[0]) is int:
+                            newvalue = []
+                        else:
+                            newvalue = {}
+                    else:
+                        newvalue = setvalue
+                    if type(obj) is dict:
+                        newobj = obj[elem] = newvalue
+                    elif type(obj) is list and type(elem) is int:
+                        lenobj = len(obj)
+                        if lenobj <= elem:
+                            obj.append(None)
+                            elem = lenobj
+                        elif elem < 0 and abs(elem) > lenobj:
+                            obj.insert(0, None)
+                            elem = 0
+                        newobj = obj[elem] = newvalue
+                    else:
+                        raise Error, "Can't traverse %s with %s" % \
+                                     (type(obj), type(elem))
+                    if not queue:
+                        break
+                    obj = newobj
+                    elem = queue.pop(0)
+        return newobj
+
+    def _getvalue(self, path, soft=False, hard=False, weak=False):
+        if type(path) is str:
+            path = pathStringToTuple(path)
+        marker = NOTHING
+        if soft:
+            value = self._traverse(self._softmap, path, marker)
+        elif hard:
+            value = self._traverse(self._hardmap, path, marker)
+        elif weak:
+            value = self._traverse(self._weakmap, path, marker)
+        else:
+            value = self._traverse(self._softmap, path, marker)
+            if value is marker:
+                value = self._traverse(self._hardmap, path, marker)
+                if value is marker:
+                    value = self._traverse(self._weakmap, path, marker)
         return value
 
-    def set(self, option, value, weak=False, soft=False):
+    def has(self, path, value=NOTHING, soft=False, hard=False, weak=False):
+        obj = self._getvalue(path, soft, hard, weak)
+        marker = NOTHING
+        if obj is marker:
+            return False
+        elif value is marker:
+            return True
+        elif type(obj) in (dict, list):
+            return value in obj
+        else:
+            raise Error, "Can't check %s for containment" % type(obj)
+
+    def keys(self, path, soft=False, hard=False, weak=False):
+        value = self._getvalue(path, soft, hard, weak)
+        if value is NOTHING:
+            return default
+        if type(value) is dict:
+            return value.keys()
+        elif type(value) is list:
+            return range(len(value))
+        else:
+            raise Error, "Can't return keys for %s" % type(value)
+
+    def get(self, path, default=None, soft=False, hard=False, weak=False):
+        value = self._getvalue(path, soft, hard, weak)
+        if value is NOTHING:
+            return default
+        if type(value) in (dict, list):
+            return copy.deepcopy(value)
+        return value
+
+    def set(self, path, value, soft=False, weak=False):
+        assert path
+        if type(path) is str:
+            path = pathStringToTuple(path)
         if soft:
-            self._softmap[option] = value
+            map = self._softmap
         elif weak:
-            self._weakmap[option] = value
+            map = self._weakmap
         else:
             self.assertWritable()
-            self._map[option] = value
-            if option in self._softmap:
-                del self._softmap[option]
+            self._modified = True
+            map = self._hardmap
+        self._traverse(map, path, setvalue=value)
 
-    def remove(self, option):
-        if option in self._map:
+    def add(self, path, value, unique=False, soft=False, weak=False):
+        assert path
+        if type(path) is str:
+            path = pathStringToTuple(path)
+        if soft:
+            map = self._softmap
+        elif weak:
+            map = self._weakmap
+        else:
             self.assertWritable()
-            del self._map[option]
-        if option in self._weakmap:
-            del self._weakmap[option]
-        if option in self._softmap:
-            del self._weakmap[option]
+            self._modified = True
+            map = self._hardmap
+        if unique:
+            current = self._traverse(map, path)
+            if type(current) is list and value in current:
+                return
+        path = path+(sys.maxint,)
+        self._traverse(map, path, setvalue=value)
 
-    def setFlag(self, flag, name, relation=None, version=None):
-        self.assertWritable()
-        flags = self.get("package-flags", setdefault={})
-        names = flags.get(flag)
-        if names:
-            lst = names.get(name)
-            if lst:
-                if (relation, version) not in lst:
-                    lst.append((relation, version))
+    def remove(self, path, value=NOTHING, soft=False, weak=False):
+        assert path
+        if type(path) is str:
+            path = pathStringToTuple(path)
+        if soft:
+            map = self._softmap
+        elif weak:
+            map = self._weakmap
+        else:
+            self.assertWritable()
+            self._modified = True
+            map = self._hardmap
+        marker = NOTHING
+        while path:
+            if value is marker:
+                obj = self._traverse(map, path[:-1])
+                elem = path[-1]
             else:
-                names[name] = [(relation, version)]
-        else:
-            flags[flag] = {name: [(relation, version)]}
-
-    def clearFlag(self, flag, name=None, relation=None, version=None):
-        self.assertWritable()
-        flags = self.get("package-flags", {})
-        if flag not in flags:
-            return
-        if not name:
-            del flags[flag]
-            return
-        names = flags.get(flag)
-        lst = names.get(name)
-        if lst is not None:
-            try:
-                lst.remove((relation, version))
-            except ValueError:
+                obj = self._traverse(map, path)
+                elem = value
+            result = False
+            if obj is marker:
                 pass
-            if not lst:
-                del names[name]
-        if not names:
-            del flags[flag]
-
-    def testFlag(self, flag, pkg):
-        names = self.get("package-flags", {}).get(flag)
-        if names:
-            lst = names.get(pkg.name)
-            if lst:
-                for item in lst:
-                    if pkg.matches(*item):
-                        return True
-        return False
-
-    def getAllFlags(self, pkg):
-        result = []
-        flags = self.get("package-flags", {})
-        for flag in flags:
-            if self.testFlag(flag, pkg):
-                result.append(flag)
+            elif type(obj) is dict:
+                if elem in obj:
+                    del obj[elem]
+                    result = True
+            elif type(obj) is list:
+                if value is marker and type(elem) is int:
+                    try:
+                        del obj[elem]
+                        result = True
+                    except IndexError:
+                        pass
+                elif elem in obj:
+                    obj[:] = [x for x in obj if x != elem]
+                    result = True
+            else:
+                raise Error, "Can't remove %s from %s" % \
+                             (`elem`, type(obj))
+            if not obj:
+                if value is not marker:
+                    value = marker
+                else:
+                    path = path[:-1]
+            else:
+                break
         return result
 
-    def filterByFlag(self, flag, pkgs):
-        fpkgs = []
-        names = self.get("package-flags", {}).get(flag)
-        if names:
-            for pkg in pkgs:
-                lst = names.get(pkg.name)
-                if lst:
-                    for item in lst:
-                        if pkg.matches(*item):
-                            fpkgs.append(pkg)
-                            break
-        return fpkgs
+    def move(self, oldpath, newpath, soft=False, weak=False):
+        if type(oldpath) is str:
+            oldpath = pathStringToTuple(oldpath)
+        if type(newpath) is str:
+            newpath = pathStringToTuple(newpath)
+        result = False
+        marker = NOTHING
+        value = self._getvalue(oldpath, soft, not (soft or weak), weak)
+        if value is not marker:
+            self.remove(oldpath, soft=soft, weak=weak)
+            self.set(newpath, value, weak, soft)
+            result = True
+        return result
 
-    def getVersionsWithFlag(self, flag, name):
-        names = self.get("package-flags", setdefault={}).get(flag, {})
-        if names:
-            return names.get(name)
-        return []
 
-    def getPriority(self, pkg):
-        priority = None
-        priorities = self.get("package-priorities", {}).get(pkg.name)
-        if priorities:
-            priority = None
-            for loader in pkg.loaders:
-                inchannel = priorities.get(loader.getChannel().getAlias())
-                if (inchannel is not None and priority is None or
-                    inchannel > priority):
-                    priority = inchannel
-            if priority is None:
-                priority = priorities.get(None)
-        return priority
+SPLITPATH = re.compile(r"(\[-?\d+\])|(?<!\\)\.").split
 
-    def setPriority(self, name, channelalias, priority):
-        self.assertWritable()
-        priorities = self.get("package-priorities", setdefault={})
-        priorities.setdefault(name, {})[channelalias] = priority
+def pathStringToTuple(path):
+    if "." not in path and "[" not in path:
+        return (path,)
+    result = []
+    tokens = SPLITPATH(path)
+    for token in tokens:
+        if token:
+            if token[0] == "[" and token[-1] == "]":
+                try:
+                    result.append(int(token[1:-1]))
+                except ValueError:
+                    raise Error, "Invalid path index: %s" % token
+            else:
+                result.append(token.replace(r"\.", "."))
+    return tuple(result)
+
+def pathTupleToString(path):
+    result = []
+    for elem in path:
+        if type(elem) is int:
+            result[-1] += "[%d]" % elem
+        else:
+            result.append(str(elem).replace(".", "\."))
+    return ".".join(result)
+
 
 # vim:ts=4:sw=4:et
 

@@ -140,92 +140,54 @@ def read_mirrors(ctrl, filename):
 
 def main(ctrl, opts):
 
-    mirrors = sysconf.get("mirrors", setdefault={})
-    history = sysconf.get("mirrors-history", setdefault=[])
-
     if opts.add:
-
-        sysconf.assertWritable()
-
         if len(opts.add) == 1:
             opts.add = read_mirrors(ctrl, opts.add[0])
-
         if len(opts.add) % 2 != 0:
             raise Error, "Invalid arguments for --add"
-
         for i in range(0,len(opts.add),2):
             origin, mirror = opts.add[i:i+2]
             if mirror:
-                if origin in mirrors:
-                    if mirror not in mirrors[origin]:
-                        mirrors[origin].append(mirror)
-                else:
-                    mirrors[origin] = [mirror]
+                sysconf.add(("mirrors", origin), mirror, unique=True)
 
     if opts.remove:
-
-        sysconf.assertWritable()
-
         if len(opts.remove) == 1:
             opts.remove = read_mirrors(ctrl, opts.remove[0])
-
         if len(opts.remove) % 2 != 0:
             raise Error, "Invalid arguments for --remove"
-
         for i in range(0,len(opts.remove),2):
             origin, mirror = opts.remove[i:i+2]
-            if origin in mirrors:
-                if mirror in mirrors[origin]:
-                    mirrors[origin].remove(mirror)
-                    if not mirrors[origin]:
-                        del mirrors[origin]
-                else:
-                    if not mirrors[origin]:
-                        del mirrors[origin]
-                    raise Error, "Mirror not found"
-            else:
-                raise Error, "Origin not found"
+            if not sysconf.has(("mirrors", origin)):
+                iface.waring("Origin not found: %s" % origin)
+            if not sysconf.remove(("mirrors", origin), mirror):
+                iface.waring("Mirror not found: %s" % mirror)
 
     if opts.remove_all:
-
-        sysconf.assertWritable()
-
         for origin in opts.remove_all:
-            if origin in mirrors:
-                del mirrors[origin]
-            else:
-                raise Error, "Origin not found"
+            if not sysconf.remove(("mirrors", origin)):
+                iface.waring("Origin not found: %s" % origin)
 
     if opts.sync:
-
-        sysconf.assertWritable()
-
         reset = {}
         lst = read_mirrors(ctrl, opts.sync)
         for i in range(0,len(lst),2):
             origin, mirror = lst[i:i+2]
             if origin not in reset:
                 reset[origin] = True
-                if origin in mirrors:
-                    del mirrors[origin]
+                sysconf.remove(("mirrors", origin))
             if mirror:
-                if origin in mirrors:
-                    if mirror not in mirrors[origin]:
-                        mirrors[origin].append(mirror)
-                else:
-                    mirrors[origin] = [mirror]
+                sysconf.add(("mirrors", origin), mirror, unique=True)
 
     if opts.clear_history is not None:
-
-        sysconf.assertWritable()
-        
         if opts.clear_history:
+            history = sysconf.get("mirrors-history", [])
             history[:] = [x for x in history if x[0] not in opts.clear_history]
+            sysconf.set("mirrors-history", history)
         else:
-            del history[:]
+            history = sysconf.remove("mirrors-history")
 
     if opts.show:
-
+        mirrors = sysconf.get("mirrors")
         for origin in mirrors:
             print origin
             for mirror in mirrors[origin]:
@@ -233,7 +195,6 @@ def main(ctrl, opts):
             print
 
     if opts.show_penalities:
-
         from smart.mirror import MirrorSystem
         mirrorsystem = MirrorSystem()
         penalities = mirrorsystem.getPenalities().copy()

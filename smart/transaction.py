@@ -110,7 +110,7 @@ class Policy(object):
     def runStarting(self):
         self._priorities.clear()
         cache = self._trans.getCache()
-        for pkg in sysconf.filterByFlag("lock", cache.getPackages()):
+        for pkg in pkgconf.filterByFlag("lock", cache.getPackages()):
             if pkg not in self._locked:
                 self._sysconflocked.append(pkg)
                 self._locked[pkg] = True

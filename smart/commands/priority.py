@@ -65,12 +65,7 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
-    priorities = sysconf.get("package-priorities", setdefault={})
-
     if opts.set:
-
-        sysconf.assertWritable()
-
         if len(opts.args) == 2:
             name, priority = opts.args
             alias = None
@@ -78,18 +73,13 @@ def main(ctrl, opts):
             name, alias, priority = opts.args
         else:
             raise Error, "Invalid arguments"
-
         try:
             priority = int(priority)
         except ValueError:
             raise Error, "Invalid priority"
-
-        priorities.setdefault(name, {})[alias] = priority
+        sysconf.setPriority(name, alias, priority)
 
     elif opts.remove:
-
-        sysconf.assertWritable()
-
         if len(opts.args) == 1:
             name = opts.args[0]
             alias = None
@@ -97,24 +87,16 @@ def main(ctrl, opts):
             name, alias = opts.args
         else:
             raise Error, "Invalid arguments"
-
-        pkgpriorities = priorities.get(name)
-        if pkgpriorities and alias in pkgpriorities:
-            del pkgpriorities[alias]
-            if not pkgpriorities:
-                del priorities[name]
-        elif not opts.force:
-            raise Error, "Priority not found"
+        if not sysconf.removePriority(name, alias, priority):
+            iface.warning("Priority not found")
 
     elif opts.show:
-
         header = ("Package", "Channel", "Priority")
         print "%-30s %-20s %s" % header
         print "-"*(52+len(header[-1]))
-
+        priorities = sysconf.get("package-priorities")
         showpriorities = opts.args or priorities.keys()
         showpriorities.sort()
-
         for name in showpriorities:
             pkgpriorities = priorities.get(name)
             aliases = pkgpriorities.keys()
@@ -122,7 +104,6 @@ def main(ctrl, opts):
             for alias in aliases:
                 priority = pkgpriorities[alias]
                 print "%-30s %-20s %d" % (name, alias or "*", priority)
-
         print
 
 # vim:ts=4:sw=4:et

@@ -26,7 +26,12 @@ description = """
 Repositories created for APT-DEB.
 """
 
-fields = [("baseurl", "Base URL",
+fields = [("priority", "Priority",
+           "Default priority assigned to all packages "
+           "available in this channel (0 if not set). If "
+           "the exact same package is available in more "
+           "than one channel, the highest priority is used."),
+          ("baseurl", "Base URL",
            "Base URL of repository, where dists/ is located."),
           ("distribution", "Distribution",
            "Distribution to use."),

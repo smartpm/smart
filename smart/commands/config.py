@@ -45,50 +45,22 @@ def parse_options(argv):
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.defaults["set"] = []
-    parser.defaults["show"] = []
     parser.defaults["remove"] = []
+    parser.defaults["show"] = None
     parser.add_option("--set", action="callback", callback=append_all,
                       help="set given key=value options")
     parser.add_option("--show", action="callback", callback=append_all,
                       help="show given options")
     parser.add_option("--remove", action="callback", callback=append_all,
                       help="remove given options")
-    parser.add_option("--dump", action="store_true",
-                      help="show all options")
     parser.add_option("--force", action="store_true",
                       help="ignore problems")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
 
-SETRE = re.compile(r"^(?P<name>\S+?)"
-                   r"(?:\[(?P<pos>\d+)\])?"
-                   r"(?P<assign>\+?=)"
-                   r"(?P<value>.*)$")
-GETRE = re.compile(r"^(?P<name>\S+?)"
-                   r"(?:\[(?P<pos>\d+)\])?$")
-DELRE = GETRE
-
-def getSubName(name, d, create=False):
-    subnames = name.split(".")
-    subnamestr = ""
-    while len(subnames) > 1:
-        if type(d) is not dict:
-            raise Error, "Option '%s' exists and is not a dictionary" \
-                         % subnamestr
-        subname = subnames.pop(0)
-        if subnamestr:
-            subnamestr += "."
-            subnamestr += subname
-        else:
-            subnamestr = subname
-        if create:
-            d = d.setdefault(subname, {})
-        else:
-            d = d.get(subname)
-            if d is None:
-                raise Error, "Option '%s' not found" % subnamestr
-    return subnames[-1], d
+SETRE = re.compile(r"^(\S+?)(\+?=)(.*)$")
+DELRE = re.compile(r"^(\S+?)(?:=(.*))?$")
 
 def main(ctrl, opts):
 
@@ -101,131 +73,50 @@ def main(ctrl, opts):
     globals["false"] = False
     globals["no"] = False
 
-    if opts.set or opts.remove:
-        sysconf.assertWritable()
-
-    for opt in opts.set:
-
-        m = SETRE.match(opt)
-        if not m:
-            raise Error, "Invalid --set argument: %s" % opt
-
-        g = m.groupdict()
-
-        try:
-            subname, d = getSubName(g["name"], sysconf.getMap(), True)
-        except Error:
-            if opts.force:
-                continue
-            raise
-
-        if g["pos"]:
-            pos = int(g["pos"])
-            lst = d.get(subname)
-            if not lst or pos >= len(lst):
-                if opts.force:
-                    continue
-                raise Error, "Invalid sequence access in '%s'" % g["name"]
-            if g["assign"] == "+=":
-                elem = lst[pos]
-                if type(elem) is not list:
-                    if opts.force:
-                        continue
-                    raise Error, "Current value of '%s' is not a list" % \
-                                 g["name"]
-                def set(value, elem=elem):
-                    elem.append(value)
-            else:
-                def set(value, lst=lst, pos=pos):
-                    lst[pos] = value
-        else:
-            if g["assign"] == "+=":
-                elem = d.setdefault(subname, [])
-                if type(elem) is not list:
-                    if opts.force:
-                        continue
-                    raise Error, "Current value of '%s' is not a list" % \
-                                 g["name"]
-                def set(value, elem=elem):
-                    elem.append(value)
-            else:
-                def set(value, d=d, subname=subname):
-                    d[subname] = value
-
-        value = g["value"]
-        try:
-            value = int(value)
-        except ValueError:
+    if opts.set:
+        for opt in opts.set:
+            m = SETRE.match(opt)
+            if not m:
+                raise Error, "Invalid --set argument: %s" % opt
+            path, assign, value = m.groups()
             try:
-                value = eval(value, globals)
-            except:
-                pass
-        set(value)
-
-    for opt in opts.remove:
-
-        m = DELRE.match(opt)
-        if not m:
-            raise Error, "Invalid --del argument: %s" % opt
-
-        g = m.groupdict()
-
-        try:
-            subname, d = getSubName(g["name"], sysconf.getMap(), True)
-        except Error:
-            if opts.force:
-                continue
-            raise
-
-        if g["pos"]:
-            pos = int(g["pos"])
-            lst = d.get(subname)
-            if not lst or pos >= len(lst):
-                if opts.force:
-                    continue
-                raise Error, "Invalid sequence access in '%s[%d]'" % \
-                             (g["name"], pos)
-            del lst[pos]
-        else:
-            if subname in d:
-                del d[subname]
+                value = int(value)
+            except ValueError:
+                try:
+                    value = eval(value, globals)
+                except:
+                    pass
+            if assign == "+=":
+                sysconf.add(path, value, unique=True)
             else:
-                if opts.force:
-                    continue
-                raise Error, "Option '%s' not found" % g["name"]
-            
-    for opt in opts.show:
+                sysconf.set(path, value)
 
-        m = GETRE.match(opt)
-        if not m:
-            raise Error, "Invalid --show argument: %s" % opt
+    if opts.remove:
+        for opt in opts.remove:
+            m = DELRE.match(opt)
+            if not m:
+                raise Error, "Invalid --remove argument: %s" % opt
+            path, value = m.groups()
+            try:
+                value = int(value)
+            except ValueError:
+                try:
+                    value = eval(value, globals)
+                except:
+                    pass
+            if not sysconf.remove(path, value):
+                iface.warning("Option '%s' not found." % path)
 
-        g = m.groupdict()
-
-        try:
-            subname, d = getSubName(g["name"], sysconf.getMap())
-        except Error:
-            if opts.force:
-                continue
-            raise
-
-        value = d.get(subname)
-        if value is None:
-            if opts.force:
-                continue
-            raise Error, "Option '%s' not found" % g["name"]
-
-        if g["pos"]:
-            pos = int(g["pos"])
-            if type(value) not in (list, tuple):
-                if opts.force:
-                    continue
-                raise Error, "Option '%s' is not a sequence" % g["name"]
-            value = value[pos]
-
-        pprint.pprint(value)
-
-    if opts.dump:
-        pprint.pprint(sysconf.getMap())
+    if opts.show is not None:
+        if opts.show:
+            marker = object()
+            for opt in opts.show:
+                value = sysconf.get(opt, marker)
+                if value is marker:
+                    iface.warning("Option '%s' not found." % opt)
+                else:
+                    pprint.pprint(value)
+        else:
+            pprint.pprint(sysconf.get((), hard=True))
 
 # vim:ts=4:sw=4:et

@@ -21,17 +21,18 @@
 #
 from smart.backends.rpm.header import RPMDirLoader
 from smart.util.strtools import strToBool
-from smart.channel import Channel
+from smart.channel import PackageChannel
 from smart import *
 import os
 
-class RPMDirChannel(Channel):
+class RPMDirChannel(PackageChannel):
 
     def __init__(self, path, *args):
-        Channel.__init__(self, *args)
+        super(RPMDirChannel, self).__init__(*args)
         self._path = path
 
     def fetch(self, fetcher, progress):
+        self._loader = None
         if not os.path.isdir(self._path):
             raise Error, "Channel '%s' has invalid directory: %s" % \
                          (self, self._path)
@@ -41,14 +42,12 @@ class RPMDirChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     manual = False
     removable = False
     path = None
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
         removable = strToBool(data.get("removable", False))
@@ -57,8 +56,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -77,7 +74,6 @@ def create(type, alias, data):
         raise Error, "Invalid priority"
     if removable:
         raise Error, "%s channels cannot be removable" % type
-    return RPMDirChannel(path, type, alias, name, description,
-                         priority, manual, removable)
+    return RPMDirChannel(path, type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et

@@ -26,7 +26,12 @@ description = """
 Channel for the Red Carpet package tool.
 """
 
-fields = [("baseurl", "Base URL for packages",
+fields = [("priority", "Priority",
+           "Default priority assigned to all packages "
+           "available in this channel (0 if not set). If "
+           "the exact same package is available in more "
+           "than one channel, the highest priority is used."),
+          ("baseurl", "Base URL for packages",
            "URL where packages are found"),
           ("packageinfourl", "URL for packageinfo XML",
            "URL for packageinfo.xml.gz including filename "

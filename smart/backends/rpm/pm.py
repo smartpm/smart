@@ -73,7 +73,6 @@ class RPMPackageManager(PackageManager):
         # ordering job on erasures.
         try:
             sorter = ChangeSetSorter(changeset)
-            sysconf.set("sorting", True, weak=True)
             sorted = sorter.getSorted()
             forcerpmorder = False
         except LoopError:

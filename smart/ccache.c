@@ -102,6 +102,7 @@ typedef struct {
     PyObject *_objmap;
 } CacheObject;
 
+/*
 static PyObject *
 getSysConf(void)
 {
@@ -115,6 +116,22 @@ getSysConf(void)
         }
     }
     return sysconf;
+}
+*/
+
+static PyObject *
+getPkgConf(void)
+{
+    static PyObject *pkgconf = NULL;
+    PyObject *module;
+    if (pkgconf == NULL) {
+        module = PyImport_ImportModule("smart");
+        if (module) {
+            pkgconf = PyObject_GetAttrString(module, "pkgconf");
+            Py_DECREF(module);
+        }
+    }
+    return pkgconf;
 }
 
 static PyObject *
@@ -341,7 +358,7 @@ Package_matches(PackageObject *self, PyObject *args)
 static PyObject *
 Package_getPriority(PackageObject *self, PyObject *args)
 {
-    PyObject *sysconf = getSysConf();
+    PyObject *sysconf = getPkgConf();
     PyObject *priority;
     PyObject *loaders;
     long lpriority = 0;

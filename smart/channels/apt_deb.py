@@ -21,7 +21,7 @@
 #
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.backends.deb import DEBARCH
-from smart.channel import Channel, ChannelDataError
+from smart.channel import PackageChannel, ChannelDataError
 from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.cache import LoaderSet
@@ -31,10 +31,10 @@ import tempfile
 import commands
 import os
 
-class APTDEBChannel(Channel):
+class APTDEBChannel(PackageChannel):
 
     def __init__(self, baseurl, distro, comps, fingerprint, *args):
-        Channel.__init__(self, *args)
+        super(APTDEBChannel, self).__init__(*args)
         
         self._baseurl = baseurl
         self._distro = distro
@@ -67,6 +67,8 @@ class APTDEBChannel(Channel):
         return len(self._comps)+2
 
     def fetch(self, fetcher, progress):
+
+        del self._loader[:]
 
         fetcher.reset()
 
@@ -204,7 +206,6 @@ class APTDEBChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     manual = False
     removable = False
@@ -214,7 +215,6 @@ def create(type, alias, data):
     fingerprint = None
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         baseurl = data.get("baseurl")
         distro = data.get("distribution")
         comps = (data.get("components") or "").split()
@@ -226,8 +226,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -253,7 +251,6 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return APTDEBChannel(baseurl, distro, comps, fingerprint,
-                         type, alias, name, description,
-                         priority, manual, removable)
+                         type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et

@@ -112,24 +112,13 @@ def set_config_options(options):
     globals["false"] = False
     globals["no"] = False
 
-    p = re.compile(r"^([-a-zA-Z0-9]+)(\+?=)(.*)$")
+    SETRE = re.compile(r"^(\S+?)(\+?=)(.*)$")
 
     for opt in options:
-        m = p.match(opt)
+        m = SETRE.match(opt)
         if not m:
             raise Error, "Invalid option: %s" % opt
-        name, assign, value = m.groups()
-        if assign == "+=":
-            lst = sysconf.get(name)
-            if lst is None:
-                lst = []
-            elif type(lst) != list:
-                raise Error, "Current value of '%s' is not a list" % name
-            else:
-                lst = copy.copy(lst)
-        else:
-            lst = None
-
+        path, assign, value = m.groups()
         try:
             value = int(value)
         except ValueError:
@@ -137,10 +126,10 @@ def set_config_options(options):
                 value = eval(value, globals)
             except:
                 pass
-        if lst:
-            lst.append(value)
-            value = lst
-        sysconf.set(name, value, soft=True)
+        if assign == "+=":
+            sysconf.add(path, value, soft=True)
+        else:
+            sysconf.set(path, value, soft=True)
 
 def main(argv):
     # Get the right $HOME, even when using sudo.
@@ -177,7 +166,8 @@ def main(argv):
     if ctrl:
         ctrl.saveSysConf()
         ctrl.restoreMediaState()
-    sys.exit(exitcode)
+    if exitcode != 0:
+        sys.exit(exitcode)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -23,9 +23,7 @@ from smart import *
 import gobject, gtk
 import re
 
-TARGETRE = re.compile(r"^\s*(?P<name>\S+?)\s*"
-                      r"((?P<rel>[<>=]+)\s*"
-                      r"(?P<version>\S+))?\s*$")
+TARGETRE = re.compile(r"^\s*(\S+?)\s*(?:([<>=]+)\s*(\S+))?\s*$")
 
 class GtkFlags(object):
 
@@ -167,8 +165,7 @@ class GtkFlags(object):
 
     def fillFlags(self):
         self._flagsmodel.clear()
-        flags = sysconf.get("package-flags", setdefault={})
-        flaglst = flags.keys()
+        flaglst = pkgconf.getFlagNames()
         flaglst.sort()
         for flag in flaglst:
             self._flagsmodel.append((flag,))
@@ -176,8 +173,7 @@ class GtkFlags(object):
     def fillTargets(self):
         self._targetsmodel.clear()
         if self._flag:
-            flags = sysconf.get("package-flags", setdefault={})
-            names = flags.get(self._flag, {})
+            names = pkgconf.getFlagTargets(self._flag)
             namelst = names.keys()
             namelst.sort()
             for name in namelst:
@@ -197,30 +193,26 @@ class GtkFlags(object):
     def newFlag(self):
         flag = FlagCreator().show()
         if flag:
-            flags = sysconf.get("package-flags", setdefault={})
-            if flag in flags:
+            if pkgconf.flagExists(flag):
                 iface.error("Flag already exists!")
             else:
-                flags[flag] = {}
-            self.fillFlags()
+                pkgconf.createFlag(flag)
+                self.fillFlags()
 
     def newTarget(self):
         target = TargetCreator().show()
         if target:
             m = TARGETRE.match(target)
             if m:
-                name = m.group("name")
-                relation = m.group("rel")
-                version = m.group("version")
-                sysconf.setFlag(self._flag, name, relation, version)
+                name, relation, version = m.groups()
+                pkgconf.setFlag(self._flag, name, relation, version)
             self.fillTargets()
 
     def delFlag(self):
         selection = self._flagsview.get_selection()
         model, iter = selection.get_selected()
         if iter:
-            flags = sysconf.get("package-flags", setdefault={})
-            del flags[self._flag]
+            pkgconf.clearFlag(self._flag)
             self.fillFlags()
             self.fillTargets()
 
@@ -233,28 +225,22 @@ class GtkFlags(object):
             if not m:
                 iface.error("Invalid target!")
             else:
-                name = m.group("name")
-                relation = m.group("rel")
-                version = m.group("version")
-                sysconf.clearFlag(self._flag, name, relation, version)
-                flags = sysconf.get("package-flags", setdefault={})
-                if self._flag not in flags:
+                name, relation, version = m.groups()
+                pkgconf.clearFlag(self._flag, name, relation, version)
+                if not pkgconf.flagExists(self._flag):
                     self.fillFlags()
                 else:
                     self.fillTargets()
-
 
     def flagEdited(self, cell, row, newtext):
         model = self._flagsmodel
         iter = model.get_iter_from_string(row)
         oldtext = model.get_value(iter, 0)
-        flags = sysconf.get("package-flags", setdefault={})
         if newtext != oldtext:
-            if newtext in flags:
+            if pkgconf.flagExists(newtext):
                 iface.error("Flag already exists!")
             else:
-                flags[newtext] = flags[oldtext]
-                del flags[oldtext]
+                pkgconf.renameFlag(oldtext, newtext)
                 model.set_value(iter, 0, newtext)
 
     def targetEdited(self, cell, row, newtext):
@@ -266,19 +252,15 @@ class GtkFlags(object):
             if not m:
                 iface.error("Invalid target!")
             else:
-                oldname = m.group("name")
-                oldrelation = m.group("rel")
-                oldversion = m.group("version")
+                oldname, oldrelation, oldversion = m.groups()
                 m = TARGETRE.match(newtext)
                 if not m:
                     iface.error("Invalid target!")
                 else:
-                    newname = m.group("name")
-                    newrelation = m.group("rel")
-                    newversion = m.group("version")
-                    sysconf.clearFlag(self._flag, oldname,
+                    newname, newrelation, newversion = m.groups()
+                    pkgconf.clearFlag(self._flag, oldname,
                                       oldrelation, oldversion)
-                    sysconf.setFlag(self._flag, newname,
+                    pkgconf.setFlag(self._flag, newname,
                                     newrelation, newversion)
                     if newrelation and newversion:
                         model.set_value(iter, 0, "%s %s %s" %

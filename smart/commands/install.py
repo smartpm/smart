@@ -23,7 +23,6 @@ from smart.transaction import Transaction, PolicyInstall, sortUpgrades
 from smart.transaction import INSTALL, REINSTALL
 from smart.matcher import MasterMatcher
 from smart.option import OptionParser
-from smart.channel import FileChannel
 from smart import *
 import string
 import re
@@ -86,7 +85,7 @@ def main(ctrl, opts):
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
     for channel in ctrl.getFileChannels():
-        for pkg in channel.getLoader().getPackages():
+        for pkg in channel.getInfo("loader").getPackages():
             if pkg.installed:
                 raise Error, "%s is already installed" % pkg
             trans.enqueue(pkg, INSTALL)

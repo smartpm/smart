@@ -23,7 +23,6 @@ from smart.transaction import Transaction, PolicyInstall, sortUpgrades
 from smart.transaction import INSTALL, REINSTALL
 from smart.matcher import MasterMatcher
 from smart.option import OptionParser, append_all
-from smart.channel import FileChannel
 from smart import *
 import string
 import re

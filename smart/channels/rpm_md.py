@@ -23,7 +23,7 @@ from smart.backends.rpm.metadata import RPMMetaDataLoader
 from smart.util.elementtree import ElementTree
 from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
-from smart.channel import Channel
+from smart.channel import PackageChannel
 from smart import *
 import posixpath
 
@@ -33,10 +33,10 @@ LOCATION = NS+"location"
 CHECKSUM = NS+"checksum"
 OPENCHECKSUM = NS+"open-checksum"
 
-class RPMMetaDataChannel(Channel):
+class RPMMetaDataChannel(PackageChannel):
 
     def __init__(self, baseurl, *args):
-        Channel.__init__(self, *args)
+        super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
 
     def getCacheCompareURLs(self):
@@ -46,6 +46,8 @@ class RPMMetaDataChannel(Channel):
         return 2
 
     def fetch(self, fetcher, progress):
+        
+        self._loader = None
 
         fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
@@ -101,14 +103,12 @@ class RPMMetaDataChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     baseurl = None
     manual = False
     removable = False
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
         removable = strToBool(data.get("removable", False))
@@ -117,8 +117,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -135,7 +133,7 @@ def create(type, alias, data):
         priority = int(priority)
     except ValueError:
         raise Error, "Invalid priority"
-    return RPMMetaDataChannel(baseurl, type, alias, name, description,
-                              priority, manual, removable)
+    return RPMMetaDataChannel(baseurl,
+                              type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et

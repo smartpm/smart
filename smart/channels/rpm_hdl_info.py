@@ -26,7 +26,12 @@ description = """
 Packages from an RPM Header List.
 """
 
-fields = [("hdlurl", "Header List URL",
+fields = [("priority", "Priority",
+           "Default priority assigned to all packages "
+           "available in this channel (0 if not set). If "
+           "the exact same package is available in more "
+           "than one channel, the highest priority is used."),
+          ("hdlurl", "Header List URL",
            "URL for the header list"),
           ("baseurl", "Base URL for packages",
            "Base URL where package files are found")]

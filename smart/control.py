@@ -20,7 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
-from smart.channel import createChannel, FileChannel
 from smart.util.filetools import compareFiles, setCloseOnExecAll
 from smart.util.objdigest import getObjectDigest
 from smart.util.pathlocks import PathLocks
@@ -29,9 +28,11 @@ from smart.media import MediaSet
 from smart.progress import Progress
 from smart.fetcher import Fetcher
 from smart.cache import Cache
+from smart.channel import *
 from smart.const import *
 from smart import *
 import sys, os
+import copy
 import time
 import md5
 
@@ -39,7 +40,6 @@ class Control(object):
 
     def __init__(self, conffile=None, forcelocks=False):
         self._conffile = None
-        self._confdigest = None
         self._channels = []
         self._sysconfchannels = []
         self._pathlocks = PathLocks(forcelocks)
@@ -70,12 +70,19 @@ class Control(object):
             # Give a chance for backends to register
             # themselves on FileChannel hooks.
             self.reloadSysConfChannels()
-        self._channels.append(FileChannel(filename))
+        channels = []
+        for channel in hooks.call("create-file-channel", filename):
+            if channel:
+                channels.extend(channel)
+        if not channels:
+            raise Error, "Unable to create channel for file: %s" % filename
+        self._channels.extend(channels)
 
     def removeFileChannel(self, filename):
+        filename = os.path.abspath(filename)
         for channel in self._channels:
             if (isinstance(channel, FileChannel) and
-                channel.getAlias() == os.path.abspath(filename)):
+                channel.getFileName() == filename):
                 self._filechannels.remove(channel)
                 break
         else:
@@ -96,20 +103,11 @@ class Control(object):
     def getCache(self):
         return self._cache
 
-    def getFetcher(self):
-        return self._fetcher
-
     def getMediaSet(self):
         return self._mediaset
 
     def restoreMediaState(self):
         self._mediaset.restoreState()
-
-    def loadCache(self):
-        self._cache.load()
-
-    def unloadCache(self):
-        self._cache.unload()
 
     def loadSysConf(self, conffile=None):
         loaded = False
@@ -126,10 +124,6 @@ class Control(object):
                 sysconf.load(conffile)
                 loaded = True
         self._conffile = conffile
-        if loaded:
-            self._confdigest = getObjectDigest(sysconf.getMap())
-        else:
-            self._confdigest = None
 
         if os.path.isdir(datadir):
             writable = os.access(datadir, os.W_OK)
@@ -146,17 +140,34 @@ class Control(object):
         sysconf.setReadOnly(not writable)
 
     def saveSysConf(self, conffile=None):
+        msys = self._fetcher.getMirrorSystem()
+        if msys.getHistoryChanged() and not sysconf.getReadOnly():
+            sysconf.set("mirrors-history", msys.getHistory())
         if not conffile:
             if sysconf.getReadOnly():
                 return
-            confdigest = getObjectDigest(sysconf.getMap())
-            if confdigest == self._confdigest:
+            if not sysconf.getModified():
                 return
-            self._confdigest = confdigest
+            sysconf.resetModified()
             conffile = self._conffile
         else:
             conffile = os.path.expanduser(conffile)
         sysconf.save(conffile)
+
+    def reloadMirrors(self):
+        mirrors = sysconf.get("mirrors", {})
+        for channel in self._channels:
+            if isinstance(channel, MirrorChannel):
+                cmirrors = channel.getMirrors()
+                if cmirrors:
+                    for origin in cmirrors:
+                        set = dict.fromkeys(cmirrors[origin])
+                        set.update(dict.fromkeys(mirrors.get(origin, [])))
+                        mirrors[origin] = set.keys()
+        msys = self._fetcher.getMirrorSystem()
+        msys.setMirrors(mirrors)
+        if not msys.getHistory():
+            msys.setHistory(sysconf.get("mirrors-history", []))
 
     def reloadSysConfChannels(self):
         for channel in self._sysconfchannels:
@@ -176,12 +187,15 @@ class Control(object):
             self._channels.append(channel)
 
     def updateCache(self, channels=None, caching=ALWAYS):
+
         if channels is None:
             manual = False
             self.reloadSysConfChannels()
             channels = self._channels
         else:
             manual = True
+
+        # Get channels directory and check the necessary locks.
         channelsdir = os.path.join(sysconf.get("data-dir"), "channels/")
         if not os.path.isdir(channelsdir):
             try:
@@ -198,7 +212,17 @@ class Control(object):
         elif not self._pathlocks.lock(channelsdir, exclusive=True):
             raise Error, "Can't update channels with active readers."
         self._fetcher.setLocalDir(channelsdir, mangle=True)
+
+        # Sort channels in their preferred fetch order. This is usually
+        # necessary to move channels with installed packages to the front,
+        # since they know about provided files and perhaps other information
+        # better than non-installed ones.
         channels.sort()
+
+        # Prepare progress. If we're reading from the cache, we don't want
+        # too much information being shown. Otherwise, ask for a full-blown
+        # progress for the interface, and build information of currently
+        # available packages to compare later.
         if caching is ALWAYS:
             progress = Progress()
         else:
@@ -206,15 +230,23 @@ class Control(object):
             oldpkgs = {}
             for pkg in self._cache.getPackages():
                 oldpkgs[(pkg.name, pkg.version)] = True
-        self._cache.unload()
         progress.start()
         steps = 0
         for channel in channels:
             steps += channel.getFetchSteps()
         progress.set(0, steps)
+
+        # Yeah! Lots of memory! :-)
+        self._cache.unload()
+
+        # Rebuild mirror information.
+        self.reloadMirrors()
+
+        # Do the real work.
         result = True
         for channel in channels:
-            self._cache.removeLoader(channel.getLoader())
+            if isinstance(channel, PackageChannel):
+                self._cache.removeLoader(channel.getLoader())
             if not manual and channel.hasManualUpdate():
                 self._fetcher.setCaching(ALWAYS)
             else:
@@ -233,22 +265,30 @@ class Control(object):
                 iface.error(str(e))
                 iface.debug("Failed fetching channel '%s'" % channel)
                 result = False
-            self._cache.addLoader(channel.getLoader())
+            if isinstance(channel, PackageChannel):
+                self._cache.addLoader(channel.getLoader())
         if result and caching is not ALWAYS:
             sysconf.set("last-update", time.time())
         self._fetcher.setForceCopy(False)
         self._fetcher.setLocalPathPrefix(None)
+
+        # Finish progress.
         progress.setStopped()
         progress.show()
         progress.stop()
+ 
+        # Build cache with the new information.
         self._cache.load()
+
+        # Compare new packages with what we had available, and mark
+        # new packages.
         if caching is not ALWAYS:
-            sysconf.clearFlag("new")
+            pkgconf.clearFlag("new")
             for pkg in self._cache.getPackages():
                 if (pkg.name, pkg.version) not in oldpkgs:
-                    sysconf.setFlag("new", pkg.name, "=", pkg.version)
+                    pkgconf.setFlag("new", pkg.name, "=", pkg.version)
 
-        # Remove unused files from channels dir.
+        # Remove unused files from channels directory.
         aliases = dict.fromkeys([x.getAlias() for x in self._channels], True)
         aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
         for entry in os.listdir(channelsdir):
@@ -280,6 +320,7 @@ class Control(object):
     def downloadURLs(self, urllst, what=None, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
         fetcher.reset()
+        self.reloadMirrors()
         if targetdir is None:
             localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
             if not os.path.isdir(localdir):
@@ -446,6 +487,7 @@ class Control(object):
         fetcher = self._fetcher
         fetcher.reset()
         fetcher.setCaching(caching)
+        self.reloadMirrors()
         if targetdir is None:
             localdir = os.path.join(sysconf.get("data-dir"), "packages/")
             if not os.path.isdir(localdir):

@@ -22,6 +22,7 @@
 #from smart.backends.rpm.rpmver import splitarch
 from smart.backends.rpm.crpmver import splitarch
 from smart.cache import Loader, PackageInfo
+from smart.channel import FileChannel
 from smart.backends.rpm import *
 from smart import *
 import locale
@@ -424,12 +425,18 @@ class RPMDirLoader(RPMHeaderLoader):
                 if fn in fndict:
                     bfp(self._offsets[i], (RPMProvides, fn))
 
-def getFileChannelLoader(filename):
-    if filename.endswith(".rpm") and not filename.endswith(".src.rpm"):
+class RPMFileChannel(FileChannel):
+
+    def __init__(self, filename):
+        FileChannel.__init__(self, filename)
         dirname, basename = os.path.split(filename)
-        return RPMDirLoader(dirname, basename)
+        self.setInfo("loader", RPMDirLoader(dirname, basename))
+
+def createFileChannel(filename):
+    if filename.endswith(".rpm") and not filename.endswith(".src.rpm"):
+        return RPMFileChannel(filename)
     return None
 
-hooks.register("FileChannel.getLoader", getFileChannelLoader)
+hooks.register("create-file-channel", createFileChannel)
 
 # vim:ts=4:sw=4:et

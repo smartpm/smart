@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.channel import createChannel, PackageChannel
 from smart import *
 import gobject, gtk
 
@@ -104,7 +105,7 @@ class GtkPriorities(object):
 
     def fill(self):
         self._treemodel.clear()
-        priorities = sysconf.get("package-priorities", setdefault={})
+        priorities = sysconf.get("package-priorities", {})
         prioritieslst = priorities.items()
         prioritieslst.sort()
         for name, pkgpriorities in prioritieslst:
@@ -122,15 +123,10 @@ class GtkPriorities(object):
     def newPriority(self):
         name, alias, priority = PriorityCreator().show()
         if name:
-            priorities = sysconf.get("package-priorities", setdefault={})
-            if name in priorities:
-                if alias not in priorities[name]:
-                    priorities[name][alias] = int(priority)
-                    self.fill()
-                else:
-                    iface.error("Name/alias pair already exists!")
+            if sysconf.has(("package-priorities", name, alias)):
+                iface.error("Name/alias pair already exists!")
             else:
-                priorities[name] = {alias: int(priority)}
+                sysconf.set(("package-priorities", name, alias), int(priority))
                 self.fill()
 
     def delPriority(self):
@@ -141,10 +137,7 @@ class GtkPriorities(object):
             alias = model.get_value(iter, 1)
             if alias == "*":
                 alias = None
-            priorities = sysconf.get("package-priorities", setdefault={})
-            del priorities[name][alias]
-            if not priorities[name]:
-                del priorities[name]
+            sysconf.remove(("package-priorities", name, alias))
             self.fill()
 
     def rowEdited(self, cell, row, newtext):
@@ -161,7 +154,6 @@ class GtkPriorities(object):
         iter = model.get_iter_from_string(row)
         oldtext = model.get_value(iter, col)
         if newtext != oldtext:
-            priorities = sysconf.get("package-priorities", setdefault={})
             if col == 0:
                 alias = model.get_value(iter, 1)
                 if alias == "*":
@@ -169,25 +161,21 @@ class GtkPriorities(object):
                 priority = model.get_value(iter, 2)
                 if not newtext:
                     pass
-                elif newtext in priorities and alias in priorities[newtext]:
+                elif sysconf.has(("package-priorities", newtext, alias)):
                     iface.error("Name/alias pair already exists!")
                 else:
-                    if newtext not in priorities:
-                        priorities[newtext] = {alias: int(priority)}
-                    else:
-                        priorities[newtext][alias] = int(priority)
-                    del priorities[oldtext][alias]
-                    if not priorities[oldtext]:
-                        del priorities[oldtext]
+                    sysconf.set(("package-priorities", newtext, alias),
+                                int(priority))
+                    sysconf.remove(("package-priorities", oldtext, alias))
                     model.set_value(iter, col, newtext)
             elif col == 1:
                 name = model.get_value(iter, 0)
                 priority = model.get_value(iter, 2)
-                if newtext in priorities[name]:
+                if sysconf.has(("package-priorities", name, newtext)):
                     iface.error("Name/alias pair already exists!")
                 else:
-                    priorities[name][newtext] = int(priority)
-                    del priorities[name][oldtext]
+                    sysconf.move(("package-priorities", name, oldtext),
+                                 ("package-priorities", name, newtext))
                     model.set_value(iter, col, newtext or "*")
             elif col == 2:
                 if newtext:
@@ -196,7 +184,8 @@ class GtkPriorities(object):
                     if alias == "*":
                         alias = None
                     try:
-                        priorities[name][alias] = int(newtext)
+                        sysconf.set(("package-priorities", name, alias),
+                                    int(newtext))
                     except ValueError:
                         iface.error("Invalid priority!")
                     else:
@@ -351,8 +340,7 @@ class GtkSinglePriority(object):
 
     def show(self, pkg):
 
-        priorities = sysconf.get("package-priorities", setdefault={})
-        priority = priorities.setdefault(pkg.name, {})
+        priority = sysconf.get(("package-priorities", pkg.name), {})
         
         table = self._table
         table.foreach(table.remove)
@@ -425,7 +413,11 @@ class GtkSinglePriority(object):
         pos = 0
         channels = sysconf.get("channels")
         for alias in channels:
-            name = channels[alias].get("name")
+            channel = channels[alias]
+            if not isinstance(createChannel(channel.get("type"), alias,
+                                            channel), PackageChannel):
+                continue
+            name = channel.get("name")
             if not name:
                 name = alias
             check = gtk.CheckButton(name)
@@ -450,7 +442,9 @@ class GtkSinglePriority(object):
         self._window.hide()
 
         if not priority:
-            del priorities[pkg.name]
+            sysconf.remove(("package-priorities", pkg.name))
+        else:
+            sysconf.set(("package-priorities", pkg.name), priority)
 
 
 # vim:ts=4:sw=4:et

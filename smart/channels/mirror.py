@@ -19,54 +19,71 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.strtools import strToBool
-from smart.channel import PackageChannel
+from smart.const import SUCCEEDED, FAILED, NEVER
+from smart.channel import MirrorChannel
 from smart import *
-import os
+import posixpath
 
-class DebStatusChannel(PackageChannel):
+class StandardMirrorChannel(MirrorChannel):
 
-    def __init__(self, *args):
-        super(DebStatusChannel, self).__init__(*args)
-        self._fetchorder = 500
+    def __init__(self, url, *args):
+        super(StandardMirrorChannel, self).__init__(*args)
+        self._url = url
+
+    def getFetchSteps(self):
+        return 1
 
     def fetch(self, fetcher, progress):
-        path = os.path.join(sysconf.get("deb-root", "/"),
-                            "var/lib/dpkg/status")
-        self._loader = DebTagFileLoader(path)
-        self._loader.setInstalled(True)
-        self._loader.setChannel(self)
+        mirrors = self._mirrors
+        mirrors.clear()
+        fetcher.reset()
+        item = fetcher.enqueue(self._url, uncomp=True)
+        fetcher.run(progress=progress)
+        if item.getStatus() == SUCCEEDED:
+            localpath = item.getTargetPath()
+            for line in open(localpath):
+                if line[0].isspace():
+                    if origin:
+                        mirror = line.strip()
+                        if mirror:
+                            if origin in mirrors:
+                                if mirror not in mirrors[origin]:
+                                    mirrors[origin].append(mirror)
+                            else:
+                                mirrors[origin] = [mirror]
+                else:
+                    origin = line.strip()
+        elif fetcher.getCaching() is NEVER:
+            lines = ["Failed acquiring information for '%s':" % self,
+                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            raise Error, "\n".join(lines)
         return True
 
 def create(type, alias, data):
     name = None
-    priority = 0
     manual = False
     removable = False
+    url = None
     if isinstance(data, dict):
         name = data.get("name")
-        priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
         removable = strToBool(data.get("removable", False))
+        url = data.get("url")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "priority":
-                priority = n.text
             elif n.tag == "manual":
                 manual = strToBool(n.text)
             elif n.tag == "removable":
                 removable = strToBool(n.text)
+            elif n.tag == "url":
+                url = n.text
     else:
         raise ChannelDataError
-    try:
-        priority = int(priority)
-    except ValueError:
-        raise Error, "Invalid priority"
-    if removable:
-        raise Error, "%s channels cannot be removable" % type
-    return DebStatusChannel(type, alias, name, manual, removable, priority)
+    if not url:
+        raise Error, "Channel '%s' has no url" % alias
+    return StandardMirrorChannel(url, type, alias, name, manual, removable)
 
 # vim:ts=4:sw=4:et

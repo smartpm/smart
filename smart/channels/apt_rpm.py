@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.header import RPMPackageListLoader
-from smart.channel import Channel, ChannelDataError
+from smart.channel import PackageChannel, ChannelDataError
 from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.cache import LoaderSet
@@ -30,11 +30,10 @@ import tempfile
 import commands
 import os
 
-class APTRPMChannel(Channel):
+class APTRPMChannel(PackageChannel):
 
     def __init__(self, baseurl, comps, fingerprint, *args):
-        Channel.__init__(self, *args)
-        
+        super(APTRPMChannel, self).__init__(*args)
         self._baseurl = baseurl
         self._comps = comps
         if fingerprint:
@@ -52,6 +51,8 @@ class APTRPMChannel(Channel):
         return len(self._comps)*2+1
 
     def fetch(self, fetcher, progress):
+
+        del self._loader[:]
 
         fetcher.reset()
 
@@ -210,7 +211,6 @@ class APTRPMChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     manual = False
     removable = False
@@ -219,7 +219,6 @@ def create(type, alias, data):
     fingerprint = None
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         baseurl = data.get("baseurl")
         comps = (data.get("components") or "").split()
         priority = data.get("priority", 0)
@@ -230,8 +229,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -253,7 +250,6 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return APTRPMChannel(baseurl, comps, fingerprint,
-                         type, alias, name, description,
-                         priority, manual, removable)
+                         type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et

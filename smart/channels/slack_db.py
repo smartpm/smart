@@ -21,13 +21,13 @@
 #
 from smart.backends.slack.loader import SlackDBLoader
 from smart.util.strtools import strToBool
-from smart.channel import Channel
+from smart.channel import PackageChannel
 
-class SlackDBChannel(Channel):
+class SlackDBChannel(PackageChannel):
 
     def __init__(self, *args):
-        Channel.__init__(self, *args)
-        self._loadorder = 500
+        super(SlackDBChannel, self).__init__(*args)
+        self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
         self._loader = SlackDBLoader()
@@ -36,13 +36,11 @@ class SlackDBChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     manual = False
     removable = False
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
         removable = strToBool(data.get("removable", False))
@@ -50,8 +48,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -66,7 +62,6 @@ def create(type, alias, data):
         raise Error, "Invalid priority"
     if removable:
         raise Error, "%s channels cannot be removable" % type
-    return SlackDBChannel(type, alias, name, description,
-                          priority, manual, removable)
+    return SlackDBChannel(type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et

@@ -125,8 +125,6 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
-    channels = sysconf.get("channels", setdefault={})
-
     if opts.help_type:
         info = getChannelInfo(opts.help_type)
         print "Type:", opts.help_type, "-", info.name
@@ -139,9 +137,6 @@ def main(ctrl, opts):
         sys.exit(0)
     
     if opts.add:
-
-        sysconf.assertWritable()
-
         if len(opts.add) == 1:
             arg = opts.add[0]
             if os.path.isdir(arg):
@@ -205,19 +200,20 @@ def main(ctrl, opts):
                 else:
                     try:
                         alias = channel.get("alias")
-                        while not alias or alias in channels:
+                        while not alias or sysconf.has(("channels", alias)):
                             if alias:
                                 print "Channel alias '%s' is already in use." \
                                       % alias
                             alias = raw_input("Channel alias: ").strip()
                         if "alias" in channel:
                             del channel["alias"]
-                        channels[alias] = channel
+                        sysconf.set(("channels", alias), channel)
                         newaliases.append(alias)
                     except KeyboardInterrupt:
                         print
 
-        removable = [x for x in newaliases if channels[x].get("removable")]
+        removable = [alias for alias in newaliases
+                     if sysconf.get(("channels", alias, "removable"))]
         if removable:
             print
             print "Updating removable channels..."
@@ -227,20 +223,17 @@ def main(ctrl, opts):
             update.main(updateopts, ctrl)
 
     if opts.set:
-
-        sysconf.assertWritable()
-
         if not opts.set:
             raise Error, "Invalid arguments"
 
         alias = opts.set.pop(0)
         if "=" in alias:
             raise Error, "First argument must be the channel alias"
-        if alias not in channels:
-            raise Error, "Channel with alias '%s' not found" % alias
-        oldchannel = channels[alias]
 
-        channel = {}
+        channel = sysconf.get(("channels", alias))
+        if not channel:
+            raise Error, "Channel with alias '%s' not found" % alias
+
         for arg in opts.set:
             if "=" not in arg:
                 raise Error, "Argument '%s' has no '='" % arg
@@ -252,61 +245,47 @@ def main(ctrl, opts):
                 raise Error, "Can't change the channel alias"
             channel[key] = value.strip()
 
-        newchannel = oldchannel.copy()
-        newchannel.update(channel)
-        for key in newchannel.keys():
-            if not newchannel[key]:
-                del newchannel[key]
+        for key in channel.keys():
+            if not channel[key]:
+                del channel[key]
         try:
-            createChannel(newchannel.get("type"), alias, newchannel)
+            createChannel(channel.get("type"), alias, channel)
         except Error, e:
             raise Error, "Invalid channel: %s" % e
 
-        oldchannel.update(channel)
-        for key in oldchannel.keys():
-            if not oldchannel[key]:
-                del oldchannel[key]
+        sysconf.set(("channels", alias), channel)
 
     if opts.remove:
-
-        sysconf.assertWritable()
-
         for alias in opts.remove:
-            if alias not in channels:
-                continue
-            if opts.force or iface.askYesNo("Remove channel '%s'" % alias):
-                del channels[alias]
+            if (not sysconf.has(("channels", alias)) or opts.force or
+                iface.askYesNo("Remove channel '%s'" % alias)):
+                if not sysconf.remove(("channels", alias)):
+                    iface.warning("Channel '%s' not found." % alias)
 
     if opts.enable:
-
-        sysconf.assertWritable()
-
         for alias in opts.enable:
-            if alias not in channels:
-                continue
-            channel = channels[alias]
-            if "disabled" in channel:
-                del channel["disabled"]
+            if not sysconf.has(("channels", alias)):
+                iface.warning("Channel '%s' not found." % alias)
+            else:
+                sysconf.remove(("channels", alias, "disabled"))
 
     if opts.disable:
-
-        sysconf.assertWritable()
-
         for alias in opts.disable:
-            if alias not in channels:
-                continue
-            channels[alias]["disabled"] = "yes"
+            if not sysconf.has(("channels", alias)):
+                iface.warning("Channel '%s' not found." % alias)
+            else:
+                sysconf.set(("channels", alias, "disabled"), "yes")
 
     if opts.show is not None:
-
-        for alias in opts.show or channels:
-            if alias not in channels:
-                continue
-            channel = channels[alias]
-            desc = createChannelDescription(channel.get("type"),
-                                            alias, channel)
-            if desc:
-                print desc
-                print
+        for alias in (opts.show or sysconf.get("channels")):
+            channel = sysconf.get(("channels", alias))
+            if not channel:
+                iface.warning("Channel '%s' not found." % alias)
+            else:
+                desc = createChannelDescription(channel.get("type"),
+                                                alias, channel)
+                if desc:
+                    print desc
+                    print
 
 # vim:ts=4:sw=4:et

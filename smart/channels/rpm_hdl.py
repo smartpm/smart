@@ -22,15 +22,14 @@
 from smart.backends.rpm.header import RPMHeaderListLoader
 from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
-from smart.channel import Channel
+from smart.channel import PackageChannel
 from smart import *
 import posixpath
 
-class RPMHeaderListChannel(Channel):
+class RPMHeaderListChannel(PackageChannel):
 
     def __init__(self, hdlurl, baseurl, *args):
-        Channel.__init__(self, *args)
-        
+        super(RPMHeaderListChannel, self).__init__(*args)
         self._hdlurl = hdlurl
         self._baseurl = baseurl
 
@@ -56,7 +55,6 @@ class RPMHeaderListChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     manual = False
     removable = False
@@ -64,7 +62,6 @@ def create(type, alias, data):
     baseurl = None
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
         removable = strToBool(data.get("removable", False))
@@ -74,8 +71,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -97,7 +92,6 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return RPMHeaderListChannel(hdlurl, baseurl,
-                                type, alias, name, description,
-                                priority, manual, removable)
+                                type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et

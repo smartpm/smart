@@ -206,7 +206,7 @@ class GtkPackageInfo(gtk.Alignment):
                                 (channel.getName() or channel.getAlias(),
                                  channel.getAlias()))
 
-            flags = sysconf.getAllFlags(pkg)
+            flags = pkgconf.testAllFlags(pkg)
             if flags:
                 flags.sort()
                 flags = " (%s)" % ", ".join(flags)

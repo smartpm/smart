@@ -22,14 +22,14 @@
 from smart.backends.rpm.redcarpet import RPMRedCarpetLoader
 from smart.util.strtools import strToBool
 from smart.const import SUCCEEDED, FAILED, NEVER
-from smart.channel import Channel
+from smart.channel import PackageChannel
 from smart import *
 import posixpath
 
-class RPMRedCarpetChannel(Channel):
+class RedCarpetChannel(PackageChannel):
 
     def __init__(self, baseurl, packageinfourl, *args):
-        Channel.__init__(self, *args)
+        super(RedCarpetChannel, self).__init__(*args)
         self._baseurl = baseurl
         self._packageinfourl = packageinfourl
 
@@ -40,6 +40,8 @@ class RPMRedCarpetChannel(Channel):
         return 1
 
     def fetch(self, fetcher, progress):
+
+        self._loader = None
 
         pkginfourl = self._packageinfourl
         if not pkginfourl:
@@ -62,14 +64,12 @@ class RPMRedCarpetChannel(Channel):
 
 def create(type, alias, data):
     name = None
-    description = None
     priority = 0
     manual = False
     removable = False
     baseurl = None
     if isinstance(data, dict):
         name = data.get("name")
-        description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
         removable = strToBool(data.get("removable", False))
@@ -79,8 +79,6 @@ def create(type, alias, data):
         for n in data.getchildren():
             if n.tag == "name":
                 name = n.text
-            elif n.tag == "description":
-                description = n.text
             elif n.tag == "priority":
                 priority = n.text
             elif n.tag == "manual":
@@ -100,7 +98,6 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return RPMRedCarpetChannel(baseurl, packageinfourl,
-                               type, alias, name, description,
-                               priority, manual, removable)
+                               type, alias, name, manual, removable, priority)
 
 # vim:ts=4:sw=4:et
