@@ -281,7 +281,8 @@ def getChannelInfo(type):
         fields = []
         fields.extend(DEFAULTFIELDS)
         fields.extend(KINDFIELDS.get(info.kind, []))
-        fields.extend(info.fields)
+        if hasattr(info, "fields"):
+            fields.extend(info.fields)
         info.fields = fields
     return info
 
