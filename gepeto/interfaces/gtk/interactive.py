@@ -453,7 +453,8 @@ class GtkInteractiveInterface(GtkInterface):
             self.refreshPackages()
 
     def editChannels(self):
-        GtkChannels().show()
+        if GtkChannels().show():
+            self.rebuildCache()
 
     def editMirrors(self):
         GtkMirrors().show()

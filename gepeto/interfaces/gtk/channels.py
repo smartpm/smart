@@ -49,6 +49,8 @@ class GtkChannels(object):
 
     def __init__(self):
 
+        self._changed = False
+
         self._window = gtk.Window()
         self._window.set_title("Channels")
         self._window.set_modal(True)
@@ -157,8 +159,10 @@ class GtkChannels(object):
             if row[0]:
                 if "disabled" in channel:
                     del channel["disabled"]
+                    self._changed = True
             else:
                 channel["disabled"] = "yes"
+                self._changed = True
             
     def show(self):
         self.fill()
@@ -166,6 +170,7 @@ class GtkChannels(object):
         gtk.main()
         self._window.hide()
         self.enableDisable()
+        return self._changed
 
     def newChannel(self):
         self.enableDisable()
@@ -175,6 +180,7 @@ class GtkChannels(object):
             if ChannelEditor().show(alias, newchannel):
                 channels = sysconf.get("channels", setdefault={})
                 channels[alias] = newchannel
+                self._changed = True
                 self.fill()
 
     def editChannel(self, alias):
@@ -183,11 +189,13 @@ class GtkChannels(object):
         channel = channels[alias]
         editor = ChannelEditor()
         if editor.show(alias, channel):
+            self._changed = True
             self.fill()
 
     def delChannel(self, alias):
         channels = sysconf.get("channels", setdefault={})
         del channels[alias]
+        self._changed = True
         self.fill()
 
 class GtkChannelSelector(object):
