@@ -325,8 +325,11 @@ class GtkPackageView(gtk.Alignment):
     def _buttonPress(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return
-        path, column, cellx, celly = treeview.get_path_at_pos(int(event.x),
-                                                              int(event.y))
+        try:
+            path, column, cellx, celly = treeview.get_path_at_pos(int(event.x),
+                                                                  int(event.y))
+        except TypeError:
+            return
         model = treeview.get_model()
         iter = model.get_iter(path)
         value = model.get_value(iter, 0)

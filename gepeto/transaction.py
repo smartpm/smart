@@ -507,7 +507,8 @@ class Transaction(object):
                         if not isinst(reqpkg):
                             continue
                         if reqpkg in locked:
-                            raise Failed, "%s is locked" % reqpkg
+                            raise Failed, "Can't remove %s: %s is locked" % \
+                                          (pkg, reqpkg)
                         self._remove(reqpkg, changeset, locked, pending, depth)
                         pending.append((PENDING_UPDOWN, reqpkg))
 
