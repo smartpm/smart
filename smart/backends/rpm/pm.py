@@ -264,19 +264,31 @@ class RPMCallback:
 
         elif what == rpm.RPMCALLBACK_UNINST_START:
             self.topic = "Output from %s:" % infopath
+            subkey =  "R*"+infopath
             self.data["item-number"] += 1
             self.prog.add(1)
             if infopath in self.upgradednames:
                 topic = "Removing old %s" % infopath
             else:
                 topic = "Removing %s" % infopath
-            self.prog.setSubTopic("R*"+infopath, topic)
-            self.prog.setSub("R*"+infopath, 0, 1, subdata=self.data)
+            self.prog.setSubTopic(subkey, topic)
+            self.prog.setSub(subkey, 0, 1, subdata=self.data)
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_UNINST_STOP:
             self.topic = None
-            self.prog.setSubDone("R*"+infopath)
+            subkey = "R*"+infopath
+            if not self.prog.getSub(subkey):
+                self.data["item-number"] += 1
+                self.prog.add(1)
+                if infopath in self.upgradednames:
+                    topic = "Removing old %s" % infopath
+                else:
+                    topic = "Removing %s" % infopath
+                self.prog.setSubTopic(subkey, topic)
+                self.prog.setSub(subkey, 1, 1, subdata=self.data)
+            else:
+                self.prog.setSubDone(subkey)
             self.prog.show()
 
 # vim:ts=4:sw=4:et
