@@ -28,7 +28,7 @@ import os
 __all__ = ["sysconf", "pkgconf", "iface", "hooks", "Error", "_"]
 
 class Error(Exception):
-    def __init__(self, msg):
+    def __init__(self, msg=None):
         if not msg:
             Exception.__init__(self, _("Unknown error"))
         else:
