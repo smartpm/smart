@@ -35,7 +35,8 @@ import os
 import re
 
 MAXRETRIES = 30
-SPEEDDELAY = 2
+SPEEDDELAY = 1
+CANCELDELAY = 2
 MAXACTIVEDOWNLOADS = 10
 SOCKETTIMEOUT = 120
 
@@ -214,14 +215,26 @@ class Fetcher(object):
         uncomp = self._uncompressor
         uncompchecked = {}
         self._speedupdated = self.time
+        cancelledtime = None
         while active or self._uncompressing:
             self.time = time.time()
             if self._cancel:
+                if not cancelledtime:
+                    cancelledtime = self.time
                 for handler in active[:]:
                     if not handler.wasCancelled():
                         handler.cancel()
                     if not handler.tick():
                         active.remove(handler)
+                # We won't wait for handlers which are not being nice.
+                if time.time() > cancelledtime+CANCELDELAY:
+                    for item in self._items.values():
+                        if item.getStatus() != SUCCEEDED:
+                            item.setCancelled()
+                    # Remove handlers, since we don't know their state.
+                    self._handlers.clear()
+                    prog.show()
+                    break
                 prog.show()
                 continue
             for handler in active[:]:
@@ -478,29 +491,29 @@ class FetchItem(object):
         self._info.update(info)
 
     def start(self):
-        if self._status is RUNNING:
-            return
-        self._status = RUNNING
-        self._starttime = self._fetcher.time
-        prog = self._progress
-        url = self._urlobj.original
-        prog.setSubTopic(url, url)
-        prog.setSubTopic(url, re.sub("([a-z]+:/+[^:/]+:)[^/]+(@.*)",
-                                     r"\1*\2", url))
-        prog.setSub(url, 0, self._info.get("size") or 1, 1)
-        prog.show()
+        if self._status is WAITING:
+            self._status = RUNNING
+            self._starttime = self._fetcher.time
+            prog = self._progress
+            url = self._urlobj.original
+            prog.setSubTopic(url, url)
+            prog.setSubTopic(url, re.sub("([a-z]+:/+[^:/]+:)[^/]+(@.*)",
+                                         r"\1*\2", url))
+            prog.setSub(url, 0, self._info.get("size") or 1, 1)
+            prog.show()
 
     def progress(self, current, total):
-        self._current = current
-        self._total = total
-        if total:
-            subdata = {}
-            subdata["current"] = sizeToStr(current)
-            subdata["total"] = sizeToStr(total)
-            subdata["speed"] = speedToStr(self._speed)
-            self._progress.setSub(self._urlobj.original, current, total, 1,
-                                  subdata)
-            self._progress.show()
+        if self._status is RUNNING:
+            self._current = current
+            self._total = total
+            if total:
+                subdata = {}
+                subdata["current"] = sizeToStr(current)
+                subdata["total"] = sizeToStr(total)
+                subdata["speed"] = speedToStr(self._speed)
+                self._progress.setSub(self._urlobj.original, current, total, 1,
+                                      subdata)
+                self._progress.show()
 
     def updateSpeed(self):
         if self._status is RUNNING:
@@ -519,26 +532,28 @@ class FetchItem(object):
                 self.progress(self._current, self._total)
 
     def setSucceeded(self, targetpath, fetchedsize=0):
-        self._status = SUCCEEDED
-        self._targetpath = targetpath
-        if self._starttime:
-            if fetchedsize:
-                now = self._fetcher.time
-                timedelta = now-self._starttime
-                if timedelta < 1:
-                    timedelta = 1
-                self._mirror.addInfo(time=timedelta, size=fetchedsize)
-                self._speed = fetchedsize/timedelta
-            self._progress.setSubDone(self._urlobj.original)
-            self._progress.show()
+        if self._status in (RUNNING, WAITING):
+            self._status = SUCCEEDED
+            self._targetpath = targetpath
+            if self._starttime:
+                if fetchedsize:
+                    now = self._fetcher.time
+                    timedelta = now-self._starttime
+                    if timedelta < 1:
+                        timedelta = 1
+                    self._mirror.addInfo(time=timedelta, size=fetchedsize)
+                    self._speed = fetchedsize/timedelta
+                self._progress.setSubDone(self._urlobj.original)
+                self._progress.show()
 
     def setFailed(self, reason):
-        self._status = FAILED
-        self._failedreason = reason
-        if self._starttime:
-            self._mirror.addInfo(failed=1)
-            self._progress.setSubStopped(self._urlobj.original)
-            self._progress.show()
+        if self._status in (RUNNING, WAITING):
+            self._status = FAILED
+            self._failedreason = reason
+            if self._starttime:
+                self._mirror.addInfo(failed=1)
+                self._progress.setSubStopped(self._urlobj.original)
+                self._progress.show()
 
     def setCancelled(self):
         self.setFailed(_("Cancelled"))
