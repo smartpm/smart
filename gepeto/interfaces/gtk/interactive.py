@@ -453,7 +453,8 @@ class GtkInteractiveInterface(GtkInterface):
 
         menu = gtk.Menu()
 
-        names = sysconf.get("package-flags", {}).get("lock")
+        names = sysconf.get("package-flags", setdefault={}) \
+                                    .setdefault("lock", {})
         if (names and pkg.name in names and 
             ("=", pkg.version) in names[pkg.name]):
             thislocked = True
