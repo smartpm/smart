@@ -562,38 +562,35 @@ What happens when forcing APT to install `A`::
 It really refuses to install the newest version, and doesn't consider
 the possibility of using version 1.5.
 
-Now, let's see how YUM would handle it::
+Now, let's see how YUM would handle it.
+
+:Update: This test case was showing the wrong results for YUM, since it
+         was using a cached version of the package header that didn't
+         present the missing dependency. I apologise for showing invalid
+         results.
+
+::
 
   [root@burma ~]% yum update
   Setting up Update Process
   Setting up Repo:  localpub
   repomd.xml                100% |=========================|  951 B    00:00
   Reading repository metadata in from local files
+  primary.xml.gz            100% |=========================|  809 B    00:00
+  MD Read   : ################################################## 3/3
   localpub  : ################################################## 3/3
   Resolving Dependencies
   --> Populating transaction set with selected packages. Please wait.
+  ---> Downloading header for A to pack into transaction set.
+  A-2.0-1cl.i386.rpm        100% |=========================| 1.3 kB    00:00
   ---> Package A.i386 0:2.0-1cl set to be updated
   --> Running transaction check
-  
-  Dependencies Resolved
-  Transaction Listing:
-    Update: A.i386 0:2.0-1cl
-  Is this ok [y/N]: y
-  Downloading Packages:
-  Running Transaction Test
-  Finished Transaction Test
-  Transaction Test Succeeded
-  Running Transaction
-  Updating: A 100 % done 1/2
-  
-  Updated: A.i386 0:2.0-1cl
-  Complete!
+  --> Processing Dependency: B for package: A
+  --> Finished Dependency Resolution
+  Error: missing dep: B for pkg A
 
-It succeeded installing version 2.0, and failed to report a
-problem, as shown below::
-
-  [root@burma ~]% rpm -V A
-  Unsatisfied dependencies for A-2.0-1cl: B
+Just like APT, YUM selected version 2.0 and didn't consider the
+availability of an intermediate version.
 
 Now, let's see how Smart would behave in the same situation::
 
