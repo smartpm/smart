@@ -44,6 +44,7 @@ SUCCEEDED = 4
 
 BLOCKSIZE = 16384
 
+DISTROFILE = "/etc/gepeto/distro.py"
 CONFFILE = "~/.gepeto/config"
 DATADIR = "~/.gepeto/"
 

@@ -43,7 +43,7 @@ sysconf = Proxy()
 iface = Proxy()
 
 def init(opts=None):
-    from gepeto.const import DEBUG, INFO, WARNING, ERROR, CONFFILE
+    from gepeto.const import DEBUG, INFO, WARNING, ERROR, CONFFILE, DISTROFILE
     from gepeto.interface import createInterface
     from gepeto.sysconfig import SysConfig
     from gepeto.interface import Interface
@@ -67,6 +67,9 @@ def init(opts=None):
     else:
         ifacename = "text"
     iface.object = createInterface(ifacename, not bool(opts.command))
+    if os.path.isfile(DISTROFILE):
+        execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
+                              "sysconf": sysconf})
     return ctrl
 
 # vim:ts=4:sw=4:et

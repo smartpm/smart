@@ -46,7 +46,7 @@ Run "gpt command --help" for more information.
 """
 
 def parse_options(argv):
-    parser = OptionParser(help=HELP, version=VERSION)
+    parser = OptionParser(help=HELP, version="gepeto %s" % VERSION)
     parser.disable_interspersed_args()
     parser.add_option("--config-file", metavar="FILE",
                       help="configuration file (default is ~/.gepeto/config)")
