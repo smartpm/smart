@@ -167,7 +167,7 @@ class GtkInterface(Interface):
     # Non-standard interface methods
 
     def _excepthook(self, type, value, tb):
-        if type is Error and not sysconf.get("log-level") is DEBUG:
+        if issubclass(type, Error) and not sysconf.get("log-level") is DEBUG:
             iface.error(str(value[0]))
         else:
             import traceback
