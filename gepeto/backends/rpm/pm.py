@@ -78,32 +78,34 @@ class RPMPackageManager(PackageManager):
                     ts.addErase("%s-%s" % (pkg.name, version))
                 except rpm.error, e:
                     raise Error, "%s-%s: %s" % (pkg.name, pkg.version, str(e))
-        probs = ts.check()
-        if probs:
-            problines = []
-            for prob in probs:
-                name1 = "%s-%s-%s" % prob[0]
-                name2, version = prob[1]
-                if version:
-                    sense = prob[2]
-                    name2 += " "
-                    if sense & rpm.RPMSENSE_LESS:
-                        name2 += "<"
-                    elif sense & rpm.RPMSENSE_GREATER:
-                        name2 += ">"
-                    if sense & rpm.RPMSENSE_EQUAL:
-                        name2 += "="
-                    name2 += " "
-                    name2 += version
-                if prob[4] == rpm.RPMDEP_SENSE_REQUIRES:
-                    line = "%s requires %s" % (name1, name2)
-                else:
-                    line = "%s conflicts with %s" % (name1, name2)
-                problines.append(line)
-            raise Error, "\n".join(problines)
+        force = sysconf.get("rpm-force", False)
+        if not force:
+            probs = ts.check()
+            if probs:
+                problines = []
+                for prob in probs:
+                    name1 = "%s-%s-%s" % prob[0]
+                    name2, version = prob[1]
+                    if version:
+                        sense = prob[2]
+                        name2 += " "
+                        if sense & rpm.RPMSENSE_LESS:
+                            name2 += "<"
+                        elif sense & rpm.RPMSENSE_GREATER:
+                            name2 += ">"
+                        if sense & rpm.RPMSENSE_EQUAL:
+                            name2 += "="
+                        name2 += " "
+                        name2 += version
+                    if prob[4] == rpm.RPMDEP_SENSE_REQUIRES:
+                        line = "%s requires %s" % (name1, name2)
+                    else:
+                        line = "%s conflicts with %s" % (name1, name2)
+                    problines.append(line)
+                raise Error, "\n".join(problines)
         ts.order()
         probfilter = rpm.RPMPROB_FILTER_OLDPACKAGE
-        if reinstall:
+        if force or reinstall:
             probfilter |= rpm.RPMPROB_FILTER_REPLACEPKG
             probfilter |= rpm.RPMPROB_FILTER_REPLACEOLDFILES
         ts.setProbFilter(probfilter)
