@@ -24,10 +24,11 @@ class URPMIChannel(Channel):
         item = fetcher.enqueue(url)
         fetcher.run(progress=progress)
         hdlmd5 = None
+        failed = item.getFailedReason()
         if failed:
             iface.warning("Failed acquiring information for '%s':" %
                           self._alias)
-            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+            iface.warning("%s: %s" % (item.getURL(), failed))
         else:
             basename = posixpath.basename(self._hdlurl)
             for line in open(item.getTargetPath()):

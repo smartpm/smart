@@ -11,11 +11,11 @@ class GtkProgress(Progress, gtk.Window):
         gtk.Window.__init__(self)
         self.__gobject_init__()
 
+        self._hassub = hassub
         self._fetchermode = False
         self._shorturl = ShortURL(50)
 
         if hassub:
-            self.setHasSub(True)
             self.set_size_request(500, 400)
         else:
             self.set_size_request(300, 80)
@@ -88,10 +88,15 @@ class GtkProgress(Progress, gtk.Window):
         self._currentcolumn.set_visible(flag)
         self._totalcolumn.set_visible(flag)
 
+    def start(self):
+        Progress.start(self)
+        self.setHasSub(self._hassub)
+
     def stop(self):
         Progress.stop(self)
 
-        if self.getHasSub():
+        if self._hassub:
+            self._treemodel.clear()
             self._subiters.clear()
             self._subindex = 0
             self._lastpath = None
@@ -103,8 +108,7 @@ class GtkProgress(Progress, gtk.Window):
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         gtk.Window.show(self)
         
-        hassub = self.getHasSub()
-        if hassub and subkey:
+        if self._hassub and subkey:
             if subkey in self._subiters:
                 iter = self._subiters[subkey]
             else:
@@ -134,7 +138,7 @@ class GtkProgress(Progress, gtk.Window):
             self._topic.set_text(topic)
             self._progress.set_fraction(percent/100.)
             self._progress.set_text("%d%%" % percent)
-            if hassub:
+            if self._hassub:
                 self._treeview.queue_draw()
             while gtk.events_pending():
                 gtk.main_iteration()

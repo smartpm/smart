@@ -5,8 +5,14 @@ from gepeto import *
 import gobject, gtk
 
 TYPES = [
-    ("rpm-db", "Local RPM database"),
-    ("apt-rpm", "APT-RPM repository")
+    ("rpm-db", "Local RPM Database"),
+    ("rpm-hdl", "RPM Header List"),
+    ("apt-rpm", "APT-RPM Repository"),
+    ("rpm-md", "RPM MetaData"),
+    ("urpmi", "URPMI Repository"),
+    ("red-carpet", "Red Carpet"),
+    ("slack-db", "Slackware Installed Packages"),
+    ("slack-site", "Slackware Remote Packages"),
 ]
 
 # Fields needed by given types, besides alias, type, name, description
@@ -14,10 +20,29 @@ TYPES = [
 # (<field-key>, <label>, <tooltip>)
 FIELDS = {
     "rpm-db": [],
+    "rpm-hdl": [("hdlurl", "Header List URL",
+                 "URL for the header list"),
+                ("baseurl", "Base URL for packages",
+                 "Base URL where package files are found")],
     "apt-rpm": [("baseurl", "Base URL",
                  "Base URL of APT-RPM repository,\nwhere base/ is located"),
                 ("components", "Components",
                  "Space separated list of components")],
+    "rpm-md": [("baseurl", "Base URL",
+                "URL where repodata/ subdirectory is found")],
+    "urpmi": [("hdlurl", "Header List URL",
+               "URL for the header list"),
+              ("baseurl", "Base URL",
+               "Base URL where MD5SUM file is found")],
+    "red-carpet": [("baseurl", "Base URL for packages",
+                    "URL where packages are found"),
+                   ("packageinfourl", "URL for packageinfo XML",
+                    "URL for packageinfo.xml.gz (filename must be included)\n"
+                    "(may be ommitted if it's named packageinfo.xml.gz and\n"
+                    "is inside the base url)")],
+    "slack-db": [],
+    "slack-site": [("baseurl", "Base URL",
+                    "URL where PACKAGES.TXT is located")],
 }
 
 class GtkChannels(object):

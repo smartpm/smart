@@ -1,4 +1,5 @@
 from gepeto.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
+from gepeto.util.strtools import strToBool
 from gepeto.channel import createChannel
 from gepeto.progress import Progress
 from gepeto.fetcher import Fetcher
@@ -83,7 +84,7 @@ class Control:
         channels = sysconf.get("channels", ())
         for alias in channels:
             data = channels[alias]
-            if data.get("disabled"):
+            if strToBool(data.get("disabled")):
                 continue
             type = data.get("type")
             if not type:

@@ -162,6 +162,8 @@ class Fetcher(object):
                     self._uncompressing += 1
                     thread.start_new_thread(self._uncompress,
                                             (item, localpath, uncomphandler))
+                else:
+                    item.setSucceeded(uncomppath)
             prog.show()
             time.sleep(0.1)
         for handler in handlers:
@@ -208,7 +210,7 @@ class Fetcher(object):
             prefix = "uncomp_"
         else:
             prefix = ""
-        return item.getInfo(prefix+"md5") or item.getInfo(prefix+"sha")
+        return bool(item.getInfo(prefix+"md5") or item.getInfo(prefix+"sha"))
 
     def validate(self, item, localpath, withreason=False, uncomp=False):
         try:
