@@ -8,9 +8,9 @@ import os, re
 
 from rpm import archscore
 
-__all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides",
-           "RPMPreRequires", "RPMRequires", "RPMUpgrades",
-           "RPMConflicts", "RPMObsoletes"]
+__all__ = ["RPMPackage", "RPMFlagPackage", "RPMProvides", "RPMNameProvides",
+           "RPMPreRequires", "RPMRequires", "RPMUpgrades", "RPMConflicts",
+           "RPMObsoletes"]
 
 class RPMMatcher(Matcher):
     def __init__(self, str):
@@ -86,7 +86,9 @@ class RPMPackage(Package):
     def matches(self, relation, version):
         if not relation:
             return True
-        return checkdep(self.version, relation, version)
+        selfver, selfarch = splitarch(self.version)
+        ver, arch = splitarch(version)
+        return checkdep(selfver, relation, ver)
 
     def __cmp__(self, other):
         rc = -1
@@ -100,6 +102,18 @@ class RPMPackage(Package):
                 if rc == 0:
                     rc = -cmp(archscore(selfarch), archscore(otherarch))
         return rc
+
+class RPMFlagPackage(object):
+    # Used for flag testing during cache loader execution.
+    def __init__(self):
+        self.name = ""
+        self.version = ""
+
+    def matches(self, relation, version):
+        # There's no need to split arch.
+        if not relation:
+            return True
+        return checkdep(self.version, relation, version)
 
 class RPMProvides(Provides): pass
 class RPMNameProvides(RPMProvides): pass

@@ -88,6 +88,8 @@ class RPMHeaderLoader(Loader):
         self._offsets = {}
 
     def load(self):
+        pkgflags = sysconf.get("package-flags")
+        fpkg = RPMFlagPackage()
         CM = self.COMPMAP
         CF = self.COMPFLAGS
         Pkg = RPMPackage
@@ -152,7 +154,9 @@ class RPMHeaderLoader(Loader):
                 cnfargs = [(Cnf, n[i], CM.get(f[i]&CF), v[i] or None)
                            for i in range(len(n))]
             else:
-                cnfargs = None
+                cnfargs = []
+
+            obstup = (Obs, name, '<', version)
 
             n = h[1090] # RPMTAG_OBSOLETENAME
             if n:
@@ -160,30 +164,20 @@ class RPMHeaderLoader(Loader):
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
                 upgargs = [(Obs, n[i], CM.get(f[i]&CF), v[i] or None)
                            for i in range(len(n))]
-                if not cnfargs:
-                    cnfargs = upgargs
-                else:
-                    cnfargs.extend(upgargs)
+                cnfargs.extend(upgargs)
+                upgargs.append(obstup)
             else:
-                upgargs = None
+                upgargs = [obstup]
+
+            fpkg.name = name
+            fpkg.version = version
+            if not pkgflags or pkgflags.test("multi-version", fpkg):
+                cnfargs.append(obstup)
 
             pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
                                   prvargs, reqargs, upgargs, cnfargs)
             pkg.loaderinfo[self] = offset
             self._offsets[offset] = pkg
-
-        pkgflags = sysconf.get("package-flags")
-        if pkgflags:
-            mver = dict.fromkeys(pkgflags.filter("multi-version",
-                                                 self._packages))
-        else:
-            mver = {}
-        for pkg in self._packages:
-            version, arch = splitarch(pkg.version)
-            args = (Obs, pkg.name, '<', version)
-            self.newUpgrades(pkg, args)
-            if pkg not in mver:
-                self.newConflicts(pkg, args)
 
 class RPMHeaderListLoader(RPMHeaderLoader):
 
