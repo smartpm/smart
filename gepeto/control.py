@@ -116,7 +116,8 @@ class Control(object):
             self._confdigest = confdigest
             conffile = self._conffile
         conffile = os.path.expanduser(conffile)
-        if os.access(conffile, os.W_OK):
+        dirname = os.path.dirname(conffile)
+        if not os.path.isdir(dirname) or os.access(dirname, os.W_OK):
             sysconf.save(conffile)
 
     def reloadSysConfChannels(self):
