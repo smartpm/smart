@@ -26,7 +26,7 @@ from gepeto import *
 import string
 import re
 
-USAGE="gpt query [options]"
+USAGE="gpt query [options] <name> ..."
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
