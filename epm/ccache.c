@@ -1396,7 +1396,10 @@ Cache_getPackages(CacheObject *self, PyObject *args)
         return self->_packages;
     }
     lst = PyDict_GetItem(self->_pkgnames, name);
-    if (!lst) lst = PyList_New(0);
+    if (!lst)
+        lst = PyList_New(0);
+    else
+        Py_INCREF(lst);
     return lst;
 }
 
@@ -1412,7 +1415,10 @@ Cache_getProvides(CacheObject *self, PyObject *args)
         return self->_provides;
     }
     lst = PyDict_GetItem(self->_prvnames, name);
-    if (!lst) lst = PyList_New(0);
+    if (!lst)
+        lst = PyList_New(0);
+    else
+        Py_INCREF(lst);
     return lst;
 }
 
@@ -1428,7 +1434,10 @@ Cache_getRequires(CacheObject *self, PyObject *args)
         return self->_requires;
     }
     lst = PyDict_GetItem(self->_reqnames, name);
-    if (!lst) lst = PyList_New(0);
+    if (!lst)
+        lst = PyList_New(0);
+    else
+        Py_INCREF(lst);
     return lst;
 }
 
@@ -1444,7 +1453,10 @@ Cache_getObsoletes(CacheObject *self, PyObject *args)
         return self->_obsoletes;
     }
     lst = PyDict_GetItem(self->_obsnames, name);
-    if (!lst) lst = PyList_New(0);
+    if (!lst)
+        lst = PyList_New(0);
+    else
+        Py_INCREF(lst);
     return lst;
 }
 
@@ -1460,7 +1472,10 @@ Cache_getConflicts(CacheObject *self, PyObject *args)
         return self->_conflicts;
     }
     lst = PyDict_GetItem(self->_cnfnames, name);
-    if (!lst) lst = PyList_New(0);
+    if (!lst)
+        lst = PyList_New(0);
+    else
+        Py_INCREF(lst);
     return lst;
 }
 
