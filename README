@@ -83,7 +83,7 @@ the whole system, it will work even when there are broken
 relations in installed packages. Only relations related to
 the operation being made is checked for correctness.
 
-.. [1] Check `Study Cases`_ for real cases where the algorithm
+.. [1] Check `Case Studies`_ for real cases where the algorithm
        works better than what is implemented in other softwares.
 
 Multiple Interfaces
@@ -286,9 +286,9 @@ Dependencies
 	There are no extra dependencies besides the packaging scripts
 	`installpkg`, `upgradepkg` and `removepkg`.
 
------------
-Study Cases
------------
+------------
+Case Studies
+------------
 
 In this section will be described real cases showing `Smart` behavior
 in comparison with other tools, or handling unusual situations.
@@ -405,7 +405,8 @@ expected result is obtained::
 
  Confirm changes (Y/n)?
 
-Done.
+Smart correctly selected `glibc-gconvdata` for downgrading as the only
+possibility of performing the user requested operation.
 
 Case 2 - APT & YUM
 ------------------
@@ -596,7 +597,7 @@ problem, as shown below::
 
 Now, let's see how Smart would behave in the same situation::
 
-  [root@burma ~]% ./smart.py upgrade
+  [root@burma ~]% smart upgrade
   Loading cache...
   Updating cache...               ######################################## [100%]
   
@@ -611,6 +612,55 @@ Now, let's see how Smart would behave in the same situation::
 
 Smart correctly selects the intermediate version 1.5, which is the
 only viable possibility given the current options.
+
+
+Case 4 - APT
+------------
+
+This case presents the following situation: there's a package `A`,
+installed in the system, which depends on `libfoo`, currently
+being provided by `B` 1.0. What happens if `B` is upgraded to
+version 2.0, but `libfoo` is moved to be provided by package `C`?
+
+The expected behavior would be to upgrade `B` to version 2.0,
+and install `C` to satisfy `A`'s dependency.
+
+That's not what happens with APT::
+
+  [root@burma ~]% apt-get dist-upgrade
+  Reading Package Lists... Done
+  Building Dependency Tree... Done
+  Calculating Upgrade... Done
+  The following packages will be upgraded
+    B
+  The following packages will be REMOVED:
+    A
+  1 upgraded, 0 newly installed, 1 removed and 0 not upgraded.
+  Need to get 0B/1321B of archives.
+  After unpacking 0B of additional disk space will be used.
+  Do you want to continue? [Y/n]
+
+Let's see Smart in the same situation::
+
+  [root@burma ~]% smart upgrade
+  Loading cache...
+  Updating cache...               ######################################## [100%]
+  
+  Computing transaction...
+  
+  Upgrading packages (1):
+    B-2.0-1cl@i386
+  
+  Installed packages (1):
+    C-2.0-1cl@i386
+  
+  2.6kB of package files are needed.
+  
+  Confirm changes (Y/n)?
+
+Smart correctly selected package `C` for installation as a viable
+possibility of leaving `A` installed in the system while upgrading
+`B`.
 
 -------
 Credits
@@ -635,13 +685,20 @@ have somehow contributed to the project are mentioned.
 	tester, and contributed with many ideas, discussions, etc.
 
 :Arnaldo Carvalho de Melo:
-	Conectiva co-boss, helped with the "channel of mirrors" idea
-	and by encouraging me to build a generic channel information method.
+	Conectiva board member, helped with the "channel of mirrors" idea
+	and by encouraging the author to build a generic channel
+	information method.
 
 :Others @ Conectiva:
 	Many other people in Conectiva helped with ideas and
 	alpha-testing in general during the pre-release period of
 	Smart development.
+
+:Guilerme Manika & Ruda Moura:
+	Ancient Conectiva employees, now board members of the Haxent company,
+	helped by testing Smart extensively in Fedora, reporting many
+	bugs and suggesting changes. They have also created the Smart
+	FAQ_.
 
 :APT-RPM & Debian:
 	Experience on packaging and ideas for a better framework were
@@ -675,4 +732,6 @@ have somehow contributed to the project are mentioned.
 	Debian/Ubuntu developer and co-maintainer of the APT software,
 	helped by shining some light regarding details of the `DPKG`
 	pre-depends ordering expectations.
+
+.. _FAQ: http://zorked.net/smart/FAQ.html
 
