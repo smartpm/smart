@@ -127,6 +127,10 @@ class MirrorElement(object):
         self.origin = origin
         self.mirror = mirror
 
+        if (self.origin and self.origin[-1] == "/" and
+            self.mirror and self.mirror[-1] != "/"):
+            self.mirror += "/"
+
     def __cmp__(self, other):
         # Give priority to local files.
         rc = -cmp(self.mirror.startswith("file://"),
