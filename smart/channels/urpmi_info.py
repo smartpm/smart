@@ -30,7 +30,7 @@ Repository created for Mandrake's URPMI package manager.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
-           _("Base URL where RPMS/ directory is found")),
+           _("Base URL where packages are found under.")),
           ("hdlurl", _("Header List URL"), str, "",
-           _("URL for header list. If it's hdlist.cz inside "
-             "the given base URL, may be left empty."))]
+           _("URL for header list (hdlist or synthesis). If it's hdlist.cz "
+             "inside the given base URL, may be left empty."))]
