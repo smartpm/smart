@@ -288,6 +288,8 @@ def main(ctrl, opts):
                     print
 
     if opts.edit:
+        sysconf.assertWritable()
+        
         fd, name = tempfile.mkstemp(".ini")
         file = os.fdopen(fd, "w")
         for alias in sysconf.get("channels"):
