@@ -240,6 +240,9 @@ class Fetcher(object):
 
     def getHandlerInstance(self, item):
         scheme = item.getURL().scheme
+        proxy = sysconf.get("%s-proxy" % scheme)
+        if proxy:
+            os.environ["%s_proxy" % scheme] = proxy
         handler = self._handlers.get(scheme)
         if not handler:
             klass = self._registry.get(scheme)
