@@ -6,7 +6,7 @@
 <meta name="generator" content="Docutils 0.3.6: http://docutils.sourceforge.net/" />
 <title>Smart Package Manager</title>
 <meta name="author" content="Gustavo Niemeyer" />
-<meta name="date" content="2004-11-23 13:17:31 -0200 (Tue, 23 Nov 2004)" />
+<meta name="date" content="2004-11-25 15:58:25 -0200 (Thu, 25 Nov 2004)" />
 <link rel="stylesheet" href="default.css" type="text/css" />
 </head>
 <body>
@@ -20,9 +20,9 @@
 <tr><th class="docinfo-name">Contact:</th>
 <td><a class="first last reference" href="mailto:niemeyer&#64;conectiva.com">niemeyer&#64;conectiva.com</a></td></tr>
 <tr><th class="docinfo-name">Revision:</th>
-<td>349</td></tr>
+<td>380</td></tr>
 <tr><th class="docinfo-name">Date:</th>
-<td>2004-11-23 13:17:31 -0200 (Tue, 23 Nov 2004)</td></tr>
+<td>2004-11-25 15:58:25 -0200 (Thu, 25 Nov 2004)</td></tr>
 </tbody>
 </table>
 <div class="document" id="smart-package-manager">
@@ -51,9 +51,10 @@
 <li><a class="reference" href="#case-1-apt" id="id18" name="id18">Case 1 - APT</a></li>
 <li><a class="reference" href="#case-2-apt-yum" id="id19" name="id19">Case 2 - APT &amp; YUM</a></li>
 <li><a class="reference" href="#case-3-apt-yum" id="id20" name="id20">Case 3 - APT &amp; YUM</a></li>
+<li><a class="reference" href="#case-4-apt" id="id21" name="id21">Case 4 - APT</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#credits" id="id21" name="id21">Credits</a></li>
+<li><a class="reference" href="#credits" id="id22" name="id22">Credits</a></li>
 </ul>
 </div>
 <div class="section" id="overview">
@@ -426,7 +427,8 @@ Installed packages (4):
 
 Confirm changes (Y/n)?
 </pre>
-<p>Done.</p>
+<p>Smart correctly selected <cite>glibc-gconvdata</cite> for downgrading as the only
+possibility of performing the user requested operation.</p>
 </div>
 <div class="section" id="case-2-apt-yum">
 <h2><a class="toc-backref" href="#id19" name="case-2-apt-yum">Case 2 - APT &amp; YUM</a></h2>
@@ -602,7 +604,7 @@ Unsatisfied dependencies for A-2.0-1cl: B
 </pre>
 <p>Now, let's see how Smart would behave in the same situation:</p>
 <pre class="literal-block">
-[root&#64;burma ~]% ./smart.py upgrade
+[root&#64;burma ~]% smart upgrade
 Loading cache...
 Updating cache...               ######################################## [100%]
 
@@ -618,9 +620,54 @@ Confirm changes (Y/n)?
 <p>Smart correctly selects the intermediate version 1.5, which is the
 only viable possibility given the current options.</p>
 </div>
+<div class="section" id="case-4-apt">
+<h2><a class="toc-backref" href="#id21" name="case-4-apt">Case 4 - APT</a></h2>
+<p>This case presents the following situation: there's a package <cite>A</cite>,
+installed in the system, which depends on <cite>libfoo</cite>, currently
+being provided by <cite>B</cite> 1.0. What happens if <cite>B</cite> is upgraded to
+version 2.0, but <cite>libfoo</cite> is moved to be provided by package <cite>C</cite>?</p>
+<p>The expected behavior would be to upgrade <cite>B</cite> to version 2.0,
+and install <cite>C</cite> to satisfy <cite>A</cite>'s dependency.</p>
+<p>That's not what happens with APT:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% apt-get dist-upgrade
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Calculating Upgrade... Done
+The following packages will be upgraded
+  B
+The following packages will be REMOVED:
+  A
+1 upgraded, 0 newly installed, 1 removed and 0 not upgraded.
+Need to get 0B/1321B of archives.
+After unpacking 0B of additional disk space will be used.
+Do you want to continue? [Y/n]
+</pre>
+<p>Let's see Smart in the same situation:</p>
+<pre class="literal-block">
+[root&#64;burma ~]% smart upgrade
+Loading cache...
+Updating cache...               ######################################## [100%]
+
+Computing transaction...
+
+Upgrading packages (1):
+  B-2.0-1cl&#64;i386
+
+Installed packages (1):
+  C-2.0-1cl&#64;i386
+
+2.6kB of package files are needed.
+
+Confirm changes (Y/n)?
+</pre>
+<p>Smart correctly selected package <cite>C</cite> for installation as a viable
+possibility of leaving <cite>A</cite> installed in the system while upgrading
+<cite>B</cite>.</p>
+</div>
 </div>
 <div class="section" id="credits">
-<h1><a class="toc-backref" href="#id21" name="credits">Credits</a></h1>
+<h1><a class="toc-backref" href="#id22" name="credits">Credits</a></h1>
 <p>This is the credit section, where people and institutions that
 have somehow contributed to the project are mentioned.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -653,7 +700,7 @@ alpha-testing in general during the pre-release period of
 Smart development.</td>
 </tr>
 <tr class="field"><th class="field-name" colspan="2">Guilerme Manika &amp; Ruda Moura:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">Old Conectiva friends, now board members of the Haxent company,
+<tr><td>&nbsp;</td><td class="field-body">Ancient Conectiva employees, now board members of the Haxent company,
 helped by testing Smart extensively in Fedora, reporting many
 bugs and suggesting changes. They have also created the Smart
 <a class="reference" href="http://zorked.net/smart/FAQ.html">FAQ</a>.</td>
