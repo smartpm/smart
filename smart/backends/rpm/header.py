@@ -222,8 +222,12 @@ class RPMHeaderLoader(Loader):
                         r = CM.get(f[i]&CF)
                         if ((r is not None and r != "=") or
                             ((Prv, ni, vi) not in prvdict)):
-                            # RPMSENSE_PREREQ
-                            reqdict[(f[i]&64 and PreReq or Req,
+                            # RPMSENSE_PREREQ |
+                            # RPMSENSE_SCRIPT_PRE |
+                            # RPMSENSE_SCRIPT_PREUN |
+                            # RPMSENSE_SCRIPT_POST |
+                            # RPMSENSE_SCRIPT_POSTUN == 7744
+                            reqdict[(f[i]&7744 and PreReq or Req,
                                      intern(ni), r, vi)] = True
                 reqargs = reqdict.keys()
             else:
