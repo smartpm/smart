@@ -171,6 +171,9 @@ crpmver_splitarch(PyObject *self, PyObject *version)
     p = str+size;
     for (; p != str; p--) {
         if (*p == '.') {
+            const char *s = p;
+            while (s != str && *s != '-') s--;
+            if (s == str) break;
             ret = PyTuple_New(2);
             ver = PyString_FromStringAndSize(str, p-str);
             if (!ver) return NULL;

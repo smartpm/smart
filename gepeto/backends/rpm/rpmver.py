@@ -25,7 +25,8 @@ VERRE = re.compile("(?:([0-9]+):)?([^-]+)(?:-(.+))?")
 
 def splitarch(v):
     dot = v.rfind(".")
-    if dot == -1 or dot < v.rfind("-"):
+    slash = v.rfind("-")
+    if dot == -1 or slash == -1 or dot < slash:
         return v, None
     return v[:dot], v[dot+1:]
 
