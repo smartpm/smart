@@ -1,2 +1,2 @@
-recursive-include gepeto *.py *.c
+recursive-include gepeto *.py *.c *.png
 include gpt setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README

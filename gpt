@@ -24,7 +24,8 @@ from gepeto.option import OptionParser
 from gepeto.const import VERSION
 from gepeto import init
 from gepeto import *
-import sys
+import sys, os
+import pwd
 
 if sys.version_info < (2, 3):
     sys.exit("error: python 2.3 or later required")
@@ -69,6 +70,9 @@ def parse_options(argv):
     return opts
 
 def main(argv):
+    # Get the right $HOME, even when using sudo.
+    if os.getuid() == 0:
+        os.environ["HOME"] = pwd.getpwuid(0)[5]
     try:
         opts = parse_options(argv)
         ctrl = init(opts)

@@ -32,7 +32,7 @@ import os, md5
 class Control:
 
     def __init__(self, conffile=None):
-        self._conffile = CONFFILE
+        self._conffile = None
         self._confdigest = None
         self._channels = []
         self._sysconfchannels = []
@@ -70,6 +70,7 @@ class Control:
 
     def loadSysConf(self, conffile=None):
         loaded = False
+        datadir = sysconf.get("data-dir")
         if conffile:
             conffile = os.path.expanduser(conffile)
             if not os.path.isfile(conffile):
@@ -77,7 +78,7 @@ class Control:
             sysconf.load(conffile)
             loaded = True
         else:
-            conffile = os.path.expanduser(CONFFILE)
+            conffile = os.path.join(datadir, CONFFILE)
             if os.path.isfile(conffile):
                 sysconf.load(conffile)
                 loaded = True

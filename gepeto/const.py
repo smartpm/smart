@@ -45,7 +45,8 @@ SUCCEEDED = 4
 BLOCKSIZE = 16384
 
 DISTROFILE = "/usr/lib/gepeto/distro.py"
-CONFFILE = "~/.gepeto/config"
 DATADIR = "~/.gepeto/"
+GLOBALDATADIR = "/var/lib/gepeto/"
+CONFFILE = "config"
 
 # vim:ts=4:sw=4:et

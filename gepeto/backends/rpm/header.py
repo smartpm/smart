@@ -24,6 +24,7 @@ from gepeto.backends.rpm.crpmver import splitarch
 from gepeto.cache import Loader, PackageInfo
 from gepeto.backends.rpm import *
 from gepeto import *
+import locale
 import stat
 import rpm
 import os
@@ -40,6 +41,8 @@ CRPMTAG_UPDATE_SUMMARY    = 1000020
 CRPMTAG_UPDATE_IMPORTANCE = 1000021
 CRPMTAG_UPDATE_DATE       = 1000022
 CRPMTAG_UPDATE_URL        = 1000023
+
+ENCODING = locale.getpreferredencoding()
 
 class RPMHeaderPackageInfo(PackageInfo):
 
@@ -68,13 +71,13 @@ class RPMHeaderPackageInfo(PackageInfo):
         return self._loader.getMD5(self)
 
     def getDescription(self):
-        return self._h[rpm.RPMTAG_DESCRIPTION]
+        return self._h[rpm.RPMTAG_DESCRIPTION].decode(ENCODING)
 
     def getSummary(self):
-        return self._h[rpm.RPMTAG_SUMMARY]
+        return self._h[rpm.RPMTAG_SUMMARY].decode(ENCODING)
 
     def getGroup(self):
-        return self._package._group
+        return self._package._group.decode(ENCODING)
 
     def getPathList(self):
         if self._path is None:

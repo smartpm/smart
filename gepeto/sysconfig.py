@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.const import DATADIR, INFO
+from gepeto.const import GLOBALDATADIR, DATADIR, INFO
 from gepeto import *
 import cPickle
 import os
@@ -31,7 +31,11 @@ class SysConfig:
         self._weakmap = {}
         self._softmap = {}
         self.set("log-level", INFO, weak=True)
-        self.set("data-dir", os.path.expanduser(DATADIR), weak=True)
+        if os.getuid() == 0:
+            datadir = GLOBALDATADIR
+        else:
+            datadir = DATADIR
+        self.set("data-dir", os.path.expanduser(datadir), weak=True)
 
     def getMap(self):
         return self._map

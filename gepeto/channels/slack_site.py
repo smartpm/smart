@@ -29,7 +29,7 @@ import posixpath
 class SlackSiteChannel(Channel):
 
     def __init__(self, baseurl, *args):
-        Channel.__init__(self, *args):
+        Channel.__init__(self, *args)
         self._baseurl = baseurl
 
     def getFetchSteps(self):
