@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 /* Ripped from rpm. */
-int
+static int
 vercmppart(const char *a, const char *b)
 {
     char oldch1, oldch2;
@@ -74,7 +74,7 @@ vercmppart(const char *a, const char *b)
     if (!*one) return -1; else return 1;
 }
 
-int
+static int
 vercmpparts(const char *e1, const char *v1, const char *r1,
             const char *e2, const char *v2, const char *r2)
 {
@@ -95,7 +95,7 @@ vercmpparts(const char *e1, const char *v1, const char *r1,
     return vercmppart(r1, r2);
 }
 
-void
+static void
 parseversion(char *buf, char **e, char **v, char **r)
 {
     char *s = strrchr(buf, '-');
@@ -118,7 +118,7 @@ parseversion(char *buf, char **e, char **v, char **r)
     }
 }
 
-int
+static int
 vercmp(const char *s1, const char *s2)
 {
     char *e1, *v1, *r1, *e2, *v2, *r2;
@@ -133,7 +133,43 @@ vercmp(const char *s1, const char *s2)
     return vercmpparts(e1, v1, r1, e2, v2, r2);
 }
 
-PyObject *
+static PyObject *
+crpmver_splitarch(PyObject *self, PyObject *version)
+{
+    PyObject *ret, *ver, *arch;
+    const char *str, *p;
+    int size;
+    if (!PyString_Check(version)) {
+        PyErr_SetString(PyExc_TypeError, "version string expected");
+        return NULL;
+    }
+    str = PyString_AS_STRING(version);
+    size = PyString_GET_SIZE(version);
+    p = str+size;
+    for (; p != str; p--) {
+        if (*p == '.') {
+            ret = PyTuple_New(2);
+            ver = PyString_FromStringAndSize(str, p-str);
+            if (!ver) return NULL;
+            arch = PyString_FromStringAndSize(p+1, str+size-p-1);
+            if (!arch) return NULL;
+            PyTuple_SET_ITEM(ret, 0, ver);
+            PyTuple_SET_ITEM(ret, 1, arch);
+            return ret;
+        } else if (*p == '-') {
+            break;
+        }
+    }
+    ret = PyTuple_New(2);
+    if (!ret) return NULL;
+    Py_INCREF(version);
+    Py_INCREF(Py_None);
+    PyTuple_SET_ITEM(ret, 0, version);
+    PyTuple_SET_ITEM(ret, 1, Py_None);
+    return ret;
+}
+
+static PyObject *
 crpmver_checkdep(PyObject *self, PyObject *args)
 {
     const char *v1, *rel, *v2;
@@ -152,7 +188,7 @@ crpmver_checkdep(PyObject *self, PyObject *args)
     return ret;
 }
 
-PyObject *
+static PyObject *
 crpmver_vercmp(PyObject *self, PyObject *args)
 {
     const char *v1, *v2;
@@ -161,7 +197,7 @@ crpmver_vercmp(PyObject *self, PyObject *args)
     return PyInt_FromLong(vercmp(v1, v2));
 }
 
-PyObject *
+static PyObject *
 crpmver_vercmpparts(PyObject *self, PyObject *args)
 {
     const char *e1, *v1, *r1, *e2, *v2, *r2;
@@ -170,7 +206,7 @@ crpmver_vercmpparts(PyObject *self, PyObject *args)
     return PyInt_FromLong(vercmpparts(e1, v1, r1, e2, v2, r2));
 }
 
-PyObject *
+static PyObject *
 crpmver_vercmppart(PyObject *self, PyObject *args)
 {
     const char *a, *b;
@@ -180,6 +216,7 @@ crpmver_vercmppart(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef crpmver_methods[] = {
+    {"splitarch", (PyCFunction)crpmver_splitarch, METH_O, NULL},
     {"checkdep", (PyCFunction)crpmver_checkdep, METH_VARARGS, NULL},
     {"vercmp", (PyCFunction)crpmver_vercmp, METH_VARARGS, NULL},
     {"vercmpparts", (PyCFunction)crpmver_vercmpparts, METH_VARARGS, NULL},

@@ -97,11 +97,9 @@ class RPMHeaderLoader(Loader):
             epoch = h[1003] # RPMTAG_EPOCH
             if epoch is not None:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
-                #version = "%s:%s-%s.%s" % (epoch, h[1001], h[1002], arch)
                 version = "%s:%s-%s" % (epoch, h[1001], h[1002])
             else:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
-                #version = "%s-%s.%s" % (h[1001], h[1002], arch)
                 version = "%s-%s" % (h[1001], h[1002])
 
             n = h[1047] # RPMTAG_PROVIDENAME
@@ -153,7 +151,7 @@ class RPMHeaderLoader(Loader):
             else:
                 cnfargs = None
 
-            pkg = self.newPackage((Pkg, name, version),
+            pkg = self.newPackage((Pkg, name, "%s.%s" % (version, arch)),
                                   prvargs, reqargs, obsargs, cnfargs)
             pkg.loaderinfo[self] = offset
             self._offsets[offset] = pkg

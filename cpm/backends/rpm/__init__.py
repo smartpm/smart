@@ -1,10 +1,12 @@
 from cpm.backends.rpm.pm import RPMPackageManager
-#from rpmver import checkdep, vercmp
-from crpmver import checkdep, vercmp
+#from rpmver import checkdep, vercmp, splitarch
+from crpmver import checkdep, vercmp, splitarch
 from cpm.matcher import Matcher
 from cpm.cache import *
 import string
 import os, re
+
+from rpm import archscore
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMRequires",
            "RPMObsoletes", "RPMConflicts"]
@@ -55,13 +57,13 @@ class RPMMatcher(Matcher):
                     continue
             if version:
                 if type(version) is str:
-                    if vercmp(version, obj.version) != 0:
-                        if ":" not in version and ":" in obj.version:
-                            ov = obj.version
-                            version = ov[:ov.find(":")+1]+version
-                            if vercmp(version, obj.version) != 0:
-                                continue
-                        else:
+                    if ":" not in version and ":" in obj.version:
+                        ov = obj.version
+                        version = ov[:ov.find(":")+1]+version
+                    objver, objarch = splitarch(obj.version)
+                    if vercmp(version, objver) != 0:
+                        ver, arch = splitarch(version)
+                        if arch != objarch or vercmp(ver, objver) != 0:
                             continue
                 elif not version.match(obj.version):
                     continue
@@ -72,12 +74,25 @@ class RPMPackage(Package):
     packagemanager = RPMPackageManager
     matcher = RPMMatcher
 
+    def coexists(self, other):
+        if type(other) is not RPMPackage:
+            return True
+        # Do not accept two archs at the same time for now
+        selfver, selfarch = splitarch(self.version)
+        otherver, otherarch = splitarch(other.version)
+        return selfver != otherver
+
     def __cmp__(self, other):
         rc = -1
-        if isinstance(other, Package):
+        if type(other) is RPMPackage:
             rc = cmp(self.name, other.name)
-            if rc == 0:
-                rc = vercmp(self.version, other.version)
+            if rc == 0 and self.version != other.version:
+                selfver, selfarch = splitarch(self.version)
+                otherver, otherarch = splitarch(other.version)
+                if selfver != otherver:
+                    rc = vercmp(self.version, other.version)
+                if rc == 0:
+                    rc = -cmp(archscore(selfarch), archscore(otherarch))
         return rc
 
 class RPMProvides(Provides): pass

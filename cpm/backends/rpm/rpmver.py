@@ -2,6 +2,12 @@ import re
 
 VERRE = re.compile("(?:([0-9]+):)?([^-]+)(?:-(.+))?")
 
+def splitarch(v):
+    dot = v.rfind(".")
+    if dot == -1 or dot < v.rfind("-"):
+        return v, None
+    return v[:dot], v[dot+1:]
+
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)
     if cmp == 0:
