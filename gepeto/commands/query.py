@@ -24,6 +24,7 @@ from gepeto.matcher import MasterMatcher
 from gepeto.option import OptionParser
 from gepeto.cache import Provides, PreRequires
 from gepeto import *
+import fnmatch
 import string
 import re
 
@@ -33,34 +34,44 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE)
     parser.add_option("--installed", action="store_true",
                       help="consider only installed packages")
-    parser.add_option("--provides", action="store_true",
-                      help="show provides for the given packages")
-    parser.add_option("--requires", action="store_true",
-                      help="show requires for the given packages")
-    parser.add_option("--prerequires", action="store_true",
-                      help="show requires selecting only pre-dependencies")
-    parser.add_option("--upgrades", action="store_true",
-                      help="show upgrades for the given packages")
-    parser.add_option("--conflicts", action="store_true",
-                      help="show conflicts for the given packages")
-    parser.add_option("--providedby", action="store_true",
-                      help="show packages providing dependencies")
-    parser.add_option("--requiredby", action="store_true",
-                      help="show packages requiring provided information")
-    parser.add_option("--upgradedby", action="store_true",
-                      help="show packages upgrading provided information")
-    parser.add_option("--conflictedby", action="store_true",
-                      help="show packages conflicting with provided information")
-    parser.add_option("--whoprovides", action="append", default=[], metavar="DEP",
+    parser.add_option("--provides", action="append", default=[], metavar="DEP",
                       help="show only packages providing the given dependency")
-    parser.add_option("--whorequires", action="append", default=[], metavar="DEP",
+    parser.add_option("--requires", action="append", default=[], metavar="DEP",
                       help="show only packages requiring the given dependency")
-    parser.add_option("--whoconflicts", action="append", default=[], metavar="DEP",
+    parser.add_option("--conflicts", action="append", default=[], metavar="DEP",
                       help="show only packages conflicting with the given "
                            "dependency")
-    parser.add_option("--whoupgrades", action="append", default=[], metavar="DEP",
+    parser.add_option("--upgrades", action="append", default=[], metavar="DEP",
                       help="show only packages upgrading the given dependency")
-    parser.add_option("--priority", action="store_true",
+    parser.add_option("--name", action="append", default=[], metavar="STR",
+                      help="show only packages which match given name")
+    parser.add_option("--summary", action="append", default=[], metavar="STR",
+                      help="show only packages which match given summary")
+    parser.add_option("--description", action="append", default=[], metavar="STR",
+                      help="show only packages which match given description")
+    parser.add_option("--hide-version", action="store_true",
+                      help="hide package version")
+    parser.add_option("--show-summary", action="store_true",
+                      help="show package summaries")
+    parser.add_option("--show-provides", action="store_true",
+                      help="show provides for the given packages")
+    parser.add_option("--show-requires", action="store_true",
+                      help="show requires for the given packages")
+    parser.add_option("--show-prerequires", action="store_true",
+                      help="show requires selecting only pre-dependencies")
+    parser.add_option("--show-upgrades", action="store_true",
+                      help="show upgrades for the given packages")
+    parser.add_option("--show-conflicts", action="store_true",
+                      help="show conflicts for the given packages")
+    parser.add_option("--show-providedby", action="store_true",
+                      help="show packages providing dependencies")
+    parser.add_option("--show-requiredby", action="store_true",
+                      help="show packages requiring provided information")
+    parser.add_option("--show-upgradedby", action="store_true",
+                      help="show packages upgrading provided information")
+    parser.add_option("--show-conflictedby", action="store_true",
+                      help="show packages conflicting with provided information")
+    parser.add_option("--show-priority", action="store_true",
                       help="show package priority")
     opts, args = parser.parse_args(argv)
     opts.args = args
@@ -82,7 +93,7 @@ def main(opts, ctrl):
         packages = [pkg for pkg in packages if pkg.installed]
 
     whoprovides = []
-    for name in opts.whoprovides:
+    for name in opts.provides:
         if '=' in name:
             name, version = name.split('=')
         else:
@@ -95,7 +106,7 @@ def main(opts, ctrl):
         else:
             whoprovides.append(Provides(name, version))
     whorequires = []
-    for name in opts.whorequires:
+    for name in opts.requires:
         if '=' in name:
             name, version = name.split('=')
         else:
@@ -108,7 +119,7 @@ def main(opts, ctrl):
         else:
             whorequires.append(Provides(name, version))
     whoupgrades = []
-    for name in opts.whoupgrades:
+    for name in opts.upgrades:
         if '=' in name:
             name, version = name.split('=')
         else:
@@ -121,7 +132,7 @@ def main(opts, ctrl):
         else:
             whoupgrades.append(Provides(name, version))
     whoconflicts = []
-    for name in opts.whoconflicts:
+    for name in opts.conflicts:
         if '=' in name:
             name, version = name.split('=')
         else:
@@ -162,13 +173,51 @@ def main(opts, ctrl):
                             newpackages.append(pkg)
         packages = newpackages
 
+    hasname = []
+    for token in opts.name:
+        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
+        token = r"\s+".join(token.split())
+        hasname.append(re.compile(token))
+    hassummary = []
+    for token in opts.summary:
+        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
+        token = r"\s+".join(token.split())
+        hassummary.append(re.compile(token))
+    hasdescription = []
+    for token in opts.description:
+        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
+        token = r"\s+".join(token.split())
+        hasdescription.append(re.compile(token))
+
+    if hasname or hassummary or hasdescription:
+        newpackages = []
+        for pkg in cache.getPackages():
+            for pattern in hasname:
+                if pattern.search(pkg.name):
+                    newpackages.append(pkg)
+            if hassummary or hasdescription:
+                info = pkg.loaders.keys()[0].getInfo(pkg)
+                for pattern in hassummary:
+                    if pattern.search(info.getSummary()):
+                        newpackages.append(pkg)
+                for pattern in hasdescription:
+                    if pattern.search(info.getDescription()):
+                        newpackages.append(pkg)
+        packages = newpackages
+
     packages.sort()
     for pkg in packages:
-        if opts.priority:
-            print pkg, "{%s}" % pkg.getPriority()
+        if opts.hide_version:
+            print pkg.name,
         else:
-            print pkg
-        if pkg.provides and (opts.provides or whoprovides):
+            print pkg,
+        if opts.show_priority:
+            print "{%s}" % pkg.getPriority(),
+        if opts.show_summary:
+            info = pkg.loaders.keys()[0].getInfo(pkg)
+            print "-", info.getSummary(),
+        print
+        if pkg.provides and (opts.show_provides or whoprovides):
             pkg.provides.sort()
             first = True
             for prv in pkg.provides:
@@ -184,7 +233,7 @@ def main(opts, ctrl):
                     first = False
                     print "  Provides:"
                 print "   ", prv
-                if opts.requiredby and prv.requiredby:
+                if opts.show_requiredby and prv.requiredby:
                     print "      Required By:"
                     for req in prv.requiredby:
                         req.packages.sort()
@@ -195,28 +244,41 @@ def main(opts, ctrl):
                                 print "       ", "%s (%s) [pre]" % \
                                       (reqpkg, prv)
                             else:
-                                print "       ", "%s (%s)" % (reqpkg, prv)
-                if opts.upgradedby and prv.upgradedby:
+                                if opts.hide_version:
+                                    name = reqpkg.name
+                                else:
+                                    name = str(reqpkg)
+                                print "       ", "%s (%s)" % (name, prv)
+                if opts.show_upgradedby and prv.upgradedby:
                     print "      Upgraded By:"
                     for upg in prv.upgradedby:
                         upg.packages.sort()
                         for upgpkg in upg.packages:
                             if opts.installed and not upgpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (upgpkg, prv)
-                if opts.conflictedby and prv.conflictedby:
+                            if opts.hide_version:
+                                name = upgpkg.name
+                            else:
+                                name = str(upgpkg)
+                            print "       ", "%s (%s)" % (name, prv)
+                if opts.show_conflictedby and prv.conflictedby:
                     print "      Conflicted By:"
                     for cnf in prv.conflictedby:
                         cnf.packages.sort()
                         for cnfpkg in cnf.packages:
                             if opts.installed and not cnfpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (cnfpkg, prv)
-        if pkg.requires and (opts.requires or opts.prerequires or whorequires):
+                            if opts.hide_version:
+                                name = cnfpkg.name
+                            else:
+                                name = str(cnfpkg)
+                            print "       ", "%s (%s)" % (name, prv)
+        if pkg.requires and (opts.show_requires or opts.show_prerequires
+                             or whorequires):
             pkg.requires.sort()
             first = True
             for req in pkg.requires:
-                if opts.prerequires and not isinstance(req, PreRequires):
+                if opts.show_prerequires and not isinstance(req, PreRequires):
                     continue
                 if whorequires:
                     for whoreq in whorequires:
@@ -231,15 +293,19 @@ def main(opts, ctrl):
                     print "   ", req, "[pre]"
                 else:
                     print "   ", req
-                if opts.providedby and req.providedby:
+                if opts.show_providedby and req.providedby:
                     print "      Provided By:"
                     for prv in req.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
                             if opts.installed and not prvpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (prvpkg, prv)
-        if pkg.upgrades and (opts.upgrades or whoupgrades):
+                            if opts.hide_version:
+                                name = prvpkg.name
+                            else:
+                                name = str(prvpkg)
+                            print "       ", "%s (%s)" % (name, prv)
+        if pkg.upgrades and (opts.show_upgrades or whoupgrades):
             pkg.upgrades.sort()
             first = True
             for upg in pkg.upgrades:
@@ -253,15 +319,19 @@ def main(opts, ctrl):
                     first = False
                     print "  Upgrades:"
                 print "   ", upg
-                if opts.providedby and upg.providedby:
+                if opts.show_providedby and upg.providedby:
                     print "      Provided By:"
                     for prv in upg.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
                             if opts.installed and not prvpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (prvpkg, prv)
-        if pkg.conflicts and (opts.conflicts or whoconflicts):
+                            if opts.hide_version:
+                                name = prvpkg.name
+                            else:
+                                name = str(prvpkg)
+                            print "       ", "%s (%s)" % (name, prv)
+        if pkg.conflicts and (opts.show_conflicts or whoconflicts):
             pkg.conflicts.sort()
             first = True
             for cnf in pkg.conflicts:
@@ -275,13 +345,17 @@ def main(opts, ctrl):
                     first = False
                     print "  Conflicts:"
                 print "   ", cnf
-                if opts.providedby and cnf.providedby:
+                if opts.show_providedby and cnf.providedby:
                     print "      Provided By:"
                     for prv in cnf.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
                             if opts.installed and not prvpkg.installed:
                                 continue
-                            print "       ", "%s (%s)" % (prvpkg, prv)
+                            if opts.hide_version:
+                                name = prvpkg.name
+                            else:
+                                name = str(prvpkg)
+                            print "       ", "%s (%s)" % (name, prv)
 
 # vim:ts=4:sw=4:et
