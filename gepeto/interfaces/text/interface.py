@@ -93,4 +93,13 @@ class TextInterface(Interface):
             print
         return self.askYesNo("Confirm changes", True)
 
+    def insertRemovableChannels(self, channels):
+        print
+        print "Insert one or more of the following removable channels:"
+        print
+        for channel in channels:
+            print "   ", channel.getName()
+        print
+        return self.askOkCancel("Continue", True)
+
 # vim:ts=4:sw=4:et

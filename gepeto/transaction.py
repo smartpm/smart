@@ -1040,15 +1040,14 @@ class ChangeSetSplitter(object):
         else:
             locked = locked.copy()
 
-        if pkg in locked:
-            raise Error, "Package '%s' is locked" % pkg
-
-        locked[pkg] = True
-
         if pkg in subset:
             return
         if pkg not in set:
             raise Error, "Package '%s' is not in changeset" % pkg
+        if pkg in locked:
+            raise Error, "Package '%s' is locked" % pkg
+
+        locked[pkg] = True
 
         try:
             op = set[pkg]
@@ -1238,15 +1237,14 @@ class ChangeSetSplitter(object):
         else:
             locked = locked.copy()
 
+        if pkg not in subset:
+            return
+        if pkg not in set:
+            raise Error, "Package '%s' is not in changeset" % pkg
         if pkg in locked:
             raise Error, "Package '%s' is locked" % pkg
 
         locked[pkg] = True
-
-        if pkg not in set:
-            raise Error, "Package '%s' is not in changeset" % pkg
-        if pkg not in subset:
-            return
 
         op = set[pkg]
         try:

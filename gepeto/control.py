@@ -21,6 +21,8 @@
 #
 from gepeto.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from gepeto.channel import createChannel, FileChannel
+from gepeto.util.filetools import compareFiles
+from gepeto.media import MediaSet
 from gepeto.util.strtools import strToBool
 from gepeto.progress import Progress
 from gepeto.fetcher import Fetcher
@@ -42,6 +44,8 @@ class Control(object):
 
         self._cache = Cache()
         self._fetcher = Fetcher()
+        self._mediaset = self._fetcher.getMediaSet()
+        self._achanset = AvailableChannelSet(self._fetcher)
 
     def getChannels(self):
         return self._channels
@@ -72,6 +76,16 @@ class Control(object):
                 break
         else:
             raise Error, "Channel not found for '%s'" % filename
+
+    def askForRemovableChannels(self, channels):
+        removable = [x for x in channels if x.isRemovable()]
+        if not removable:
+            return True
+        self._mediaset.umountAll()
+        if not iface.insertRemovableChannels(removable):
+            return False
+        self._mediaset.mountAll()
+        return True
 
     def getCache(self):
         return self._cache
@@ -164,7 +178,7 @@ class Control(object):
         progress.set(0, steps)
         for channel in channels:
             self._cache.removeLoader(channel.getLoader())
-            if not manual and channel.getManualUpdate():
+            if not manual and channel.hasManualUpdate():
                 self._fetcher.setCaching(ALWAYS)
             else:
                 self._fetcher.setCaching(caching)
@@ -172,11 +186,15 @@ class Control(object):
                     progress.setTopic("Fetching information for '%s'..." %
                                   (channel.getName() or channel.getAlias()))
                     progress.show()
+            self._fetcher.setForceCopy(channel.isRemovable())
+            self._fetcher.setLocalPathPrefix(channel.getAlias()+"%%")
             try:
                 channel.fetch(self._fetcher, progress)
             except Error, e:
                 iface.error(str(e))
             self._cache.addLoader(channel.getLoader())
+        self._fetcher.setForceCopy(False)
+        self._fetcher.setLocalPathPrefix(None)
         progress.setStopped()
         progress.show()
         progress.stop()
@@ -187,54 +205,13 @@ class Control(object):
                 if (pkg.name, pkg.version) not in oldpkgs:
                     sysconf.setFlag("new", pkg.name, "=", pkg.version)
 
-    def fetchPackages(self, packages, caching=OPTIONAL, targetdir=None):
-        fetcher = self._fetcher
-        fetcher.reset()
-        fetcher.setCaching(caching)
-        if targetdir is None:
-            localdir = os.path.join(sysconf.get("data-dir"), "packages/")
-            if not os.path.isdir(localdir):
-                os.makedirs(localdir)
-            fetcher.setLocalDir(localdir, mangle=False)
-        else:
-            fetcher.setLocalDir(targetdir, mangle=False)
-        pkgitems = {}
-        for pkg in packages:
-            loader = [x for x in pkg.loaders if not x.getInstalled()][0]
-            info = loader.getInfo(pkg)
-            urls = info.getURLs()
-            pkgitems[pkg] = []
-            for url in urls:
-                pkgitems[pkg].append(fetcher.enqueue(url,
-                                                     md5=info.getMD5(url),
-                                                     sha=info.getSHA(url),
-                                                     size=info.getSize(url),
-                                                     validate=info.validate))
-        fetcher.run(what="packages")
-        failed = fetcher.getFailedSet()
-        if failed:
-            raise Error, "Failed to download packages:\n" + \
-                         "\n".join(["    %s: %s" % (url, failed[url])
-                                    for url in failed])
-        pkgpaths = {}
-        for pkg in packages:
-            pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
-        return pkgpaths
-
-    def fetchFiles(self, urllst, what, caching=NEVER, targetdir=None):
-        fetcher = self._fetcher
-        if targetdir is None:
-            localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
-            if not os.path.isdir(localdir):
-                os.makedirs(localdir)
-            fetcher.setLocalDir(localdir, mangle=True)
-        else:
-            fetcher.setLocalDir(targetdir, mangle=False)
-        fetcher.setCaching(caching)
-        for url in urllst:
-            fetcher.enqueue(url)
-        fetcher.run(what=what)
-        return fetcher.getSucceededSet(), fetcher.getFailedSet()
+        # Remove unused files from channels dir.
+        aliases = dict.fromkeys([x.getAlias() for x in self._channels], True)
+        aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
+        for entry in os.listdir(localdir):
+            sep = entry.find("%%")
+            if sep == -1 or entry[:sep] not in aliases:
+                os.unlink(os.path.join(localdir, entry))
 
     def dumpTransactionURLs(self, trans, output=None):
         changeset = trans.getChangeSet()
@@ -254,14 +231,47 @@ class Control(object):
         for url in urls:
             print >>output, url
 
+    def downloadURLs(self, urllst, what, caching=NEVER, targetdir=None):
+        fetcher = self._fetcher
+        if targetdir is None:
+            localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
+            if not os.path.isdir(localdir):
+                os.makedirs(localdir)
+            fetcher.setLocalDir(localdir, mangle=True)
+        else:
+            fetcher.setLocalDir(targetdir, mangle=False)
+        fetcher.setCaching(caching)
+        for url in urllst:
+            fetcher.enqueue(url)
+        fetcher.run(what=what)
+        return fetcher.getSucceededSet(), fetcher.getFailedSet()
+
     def downloadTransaction(self, trans, caching=OPTIONAL, confirm=True):
         return self.downloadChangeSet(trans.getChangeSet(), caching, confirm)
 
-    def downloadChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
+    def downloadChangeSet(self, changeset, caching=OPTIONAL, targetdir=None,
+                          confirm=True):
         if confirm and not iface.confirmChangeSet(changeset):
             return False
-        self.fetchPackages([pkg for pkg in changeset
-                            if changeset[pkg] is INSTALL], caching)
+        return self.downloadPackages([x for x in changeset
+                                      if changeset[x] is INSTALL],
+                                     caching, targetdir)
+
+    def downloadPackages(self, packages, caching=OPTIONAL, targetdir=None):
+        channels = getChannelsWithPackages(packages)
+        fetched = 0
+        while True:
+            if not self.askForRemovableChannels(channels):
+                return False
+            self._achanset.setChannels(channels)
+            fetchpkgs = []
+            for channel in channels:
+                if self._achanset.isAvailable(channel):
+                    fetchpkgs.extend(channels[channel])
+            self.fetchPackages(fetchpkgs, caching, targetdir)
+            fetched += len(fetchpkgs)
+            if fetched == len(packages):
+                break
         return True
 
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
@@ -270,8 +280,7 @@ class Control(object):
     def commitChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
         if confirm and not iface.confirmChangeSet(changeset):
             return False
-        pkgpaths = self.fetchPackages([pkg for pkg in changeset
-                                       if changeset[pkg] is INSTALL], caching)
+
         pmpkgs = {}
         for pkg in changeset:
             pmclass = pkg.packagemanager
@@ -279,19 +288,73 @@ class Control(object):
                 pmpkgs[pmclass] = [pkg]
             else:
                 pmpkgs[pmclass].append(pkg)
-        for pmclass in pmpkgs:
-            pm = pmclass()
-            pminstall = [pkg for pkg in pmpkgs[pmclass]
-                         if changeset[pkg] is INSTALL]
-            pmremove  = [pkg for pkg in pmpkgs[pmclass]
-                         if changeset[pkg] is REMOVE]
-            pm.commit(pminstall, pmremove, pkgpaths)
 
-        datadir = sysconf.get("data-dir")
-        for pkg in pkgpaths:
-            for path in pkgpaths[pkg]:
-                if path.startswith(datadir):
-                    os.unlink(path)
+        channels = getChannelsWithPackages([x for x in changeset
+                                            if changeset[x] is INSTALL])
+        splitter = ChangeSetSplitter(changeset)
+        donecs = ChangeSet(self._cache)
+        copypkgpaths = {}
+        while True:
+            if not self.askForRemovableChannels(channels):
+                return False
+            self._achanset.setChannels(channels)
+            splitter.resetLocked()
+            splitter.setLockedSet(dict.fromkeys(donecs, True))
+            cs = changeset.copy()
+            for channel in channels:
+                if not self._achanset.isAvailable(channel):
+                    for pkg in channels[channel]:
+                        if pkg not in donecs:
+                            splitter.exclude(cs, pkg)
+            cs = cs.difference(donecs)
+            donecs.update(cs)
+
+            if not cs: continue
+
+            pkgpaths = self.fetchPackages([pkg for pkg in cs
+                                           if pkg not in copypkgpaths
+                                              and cs[pkg] is INSTALL], caching)
+            for pkg in cs:
+                if pkg in copypkgpaths:
+                    pkgpaths[pkg] = copypkgpaths[pkg]
+                    del copypkgpaths[pkg]
+
+            for pmclass in pmpkgs:
+                pminstall = []
+                pmremove = []
+                for pkg in pmpkgs[pmclass]:
+                    if cs.get(pkg) is INSTALL:
+                        pminstall.append(pkg)
+                    elif cs.get(pkg) is REMOVE:
+                        pmremove.append(pkg)
+                pmclass().commit(pminstall, pmremove, pkgpaths)
+
+            datadir = sysconf.get("data-dir")
+            for pkg in pkgpaths:
+                for path in pkgpaths[pkg]:
+                    if path.startswith(datadir):
+                        os.unlink(path)
+
+            if donecs == changeset:
+                break
+
+            copypkgs = []
+            for channel in channels.keys():
+                if self._achanset.isAvailable(channel):
+                    pkgs = [pkg for pkg in channels[channel] if pkg not in cs]
+                    if not pkgs:
+                        del channels[channel]
+                    elif channel.isRemovable():
+                        copypkgs.extend(pkgs)
+                        del channels[channel]
+                    else:
+                        channels[channel] = pkgs
+            
+            self._fetcher.setForceCopy(True)
+            copypkgpaths.update(self.fetchPackages(copypkgs, caching))
+            self._fetcher.setForceCopy(False)
+
+        self._mediaset.restoreState()
 
         return True
 
@@ -328,5 +391,177 @@ class Control(object):
             self.commitChangeSet(cs)
 
         return True
+
+    def fetchPackages(self, packages, caching=OPTIONAL, targetdir=None):
+        fetcher = self._fetcher
+        fetcher.reset()
+        fetcher.setCaching(caching)
+        if targetdir is None:
+            localdir = os.path.join(sysconf.get("data-dir"), "packages/")
+            if not os.path.isdir(localdir):
+                os.makedirs(localdir)
+            fetcher.setLocalDir(localdir, mangle=False)
+        else:
+            fetcher.setLocalDir(targetdir, mangle=False)
+        pkgitems = {}
+        for pkg in packages:
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    continue
+                channel = loader.getChannel()
+                if self._achanset.isAvailable(channel):
+                    break
+            else:
+                raise Error, "No channel available for package %s" % pkg
+            info = loader.getInfo(pkg)
+            urls = info.getURLs()
+            pkgitems[pkg] = []
+            for url in urls:
+                media = self._achanset.getMedia(channel)
+                pkgitems[pkg].append(fetcher.enqueue(url, media=media,
+                                                     md5=info.getMD5(url),
+                                                     sha=info.getSHA(url),
+                                                     size=info.getSize(url),
+                                                     validate=info.validate))
+        if targetdir:
+            fetcher.setForceCopy(True)
+        fetcher.run(what="packages")
+        fetcher.setForceCopy(False)
+        failed = fetcher.getFailedSet()
+        if failed:
+            raise Error, "Failed to download packages:\n" + \
+                         "\n".join(["    %s: %s" % (url, failed[url])
+                                    for url in failed])
+        pkgpaths = {}
+        for pkg in packages:
+            pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
+        return pkgpaths
+
+
+class AvailableChannelSet(object):
+
+    def __init__(self, fetcher, channels=None, progress=None):
+        self._channels = channels or []
+        self._fetcher = fetcher
+        self._progress = progress or Progress()
+        self._available = {}
+        self._media = {}
+        if self._channels:
+            self.compute()
+
+    def setChannels(self, channels):
+        self._channels = channels
+        self.compute()
+
+    def isAvailable(self, channel):
+        return channel in self._available
+
+    def getMedia(self, channel):
+        return self._media.get(channel)
+
+    def compute(self):
+
+        self._available.clear()
+        self._media.clear()
+
+        fetcher = self._fetcher
+        progress = self._progress
+        mediaset = fetcher.getMediaSet()
+
+        steps = 0
+        for channel in self._channels:
+            steps += len(channel.getCacheCompareURLs())
+
+        progress.start()
+        progress.set(0, steps*2)
+
+        for channel in self._channels:
+
+            if not channel.isRemovable():
+                self._available[channel] = True
+                progress.add(2)
+                continue
+
+            urls = channel.getCacheCompareURLs()
+            if not urls:
+                self._available[channel] = False
+                progress.add(2)
+                continue
+
+            datadir = sysconf.get("data-dir")
+            tmpdir = os.path.join(datadir, "tmp/")
+            if not os.path.isdir(tmpdir):
+                os.makedirs(tmpdir)
+            channelsdir = os.path.join(datadir, "channels/")
+            if not os.path.isdir(channelsdir):
+                self._available[channel] = False
+                progress.add(2)
+                continue
+
+            media = None
+            available = False
+            for url in urls:
+
+                # Fetch cached item.
+                fetcher.reset()
+                fetcher.setLocalDir(channelsdir, mangle=True)
+                fetcher.setCaching(ALWAYS)
+                fetcher.setForceCopy(True)
+                fetcher.setLocalPathPrefix(channel.getAlias()+"%%")
+                channelsitem = fetcher.enqueue(url)
+                fetcher.run("channels", progress=progress)
+                fetcher.setForceCopy(False)
+                fetcher.setLocalPathPrefix(None)
+                if channelsitem.getStatus() is FAILED:
+                    progress.add(1)
+                    break
+
+                if url.startswith("localmedia:/"):
+                    progress.add(1)
+                    channelspath = channelsitem.getTargetPath()
+                    media = mediaset.findFile(url, comparepath=channelspath)
+                    if not media:
+                        break
+                else:
+                    # Fetch temporary item.
+                    fetcher.reset()
+                    fetcher.setLocalDir(tmpdir, mangle=True)
+                    fetcher.setCaching(NEVER)
+                    tmpitem = fetcher.enqueue(url)
+                    fetcher.run("tmp", progress=progress)
+                    if tmpitem.getStatus() is FAILED:
+                        break
+
+                    # Compare items.
+                    channelspath = channelsitem.getTargetPath()
+                    tmppath = tmpitem.getTargetPath()
+
+                    if not compareFiles(channelspath, tmppath):
+                        if tmppath.startswith(datadir):
+                            os.unlink(tmppath)
+                        break
+            else:
+                self._available[channel] = True
+                if media:
+                    self._media[channel] = media
+
+        progress.stop()
+
+def getChannelsWithPackages(packages):
+    channels = {}
+    for pkg in packages:
+        channel = None
+        for loader in pkg.loaders:
+            if loader.getInstalled():
+                continue
+            channel = loader.getChannel()
+            if not channel.isRemovable():
+                break
+        assert channel, "Received invalid package set"
+        try:
+            channels[channel].append(pkg)
+        except KeyError:
+            channels[channel] = [pkg]
+    return channels
 
 # vim:ts=4:sw=4:et

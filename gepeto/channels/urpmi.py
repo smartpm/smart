@@ -35,6 +35,9 @@ class URPMIChannel(Channel):
         self._hdlurl = hdlurl
         self._baseurl = baseurl
 
+    def getCacheCompareURLs(self):
+        return [posixpath.join(self._baseurl, "MD5SUM")]
+
     def getFetchSteps(self):
         return 2
 
@@ -96,6 +99,7 @@ def create(type, alias, data):
     description = None
     priority = 0
     manual = False
+    removable = False
     hdlurl = None
     baseurl = None
     if isinstance(data, dict):
@@ -103,6 +107,7 @@ def create(type, alias, data):
         description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
+        removable = strToBool(data.get("removable", False))
         hdlurl = data.get("hdlurl")
         baseurl = data.get("baseurl")
     elif getattr(data, "tag", None) == "channel":
@@ -115,6 +120,8 @@ def create(type, alias, data):
                 priority = n.text
             elif n.tag == "manual":
                 manual = strToBool(n.text)
+            elif n.tag == "removable":
+                removable = strToBool(n.text)
             elif n.tag == "hdlurl":
                 hdlurl = n.text
             elif n.tag == "baseurl":
@@ -129,7 +136,7 @@ def create(type, alias, data):
         priority = int(priority)
     except ValueError:
         raise Error, "Invalid priority"
-    return URPMIChannel(hdlurl, baseurl,
-                        type, alias, name, description, priority, manual)
+    return URPMIChannel(hdlurl, baseurl, type, alias, name, description,
+                        priority, manual, removable)
 
 # vim:ts=4:sw=4:et

@@ -32,6 +32,9 @@ class SlackSiteChannel(Channel):
         Channel.__init__(self, *args)
         self._baseurl = baseurl
 
+    def getCacheCompareURLs(self):
+        return [posixpath.join(self._baseurl, "PACKAGES.TXT")]
+
     def getFetchSteps(self):
         return 1
 
@@ -57,12 +60,14 @@ def create(type, alias, data):
     description = None
     priority = 0
     manual = False
+    removable = False
     baseurl = None
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
+        removable = strToBool(data.get("removable", False))
         baseurl = data.get("baseurl")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
@@ -74,6 +79,8 @@ def create(type, alias, data):
                 priority = n.text
             elif n.tag == "manual":
                 manual = strToBool(n.text)
+            elif n.tag == "removable":
+                removable = strToBool(n.text)
             elif n.tag == "baseurl":
                 baseurl = n.text
     else:
@@ -84,7 +91,7 @@ def create(type, alias, data):
         priority = int(priority)
     except ValueError:
         raise Error, "Invalid priority"
-    return SlackSiteChannel(baseurl,
-                            type, alias, name, description, priority, manual)
+    return SlackSiteChannel(baseurl, type, alias, name, description,
+                            priority, manual, removable)
 
 # vim:ts=4:sw=4:et

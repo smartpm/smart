@@ -19,14 +19,24 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto import Error
+from gepeto.const import BLOCKSIZE
+import md5, os
 
-def create(interactive):
-    if 0 and interactive:
-        raise Error, "text interface has no interactive support yet"
-    else:
-        from gepeto.interfaces.text.interface import TextInterface
-        return TextInterface()
-
-# vim:ts=4:sw=4:et
-
+def compareFiles(path1, path2):
+    if not os.path.isfile(path1) or not os.path.isfile(path2):
+        return False
+    if os.path.getsize(path1) != os.path.getsize(path2):
+        return False
+    path1sum = md5.md5()
+    path2sum = md5.md5()
+    for path, sum in [(path1, path1sum), (path2, path2sum)]:
+        file = open(path)
+        while True:
+            data = file.read(BLOCKSIZE)
+            if not data:
+                break
+            sum.update(data)
+        file.close()
+    if path1sum.digest() != path2sum.digest():
+        return False
+    return True

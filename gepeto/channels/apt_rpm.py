@@ -45,6 +45,9 @@ class APTRPMChannel(Channel):
 
         self._loader = LoaderSet()
 
+    def getCacheCompareURLs(self):
+        return [posixpath.join(self._baseurl, "base/release")]
+
     def getFetchSteps(self):
         return len(self._comps)*2+1
 
@@ -211,6 +214,7 @@ def create(type, alias, data):
     description = None
     priority = 0
     manual = False
+    removable = False
     baseurl = None
     comps = None
     fingerprint = None
@@ -221,6 +225,7 @@ def create(type, alias, data):
         comps = (data.get("components") or "").split()
         priority = data.get("priority", 0)
         manual = strToBool(data.get("manual", False))
+        removable = strToBool(data.get("removable", False))
         fingerprint = data.get("fingerprint")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
@@ -232,6 +237,8 @@ def create(type, alias, data):
                 priority = n.text
             elif n.tag == "manual":
                 manual = strToBool(n.text)
+            elif n.tag == "removable":
+                removable = strToBool(n.text)
             elif n.tag == "baseurl":
                 baseurl = n.text
             elif n.tag == "components":
@@ -247,6 +254,7 @@ def create(type, alias, data):
     except ValueError:
         raise Error, "Invalid priority"
     return APTRPMChannel(baseurl, comps, fingerprint,
-                         type, alias, name, description, priority, manual)
+                         type, alias, name, description,
+                         priority, manual, removable)
 
 # vim:ts=4:sw=4:et

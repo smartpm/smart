@@ -33,6 +33,9 @@ class RPMRedCarpetChannel(Channel):
         self._baseurl = baseurl
         self._packageinfourl = packageinfourl
 
+    def getCacheCompareURLs(self):
+        return [posixpath.join(self._baseurl, "packageinfo.xml.gz")]
+
     def getFetchSteps(self):
         return 1
 
@@ -60,13 +63,15 @@ def create(type, alias, data):
     description = None
     priority = 0
     manual = False
+    removable = False
     baseurl = None
     if isinstance(data, dict):
         name = data.get("name")
         description = data.get("description")
         priority = data.get("priority", 0)
-        manual = data.get("manual", False)
-        baseurl = strToBool(data.get("baseurl"))
+        manual = strToBool(data.get("manual", False))
+        removable = strToBool(data.get("removable", False))
+        baseurl = data.get("baseurl")
         packageinfourl = data.get("packageinfourl")
     elif getattr(data, "tag", None) == "channel":
         for n in data.getchildren():
@@ -78,6 +83,8 @@ def create(type, alias, data):
                 priority = n.text
             elif n.tag == "manual":
                 manual = strToBool(n.text)
+            elif n.tag == "removable":
+                removable = strToBool(n.text)
             elif n.tag == "baseurl":
                 baseurl = n.text
             elif n.tag == "packageinfourl":
@@ -92,6 +99,6 @@ def create(type, alias, data):
         raise Error, "Invalid priority"
     return RPMRedCarpetChannel(baseurl, packageinfourl,
                                type, alias, name, description,
-                               priority, manual)
+                               priority, manual, removable)
 
 # vim:ts=4:sw=4:et

@@ -21,6 +21,7 @@
 #
 from gepeto.uncompress import Uncompressor
 from gepeto.mirror import MirrorSystem
+from media import MediaSet
 from gepeto.const import *
 from gepeto import *
 import tempfile
@@ -39,6 +40,7 @@ class Fetcher(object):
 
     def __init__(self):
         self._uncompressor = Uncompressor()
+        self._mediaset = MediaSet()
         self._uncompressing = 0
         self._localdir = tempfile.gettempdir()
         self._mirror = MirrorSystem()
@@ -46,6 +48,8 @@ class Fetcher(object):
         self._caching = OPTIONAL
         self._items = {}
         self._handlers = {}
+        self._forcecopy = False
+        self._localpathprefix = None
 
     def reset(self):
         self._items.clear()
@@ -74,6 +78,9 @@ class Fetcher(object):
     def getUncompressor(self):
         return self._uncompressor
 
+    def getMediaSet(self):
+        return self._mediaset
+
     def getCaching(self):
         return self._caching
 
@@ -87,15 +94,15 @@ class Fetcher(object):
     def getLocalDir(self):
         return self._localdir
 
-    def getLocalPath(self, obj):
-        if isinstance(obj, URL):
-            url = obj.original
-        elif isinstance(obj, FetchItem):
-            url = obj.getOriginalURL()
-        elif type(obj) is str:
-            url = obj
-        else:
-            raise Error, "getLocalPath() can't handle %s" % repr(obj)
+    def setLocalPathPrefix(self, prefix):
+        self._localpathprefix = prefix
+
+    def getLocalPathPrefix(self):
+        return self._localpathprefix
+
+    def getLocalPath(self, item):
+        assert isinstance(item, FetchItem)
+        url = item.getOriginalURL()
         if self._mangle:
             filename = url.replace("/", "_")
         else:
@@ -104,7 +111,15 @@ class Fetcher(object):
             path, query = urllib.splitquery(path)
             path = urllib.unquote(path)
             filename = os.path.basename(path)
+        if self._localpathprefix:
+            filename = self._localpathprefix+filename
         return os.path.join(self._localdir, filename)
+
+    def setForceCopy(self, value):
+        self._forcecopy = value
+
+    def getForceCopy(self):
+        return self._forcecopy
 
     def enqueue(self, url, **info):
         if url in self._items:
@@ -380,6 +395,8 @@ class FetchItem(object):
         self._info.update(info)
 
     def start(self):
+        if self._status is RUNNING:
+            return
         self._status = RUNNING
         self._starttime = time.time()
         prog = self._progress
@@ -434,9 +451,10 @@ class URL(object):
         if ":/" not in url:
             raise Error, "Invalid URL: %s" % url
         self.scheme, rest = urllib.splittype(url)
-        if self.scheme == "file":
+        if self.scheme in ("file", "localmedia"):
+            scheme = self.scheme
             self.reset()
-            self.scheme = "file"
+            self.scheme = scheme
             self.original = url
             self.path = os.path.normpath(rest)
             if self.path.startswith("//"):
@@ -535,43 +553,126 @@ class FetcherHandler(object):
 
 class FileHandler(FetcherHandler):
 
+    RETRIES = 3
+
+    def __init__(self, *args):
+        FetcherHandler.__init__(self, *args)
+        self._active = False
+
     def getLocalPath(self, item):
-        return item.getURL().path
+        if self._fetcher.getForceCopy():
+            return FetcherHandler.getLocalPath(self, item)
+        else:
+            return item.getURL().path
 
     def runLocal(self):
-        # First, handle compressed files without uncompressed
-        # versions available.
-        fetcher = self._fetcher
-        uncompressor = fetcher.getUncompressor()
-        for i in range(len(self._queue)-1,-1,-1):
-            item = self._queue[i]
-            localpath = self.getLocalPath(item)
-            uncomphandler = uncompressor.getHandler(localpath)
-            if (uncomphandler and not
-                os.path.isfile(uncomphandler.getTargetPath(localpath))):
-                valid, reason = fetcher.validate(item, localpath,
-                                                 withreason=True)
-                if valid:
-                    linkpath = self._fetcher.getLocalPath(item)
-                    if os.path.isfile(linkpath):
+        if self._fetcher.getForceCopy():
+            FetcherHandler.runLocal(self)
+        else:
+            # First, handle compressed files without uncompressed
+            # versions available.
+            fetcher = self._fetcher
+            uncompressor = fetcher.getUncompressor()
+            for i in range(len(self._queue)-1,-1,-1):
+                item = self._queue[i]
+                localpath = self.getLocalPath(item)
+                media = self._fetcher.getMediaSet() \
+                                     .findMountPoint(localpath, subpath=True)
+                if media:
+                    media.mount()
+                uncomphandler = uncompressor.getHandler(localpath)
+                if (uncomphandler and not
+                    os.path.isfile(uncomphandler.getTargetPath(localpath))):
+                    valid, reason = fetcher.validate(item, localpath,
+                                                     withreason=True)
+                    if valid:
+                        linkpath = self._fetcher.getLocalPath(item)
+                        if os.path.isfile(linkpath):
+                            os.unlink(linkpath)
+                        os.symlink(localpath, linkpath)
+                        uncomppath = uncomphandler.getTargetPath(linkpath)
+                        uncomphandler.uncompress(linkpath)
+                        valid, reason = fetcher.validate(item, uncomppath,
+                                                         withreason=True,
+                                                         uncomp=True)
                         os.unlink(linkpath)
-                    os.symlink(localpath, linkpath)
-                    uncomppath = uncomphandler.getTargetPath(linkpath)
-                    uncomphandler.uncompress(linkpath)
-                    valid, reason = fetcher.validate(item, uncomppath,
-                                                     withreason=True,
-                                                     uncomp=True)
-                    os.unlink(linkpath)
-                if valid:
-                    item.setSucceeded(uncomppath)
-                else:
-                    item.setFailed(reason)
-                del self._queue[i]
+                    if valid:
+                        item.setSucceeded(uncomppath)
+                    else:
+                        item.setFailed(reason)
+                    del self._queue[i]
 
-        # Then, everything else.
-        FetcherHandler.runLocal(self, caching=ALWAYS)
+            # Then, everything else.
+            FetcherHandler.runLocal(self, caching=ALWAYS)
+
+    def tick(self):
+        if self._queue and not self._active:
+            self._active = True
+            thread.start_new_thread(self.copy, ())
+        return self._active
+
+    def copy(self):
+        while self._queue:
+            item = self._queue.pop(0)
+            item.start()
+            retries = 0
+            filepath = item.getURL().path
+            localpath = self.getLocalPath(item)
+            assert filepath != localpath
+            while retries < self.RETRIES:
+                try:
+                    input = open(filepath)
+                    output = open(localpath, "w")
+                    while True:
+                        data = input.read(BLOCKSIZE)
+                        if not data:
+                            break
+                        output.write(data)
+                except (IOError, OSError), e:
+                    error = str(e)
+                    retries += 1
+                else:
+                    item.setSucceeded(localpath)
+                    break
+            else:
+                item.setFailed(error)
+        self._active = False
 
 Fetcher.setHandler("file", FileHandler)
+
+class LocalMediaHandler(FileHandler):
+
+    def runLocal(self):
+        if not self._fetcher.getForceCopy():
+            # When not copying, convert earlier to get local files
+            # from the media.
+            self.convertToFile()
+        FileHandler.runLocal(self)
+
+    def start(self):
+        self.convertToFile()
+        FileHandler.start(self)
+
+    def convertToFile(self):
+        mediaset = self._fetcher.getMediaSet()
+        for i in range(len(self._queue)-1,-1,-1):
+            item = self._queue[i]
+            itempath = item.getURL().path
+            media = item.getInfo("media")
+            if not media:
+                media = mediaset.getDefault()
+                if media:
+                    media.mount()
+                else:
+                    mediaset.mountAll()
+                    media = mediaset.findFile(itempath)
+                if not media or not media.isMounted():
+                    item.setFailed("Media not found")
+                    del self._queue[i]
+                    continue
+            item.setURL(media.joinURL(itempath))
+
+Fetcher.setHandler("localmedia", LocalMediaHandler)
 
 class FTPHandler(FetcherHandler):
 

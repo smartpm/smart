@@ -83,7 +83,7 @@ def main(opts, ctrl):
         if opts.urls:
             ctrl.dumpURLs(packages)
         else:
-            ctrl.fetchPackages(packages, targetdir=opts.target)
+            ctrl.downloadPackages(packages, targetdir=opts.target)
     elif opts.from_urls:
         urls = []
         for arg in opts.from_urls:
@@ -93,6 +93,6 @@ def main(opts, ctrl):
                 urls.extend([x.strip() for x in open(arg)])
             else:
                 raise Error, "Argument is not a file nor url: %s" % arg
-        ctrl.fetchFiles(urls, "URLs", targetdir=opts.target)
+        ctrl.downloadFiles(urls, "URLs", targetdir=opts.target)
 
 # vim:ts=4:sw=4:et

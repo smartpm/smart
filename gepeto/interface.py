@@ -62,6 +62,9 @@ class Interface(object):
     def confirmChange(self, oldchangeset, newchangeset):
         return True
 
+    def insertRemovableChannels(self, channels):
+        raise Error, "insertRemovableChannels() not implemented"
+
     def error(self, msg):
         if sysconf.get("log-level", INFO) >= ERROR:
             self.message(ERROR, msg)

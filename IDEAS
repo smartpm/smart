@@ -9,20 +9,23 @@ Downloading and committing
 
 - Partial installer may copy to the fixed disk only these entries
   for which there are missing pre-requires.
-- Removable repositories are normal repositories with special media
-  ID, and a mark saying where the removable media mounting point
-  starts.
 
 Removable repositories
 ----------------------
 
-- Use a file in the removable media in a standard place
-  to inform the repository type/position.
 - Ask channel to check if repository is available somewhere.
 - Remove packages for unavailable media and ask to replace
   it when the current transaction has been committed.
-- Removable repositories may be remote as well (?)
-- Check all removable mount points instead of a single one.
+- Removable repositories may be remote as well.
+- Use localmedia:// for repositories which may be stored on any
+  local media (not *one* path like /mnt/cdrom).
+- Use a file in the removable media in a standard place
+  to inform the repository type/position/name/etc.
+- Implement autodetection of channels by introducing an
+  autodetect() function in the channel info file.
+- Implement plugins which detect different kinds of
+  localmedia (autofs, fstab, supermount, etc), with different
+  notions of mounting/unmounting/etc.
 
 Mirror system
 -------------
@@ -48,12 +51,6 @@ Priority system
   found somewhere.
 - Priority is used to compute the best choice when multiple options
   are available to satisfy a dependency.
-
-Removable media handling
-------------------------
-
-- Use the concept of removable channels.
-- A channel may be queried if it is removable and if it is available.
 
 Repositories
 ------------

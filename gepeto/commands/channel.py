@@ -141,7 +141,7 @@ def main(opts, ctrl):
                 data = open(arg).read()
                 newchannels = parseChannelDescription(data)
             elif ":/" in arg:
-                succ, fail = ctrl.fetchFiles([arg], "channel description")
+                succ, fail = ctrl.downloadFiles([arg], "channel description")
                 if fail:
                     raise Error, "Unable to fetch channel description: %s" \
                                  % fail[arg]

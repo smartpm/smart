@@ -39,12 +39,16 @@ DEFAULTFIELDS = [("alias", "Alias",
                   "manually selected."),
                  ("disabled", "Disabled",
                   "If set to a true value ('yes', 'true', etc), "
-                  "the given channel won't be used.")]
+                  "the given channel won't be used."),
+                 ("removable", "Removable",
+                  "If set to a true value ('yes', 'true', etc), "
+                  "the given channel will be considered as being "
+                  "available in a removable media (cdrom, etc).")]
 
 class Channel(object):
 
     def __init__(self, type, alias, name=None, description=None,
-                 priority=0, manualupdate=False):
+                 priority=0, manualupdate=False, removable=False):
         self._type = type
         self._alias = alias
         self._name = name
@@ -53,6 +57,7 @@ class Channel(object):
         self._loader = None
         self._loadorder = 1000
         self._manualupdate = manualupdate
+        self._removable = removable
 
     def getType(self):
         return self._type
@@ -69,8 +74,11 @@ class Channel(object):
     def getPriority(self):
         return self._priority
 
-    def getManualUpdate(self):
-        return self._manualupdate
+    def hasManualUpdate(self):
+        return self._removable or self._manualupdate
+
+    def isRemovable(self):
+        return self._removable
 
     def getLoader(self):
         return self._loader
@@ -86,7 +94,21 @@ class Channel(object):
     def getFetchSteps(self):
         return 0
 
+    def getCacheCompareURLs(self):
+        """
+        URLs returned by this method are used to check if a
+        repository is currently available by comparing fetched
+        information with cached information.
+        """
+        return []
+
     def fetch(self, fetcher, progress):
+        """
+        Fetch metafiles and set loader. This method implements a
+        scheme that allows one to use a single logic to fetch remote
+        files and also to load local cached information, depending
+        on the caching mode of the fetcher.
+        """
         pass
 
 class FileChannel(Channel):
@@ -102,6 +124,7 @@ class FileChannel(Channel):
         if not loaders:
             raise Error, "Unable to find loader for file: %s" % filename
         self._loader = loaders[0]
+
 
 class ChannelDataError(Error): pass
 
