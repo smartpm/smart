@@ -20,14 +20,15 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.util.strtools import strToBool
-from gepeto.channel import createChannel, getChannelInfo, getAllChannelInfos
+from gepeto.channel import *
 from gepeto import *
 import gobject, gtk
 import textwrap
+import os
 
 class GtkChannels(object):
 
-    def __init__(self):
+    def __init__(self, parent=None):
 
         self._changed = False
 
@@ -40,6 +41,9 @@ class GtkChannels(object):
             gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
+
+        if parent:
+            self._window.set_transient_for(parent)
 
         vbox = gtk.VBox()
         vbox.set_border_width(10)
@@ -156,14 +160,103 @@ class GtkChannels(object):
 
     def newChannel(self):
         self.enableDisable()
-        alias, type = ChannelCreator().show()
-        if alias and type:
+
+        method = MethodSelector().show()
+        if not method:
+            return
+
+        editor = ChannelEditor()
+        channels = sysconf.get("channels", setdefault={})
+
+        if method == "manual":
+
+            type = TypeSelector().show()
+            if not type:
+                return
+
             newchannel = {"type": type}
-            if ChannelEditor().show(alias, newchannel):
-                channels = sysconf.get("channels", setdefault={})
+            if editor.show(None, newchannel, editalias=True):
+                alias = newchannel["alias"]
+                del newchannel["alias"]
                 channels[alias] = newchannel
-                self._changed = True
-                self.fill()
+
+        elif method in ("descriptionpath", "descriptionurl"):
+
+            if method == "descriptionpath":
+                #dia = gtk.FileChooserDialog(
+                #             action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                #             buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
+                #                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+                dia = gtk.FileSelection("Select Channel Description")
+                dia.hide_fileop_buttons()
+                response = dia.run()
+                filename = dia.get_filename()
+                dia.destroy()
+                if response != gtk.RESPONSE_OK:
+                    return
+                if not os.path.isfile(filename):
+                    iface.error("File not found: %s" % filename)
+                    return
+                file = open(filename)
+                data = file.read()
+                file.close()
+            elif method == "descriptionurl":
+                url = iface.askInput("Description URL")
+                if not url:
+                    return
+                ctrl = iface.getControl()
+                succ, fail = ctrl.downloadURLs([url], "channel description")
+                if fail:
+                    iface.error("Unable to fetch channel description: %s"
+                                % fail[url])
+                    return
+                file = open(succ[url])
+                data = file.read()
+                file.close()
+                if succ[url].startswith(sysconf.get("data-dir")):
+                    os.unlink(succ[url])
+            
+            newchannels = parseChannelsDescription(data)
+            for alias in newchannels:
+                newchannel = newchannels[alias]
+                if editor.show(alias, newchannel, editalias=True):
+                    alias = newchannel["alias"]
+                    del newchannel["alias"]
+                    channels[alias] = newchannel
+
+        elif method in ("detectmedia", "detectpath"):
+
+            if method == "detectmedia":
+                path = MountPointSelector().show()
+                if not path:
+                    return
+            elif method == "detectpath":
+                dia = gtk.FileSelection("Select Path")
+                dia.hide_fileop_buttons()
+                response = dia.run()
+                path = dia.get_filename()
+                dia.destroy()
+                if response != gtk.RESPONSE_OK:
+                    return
+                if not os.path.isdir(path):
+                    iface.error("Directory not found: %s" % path)
+                    return
+
+            foundchannel = False
+            for newchannel in detectLocalChannels(path):
+                foundchannel = True
+                if editor.show(newchannel.get("alias"), newchannel,
+                               editalias=True):
+                    alias = newchannel["alias"]
+                    del newchannel["alias"]
+                    channels[alias] = newchannel
+            
+            if not foundchannel:
+                iface.error("No channels detected!")
+                return
+
+        self._changed = True
+        self.fill()
 
     def editChannel(self, alias):
         self.enableDisable()
@@ -355,7 +448,7 @@ class ChannelEditor(object):
                 entry.set_width_chars(8)
             else:
                 entry.set_width_chars(20)
-            align = gtk.Alignment(0.0, 0.5)
+            align = gtk.Alignment(0.0, 0.5, 0.0, 0.0)
             align.add(entry)
             align.show()
             child = align
@@ -370,10 +463,16 @@ class ChannelEditor(object):
             self._tooltips.set_tip(label, tip)
             self._tooltips.set_tip(entry, tip)
 
-    def show(self, alias, channel):
+    def show(self, alias, channel, editalias=False):
         self._table.foreach(self._table.remove)
 
-        # Initial checkboxes
+        # Basic fields
+        self.addField("alias", "Alias", alias or "",
+                      editable=editalias, small=True)
+        self.addField("type", "Type", channel.get("type", ""),
+                      editable=False, small=True)
+
+        # Checkboxes
         enabled = gtk.CheckButton("Enabled")
         enabled.set_active(not strToBool(channel.get("disabled")))
         enabled.show()
@@ -394,10 +493,17 @@ class ChannelEditor(object):
                            gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._fieldn += 1
 
+        removable = gtk.CheckButton("Removable")
+        removable.set_active(strToBool(channel.get("removable")))
+        removable.show()
+        align = gtk.Alignment(0.0, 0.5)
+        align.add(removable)
+        align.show()
+        self._table.attach(align, 1, 2, self._fieldn, self._fieldn+1,
+                           gtk.EXPAND|gtk.FILL, gtk.FILL)
+        self._fieldn += 1
+
         # Other common fields:
-        self.addField("alias", "Alias", alias, editable=False, small=True)
-        self.addField("type", "Type", channel.get("type", ""),
-                      editable=False, small=True)
         self.addField("priority", "Priority", channel.get("priority", "0"),
                       spin=True)
         self.addField("name", "Name", channel.get("name", ""))
@@ -424,15 +530,30 @@ class ChannelEditor(object):
                     newchannel["manual"] = "yes"
                 elif "manual" in channel:
                     del newchannel["manual"]
-                for key in self._fields:
-                    if key not in ("alias", "type"):
-                        entry = self._fields[key]
-                        value = entry.get_text().strip()
-                        if not value and key in newchannel:
-                            del newchannel[key]
-                        else:
-                            newchannel[key] = value
+                if removable.get_active():
+                    newchannel["removable"] = "yes"
+                elif "removable" in channel:
+                    del newchannel["removable"]
                 try:
+                    for key in self._fields:
+                        if key != "type":
+                            entry = self._fields[key]
+                            value = entry.get_text().strip()
+                            if key == "alias":
+                                if not editalias:
+                                    continue
+                                if not value:
+                                    raise Error, "Invalid alias!"
+                                if (value != alias and 
+                                    value in sysconf.get("channels", {})):
+                                    raise Error, "Alias already in use!"
+                                if not alias:
+                                    alias = value
+                                newchannel[key] = value
+                            elif not value and key in newchannel:
+                                del newchannel[key]
+                            else:
+                                newchannel[key] = value
                     createChannel(newchannel.get("type"), alias, newchannel)
                 except Error, e:
                     self._result = False
@@ -447,7 +568,7 @@ class ChannelEditor(object):
 
         return self._result
 
-class ChannelCreator(object):
+class TypeSelector(object):
 
     def __init__(self):
 
@@ -473,18 +594,6 @@ class ChannelCreator(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Alias:")
-        label.set_alignment(1.0, 0.5)
-        label.show()
-        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
-
-        self._alias = gtk.Entry()
-        self._alias.show()
-        align = gtk.Alignment(0.0, 0.5)
-        align.add(self._alias)
-        align.show()
-        table.attach(align, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
-
         label = gtk.Label("Type:")
         label.set_alignment(1.0, 0.0)
         label.show()
@@ -505,7 +614,7 @@ class ChannelCreator(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-ok")
+        self._ok = button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
             self._result = True
@@ -531,6 +640,7 @@ class ChannelCreator(object):
         infos.sort()
         for name, type in infos:
             radio = gtk.RadioButton(radio, name)
+            radio.connect("activate", lambda x: self._ok.activate())
             radio.connect("toggled", type_toggled, type)
             radio.show()
             if not self._type:
@@ -540,25 +650,215 @@ class ChannelCreator(object):
         self._window.show()
 
         self._result = False
-        alias = type = None
+        type = None
         while True:
             gtk.main()
             if self._result:
-                self._result = False
                 type = self._type
-                alias = self._alias.get_text().strip()
-                if not alias:
-                    iface.error("No alias provided!")
-                    continue
-                if alias in sysconf.get("channels", {}):
-                    iface.error("Alias already in use!")
-                    continue
                 break
-            alias = type = None
+            type = None
             break
 
         self._window.hide()
 
-        return alias, type
+        return type
+
+class MethodSelector(object):
+
+    def __init__(self):
+
+        self._window = gtk.Window()
+        self._window.set_title("New Channel")
+        self._window.set_modal(True)
+        self._window.set_position(gtk.WIN_POS_CENTER)
+        def delete(widget, event):
+            gtk.main_quit()
+            return True
+        self._window.connect("delete-event", delete)
+
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
+
+        table = gtk.Table()
+        table.set_row_spacings(10)
+        table.set_col_spacings(10)
+        table.show()
+        vbox.pack_start(table)
+        
+        label = gtk.Label("Method:")
+        label.set_alignment(1.0, 0.0)
+        label.show()
+        table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+
+        methodvbox = gtk.VBox()
+        methodvbox.set_spacing(10)
+        methodvbox.show()
+        table.attach(methodvbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
+
+        sep = gtk.HSeparator()
+        sep.show()
+        vbox.pack_start(sep, expand=False)
+
+        bbox = gtk.HButtonBox()
+        bbox.set_spacing(10)
+        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.show()
+        vbox.pack_start(bbox, expand=False)
+
+        ok = button = gtk.Button(stock="gtk-ok")
+        button.show()
+        def clicked(x):
+            self._result = True
+            gtk.main_quit()
+        button.connect("clicked", clicked)
+        bbox.pack_start(button)
+
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
+        radio = None
+        self._method = None
+        def method_toggled(button, method):
+            if button.get_active():
+                self._method = method
+        for method, descr in [("manual",
+                               "Provide channel information"),
+                              ("descriptionpath",
+                               "Read channel description from local path"),
+                              ("descriptionurl",
+                               "Read channel description from URL"),
+                              ("detectmedia",
+                               "Detect channel in media (CDROM, DVD, etc)"),
+                              ("detectpath",
+                               "Detect channel in local path")]:
+            radio = gtk.RadioButton(radio, descr)
+            radio.connect("activate", lambda x: ok.activate())
+            radio.connect("toggled", method_toggled, method)
+            radio.show()
+            methodvbox.pack_start(radio)
+
+
+    def show(self):
+
+        self._window.show()
+
+        self._result = False
+        method = None
+        while True:
+            gtk.main()
+            if self._result:
+                method = self._method
+                break
+            method = None
+            break
+
+        self._window.hide()
+
+        return method
+
+class MountPointSelector(object):
+
+    def __init__(self):
+
+        self._window = gtk.Window()
+        self._window.set_title("New Channel")
+        self._window.set_modal(True)
+        self._window.set_position(gtk.WIN_POS_CENTER)
+        #self._window.set_geometry_hints(min_width=600, min_height=400)
+        def delete(widget, event):
+            gtk.main_quit()
+            return True
+        self._window.connect("delete-event", delete)
+
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        self._window.add(vbox)
+
+        table = gtk.Table()
+        table.set_row_spacings(10)
+        table.set_col_spacings(10)
+        table.show()
+        vbox.pack_start(table)
+        
+        label = gtk.Label("Media path:")
+        label.set_alignment(1.0, 0.0)
+        label.show()
+        table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+
+        self._mpvbox = gtk.VBox()
+        self._mpvbox.set_spacing(10)
+        self._mpvbox.show()
+        table.attach(self._mpvbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
+
+        sep = gtk.HSeparator()
+        sep.show()
+        vbox.pack_start(sep, expand=False)
+
+        bbox = gtk.HButtonBox()
+        bbox.set_spacing(10)
+        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.show()
+        vbox.pack_start(bbox, expand=False)
+
+        button = gtk.Button(stock="gtk-ok")
+        button.show()
+        def clicked(x):
+            self._result = True
+            gtk.main_quit()
+        button.connect("clicked", clicked)
+        bbox.pack_start(button)
+
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
+    def show(self):
+        self._mpvbox.foreach(self._mpvbox.remove)
+        self._mp = None
+
+        radio = None
+        def mp_toggled(button, mp):
+            if button.get_active():
+                self._mp = mp
+        n = 0
+        for media in iface.getControl().getMediaSet():
+            mp = media.getMountPoint()
+            radio = gtk.RadioButton(radio, mp)
+            radio.connect("toggled", mp_toggled, mp)
+            radio.show()
+            if not self._mp:
+                self._mp = mp
+            self._mpvbox.pack_start(radio)
+            n += 1
+
+        if n == 0:
+            iface.error("No local media found!")
+            return None
+        elif n == 1:
+            return self._mp
+
+        self._window.show()
+
+        self._result = False
+        mp = None
+        while True:
+            gtk.main()
+            if self._result:
+                mp = self._mp
+                break
+            mp = None
+            break
+
+        self._window.hide()
+
+        return mp
 
 # vim:ts=4:sw=4:et

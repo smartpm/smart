@@ -21,12 +21,12 @@
 #
 from gepeto import Error
 
-def create(interactive):
+def create(ctrl, interactive):
     if 0 and interactive:
         raise Error, "text interface has no interactive support yet"
     else:
         from gepeto.interfaces.text.interface import TextInterface
-        return TextInterface()
+        return TextInterface(ctrl)
 
 # vim:ts=4:sw=4:et
 

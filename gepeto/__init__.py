@@ -70,7 +70,8 @@ def init(opts=None):
         ifacename = opts.interface
     else:
         ifacename = "text"
-    iface.object = createInterface(ifacename, not bool(opts and opts.command))
+    iface.object = createInterface(ifacename, ctrl,
+                                   not bool(opts and opts.command))
 
     # Import every plugin, and let they do whatever they want.
     from gepeto import plugins

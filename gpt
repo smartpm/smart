@@ -87,7 +87,7 @@ def main(argv):
         ctrl = init(opts)
         iface.start()
         if not opts.command:
-            iface.run(ctrl)
+            iface.run()
         else:
             try:
                 gepeto = __import__("gepeto.commands."+opts.command)

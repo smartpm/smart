@@ -239,6 +239,7 @@ class Control(object):
 
     def downloadURLs(self, urllst, what=None, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
+        fetcher.reset()
         if targetdir is None:
             localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
             if not os.path.isdir(localdir):

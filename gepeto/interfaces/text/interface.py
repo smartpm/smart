@@ -27,7 +27,8 @@ import os
 
 class TextInterface(Interface):
 
-    def __init__(self):
+    def __init__(self, ctrl):
+        Interface.__init__(self, ctrl)
         self._progress = TextProgress()
 
     def getProgress(self, obj, hassub=False):
@@ -42,6 +43,8 @@ class TextInterface(Interface):
         print msg
 
     def askYesNo(self, question, default=False):
+        if question[-1] in ".!?":
+            question = question[:-1]
         mask = default and "%s (Y/n)? " or "%s (y/N)? "
         res = raw_input(mask % question).strip().lower()
         print
@@ -50,6 +53,8 @@ class TextInterface(Interface):
         return default
 
     def askContCancel(self, question, default=False):
+        if question[-1] in ".!?":
+            question = question[:-1]
         mask = default and "%s (Continue/cancel): " or "%s (continue/Cancel)? "
         res = raw_input(mask % question).strip().lower()
         print
@@ -58,6 +63,8 @@ class TextInterface(Interface):
         return default
 
     def askOkCancel(self, question, default=False):
+        if question[-1] in ".!?":
+            question = question[:-1]
         mask = default and "%s (Ok/cancel): " or "%s (ok/Cancel): "
         res = raw_input(mask % question).strip().lower()
         print
@@ -100,6 +107,17 @@ class TextInterface(Interface):
                 print "   ", pkg
             print
         return self.askYesNo("Confirm changes", True)
+
+    def askInput(self, prompt, message=None, widthchars=None):
+        print
+        if message:
+            print message
+        try:
+            res = raw_input(prompt+": ")
+        except KeyboardInterrupt:
+            res = ""
+        print
+        return res
 
     def insertRemovableChannels(self, channels):
         print

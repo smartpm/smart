@@ -158,13 +158,14 @@ def main(opts, ctrl):
                     raise Error, "Unable to fetch channel description: %s" \
                                  % fail[arg]
                 data = open(succ[arg]).read()
+                if succ[arg].startswith(sysconf.get("data-dir")):
+                    os.unlink(succ[arg])
                 newchannels = []
                 descriptions = parseChannelsDescription(data)
                 for alias in descriptions:
                     channel = descriptions[alias]
                     channel["alias"] = alias
                     newchannels.append(channel)
-                os.unlink(succ[arg])
             else:
                 raise Error, "File not found: %s" % arg
         else:

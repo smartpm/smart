@@ -163,11 +163,10 @@ def compileActions(actions, globals):
 
 class GtkInteractiveInterface(GtkInterface):
 
-    def __init__(self):
-        GtkInterface.__init__(self)
+    def __init__(self, ctrl):
+        GtkInterface.__init__(self, ctrl)
 
-        self._ctrl = None
-        self._changeset = None
+        self._changeset = ChangeSet(self._ctrl.getCache())
 
         self._window = gtk.Window()
         self._window.set_title("Gepeto %s" % VERSION)
@@ -324,6 +323,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._vpaned.pack1(self._pv, True)
 
         self._pi = GtkPackageInfo()
+        self._pi.setChangeSet(self._changeset)
         self._pi.show()
         self._pv.connect("package_selected",
                          lambda x, y: self._pi.setPackage(y))
@@ -343,12 +343,9 @@ class GtkInteractiveInterface(GtkInterface):
     def hideStatus(self):
         self._status.pop(0)
 
-    def run(self, ctrl):
-        self._ctrl = ctrl
-        self._changeset = ChangeSet(ctrl.getCache())
-        self._pi.setChangeSet(self._changeset)
+    def run(self):
         self._window.show()
-        ctrl.updateCache()
+        self._ctrl.updateCache()
         self._progress.hide()
         self.refreshPackages()
         gtk.main()
@@ -658,7 +655,7 @@ class GtkInteractiveInterface(GtkInterface):
             self.refreshPackages()
 
     def editChannels(self):
-        if GtkChannels().show():
+        if GtkChannels(self._window).show():
             self.rebuildCache()
 
     def editMirrors(self):

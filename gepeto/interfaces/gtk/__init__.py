@@ -34,13 +34,13 @@ except ImportError:
         traceback.print_exc()
     raise Error, "system has no support for gtk python interface"
 
-def create(interactive):
+def create(ctrl, interactive):
     if interactive:
         from gepeto.interfaces.gtk.interactive import GtkInteractiveInterface
-        return GtkInteractiveInterface()
+        return GtkInteractiveInterface(ctrl)
     else:
         from gepeto.interfaces.gtk.command import GtkCommandInterface
-        return GtkCommandInterface()
+        return GtkCommandInterface(ctrl)
     
 _pixbuf = {}
 

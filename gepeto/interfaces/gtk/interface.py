@@ -28,7 +28,8 @@ import gtk
 
 class GtkInterface(Interface):
 
-    def __init__(self):
+    def __init__(self, ctrl):
+        Interface.__init__(self, ctrl)
         self._log = GtkLog()
         self._progress = GtkProgress(False)
         self._hassubprogress = GtkProgress(True)
@@ -48,11 +49,14 @@ class GtkInterface(Interface):
         return self._hassubprogress
 
     def askYesNo(self, question, default=False):
+        if question[-1] not in ".!?":
+            question += "?"
         dialog = gtk.MessageDialog(parent=self._window,
                                    flags=gtk.DIALOG_MODAL,
                                    type=gtk.MESSAGE_QUESTION,
                                    buttons=gtk.BUTTONS_YES_NO,
-                                   message_format=question+"?")
+                                   message_format=question)
+        dialog.set_transient_for(self._window)
         dialog.set_default_response(default and gtk.RESPONSE_YES
                                              or gtk.RESPONSE_NO)
         response = dialog.run()
@@ -65,14 +69,19 @@ class GtkInterface(Interface):
             return default
 
     def askContCancel(self, question, default=False):
-        return self.askYesNo(question+". Continue", default)
+        if question[-1] not in ".!?":
+            question += "."
+        return self.askYesNo(question+" Continue", default)
 
-    def askOkCancel(self, question, default=False):
+    def askOkCancel(self, question, default=False, nodot=False):
+        if not nodot and question[-1] not in ".!?":
+            question += "."
         dialog = gtk.MessageDialog(parent=self._window,
                                    flags=gtk.DIALOG_MODAL,
                                    type=gtk.MESSAGE_INFO,
                                    buttons=gtk.BUTTONS_OK_CANCEL,
-                                   message_format=question+".")
+                                   message_format=question)
+        dialog.set_transient_for(self._window)
         dialog.set_default_response(default and gtk.RESPONSE_OK
                                              or gtk.RESPONSE_CANCEL)
         response = dialog.run()
@@ -83,6 +92,52 @@ class GtkInterface(Interface):
             return False
         else:
             return default
+
+    def askInput(self, prompt, message=None, widthchars=40):
+        dialog = gtk.Dialog("Input",
+                            parent=self._window,
+                            flags=gtk.DIALOG_MODAL,
+                            buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
+                                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+                            )
+        dialog.set_transient_for(self._window)
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        dialog.vbox.pack_start(vbox, False, False)
+        if message:
+            label = gtk.Label(message)
+            label.set_alignment(0.0, 0.5)
+            label.show()
+            vbox.pack_start(label, False, True)
+        hbox = gtk.HBox()
+        hbox.set_spacing(10)
+        hbox.show()
+        vbox.pack_start(hbox)
+        label = gtk.Label(prompt)
+        label.show()
+        hbox.pack_start(label, False, False)
+        entry = gtk.Entry()
+        entry.set_width_chars(widthchars)
+        entry.show()
+        hbox.pack_start(entry)
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            result = entry.get_text()
+        else:
+            result = ""
+        dialog.destroy()
+        return result
+
+    def insertRemovableChannels(self, channels):
+        question = "Insert one or more of the following removable channels:\n"
+        question += "\n"
+        for channel in channels:
+            question += "    "
+            question += channel.getName()
+            question += "\n"
+        self.askOkCancel(question, nodot=True)
 
     def message(self, level, msg):
         self._log.message(level, msg)
@@ -105,4 +160,3 @@ class GtkInterface(Interface):
     def hideProgress(self):
         self._progress.hide()
         self._hassubprogress.hide()
-

@@ -26,13 +26,19 @@ import sys, os
 
 class Interface(object):
 
+    def __init__(self, ctrl):
+        self._ctrl = ctrl
+
+    def getControl(self):
+        return self._ctrl
+
     def start(self):
         pass
 
     def finish(self):
         pass
 
-    def run(self, ctrl):
+    def run(self):
         pass
     
     def showStatus(self, msg):
@@ -55,6 +61,9 @@ class Interface(object):
 
     def askOkCancel(self, question, default=False):
         return True
+
+    def askInput(self, prompt, message=None, widthchars=None):
+        return ""
 
     def confirmChangeSet(self, changeset):
         return True
@@ -90,7 +99,7 @@ class Interface(object):
         else:
             sys.stderr.write("%s\n" % msg.rstrip())
 
-def createInterface(name, interactive):
+def createInterface(name, ctrl, interactive):
     try:
         xname = name.replace('-', '_').lower()
         gepeto = __import__("gepeto.interfaces."+xname)
@@ -101,7 +110,7 @@ def createInterface(name, interactive):
             import traceback
             traceback.print_exc()
         raise Error, "Invalid interface '%s'" % name
-    return interface.create(interactive)
+    return interface.create(ctrl, interactive)
 
 def getImagePath(name, _dirname=os.path.dirname(_images__file__)):
     return os.path.join(_dirname, name+".png")
