@@ -107,6 +107,8 @@ def parse_options(argv, help=None):
                              "information"))
     parser.add_option("--show-priority", action="store_true",
                       help=_("show package priority"))
+    parser.add_option("--show-channels", action="store_true",
+                      help=_("show channels that include this package"))
     parser.add_option("--show-all", action="store_true",
                       help=_("enable all --show-* options"))
     parser.add_option("--format", action="store", default="text",
@@ -490,6 +492,12 @@ class TextOutput(NullOutput):
             print pkg,
         if self.opts.show_priority:
             print "{%s}" % pkg.getPriority(),
+        if self.opts.show_channels:
+            channels = []
+            for loader in pkg.loaders:
+                channels.append(loader.getChannel().getAlias())
+            channels.sort()
+            print "[%s]" % ', '.join(channels),
         if self.opts.show_summary:
             info = pkg.loaders.keys()[0].getInfo(pkg)
             print "-", info.getSummary(),
