@@ -24,7 +24,7 @@ copy_tree_orig = distutils.dir_util.copy_tree
 def copy_file(src, dst, *args, **kwargs):
     if dst.endswith("bin/smart.py"):
         dst = dst[:-3]
-    copy_file_orig(src, dst, *args, **kwargs)
+    return copy_file_orig(src, dst, *args, **kwargs)
 def copy_tree(*args, **kwargs):
     outputs = copy_tree_orig(*args, **kwargs)
     for i in range(len(outputs)):

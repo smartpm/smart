@@ -24,7 +24,9 @@ from smart.interfaces.gtk.changes import GtkChanges
 from smart.interfaces.gtk.log import GtkLog
 from smart.interface import Interface
 from smart.fetcher import Fetcher
+from smart import *
 import gtk
+import sys
 
 class GtkInterface(Interface):
 
@@ -35,6 +37,12 @@ class GtkInterface(Interface):
         self._hassubprogress = GtkProgress(True)
         self._changes = GtkChanges()
         self._window = None
+        self._sys_excepthook = sys.excepthook
+
+    def run(self, command=None, argv=None):
+        self.setCatchExceptions(True)
+        Interface.run(self, command, argv)
+        self.setCatchExceptions(False)
 
     def getProgress(self, obj, hassub=False):
         if hassub:
@@ -156,6 +164,20 @@ class GtkInterface(Interface):
         return self._changes.showChangeSet(changeset, confirm=True)
 
     # Non-standard interface methods
+
+    def _excepthook(self, type, value, tb):
+        if type is Error:
+            iface.error(str(value[0]))
+        else:
+            import traceback
+            lines = traceback.format_exception(type, value, tb)
+            iface.error("\n".join(lines))
+
+    def setCatchExceptions(self, flag):
+        if flag:
+            sys.excepthook = self._excepthook
+        else:
+            sys.excepthook = self._sys_excepthook
 
     def hideProgress(self):
         self._progress.hide()

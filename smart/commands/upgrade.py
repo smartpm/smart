@@ -104,18 +104,18 @@ def main(ctrl, opts):
             cPickle.dump(state, file, 2)
             file.close()
         if not state:
-            iface.showStatus("There are no upgrades to be made.")
-            return 1
+            iface.showStatus("No interesting upgrades available.")
+            return 2
         elif checkstate:
             for entry in state:
                 if checkstate.get(entry) != state[entry]:
                     break
             else:
-                iface.showStatus("All upgrades to be made are known.")
+                iface.showStatus("There are pending upgrades!")
                 return 1
-        iface.showStatus("There are new upgrades to be made!")
+        iface.showStatus("There are new upgrades available!")
     elif not trans:
-        iface.showStatus("No interesting upgrades available!")
+        iface.showStatus("No interesting upgrades available.")
     else:
         iface.hideStatus()
         confirm = not opts.force

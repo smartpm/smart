@@ -1,2 +1,8 @@
-recursive-include gepeto *.py *.c *.png
-include gpt setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README
+recursive-include smart *.py *.c *.png
+include smart setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README
+
+recursive-include contrib/ksmarttray *.png *.cc *.h *.am *.in.in
+recursive-include contrib/ksmarttray LICENSE eventsrc
+graft contrib/ksmarttray/admin
+
+recursive-include contrib/smart-update *.c Makefile

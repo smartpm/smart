@@ -83,6 +83,8 @@ def parse_options(argv):
                       help="use the default shell interface")
     parser.add_option("--interface", metavar="NAME",
                       help="use the given interface")
+    parser.add_option("--ignore-locks", action="store_true",
+                      help="don't respect locking")
     parser.add_option("-o", "--option", action="append", default=[],
                       metavar="OPT",
                       help="set the option given by a name=value pair")
@@ -148,7 +150,10 @@ def main(argv):
     exitcode = 1
     try:
         opts = parse_options(argv)
-        ctrl = init(opts)
+        ctrl = init(command=opts.command, argv=opts.argv,
+                    datadir=opts.data_dir, configfile=opts.config_file,
+                    gui=opts.gui, shell=opts.shell, interface=opts.interface,
+                    forcelocks=opts.ignore_locks, loglevel=opts.log_level)
         if opts.option:
             set_config_options(opts.option)
         exitcode = iface.run(opts.command, opts.argv)

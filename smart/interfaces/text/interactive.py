@@ -541,7 +541,7 @@ class Interpreter(Cmd):
         from smart.commands import query
         try:
             opts = query.parse_options(shlex.split(line))
-            query.main(opts, self._ctrl, updatecache=False)
+            query.main(self._ctrl, opts, updatecache=False)
         except SystemExit:
             pass
 
@@ -555,7 +555,7 @@ class Interpreter(Cmd):
         from smart.commands import search
         try:
             opts = search.parse_options(shlex.split(line))
-            search.main(opts, self._ctrl, updatecache=False)
+            search.main(self._ctrl, opts, updatecache=False)
         except SystemExit:
             pass
 

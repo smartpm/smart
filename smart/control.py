@@ -23,6 +23,7 @@ from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from smart.channel import createChannel, FileChannel
 from smart.util.objdigest import getObjectDigest
 from smart.util.filetools import compareFiles
+from smart.util.pathlocks import PathLocks
 from smart.util.strtools import strToBool
 from smart.media import MediaSet
 from smart.progress import Progress
@@ -35,11 +36,12 @@ import md5
 
 class Control(object):
 
-    def __init__(self, conffile=None):
+    def __init__(self, conffile=None, forcelocks=False):
         self._conffile = None
         self._confdigest = None
         self._channels = []
         self._sysconfchannels = []
+        self._pathlocks = PathLocks(forcelocks)
 
         self.loadSysConf(conffile)
 
@@ -127,10 +129,20 @@ class Control(object):
             self._confdigest = getObjectDigest(sysconf.getMap())
         else:
             self._confdigest = None
-        dirname = os.path.dirname(conffile)
-        while not os.path.isdir(dirname):
-            dirname, basename = os.path.split(dirname)
-        sysconf.setReadOnly(not os.access(dirname, os.W_OK))
+
+        if os.path.isdir(datadir):
+            writable = os.access(datadir, os.W_OK)
+        else:
+            try:
+                os.makedirs(datadir)
+                writable = True
+            except OSError:
+                raise Error, "No configuration found!"
+
+        if writable and not self._pathlocks.lock(datadir, exclusive=True):
+            writable = False
+
+        sysconf.setReadOnly(not writable)
 
     def saveSysConf(self, conffile=None):
         if not conffile:
@@ -167,10 +179,22 @@ class Control(object):
             channels = self._channels
         else:
             manual = True
-        localdir = os.path.join(sysconf.get("data-dir"), "channels/")
-        if not os.path.isdir(localdir):
-            os.makedirs(localdir)
-        self._fetcher.setLocalDir(localdir, mangle=True)
+        channelsdir = os.path.join(sysconf.get("data-dir"), "channels/")
+        if not os.path.isdir(channelsdir):
+            try:
+                os.makedirs(channelsdir)
+            except OSError:
+                raise Error, "Unable to create channel directory."
+        if caching is ALWAYS:
+            if sysconf.getReadOnly() and os.access(channelsdir, os.W_OK):
+                iface.warning("Configuration is in readonly mode!")
+            if not self._pathlocks.lock(channelsdir):
+                raise Error, "Channel information is locked for writing."
+        elif sysconf.getReadOnly():
+            raise Error, "Can't update channels in readonly mode."
+        elif not self._pathlocks.lock(channelsdir, exclusive=True):
+            raise Error, "Can't update channels with active readers."
+        self._fetcher.setLocalDir(channelsdir, mangle=True)
         channels.sort()
         if caching is ALWAYS:
             progress = Progress()
@@ -217,10 +241,12 @@ class Control(object):
         # Remove unused files from channels dir.
         aliases = dict.fromkeys([x.getAlias() for x in self._channels], True)
         aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
-        for entry in os.listdir(localdir):
+        for entry in os.listdir(channelsdir):
             sep = entry.find("%%")
             if sep == -1 or entry[:sep] not in aliases:
-                os.unlink(os.path.join(localdir, entry))
+                os.unlink(os.path.join(channelsdir, entry))
+
+        self._pathlocks.lock(channelsdir)
 
     def dumpTransactionURLs(self, trans, output=None):
         changeset = trans.getChangeSet()

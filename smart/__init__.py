@@ -20,10 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gettext import translation
-import os
-
 from smart.hook import Hooks
-hooks = Hooks()
+import os
 
 __all__ = ["sysconf", "iface", "hooks", "Error", "_"]
 
@@ -44,47 +42,39 @@ class Proxy:
 
 sysconf = Proxy()
 iface = Proxy()
+hooks = Hooks()
 
-def init(opts=None):
+def init(command=None, argv=None,
+         datadir=None, configfile=None,
+         gui=False, shell=False, interface=None,
+         forcelocks=False, loglevel=None):
     from smart.const import DEBUG, INFO, WARNING, ERROR, DISTROFILE
-    from smart.interface import createInterface
+    from smart.interface import Interface, createInterface
     from smart.sysconfig import SysConfig
     from smart.interface import Interface
     from smart.control import Control
 
+    iface.object = Interface(None)
     sysconf.object = SysConfig()
-    if opts:
-        if opts.log_level:
-            level = {"error": ERROR, "warning": WARNING,
-                     "debug": DEBUG, "info": INFO}.get(opts.log_level)
-            if level is None:
-                raise Error, "unknown log level"
-            sysconf.set("log-level", level, soft=True)
-        if opts.data_dir:
-            datadir = os.path.expanduser(opts.data_dir)
-            sysconf.set("data-dir", datadir, soft=True)
-    ctrl = Control(opts and opts.config_file)
-    if opts:
-        if opts.gui:
-            ifacename = sysconf.get("default-gui", "gtk")
-        elif opts.shell:
-            ifacename = sysconf.get("default-shell", "text")
-            if opts.command:
-                raise Error, "Can't use commands with shell interfaces"
-        elif opts.interface:
-            ifacename = opts.interface
-        elif opts.command:
-            ifacename = "text"
-        else:
-            raise Error, "No interface selected"
+    if loglevel:
+        level = {"error": ERROR, "warning": WARNING,
+                 "debug": DEBUG, "info": INFO}.get(loglevel)
+        if level is None:
+            raise Error, "unknown log level"
+        sysconf.set("log-level", level, soft=True)
+    if datadir:
+        sysconf.set("data-dir", os.path.expanduser(datadir), soft=True)
+    ctrl = Control(configfile, forcelocks)
+    if gui:
+        ifacename = sysconf.get("default-gui", "gtk")
+    elif shell:
+        ifacename = sysconf.get("default-shell", "text")
+        if command:
+            raise Error, "Can't use commands with shell interfaces"
+    elif interface:
+        ifacename = interface
     else:
         ifacename = "text"
-    if opts:
-        command = opts.command
-        argv = opts.argv
-    else:
-        command = None
-        argv = None
     iface.object = createInterface(ifacename, ctrl, command, argv)
 
     # Import every plugin, and let they do whatever they want.

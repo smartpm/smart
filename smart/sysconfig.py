@@ -63,8 +63,7 @@ class SysConfig(object):
 
     def assertWritable(self):
         if self._readonly:
-            raise Error, "Configuration is in readonly mode " \
-                         "(perhaps with root?)"
+            raise Error, "Configuration is in readonly mode."
 
     def load(self, filepath):
         filepath = os.path.expanduser(filepath)

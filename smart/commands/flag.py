@@ -92,7 +92,7 @@ def main(ctrl, opts):
     flags = sysconf.get("package-flags", setdefault={})
 
     if opts.set or opts.remove:
-        sysconf.assertWritable():
+        sysconf.assertWritable()
 
     for args in (opts.set, opts.remove):
 

@@ -344,11 +344,13 @@ class GtkInteractiveInterface(GtkInterface):
         self._status.pop(0)
 
     def run(self, command=None, argv=None):
+        self.setCatchExceptions(True)
         self._window.show()
         self._ctrl.updateCache()
         self._progress.hide()
         self.refreshPackages()
         gtk.main()
+        self.setCatchExceptions(False)
 
     # Non-standard interface methods:
 
@@ -412,21 +414,17 @@ class GtkInteractiveInterface(GtkInterface):
             if pkg.installed:
                 transaction.enqueue(pkg, UPGRADE)
         transaction.setPolicy(PolicyUpgrade)
-        try:
-            transaction.run()
-        except Error, e:
-            self.error(str(e[0]))
+        transaction.run()
+        changeset = transaction.getChangeSet()
+        if changeset != self._changeset:
+            if self.confirmChange(self._changeset, changeset):
+                self.saveUndo()
+                self._changeset.setState(changeset)
+                self.changedMarks()
+                if self.askYesNo("Apply marked changes now", True):
+                    self.applyChanges()
         else:
-            changeset = transaction.getChangeSet()
-            if changeset != self._changeset:
-                if self.confirmChange(self._changeset, changeset):
-                    self.saveUndo()
-                    self._changeset.setState(changeset)
-                    self.changedMarks()
-                    if self.askYesNo("Apply marked changes now", True):
-                        self.applyChanges()
-            else:
-                self.showStatus("No interesting upgrades available!")
+            self.showStatus("No interesting upgrades available!")
 
     def actOnPackages(self, pkgs, op=None):
         transaction = Transaction(self._ctrl.getCache(), policy=PolicyInstall)
@@ -451,19 +449,15 @@ class GtkInteractiveInterface(GtkInterface):
             elif op is INSTALL:
                 if not pkg.installed:
                     transaction.enqueue(pkg, op)
-        try:
-            transaction.run()
-        except Error, e:
-            self.error(str(e[0]))
+        transaction.run()
+        if op is FIX:
+            expected = 0
         else:
-            if op is FIX:
-                expected = 0
-            else:
-                expected = 1
-            if self.confirmChange(self._changeset, changeset, expected):
-                self.saveUndo()
-                self._changeset.setState(changeset)
-                self.changedMarks()
+            expected = 1
+        if self.confirmChange(self._changeset, changeset, expected):
+            self.saveUndo()
+            self._changeset.setState(changeset)
+            self.changedMarks()
 
     def packagePopup(self, packageview, pkgs, event):
 

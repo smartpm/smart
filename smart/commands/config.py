@@ -102,7 +102,7 @@ def main(ctrl, opts):
     globals["no"] = False
 
     if opts.set or opts.remove:
-        sysconf.assertWritable():
+        sysconf.assertWritable()
 
     for opt in opts.set:
 
