@@ -1,7 +1,7 @@
 from cpm.backends.rpm.header import RPMPackageListLoader
 from cpm.channel import Channel, ChannelDataError
+from cpm.const import SUCCEEDED, FAILED
 from cpm.cache import LoaderSet
-from cpm.const import DEBUG
 from cpm import *
 import posixpath
 
@@ -24,9 +24,9 @@ class APTRPMChannel(Channel):
 
         # Fetch release file
         url = posixpath.join(self._baseurl, "base/release")
-        fetcher.enqueue(url)
+        item = fetcher.enqueue(url)
         fetcher.run(progress=progress)
-        failed = fetcher.getFailed(url)
+        failed = item.getFailedReason()
         if failed:
             iface.warning("Failed acquiring release file for '%s': %s" %
                           (self._alias, failed))
@@ -38,7 +38,7 @@ class APTRPMChannel(Channel):
         # Parse release file
         md5sum = {}
         started = False
-        for line in open(fetcher.getSucceeded(url)):
+        for line in open(item.getTargetPath()):
             if not started:
                 if line.startswith("MD5Sum:"):
                     started = True
@@ -54,7 +54,7 @@ class APTRPMChannel(Channel):
 
         # Fetch package lists
         fetcher.reset()
-        urlcomp = {}
+        items = []
         for comp in self._comps:
             pkglist = "base/pkglist."+comp
             url = posixpath.join(self._baseurl, pkglist)
@@ -71,29 +71,27 @@ class APTRPMChannel(Channel):
                 continue
             else:
                 upkglist = None
-            urlcomp[url] = comp
-            info = {"uncomp": True}
+            info = {"component": comp, "uncomp": True}
             info["md5"], info["size"] = md5sum[pkglist]
             if upkglist:
                 info["uncomp_md5"], info["uncomp_size"] = md5sum[upkglist]
-            fetcher.enqueue(url, **info)
+            items.append(fetcher.enqueue(url, **info))
+
         fetcher.run(progress=progress)
-        succeeded = fetcher.getSucceededSet()
-        for url in urlcomp:
-            filename = succeeded.get(url)
-            if filename:
-                loader = RPMPackageListLoader(filename, self._baseurl)
+
+        firstfailure = True
+        for item in items:
+            if item.getStatus() == SUCCEEDED:
+                localpath = item.getTargetPath()
+                loader = RPMPackageListLoader(localpath, self._baseurl)
                 loader.setChannel(self)
                 self._loader.append(loader)
-        failed = fetcher.getFailedSet()
-        if failed:
-            iface.warning("Failed acquiring information for '%s': %s" %
-                          (self._alias, ", ".join(["%s (%s)" %
-                                                   (urlcomp[x], failed[x])
-                                                   for x in failed])))
-            if sysconf.get("log-level") >= DEBUG:
-                for url in failed:
-                    iface.debug("%s: %s" % (url, failed[url]))
+            else:
+                if firstfailure:
+                    firstfailure = False
+                    iface.warning("Failed acquiring information for '%s':" %
+                                  self._alias)
+                iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
 def create(ctype, data):
     alias = None

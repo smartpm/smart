@@ -1,6 +1,6 @@
 from cpm.backends.rpm.redcarpet import RPMRedCarpetLoader
+from cpm.const import SUCCEEDED, FAILED
 from cpm.channel import Channel
-from cpm.const import DEBUG
 from cpm import *
 import posixpath
 
@@ -22,25 +22,17 @@ class RPMRedCarpetChannel(Channel):
             pkginfourl = posixpath.join(self._baseurl, "packageinfo.xml.gz")
 
         fetcher.reset()
-        urlmap = {pkginfourl: "packageinfo.xml.gz"}
-        fetcher.enqueue(pkginfourl, uncomp=True)
+        item = fetcher.enqueue(pkginfourl, uncomp=True)
         fetcher.run(progress=progress)
 
-        succeeded = fetcher.getSucceededSet()
-        if succeeded:
-            filename = succeeded.get(pkginfourl)
-            if filename:
-                self._loader = RPMRedCarpetLoader(filename, self._baseurl)
-                self._loader.setChannel(self)
+        if item.getStatus() == SUCCEEDED:
+            localpath = item.getTargetPath()
+            self._loader = RPMRedCarpetLoader(localpath, self._baseurl)
+            self._loader.setChannel(self)
         else:
-            failed = fetcher.getFailedSet()
-            iface.warning("Failed acquiring information for '%s': %s" %
-                          (self._alias, ", ".join(["%s (%s)" %
-                                                   (urlmap[x], failed[x])
-                                                   for x in failed])))
-            if sysconf.get("log-level") >= DEBUG:
-                for url in failed:
-                    iface.debug("%s: %s" % (url, failed[url]))
+            iface.warning("Failed acquiring information for '%s':" %
+                          self._alias)
+            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
 def create(ctype, data):
     alias = None

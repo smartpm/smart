@@ -1,36 +1,31 @@
 
-Transaction system
-------------------
-
-- Support transaction diffing.
-
 Commands
 --------
 
-- Introduce 'fix' command.
 - Introduce a mixed-mode command, allowing to install/remove/upgrade.
 
 Downloading and committing
 --------------------------
 
-- The committer may choose to install packages in chunks (cdroms,
-  for early usage of packages, for getting security upgrades
-  installed quickly, etc).
-- Partial installer might be based on removing from the transaction
-  what it doesn't have, instead of sorting what it has, like APT.
 - Partial installer may copy to the fixed disk only these entries
   for which there are missing pre-requires.
 - Removable repositories are normal repositories with special media
   ID, and a mark saying where the removable media mounting point
   starts.
 - Removable repositories may be remote as well.
-- May have multiple frontends (graphical/interactive, command line/one
-  shot, etc).
+
+Mirror system
+-------------
+
+- Store history of downloads (bytes, download time, errors)
+- History queue is shared by all servers, and has a limited lenght
+- Compute penality based on stored history (penality >= 0)
+- All servers start with penality = 0
+- Use servers with the lowest penality
 
 Repositories
 ------------
 
-- Implement rpm-metadata support.
 - Implement an "auto-repository", which downloads the needed info and
   uses that info to load one or more repositories (mirrors?).
 

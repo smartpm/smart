@@ -1,5 +1,6 @@
 from cpm.interfaces.text.progress import TextProgress
 from cpm.interface import Interface
+from cpm.fetcher import Fetcher
 from cpm.report import Report
 import os
 
@@ -10,6 +11,7 @@ class TextInterface(Interface):
 
     def getProgress(self, obj, hassub=False):
         self._progress.setHasSub(hassub)
+        self._progress.setFetcherMode(isinstance(obj, Fetcher))
         return self._progress
 
     def getSubProgress(self, obj):
@@ -21,6 +23,7 @@ class TextInterface(Interface):
     def askYesNo(self, question, default=False):
         mask = default and "%s (Y/n)? " or "%s (y/N)? "
         res = raw_input(mask % question).strip().lower()
+        print
         if res:
             return "yes".startswith(res)
         return default
@@ -28,6 +31,7 @@ class TextInterface(Interface):
     def askContCancel(self, question, default=False):
         mask = default and "%s (Continue/cancel): " or "%s (continue/Cancel)? "
         res = raw_input(mask % question).strip().lower()
+        print
         if res and res != "c":
             return "continue".startswith(res)
         return default
@@ -35,6 +39,7 @@ class TextInterface(Interface):
     def askOkCancel(self, question, default=False):
         mask = default and "%s (Ok/cancel): " or "%s (ok/Cancel): "
         res = raw_input(mask % question).strip().lower()
+        print
         if res:
             return "ok".startswith(res)
         return default

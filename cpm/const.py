@@ -14,6 +14,13 @@ WARNING = 2
 INFO    = 3
 DEBUG   = 4
 
+WAITING   = 1
+RUNNING   = 2
+FAILED    = 3
+SUCCEEDED = 4
+
+BLOCKSIZE = 16384
+
 CONFFILE = "~/.cpm/config"
 DATADIR = "~/.cpm/"
 

@@ -1,5 +1,6 @@
 from cpm.backends.rpm.metadata import RPMMetaDataLoader
 from cpm.util.elementtree import ElementTree
+from cpm.const import SUCCEEDED, FAILED
 from cpm.channel import Channel
 from cpm import *
 import posixpath
@@ -17,24 +18,24 @@ class RPMMetaDataChannel(Channel):
         self._baseurl = baseurl
 
     def getFetchSteps(self):
-        return 1
+        return 2
 
     def fetch(self, fetcher, progress):
 
         fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
-        fetcher.enqueue(repomd)
+        item = fetcher.enqueue(repomd)
         fetcher.run(progress=progress)
 
-        failed = fetcher.getFailed(repomd)
-        info = {}
-        if failed:
-            iface.warning("Failed acquiring repository metadata for '%s': %s" %
-                          (self._alias, failed))
-            iface.debug("%s: %s" % (repomd, failed))
+        if item.getStatus() == FAILED:
+            iface.warning("Failed acquiring information for '%s':" %
+                          self._alias)
+            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+            progress.add(1)
             return
 
-        root = ElementTree.parse(fetcher.getSucceeded(repomd)).getroot()
+        info = {}
+        root = ElementTree.parse(item.getTargetPath()).getroot()
         for node in root.getchildren():
             if node.tag != DATA:
                 continue
@@ -56,30 +57,20 @@ class RPMMetaDataChannel(Channel):
             return
 
         fetcher.reset()
-        primaryurl = info["primary"]["url"]
-        urlmap = {primaryurl: "primary"}
-        fetcher.enqueue(primaryurl,
-                        md5=info["primary"].get("md5"),
-                        uncomp_md5=info["primary"].get("uncomp_md5"),
-                        uncomp=True)
-        fetcher.run("information for '%s'" % self._alias)
+        item = fetcher.enqueue(info["primary"]["url"],
+                               md5=info["primary"].get("md5"),
+                               uncomp_md5=info["primary"].get("uncomp_md5"),
+                               uncomp=True)
+        fetcher.run(progress=progress)
 
-        succeeded = fetcher.getSucceededSet()
-        if primaryurl in succeeded:
-            filename = succeeded.get(primaryurl)
-            if filename:
-                self._loader = RPMMetaDataLoader(filename, self._baseurl)
-                self._loader.setChannel(self)
-
-        failed = fetcher.getFailedSet()
-        if failed:
-            iface.warning("Failed acquiring information for '%s': %s" %
-                          (self._alias, ", ".join(["%s (%s)" %
-                                                   (urlmap[x], failed[x])
-                                                   for x in failed])))
-            if sysconf.get("log-level") >= DEBUG:
-                for url in failed:
-                    iface.debug("%s: %s" % (url, failed[url]))
+        if item.getStatus() == SUCCEEDED:
+            localpath = item.getTargetPath()
+            self._loader = RPMMetaDataLoader(localpath, self._baseurl)
+            self._loader.setChannel(self)
+        else:
+            iface.warning("Failed acquiring information for '%s':" %
+                          self._alias)
+            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
 def create(ctype, data):
     alias = None

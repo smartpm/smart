@@ -1,6 +1,6 @@
 from cpm.backends.rpm.header import URPMILoader
+from cpm.const import SUCCEEDED, FAILED, ALWAYS
 from cpm.channel import Channel
-from cpm.const import ALWAYS
 from cpm import *
 import posixpath
 import os
@@ -21,32 +21,30 @@ class URPMIChannel(Channel):
         fetcher.reset()
 
         url = posixpath.join(self._baseurl, "MD5SUM")
-        fetcher.enqueue(url)
+        item = fetcher.enqueue(url)
         fetcher.run(progress=progress)
-        failed = fetcher.getFailed(url)
         hdlmd5 = None
         if failed:
-            iface.warning("Failed acquiring digest file for '%s': %s" %
-                          (self._alias, failed))
-            iface.debug("%s: %s" % (url, failed))
+            iface.warning("Failed acquiring information for '%s':" %
+                          self._alias)
+            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
         else:
             basename = posixpath.basename(self._hdlurl)
-            for line in open(fetcher.getSucceeded(url)):
+            for line in open(item.getTargetPath()):
                 md5, name = line.split()
                 if name == basename:
                     hdlmd5 = md5
                     break
 
         fetcher.reset()
-        fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
+        item = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
         fetcher.run(progress=progress)
-        failed = fetcher.getFailedSet()
-        if failed:
-            iface.warning("Failed acquiring header list for '%s': %s" %
-                          (self._alias, failed[self._hdlurl]))
-            iface.debug("%s: %s" % (self._hdlurl, failed[self._hdlurl]))
+        if item.getStatus() == FAILED:
+            iface.warning("Failed acquiring information for '%s':" %
+                          self._alias)
+            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
         else:
-            localpath = fetcher.getSucceeded(self._hdlurl)
+            localpath = item.getTargetPath()
             if localpath.endswith(".cz"):
                 if (not os.path.isfile(localpath[:-3]) or
                     fetcher.getCaching() != ALWAYS):

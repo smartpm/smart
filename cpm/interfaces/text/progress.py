@@ -1,4 +1,6 @@
+from cpm.util.strtools import ShortURL
 from cpm.progress import Progress
+import posixpath
 import time
 import sys
 
@@ -11,16 +13,32 @@ class TextProgress(Progress):
         self._lasttopic = None
         self._lastsubkey = None
         self._lastsubkeystart = 0
+        self._fetchermode = False
+        self._seentopics = {}
+        self._addline = False
+        self._shorturl = ShortURL(self.HASHES+34)
 
-    def expose(self, topic, percent, subkey, subtopic, subpercent, data):
+    def setFetcherMode(self, flag):
+        self._fetchermode = flag
+
+    def stop(self):
+        Progress.stop(self)
+        self._shorturl.reset()
+
+    def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         out = sys.stdout
         if self.getHasSub():
             if topic != self._lasttopic:
                 self._lasttopic = topic
+                out.write(" "*(self.HASHES+34)+"\r")
+                if self._addline:
+                    print
+                else:
+                    self._addline = True
                 print topic
             if not subkey:
                 return
-            if subpercent != 100:
+            if not done:
                 now = time.time()
                 if subkey == self._lastsubkey:
                     if (self._lastsubkeystart+2 < now and
@@ -36,6 +54,12 @@ class TextProgress(Progress):
                     self._lastsubkeystart = 0
             current = subpercent
             topic = subtopic
+            if self._fetchermode:
+                if topic not in self._seentopics:
+                    self._seentopics[topic] = True
+                    out.write(" "*(self.HASHES+34)+"\r")
+                    print "->", self._shorturl.get(topic)
+                topic = posixpath.basename(topic)
         else:
             current = percent
         hashes = int(self.HASHES*current/100)
@@ -50,10 +74,10 @@ class TextProgress(Progress):
             out.write("%-28.28s" % topic)
         out.write("#"*hashes)
         out.write(" "*(self.HASHES-hashes+1))
-        if current != 100:
+        if not done:
             out.write("(%3d%%)\r" % current)
         elif subpercent is None:
-            out.write("[100%]\n")
+            out.write("[%3d%%]\n" % current)
         else:
             out.write("[%3d%%]\n" % percent)
         out.flush()
@@ -76,3 +100,5 @@ def test():
 
 if __name__ == "__main__":
     test()
+
+# vim:ts=4:sw=4:et

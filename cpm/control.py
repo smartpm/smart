@@ -9,11 +9,14 @@ import os, md5
 
 class Control:
 
-    def __init__(self):
+    def __init__(self, conffile=None):
         self._conffile = CONFFILE
         self._confdigest = None
         self._channels = []
         self._sysconfchannels = []
+
+        self.loadSysConf(conffile)
+
         self._cache = Cache()
         self._fetcher = Fetcher()
 
@@ -125,7 +128,7 @@ class Control:
                 progress.show()
             channel.fetch(self._fetcher, progress)
             self._cache.addLoader(channel.getLoader())
-        progress.setDone()
+        progress.setStopped()
         progress.show()
         progress.stop()
 
@@ -137,23 +140,21 @@ class Control:
         if not os.path.isdir(localdir):
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=False)
-        pkgurl = {}
+        pkgitem = {}
         for pkg in packages:
             loader = [x for x in pkg.loaders if not x.getInstalled()][0]
             info = loader.getInfo(pkg)
             url = info.getURL()
-            pkgurl[pkg] = url
-            fetcher.enqueue(url, validate=info.validate)
+            pkgitem[pkg] = fetcher.enqueue(url, validate=info.validate)
         fetcher.run(what="packages")
         failed = fetcher.getFailedSet()
         if failed:
             raise Error, "Failed to download packages:\n" + \
                          "\n".join(["    %s: %s" % (url, failed[url])
                                     for url in failed])
-        succeeded = self._fetcher.getSucceededSet()
         pkgpath = {}
         for pkg in packages:
-            pkgpath[pkg] = succeeded[pkgurl[pkg]]
+            pkgpath[pkg] = pkgitem[pkg].getTargetPath()
         return pkgpath
 
     def fetchFiles(self, urllst, what, caching=NEVER):

@@ -2,6 +2,7 @@ from cpm.interfaces.gtk.progress import GtkProgress
 from cpm.interfaces.gtk.changes import GtkChanges
 from cpm.interfaces.gtk.log import GtkLog
 from cpm.interface import Interface
+from cpm.fetcher import Fetcher
 import gtk
 
 class GtkInterface(Interface):
@@ -15,6 +16,7 @@ class GtkInterface(Interface):
     def getProgress(self, obj, hassub=False):
         if hassub:
             self._progress.hide()
+            self._hassubprogress.setFetcherMode(isinstance(obj, Fetcher))
             return self._hassubprogress
         else:
             self._hassubprogress.hide()

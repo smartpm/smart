@@ -38,8 +38,7 @@ def init(opts=None):
     if opts and opts.data_dir:
         datadir = os.path.expanduser(opts.data_dir)
         sysconf.set("data-dir", datadir, soft=True)
-    ctrl = Control()
-    ctrl.loadSysConf(opts and opts.config_file)
+    ctrl = Control(opts and opts.config_file)
     if opts.gui:
         ifacename = sysconf.get("default-gui", "gtk")
     elif opts and opts.interface:

@@ -44,7 +44,9 @@ class SysConfig:
         cPickle.dump(self._map, file, 2)
         file.close()
 
-    def get(self, option, default=None):
+    def get(self, option, default=None, setdefault=None):
+        if setdefault is not None:
+            return self._map.setdefault(option, setdefault)
         value = self._softmap.get(option)
         if value is None:
             value = self._map.get(option)

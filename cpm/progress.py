@@ -10,6 +10,7 @@ class Progress:
         self.__topic = ""
         self.__progress = (0, 0, {}) # (current, total, data)
         self.__lastshown = None
+        self.__done = False
         self.__subtopic = {}
         self.__subprogress = {} # (subcurrent, subtotal, fragment, subdata)
         self.__sublastshown = {}
@@ -25,6 +26,7 @@ class Progress:
         self.__topic = ""
         self.__progress = (0, 0, {})
         self.__lastshown = None
+        self.__done = False
         self.__subtopic.clear()
         self.__subprogress.clear()
         self.__sublastshown.clear()
@@ -55,38 +57,55 @@ class Progress:
             if fragment:
                 current += int(fragment*float(subpercent)/100)
             subtopic = self.__subtopic.get(subkey)
-            if (subtopic, subpercent) == self.__sublastshown.get(subkey):
+            if (subkey not in self.__subdone and
+                (subtopic, subpercent) == self.__sublastshown.get(subkey)):
                 continue
             self.__sublastshown[subkey] = (subtopic, subpercent)
+            subdone = False
             if subpercent == 100:
+                self.__subdone[subkey] = True
+                subdone = True
                 if fragment:
                     _current, _total, _data = self.__progress
                     self.__progress = (_current+fragment, _total, _data)
                     if _current == _total:
                         self.__lasttime = 0
-                self.__subdone[subkey] = True
-                del self.__subprogress[subkey]
-                del self.__sublastshown[subkey]
-                del self.__subtopic[subkey]
-            subexpose.append((subkey, subtopic, subpercent, subdata))
+            elif subkey in self.__subdone:
+                subdone = subkey in self.__subdone
+            subexpose.append((subkey, subtopic, subpercent, subdata, subdone))
         topic = self.__topic
         percent = int(100*float(current)/(total or 1))
         if subexpose:
             for info in subexpose:
                 self.expose(topic, percent, *info)
-            self.expose(topic, percent, None, None, None, data)
+                if info[-1]:
+                    subkey = info[0]
+                    del self.__subprogress[subkey]
+                    del self.__sublastshown[subkey]
+                    del self.__subtopic[subkey]
+            if percent == 100:
+                self.__done = True
+            self.expose(topic, percent, None, None, None, data, self.__done)
         elif (topic, percent) != self.__lastshown:
-            self.expose(topic, percent, None, None, None, data)
+            if percent == 100:
+                self.__done = True
+            self.expose(topic, percent, None, None, None, data, self.__done)
         self.__lock.release()
 
-    def expose(self, topic, percent, subkey, subtopic, subpercent, data):
+    def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         pass
 
     def setTopic(self, topic):
         self.__topic = topic
 
+    def get(self):
+        return self.__progress
+
     def set(self, current, total, data={}):
         self.__lock.acquire()
+        if self.__done:
+            self.__lock.release()
+            return
         if current > total:
             current = total
         self.__progress = (current, total, data)
@@ -96,6 +115,9 @@ class Progress:
 
     def add(self, value):
         self.__lock.acquire()
+        if self.__done:
+            self.__lock.release()
+            return
         current, total, data = self.__progress
         current += value
         if current > total:
@@ -107,6 +129,9 @@ class Progress:
 
     def addTotal(self, value):
         self.__lock.acquire()
+        if self.__done:
+            self.__lock.release()
+            return
         current, total, data = self.__progress
         self.__progress = (current, total+value, data)
         self.__lock.release()
@@ -118,9 +143,12 @@ class Progress:
         self.__subtopic[subkey] = subtopic
         self.__lock.release()
 
+    def getSub(self, subkey):
+        return self.__subprogress.get(subkey)
+
     def setSub(self, subkey, subcurrent, subtotal, fragment=0, subdata={}):
         self.__lock.acquire()
-        if subkey in self.__subdone:
+        if self.__done or subkey in self.__subdone:
             self.__lock.release()
             return
         if subkey not in self.__subtopic:
@@ -135,7 +163,7 @@ class Progress:
 
     def addSub(self, subkey, value):
         self.__lock.acquire()
-        if subkey in self.__subdone:
+        if self.__done or subkey in self.__subdone:
             self.__lock.release()
             return
         subcurrent, subtotal, fragment, subdata = self.__subprogress[subkey]
@@ -149,7 +177,7 @@ class Progress:
 
     def addSubTotal(self, subkey, value):
         self.__lock.acquire()
-        if subkey in self.__subdone:
+        if self.__done or subkey in self.__subdone:
             self.__lock.release()
             return
         subcurrent, subtotal, fragment, subdata = self.__subprogress[subkey]
@@ -161,11 +189,6 @@ class Progress:
         self.__lock.acquire()
         current, total, data = self.__progress
         self.__progress = (total, total, data)
-        for subkey in self.__subprogress:
-            subcurrent, subtotal, fragment, subdata = self.__subprogress[subkey]
-            if subcurrent != subtotal:
-                self.__subprogress[subkey] = (subtotal, subtotal,
-                                             fragment, subdata)
         self.__lasttime = 0
         self.__lock.release()
 
@@ -177,6 +200,18 @@ class Progress:
         subcurrent, subtotal, fragment, subdata = self.__subprogress[subkey]
         if subcurrent != subtotal:
             self.__subprogress[subkey] = (subtotal, subtotal, fragment, subdata)
+        self.__lasttime = 0
+        self.__lock.release()
+
+    def setStopped(self):
+        self.__lock.acquire()
+        self.__done = True
+        self.__lasttime = 0
+        self.__lock.release()
+
+    def setSubStopped(self, subkey):
+        self.__lock.acquire()
+        self.__subdone[subkey] = True
         self.__lasttime = 0
         self.__lock.release()
 

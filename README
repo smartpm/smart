@@ -62,4 +62,5 @@ Supported channel/repository formats
 - URPMI
 - RPM metadata
 - Plain RPM header lists
+- Red Carpet
 

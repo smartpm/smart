@@ -1,4 +1,5 @@
 from cpm.backends.rpm.header import RPMHeaderListLoader
+from cpm.const import SUCCEEDED, FAILED
 from cpm.channel import Channel
 from cpm import *
 import posixpath
@@ -16,17 +17,16 @@ class RPMHeaderListChannel(Channel):
 
     def fetch(self, fetcher, progress):
         fetcher.reset()
-        fetcher.enqueue(self._hdlurl, uncomp=True)
+        item = fetcher.enqueue(self._hdlurl, uncomp=True)
         fetcher.run(progress=progress)
-        failed = fetcher.getFailedSet()
-        if failed:
-            iface.warning("Failed acquiring header list for '%s': %s" %
-                          (self._alias, failed[self._hdlurl]))
-            iface.debug("%s: %s" % (self._hdlurl, failed[self._hdlurl]))
-        else:
-            localpath = fetcher.getSucceeded(self._hdlurl)
+        if item.getStatus() == SUCCEEDED:
+            localpath = item.getTargetPath()
             self._loader = RPMHeaderListLoader(localpath, self._baseurl)
             self._loader.setChannel(self)
+        else:
+            iface.warning("Failed acquiring information for '%s':" %
+                          self._alias)
+            iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
 
 def create(ctype, data):
     alias = None
