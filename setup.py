@@ -35,14 +35,14 @@ PYTHONLIB = get_python_lib()
 
 setup(name="smart",
       version = VERSION,
-      description = "Smart Package Manager is a new generation package "
+      description = "Smart Package Manager is a next generation package "
                     "handling tool",
       author = "Gustavo Niemeyer",
       author_email = "niemeyer@conectiva.com",
       license = "GPL",
       long_description =
 """\
-Smart Package Manager is a new generation package handling tool.
+Smart Package Manager is a next generation package handling tool.
 """,
       packages = [
                   "smart",
