@@ -87,6 +87,7 @@ class URPMIChannel(PackageChannel):
         fetcher.run(progress=progress)
 
         if hdlitem.getStatus() == FAILED:
+            failed = hdlitem.getFailedReason()
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (hdlitem.getURL(), failed)]
@@ -123,13 +124,13 @@ class URPMIChannel(PackageChannel):
                     except Error, e:
                         # cz file has trailing information which breaks
                         # current gzip module logic.
-                        if _("Not a gzipped file") not in e[0]:
+                        if "Not a gzipped file" not in e[0]:
                             os.unlink(linkpath)
                             raise
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
 
-            if open(localpath).read(4) == "\xad\x8e\x01\xe8":
+            if open(localpath).read(4) == "\x8e\xad\xe8\x01":
                 loader = URPMILoader(localpath, self._baseurl, listpath)
             else:
                 loader = URPMISynthesisLoader(localpath, self._baseurl, listpath)
