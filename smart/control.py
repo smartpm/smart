@@ -233,7 +233,7 @@ class Control(object):
             if strToBool(data.get("disabled")):
                 continue
 
-            if alias in self._sysconfchannels:
+            if alias in self._sysconfchannels.keys():
                 if self._sysconfchannels[alias] == data:
                     continue
                 else:
@@ -247,7 +247,7 @@ class Control(object):
             self._sysconfchannels[alias] = data
             self._channels[alias] = channel
 
-        for alias in self._sysconfchannels:
+        for alias in self._sysconfchannels.keys():
             if alias not in channels or channels[alias].get("disabled"):
                 self.removeChannel(alias)
 
