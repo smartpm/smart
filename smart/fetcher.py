@@ -36,6 +36,8 @@ import re
 
 MAXRETRIES = 30
 SPEEDDELAY = 2
+MAXACTIVEDOWNLOADS = 10
+SOCKETTIMEOUT = 120
 
 class FetcherCancelled(Error): pass
 
@@ -59,6 +61,9 @@ class Fetcher(object):
         self._localpathprefix = None
         self._cancel = False
         self._speedupdated = 0
+        self._activedownloads = 0
+        self._activedownloadslock = thread.allocate_lock()
+        self._maxactivedownloads = 0
         self.time = 0
 
     def reset(self):
@@ -143,6 +148,18 @@ class Fetcher(object):
     def getForceMountedCopy(self):
         return self._forcemountedcopy
 
+    def changeActiveDownloads(self, value):
+        result = False
+        self._activedownloadslock.acquire()
+        if self._activedownloads+value <= self._maxactivedownloads:
+            self._activedownloads += value
+            result = True
+        self._activedownloadslock.release()
+        return result
+
+    def getActiveDownloads(self):
+        return self._activedownloads
+
     def enqueue(self, url, **info):
         if url in self._items:
             raise Error, _("%s is already in the queue") % url
@@ -160,7 +177,11 @@ class Fetcher(object):
             handler.runLocal()
 
     def run(self, what=None, progress=None):
+        socket.setdefaulttimeout(sysconf.get("socket-timeout", SOCKETTIMEOUT))
         self._cancel = False
+        self._activedownloads = 0
+        self._maxactivedownloads = sysconf.get("max-active-downloads",
+                                               MAXACTIVEDOWNLOADS)
         self.time = time.time()
         handlers = self._handlers.values()
         total = len(self._items)
@@ -629,6 +650,9 @@ class FetcherHandler(object):
         for item in queue:
             item.setCancelled()
 
+    def changeActiveDownloads(self, value):
+        return self._fetcher.changeActiveDownloads(value)
+
     def tick(self):
         # Ticking does periodic maintenance of the tasks running
         # inside the handler. It should return true while there
@@ -853,7 +877,8 @@ class FTPHandler(FetcherHandler):
                                   if self._active[x] == url.host]
                     maxactive = self._activelimit.get(url.host,
                                                       self.MAXPERHOST)
-                    if len(hostactive) < maxactive:
+                    if (len(hostactive) < maxactive and
+                        self.changeActiveDownloads(+1)):
                         del self._queue[i]
                         userhost = (url.user, url.host, url.port)
                         for ftp in self._inactive:
@@ -896,6 +921,7 @@ class FTPHandler(FetcherHandler):
             self._lock.acquire()
             del self._active[ftp]
             self._lock.release()
+            self.changeActiveDownloads(-1)
         else:
             self.fetch(ftp, item)
 
@@ -907,6 +933,7 @@ class FTPHandler(FetcherHandler):
 
         if self._cancel:
             item.setCancelled()
+            self.changeActiveDownloads(-1)
             return
 
         item.start()
@@ -1010,6 +1037,7 @@ class FTPHandler(FetcherHandler):
             self._queue.append(item)
             del self._active[ftp]
             self._lock.release()
+            self.changeActiveDownloads(-1)
             return
 
         except (Error, IOError, OSError, ftplib.Error), e:
@@ -1023,6 +1051,7 @@ class FTPHandler(FetcherHandler):
         self._inactive[ftp] = (url.user, url.host, url.port)
         del self._active[ftp]
         self._lock.release()
+        self.changeActiveDownloads(-1)
 
 Fetcher.setHandler("ftp", FTPHandler)
 
@@ -1038,7 +1067,8 @@ class URLLIBHandler(FetcherHandler):
     def tick(self):
         self._lock.acquire()
         if self._queue:
-            while self._active < self.MAXACTIVE:
+            while (self._active < self.MAXACTIVE and
+                   self.changeActiveDownloads(+1)):
                 self._active += 1
                 thread.start_new_thread(self.fetch, ())
         self._lock.release()
@@ -1202,6 +1232,8 @@ class URLLIBHandler(FetcherHandler):
         self._active -= 1
         self._lock.release()
 
+        self.changeActiveDownloads(-1)
+
 #Fetcher.setHandler("ftp", URLLIBHandler)
 Fetcher.setHandler("http", URLLIBHandler)
 Fetcher.setHandler("https", URLLIBHandler)
@@ -1236,7 +1268,8 @@ class URLLIB2Handler(FetcherHandler):
     def tick(self):
         self._lock.acquire()
         if self._queue:
-            while self._active < self.MAXACTIVE:
+            while (self._active < self.MAXACTIVE and
+                   self.changeActiveDownloads(+1)):
                 self._active += 1
                 thread.start_new_thread(self.fetch, ())
         self._lock.release()
@@ -1367,6 +1400,8 @@ class URLLIB2Handler(FetcherHandler):
         self._active -= 1
         self._lock.release()
 
+        self.changeActiveDownloads(-1)
+
 #Fetcher.setHandler("ftp", URLLIB2Handler)
 Fetcher.setHandler("http", URLLIB2Handler)
 Fetcher.setHandler("https", URLLIB2Handler)
@@ -1416,6 +1451,8 @@ class PyCurlHandler(FetcherHandler):
             self._lock.acquire()
             num, succeeded, failed = multi.info_read()
             self._lock.release()
+
+            self.changeActiveDownloads(-len(succeeded)-len(failed))
 
             for handle in succeeded:
 
@@ -1497,7 +1534,9 @@ class PyCurlHandler(FetcherHandler):
                                      if self._active[x] == schemehost]
                     maxactive = self._activelimit.get(url.host,
                                                       self.MAXPERHOST)
-                    if len(hostactive) < maxactive:
+                    if (len(hostactive) < maxactive and
+                        self.changeActiveDownloads(+1)):
+
                         del self._queue[i]
 
                         userhost = (url.user, url.host, url.port)
@@ -1618,7 +1657,8 @@ class SCPHandler(FetcherHandler):
                     url = item.getURL()
                     hostactive = [x for x in self._active
                                   if x.getURL().host == url.host]
-                    if len(hostactive) < self.MAXPERHOST:
+                    if (len(hostactive) < self.MAXPERHOST and
+                        self.changeActiveDownloads(+1)):
                         del self._queue[i]
                         self._active.append(item)
                         item.total = None
@@ -1721,6 +1761,8 @@ class SCPHandler(FetcherHandler):
         self._lock.acquire()
         self._active.remove(item)
         self._lock.release()
+
+        self.changeActiveDownloads(-1)
 
 Fetcher.setHandler("scp", SCPHandler)
 
