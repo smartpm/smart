@@ -260,7 +260,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         h, offset = rpm.readHeaderFromFD(file.fileno())
         while h:
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
-                if fn in fndict:
+                if fn in fndict and offset in self._offsets:
                     self.newProvides(self._offsets[offset], (RPMProvides, fn))
             h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
@@ -342,8 +342,9 @@ class RPMDBLoader(RPMHeaderLoader):
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
             h = mi.next()
             while h:
-                self.newProvides(self._offsets[mi.instance()],
-                                 (RPMProvides, fn))
+                i = mi.instance()
+                if i in self._offsets:
+                    self.newProvides(self._offsets[i], (RPMProvides, fn))
                 h = mi.next()
 
 class RPMFileLoader(RPMHeaderLoader):
@@ -389,7 +390,7 @@ class RPMFileLoader(RPMHeaderLoader):
         ts = rpm.ts()
         h = ts.hdrFromFdno(file.fileno())
         for fn in h[1027]: # RPMTAG_OLDFILENAMES
-            if fn in fndict:
+            if fn in fndict and offset in self._offsets:
                 self.newProvides(self._offsets[offset], (RPMProvides, fn))
         file.close()
 
