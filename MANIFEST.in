@@ -1,8 +1,10 @@
 recursive-include smart *.py *.c *.png
-include smart setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README
+include smart setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README README.html
 
 recursive-include contrib/ksmarttray *.png *.cc *.h *.am *.in.in
 recursive-include contrib/ksmarttray LICENSE eventsrc
 graft contrib/ksmarttray/admin
 
 recursive-include contrib/smart-update *.c Makefile
+
+recursive-include contrib/patches *
