@@ -1539,6 +1539,7 @@ Loader__getstate__(LoaderObject *self, PyObject *args)
 {
     PyObject *dict = PyObject_GetAttrString((PyObject *)self, "__dict__");
     PyObject *state = PyDict_New();
+    PyObject *self__stateversion__;
     PyMemberDef *members = Loader_Type.tp_members;
     if (!state) return NULL;
     int i = 0;
@@ -1551,8 +1552,12 @@ Loader__getstate__(LoaderObject *self, PyObject *args)
     }
     if (dict)
         PyDict_Update(state, dict);
-    PyDict_SetItemString(state, "__stateversion__",
-                         PyInt_FromLong(Loader__stateversion__));
+    self__stateversion__ = PyObject_GetAttrString((PyObject *)self,
+                                                  "__stateversion__");
+    if (!self__stateversion__)
+        return NULL;
+    PyDict_SetItemString(state, "__stateversion__", self__stateversion__);
+    Py_DECREF(self__stateversion__);
     return state;
 }
 
@@ -1560,17 +1565,22 @@ static PyObject *
 Loader__setstate__(LoaderObject *self, PyObject *state)
 {
     PyMemberDef *members = Loader_Type.tp_members;
+    PyObject *self__stateversion__;
     PyObject *__stateversion__;
     if (!PyDict_Check(state)) {
         PyErr_SetString(StateVersionError, "");
         return NULL;
     }
     __stateversion__ = PyDict_GetItemString(state, "__stateversion__");
-    if (!__stateversion__ || !PyInt_Check(__stateversion__) ||
-        PyInt_AsLong(__stateversion__) != Loader__stateversion__) {
+    self__stateversion__ = PyObject_GetAttrString((PyObject *)self,
+                                                  "__stateversion__");
+    if (!__stateversion__ || !self__stateversion__ ||
+        PyObject_Compare(__stateversion__, self__stateversion__) != 0) {
+        Py_XDECREF(self__stateversion__);
         PyErr_SetString(StateVersionError, "");
         return NULL;
     }
+    Py_DECREF(self__stateversion__);
     PyObject *dict = PyObject_GetAttrString((PyObject *)self, "__dict__");
     if (dict) {
         PyObject *keys = PyDict_Keys(state);

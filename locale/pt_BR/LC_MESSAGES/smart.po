@@ -1,4 +1,3 @@
-# translation of newsmart.po to 
 # This file is distributed under the same license as the PACKAGE package.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER, 2004.
 #
@@ -6,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: newsmart\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-12-06 16:21-0200\n"
-"PO-Revision-Date: 2004-12-06 16:32-0200\n"
+"POT-Creation-Date: 2004-12-06 17:52-0200\n"
+"PO-Revision-Date: 2004-12-06 17:53-0200\n"
 "Last-Translator: \n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -145,12 +144,16 @@ msgstr "usa a opção dada pelo par nome=valor"
 msgid "Invalid option: %s"
 msgstr "Opção inválida: %s"
 
-#: smart.py:164
+#: smart.py:165
+msgid "Unknown error"
+msgstr "Erro desconhecido"
+
+#: smart.py:167
 #, python-format
 msgid "error: %s\n"
 msgstr "erro: %s\n"
 
-#: smart.py:173 smart/interfaces/text/interactive.py:153
+#: smart.py:176 smart/interfaces/text/interactive.py:153
 msgid ""
 "\n"
 "Interrupted\n"
@@ -158,11 +161,11 @@ msgstr ""
 "\n"
 "Interrompido\n"
 
-#: smart/__init__.py:86
+#: smart/__init__.py:87
 msgid "Unknown log level"
 msgstr "Nível de log desconhecido"
 
-#: smart/__init__.py:96
+#: smart/__init__.py:97
 msgid "Can't use commands with shell interfaces"
 msgstr "Não é possível usar comandos com interfaces shell"
 
@@ -686,7 +689,9 @@ msgstr "Informação primária não encontrada nos metadados para '%s'"
 
 #: smart/channels/rpm_md.py:115
 msgid "You must fetch channel information to acquire needed filelists."
-msgstr "Você deve atualizar as informações dos canais para obter as listas de arquivos necessárias."
+msgstr ""
+"Você deve atualizar as informações dos canais para obter as listas de "
+"arquivos necessárias."
 
 #: smart/channels/rpm_md_info.py:26
 msgid "RPM MetaData"
@@ -2091,6 +2096,18 @@ msgstr "Senha"
 msgid "A password is needed for '%s'."
 msgstr "Uma senha é necessária para '%s'"
 
+#: smart/interface.py:123 smart/interfaces/gtk/log.py:80
+msgid "error"
+msgstr "erro"
+
+#: smart/interface.py:123 smart/interfaces/gtk/log.py:80
+msgid "warning"
+msgstr "atenção"
+
+#: smart/interface.py:124 smart/interfaces/gtk/log.py:81
+msgid "debug"
+msgstr "depuração"
+
 #: smart/interface.py:151
 #, python-format
 msgid "Interface '%s' not available"
@@ -2627,18 +2644,6 @@ msgstr "Insira uma ou mais das seguintes mídias removíveis:\n"
 #: smart/interfaces/gtk/log.py:37
 msgid "Log"
 msgstr "Log"
-
-#: smart/interfaces/gtk/log.py:80
-msgid "error"
-msgstr "erro"
-
-#: smart/interfaces/gtk/log.py:80
-msgid "warning"
-msgstr "atenção"
-
-#: smart/interfaces/gtk/log.py:81
-msgid "debug"
-msgstr "depuração"
 
 #: smart/interfaces/gtk/mirrors.py:32
 msgid "Mirrors"

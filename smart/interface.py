@@ -120,8 +120,8 @@ class Interface(object):
             self.message(DEBUG, msg)
 
     def message(self, level, msg):
-        prefix = {ERROR: "error", WARNING: "warning",
-                  DEBUG: "debug"}.get(level)
+        prefix = {ERROR: _("error"), WARNING: _("warning"),
+                  DEBUG: _("debug")}.get(level)
         if sys.stderr.isatty():
             sys.stderr.write(" "*(getScreenWidth()-1)+"\r")
         if prefix:
