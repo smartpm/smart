@@ -1,6 +1,6 @@
-from epm.sorter import UpgradeSorter, ObsoletesSorter
-from epm.const import INSTALL, REMOVE
-from epm import Error
+from cpm.sorter import UpgradeSorter, ObsoletesSorter
+from cpm.const import INSTALL, REMOVE
+from cpm import Error
 
 class ChangeSet(object):
     def __init__(self, state=None):

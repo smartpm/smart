@@ -1,2 +1,2 @@
-recursive-include epm *.py *.c
-include epm.py setup.cfg MANIFEST.in HACKING IDEAS TODO
+recursive-include cpm *.py *.c
+include cpm.py setup.cfg MANIFEST.in HACKING IDEAS TODO

@@ -1,11 +1,11 @@
-from epm.option import OptionParser
-from epm.control import Control
-from epm.cache import Provides
-from epm import *
+from cpm.option import OptionParser
+from cpm.control import Control
+from cpm.cache import Provides
+from cpm import *
 import string
 import re
 
-USAGE="epm query [options]"
+USAGE="cpm query [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)

@@ -1,5 +1,5 @@
-from epm.backends.rpm.header import RPMDBLoader
-from epm.repository import Repository
+from cpm.backends.rpm.header import RPMDBLoader
+from cpm.repository import Repository
 
 class RPMDBRepository(Repository):
 

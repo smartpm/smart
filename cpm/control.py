@@ -1,15 +1,15 @@
-from epm.elementtree import ElementTree
-from epm.committer import Committer
-from epm.progress import Progress
-from epm.fetcher import Fetcher
-from epm.cache import Cache
-from epm.const import *
-from epm import *
+from cpm.elementtree import ElementTree
+from cpm.committer import Committer
+from cpm.progress import Progress
+from cpm.fetcher import Fetcher
+from cpm.cache import Cache
+from cpm.const import *
+from cpm import *
 import sys, os
 
 CONFIGFILES = [
-    ("~/.epm/config", "~/.epm/"),
-    ("/etc/epm.conf", "/var/state/epm"),
+    ("~/.cpm/config", "~/.cpm/"),
+    ("/etc/cpm.conf", "/var/state/cpm"),
 ]
 
 CACHEFORMAT = 1
@@ -112,8 +112,8 @@ class Control:
     def importRepository(self, type):
         try:
             xtype = type.replace('-', '_').lower()
-            epm_module = __import__("epm.repositories."+xtype)
-            reps_module = getattr(epm_module, "repositories")
+            cpm_module = __import__("cpm.repositories."+xtype)
+            reps_module = getattr(cpm_module, "repositories")
             rep_module = getattr(reps_module, xtype)
         except (ImportError, AttributeError):
             if self._options.loglevel == "debug":

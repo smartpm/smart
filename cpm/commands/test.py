@@ -1,11 +1,11 @@
-from epm.option import OptionParser
-from epm.control import Control
-from epm.cmdline import initCmdLine
-from epm import *
+from cpm.option import OptionParser
+from cpm.control import Control
+from cpm.cmdline import initCmdLine
+from cpm import *
 import string
 import re
 
-USAGE="epm test [options]"
+USAGE="cpm test [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)

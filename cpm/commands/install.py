@@ -1,13 +1,13 @@
-from epm.transaction import Transaction, PolicyInstall
-from epm.matcher import MasterMatcher
-from epm.option import OptionParser
-from epm.control import Control
-from epm.cmdline import initCmdLine
-from epm import *
+from cpm.transaction import Transaction, PolicyInstall
+from cpm.matcher import MasterMatcher
+from cpm.option import OptionParser
+from cpm.control import Control
+from cpm.cmdline import initCmdLine
+from cpm import *
 import string
 import re
 
-USAGE="epm install [options] packages"
+USAGE="cpm install [options] packages"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)

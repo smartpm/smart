@@ -1,18 +1,18 @@
 #!/usr/bin/python
-from epm.option import OptionParser
-from epm import *
+from cpm.option import OptionParser
+from cpm import *
 import logging
 import sys
 
 VERSION = "0.0.1"
 
 HELP = """\
-Usage: epm command [options] [arguments]
+Usage: cpm command [options] [arguments]
 
 Available commands:
     query
 
-Run "epm command --help" for more information.
+Run "cpm command --help" for more information.
 """
 
 def parse_options(argv):
@@ -20,7 +20,7 @@ def parse_options(argv):
     parser.disable_interspersed_args()
     parser.add_option("-c", dest="conffile", metavar="FILE",
                       help="configuration file (default is "
-                           "~/.epm/config or /etc/epm.conf)")
+                           "~/.cpm/config or /etc/cpm.conf)")
     parser.add_option("--log", dest="loglevel", metavar="LEVEL",
                       help="set logging level to LEVEL (debug, info, "
                            "warning, error)", default="warning")
@@ -37,8 +37,8 @@ def main(argv):
     opts = parse_options(argv)
     try:
         try:
-            epm_module = __import__("epm.commands."+opts.command)
-            commands_module = getattr(epm_module, "commands")
+            cpm_module = __import__("cpm.commands."+opts.command)
+            commands_module = getattr(cpm_module, "commands")
             command_module = getattr(commands_module, opts.command)
         except (ImportError, AttributeError):
             if opts.loglevel == "debug":

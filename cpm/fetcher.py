@@ -1,6 +1,6 @@
-from epm.const import OPTIONAL, ALWAYS, NEVER
-from epm.progress import Progress
-from epm import *
+from cpm.const import OPTIONAL, ALWAYS, NEVER
+from cpm.progress import Progress
+from cpm import *
 import tempfile
 import urllib
 import string

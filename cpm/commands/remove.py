@@ -1,13 +1,13 @@
-from epm.transaction import Transaction, PolicyRemove
-from epm.matcher import MasterMatcher
-from epm.option import OptionParser
-from epm.control import Control
-from epm.cache import Provides
-from epm import *
+from cpm.transaction import Transaction, PolicyRemove
+from cpm.matcher import MasterMatcher
+from cpm.option import OptionParser
+from cpm.control import Control
+from cpm.cache import Provides
+from cpm import *
 import string
 import re
 
-USAGE="epm install [options] packages"
+USAGE="cpm install [options] packages"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
@@ -34,9 +34,9 @@ def main(opts):
     trans.minimize()
     print trans
     print "Running transaction"
-    from epm.backends.rpm.pm import RPMPackageManager
+    from cpm.backends.rpm.pm import RPMPackageManager
     pm = RPMPackageManager()
-    from epm.progress import RPMStyleProgress
+    from cpm.progress import RPMStyleProgress
     prog = RPMStyleProgress()
     #pm.commit(trans, prog)
     ctrl.standardFinalize()

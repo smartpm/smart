@@ -1,5 +1,5 @@
-from epm.cache import Loader, PackageInfo
-from epm.backends.rpm import *
+from cpm.cache import Loader, PackageInfo
+from cpm.backends.rpm import *
 import posixpath
 import rpm
 

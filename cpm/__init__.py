@@ -14,14 +14,14 @@ def getlogger():
     formatter = Formatter("%(llevelname)s: %(message)s")
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(formatter)
-    logger = logging.getLogger("epm")
+    logger = logging.getLogger("cpm")
     logger.addHandler(handler)
     return logger
 
 logger = getlogger()
 
 try:
-    _ = translation("epm").ugettext
+    _ = translation("cpm").ugettext
 except IOError:
     _ = lambda s: unicode(s)
 

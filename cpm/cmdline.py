@@ -1,5 +1,5 @@
-from epm.progress import Progress, RPMStyleProgress
-from epm import *
+from cpm.progress import Progress, RPMStyleProgress
+from cpm import *
 import os
 
 def initCmdLine(ctrl):

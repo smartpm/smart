@@ -1,5 +1,5 @@
-from epm.transaction import INSTALL, REMOVE
-from epm import *
+from cpm.transaction import INSTALL, REMOVE
+from cpm import *
 
 class Committer(object):
 

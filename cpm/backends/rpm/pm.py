@@ -1,6 +1,6 @@
-from epm.pm import PackageManager
-from epm.transaction import INSTALL, REMOVE
-from epm import *
+from cpm.pm import PackageManager
+from cpm.transaction import INSTALL, REMOVE
+from cpm import *
 import sys, os
 import rpm
 
