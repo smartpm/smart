@@ -342,9 +342,9 @@ class Loader(object):
         prv.packages.append(pkg)
         pkg.provides.append(prv)
 
-        if name[0] == "/":
+        if prv.name[0] == "/":
             for req in pkg.requires[:]:
-                if req.name == name:
+                if req.name == prv.name:
                     pkg.requires.remove(req)
                     req.packages.remove(pkg)
                     if not req.packages:
@@ -369,7 +369,7 @@ class Loader(object):
                 lst.append(obs)
             else:
                 cache._obsnames[obs.name] = [obs]
-            cache._provides.append(obs)
+            cache._obsoletes.append(obs)
         obs.packages.append(pkg)
         pkg.obsoletes.append(obs)
 
