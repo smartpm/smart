@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from epm.option import OptionParser
 from epm import *
+import logging
 import sys
 
 VERSION = "0.0.1"
@@ -26,6 +27,7 @@ def parse_options(argv):
                       help="set logging level to LEVEL (debug, info, "
                            "warning, error)", default="warning")
     opts, args = parser.parse_args()
+    logger.setLevel(logging.getLevelName(opts.loglevel.upper()))
     if len(args) < 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
