@@ -1,14 +1,14 @@
 from cpm.backends.rpm.header import RPMPackageListLoader
-from cpm.repository import Repository, RepositoryDataError
+from cpm.channel import Channel, ChannelDataError
 from cpm.cache import LoaderSet
 from cpm.const import DEBUG
 from cpm import *
 import posixpath
 
-class APTRPMRepository(Repository):
+class APTRPMChannel(Channel):
 
     def __init__(self, type, name, baseurl, comps):
-        Repository.__init__(self, type, name)
+        Channel.__init__(self, type, name)
         
         self._baseurl = baseurl
         self._comps = comps
@@ -79,7 +79,7 @@ class APTRPMRepository(Repository):
             filename = succeeded.get(url)
             if filename:
                 loader = RPMPackageListLoader(filename, self._baseurl)
-                loader.setRepository(self)
+                loader.setChannel(self)
                 self._loader.append(loader)
         failed = fetcher.getFailedSet()
         if failed:
@@ -91,7 +91,7 @@ class APTRPMRepository(Repository):
                 for url in failed:
                     iface.debug("%s: %s" % (url, failed[url]))
 
-def create(reptype, data):
+def create(ctype, data):
     name = None
     baseurl = None
     comps = None
@@ -99,7 +99,7 @@ def create(reptype, data):
         name = data.get("name")
         baseurl = data.get("baseurl")
         comps = (data.get("components") or "").split()
-    elif hasattr(data, "tag") and data.tag == "repository":
+    elif hasattr(data, "tag") and data.tag == "channel":
         node = data
         name = node.get("name")
         for n in node.getchildren():
@@ -108,13 +108,13 @@ def create(reptype, data):
             elif n.tag == "components":
                 comps = n.text.split()
     else:
-        raise RepositoryDataError
+        raise ChannelDataError
     if not name:
-        raise Error, "repository of type '%s' has no name" % reptype
+        raise Error, "channel of type '%s' has no name" % ctype
     if not baseurl:
-        raise Error, "repository '%s' has no baseurl" % name
+        raise Error, "channel '%s' has no baseurl" % name
     if not comps:
-        raise Error, "repository '%s' has no components" % name
-    return APTRPMRepository(reptype, name, baseurl, comps)
+        raise Error, "channel '%s' has no components" % name
+    return APTRPMChannel(ctype, name, baseurl, comps)
 
 # vim:ts=4:sw=4:et

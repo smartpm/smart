@@ -149,16 +149,16 @@ class Conflicts(Depends): pass
 
 class Loader(object):
     def __init__(self):
-        self._repository = None
+        self._channel = None
         self._cache = None
         self._installed = False
         self.reset()
 
-    def getRepository(self):
-        return self._repository
+    def getChannel(self):
+        return self._channel
 
-    def setRepository(self, repository):
-        self._repository = repository
+    def setChannel(self, channel):
+        self._channel = channel
 
     def getCache(self):
         return self._cache
@@ -414,14 +414,14 @@ class Loader(object):
 
 class LoaderSet(list):
 
-    def getRepository(self):
+    def getChannel(self):
         if self:
-            return self[0].getRepository()
+            return self[0].getChannel()
         return None
 
-    def setRepository(self, repository):
+    def setChannel(self, channel):
         for loader in self:
-            loader.setRepository(repository)
+            loader.setChannel(channel)
 
     def getCache(self):
         if self:

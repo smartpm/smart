@@ -13,10 +13,10 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
-    ctrl.reloadSysConfRepositories()
-    repositories = ctrl.getRepositories()
+    ctrl.reloadSysConfChannels()
+    channels = ctrl.getChannels()
     if opts.args:
-        repositories = [x for x in repositories if x.getName() in opts.args]
-    ctrl.fetchRepositories(repositories, caching=NEVER)
+        channels = [x for x in channels if x.getName() in opts.args]
+    ctrl.fetchChannels(channels, caching=NEVER)
 
 # vim:ts=4:sw=4:et

@@ -59,7 +59,7 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    PyObject *_repository;
+    PyObject *_channel;
     PyObject *_cache;
     PyObject *_packages;
     PyObject *_installed;
@@ -620,7 +620,7 @@ Loader_init(LoaderObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, ""))
         return -1;
     Py_INCREF(Py_None);
-    self->_repository = Py_None;
+    self->_channel = Py_None;
     self->_packages = PyList_New(0);
     Py_INCREF(Py_False);
     self->_installed = Py_False;
@@ -630,7 +630,7 @@ Loader_init(LoaderObject *self, PyObject *args)
 static void
 Loader_dealloc(LoaderObject *self)
 {
-    Py_XDECREF(self->_repository);
+    Py_XDECREF(self->_channel);
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_installed);
     Py_XDECREF(self->_cache);
@@ -638,18 +638,18 @@ Loader_dealloc(LoaderObject *self)
 }
 
 PyObject *
-Loader_getRepository(LoaderObject *self, PyObject *args)
+Loader_getChannel(LoaderObject *self, PyObject *args)
 {
-    Py_INCREF(self->_repository);
-    return self->_repository;
+    Py_INCREF(self->_channel);
+    return self->_channel;
 }
 
 PyObject *
-Loader_setRepository(LoaderObject *self, PyObject *repository)
+Loader_setChannel(LoaderObject *self, PyObject *channel)
 {
-    Py_DECREF(self->_repository);
-    self->_repository = repository;
-    Py_INCREF(self->_repository);
+    Py_DECREF(self->_channel);
+    self->_channel = channel;
+    Py_INCREF(self->_channel);
     Py_RETURN_NONE;
 }
 
@@ -1554,8 +1554,8 @@ Loader_newConflicts(LoaderObject *self, PyObject *args)
 }
 
 static PyMethodDef Loader_methods[] = {
-    {"getRepository", (PyCFunction)Loader_getRepository, METH_NOARGS, NULL},
-    {"setRepository", (PyCFunction)Loader_setRepository, METH_O, NULL},
+    {"getChannel", (PyCFunction)Loader_getChannel, METH_NOARGS, NULL},
+    {"setChannel", (PyCFunction)Loader_setChannel, METH_O, NULL},
     {"getCache", (PyCFunction)Loader_getCache, METH_NOARGS, NULL},
     {"setCache", (PyCFunction)Loader_setCache, METH_O, NULL},
     {"getInstalled", (PyCFunction)Loader_getInstalled, METH_NOARGS, NULL},
@@ -1577,7 +1577,7 @@ static PyMethodDef Loader_methods[] = {
 
 #define OFF(x) offsetof(LoaderObject, x)
 static PyMemberDef Loader_members[] = {
-    {"_repository", T_OBJECT, OFF(_repository), RO, 0},
+    {"_channel", T_OBJECT, OFF(_channel), RO, 0},
     {"_cache", T_OBJECT, OFF(_cache), RO, 0},
     {"_packages", T_OBJECT, OFF(_packages), RO, 0},
     {"_installed", T_OBJECT, OFF(_installed), RO, 0},

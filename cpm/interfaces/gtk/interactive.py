@@ -64,7 +64,7 @@ class GtkInteractiveInterface(GtkInterface):
         menuitem = gtk.MenuItem("_Edit")
         submenu = gtk.Menu()
         submenu.show()
-        submenuitem = gtk.MenuItem("_Repositories")
+        submenuitem = gtk.MenuItem("_Channels...")
         submenuitem.show()
         submenu.add(submenuitem)
         submenuitem = gtk.SeparatorMenuItem()
@@ -114,8 +114,8 @@ class GtkInteractiveInterface(GtkInterface):
         subsubmenu = gtk.Menu()
         subsubmenuitem = None
         for label, mode in [("Groups", "groups"),
-                            ("Repositories", "repositories"),
-                            ("Repositories & Groups", "repositories-groups"),
+                            ("Channels", "channels"),
+                            ("Channels & Groups", "channels-groups"),
                             ("None", "none")]:
             subsubmenuitem = gtk.RadioMenuItem(subsubmenuitem, label)
             if tree == mode:
@@ -170,7 +170,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._ctrl = ctrl
         self._transaction = Transaction(ctrl.getCache())
         self._window.show()
-        ctrl.fetchRepositories()
+        ctrl.fetchChannels()
         ctrl.loadCache()
         self._progress.hide()
         self.refreshPackages()
@@ -183,7 +183,7 @@ class GtkInteractiveInterface(GtkInterface):
 
     def updateAll(self):
         self._ctrl.unloadCache()
-        self._ctrl.fetchRepositories(caching=NEVER)
+        self._ctrl.fetchChannels(caching=NEVER)
         self._ctrl.loadCache()
         self.refreshPackages()
         self._progress.hide()
@@ -192,7 +192,7 @@ class GtkInteractiveInterface(GtkInterface):
         if self._ctrl.commitTransaction(self._transaction):
             self._transaction.getChangeSet().clear()
             self._ctrl.unloadCache()
-            self._ctrl.fetchRepositories()
+            self._ctrl.fetchChannels()
             self._ctrl.loadCache()
             self.refreshPackages()
         self._progress.hide()
@@ -277,12 +277,12 @@ class GtkInteractiveInterface(GtkInterface):
                         else:
                             groups[group] = [pkg]
 
-        elif tree == "repositories":
+        elif tree == "channels":
             groups = {}
             done = {}
             for pkg in packages:
                 for loader in pkg.loaders:
-                    group = loader.getRepository().getName()
+                    group = loader.getChannel().getName()
                     donetuple = (group, pkg)
                     if donetuple not in done:
                         done[donetuple] = True
@@ -291,12 +291,12 @@ class GtkInteractiveInterface(GtkInterface):
                         else:
                             groups[group] = [pkg]
 
-        elif tree == "repositories-groups":
+        elif tree == "channels-groups":
             groups = {}
             done = {}
             for pkg in packages:
                 for loader in pkg.loaders:
-                    group = loader.getRepository().getName()
+                    group = loader.getChannel().getName()
                     subgroup = loader.getInfo(pkg).getGroup()
                     donetuple = (group, subgroup, pkg)
                     if donetuple not in done:

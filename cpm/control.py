@@ -1,5 +1,5 @@
 from cpm.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
-from cpm.repository import createRepository
+from cpm.channel import createChannel
 from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
@@ -11,21 +11,21 @@ class Control:
     def __init__(self):
         self._conffile = CONFFILE
         self._confdigest = None
-        self._replst = []
-        self._sysconfreplst = []
+        self._channels = []
+        self._sysconfchannels = []
         self._cache = Cache()
         self._fetcher = Fetcher()
 
-    def getRepositories(self):
-        return self._replst
+    def getChannels(self):
+        return self._channels
 
-    def addRepository(self, repos):
-        self._replst.append(repos)
+    def addChannel(self, channel):
+        self._channels.append(channel)
 
-    def removeRepository(self, repos):
-        if repos in self._sysconfreplst:
-            raise Error, "Repository is in system configuration"
-        self._replst.remove(repos)
+    def removeChannel(self, channel):
+        if channel in self._sysconfchannels:
+            raise Error, "Channel is in system configuration"
+        self._channels.remove(channel)
 
     def getCache(self):
         return self._cache
@@ -71,40 +71,40 @@ class Control:
         conffile = os.path.expanduser(conffile)
         sysconf.save(conffile)
 
-    def reloadSysConfRepositories(self):
-        for repos in self._sysconfreplst:
-            self._replst.remove(repos)
-            self._cache.removeLoader(repos.getLoader())
-        del self._sysconfreplst[:]
+    def reloadSysConfChannels(self):
+        for channel in self._sysconfchannels:
+            self._channels.remove(channel)
+            self._cache.removeLoader(channel.getLoader())
+        del self._sysconfchannels[:]
         names = {}
-        for data in sysconf.get("repositories", ()):
+        for data in sysconf.get("channels", ()):
             if data.get("disabled"):
                 continue
             type = data.get("type")
             if not type:
-                raise Error, "Repository without type in configuration"
-            repos = createRepository(type, data)
-            name = repos.getName()
+                raise Error, "Channel without type in configuration"
+            channel = createChannel(type, data)
+            name = channel.getName()
             if names.get(name):
-                raise Error, "'%s' is not a unique repository name" % name
+                raise Error, "'%s' is not a unique channel name" % name
             else:
                 names[name] = True
-            self._sysconfreplst.append(repos)
-            self._replst.append(repos)
+            self._sysconfchannels.append(channel)
+            self._channels.append(channel)
 
-    def fetchRepositories(self, replst=None, caching=ALWAYS):
-        if replst is None:
-            self.reloadSysConfRepositories()
-            replst = self._replst
-        localdir = os.path.join(sysconf.get("data-dir"), "repositories/")
+    def fetchChannels(self, channels=None, caching=ALWAYS):
+        if channels is None:
+            self.reloadSysConfChannels()
+            channels = self._channels
+        localdir = os.path.join(sysconf.get("data-dir"), "channels/")
         if not os.path.isdir(localdir):
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=True)
         self._fetcher.setCaching(caching)
-        for repos in replst:
-            self._cache.removeLoader(repos.getLoader())
-            repos.fetch(self._fetcher)
-            self._cache.addLoader(repos.getLoader())
+        for channel in channels:
+            self._cache.removeLoader(channel.getLoader())
+            channel.fetch(self._fetcher)
+            self._cache.addLoader(channel.getLoader())
 
     def fetchPackages(self, packages, caching=OPTIONAL):
         fetcher = self._fetcher

@@ -43,7 +43,7 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
-    ctrl.fetchRepositories()
+    ctrl.fetchChannels()
     ctrl.loadCache()
 
     cache = ctrl.getCache()
