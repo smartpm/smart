@@ -32,9 +32,13 @@ class GtkCommandInterface(GtkInterface):
 
     def showStatus(self, msg):
         self._status.show(msg)
+        while gtk.events_pending():
+            gtk.main_iteration()
 
     def hideStatus(self):
         self._status.hide()
+        while gtk.events_pending():
+            gtk.main_iteration()
 
     def run(self, command=None, argv=None):
         result = GtkInterface.run(self, command, argv)        
