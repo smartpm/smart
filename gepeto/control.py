@@ -116,7 +116,8 @@ class Control(object):
             self._confdigest = confdigest
             conffile = self._conffile
         conffile = os.path.expanduser(conffile)
-        sysconf.save(conffile)
+        if os.access(conffile, os.W_OK):
+            sysconf.save(conffile)
 
     def reloadSysConfChannels(self):
         for channel in self._sysconfchannels:
@@ -205,6 +206,9 @@ class Control(object):
             pkgitems[pkg] = []
             for url in urls:
                 pkgitems[pkg].append(fetcher.enqueue(url,
+                                                     md5=info.getMD5(url),
+                                                     sha=info.getSHA(url),
+                                                     size=info.getSize(url),
                                                      validate=info.validate))
         fetcher.run(what="packages")
         failed = fetcher.getFailedSet()
