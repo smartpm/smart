@@ -1,6 +1,7 @@
 from gepeto.transaction import Transaction, ChangeSet, INSTALL, REMOVE, UPGRADE
 from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
+from gepeto.interfaces.gtk.mirrors import GtkMirrors
 from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
@@ -32,7 +33,7 @@ UI = """
         <menuitem action="find"/>
         <separator/>
         <menuitem action="edit-channels"/>
-        <menuitem action="edit-preferences"/>
+        <menuitem action="edit-mirrors"/>
     </menu>
     <menu action="view">
         <menuitem action="hide-non-upgrades"/>
@@ -73,13 +74,13 @@ UI = """
 
 ACTIONS = [
     ("file", None, "_File"),
-    ("update-selected-channels", "gtk-refresh", "Update Selected Channels...", None,
+    ("update-selected-channels", "gtk-refresh", "Update _Selected Channels...", None,
      "Update given channels", "self.updateChannels(True)"),
-    ("update-channels", "gtk-refresh", "Update Channels", None,
+    ("update-channels", "gtk-refresh", "_Update Channels", None,
      "Update channels", "self.updateChannels()"),
-    ("rebuild-cache", None, "Rebuild Cache", None,
+    ("rebuild-cache", None, "_Rebuild Cache", None,
      "Reload package information", "self.rebuildCache()"),
-    ("exec-changes", "gtk-execute", "Execute Changes...", "<control>c",
+    ("exec-changes", "gtk-execute", "_Execute Changes...", "<control>c",
      "Apply marked changes", "self.applyChanges()"),
     ("quit", "gtk-quit", "_Quit", "<control>q",
      "Quit application", "gtk.main_quit()"),
@@ -89,26 +90,26 @@ ACTIONS = [
      "Undo last change", "self.undo()"),
     ("redo", "gtk-redo", "_Redo", "<control><shift>z",
      "Redo last undone change", "self.redo()"),
-    ("clear-changes", "gtk-clear", "Clear Changes", None,
+    ("clear-changes", "gtk-clear", "Clear Marked Changes", None,
      "Clear all changes", "self.clearChanges()"),
-    ("upgrade-all", "gtk-go-up", "Upgrade All...", None,
+    ("upgrade-all", "gtk-go-up", "Upgrade _All...", None,
      "Upgrade all packages", "self.upgradeAll()"),
-    ("find", "gtk-find", "Find...", "<control>f",
+    ("find", "gtk-find", "_Find...", "<control>f",
      "Find packages", "self.toggleSearch()"),
-    ("edit-channels", None, "Channels", None,
+    ("edit-channels", None, "_Channels", None,
      "Edit channels", "self.editChannels()"),
-    ("edit-preferences", "gtk-preferences", "_Preferences", None,
-     "Edit preferences", ""),
+    ("edit-mirrors", None, "_Mirrors", None,
+     "Edit mirrors", "self.editMirrors()"),
 
     ("view", None, "_View"),
-    ("tree-style", None, "Tree Style"),
-    ("expand-all", "gtk-open", "Expand All", None,
+    ("tree-style", None, "_Tree Style"),
+    ("expand-all", "gtk-open", "_Expand All", None,
      "Expand all items in the tree", "self._pv.getTreeView().expand_all()"),
-    ("collapse-all", "gtk-close", "Collapse All", None,
+    ("collapse-all", "gtk-close", "_Collapse All", None,
      "Collapse all items in the tree", "self._pv.getTreeView().collapse_all()"),
-    ("summary-window", None, "Summary Window", "<control>s",
+    ("summary-window", None, "_Summary Window", "<control>s",
      "Show summary window", "self.showChanges()"),
-    ("log-window", None, "Log Window", None,
+    ("log-window", None, "_Log Window", None,
      "Show log window", "self._log.show()"),
 ]
 
@@ -446,6 +447,10 @@ class GtkInteractiveInterface(GtkInterface):
     def editChannels(self):
         channels = GtkChannels()
         channels.show()
+
+    def editMirrors(self):
+        mirrors = GtkMirrors()
+        mirrors.show()
 
     def setBusy(self, flag):
         if flag:

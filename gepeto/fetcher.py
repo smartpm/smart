@@ -8,6 +8,7 @@ import string
 import thread
 import time
 import os
+import re
 
 class Fetcher(object):
 
@@ -362,6 +363,8 @@ class FetchItem(object):
         prog = self._progress
         url = self._urlobj.original
         prog.setSubTopic(url, url)
+        prog.setSubTopic(url, re.sub("([a-z]+:/+[^:@/]+:)[^:@/]+(@.*)",
+                                     r"\1*\2", url))
         prog.setSub(url, 0, self._info.get("size") or 1, 1)
         prog.show()
 
@@ -1330,10 +1333,15 @@ class SCPHandler(FetcherHandler):
             status, output = ssh.ssh("stat -c '%%Y %%s' %s" % url.path)
             if status == 0:
                 tokens = output.split()
-                mtime = int(tokens[0])
-                total = int(tokens[1])
-                if size and size != total:
-                    raise Error, "Server reports unexpected size"
+                try:
+                    mtime = int(tokens[0])
+                    total = int(tokens[1])
+                except ValueError:
+                    if size:
+                        total = size
+                else:
+                    if size and size != total:
+                        raise Error, "Server reports unexpected size"
             elif size:
                 total = size
 
