@@ -128,7 +128,16 @@ class DebTagFileLoader(Loader):
         Upg = DebUpgrades
         Cnf = DebConflicts
         prog = iface.getProgress(self._cache)
+        inst = self.getInstalled()
         for section, offset in self.getSections(prog):
+            if inst:
+                try:
+                    want, flag, status = section.get("status", "").split()
+                except ValueError:
+                    continue
+                if status != "installed":
+                    continue
+            
             name = section.get("package")
             version = section.get("version")
 

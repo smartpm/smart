@@ -121,6 +121,7 @@ class DebPackageManager(PackageManager):
         prog.start()
         prog.setTopic("Committing transaction...")
         prog.show()
+        print
 
         # Compute upgraded packages
         upgraded = {}
@@ -239,8 +240,10 @@ class DebPackageManager(PackageManager):
                 prog.stop()
                 return
 
+            print
             prog.add(len(pkgs))
             prog.show()
+            print
 
         prog.setDone()
         prog.stop()
