@@ -734,7 +734,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     if (prvargs) {
         /* for args in prvargs: */
         int i = 0;    
-        int len = PyList_Size(prvargs);
+        int len = PyList_GET_SIZE(prvargs);
         for (; i != len; i++) {
             PyObject *args = PyList_GET_ITEM(prvargs, i);
             ProvidesObject *prvobj;
@@ -759,6 +759,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
                 /* cache._prvmap[args] = prv */
                 PyDict_SetItem(cache->_prvmap, args, prv);
+                Py_DECREF(prv);
 
                 /*
                    lst = cache._prvnames.get(prv.name)
@@ -771,6 +772,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 if (!lst) {
                     lst = PyList_New(0);
                     PyDict_SetItem(cache->_prvnames, prvobj->name, lst);
+                    Py_DECREF(lst);
                 }
                 PyList_Append(lst, prv);
 
@@ -790,7 +792,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     if (reqargs) {
         /* for args in reqargs: */
         int i = 0;    
-        int len = PyList_Size(reqargs);
+        int len = PyList_GET_SIZE(reqargs);
         for (; i != len; i++) {
             PyObject *args = PyList_GET_ITEM(reqargs, i);
             DependsObject *reqobj;
@@ -815,6 +817,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
                 /* cache._reqmap[args] = req */
                 PyDict_SetItem(cache->_reqmap, args, req);
+                Py_DECREF(req);
 
                 /*
                    lst = cache._reqnames.get(req.name)
@@ -827,6 +830,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 if (!lst) {
                     lst = PyList_New(0);
                     PyDict_SetItem(cache->_reqnames, reqobj->name, lst);
+                    Py_DECREF(lst);
                 }
                 PyList_Append(lst, req);
 
@@ -846,7 +850,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     if (obsargs) {
         /* for args in obsargs: */
         int i = 0;    
-        int len = PyList_Size(obsargs);
+        int len = PyList_GET_SIZE(obsargs);
         for (; i != len; i++) {
             PyObject *args = PyList_GET_ITEM(obsargs, i);
             DependsObject *obsobj;
@@ -871,6 +875,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
                 /* cache._obsmap[args] = obs */
                 PyDict_SetItem(cache->_obsmap, args, obs);
+                Py_DECREF(obs);
 
                 /*
                    lst = cache._obsnames.get(obs.name)
@@ -883,6 +888,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 if (!lst) {
                     lst = PyList_New(0);
                     PyDict_SetItem(cache->_obsnames, obsobj->name, lst);
+                    Py_DECREF(lst);
                 }
                 PyList_Append(lst, obs);
 
@@ -902,7 +908,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     if (cnfargs) {
         /* for args in cnfargs: */
         int i = 0;    
-        int len = PyList_Size(cnfargs);
+        int len = PyList_GET_SIZE(cnfargs);
         for (; i != len; i++) {
             PyObject *args = PyList_GET_ITEM(cnfargs, i);
             DependsObject *cnfobj;
@@ -927,6 +933,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
 
                 /* cache._cnfmap[args] = cnf */
                 PyDict_SetItem(cache->_cnfmap, args, cnf);
+                Py_DECREF(cnf);
 
                 /*
                    lst = cache._cnfnames.get(cnf.name)
@@ -939,6 +946,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
                 if (!lst) {
                     lst = PyList_New(0);
                     PyDict_SetItem(cache->_cnfnames, cnfobj->name, lst);
+                    Py_DECREF(lst);
                 }
                 PyList_Append(lst, cnf);
 
@@ -962,7 +970,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
     if (lst) {
         /* for lstpkg in lst: */
         int i = 0;    
-        int len = PyList_Size(lst);
+        int len = PyList_GET_SIZE(lst);
         for (; i != len; i++) {
             PyObject *lstpkg = PyList_GET_ITEM(lst, i);
             /* if pkg.equals(lstpkg): */
@@ -1014,6 +1022,7 @@ Loader_newPackage(LoaderObject *self, PyObject *args)
         if (!lst) {
             lst = PyList_New(0);
             PyDict_SetItem(cache->_pkgnames, pkgobj->name, lst);
+            Py_DECREF(lst);
         }
         PyList_Append(lst, pkg);
 
@@ -1097,6 +1106,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
 
         /* cache._prvmap[args] = prv */
         PyDict_SetItem(cache->_prvmap, args, prv);
+        Py_DECREF(prv);
 
         /*
            lst = cache._prvnames.get(prv.name)
@@ -1109,6 +1119,7 @@ Loader_newProvides(LoaderObject *self, PyObject *_args)
         if (!lst) {
             lst = PyList_New(0);
             PyDict_SetItem(cache->_prvnames, prvobj->name, lst);
+            Py_DECREF(lst);
         }
         PyList_Append(lst, prv);
 
@@ -1393,11 +1404,8 @@ Cache_loadFileProvides(CacheObject *self, PyObject *args)
     for (i = 0; i != len; i++) {
         DependsObject *req =
             (DependsObject *)PyList_GET_ITEM(self->_requires, i);
-        if (STR(req->name)[0] == '/') {
-            Py_INCREF(req->name);
-            Py_INCREF(Py_True);
+        if (STR(req->name)[0] == '/')
             PyDict_SetItem(fndict, req->name, Py_True);
-        }
     }
     len = PyList_GET_SIZE(self->_loaders);
     for (i = 0; i != len; i++) {
