@@ -9,6 +9,8 @@ USAGE="epm query [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
+    parser.add_option("--installed", action="store_true",
+                      help="consider only installed packages")
     parser.add_option("--provides", action="store_true",
                       help="show provides for the given packages")
     parser.add_option("--requires", action="store_true",
@@ -17,8 +19,14 @@ def parse_options(argv):
                       help="show conflicts for the given packages")
     parser.add_option("--obsoletes", action="store_true",
                       help="show requires for the given packages")
-    parser.add_option("--satisfies", action="store_true",
-                      help="show packages satisifying dependencies")
+    parser.add_option("--providedby", action="store_true",
+                      help="show packages providing dependencies")
+    parser.add_option("--requiredby", action="store_true",
+                      help="show packages requiring provided information")
+    parser.add_option("--obsoletedby", action="store_true",
+                      help="show packages obsoleting provided information")
+    parser.add_option("--conflictedby", action="store_true",
+                      help="show packages conflicting with provided information")
     parser.add_option("--whoprovides", action="append", default=[], metavar="DEP",
                       help="show only packages providing the given dependency")
     parser.add_option("--whorequires", action="append", default=[], metavar="DEP",
@@ -55,6 +63,9 @@ def main(opts):
             else:
                 for pkg in cache.getPackages(name):
                     packages.append(pkg)
+
+    if opts.installed:
+        packages = [pkg for pkg in packages if pkg.installed]
 
     for name in opts.whoprovides:
         if '=' in name:
@@ -159,6 +170,42 @@ def main(opts):
                     first = False
                     print "  Provides:"
                 print "   ", prv
+                if opts.requiredby and prv.requiredby:
+                    print "      Required By:"
+                    for req in prv.requiredby:
+                        req.packages.sort()
+                        lastreqpkg = None
+                        for reqpkg in req.packages:
+                            if reqpkg == lastreqpkg:
+                                continue
+                            if opts.installed and not reqpkg.installed:
+                                continue
+                            lastreqpkg = reqpkg
+                            print "       ", "%s (%s)" % (reqpkg, prv)
+                if opts.obsoletedby and prv.obsoletedby:
+                    print "      Obsoleted By:"
+                    for obs in prv.obsoletedby:
+                        obs.packages.sort()
+                        lastobspkg = None
+                        for obspkg in obs.packages:
+                            if obspkg == lastobspkg:
+                                continue
+                            if opts.installed and not obspkg.installed:
+                                continue
+                            lastobspkg = obspkg
+                            print "       ", "%s (%s)" % (obspkg, prv)
+                if opts.conflictedby and prv.conflictedby:
+                    print "      Conflicted By:"
+                    for cnf in prv.conflictedby:
+                        cnf.packages.sort()
+                        lastcnfpkg = None
+                        for cnfpkg in cnf.packages:
+                            if cnfpkg == lastcnfpkg:
+                                continue
+                            if opts.installed and not cnfpkg.installed:
+                                continue
+                            lastcnfpkg = cnfpkg
+                            print "       ", "%s (%s)" % (cnfpkg, prv)
         if pkg.requires and (opts.requires or whorequires):
             pkg.requires.sort()
             first = True
@@ -173,16 +220,18 @@ def main(opts):
                     first = False
                     print "  Requires:"
                 print "   ", req
-                if opts.satisfies and req.providedby:
+                if opts.providedby and req.providedby:
                     print "      Provided By:"
                     for prv in req.providedby:
                         prv.packages.sort()
                         lastprvpkg = None
-                        for pkg in prv.packages:
-                            if pkg == lastprvpkg:
+                        for prvpkg in prv.packages:
+                            if prvpkg == lastprvpkg:
                                 continue
-                            lastprvpkg = pkg
-                            print "       ", "%s (%s)" % (pkg, prv)
+                            if opts.installed and not prvpkg.installed:
+                                continue
+                            lastprvpkg = prvpkg
+                            print "       ", "%s (%s)" % (prvpkg, prv)
         if pkg.obsoletes and (opts.obsoletes or whoobsoletes):
             pkg.obsoletes.sort()
             first = True
@@ -197,16 +246,18 @@ def main(opts):
                     first = False
                     print "  Obsoletes:"
                 print "   ", obs
-                if opts.satisfies and obs.providedby:
+                if opts.providedby and obs.providedby:
                     print "      Provided By:"
                     for prv in obs.providedby:
                         prv.packages.sort()
                         lastprvpkg = None
-                        for pkg in prv.packages:
-                            if pkg == lastprvpkg:
+                        for prvpkg in prv.packages:
+                            if prvpkg == lastprvpkg:
                                 continue
-                            lastprvpkg = pkg
-                            print "       ", "%s (%s)" % (pkg, prv)
+                            if opts.installed and not prvpkg.installed:
+                                continue
+                            lastprvpkg = prvpkg
+                            print "       ", "%s (%s)" % (prvpkg, prv)
         if pkg.conflicts and (opts.conflicts or whoconflicts):
             pkg.conflicts.sort()
             first = True
@@ -221,16 +272,18 @@ def main(opts):
                     first = False
                     print "  Conflicts:"
                 print "   ", cnf
-                if opts.satisfies and cnf.providedby:
+                if opts.providedby and cnf.providedby:
                     print "      Provided By:"
                     for prv in cnf.providedby:
                         prv.packages.sort()
                         lastprvpkg = None
-                        for pkg in prv.packages:
-                            if pkg == lastprvpkg:
+                        for prvpkg in prv.packages:
+                            if prvpkg == lastprvpkg:
                                 continue
-                            lastprvpkg = pkg
-                            print "       ", "%s (%s)" % (pkg, prv)
+                            if opts.installed and not prvpkg.installed:
+                                continue
+                            lastprvpkg = prvpkg
+                            print "       ", "%s (%s)" % (prvpkg, prv)
 
     ctrl.standardFinalize()
 
