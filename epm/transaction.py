@@ -18,7 +18,7 @@ class Max:
     def __int__(self):
         return 123456789
 
-FAILED = 100000000
+FAILED = 1000000000
 
 MAX = Max()
 
@@ -85,15 +85,16 @@ class PolicyGlobalUpgrade(Policy):
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
-            if reason == REASON_REQUESTED:
-                continue
             if op == OPER_REMOVE:
                 if reason == REASON_OBSOLETES:
                     weight -= 5
-                else:
+                elif reason != REASON_REQUESTED:
                     weight += 20 
             elif op == OPER_INSTALL:
-                weight += 1
+                if reason == REASON_REQUESTED:
+                    weight -= 5
+                else:
+                    weight += 1
         return weight
 
     def getStartingWeight(self, trans):
@@ -157,11 +158,22 @@ class Transaction:
         return op == OPER_INSTALL or pkg.installed and op != OPER_REMOVE
 
     def getOperations(self):
-        oper = {}
+        self.cleanup()
+        install = {}
+        remove = {}
         for pkg in self.operation:
             op, reason, pkg1, pkg2 = self.operation[pkg]
-            oper[pkg] = op
-        return oper
+            if op == OPER_INSTALL:
+                install[pkg] = True
+            else:
+                remove[pkg] = True
+        return install, remove
+
+    def cleanup(self):
+        for pkg in self.operation:
+            op, reason, pkg1, pkg2 = self.operation[pkg]
+            if (op == OPER_INSTALL) == pkg.installed:
+                del self.operation[pkg]
 
     def restate(self):
         """
@@ -169,29 +181,48 @@ class Transaction:
         modified to fix relations.
         """
         self.locked.clear()
+        self.queue.clear()
 
-    def install(self, pkg):
+    def fixup(self, pkg):
         self.locked[pkg] = True
-        if not self.getInstalled(pkg):
-            self.operation[pkg] = (OPER_INSTALL, REASON_REQUESTED, None, None)
-        self.queue.append((pkg, OPER_INSTALL, len(self.backtrack)))
+        self.queue.append((pkg, len(self.backtrack)))
 
-    def remove(self, pkg):
+    def toggle(self, pkg, fixup=True):
         self.locked[pkg] = True
+        opmap = self.operation
+        if pkg in opmap:
+            op = opmap[pkg][0] == OPER_INSTALL and OPER_REMOVE or OPER_INSTALL
+        else:
+            op = pkg.installed and OPER_REMOVE or OPER_INSTALL
+        if (op == OPER_INSTALL) != pkg.installed:
+            self.operation[pkg] = (op, REASON_REQUESTED, None, None)
+        elif pkg in self.operation:
+            del self.operation[pkg]
+        if fixup:
+            self.fixup(pkg)
+
+    def install(self, pkg, fixup=True):
+        self.operation[pkg] = (OPER_INSTALL, REASON_REQUESTED, None, None)
+        if fixup:
+            self.fixup(pkg)
+
+    def remove(self, pkg, fixup=True):
         self.operation[pkg] = (OPER_REMOVE, REASON_REQUESTED, None, None)
-        self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
 
-        # We don't want to upgrade/downgrade that package.
-        for obs in pkg.obsoletes:
-            for prv in obs.providedby:
-                for prvpkg in prv.packages:
-                    self.locked[prvpkg] = True
-        for prv in pkg.provides:
-            for obs in prv.obsoletedby:
-                for obspkg in obs.packages:
-                    self.locked[obspkg] = True
+        if fixup:
+            self.fixup(pkg)
 
-    def upgrade(self, pkg):
+            # We don't want to upgrade/downgrade that package.
+            for obs in pkg.obsoletes:
+                for prv in obs.providedby:
+                    for prvpkg in prv.packages:
+                        self.locked[prvpkg] = True
+            for prv in pkg.provides:
+                for obs in prv.obsoletedby:
+                    for obspkg in obs.packages:
+                        self.locked[obspkg] = True
+
+    def upgrade(self, pkg, fixup=True):
         obspkgs = {}
         for prv in pkg.provides:
             for obs in prv.obsoletedby:
@@ -200,7 +231,7 @@ class Transaction:
         if obspkgs:
             obspkgs = obspkgs.keys()
             ObsoletesSorter(obspkgs).sort()
-            self.install(obspkgs[0])
+            self.install(obspkgs[0], fixup=fixup)
 
     def run(self):
         loopctrl = {}
@@ -229,9 +260,9 @@ class Transaction:
                     if not queue:
                         break
 
-                    pkg, op, btlen = queue.pop(0)
+                    pkg, btlen = queue.pop(0)
 
-                    if op == OPER_INSTALL:
+                    if isinst(pkg):
 
                         # Remove packages obsoleted by this one.
                         for obs in pkg.obsoletes:
@@ -317,7 +348,7 @@ class Transaction:
                                                pkg, prvpkg,
                                                self.getState()))
                             prvpkg = prvpkgs[0]
-                            queue.append((prvpkg, OPER_INSTALL, len(bt)))
+                            queue.append((prvpkg, len(bt)))
                             locked[prvpkg] = True
                             opmap[prvpkg] = (OPER_INSTALL,
                                              REASON_REQUIRES,
@@ -380,7 +411,9 @@ class Transaction:
             except Failed:
                 del bt[btlen:]
                 weight = getweight(self)+FAILED
+                print "Failed!"
             else:
+                print "Succeeded!"
                 weight = getweight(self)
 
             # Queue is over. Consider alternatives.
@@ -392,7 +425,7 @@ class Transaction:
                 i += 1
                 if i == ilim:
                     print "Alternatives/Weight: %d/%d" % (len(bt), weight)
-                #print "Found %d alternative(s)." % len(bt)
+                print "Found %d alternative(s)." % len(bt)
                 if weight < bestweight:
                     print "Replacing beststate (%d < %d)" % (weight, bestweight)
                     beststate = self.getState()
@@ -400,8 +433,9 @@ class Transaction:
                 pkg, op, reason, pkg1, pkg2, state = bt.pop()
                 self.setState(state)
                 locked[pkg] = True
-                queue.append((pkg, op, len(bt)))
+                queue.append((pkg, len(bt)))
                 opmap[pkg] = (op, reason, pkg1, pkg2)
+                print "Checking", pkg, "with", op
                 if i == ilim:
                     print "Starting weight: %d" % getweight(self)
                     i = 0
@@ -451,7 +485,7 @@ class Transaction:
 
         # Finally, remove the package.
         self.locked[pkg] = True
-        self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
+        self.queue.append((pkg, len(self.backtrack)))
         self.operation[pkg] = (OPER_REMOVE, reason, pkg1, pkg2)
 
 def upgradePackages(trans, pkgs):
@@ -465,12 +499,23 @@ def upgradePackages(trans, pkgs):
             for prv in pkg.provides:
                 for obs in prv.obsoletedby:
                     for obspkg in obs.packages:
-                        if obspkg in locked or obspkg in upgpkgs:
+                        if (obspkg in locked or
+                            obspkg in upgpkgs or
+                            isinst(obspkg)):
                             continue
                         upgpkgs[obspkg] = True
 
     upgpkgs = upgpkgs.keys()
+    print [str(x) for x in upgpkgs]
+    #import sys
+    #sys.exit(0)
 
+    import time
+    start = time.time()
+    evaluateBestState(trans, upgpkgs)
+    print time.time()-start
+
+    """
     # Ordering is key.
     UpgradeSorter(upgpkgs).sort()
 
@@ -497,6 +542,58 @@ def upgradePackages(trans, pkgs):
             print "I", pkg
         else:
             print "R", pkg
+    """
+
+def evaluateBestState(trans, pkgs):
+    locked = trans.getLocked()
+    isinst = trans.getInstalled
+    trans.setPolicy(PolicyGlobalUpgrade())
+
+    backtrack = []
+    beststate = trans.getState()
+    bestweight = trans.getPolicy().getStartingWeight(trans)
+    i = 0
+    lenpkgs = len(pkgs)
+    n = 0
+    while True:
+        n += 1
+        pkg = pkgs[i]
+        if n % 8192 == 0:
+            print n, [x[0] for x in backtrack]
+
+        if pkg not in locked:
+            # Try to change the state later.
+            backtrack.append((i, trans.getState()))
+            trans.fixup(pkg)
+
+        i += 1
+        if i == lenpkgs:
+            trans.run()
+            weight = trans.getWeight()
+            if weight < bestweight:
+                beststate = trans.getState()
+                bestweight = weight
+            if backtrack:
+                i, state = backtrack.pop()
+                trans.setState(state)
+                trans.toggle(pkgs[i])
+            else:
+                break
+
+    trans.setState(beststate)
+    print "Best evaluated state (%d):" % trans.getWeight()
+    trans.cleanup()
+    for pkg in trans.operation:
+        o, r, p1, p2 = trans.operation[pkg]
+        if o == OPER_INSTALL:
+            print "I", pkg
+        else:
+            print "R", pkg
+
+    global TRANS, BESTSTATE
+    TRANS = trans
+    BESTSTATE = beststate
+    BESTWEIGHT = bestweight
 
 try:
     import psyco
