@@ -27,7 +27,7 @@ import os
 class RPMSysChannel(PackageChannel):
 
     def __init__(self, *args):
-        super(RPMDBChannel, self).__init__(*args)
+        super(RPMSysChannel, self).__init__(*args)
         self._fetchorder = 500
 
     def fetch(self, fetcher, progress):

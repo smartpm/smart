@@ -28,7 +28,7 @@ import os
 class DebSysChannel(PackageChannel):
 
     def __init__(self, *args):
-        super(DebStatusChannel, self).__init__(*args)
+        super(DebSysChannel, self).__init__(*args)
         self._fetchorder = 500
 
     def fetch(self, fetcher, progress):

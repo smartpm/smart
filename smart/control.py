@@ -204,6 +204,15 @@ class Control(object):
                     state = cPickle.load(cachefile)
                     if state[0] != self.__stateversion__:
                         raise StateVersionError
+                except (StateVersionError,
+                        cPickle.UnpicklingError,
+                        ImportError):
+                    if sysconf.get("log-level") == DEBUG:
+                        import traceback
+                        traceback.print_exc()
+                    if os.access(os.path.dirname(cachepath), os.W_OK):
+                        os.unlink(cachepath)
+                else:
                     (_,
                      self._cache,
                      self._channels,
@@ -211,8 +220,6 @@ class Control(object):
                     for alias in self._channels:
                         if alias not in self._sysconfchannels:
                             self.removeChannel(alias)
-                except (StateVersionError, cPickle.UnpicklingError):
-                    os.unlink(cachepath)
                 cachefile.close()
                 iface.hideStatus()
 

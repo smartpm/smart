@@ -25,7 +25,7 @@ from smart.channel import PackageChannel
 class SlackSysChannel(PackageChannel):
 
     def __init__(self, *args):
-        super(SlackDBChannel, self).__init__(*args)
+        super(SlackSysChannel, self).__init__(*args)
         self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
