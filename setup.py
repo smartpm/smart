@@ -8,6 +8,9 @@ import sys, os
 import glob
 import re
 
+if os.path.isfile("MANIFEST"):
+    os.unlink("MANIFEST")
+
 verpat = re.compile("VERSION *= *\"(.*)\"")
 data = open("smart/const.py").read()
 m = verpat.search(data)
