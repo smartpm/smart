@@ -55,3 +55,11 @@ Downloading system:
 	- dict
 	- ldap
 
+Supported channel/repository formats
+------------------------------------
+
+- APT-RPM
+- URPMI
+- RPM metadata
+- Plain RPM header lists
+

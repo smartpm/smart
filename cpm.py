@@ -17,7 +17,8 @@ Available commands:
     install
     upgrade
     remove
-    repos
+    update
+    channel
     flag
     config
 

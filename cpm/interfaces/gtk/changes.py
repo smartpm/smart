@@ -9,10 +9,14 @@ class GtkChanges:
     def __init__(self):
 
         self._window = gtk.Window()
-        self._window.set_title("Transaction")
+        self._window.set_title("Change Summary")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
+        def delete(widget, event):
+            gtk.main_quit()
+            return True
+        self._window.connect("delete-event", delete)
 
         self._vbox = gtk.VBox()
         self._vbox.set_border_width(10)
@@ -79,6 +83,12 @@ class GtkChanges:
                     for dwnpkg in report.downgrading[pkg]:
                         package.setdefault("Downgrades", []).append(dwnpkg)
                         done[dwnpkg] = True
+                if pkg in report.requires:
+                    for reqpkg in report.requires[pkg]:
+                        package.setdefault("Requires", []).append(reqpkg)
+                if pkg in report.requiredby:
+                    for reqpkg in report.requiredby[pkg]:
+                        package.setdefault("Required By", []).append(reqpkg)
                 if pkg in report.conflicts:
                     for cnfpkg in report.conflicts[pkg]:
                         if cnfpkg in done:
@@ -102,6 +112,12 @@ class GtkChanges:
                     for dwnpkg in report.downgraded[pkg]:
                         package.setdefault("Downgraded By", []).append(upgpkg)
                         done[dwnpkg] = True
+                if pkg in report.requires:
+                    for reqpkg in report.requires[pkg]:
+                        package.setdefault("Requires", []).append(reqpkg)
+                if pkg in report.requiredby:
+                    for reqpkg in report.requiredby[pkg]:
+                        package.setdefault("Required By", []).append(reqpkg)
                 if pkg in report.conflicts:
                     for cnfpkg in report.conflicts[pkg]:
                         if cnfpkg in done:

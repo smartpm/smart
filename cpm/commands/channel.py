@@ -1,25 +1,25 @@
 from cpm.option import OptionParser
-from cpm.repository import *
+from cpm.channel import *
 from cpm import *
 import os
 
-USAGE="cpm repos [options]"
+USAGE="cpm channel [options]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
     parser.add_option("--add", action="store_true",
                       help="arguments are key=value pairs defining a "
-                           "repository, or a filename/url pointing to "
-                           "a repository description")
+                           "channel, or a filename/url pointing to "
+                           "a channel description")
     parser.add_option("--remove", action="store_true",
-                      help="arguments are repository names to be removed")
+                      help="arguments are channel aliases to be removed")
     parser.add_option("--show", action="store_true",
-                      help="show repositories with names given as arguments "
-                           "or all repositories, if no argument was given")
+                      help="show channels with aliases given as arguments "
+                           "or all channels, if no argument was given")
     parser.add_option("--enable", action="store_true",
-                      help="arguments are repository names to be enabled")
+                      help="arguments are channel aliases to be enabled")
     parser.add_option("--disable", action="store_true",
-                      help="arguments are repository names to be disabled")
+                      help="arguments are channel aliases to be disabled")
     parser.add_option("--force", action="store_true",
                       help="execute without asking")
     opts, args = parser.parse_args(argv)
@@ -34,95 +34,95 @@ def main(opts, ctrl):
             arg = opts.args[0]
             if os.path.isfile(arg):
                 data = open(arg).read()
-                replst = parseRepositoryDescription(data)
+                channels = parseChannelDescription(data)
             elif ":/" in arg:
-                succ, fail = ctrl.fetchFiles([arg], "repository description")
+                succ, fail = ctrl.fetchFiles([arg], "channel description")
                 if fail:
-                    raise Error, "Unable to fetch repository description: %s" \
+                    raise Error, "Unable to fetch channel description: %s" \
                                  % fail[arg]
                 data = open(succ[arg]).read()
-                replst = parseRepositoryDescription(data)
+                channels = parseChannelDescription(data)
                 os.unlink(succ[arg])
             else:
                 raise Error, "Don't know what to do with: %s" % arg
         else:
-            replst = []
-            rep = {}
+            channels = []
+            channel = {}
             for arg in opts.args:
                 if "=" not in arg:
                     raise Error, "Argument '%s' has no '='" % arg
                 key, value = arg.split("=")
-                rep[key.strip()] = value.strip()
-            if "type" not in rep:
-                raise Error, "Repository has no type"
-            if "name" not in rep:
-                raise Error, "Repository has no name"
+                channel[key.strip()] = value.strip()
+            if "type" not in channel:
+                raise Error, "Channel has no type"
+            if "alias" not in channel:
+                raise Error, "Channel has no alias"
 
-            replst.append(rep)
+            channels.append(channel)
 
-        curreplst = sysconf.get("repositories")
-        if curreplst is None:
-            curreplst = []
-            sysconf.set("repositories", curreplst)
-        for rep in replst:
-            desc = createRepositoryDescription(rep)
+        curchannels = sysconf.get("channels")
+        if curchannels is None:
+            curchannels = []
+            sysconf.set("channels", curchannels)
+        for channel in channels:
+            desc = createChannelDescription(channel)
             if not desc:
                 continue
             if not opts.force:
                 print
                 print desc
                 print
-                res = raw_input("Include this repository (y/N)? ").strip()
+                res = raw_input("Include this channel (y/N)? ").strip()
             if opts.force or res and res[0].lower() == "y":
                 try:
-                    createRepository(rep.get("type"), rep)
+                    createChannel(channel.get("type"), channel)
                 except Error, e:
                     print "error: invalid description: %s" % e
                 else:
-                    name = rep.get("name")
-                    while [x for x in curreplst if x.get("name") == name]:
-                        print "Repository name '%s' is already in use." % name
+                    alias = channel.get("alias")
+                    while [x for x in curchannels if x.get("alias") == alias]:
+                        print "Channel alias '%s' is already in use." % alias
                         res = raw_input("Choose another one: ").strip()
                         if res:
-                            name = res
-                    rep["name"] = name
-                    curreplst.append(rep)
+                            alias = res
+                    channel["alias"] = alias
+                    curchannels.append(channel)
 
     elif opts.remove:
 
-        replst = sysconf.get("repositories", [])
+        channels = sysconf.get("channels", [])
 
         for arg in opts.args:
 
-            if [x for x in replst if x.get("name") == arg]:
+            if [x for x in channels if x.get("alias") == arg]:
                 if not opts.force:
-                    res = raw_input("Remove repository '%s' (y/N)? "
+                    res = raw_input("Remove channel '%s' (y/N)? "
                                     % arg).strip()
                 if opts.force or res and res[0].lower() == "y":
-                    replst = [x for x in replst if x.get("name") != arg]
+                    channels = [x for x in channels if x.get("alias") != arg]
 
-        sysconf.set("repositories", replst)
+        sysconf.set("channels", channels)
 
     elif opts.enable or opts.disable:
 
-        replst = sysconf.get("repositories", [])
+        channels = sysconf.get("channels", [])
 
-        for rep in replst:
-            if rep.get("name") in opts.args:
+        for channel in channels:
+            if channel.get("alias") in opts.args:
                 if opts.enable:
-                    if "disabled" in rep:
-                        del rep["disabled"]
+                    if "disabled" in channel:
+                        del channel["disabled"]
                 else:
-                    rep["disabled"] = "yes"
+                    channel["disabled"] = "yes"
 
     elif opts.show:
 
-        replst = sysconf.get("repositories", [])
+        channels = sysconf.get("channels", [])
         if opts.args:
-            replst = [x for x in replst if x.get("name") in opts.args]
+            channels = [x for x in channels if x.get("alias") in opts.args]
 
-        for rep in replst:
-            desc = createRepositoryDescription(rep)
+        for channel in channels:
+            desc = createChannelDescription(channel)
             if desc:
                 print desc
             print

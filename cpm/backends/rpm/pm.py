@@ -117,8 +117,8 @@ class RPMCallback:
                 self._rpmout()
                 os.dup2(sys.stdout.fileno(), 1)
                 os.dup2(sys.stderr.fileno(), 2)
-                sys.stdout.close()
-                sys.stderr.close()
+                #sys.stdout.close()
+                #sys.stderr.close()
                 sys.stdout = self.stdout
                 sys.stderr = self.stderr
                 del self.stdout

@@ -21,6 +21,8 @@ class Report:
         self.notupgraded = {}
 
         self.conflicts = {}
+        self.requires = {}
+        self.requiredby = {}
 
     def reset(self):
         self.exclude.clear()
@@ -33,6 +35,9 @@ class Report:
         self.upgrading.clear()
         self.downgrading.clear()
         self.notupgraded.clear()
+        self.conflicts.clear()
+        self.requires.clear()
+        self.requiredby.clear()
 
     def compute(self):
         changeset = self._changeset
@@ -97,19 +102,36 @@ class Report:
                     if notupgraded:
                         self.notupgraded[pkg] = notupgraded.keys()
 
-            if changeset.get(pkg):
-                lst = []
+            pkgop = changeset.get(pkg)
+            if pkgop:
+                map = {}
                 for cnf in pkg.conflicts:
                     for prv in cnf.providedby:
                         for prvpkg in prv.packages:
                             if changeset.get(prvpkg):
-                                lst.append(prvpkg)
+                                map[prvpkg] = True
                 for prv in pkg.provides:
                     for cnf in prv.conflictedby:
                         for cnfpkg in cnf.packages:
                             if changeset.get(cnfpkg):
-                                lst.append(cnfpkg)
-                if lst:
-                    self.conflicts[pkg] = lst
+                                map[cnfpkg] = True
+                if map:
+                    self.conflicts[pkg] = map.keys()
+                    map.clear()
+                for req in pkg.requires:
+                    for prv in req.providedby:
+                        for prvpkg in prv.packages:
+                            if changeset.get(prvpkg) is pkgop:
+                                map[prvpkg] = True
+                if map:
+                    self.requires[pkg] = map.keys()
+                    map.clear()
+                for prv in pkg.provides:
+                    for req in prv.requiredby:
+                        for reqpkg in req.packages:
+                            if changeset.get(reqpkg) is pkgop:
+                                map[reqpkg] = True
+                if map:
+                    self.requiredby[pkg] = map.keys()
 
 # vim:ts=4:sw=4:et

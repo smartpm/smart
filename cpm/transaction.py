@@ -4,6 +4,7 @@ from cpm.cache import PreRequires
 from cpm import *
 
 class ChangeSet(dict):
+
     def __init__(self, cache, state=None):
         self._cache = cache
         if state:
@@ -18,7 +19,19 @@ class ChangeSet(dict):
     def setState(self, state):
         self.clear()
         self.update(state)
-        return self
+
+    def getPersistentState(self):
+        state = {}
+        for pkg in self:
+            state[(pkg.__class__, pkg.name, pkg.version)] = self[pkg]
+        return state
+
+    def setPersistentState(self, state):
+        self.clear()
+        for pkg in self._cache.getPackages():
+            op = state.get((pkg.__class__, pkg.name, pkg.version))
+            if op is not None:
+                self[pkg] = op
 
     def copy(self):
         return ChangeSet(self._cache, self)

@@ -1,3 +1,5 @@
+from cpm import Error
+import os
 
 class Package(object):
     def __init__(self, name, version):
@@ -98,6 +100,54 @@ class PackageInfo(object):
 
     def getSHA(self):
         return None
+
+    def validate(self, localpath, withreason=False):
+        try:
+            if not os.path.isfile(localpath):
+                raise Error, "File not found"
+
+            size = self.getSize()
+            if size:
+                lsize = os.path.getsize(localpath)
+                if lsize != size:
+                    raise Error, "Unexpected size (expected %d, got %d)" % \
+                                 (size, lsize)
+
+            filemd5 = self.getMD5()
+            if filemd5:
+                import md5
+                digest = md5.md5()
+                file = open(localpath)
+                data = file.read(8192)
+                while data:
+                    digest.update(data)
+                    data = file.read(8192)
+                lfilemd5 = digest.hexdigest()
+                if lfilemd5 != filemd5:
+                    raise Error, "Invalid MD5 (expected %s, got %s)" % \
+                                 (filemd5, lfilemd5)
+            else:
+                filesha = self.getSHA()
+                if filesha:
+                    import sha
+                    digest = sha.sha()
+                    file = open(localpath)
+                    data = file.read(8192)
+                    while data:
+                        digest.update(data)
+                        data = file.read(8192)
+                    lfilesha = digest.hexdigest()
+                    if lfilesha != filesha:
+                        raise Error, "Invalid SHA (expected %s, got %s)" % \
+                                     (filesha, lfilesha)
+        except Error, reason:
+            if withreason:
+                return False, reason
+            return False
+        else:
+            if withreason:
+                return True, None
+            return True
 
 class Provides(object):
     def __init__(self, name, version=None):

@@ -180,18 +180,22 @@ class GtkPackageView(gtk.Alignment):
         treeview = self._treeview
         model = treeview.get_model()
         iter = None
+        bestiter = None
         for i in range(len(cursor)):
             cursori = cursor[i]
             iter = model.iter_children(iter)
             while iter:
                 value = model.get_value(iter, 0)
                 if value == cursori:
+                    bestiter = iter
                     break
+                if value < cursori:
+                    bestiter = iter
                 iter = model.iter_next(iter)
             else:
                 break
-        else:
-            path = model.get_path(iter)
+        if bestiter:
+            path = model.get_path(bestiter)
             treeview.set_cursor(path)
             treeview.scroll_to_cell(path)
 
@@ -303,6 +307,8 @@ class GtkPackageView(gtk.Alignment):
     def _selectCursor(self, treeview, start_editing=False):
         selection = treeview.get_selection()
         model, iter = selection.get_selected()
+        if not iter:
+            return
         value = model.get_value(iter, 0)
         if not self._expandpackage and hasattr(value, "name"):
             self.emit("package_activated", value)

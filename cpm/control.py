@@ -92,6 +92,11 @@ class Control:
             self._sysconfchannels.append(channel)
             self._channels.append(channel)
 
+    def updateCache(self, fetchchannels=None, caching=ALWAYS):
+        self._cache.unload()
+        self.fetchChannels(fetchchannels, caching=caching)
+        self._cache.load()
+
     def fetchChannels(self, channels=None, caching=ALWAYS):
         if channels is None:
             self.reloadSysConfChannels()
@@ -120,9 +125,7 @@ class Control:
             info = loader.getInfo(pkg)
             url = info.getURL()
             pkgurl[pkg] = url
-            fetcher.enqueue(url)
-            fetcher.setInfo(url, size=info.getSize(), md5=info.getMD5(),
-                            sha=info.getSHA())
+            fetcher.enqueue(url, validate=info.validate)
         fetcher.run("packages")
         failed = fetcher.getFailedSet()
         if failed:

@@ -5,21 +5,20 @@ import posixpath
 
 class RPMHeaderListChannel(Channel):
 
-    def __init__(self, type, name, hdlurl, baseurl):
-        Channel.__init__(self, type, name)
+    def __init__(self, type, alias, name, description, hdlurl, baseurl):
+        Channel.__init__(self, type, alias, name, description)
         
         self._hdlurl = hdlurl
         self._baseurl = baseurl
 
     def fetch(self, fetcher):
         fetcher.reset()
-        fetcher.enqueue(self._hdlurl)
-        fetcher.setInfo(self._hdlurl, uncomp=True)
-        fetcher.run("header list for '%s'" % self._name)
+        fetcher.enqueue(self._hdlurl, uncomp=True)
+        fetcher.run("header list for '%s'" % self._alias)
         failed = fetcher.getFailedSet()
         if failed:
-            iface.warning("failed acquiring header list for '%s': %s" %
-                          (self._name, failed[self._hdlurl]))
+            iface.warning("Failed acquiring header list for '%s': %s" %
+                          (self._alias, failed[self._hdlurl]))
             iface.debug("%s: %s" % (self._hdlurl, failed[self._hdlurl]))
         else:
             localpath = fetcher.getSucceeded(self._hdlurl)
@@ -27,29 +26,38 @@ class RPMHeaderListChannel(Channel):
             self._loader.setChannel(self)
 
 def create(ctype, data):
+    alias = None
     name = None
+    description = None
     hdlurl = None
     baseurl = None
     if type(data) is dict:
+        alias = data.get("alias")
         name = data.get("name")
+        description = data.get("description")
         hdlurl = data.get("hdlurl")
         baseurl = data.get("baseurl")
     elif hasattr(data, "tag") and data.tag == "channel":
         node = data
-        name = node.get("name")
+        alias = node.get("alias")
         for n in node.getchildren():
-            if n.tag == "hdlurl":
+            if n.tag == "name":
+                name = n.text
+            elif n.tag == "description":
+                description = n.text
+            elif n.tag == "hdlurl":
                 hdlurl = n.text
             elif n.tag == "baseurl":
                 baseurl = n.text
     else:
         raise ChannelDataError
-    if not name:
-        raise Error, "channel of type '%s' has no name" % ctype
+    if not alias:
+        raise Error, "Channel of type '%s' has no alias" % ctype
     if not hdlurl:
-        raise Error, "channel '%s' has no hdlurl" % name
+        raise Error, "Channel '%s' has no hdlurl" % alias
     if not baseurl:
-        raise Error, "channel '%s' has no baseurl" % name
-    return RPMHeaderListChannel(ctype, name, hdlurl, baseurl)
+        raise Error, "Channel '%s' has no baseurl" % alias
+    return RPMHeaderListChannel(ctype, alias, name, description,
+                                hdlurl, baseurl)
 
 # vim:ts=4:sw=4:et

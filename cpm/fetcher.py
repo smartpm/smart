@@ -54,9 +54,14 @@ class Fetcher(object):
     def setInfo(self, url, **info):
         # Known used info kinds:
         #
+        # - validate: validate function, it must accept a 'withreason'
+        #             keyword, and must return either 'valid, reason'
+        #             or just 'valid', depending on 'withreason'. 'valid'
+        #             may be None, True, or False. If it's True or False,
+        #             no other information will be checked.
         # - md5, sha: file digest
         # - size: file size
-        # - uncomp: Whether to uncompress or not
+        # - uncomp: whether to uncompress or not
         # - uncomp_{md5,sha,size}: uncompressed equivalents
         #
         for kind in ("md5", "sha", "uncomp_md5", "uncomp_sha"):
@@ -103,7 +108,8 @@ class Fetcher(object):
         return os.path.join(self._localdir, filename)
 
     def enqueue(self, url, **info):
-        self.setInfo(url, **info)
+        if info:
+            self.setInfo(url, **info)
         handler = self.getHandlerInstance(url)
         handler.enqueue(url)
 
@@ -210,6 +216,15 @@ class Fetcher(object):
                 uncompprefix = "uncomp_"
             else:
                 uncompprefix = ""
+
+            validate = self.getInfo(url, uncompprefix+"validate")
+            if validate:
+                valid, reason = validate(localpath, withreason=True)
+                if valid is not None:
+                    if withreason:
+                        return valid, reason
+                    else:
+                        return valid
 
             size = self.getInfo(url, uncompprefix+"size")
             if size:

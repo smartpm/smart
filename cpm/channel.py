@@ -2,13 +2,21 @@ from cpm import *
 
 class Channel:
 
-    def __init__(self, type, name):
+    def __init__(self, type, alias, name=None, description=None):
         self._type = type
+        self._alias = alias
         self._name = name
+        self._description = description
         self._loader = None
 
+    def getAlias(self):
+        return self._alias
+
     def getName(self):
-        return self._name
+        return self._name or self._alias
+
+    def getDescription(self):
+        return self._description
 
     def getType(self):
         return self._type
@@ -49,7 +57,7 @@ def parseChannelDescription(data):
             if current:
                 channels.append(current)
             current = {}
-            current["name"] = line[1:-1]
+            current["alias"] = line[1:-1]
         elif current and not line[0] == "#" and "=" in line:
             key, value = line.split("=")
             current[key.strip().lower()] = value.strip()
@@ -58,18 +66,23 @@ def parseChannelDescription(data):
     return channels
 
 def createChannelDescription(channel):
+    if "alias" not in channel or "type" not in channel:
+        return None
     lines = []
-    name = channel.get("name")
-    lines.append("[%s]" % name)
-    if not name:
-        return None
-    type = channel.get("type")
-    if not type:
-        return None
-    lines.append("type = %s" % type)
-    for key in channel:
-        key = key.lower()
-        if key not in ("name", "type"):
+    alias = channel.get("alias")
+    lines.append("[%s]" % alias)
+    first = ("name", "type", "description")
+    for key in first:
+        if key == "alias":
+            continue
+        if key in channel:
+            lines.append("%s = %s" % (key, channel[key]))
+    keys = channel.keys()
+    keys.sort()
+    for key in keys:
+        if key == "alias":
+            continue
+        if key not in first:
             lines.append("%s = %s" % (key, channel[key]))
     return "\n".join(lines)
 

@@ -113,6 +113,13 @@ Mandrake repository
 
 ftp://ftp.planetmirror.com/pub/plf/mandrake/cooker
 
+Red Carpet repository
+---------------------
+
+http://open-carpet.org/
+ftp://ftp.ximian.com/pub/
+http://rpms.subpop.net/channels.xml.gz
+
 Examples of cases where the upgrading algorithm is better
 ---------------------------------------------------------
 

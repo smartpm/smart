@@ -10,7 +10,7 @@ class GtkInterface(Interface):
         self._log = GtkLog()
         self._progress = GtkProgress(False)
         self._hassubprogress = GtkProgress(True)
-        self._changes = None
+        self._changes = GtkChanges()
 
     def getProgress(self, obj, hassub=False):
         if hassub:
@@ -27,8 +27,6 @@ class GtkInterface(Interface):
         self._log.message(level, msg)
 
     def confirmChange(self, oldchangeset, newchangeset):
-        if not self._changes:
-            self._changes = GtkChanges()
         changeset = newchangeset.difference(oldchangeset)
         keep = []
         for pkg in oldchangeset:
@@ -39,8 +37,6 @@ class GtkInterface(Interface):
         return self._changes.showChangeSet(changeset, keep=keep, confirm=True)
 
     def confirmTransaction(self, trans):
-        if not self._changes:
-            self._changes = GtkChanges()
         return self._changes.showChangeSet(trans.getChangeSet(), confirm=True)
 
     # Non-standard interface methods
