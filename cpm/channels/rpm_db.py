@@ -7,7 +7,7 @@ class RPMDBChannel(Channel):
         Channel.__init__(self, *args)
         self._loadorder = 500
 
-    def fetch(self, fetcher):
+    def fetch(self, fetcher, progress):
         self._loader = RPMDBLoader()
         self._loader.setChannel(self)
 

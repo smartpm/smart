@@ -1,5 +1,6 @@
 from cpm.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from cpm.channel import createChannel
+from cpm.progress import Progress
 from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
@@ -107,10 +108,26 @@ class Control:
         self._fetcher.setLocalDir(localdir, mangle=True)
         self._fetcher.setCaching(caching)
         channels.sort()
+        if caching is ALWAYS:
+            progress = Progress()
+        else:
+            progress = iface.getProgress(self._fetcher, True)
+        progress.start()
+        steps = 0
+        for channel in channels:
+            steps += channel.getFetchSteps()
+        progress.set(0, steps)
         for channel in channels:
             self._cache.removeLoader(channel.getLoader())
-            channel.fetch(self._fetcher)
+            if channel.getFetchSteps() > 0:
+                progress.setTopic("Fetching information for '%s'..." %
+                                  channel.getName())
+                progress.show()
+            channel.fetch(self._fetcher, progress)
             self._cache.addLoader(channel.getLoader())
+        progress.setDone()
+        progress.show()
+        progress.stop()
 
     def fetchPackages(self, packages, caching=OPTIONAL):
         fetcher = self._fetcher
@@ -127,7 +144,7 @@ class Control:
             url = info.getURL()
             pkgurl[pkg] = url
             fetcher.enqueue(url, validate=info.validate)
-        fetcher.run("packages")
+        fetcher.run(what="packages")
         failed = fetcher.getFailedSet()
         if failed:
             raise Error, "Failed to download packages:\n" + \
@@ -148,7 +165,7 @@ class Control:
         fetcher.setCaching(caching)
         for url in urllst:
             fetcher.enqueue(url)
-        fetcher.run(what)
+        fetcher.run(what=what)
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):

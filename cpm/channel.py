@@ -33,7 +33,10 @@ class Channel:
             return cmp(self._loadorder, other._loadorder)
         return -1
 
-    def fetch(self, fetcher):
+    def getFetchSteps(self):
+        return 0
+
+    def fetch(self, fetcher, progress):
         pass
 
 class ChannelDataError(Error): pass

@@ -16,12 +16,15 @@ class RPMMetaDataChannel(Channel):
         Channel.__init__(self, type, alias, name, description)
         self._baseurl = baseurl
 
-    def fetch(self, fetcher):
+    def getFetchSteps(self):
+        return 1
+
+    def fetch(self, fetcher, progress):
 
         fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
         fetcher.enqueue(repomd)
-        fetcher.run("repository metadata for '%s'" % self._alias)
+        fetcher.run(progress=progress)
 
         failed = fetcher.getFailed(repomd)
         info = {}

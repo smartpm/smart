@@ -15,19 +15,24 @@ class APTRPMChannel(Channel):
 
         self._loader = LoaderSet()
 
-    def fetch(self, fetcher):
+    def getFetchSteps(self):
+        return len(self._comps)+1
+
+    def fetch(self, fetcher, progress):
 
         fetcher.reset()
 
         # Fetch release file
         url = posixpath.join(self._baseurl, "base/release")
         fetcher.enqueue(url)
-        fetcher.run("release file for '%s'" % self._alias)
+        fetcher.run(progress=progress)
         failed = fetcher.getFailed(url)
         if failed:
             iface.warning("Failed acquiring release file for '%s': %s" %
                           (self._alias, failed))
             iface.debug("%s: %s" % (url, failed))
+            progress.add(len(self._comps))
+            progress.show()
             return
 
         # Parse release file
@@ -72,7 +77,7 @@ class APTRPMChannel(Channel):
             if upkglist:
                 info["uncomp_md5"], info["uncomp_size"] = md5sum[upkglist]
             fetcher.enqueue(url, **info)
-        fetcher.run("information for '%s'" % self._alias)
+        fetcher.run(progress=progress)
         succeeded = fetcher.getSucceededSet()
         for url in urlcomp:
             filename = succeeded.get(url)

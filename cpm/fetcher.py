@@ -116,21 +116,35 @@ class Fetcher(object):
         for handler in self._handlers.values():
             handler.runLocal()
 
-    def run(self, what):
+    def run(self, what=None, progress=None):
         handlers = self._handlers.values()
-        self.runLocal()
-        if self._caching is ALWAYS:
-            return
         total = 0
         for handler in handlers:
             total += len(handler.getQueue())
-        if total == 0:
+        self.runLocal()
+        local = total
+        for handler in handlers:
+            local -= len(handler.getQueue())
+        if local == total or self._caching is ALWAYS:
+            if progress:
+                progress.add(total)
             return
-        prog = iface.getProgress(self, True)
-        prog.start()
-        prog.setTopic("Fetching %s..." % what)
-        prog.set(0, total)
-        prog.show()
+        if progress:
+            prog = progress
+            prog.add(local)
+            if what:
+                prog.setTopic("Fetching %s..." % what)
+            prog.show()
+        else:
+            prog = iface.getProgress(self, True)
+            prog.start()
+            prog.set(0, total)
+            if what:
+                topic = "Fetching %s..." % what
+            else:
+                topic = "Fetching information..."
+            prog.setTopic(topic)
+            prog.show()
         for handler in handlers:
             handler.start()
         active = handlers[:]
@@ -161,7 +175,8 @@ class Fetcher(object):
             time.sleep(0.1)
         for handler in handlers:
             handler.stop()
-        prog.stop()
+        if not progress:
+            prog.stop()
 
     def _uncompress(self, url, localpath, uncomphandler):
         try:

@@ -13,13 +13,16 @@ class URPMIChannel(Channel):
         self._hdlurl = hdlurl
         self._baseurl = baseurl
 
-    def fetch(self, fetcher):
+    def getFetchSteps(self):
+        return 2
+
+    def fetch(self, fetcher, progress):
 
         fetcher.reset()
 
         url = posixpath.join(self._baseurl, "MD5SUM")
         fetcher.enqueue(url)
-        fetcher.run("digest file for '%s'" % self._alias)
+        fetcher.run(progress=progress)
         failed = fetcher.getFailed(url)
         hdlmd5 = None
         if failed:
@@ -36,7 +39,7 @@ class URPMIChannel(Channel):
 
         fetcher.reset()
         fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
-        fetcher.run("header list for '%s'" % self._alias)
+        fetcher.run(progress=progress)
         failed = fetcher.getFailedSet()
         if failed:
             iface.warning("Failed acquiring header list for '%s': %s" %

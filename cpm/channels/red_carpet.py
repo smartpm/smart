@@ -12,7 +12,10 @@ class RPMRedCarpetChannel(Channel):
         self._baseurl = baseurl
         self._packageinfourl = packageinfourl
 
-    def fetch(self, fetcher):
+    def getFetchSteps(self):
+        return 1
+
+    def fetch(self, fetcher, progress):
 
         pkginfourl = self._packageinfourl
         if not pkginfourl:
@@ -21,7 +24,7 @@ class RPMRedCarpetChannel(Channel):
         fetcher.reset()
         urlmap = {pkginfourl: "packageinfo.xml.gz"}
         fetcher.enqueue(pkginfourl, uncomp=True)
-        fetcher.run("information for '%s'" % self._alias)
+        fetcher.run(progress=progress)
 
         succeeded = fetcher.getSucceededSet()
         if succeeded:
