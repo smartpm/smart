@@ -99,7 +99,6 @@ def main(ctrl, opts):
         if len(pkgs) > 1:
             sortUpgrades(pkgs)
         names = {}
-        found = False
         for pkg in pkgs:
             names.setdefault(pkg.name, []).append(pkg)
         for name in names:
@@ -107,10 +106,7 @@ def main(ctrl, opts):
             if pkg.installed:
                 iface.warning(_("%s is already installed") % pkg)
             else:
-                found = True
                 trans.enqueue(pkg, INSTALL)
-        if not found:
-            raise Error, _("No uninstalled packages matched '%s'") % arg
     iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()
