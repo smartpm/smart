@@ -13,14 +13,13 @@ def parse_options(argv):
                       help="set flag given as first argument for "
                            "'name relation version' given in the following "
                            "arguments")
-    parser.add_option("--get", action="store_true",
-                      help="show packages with the flags given as arguments")
     parser.add_option("--del", action="store_true", dest="delete",
                       help="unset flag given as first argument for "
                            "'name relation version' given in the following "
                            "arguments")
-    parser.add_option("--dump", action="store_true",
-                      help="show all flags")
+    parser.add_option("--show", action="store_true",
+                      help="show packages with the flags given as arguments "
+                           "or all flags if no argument was given")
     parser.add_option("--force", action="store_true",
                       help="ignore problems")
     opts, args = parser.parse_args(argv)
@@ -70,15 +69,9 @@ def main(opts):
         if opts.delete and pkgflags.get(flag) == {}:
             del pkgflags[flag]
 
-    elif opts.get or opts.dump:
+    elif opts.get or opts.show:
 
-        if opts.get and not opts.args:
-            raise Error, "no flag names provided"
-
-        if opts.get:
-            flags = opts.args
-        else:
-            flags = pkgflags
+        flags = opts.args or pkgflags
 
         for flag in flags:
             flag = flag.strip()

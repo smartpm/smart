@@ -1,7 +1,6 @@
+- Mirror system
 - Ordering system
 - Removable media handling
-- Check fetcher handlers for timeout problems due to hibernating
-  too long.
 - Support extra flags for rpm backend package manager (equivalent
   to --replacefiles).
 - Disable some checks in rpm backend package manager after

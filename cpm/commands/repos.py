@@ -12,10 +12,11 @@ def parse_options(argv):
                       help="arguments are key=value pairs defining a "
                            "repository, or a filename/url pointing to "
                            "a repository description")
-    parser.add_option("--remove", action="store_true",
+    parser.add_option("--del", action="store_true", dest="delete",
                       help="arguments are repository names to be removed")
     parser.add_option("--show", action="store_true",
-                      help="show repositories in use")
+                      help="show repositories with names given as arguments "
+                           "or all repositories, if no argument was given")
     parser.add_option("--enable", action="store_true",
                       help="arguments are repository names to be enabled")
     parser.add_option("--disable", action="store_true",
@@ -91,7 +92,7 @@ def main(opts):
         if changed:
             ctrl.saveSysConf()
 
-    elif opts.remove:
+    elif opts.delete:
 
         replst = sysconf.get("repositories", [])
 

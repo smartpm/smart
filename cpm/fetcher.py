@@ -424,6 +424,8 @@ class FTPHandler(FetcherHandler):
     MAXINACTIVE = 5
     MAXPERHOST = 2
 
+    TIMEOUT = 60
+
     def __init__(self, *args):
         FetcherHandler.__init__(self, *args)
         self._active = {}   # ftp -> host
@@ -454,6 +456,7 @@ class FTPHandler(FetcherHandler):
                             if len(self._inactive) > self.MAXINACTIVE:
                                 del self._inactive[ftp]
                             ftp = ftplib.FTP()
+                            ftp.lasttime = time.time()
                             self._active[ftp] = urlobj.host
                             thread.start_new_thread(self.connect,
                                                     (ftp, urlobj))
@@ -470,8 +473,12 @@ class FTPHandler(FetcherHandler):
         try:
             ftp.connect(urlobj.host, urlobj.port)
             ftp.login(urlobj.user, urlobj.passwd)
-        except socket.error, e:
-            self._fetcher.setFailed(url, str(e[1]))
+        except (socket.error, ftplib.Error), e:
+            try:
+                errmsg = str(e[1])
+            except IndexError:
+                errmsg = str(e)
+            self._fetcher.setFailed(url, errmsg)
             prog.setSubDone(url)
             prog.show()
             self._lock.acquire()
@@ -494,7 +501,13 @@ class FTPHandler(FetcherHandler):
         succeeded = False
 
         try:
-            ftp.cwd(os.path.dirname(urlobj.path))
+            try:
+                ftp.cwd(os.path.dirname(urlobj.path))
+            except ftplib.Error:
+                if ftp.lasttime+self.TIMEOUT < time.time():
+                    raise EOFError
+                raise
+
             filename = os.path.basename(urlobj.path)
             localpath = self.getLocalPath(url)
 
@@ -576,7 +589,7 @@ class FTPHandler(FetcherHandler):
             else:
                 succeeded = True
 
-        except socket.error:
+        except (socket.error, EOFError):
             # Put it back on the queue, and kill this ftp object.
             self._lock.acquire()
             self._queue.append(url)
@@ -595,6 +608,7 @@ class FTPHandler(FetcherHandler):
             prog.show()
 
         self._lock.acquire()
+        ftp.lasttime = time.time()
         self._inactive[ftp] = (urlobj.user, urlobj.host, urlobj.port)
         del self._active[ftp]
         self._lock.release()

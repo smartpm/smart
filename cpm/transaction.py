@@ -681,7 +681,7 @@ class Transaction(object):
         #print "[%03d] _fix()" % depth
         depth += 1
 
-        changeset = self._changeset
+        getweight = self._policy.getWeight
         isinst = changeset.installed
 
         for pkg in pkgs:
