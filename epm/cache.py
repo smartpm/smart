@@ -71,10 +71,11 @@ class Provides(object):
         return rc
 
 class Depends(object):
-    def __init__(self, name, version=None, relation=None):
+    def __init__(self, name, version=None, relation=None, pkgname=None):
         self.name = name
         self.version = version
         self.relation = relation
+        self.pkgname = pkgname
         self.packages = []
         self.providedby = []
 

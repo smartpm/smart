@@ -13,11 +13,17 @@ REASON_CONFLICTS,
 FAILED = 100000000
 
 class Policy:
-    def getTransactionWeight(self, trans):
+    def __init__(self, trans):
+        self._trans = trans
+
+    def getWeight(self):
         return 0
 
 class PolicyInstall(Policy):
-    def getTransactionWeight(self, trans):
+    """Give precedence to keeping functionality in the system."""
+
+    def getWeight(self):
+        trans = self._trans
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
@@ -33,7 +39,10 @@ class PolicyInstall(Policy):
         return weight
 
 class PolicyRemove(Policy):
-    def getTransactionWeight(self, trans):
+    """Give precedence to the choice with less changes."""
+
+    def getWeight(self):
+        trans = self._trans
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
@@ -41,13 +50,31 @@ class PolicyRemove(Policy):
                 weight += 1
         return weight
 
-class OverWeight(Exception): pass
+class PolicyGlobalUpgrade(Policy):
+    """Give precedence to the choice with more upgrades and smaller impact."""
+
+    def getWeight(self):
+        trans = self._trans
+        weight = 0
+        for pkg in trans.operation:
+            op, reason, pkg1, pkg2 = trans.operation[pkg]
+            if reason == REASON_REQUESTED:
+                continue
+            if op == OPER_REMOVE:
+                if reason == REASON_OBSOLETES:
+                    weight -= 5
+                else:
+                    weight += 20 
+            elif op == OPER_INSTALL:
+                weight += 1
+        return weight
+
 class Failed(Exception): pass
 
 class Transaction:
     def __init__(self, cache, policy):
         self.cache = cache
-        self.policy = policy
+        self.policy = policy(self)
         self.backtrack = []
         self.operation = {}
         self.touched = {}
@@ -64,7 +91,7 @@ class Transaction:
         self.touched.update(state[1])
 
     def getWeight(self):
-        return self.policy.getTransactionWeight(self)
+        return self.policy.getWeight()
 
     def getInstalled(self, pkg):
         elem = self.operation.get(pkg)
@@ -73,7 +100,7 @@ class Transaction:
 
     def restate(self):
         """
-        After running this method, previous requested changes may be
+        After running this method, previously requested changes may be
         modified to fix relations.
         """
         self.touched.clear()
@@ -93,22 +120,49 @@ class Transaction:
         for obs in pkg.obsoletes:
             for prv in obs.providedby:
                 for prvpkg in prv.packages:
+                    if obs.pkgname and obs.pkgname != prvpkg.name:
+                        continue
                     self.touched[prvpkg] = True
         for prv in pkg.provides:
             for obs in prv.obsoletedby:
+                if obs.pkgname and obs.pkgname != pkg.name:
+                    continue
                 for obspkg in obs.packages:
                     self.touched[obspkg] = True
-
-        # We don't want to reinstall the same package also.
-        for npkg in self.cache.getPackages(pkg.name):
-            self.touched[npkg] = True
 
     def upgrade(self, pkg):
         obspkgs = [obspkg for prv in pkg.provides
                           for obs in prv.obsoletedby
-                          for obspkg in obs.packages]
+                          for obspkg in obs.packages
+                          if (not obs.pkgname or
+                              obs.pkgname == pkg.name)]
         obspkgs.sort()
         self.install(obspkgs[-1])
+
+    def globalUpgrade(self):
+        cache = self.cache
+        touched = self.touched
+
+        isinst = self.getInstalled
+
+        upgset = {}
+
+        # Find multiple levels of packages obsoleting installed packages.
+        queue = cache.getPackages()
+        while queue:
+            pkg = queue.pop(0)
+            if isinst(pkg):
+                for prv in pkg.provides:
+                    for obs in prv.obsoletedby:
+                        if obs.pkgname and obs.pkgname != pkg.name:
+                            continue
+                        for obspkg in obs.packages:
+                            if obspkg in touched:
+                                continue
+                            if obspkg not in upgset:
+                                print "%s obsoletes %s" % (obspkg, pkg)
+                                upgset[obspkg] = True
+                                queue.append(obspkg)
 
     def run(self):
         loopctrl = {}
@@ -122,7 +176,7 @@ class Transaction:
         beststate = None
         bestweight = "MAX"
 
-        getweight = self.policy.getTransactionWeight
+        getweight = self.policy.getWeight
         
         i = 0
         ilim = 1000
@@ -152,7 +206,10 @@ class Transaction:
                         for obs in pkg.obsoletes:
                             for prv in obs.providedby:
                                 for prvpkg in prv.packages:
-                                    if prvpkg is pkg or not isinst(prvpkg):
+                                    if (obs.pkgname and
+                                        obs.pkgname != prvpkg.name):
+                                        continue
+                                    if not isinst(prvpkg):
                                         continue
                                     if prvpkg in touched:
                                         failed = prv
@@ -165,7 +222,10 @@ class Transaction:
                         for prv in pkg.provides:
                             for obs in prv.obsoletedby:
                                 for obspkg in obs.packages:
-                                    if obspkg is pkg or not isinst(obspkg):
+                                    if (obs.pkgname and
+                                        obs.pkgname != pkg.name):
+                                        continue
+                                    if not isinst(obspkg):
                                         continue
                                     if obspkg in touched:
                                         failed = obs
@@ -178,7 +238,10 @@ class Transaction:
                         for cnf in pkg.conflicts:
                             for prv in cnf.providedby:
                                 for prvpkg in prv.packages:
-                                    if prvpkg is pkg or not isinst(prvpkg):
+                                    if (cnf.pkgname and
+                                        cnf.pkgname != prvpkg.name):
+                                        continue
+                                    if not isinst(prvpkg):
                                         continue
                                     if prvpkg in touched:
                                         failed = prv
@@ -191,7 +254,10 @@ class Transaction:
                         for prv in pkg.provides:
                             for cnf in prv.conflictedby:
                                 for cnfpkg in cnf.packages:
-                                    if cnfpkg is pkg or not isinst(cnfpkg):
+                                    if (cnf.pkgname and
+                                        cnf.pkgname != pkg.name):
+                                        continue
+                                    if not isinst(cnfpkg):
                                         continue
                                     if cnfpkg in touched:
                                         failed = cnf
@@ -204,7 +270,9 @@ class Transaction:
                         for req in pkg.requires:
                             # Check if someone is already providing it.
                             prvpkgs = [prvpkg for prv in req.providedby
-                                              for prvpkg in prv.packages]
+                                              for prvpkg in prv.packages
+                                              if (not req.pkgname or
+                                                  req.pkgname == prvpkg.name)]
                             found = False
                             for prvpkg in prvpkgs:
                                 if isinst(prvpkg):
@@ -245,6 +313,8 @@ class Transaction:
                         # Remove packages requiring this one.
                         for prv in pkg.provides:
                             for req in prv.requiredby:
+                                if req.pkgname and req.pkgname != pkg.name:
+                                    continue
                                 # Check if someone installed is requiring it.
                                 for reqpkg in req.packages:
                                     if isinst(reqpkg):
@@ -300,7 +370,7 @@ class Transaction:
             print "Queue is over!"
             print "Current weight is %d.\n" % self.getWeight()
             """
-            weight = getweight(self)
+            weight = getweight()
             if failed:
                 weight += FAILED
             if backtrack:
@@ -317,14 +387,14 @@ class Transaction:
                     self.setState(state)
                     opmap[pkg] = (op, reason, pkg1, pkg2)
                     break
-                    #if getweight(self) < bestweight:
+                    #if getweight() < bestweight:
                     #    break
                 else:
                     break
                 self.queue.append((pkg, op))
                 touched[pkg] = True
                 if i == ilim:
-                    print "Starting weight: %d" % getweight(self)
+                    print "Starting weight: %d" % getweight()
                     i = 0
             else:
                 print "Alternatives are over!"
@@ -351,6 +421,8 @@ class Transaction:
         # package (upgrade) as an alternative.
         for prv in pkg.provides:
             for obs in prv.obsoletedby:
+                if obs.pkgname and obs.pkgname != pkg.name:
+                    continue
                 for obspkg in obs.packages:
                     if obspkg in self.touched or self.getInstalled(obspkg):
                         continue
@@ -363,6 +435,8 @@ class Transaction:
         for obs in pkg.obsoletes:
             for prv in obs.providedby:
                 for prvpkg in prv.packages:
+                    if obs.pkgname and obs.pkgname != prvpkg.name:
+                        continue
                     if prvpkg in self.touched or self.getInstalled(prvpkg):
                         continue
                     self.backtrack.append((prvpkg,

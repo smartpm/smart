@@ -51,6 +51,7 @@ typedef struct {
     PyObject *name;
     PyObject *version;
     PyObject *relation;
+    PyObject *pkgname;
     PyObject *packages;
     PyObject *providedby;
 } DependsObject;
@@ -421,12 +422,14 @@ Depends_init(DependsObject *self, PyObject *args)
 {
     self->version = Py_None;
     self->relation = Py_None;
-    if (!PyArg_ParseTuple(args, "O!|OO", &PyString_Type, &self->name,
-                          &self->version, &self->relation))
+    self->pkgname = Py_None;
+    if (!PyArg_ParseTuple(args, "O!|OOO", &PyString_Type, &self->name,
+                          &self->version, &self->relation, &self->pkgname))
         return -1;
     Py_INCREF(self->name);
     Py_INCREF(self->version);
     Py_INCREF(self->relation);
+    Py_INCREF(self->pkgname);
     self->packages = PyList_New(0);
     self->providedby = PyList_New(0);
     return 0;
@@ -438,6 +441,7 @@ Depends_dealloc(DependsObject *self)
     Py_XDECREF(self->name);
     Py_XDECREF(self->version);
     Py_XDECREF(self->relation);
+    Py_XDECREF(self->pkgname);
     Py_XDECREF(self->packages);
     Py_XDECREF(self->providedby);
     self->ob_type->tp_free((PyObject *)self);
@@ -501,6 +505,7 @@ static PyMemberDef Depends_members[] = {
     {"name", T_OBJECT, OFF(name), 0, 0},
     {"version", T_OBJECT, OFF(version), 0, 0},
     {"relation", T_OBJECT, OFF(relation), 0, 0},
+    {"pkgname", T_OBJECT, OFF(pkgname), 0, 0},
     {"packages", T_OBJECT, OFF(packages), 0, 0},
     {"providedby", T_OBJECT, OFF(providedby), 0, 0},
     {NULL}
