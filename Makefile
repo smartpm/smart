@@ -23,5 +23,10 @@ dist:
 rpm:
 	$(PYTHON) setup.py bdist_rpm
 
-locale/messages.po:
-	xgettext -o locale/messages.po `find -name '*.c' -o -name '*.py'`
+smart.pot:
+	xgettext -o locale/smart.pot `find -name '*.c' -o -name '*.py'`
+
+update-po: smart.pot
+	for po in locale/*/LC_MESSAGES/smart.po; do \
+		msgmerge -U $$po locale/smart.pot; \
+	done
