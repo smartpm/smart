@@ -20,9 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.rpmver import splitarch
+from smart.util.strtools import globdistance
 from smart.cache import Loader, PackageInfo
 from smart.channel import FileChannel
 from smart.backends.rpm.base import *
+from smart.progress import Progress
 from smart import *
 import locale
 import stat
@@ -282,6 +284,68 @@ class RPMHeaderLoader(Loader):
             pkg.loaders[self] = offset
             self._offsets[offset] = pkg
             self._groups[pkg] = intern(h[rpm.RPMTAG_GROUP])
+
+    def search(self, searcher):
+        for h, offset in self.getHeaders(Progress()):
+            pkg = self._offsets.get(offset)
+            if not pkg:
+                continue
+
+            ratio = 0
+            if searcher.url:
+                refurl = h[rpm.RPMTAG_URL]
+                if refurl:
+                    for url, cutoff in searcher.url:
+                        _, newratio = globdistance(url, refurl, cutoff)
+                        if newratio > ratio:
+                            ratio = newratio
+                            if ratio == 1:
+                                break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.path:
+                paths = h[rpm.RPMTAG_OLDFILENAMES]
+                if paths:
+                    for spath, cutoff in searcher.path:
+                        for path in paths:
+                            _, newratio = globdistance(spath, path, cutoff)
+                            if newratio > ratio:
+                                ratio = newratio
+                                if ratio == 1:
+                                    break
+                        else:
+                            continue
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.group:
+                group = self._groups[pkg]
+                for pat in searcher.group:
+                    if pat.search(group):
+                        ratio = 1
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.summary:
+                summary = h[rpm.RPMTAG_SUMMARY]
+                for pat in searcher.summary:
+                    if pat.search(summary):
+                        ratio = 1
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.description:
+                description = h[rpm.RPMTAG_DESCRIPTION]
+                for pat in searcher.description:
+                    if pat.search(description):
+                        ratio = 1
+                        break
+            if ratio:
+                searcher.addResult(pkg, ratio)
 
 class RPMHeaderListLoader(RPMHeaderLoader):
 

@@ -504,8 +504,8 @@ class Loader(object):
                 searcher.addResult(pkg, ratio)
                 continue
             if searcher.description:
-                for pat in searcher.summary:
-                    if pat.search(info.getSummary()):
+                for pat in searcher.description:
+                    if pat.search(info.getDescription()):
                         ratio = 1
                         break
             if ratio:

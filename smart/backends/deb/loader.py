@@ -20,10 +20,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.cache import Loader, PackageInfo
+from smart.util.strtools import globdistance
 from smart.util.tagfile import TagFile
 from smart.channel import FileChannel
 from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb.base import *
+from smart.progress import Progress
 from smart import *
 from cStringIO import StringIO
 import locale
@@ -161,6 +163,50 @@ class DebTagLoader(Loader):
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
             self._sections[pkg] = intern(section.get("section", ""))
+
+    def search(self, searcher):
+        offsets = {}
+        for pkg in self._packages:
+            offsets[pkg.loaders[self]] = pkg
+
+        for section, offset in self.getSections(Progress()):
+            pkg = offsets.get(offset)
+            if not pkg:
+                continue
+
+            ratio = 0
+            if searcher.group:
+                group = self._sections[pkg]
+                for pat in searcher.group:
+                    if pat.search(group):
+                        ratio = 1
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+
+            if searcher.summary or searcher.description:
+                toks = section.get("description", "").split("\n", 1)
+                if len(toks) == 2:
+                    summary, description = toks
+                else:
+                    summary, description = toks[0], ""
+
+            if searcher.summary:
+                for pat in searcher.summary:
+                    if pat.search(summary):
+                        ratio = 1
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.description:
+                for pat in searcher.description:
+                    if pat.search(description):
+                        ratio = 1
+                        break
+            if ratio:
+                searcher.addResult(pkg, ratio)
 
     def getSections(self, prog):
         raise TypeError, "Subclasses of DebTagLoader must " \
