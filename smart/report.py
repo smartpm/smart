@@ -137,11 +137,15 @@ class Report(object):
                 for cnf in pkg.conflicts:
                     for prv in cnf.providedby:
                         for prvpkg in prv.packages:
+                            if prvpkg is pkg:
+                                continue
                             if changeset.get(prvpkg):
                                 map[prvpkg] = True
                 for prv in pkg.provides:
                     for cnf in prv.conflictedby:
                         for cnfpkg in cnf.packages:
+                            if cnfpkg is pkg:
+                                continue
                             if changeset.get(cnfpkg):
                                 map[cnfpkg] = True
                 if map:

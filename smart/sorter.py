@@ -566,10 +566,12 @@ class ChangeSetSorter(ElementSorter):
                 # before this package's installation.
                 cnfpkgs = [prvpkg for cnf in pkg.conflicts
                                   for prv in cnf.providedby
-                                  for prvpkg in prv.packages]
+                                  for prvpkg in prv.packages
+                                   if prvpkg is not pkg]
                 cnfpkgs.extend([cnfpkg for prv in pkg.provides
                                        for cnf in prv.conflictedby
-                                       for cnfpkg in cnf.packages])
+                                       for cnfpkg in cnf.packages
+                                        if cnfpkg is not pkg])
                 for cnfpkg in cnfpkgs:
                     if cnfpkg is pkg:
                         continue

@@ -292,6 +292,8 @@ def main(ctrl, opts, reloadchannels=True):
                     for cnf in prv.conflictedby:
                         cnf.packages.sort()
                         for cnfpkg in cnf.packages:
+                            if cnfpkg is pkg:
+                                continue
                             if opts.installed and not cnfpkg.installed:
                                 continue
                             output.showConflictedBy(pkg, prv, cnf, cnfpkg)
@@ -353,6 +355,8 @@ def main(ctrl, opts, reloadchannels=True):
                     for prv in cnf.providedby:
                         prv.packages.sort()
                         for prvpkg in prv.packages:
+                            if prvpkg is pkg:
+                                continue
                             if opts.installed and not prvpkg.installed:
                                 continue
                             output.showConflictsProvidedBy(pkg, upg,

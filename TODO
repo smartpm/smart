@@ -6,3 +6,4 @@
 - Create a "master local directory mirror", which is checked
   for packages, to be used in conjuction with upgrade --urls?
 - Implement scheme similar to apt-get remove -D.
+- Implement "info" command, to show information about packages.
