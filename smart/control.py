@@ -341,7 +341,7 @@ class Control(object):
                     iface.debug(_("Failed fetching channel '%s'") % channel)
                     result = False
             except Error, e:
-                iface.error(str(e))
+                iface.error(unicode(e))
                 iface.debug(_("Failed fetching channel '%s'") % channel)
                 result = False
             if (channel.getDigest() != digest and

@@ -163,7 +163,7 @@ def syncChannels(channelsdir=CHANNELSDIR, force=None):
                         try:
                             createChannel(alias, chndescr)
                         except Error, e:
-                            iface.error(str(e))
+                            iface.error(unicode(e))
                         else:
                             sysconf.set(("channels", alias), chndescr)
 

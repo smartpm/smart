@@ -114,7 +114,7 @@ class RPMPackageManager(PackageManager):
                     ts.addErase("%s-%s" % (pkg.name, version))
                 except rpm.error, e:
                     raise Error, "%s-%s: %s" % \
-                                 (pkg.name, pkg.version, str(e))
+                                 (pkg.name, pkg.version, unicode(e))
 
         upgradednames = {}
         for pkg in upgraded:

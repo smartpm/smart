@@ -255,7 +255,7 @@ class Fetcher(object):
         try:
             uncomphandler.uncompress(localpath)
         except Error, e:
-            item.setFailed(str(e))
+            item.setFailed(unicode(e))
         else:
             uncomppath = uncomphandler.getTargetPath(localpath)
             valid, reason = self.validate(item, uncomppath,
@@ -781,7 +781,7 @@ class FileHandler(FetcherHandler):
                             break
                         output.write(data)
                 except (IOError, OSError), e:
-                    error = str(e)
+                    error = unicode(e)
                     retries += 1
                 else:
                     item.setSucceeded(localpath)
@@ -889,9 +889,9 @@ class FTPHandler(FetcherHandler):
                 self._activelimit[item.getURL().host] = active
             else:
                 try:
-                    errmsg = str(e[1])
+                    errmsg = unicode(e[1])
                 except IndexError:
-                    errmsg = str(e)
+                    errmsg = unicode(e)
                 item.setFailed(errmsg)
             self._lock.acquire()
             del self._active[ftp]
@@ -1013,7 +1013,7 @@ class FTPHandler(FetcherHandler):
             return
 
         except (Error, IOError, OSError, ftplib.Error), e:
-            item.setFailed(str(e))
+            item.setFailed(unicode(e))
 
         except FetcherCancelled:
             item.setCancelled()
@@ -1188,9 +1188,9 @@ class URLLIBHandler(FetcherHandler):
 
             except (IOError, OSError, Error, socket.error), e:
                 try:
-                    errmsg = str(e[1])
+                    errmsg = unicode(e[1])
                 except IndexError:
-                    errmsg = str(e)
+                    errmsg = unicode(e)
                 item.setFailed(errmsg)
 
             except FetcherCancelled:
@@ -1356,10 +1356,10 @@ class URLLIB2Handler(FetcherHandler):
                 if e.code == 304: # Not modified
                     item.setSucceeded(localpath)
                 else:
-                    item.setFailed(str(e))
+                    item.setFailed(unicode(e))
 
             except (IOError, OSError, Error), e:
-                item.setFailed(str(e))
+                item.setFailed(unicode(e))
 
         self._lock.acquire()
         self._active -= 1
@@ -1712,7 +1712,7 @@ class SCPHandler(FetcherHandler):
                     raise Error, reason
 
         except (Error, IOError, OSError), e:
-            item.setFailed(str(e))
+            item.setFailed(unicode(e))
         else:
             item.setSucceeded(localpath, fetchedsize)
 

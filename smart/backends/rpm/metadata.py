@@ -363,7 +363,7 @@ class XMLParser(object):
             parser.ParseFile(self._file)
         except expat.ExpatError, e:
             iface.error(_("Error parsing %s: %s") %
-                        (self._loader._filename, str(e)))
+                        (self._loader._filename, unicode(e)))
         self.updateProgress()
         self._file.close()
 
@@ -457,7 +457,7 @@ class XMLFileListsParser(object):
             parser.ParseFile(file)
         except expat.ExpatError, e:
             iface.error(_("Error parsing %s: %s") %
-                        (self._loader._filelistsname, str(e)))
+                        (self._loader._filelistsname, unicode(e)))
         file.close()
 
 

@@ -662,7 +662,7 @@ class Transaction(object):
                             if _pending:
                                 self._pending(cs, lk, _pending, depth)
                         except Failed, e:
-                            failures.append(e.args[0])
+                            failures.append(unicode(e))
                         else:
                             alternatives.append((getweight(cs)+pw[prvpkg]+
                                                  keeporder, cs, lk))
@@ -719,7 +719,7 @@ class Transaction(object):
                             if _pending:
                                 self._pending(cs, lk, _pending, depth)
                         except Failed, e:
-                            failures.append(e.args[0])
+                            failures.append(unicode(e))
                         else:
                             alternatives.append((getweight(cs)+pw[prvpkg],
                                                 cs, lk))
@@ -766,7 +766,7 @@ class Transaction(object):
                         if _pending:
                             self._pending(changeset, lk, _pending, depth)
                 except Failed, e:
-                    failures.append(e.args[0])
+                    failures.append(unicode(e))
                 else:
                     alternatives.append((getweight(cs), cs, lk))
 
@@ -885,7 +885,7 @@ class Transaction(object):
                 if _pending:
                     self._pending(cs, lk, _pending, depth)
             except Failed, e:
-                failures.append(e.args[0])
+                failures.append(unicode(e))
             else:
                 alternatives.append((getweight(cs), cs))
 
@@ -899,7 +899,7 @@ class Transaction(object):
                     self._pending(cs, lk, _pending, depth)
                 self._updown(pkg, cs, lk, depth)
             except Failed, e:
-                failures.append(e.args[0])
+                failures.append(unicode(e))
             else:
                 alternatives.append((getweight(cs), cs))
 

@@ -306,7 +306,7 @@ class XMLParser(object):
             parser.ParseFile(open(self._loader._filename))
         except expat.ExpatError, e:
             iface.error(_("Error parsing %s: %s") %
-                        (self._loader._filename, str(e)))
+                        (self._loader._filename, unicode(e)))
         self.updateProgress()
         self._file.close()
 

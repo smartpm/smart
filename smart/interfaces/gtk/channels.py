@@ -564,7 +564,7 @@ class ChannelEditor(object):
                     createChannel(alias, newchannel)
                 except Error, e:
                     self._result = False
-                    iface.error(str(e))
+                    iface.error(unicode(e))
                     continue
                 else:
                     oldchannel.clear()

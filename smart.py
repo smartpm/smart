@@ -159,10 +159,7 @@ def main(argv):
             import traceback
             traceback.print_exc()
         if iface.object:
-            if e.args:
-                iface.error(e.args[0])
-            else:
-                iface.error(_("Unknown error"))
+            iface.error(unicode(e))
         else:
             sys.stderr.write(_("error: %s\n") % e)
         if ctrl:

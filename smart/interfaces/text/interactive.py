@@ -147,7 +147,7 @@ class Interpreter(Cmd):
                     pass
             return Cmd.onecmd(self, line)
         except Error, e:
-            iface.error(str(e))
+            iface.error(unicode(e))
             return None
         except KeyboardInterrupt:
             sys.stderr.write(_("\nInterrupted\n"))
