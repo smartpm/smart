@@ -214,13 +214,16 @@ class RPMHeaderLoader(Loader):
 
 class RPMHeaderListLoader(RPMHeaderLoader):
 
-    def __init__(self, filename, baseurl):
+    def __init__(self, filename, baseurl, count=None):
         RPMHeaderLoader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
+        self._count = count
 
     def getLoadSteps(self):
-        return len(rpm.readHeaderListFromFile(self._filename))
+        if self._count is None:
+            return len(rpm.readHeaderListFromFile(self._filename))
+        return self._count
 
     def getHeaders(self, prog):
         file = open(self._filename)

@@ -38,7 +38,7 @@ class APTRPMChannel(Channel):
         self._loader = LoaderSet()
 
     def getFetchSteps(self):
-        return len(self._comps)+1
+        return len(self._comps)*2+1
 
     def fetch(self, fetcher, progress):
 
@@ -53,7 +53,7 @@ class APTRPMChannel(Channel):
             iface.warning("Failed acquiring release file for '%s': %s" %
                           (self._alias, failed))
             iface.debug("%s: %s" % (url, failed))
-            progress.add(len(self._comps))
+            progress.add(len(self._comps)*2)
             progress.show()
             return
 
@@ -74,9 +74,10 @@ class APTRPMChannel(Channel):
                 else:
                     md5sum[path] = (md5, int(size))
 
-        # Fetch package lists
+        # Fetch component package lists and release files
         fetcher.reset()
-        items = []
+        pkgitems = []
+        relitems = []
         for comp in self._comps:
             pkglist = "base/pkglist."+comp
             url = posixpath.join(self._baseurl, pkglist)
@@ -97,15 +98,37 @@ class APTRPMChannel(Channel):
             info["md5"], info["size"] = md5sum[pkglist]
             if upkglist:
                 info["uncomp_md5"], info["uncomp_size"] = md5sum[upkglist]
-            items.append(fetcher.enqueue(url, **info))
+            pkgitems.append(fetcher.enqueue(url, **info))
+
+            release = "base/release."+comp
+            if release in md5sum:
+                url = posixpath.join(self._baseurl, release)
+                info = {"component": comp}
+                info["md5"], info["size"] = md5sum[release]
+                relitems.append(fetcher.enqueue(url, **info))
+            else:
+                progress.add(1)
+                progress.show()
+                relitems.append(None)
 
         fetcher.run(progress=progress)
 
         firstfailure = True
-        for item in items:
-            if item.getStatus() == SUCCEEDED:
-                localpath = item.getTargetPath()
-                loader = RPMPackageListLoader(localpath, self._baseurl)
+        for i in range(len(pkgitems)):
+            pkgitem = pkgitems[i]
+            relitem = relitems[i]
+            if pkgitem.getStatus() == SUCCEEDED:
+                count = None
+                if relitem and relitem.getStatus() == SUCCEEDED:
+                    try:
+                        for line in open(relitem.getTargetPath()):
+                            if line.startswith("PackageCount:"):
+                                count = int(line[13:])
+                                break
+                    except (IOError, ValueError):
+                        pass
+                localpath = pkgitem.getTargetPath()
+                loader = RPMPackageListLoader(localpath, self._baseurl, count)
                 loader.setChannel(self)
                 self._loader.append(loader)
             else:
@@ -113,7 +136,8 @@ class APTRPMChannel(Channel):
                     firstfailure = False
                     iface.warning("Failed acquiring information for '%s':" %
                                   self._alias)
-                iface.warning("%s: %s" % (item.getURL(), item.getFailedReason()))
+                iface.warning("%s: %s" %
+                              (pkgitem.getURL(), pkgitem.getFailedReason()))
 
 def create(type, alias, data):
     name = None

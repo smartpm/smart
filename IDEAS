@@ -22,6 +22,7 @@ Removable repositories
 - Remove packages for unavailable media and ask to replace
   it when the current transaction has been committed.
 - Removable repositories may be remote as well (?)
+- Check all removable mount points instead of a single one.
 
 Mirror system
 -------------

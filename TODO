@@ -1,3 +1,5 @@
 - Removable media handling
 - Support extra flags for rpm backend package manager (equivalent
   to --replacefiles).
+- Support for signed apt-rpm repositories.
+- Clean package and channel files when unused.
