@@ -50,7 +50,7 @@ class XMLSysConfig(SysConfig):
             conffile = os.path.expanduser(conffile)
             if not os.path.isfile(conffile):
                 raise Error, "configuration file not found: %s" % conffile
-            root = ElementTree.parse(opts.conffile).getroot()
+            root = ElementTree.parse(conffile).getroot()
         else:
             for conffile, datadir in self.CONFIG:
                 conffile = os.path.expanduser(conffile)

@@ -1,10 +1,9 @@
 from cpm.transaction import Transaction
 from cpm.transaction import PolicyUpgrade
 from cpm.matcher import MasterMatcher
-from cpm.option import OptionParser
-from cpm.control import Control
-from cpm.cache import Provides
 from cpm.cmdline import initCmdLine
+from cpm.option import OptionParser
+from cpm.cache import Provides
 from cpm import *
 import string
 import re
@@ -18,9 +17,9 @@ def parse_options(argv):
     return opts
 
 def main(opts):
-    ctrl = Control(opts)
-    initCmdLine(ctrl)
-    ctrl.standardInit()
+    ctrl = initCmdLine(opts)
+    ctrl.fetchRepositories()
+    ctrl.loadCache()
     cache = ctrl.getCache()
     trans = Transaction(cache)
     pkgs = cache.getPackages()
@@ -35,10 +34,10 @@ def main(opts):
             newpkgs.extend(fpkgs)
         pkgs = dict.fromkeys(newpkgs).keys()
     pkgs = [x for x in pkgs if x.installed]
+    print "Computing upgrade..."
     trans.upgrade(pkgs)
     trans.minimize()
-    ctrl.acquireAndCommit(trans)
-    #ctrl.acquire(trans)
-    ctrl.standardFinalize()
+    print "Preparing package manager..."
+    ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et

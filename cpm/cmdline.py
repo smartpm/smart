@@ -18,16 +18,19 @@ class CommandLineFeedback(ControlFeedback):
     def packageManagerCreated(self, pm):
         pm.setProgress(self._progress)
 
-def initCmdLine(opts):
+def initCmdLine(opts=None):
     sysconf = XMLSysConfig()
-    if opts.conffile:
-        sysconf.set("config-file", opts.conffile)
-    if opts.loglevel:
-        level = {"error": ERROR, "warning": WARNING,
-                 "debug": DEBUG, "info": INFO}.get(opts.loglevel)
-        if level is None:
-            raise Error, "unknown log level"
-        sysconf.set("log-level", level)
+    if opts:
+        if opts.config_file:
+            sysconf.set("config-file", opts.config_file)
+        if opts.log_level:
+            level = {"error": ERROR, "warning": WARNING,
+                     "debug": DEBUG, "info": INFO}.get(opts.log_level)
+            if level is None:
+                raise Error, "unknown log level"
+            sysconf.set("log-level", level)
+    else:
+        sysconf.set("log-level", WARNING)
     sysconf.load()
     from cpm import init
     init(sysconf, Logger())

@@ -1,3 +1,4 @@
+from cpm.matcher import MasterMatcher
 from cpm.cmdline import initCmdLine
 from cpm.option import OptionParser
 from cpm.cache import Provides
@@ -45,29 +46,19 @@ def main(opts):
     ctrl.fetchRepositories()
     ctrl.loadCache()
 
-    whoprovides = []
-    nulltrans = string.maketrans('', '')
-    isre = lambda x: x.translate(nulltrans, '^{[*') != x
-
     cache = ctrl.getCache()
-    packages = []
     if not opts.args:
-        for pkg in cache.getPackages():
-            packages.append(pkg)
+        packages = cache.getPackages()[:]
     else:
-        for name in opts.args:
-            if isre(name):
-                p = re.compile(name)
-                for pkg in cache.getPackages():
-                    if p.match(pkg.name):
-                        packages.append(pkg)
-            else:
-                for pkg in cache.getPackages(name):
-                    packages.append(pkg)
+        packages = []
+        for arg in opts.args:
+            matcher = MasterMatcher(arg)
+            packages.extend(matcher.filter(cache.getPackages()))
 
     if opts.installed:
         packages = [pkg for pkg in packages if pkg.installed]
 
+    whoprovides = []
     for name in opts.whoprovides:
         if '=' in name:
             name, version = name.split('=')

@@ -82,7 +82,7 @@ class Control:
         pmpkgs = {}
         for pkg in install+remove:
             pmclass = pkg.packagemanager
-            if pmclass not in pmmap:
+            if pmclass not in pmpkgs:
                 pmpkgs[pmclass] = [pkg]
             else:
                 pmpkgs[pmclass].append(pkg)

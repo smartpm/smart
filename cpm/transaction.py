@@ -88,29 +88,26 @@ class PolicyInstall(Policy):
     def getWeight(self, changeset):
         weight = 0
         set = changeset.getSet()
+        # Compute obsoleting/obsoleted packages
+        obsoleting = {}
+        obsoleted = {}
+        for pkg in set:
+            for prv in pkg.provides:
+                for obs in prv.obsoletedby:
+                    for obspkg in obs.packages:
+                        if set.get(obspkg) is INSTALL:
+                            obsoleted[pkg] = True
+                            obsoleting[obspkg] = True
         for pkg in set:
             op = set[pkg]
             if op is REMOVE:
-                # Check if any obsoleting package is being installed
-                obsoleted = False
-                for prv in pkg.provides:
-                    for obs in prv.obsoletedby:
-                        for obspkg in obs.packages:
-                            if set.get(obspkg) is INSTALL:
-                                obsoleted = True
-                                break
-                        else:
-                            continue
-                        break
-                    else:
-                        continue
-                    break
-                if obsoleted:
-                    weight += 5
-                else:
+                if pkg not in obsoleted:
                     weight += 20
             elif op is INSTALL:
-                weight += 1
+                if pkg in obsoleting:
+                    weight += 1
+                else:
+                    weight += 3
         return weight
 
 class PolicyRemove(Policy):

@@ -13,11 +13,11 @@ class RPMPackageManager(PackageManager):
         # Build obsoletes relations.
         obsoleting = {}
         obsoleted = {}
-        for pkg in set:
+        for pkg in install:
             for prv in pkg.provides:
                 for obs in prv.obsoletedby:
                     for obspkg in obs.packages:
-                        if set.get(obspkg) is INSTALL:
+                        if obspkg in install:
                             obsoleted[pkg] = True
                             obsoleting[obspkg] = True
 

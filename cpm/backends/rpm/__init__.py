@@ -12,34 +12,60 @@ __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMRequires",
 class RPMMatcher(Matcher):
     def __init__(self, str):
         Matcher.__init__(self, str)
-        if '=' in str:
-            name, version = str.split('=')
-        else:
-            name = str
-            version = None
+        self._options = [] # (name, version)
         nulltrans = string.maketrans('', '')
         isre = lambda x: x.translate(nulltrans, '^{[*') != x
-        if isre(name):
-            self._name = re.compile(name)
+        # First, try to match the whole thing against the name.
+        if isre(str):
+            name = re.compile(str)
         else:
-            self._name = name
-        if version and isre(version):
-            self._version = re.compile(version)
-        else:
-            self._version = version
+            name = str
+        self._options.append((name, None))
+        tokens = str.split("-")
+        if len(tokens) > 1:
+            # Then, consider the last section as the version.
+            name = "-".join(tokens[:-1])
+            if isre(name):
+                name = re.compile(name)
+            version = tokens[-1]
+            if isre(version):
+                if ":" not in version and version[0].isdigit():
+                    version = "(?:\d+:)?"+version
+                version = re.compile(version)
+            self._options.append((name, version))
+            # Finally, consider last two sections as the version.
+            if len(tokens) > 2:
+                name = "-".join(tokens[:-2])
+                if isre(name):
+                    name = re.compile(name)
+                version = "-".join(tokens[-2:])
+                if isre(version):
+                    if ":" not in version and version[0].isdigit():
+                        version = "(?:\d+:)?"+version
+                    version = re.compile(version)
+                self._options.append((name, version))
 
     def matches(self, obj):
-        if isinstance(self._name, str):
-            if self._name != obj.name:
-                return False
-        elif not self._name.match(obj.name):
-            return False
-        if isinstance(self._version, str):
-            if vercmp(self._version, obj.version) != 0:
-                return False
-        elif self._version and not self._version.match(obj.version):
-            return False
-        return True
+        for name, version in self._options:
+            if type(name) is str:
+                if name != obj.name:
+                    continue
+            else:
+                if not name.match(obj.name):
+                    continue
+            if version:
+                if type(version) is str:
+                    if vercmp(version, obj.version) != 0:
+                        if ":" not in version and ":" in obj.version:
+                            ov = obj.version
+                            version = ov[:ov.find(":")+1]+version
+                            if vercmp(version, obj.version) != 0:
+                                continue
+                        else:
+                            continue
+                elif not version.match(obj.version):
+                    continue
+            return True
 
 class RPMPackage(Package):
 
