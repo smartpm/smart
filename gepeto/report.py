@@ -79,7 +79,7 @@ class Report(object):
                     for prv in upg.providedby:
                         for prvpkg in prv.packages:
                             if changeset.get(prvpkg) is INSTALL:
-                                if pkg in self.upgraded:
+                                if pkg in self.downgraded:
                                     self.downgraded[pkg].append(prvpkg)
                                 else:
                                     self.downgraded[pkg] = [prvpkg]
