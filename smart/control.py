@@ -157,8 +157,8 @@ class Control(object):
             if sysconf.getReadOnly():
                 return
 
-            cachepath = os.path.join(sysconf.get("data-dir"), "cache")
             if self._cachechanged:
+                cachepath = os.path.join(sysconf.get("data-dir"), "cache")
                 cachefile = open(cachepath+".new", "w")
                 state = (self.__stateversion__,
                          self._cache,
