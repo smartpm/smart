@@ -80,6 +80,9 @@ def parse_options(argv):
     parser.add_option("--clear-history", action="callback", callback=append_all,
                       help="clear history for the given origins/mirrors, or "
                            "for all mirrors")
+    parser.add_option("--show-penalities", action="store_true",
+                      help="show current penalities for origins/mirrors, "
+                           "based on the history information")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -162,5 +165,13 @@ def main(opts, ctrl):
             for mirror in mirrors[origin]:
                 print "   ", mirror
             print
+
+    if opts.show_penalities:
+
+        from gepeto.mirror import MirrorSystem
+        mirrorsystem = MirrorSystem()
+        penalities = mirrorsystem.getPenalities()
+        for url in penalities:
+            print "%s %.5f" % (url, penalities[url])
 
 # vim:ts=4:sw=4:et
