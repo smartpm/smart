@@ -16,6 +16,7 @@ class Package(object):
         return "%s-%s" % (self.name, self.version)
 
     def __cmp__(self, other):
+        # Basic comparison. Must be overloaded.
         rc = -1
         if isinstance(other, Package):
             rc = cmp(self.name, other.name)
@@ -73,12 +74,16 @@ class Depends(object):
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
+class Requires(Depends): pass
+class Obsoletes(Depends): pass
+class Conflicts(Depends): pass
+
 class Loader(object):
     Package = Package
     Provides = Provides
-    Requires = Depends
-    Obsoletes = Depends
-    Conflicts = Depends
+    Requires = Requires
+    Obsoletes = Obsoletes
+    Conflicts = Conflicts
 
     def __init__(self):
         self._cache = None
