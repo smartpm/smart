@@ -147,6 +147,7 @@ def main(argv):
     if os.getuid() == 0:
         os.environ["HOME"] = pwd.getpwuid(0)[5]
     opts = None
+    ctrl = None
     exitcode = 1
     try:
         opts = parse_options(argv)
@@ -173,8 +174,9 @@ def main(argv):
             traceback.print_exc()
             sys.exit(1)
         sys.stderr.write("\nInterrupted\n")
-    ctrl.saveSysConf()
-    ctrl.restoreMediaState()
+    if ctrl:
+        ctrl.saveSysConf()
+        ctrl.restoreMediaState()
     sys.exit(exitcode)
 
 if __name__ == "__main__":
