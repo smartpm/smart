@@ -19,6 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from gepeto.interfaces.text.util import getScreenWidth
 from gepeto.util.strtools import ShortURL
 from gepeto.progress import Progress
 import posixpath
@@ -38,6 +39,15 @@ class TextProgress(Progress):
         self._seentopics = {}
         self._addline = False
         self._shorturl = ShortURL(self.HASHES+32)
+        self.setScreenWidth(getScreenWidth())
+
+    def setScreenWidth(self, width):
+        self._screenwidth = width
+        self._topicwidth = int(width*0.35)
+        self._hashwidth = int(width-self._topicwidth-7-1) # " [100%]" == 7
+        self._topicmask = "%%-%d.%ds" % (self._topicwidth, self._topicwidth)
+        self._topicmaskn = "%%4d:%%-%d.%ds" % (self._topicwidth-5,
+                                               self._topicwidth-5)
 
     def setFetcherMode(self, flag):
         self._fetchermode = flag
@@ -52,7 +62,7 @@ class TextProgress(Progress):
         if self.getHasSub():
             if topic != self._lasttopic:
                 self._lasttopic = topic
-                out.write(" "*(self.HASHES+34)+"\r")
+                out.write(" "*(self._screenwidth-1)+"\r")
                 if self._addline:
                     print
                 else:
@@ -79,23 +89,23 @@ class TextProgress(Progress):
             if self._fetchermode:
                 if topic not in self._seentopics:
                     self._seentopics[topic] = True
-                    out.write(" "*(self.HASHES+34)+"\r")
+                    out.write(" "*(self._screenwidth-1)+"\r")
                     print "->", self._shorturl.get(topic)
                 topic = posixpath.basename(topic)
         else:
             current = percent
-        hashes = int(self.HASHES*current/100)
+        hashes = int(self._hashwidth*current/100)
         n = data.get("item-number")
         if n:
-            if len(topic) > 22:
-                topic = topic[:20]+".."
-            out.write("%4d:%-23.23s" % (n, topic))
+            if len(topic) > self._topicwidth-6:
+                topic = topic[:self._topicwidth-8]+".."
+            out.write(self._topicmaskn % (n, topic))
         else:
-            if len(topic) > 27:
-                topic = topic[:25]+".."
-            out.write("%-28.28s" % topic)
+            if len(topic) > self._topicwidth-1:
+                topic = topic[:self._topicwidth-3]+".."
+            out.write(self._topicmask % topic)
         out.write("#"*hashes)
-        out.write(" "*(self.HASHES-hashes+1))
+        out.write(" "*(self._hashwidth-hashes+1))
         if not done:
             out.write("(%3d%%)\r" % current)
         elif subpercent is None:
