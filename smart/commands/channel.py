@@ -20,7 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.option import OptionParser, append_all
-from smart.media import MediaSet
 from smart.const import NEVER
 from smart.channel import *
 from smart import *
@@ -141,6 +140,7 @@ def main(ctrl, opts):
         if len(opts.add) == 1:
             arg = opts.add[0]
             if os.path.isdir(arg):
+                sysconf.set("default-localmedia", arg, soft=True)
                 newchannels = detectLocalChannels(arg)
             elif os.path.isfile(arg):
                 newchannels = []

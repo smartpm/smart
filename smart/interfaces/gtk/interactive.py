@@ -361,8 +361,7 @@ class GtkInteractiveInterface(GtkInterface):
     def getChangeSet(self):
         return self._changeset
 
-    def updateChannels(self, selected=False):
-        channels = None
+    def updateChannels(self, selected=False, channels=None):
         if selected:
             aliases = GtkChannelSelector().show()
             channels = [channel for channel in self._ctrl.getChannels()

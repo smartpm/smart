@@ -21,6 +21,7 @@
 #
 from smart.interfaces.gtk import getPixbuf
 from smart.util.strtools import strToBool
+from smart.const import NEVER
 from smart.channel import *
 from smart import *
 import gobject, gtk
@@ -165,6 +166,9 @@ class GtkChannels(object):
 
         editor = ChannelEditor()
 
+        path = None
+        removable = []
+
         if method == "manual":
 
             type = TypeSelector().show()
@@ -177,6 +181,8 @@ class GtkChannels(object):
                 del newchannel["alias"]
                 sysconf.set(("channels", alias), newchannel)
                 self._changed = True
+                if newchannel.get("removable"):
+                    removable.append(alias)
 
         elif method in ("descriptionpath", "descriptionurl"):
 
@@ -222,6 +228,8 @@ class GtkChannels(object):
                     del newchannel["alias"]
                     sysconf.set(("channels", alias), newchannel)
                     self._changed = True
+                    if newchannel.get("removable"):
+                        removable.append(alias)
 
         elif method in ("detectmedia", "detectpath"):
 
@@ -241,6 +249,8 @@ class GtkChannels(object):
                     iface.error("Directory not found: %s" % path)
                     return
 
+            sysconf.set("default-localmedia", path, soft=True)
+
             foundchannel = False
             for newchannel in detectLocalChannels(path):
                 foundchannel = True
@@ -250,10 +260,22 @@ class GtkChannels(object):
                     del newchannel["alias"]
                     sysconf.set(("channels", alias), newchannel)
                     self._changed = True
+                    if newchannel.get("removable"):
+                        removable.append(alias)
             
             if not foundchannel:
                 iface.error("No channels detected!")
                 return
+
+        if removable:
+            ctrl = iface.getControl()
+            ctrl.rebuildSysConfChannels()
+            channels = [x for x in ctrl.getChannels()
+                        if x.getAlias() in removable]
+            iface.updateChannels(channels=channels)
+
+        if path:
+            sysconf.remove("default-localmedia", soft=True)
 
         if self._changed:
             self.fill()

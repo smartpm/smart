@@ -378,15 +378,16 @@ class GtkPackageView(gtk.Alignment):
         else:
             model = treeview.get_model()
             path = treeview.get_cursor()[0]
-            iter = model.get_iter(path)
-            value = model.get_value(iter, 0)
-            if not self._expandpackage and hasattr(value, "name"):
-                self.emit("package_activated", [value])
-            else:
-                if treeview.row_expanded(path):
-                    treeview.collapse_row(path)
+            if path:
+                iter = model.get_iter(path)
+                value = model.get_value(iter, 0)
+                if not self._expandpackage and hasattr(value, "name"):
+                    self.emit("package_activated", [value])
                 else:
-                    treeview.expand_row(path, False)
+                    if treeview.row_expanded(path):
+                        treeview.collapse_row(path)
+                    else:
+                        treeview.expand_row(path, False)
 
     def _pixbufClicked(self, path):
         model = self._treeview.get_model()

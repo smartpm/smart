@@ -20,9 +20,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.util.strtools import sizeToStr, speedToStr
+from smart.media import MediaSet, DeviceMedia
 from smart.uncompress import Uncompressor
 from smart.mirror import MirrorSystem
-from smart.media import MediaSet
 from smart.const import *
 from smart import *
 import tempfile
@@ -55,6 +55,7 @@ class Fetcher(object):
         self._items = {}
         self._handlers = {}
         self._forcecopy = False
+        self._forcemountedcopy = False
         self._localpathprefix = None
         self._cancel = False
         self._speedupdated = 0
@@ -135,6 +136,12 @@ class Fetcher(object):
 
     def getForceCopy(self):
         return self._forcecopy
+
+    def setForceMountedCopy(self, value):
+        self._forcemountedcopy = value
+
+    def getForceMountedCopy(self):
+        return self._forcemountedcopy
 
     def enqueue(self, url, **info):
         if url in self._items:
@@ -642,10 +649,6 @@ class FetcherHandler(object):
             for i in range(len(self._queue)-1,-1,-1):
                 item = self._queue[i]
                 localpath = self.getLocalPath(item)
-                media = self._fetcher.getMediaSet() \
-                                     .findMountPoint(localpath, subpath=True)
-                if media:
-                    media.mount()
                 uncomphandler = uncompressor.getHandler(localpath)
                 if uncomphandler and item.getInfo("uncomp"):
                     uncomppath = uncomphandler.getTargetPath(localpath)
@@ -673,30 +676,50 @@ class FileHandler(FetcherHandler):
     def __init__(self, *args):
         FetcherHandler.__init__(self, *args)
         self._active = False
+        self._mediaset = self._fetcher.getMediaSet()
+        self._forcecopy = {}
+
+    def stop(self):
+        FetcherHandler.stop(self)
+        self._forcecopy.clear()
+
+    def processMedias(self):
+        self._forcecopy.clear()
+        for item in self._queue:
+            localpath = item.getURL().path
+            localpath, media = self._mediaset.processFilePath(localpath)
+            if not media.wasMounted() and self._fetcher.getForceMountedCopy():
+                self._forcecopy[item] = True
+            if isinstance(media, DeviceMedia):
+                # We don't want item.getURL().original changed, so that
+                # progress still shows the original path.
+                item.getURL().path = localpath
 
     def getLocalPath(self, item):
-        if self._fetcher.getForceCopy():
+        if item in self._forcecopy or self._fetcher.getForceCopy():
             return FetcherHandler.getLocalPath(self, item)
         else:
             return item.getURL().path
 
     def runLocal(self):
+        self.processMedias()
         if self._fetcher.getForceCopy():
             FetcherHandler.runLocal(self)
         else:
             # First, handle compressed files without uncompressed
             # versions available.
             fetcher = self._fetcher
+            caching = fetcher.getCaching()
             uncompressor = fetcher.getUncompressor()
             for i in range(len(self._queue)-1,-1,-1):
                 item = self._queue[i]
-                if not item.getInfo("uncomp"):
+                if item in self._forcecopy:
+                    if caching is not ALWAYS:
+                        del self._queue[i]
+                    continue
+                elif not item.getInfo("uncomp"):
                     continue
                 localpath = self.getLocalPath(item)
-                media = self._fetcher.getMediaSet() \
-                                     .findMountPoint(localpath, subpath=True)
-                if media:
-                    media.mount()
                 uncomphandler = uncompressor.getHandler(localpath)
                 if (uncomphandler and not
                     os.path.isfile(uncomphandler.getTargetPath(localpath))):
@@ -719,8 +742,11 @@ class FileHandler(FetcherHandler):
                         item.setFailed(reason)
                     del self._queue[i]
 
-            # Then, everything else.
+            # Then, everything else, but the items selected in self._forcecopy
             FetcherHandler.runLocal(self, caching=ALWAYS)
+
+            if caching is not ALWAYS:
+                self._queue.extend(self._forcecopy.keys())
 
     def tick(self):
         if self._queue and not self._active:

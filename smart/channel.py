@@ -294,8 +294,6 @@ def getAllChannelInfos():
     return infos
 
 def detectLocalChannels(path):
-    if not os.path.isdir(path):
-        return []
     from smart.media import MediaSet
     mediaset = MediaSet()
     infos = getAllChannelInfos()
@@ -307,6 +305,8 @@ def detectLocalChannels(path):
         media = mediaset.findMountPoint(root, subpath=True)
         if media:
             media.mount()
+        if not os.path.isdir(root):
+            continue
         channelsfile = os.path.join(root, ".channels")
         if os.path.isfile(channelsfile):
             file = open(channelsfile)
@@ -322,8 +322,8 @@ def detectLocalChannels(path):
             if hasattr(info, "detectLocalChannels"):
                 for channel in info.detectLocalChannels(root, media):
                     channel["type"] = type
-                    if media:
-                        channel["removable"] = "yes"
+                    if media and media.isRemovable():
+                        channel["removable"] = True
                     channels.append(channel)
         if depth < maxdepth:
             for entry in os.listdir(root):

@@ -148,7 +148,7 @@ class GtkInterface(Interface):
             question += "    "
             question += channel.getName()
             question += "\n"
-        self.askOkCancel(question, nodot=True)
+        return self.askOkCancel(question, default=True, nodot=True)
 
     def message(self, level, msg):
         self._log.message(level, msg)

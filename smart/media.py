@@ -22,17 +22,20 @@
 from smart.util.filetools import compareFiles
 from smart import *
 import commands
+import stat
 import os
 
 class MediaSet(object):
 
     def __init__(self):
         self._medias = []
+        self._processcache = {}
         self.discover()
 
     def discover(self):
         self.restoreState()
         del self._medias[:]
+        self._processcache.clear()
         mountpoints = {}
         for lst in hooks.call("discover-medias"):
             for media in lst:
@@ -67,6 +70,14 @@ class MediaSet(object):
                 return media
         return None
 
+    def findDevice(self, path, subpath=False):
+        path = os.path.normpath(path)
+        for media in self._medias:
+            device = media.getDevice()
+            if device == path or subpath and path.startswith(device+"/"):
+                return media
+        return None
+
     def findFile(self, path, comparepath=None):
         if path.startswith("localmedia:"):
             path = path[11:]
@@ -79,6 +90,42 @@ class MediaSet(object):
                     not comparepath or compareFiles(filepath, comparepath)):
                     return media
         return None
+
+    def processFilePath(self, filepath):
+        dirname = os.path.dirname(filepath)
+        if dirname in self._processcache:
+            media = self._processcache.get(dirname)
+            if media:
+                filepath = media.convertDevicePath(filepath)
+        else:
+            media = self.findMountPoint(filepath, subpath=True)
+            if not media:
+                media = self.findDevice(filepath, subpath=True)
+            if media:
+                media.mount()
+                filepath = media.convertDevicePath(filepath)
+                self._processcache[dirname] = media
+            else:
+                isfile = os.path.isfile
+                paths = []
+                path = dirname
+                while path != "/":
+                    paths.append(path)
+                    if isfile(path):
+                        for media in hooks.call("discover-device-media", path):
+                            if media:
+                                media.mount()
+                                self._medias.append(media)
+                                filepath = media.convertDevicePath(filepath)
+                                self._processcache.update(
+                                        dict.fromkeys(paths, media))
+                                break
+                        if media:
+                            break
+                    path = os.path.dirname(path)
+                else:
+                    self._processcache.update(dict.fromkeys(paths, None))
+        return filepath, media
 
     def getDefault(self):
         default = sysconf.get("default-localmedia")
@@ -93,11 +140,13 @@ class Media(object):
 
     order = 1000
 
-    def __init__(self, mountpoint, device=None, type=None, options=None):
+    def __init__(self, mountpoint, device=None,
+                 type=None, options=None, removable=False):
         self._mountpoint = os.path.normpath(mountpoint)
         self._device = device
         self._type = type
         self._options = options
+        self._removable = removable
         self.resetState()
 
     def resetState(self):
@@ -120,6 +169,12 @@ class Media(object):
 
     def getOptions(self):
         return self._options
+
+    def isRemovable(self):
+        return self._removable
+
+    def wasMounted(self):
+        return self._wasmounted
 
     def isMounted(self):
         if not os.path.isfile("/proc/mounts"):
@@ -147,16 +202,24 @@ class Media(object):
     def joinPath(self, path):
         if path.startswith("localmedia:/"):
             path = path[12:]
-        while path[0] == "/":
+        while path and path[0] == "/":
             path = path[1:]
         return os.path.join(self._mountpoint, path)
 
     def joinURL(self, path):
         if path.startswith("localmedia:/"):
             path = path[12:]
-        while path[0] == "/":
+        while path and path[0] == "/":
             path = path[1:]
         return os.path.join("file://"+self._mountpoint, path)
+
+    def convertDevicePath(self, path):
+        if path.startswith(self._device):
+            path = path[len(self._device):]
+            while path and path[0] == "/":
+                path = path[1:]
+            path = os.path.join(self._mountpoint, path)
+        return path
 
     def hasFile(self, path, comparepath=None):
         if media.isMounted():
@@ -215,7 +278,7 @@ class AutoMountMedia(UmountMedia):
         else:
             return True
 
-class ImageMedia(BasicMedia):
+class DeviceMedia(BasicMedia):
 
     order = 100
 
@@ -249,7 +312,7 @@ def discoverFstabMedias():
             elif (type in ("iso9660", "udf") or
                 device in ("/dev/cdrom", "/dev/dvd") or
                 mountpoint.endswith("/cdrom") or mountpoint.endswith("/dvd")):
-                result.append(BasicMedia(mountpoint, device))
+                result.append(BasicMedia(mountpoint, device, removable=True))
     return result
 
 hooks.register("discover-medias", discoverFstabMedias)
@@ -272,33 +335,34 @@ def discoverAutoMountMedias():
                         location in (":/dev/cdrom", ":/dev/dvd")):
                         mountpoint = os.path.join(prefix, key)
                         device = location[1:]
-                        result.append(AutoMountMedia(mountpoint, device))
+                        result.append(AutoMountMedia(mountpoint, device,
+                                                     removable=True))
     return result
 
 hooks.register("discover-medias", discoverAutoMountMedias)
 
-def discoverImageMedias():
-    result = []
+def discoverDeviceMedia(path):
     mntdir = os.path.join(sysconf.get("data-dir"), "mnt")
     if not os.path.isdir(mntdir):
         try:
             os.makedirs(mntdir)
         except OSError:
-            return result
+            return None
     elif not os.access(mntdir, os.W_OK):
-        return result
-    basenames = {}
-    for path in sysconf.get("image-medias", ()):
-        if os.path.isfile(path):
-            path = os.path.normpath(path)
-            dirname, basename = os.path.split(path)
-            if basename in basenames:
-                suffix = 1
-                while basename+(".%d" % suffix) in basenames:
-                    suffix += 1
-                basename = basename+(".%d" % suffix)
-            mountpoint = os.path.join(mntdir, basename)
-            result.append(ImageMedia(mountpoint, path, options="loop"))
-    return result
+        return None
+    dirname, basename = os.path.split(path)
+    suffix = 0
+    mountpoint = os.path.join(mntdir, basename)
+    while os.path.ismount(mountpoint):
+        suffix += 1
+        mountpoint = os.path.join(mntdir, basename+(".%d" % suffix))
+    if suffix:
+        basename += ".%d" % suffix
+    st = os.stat(path)
+    if stat.S_ISBLK(st.st_mode):
+        options = None
+    else:
+        options = "loop"
+    return DeviceMedia(mountpoint, path, options=options)
 
-hooks.register("discover-medias", discoverImageMedias)
+hooks.register("discover-device-media", discoverDeviceMedia)

@@ -318,6 +318,10 @@ class Control(object):
         # Rebuild mirror information.
         self.reloadMirrors()
 
+        self._fetcher.setForceMountedCopy(True)
+
+        self._cache.reset()
+
         # Do the real work.
         result = True
         for channel in channels:
@@ -347,6 +351,7 @@ class Control(object):
                     self._cachechanged = True
         if result and caching is not ALWAYS:
             sysconf.set("last-update", time.time())
+        self._fetcher.setForceMountedCopy(False)
         self._fetcher.setForceCopy(False)
         self._fetcher.setLocalPathPrefix(None)
 
@@ -503,7 +508,8 @@ class Control(object):
                 if sysconf.get("remove-packages", True):
                     for pkg in pkgpaths:
                         for path in pkgpaths[pkg]:
-                            if path.startswith(datadir):
+                            if path.startswith(os.path.join(datadir,
+                                                            "packages")):
                                 os.unlink(path)
 
             if donecs == changeset:

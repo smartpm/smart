@@ -1907,6 +1907,8 @@ Cache__reload(CacheObject *self, PyObject *args)
                     klen = PyList_GET_SIZE(pkg->provides);
                     for (k = 0; k != klen; k++) {
                         PyObject *prv = PyList_GET_ITEM(pkg->provides, k);
+                        PyList_Append(((ProvidesObject *)prv)->packages,
+                                      (PyObject *)pkg);
                         if (!PyDict_GetItem(provides, prv)) {
                             PyDict_SetItem(provides, prv, Py_True);
                             args = PyObject_CallMethod(prv, "getInitArgs",
@@ -1929,6 +1931,8 @@ Cache__reload(CacheObject *self, PyObject *args)
                     klen = PyList_GET_SIZE(pkg->requires);
                     for (k = 0; k != klen; k++) {
                         PyObject *req = PyList_GET_ITEM(pkg->requires, k);
+                        PyList_Append(((DependsObject *)req)->packages,
+                                      (PyObject *)pkg);
                         if (!PyDict_GetItem(requires, req)) {
                             PyDict_SetItem(requires, req, Py_True);
                             args = PyObject_CallMethod(req, "getInitArgs",
@@ -1951,6 +1955,8 @@ Cache__reload(CacheObject *self, PyObject *args)
                     klen = PyList_GET_SIZE(pkg->upgrades);
                     for (k = 0; k != klen; k++) {
                         PyObject *upg = PyList_GET_ITEM(pkg->upgrades, k);
+                        PyList_Append(((DependsObject *)upg)->packages,
+                                      (PyObject *)pkg);
                         if (!PyDict_GetItem(upgrades, upg)) {
                             PyDict_SetItem(upgrades, upg, Py_True);
                             args = PyObject_CallMethod(upg, "getInitArgs",
@@ -1973,6 +1979,8 @@ Cache__reload(CacheObject *self, PyObject *args)
                     klen = PyList_GET_SIZE(pkg->conflicts);
                     for (k = 0; k != klen; k++) {
                         PyObject *cnf = PyList_GET_ITEM(pkg->conflicts, k);
+                        PyList_Append(((DependsObject *)cnf)->packages,
+                                      (PyObject *)pkg);
                         if (!PyDict_GetItem(conflicts, cnf)) {
                             PyDict_SetItem(conflicts, cnf, Py_True);
                             args = PyObject_CallMethod(cnf, "getInitArgs",
