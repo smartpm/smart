@@ -72,6 +72,7 @@ class ElementSorter(object):
                     if (head, succ, kind) not in self._disabled:
                         if succ in loop or succ == end:
                             loop.update(dict.fromkeys(path, True))
+                            loop[end] = True # If end != start
                         elif succ not in done:
                             done[succ] = True
                             path.append(succ)
