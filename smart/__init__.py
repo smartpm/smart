@@ -82,19 +82,6 @@ def init(command=None, argv=None,
         ifacename = "text"
     iface.object = createInterface(ifacename, ctrl, command, argv)
 
-    # Import every plugin, and let they do whatever they want.
-    from smart import plugins
-    pluginsdir = os.path.dirname(plugins.__file__)
-    for entry in os.listdir(pluginsdir):
-        if entry != "__init__.py" and entry.endswith(".py"):
-            __import__("smart.plugins."+entry[:3])
-        else:
-            entrypath = os.path.join(pluginsdir, entry)
-            if os.path.isdir(entrypath):
-                initpath = os.path.join(entrypath, "__init__.py")
-                if os.path.isfile(initpath):
-                    __import__("smart.plugins."+entry)
-
     # Run distribution script, if available.
     if os.path.isfile(DISTROFILE):
         execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
@@ -103,5 +90,18 @@ def init(command=None, argv=None,
 
     return ctrl
 
+def initPlugins():
+    # Import every plugin, and let they do whatever they want.
+    from smart import plugins
+    pluginsdir = os.path.dirname(plugins.__file__)
+    for entry in os.listdir(pluginsdir):
+        if entry != "__init__.py" and entry.endswith(".py"):
+            __import__("smart.plugins."+entry[:-3])
+        else:
+            entrypath = os.path.join(pluginsdir, entry)
+            if os.path.isdir(entrypath):
+                initpath = os.path.join(entrypath, "__init__.py")
+                if os.path.isfile(initpath):
+                    __import__("smart.plugins."+entry)
 
 # vim:ts=4:sw=4:et

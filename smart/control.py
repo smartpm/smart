@@ -41,8 +41,9 @@ class Control(object):
 
     def __init__(self, confpath=None, forcelocks=False):
         self._confpath = None
-        self._channels = {}
-        self._sysconfchannels = {}
+        self._channels = {} # alias -> Channel()
+        self._sysconfchannels = {} # alias -> data dict
+        self._dynamicchannels = {} # alias -> Channel()
         self._pathlocks = PathLocks(forcelocks)
         self._cache = Cache()
 
@@ -63,6 +64,8 @@ class Control(object):
         del self._channels[alias]
         if alias in self._sysconfchannels:
             del self._sysconfchannels[alias]
+        if alias in self._dynamicchannels:
+            del self._dynamicchannels[alias]
 
     def getFileChannels(self):
         return [x for x in self._channels.values()
@@ -247,12 +250,29 @@ class Control(object):
             if alias not in channels:
                 self.removeChannel(alias)
 
+    def rebuildDynamicChannels(self):
+        for alias in self._dynamicchannels.keys():
+            self.removeChannel(alias)
+        newchannels = {}
+        for channels in hooks.call("rebuild-dynamic-channels"):
+            if channels:
+                for channel in channels:
+                    alias = channel.getAlias()
+                    if alias in self._channels:
+                        raise Error, "There's another channel with alias '%s'"\
+                                     % alias
+                    newchannels[alias] = channel
+        self._channels.update(newchannels)
+        self._dynamicchannels.update(newchannels)
+
     def reloadChannels(self, channels=None, caching=ALWAYS):
 
         if channels is None:
             manual = False
             self.rebuildSysConfChannels()
+            self.rebuildDynamicChannels()
             channels = self._channels.values()
+            hooks.call("reload-channels", channels)
         else:
             manual = True
 
