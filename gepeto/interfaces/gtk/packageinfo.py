@@ -33,10 +33,16 @@ class GtkPackageInfo(gtk.Alignment):
         self._pkg = None
         self._changeset = None
 
+        font = self.style.font_desc.copy()
+        font.set_size(font.get_size()-pango.SCALE)
+
+        boldfont = font.copy()
+        boldfont.set_weight(pango.WEIGHT_BOLD)
+
         self._notebook = gtk.Notebook()
         self._notebook.show()
         self.add(self._notebook)
-        
+
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         #sw.set_border_width(5)
@@ -51,15 +57,10 @@ class GtkPackageInfo(gtk.Alignment):
 
         self._info = type("Info", (), {})()
 
-        fontdesc = table.style.font_desc.copy()
-        fontdesc.set_size(fontdesc.get_size()-pango.SCALE)
         attrsleft = pango.AttrList()
-        attrsleft.insert(pango.AttrFontDesc(fontdesc, 0, -1))
-
-        fontdesc = fontdesc.copy()
-        fontdesc.set_weight(pango.WEIGHT_BOLD)
+        attrsleft.insert(pango.AttrFontDesc(font, 0, -1))
         attrsright = pango.AttrList()
-        attrsright.insert(pango.AttrFontDesc(fontdesc, 0, -1))
+        attrsright.insert(pango.AttrFontDesc(boldfont, 0, -1))
 
         row = 0
         for attr, text in [("status", "Status:"),
@@ -101,11 +102,8 @@ class GtkPackageInfo(gtk.Alignment):
         self._descrtv.set_right_margin(5)
         self._descrtv.show()
         buffer = self._descrtv.get_buffer()
-        fontdesc = self._notebook.style.font_desc.copy()
-        fontdesc.set_size(fontdesc.get_size()-pango.SCALE)
-        buffer.create_tag("description", font_desc=fontdesc)
-        fontdesc.set_weight(pango.WEIGHT_BOLD)
-        buffer.create_tag("summary", font_desc=fontdesc)
+        buffer.create_tag("description", font_desc=font)
+        buffer.create_tag("summary", font_desc=boldfont)
         sw.add(self._descrtv)
 
         label = gtk.Label("Description")
@@ -125,9 +123,7 @@ class GtkPackageInfo(gtk.Alignment):
         self._conttv.set_right_margin(5)
         self._conttv.show()
         buffer = self._conttv.get_buffer()
-        fontdesc = self._notebook.style.font_desc.copy()
-        fontdesc.set_size(fontdesc.get_size()-pango.SCALE)
-        buffer.create_tag("content", font_desc=fontdesc)
+        buffer.create_tag("content", font_desc=font)
         sw.add(self._conttv)
 
         label = gtk.Label("Content")
@@ -155,10 +151,8 @@ class GtkPackageInfo(gtk.Alignment):
         self._urls = gtk.TreeView(model)
         self._urls.set_headers_visible(False)
         self._urls.show()
-        fontdesc = self._urls.style.font_desc.copy()
-        fontdesc.set_size(fontdesc.get_size()-pango.SCALE)
         renderer = gtk.CellRendererText()
-        renderer.set_property("font-desc", fontdesc)
+        renderer.set_property("font-desc", font)
         self._urls.insert_column_with_attributes(-1, "Channel",
                                                  renderer, text=0)
         self._urls.insert_column_with_attributes(-1, "Size", renderer, text=1)
