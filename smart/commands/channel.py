@@ -328,5 +328,6 @@ def main(ctrl, opts):
             else:
                 sysconf.set("channels", newchannels)
                 break
+        os.unlink(name)
 
 # vim:ts=4:sw=4:et
