@@ -187,7 +187,7 @@ def main(ctrl, opts):
                 info = getChannelInfo(type)
                 print
                 for key, label, ftype, default, descr in info.fields:
-                    if field in channel:
+                    if key in channel:
                         print "%s: %s" % (label, channel[key])
                 print
             if opts.force or iface.askYesNo("Include this channel"):
@@ -217,7 +217,7 @@ def main(ctrl, opts):
             print
             import update
             updateopts = update.parse_options(removable)
-            update.main(updateopts, ctrl)
+            update.main(ctrl, updateopts)
 
     if opts.set:
         if not opts.set:
