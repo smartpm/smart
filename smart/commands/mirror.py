@@ -55,6 +55,8 @@ EXAMPLES="""
 smart mirror --show
 smart mirror --add ftp://origin.url/some/path/ http://mirror.url/path/
 smart mirror --remove ftp://origin.url/some/path/ http://mirror.url/path/
+smart mirror --add http://some.url/path/to/mirrors.txt
+smart mirror --sync http://some.url/path/to/mirrors.txt
 smart mirror --clear-history ftp://origin.url/some/path/
 smart mirror --clear-history ftp://mirror.url/path/
 smart mirror --clear-history
@@ -72,14 +74,18 @@ def parse_options(argv):
                       help="show current mirrors")
     parser.add_option("--add", action="callback", callback=append_all,
                       help="add to the given origin URL the given mirror URL, "
-                           "provided either in pairs, or in a given file "
+                           "provided either in pairs, or in a given file/url "
                            "in the format used by --show")
     parser.add_option("--remove", action="callback", callback=append_all,
                       help="remove from the given origin URL the given "
                            "mirror URL, provided either in pairs, or in a "
-                           "given file in the format used by --show")
+                           "given file/url in the format used by --show")
     parser.add_option("--remove-all", action="callback", callback=append_all,
                       help="remove all mirrors for the given origin URLs")
+    parser.add_option("--sync", action="store", metavar="FILE",
+                      help="syncrhonize mirrors from the given file/url, "
+                           "so that origins in the given file will have "
+                           "exactly the specified mirrors")
     parser.add_option("--clear-history", action="callback", callback=append_all,
                       help="clear history for the given origins/mirrors, or "
                            "for all mirrors")
@@ -90,25 +96,46 @@ def parse_options(argv):
     opts.args = args
     return opts
 
-def read_mirrors(filename):
-    if not os.path.isfile(filename):
+def read_mirrors(ctrl, filename):
+    fetched = False
+    if ":/" in filename:
+        url = filename
+        succ, fail = ctrl.downloadURLs([url], "mirror descriptions")
+        if fail:
+            raise Error, "Failed to download mirror descriptions:\n" + \
+                         "\n".join(["    %s: %s" % (url, fail[url])
+                                    for url in fail])
+        filename = succ[url]
+        fetched = True
+    elif not os.path.isfile(filename):
         raise Error, "File not found: %s" % filename
-    result = []
-    origin = None
-    mirror = None
-    for line in open(filename):
-        url = line.strip()
-        if not url:
-            continue
-        if line[0].isspace():
-            mirror = url
-        else:
-            origin = url
-            continue
-        if not origin:
-            raise Error, "Invalid mirrors file"
-        result.append(origin)
-        result.append(mirror)
+    try:
+        result = []
+        origin = None
+        mirror = None
+        for line in open(filename):
+            url = line.strip()
+            if not url:
+                continue
+            if line[0].isspace():
+                mirror = url
+            else:
+                if origin and mirror is None:
+                    result.append(origin)
+                    result.append(None)
+                origin = url
+                mirror = None
+                continue
+            if not origin:
+                raise Error, "Invalid mirrors file"
+            result.append(origin)
+            result.append(mirror)
+        if origin and mirror is None:
+            result.append(origin)
+            result.append(None)
+    finally:
+        if fetched and filename.startswith(sysconf.get("data-dir")):
+            os.unlink(filename)
     return result
 
 def main(ctrl, opts):
@@ -121,25 +148,26 @@ def main(ctrl, opts):
         sysconf.assertWritable()
 
         if len(opts.add) == 1:
-            opts.add = read_mirrors(opts.add[0])
+            opts.add = read_mirrors(ctrl, opts.add[0])
 
         if len(opts.add) % 2 != 0:
             raise Error, "Invalid arguments for --add"
 
         for i in range(0,len(opts.add),2):
             origin, mirror = opts.add[i:i+2]
-            if origin in mirrors:
-                if mirror not in mirrors[origin]:
-                    mirrors[origin].append(mirror)
-            else:
-                mirrors[origin] = [mirror]
+            if mirror:
+                if origin in mirrors:
+                    if mirror not in mirrors[origin]:
+                        mirrors[origin].append(mirror)
+                else:
+                    mirrors[origin] = [mirror]
 
     if opts.remove:
 
         sysconf.assertWritable()
 
         if len(opts.remove) == 1:
-            opts.remove = read_mirrors(opts.remove[0])
+            opts.remove = read_mirrors(ctrl, opts.remove[0])
 
         if len(opts.remove) % 2 != 0:
             raise Error, "Invalid arguments for --remove"
@@ -167,6 +195,25 @@ def main(ctrl, opts):
                 del mirrors[origin]
             else:
                 raise Error, "Origin not found"
+
+    if opts.sync:
+
+        sysconf.assertWritable()
+
+        reset = {}
+        lst = read_mirrors(ctrl, opts.sync)
+        for i in range(0,len(lst),2):
+            origin, mirror = lst[i:i+2]
+            if origin not in reset:
+                reset[origin] = True
+                if origin in mirrors:
+                    del mirrors[origin]
+            if mirror:
+                if origin in mirrors:
+                    if mirror not in mirrors[origin]:
+                        mirrors[origin].append(mirror)
+                else:
+                    mirrors[origin] = [mirror]
 
     if opts.clear_history is not None:
 
