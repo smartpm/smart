@@ -468,9 +468,13 @@ class URL(object):
         self.query = ""
 
     def set(self, url):
-        if ":/" not in url:
-            raise Error, "Invalid URL: %s" % url
-        self.scheme, rest = urllib.splittype(url)
+        if url.startswith("/"):
+            self.scheme = "file"
+            rest = url
+        else:
+            if ":/" not in url:
+                raise Error, "Invalid URL: %s" % url
+            self.scheme, rest = urllib.splittype(url)
         if self.scheme in Fetcher.getLocalSchemes():
             scheme = self.scheme
             self.reset()

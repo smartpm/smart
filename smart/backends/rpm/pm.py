@@ -97,7 +97,11 @@ class RPMPackageManager(PackageManager):
                 mode = pkg in upgrading and "u" or "i"
                 path = pkgpaths[pkg][0]
                 fd = os.open(path, os.O_RDONLY)
-                h = ts.hdrFromFdno(fd)
+                try:
+                    h = ts.hdrFromFdno(fd)
+                except rpm.error, e:
+                    os.close(fd)
+                    raise Error, "%s: %s" % (os.path.basename(path), e)
                 os.close(fd)
                 ts.addInstall(h, (info, path), mode)
                 packages += 1

@@ -461,18 +461,28 @@ class RPMDirLoader(RPMHeaderLoader):
     def getHeaders(self, prog):
         ts = rpm.ts()
         for i, filename in enumerate(self._filenames):
-            file = open(os.path.join(self._dir, filename))
-            h = ts.hdrFromFdno(file.fileno())
+            filepath = os.path.join(self._dir, filename)
+            file = open(filepath)
+            try:
+                h = ts.hdrFromFdno(file.fileno())
+            except rpm.error, e:
+                iface.error("%s: %s" % (os.path.basename(filepath), e))
+            else:
+                yield (h, i)
             file.close()
-            yield (h, i)
             prog.add(1)
             prog.show()
 
     def getHeader(self, pkg):
         filename = self._filenames[pkg.loaders[self]]
-        file = open(os.path.join(self._dir, filename))
+        filepath = os.path.join(self._dir, filename)
+        file = open(filepath)
         ts = rpm.ts()
-        h = ts.hdrFromFdno(file.fileno())
+        try:
+            h = ts.hdrFromFdno(file.fileno())
+        except rpm.error, e:
+            iface.error("%s: %s" % (os.path.basename(filepath), e))
+            h = None
         file.close()
         return h
 
@@ -502,13 +512,19 @@ class RPMDirLoader(RPMHeaderLoader):
         for i, filename in enumerate(self._filenames):
             if i not in self._offsets:
                 continue
-            file = open(os.path.join(self._dir, filename))
-            h = ts.hdrFromFdno(file.fileno())
-            file.close()
-            for fn in h[1027]: # RPMTAG_OLDFILENAMES
-                fn = fndict.get(fn)
-                if fn:
-                    bfp(self._offsets[i], (RPMProvides, fn, None))
+            filepath = os.path.join(self._dir, filename)
+            file = open(filepath)
+            try:
+                h = ts.hdrFromFdno(file.fileno())
+            except rpm.error, e:
+                file.close()
+                iface.error("%s: %s" % (os.path.basename(filepath), e))
+            else:
+                file.close()
+                for fn in h[1027]: # RPMTAG_OLDFILENAMES
+                    fn = fndict.get(fn)
+                    if fn:
+                        bfp(self._offsets[i], (RPMProvides, fn, None))
 
 class RPMFileChannel(FileChannel):
 
