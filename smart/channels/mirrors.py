@@ -41,6 +41,7 @@ class StandardMirrorsChannel(MirrorsChannel):
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
+            origin = None
             for line in open(localpath):
                 if line[0].isspace():
                     if origin:
