@@ -1,3 +1,5 @@
+from epm.sorter import UpgradeSorter
+
 (
 OPER_INSTALL,
 OPER_REMOVE,
@@ -13,17 +15,29 @@ REASON_CONFLICTS,
 FAILED = 100000000
 
 class Policy:
-    def __init__(self, trans):
-        self._trans = trans
+    def __init__(self):
+        self._locked = {}
 
-    def getWeight(self):
+    def getLocked(self, pkg):
+        return pkg in self._locked
+
+    def setLocked(self, pkg, flag):
+        if flag:
+            if pkg in self._locked:
+                del self._locked[pkg]
+        else:
+            self._locked[pkg] = True
+
+    def getLockedSet(self):
+        return self._locked
+
+    def getWeight(self, trans):
         return 0
 
 class PolicyInstall(Policy):
     """Give precedence to keeping functionality in the system."""
 
-    def getWeight(self):
-        trans = self._trans
+    def getWeight(self, trans):
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
@@ -41,8 +55,7 @@ class PolicyInstall(Policy):
 class PolicyRemove(Policy):
     """Give precedence to the choice with less changes."""
 
-    def getWeight(self):
-        trans = self._trans
+    def getWeight(self, trans):
         weight = 0
         for pkg in trans.operation:
             op, reason, pkg1, pkg2 = trans.operation[pkg]
@@ -53,7 +66,7 @@ class PolicyRemove(Policy):
 class PolicyGlobalUpgrade(Policy):
     """Give precedence to the choice with more upgrades and smaller impact."""
 
-    def getWeight(self):
+    def getWeight(self, trans):
         trans = self._trans
         weight = 0
         for pkg in trans.operation:
@@ -69,25 +82,53 @@ class PolicyGlobalUpgrade(Policy):
                 weight += 1
         return weight
 
+def recursiveRequiredBy(pkg, set):
+    set[pkg] = True
+    for prv in pkg.provides:
+        for req, reqpkgs in prv.getRequiredBy():
+            for reqpkg in reqpkgs:
+                if reqpkg not in set:
+                    recursiveRequiredBy(reqpkg, set)
+
+def recursiveObsoletes(pkg, set):
+    set[pkg] = True
+    for obs in pkg.obsoletes:
+        for prv, prvpkgs in obs.getProvidedBy():
+            for prvpkg in prvpkgs:
+                if prvpkg not in set:
+                    recursiveObsoletes(prvpkg, set)
+
 class Failed(Exception): pass
 
 class Transaction:
-    def __init__(self, cache, policy):
+    def __init__(self, cache, policy=None):
         self.cache = cache
-        self.policy = policy(self)
+        self.policy = policy
         self.backtrack = []
         self.operation = {}
-        self.touched = {}
+        self.locked = {}
         self.queue = []
 
+    def getLocked(self):
+        return self.locked
+
+    def getCache(self):
+        return self.cache
+
+    def getPolicy(self):
+        return self.policy
+
+    def setPolicy(self, policy):
+        self.policy = policy
+
     def getState(self):
-        return (self.operation.copy(), self.touched.copy(), self.queue[:])
+        return (self.operation.copy(), self.locked.copy(), self.queue[:])
 
     def setState(self, state):
         self.operation.clear()
         self.operation.update(state[0])
-        self.touched.clear()
-        self.touched.update(state[1])
+        self.locked.clear()
+        self.locked.update(state[1])
         self.queue[:] = state[2]
 
     def getWeight(self):
@@ -103,16 +144,16 @@ class Transaction:
         After running this method, previously requested changes may be
         modified to fix relations.
         """
-        self.touched.clear()
+        self.locked.clear()
 
     def install(self, pkg):
-        self.touched[pkg] = True
+        self.locked[pkg] = True
         if not self.getInstalled(pkg):
             self.operation[pkg] = (OPER_INSTALL, REASON_REQUESTED, None, None)
         self.queue.append((pkg, OPER_INSTALL, len(self.backtrack)))
 
     def remove(self, pkg):
-        self.touched[pkg] = True
+        self.locked[pkg] = True
         self.operation[pkg] = (OPER_REMOVE, REASON_REQUESTED, None, None)
         self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
 
@@ -120,11 +161,11 @@ class Transaction:
         for obs in pkg.obsoletes:
             for prv, prvpkgs in obs.getProvidedBy():
                 for prvpkg in prvpkgs:
-                    self.touched[prvpkg] = True
+                    self.locked[prvpkg] = True
         for prv in pkg.provides:
             for obs, obspkgs in prv.getObsoletedBy():
                 for obspkg in obspkgs:
-                    self.touched[obspkg] = True
+                    self.locked[obspkg] = True
 
     def upgrade(self, pkg):
         obspkgs = {}
@@ -136,34 +177,10 @@ class Transaction:
         obspkgs.sort()
         self.install(obspkgs[-1])
 
-    def globalUpgrade(self):
-        cache = self.cache
-        touched = self.touched
-
-        isinst = self.getInstalled
-
-        # Find multiple levels of packages obsoleting installed packages.
-        upgset = {}
-        queue = cache.getPackages()
-        while queue:
-            pkg = queue.pop(0)
-            if isinst(pkg):
-                for prv in pkg.provides:
-                    for obs, obspkgs in prv.getObsoletedBy():
-                        for obspkg in obspkgs:
-                            if obspkg in touched or obspkg in upgset:
-                                continue
-                            print "%s obsoletes %s" % (obspkg, pkg)
-                            upgset[obspkg] = True
-                            queue.append(obspkg)
-
-        print len(upgset)
-
-
     def run(self):
         loopctrl = {}
 
-        touched = self.touched
+        locked = self.locked
         opmap = self.operation
         queue = self.queue
         isinst = self.getInstalled
@@ -173,6 +190,7 @@ class Transaction:
         bestweight = "MAX"
 
         getweight = self.policy.getWeight
+        locked.update(self.policy.getLockedSet())
         
         i = 0
         ilim = 1000
@@ -196,7 +214,7 @@ class Transaction:
                                 for prvpkg in prvpkgs:
                                     if not isinst(prvpkg):
                                         continue
-                                    if prvpkg in touched:
+                                    if prvpkg in locked:
                                         raise Failed
                                     self._remove(prvpkg,
                                                  REASON_OBSOLETES,
@@ -208,7 +226,7 @@ class Transaction:
                                 for obspkg in obspkgs:
                                     if not isinst(obspkg):
                                         continue
-                                    if obspkg in touched:
+                                    if obspkg in locked:
                                         raise Failed
                                     self._remove(obspkg,
                                                  REASON_OBSOLETES,
@@ -220,7 +238,7 @@ class Transaction:
                                 for prvpkg in prvpkgs:
                                     if not isinst(prvpkg):
                                         continue
-                                    if prvpkg in touched:
+                                    if prvpkg in locked:
                                         raise Failed
                                     self._remove(prvpkg,
                                                  REASON_CONFLICTS,
@@ -232,7 +250,7 @@ class Transaction:
                                 for cnfpkg in cnfpkgs:
                                     if not isinst(cnfpkg):
                                         continue
-                                    if cnfpkg in touched:
+                                    if cnfpkg in locked:
                                         raise Failed
                                     self._remove(cnfpkg,
                                                  REASON_CONFLICTS,
@@ -249,7 +267,7 @@ class Transaction:
                                     if isinst(prvpkg):
                                         found = True
                                         break
-                                    if prvpkg not in touched:
+                                    if prvpkg not in locked:
                                         prvpkgs[prvpkg] = True
                                 else:
                                     continue
@@ -275,7 +293,7 @@ class Transaction:
                                                self.getState()))
                             prvpkg = prvpkgs[0]
                             queue.append((prvpkg, OPER_INSTALL, len(bt)))
-                            touched[prvpkg] = True
+                            locked[prvpkg] = True
                             opmap[prvpkg] = (OPER_INSTALL,
                                              REASON_REQUIRES,
                                              pkg, prvpkgs[0])
@@ -304,7 +322,7 @@ class Transaction:
                                         if isinst(prvpkg):
                                             found = True
                                             break
-                                        if prvpkg not in touched:
+                                        if prvpkg not in locked:
                                             prvpkgs[prvpkg] = True
                                     else:
                                         continue
@@ -329,16 +347,16 @@ class Transaction:
                                 for reqpkg in reqpkgs:
                                     if not isinst(reqpkg):
                                         continue
-                                    if reqpkg in touched:
+                                    if reqpkg in locked:
                                         raise Failed
                                     self._remove(reqpkg,
                                                  REASON_REQUIRES,
                                                  reqpkg, pkg)
             except Failed:
                 del bt[btlen:]
-                weight = getweight()+FAILED
+                weight = getweight(self)+FAILED
             else:
-                weight = getweight()
+                weight = getweight(self)
 
             # Queue is over. Consider alternatives.
             """
@@ -356,11 +374,11 @@ class Transaction:
                     bestweight = weight
                 pkg, op, reason, pkg1, pkg2, state = bt.pop()
                 self.setState(state)
-                touched[pkg] = True
+                locked[pkg] = True
                 queue.append((pkg, op, len(bt)))
                 opmap[pkg] = (op, reason, pkg1, pkg2)
                 if i == ilim:
-                    print "Starting weight: %d" % getweight()
+                    print "Starting weight: %d" % getweight(self)
                     i = 0
             else:
                 print "Alternatives are over!"
@@ -388,7 +406,7 @@ class Transaction:
         for prv in pkg.provides:
             for obs, obspkgs in prv.getObsoletedBy():
                 for obspkg in obspkgs:
-                    if obspkg in self.touched or self.getInstalled(obspkg):
+                    if obspkg in self.locked or self.getInstalled(obspkg):
                         continue
                     self.backtrack.append((obspkg,
                                            OPER_INSTALL,
@@ -399,7 +417,7 @@ class Transaction:
         for obs in pkg.obsoletes:
             for prv, prvpkgs in obs.getProvidedBy():
                 for prvpkg in prvpkgs:
-                    if prvpkg in self.touched or self.getInstalled(prvpkg):
+                    if prvpkg in self.locked or self.getInstalled(prvpkg):
                         continue
                     self.backtrack.append((prvpkg,
                                            OPER_INSTALL,
@@ -407,9 +425,55 @@ class Transaction:
                                            self.getState()))
 
         # Finally, remove the package.
-        self.touched[pkg] = True
+        self.locked[pkg] = True
         self.queue.append((pkg, OPER_REMOVE, len(self.backtrack)))
         self.operation[pkg] = (OPER_REMOVE, reason, pkg1, pkg2)
+
+def upgradePackages(self, trans, pkgs):
+    locked = trans.getLocked()
+    isinst = trans.getInstalled
+
+    # Find packages obsoleting given packages.
+    upgpkgs = {}
+    for pkg in pkgs:
+        if isinst(pkg):
+            for prv in pkg.provides:
+                for obs, obspkgs in prv.getObsoletedBy():
+                    for obspkg in obspkgs:
+                        if obspkg in locked or obspkg in upgpkgs:
+                            continue
+                        upgpkgs[obspkg] = True
+
+    upgpkgs = upgpkgs.keys()
+
+    # Ordering is key.
+    UpgradeSorter(upgpkgs).sort()
+
+    print [str(x) for x in upgpkgs]
+    import sys
+    sys.exit(0)
+    
+    beststate = trans.getState()
+    bestweight = trans.getWeight()
+    for pkg in upgpkgs:
+        if pkg in locked:
+            continue
+        trans.install(pkg)
+        trans.run()
+        weight = trans.getWeight()
+        if weight < bestweight:
+            beststate = trans.getState()
+            bestweight = weight
+        else:
+            trans.setState(beststate)
+
+    print "Global upgrade:"
+    for pkg in trans.operation:
+        o, r, p1, p2 = trans.operation[pkg]
+        if o == OPER_INSTALL:
+            print "I", pkg
+        else:
+            print "R", pkg
 
 try:
     import psyco

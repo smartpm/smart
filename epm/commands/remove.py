@@ -1,4 +1,4 @@
-from epm.transaction import Transaction, PolicyInstall
+from epm.transaction import Transaction, PolicyRemove
 from epm.matcher import MasterMatcher
 from epm.option import OptionParser
 from epm.control import Control
@@ -19,20 +19,19 @@ def main(opts):
     ctrl = Control(opts)
     ctrl.standardInit()
     cache = ctrl.getCache()
-    policy = PolicyInstall()
+    policy = PolicyRemove()
     trans = Transaction(cache, policy)
+    found = False
     for arg in opts.args:
         matcher = MasterMatcher(arg)
-        pkgs = matcher.filter(cache.getPackages())
-        pkgs = [x for x in pkgs if not x.installed]
-        if not pkgs:
-            raise Error, "'%s' matches no uninstalled packages" % arg
-        if len(pkgs) > 1:
-            raise Error, "'%s' matches multiple packages: %s" % \
-                         (arg, ", ".join([str(x) for x in pkgs]))
-        else:
-            trans.install(pkgs[-1])
-    trans.run()
+        for pkg in matcher.filter(cache.getPackages()):
+            if pkg.installed:
+                found = True
+                trans.remove(pkg)
+    if not found:
+        raise Error, "no packages matched given arguments"
+    else:
+        trans.run()
     ctrl.standardFinalize()
 
 # vim:ts=4:sw=4:et

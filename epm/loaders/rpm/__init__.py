@@ -1,11 +1,47 @@
+from epm.matcher import Matcher
 from epm.cache import *
 #from rpmver import checkdep, vercmp
 from crpmver import checkdep, vercmp
-import os
+import string
+import os, re
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMDepends", "RPMLoader"]
 
+class RPMMatcher(Matcher):
+    def __init__(self, str):
+        Matcher.__init__(self, str)
+        if '=' in str:
+            name, version = str.split('=')
+        else:
+            name = str
+            version = None
+        nulltrans = string.maketrans('', '')
+        isre = lambda x: x.translate(nulltrans, '^{[*') != x
+        if isre(name):
+            self._name = re.compile(name)
+        else:
+            self._name = name
+        if version and isre(version):
+            self._version = re.compile(version)
+        else:
+            self._version = version
+
+    def matches(self, obj):
+        if isinstance(self._name, str):
+            if self._name != obj.name:
+                return False
+        elif not self._name.match(obj.name):
+            return False
+        if isinstance(self._version, str):
+            if vercmp(self._version, obj.version) != 0:
+                return False
+        elif self._version and not self._version.match(obj.version):
+            return False
+        return True
+
 class RPMPackage(Package):
+
+    matcher = RPMMatcher
 
     def getInfo(self):
         return self._loader.getInfo(self)

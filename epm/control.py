@@ -15,8 +15,8 @@ CACHEFORMAT = 1
 class Control:
 
     def __init__(self, options):
-        self._opts = options
-        self._root = None
+        self._options = options
+        self._config = None
         self._reps = []
         self._cache = Cache()
         self._datadir = None
@@ -25,7 +25,10 @@ class Control:
         return self._reps
 
     def getOptions(self):
-        return self._opts
+        return self._options
+
+    def getConfig(self):
+        return self._config
 
     def getCache(self):
         return self._cache
@@ -53,7 +56,7 @@ class Control:
 
     def readConfig(self):
         root = None
-        opts = self._opts
+        opts = self._options
         if opts.conffile:
             if not os.path.isfile(opts.conffile):
                 raise Error, "configuration file not found: "+opts.conffile
@@ -72,7 +75,7 @@ class Control:
             else:
                 raise Error, "no configuration file found in: " + \
                              " ".join(CONFIGFILES)
-        self.root = root
+        self._config = root
 
     def importRepository(self, type):
         try:
@@ -81,7 +84,7 @@ class Control:
             reps_module = getattr(epm_module, "repositories")
             rep_module = getattr(reps_module, xtype)
         except (ImportError, AttributeError):
-            if self._opts.loglevel == "debug":
+            if self._options.loglevel == "debug":
                 import traceback
                 traceback.print_exc()
                 sys.exit(1)
@@ -90,7 +93,7 @@ class Control:
         return rep_module.repository
 
     def loadRepositories(self, name=None):
-        for node in self.root.getchildren():
+        for node in self._config.getchildren():
             if node.tag == "repositories":
                 for node in node.getchildren():
                     if not name or node.get("name") == name:
