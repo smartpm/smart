@@ -37,7 +37,7 @@ class TextProgress(Progress):
         self._fetchermode = False
         self._seentopics = {}
         self._addline = False
-        self._shorturl = ShortURL(self.HASHES+34)
+        self._shorturl = ShortURL(self.HASHES+32)
 
     def setFetcherMode(self, flag):
         self._fetchermode = flag
