@@ -1,6 +1,6 @@
 import sys
-sys.argv = ["./cpm.py", "test"]
-execfile('./cpm.py')
+sys.argv = ["./smart.py", "test"]
+execfile('./smart.py')
 
 # A problem is identified when:
 #

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from cpm.progress import Progress
+from smart.progress import Progress
 from qt import *
 
 import sys, os, time

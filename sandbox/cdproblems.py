@@ -1,12 +1,12 @@
 import sys
-sys.argv = ["./cpm.py", "test"]
-execfile('./cpm.py')
+sys.argv = ["./smart.py", "test"]
+execfile('./smart.py')
 import user
     
 # Check if upgrading a package would require upgrading another
 # package which is in a higher numbered CD.
 
-from cpm.transaction import *
+from smart.transaction import *
 
 set = ChangeSet()
 

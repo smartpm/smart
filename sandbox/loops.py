@@ -1,9 +1,9 @@
 import sys
-sys.argv = ["./cpm.py", "test"]
-execfile('./cpm.py')
+sys.argv = ["./smart.py", "test"]
+execfile('./smart.py')
 
 import sets
-from cpm.cache import Package
+from smart.cache import Package
 
 def forwardRequires(pkg, set):
     for req in pkg.requires:

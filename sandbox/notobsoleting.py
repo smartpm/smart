@@ -1,6 +1,6 @@
 import sys
-sys.argv = ["./cpm.py", "test"]
-execfile('./cpm.py')
+sys.argv = ["./smart.py", "test"]
+execfile('./smart.py')
 
 def requiredByPackageObsoletingCL9(pkg, donemap=None):
     # Is any recursively requiring package obsoleting some package in CL9?

@@ -2,52 +2,71 @@
 from distutils.command.install_scripts import install_scripts
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib
+import distutils.file_util
+import distutils.dir_util
 import sys, os
 import glob
 import re
 
 verpat = re.compile("VERSION *= *\"(.*)\"")
-data = open("gepeto/const.py").read()
+data = open("smart/const.py").read()
 m = verpat.search(data)
 if not m:
     sys.exit("error: can't find VERSION")
 VERSION = m.group(1)
 
+# Make distutils copy smart.py to smart.
+copy_file_orig = distutils.file_util.copy_file
+copy_tree_orig = distutils.dir_util.copy_tree
+def copy_file(src, dst, *args, **kwargs):
+    if dst.endswith("bin/smart.py"):
+        dst = dst[:-3]
+    copy_file_orig(src, dst, *args, **kwargs)
+def copy_tree(*args, **kwargs):
+    outputs = copy_tree_orig(*args, **kwargs)
+    for i in range(len(outputs)):
+        if outputs[i].endswith("bin/smart.py"):
+            outputs[i] = outputs[i][:-3]
+    return outputs
+distutils.file_util.copy_file = copy_file
+distutils.dir_util.copy_tree = copy_tree
+
 PYTHONLIB = get_python_lib()
 
-setup(name="gepeto",
+setup(name="smart",
       version = VERSION,
-      description = "Gepeto is an advanced packaging tool",
+      description = "Smart Package Manager is a new generation package "
+                    "handling tool",
       author = "Gustavo Niemeyer",
       author_email = "niemeyer@conectiva.com",
       license = "GPL",
       long_description =
 """\
-Gepeto is an advanced packaging tool.
+Smart Package Manager is a new generation package handling tool.
 """,
       packages = [
-                  "gepeto",
-                  "gepeto.backends",
-                  "gepeto.backends.rpm",
-                  "gepeto.backends.deb",
-                  "gepeto.backends.slack",
-                  "gepeto.channels",
-                  "gepeto.commands",
-                  "gepeto.interfaces",
-                  "gepeto.interfaces.gtk",
-                  "gepeto.interfaces.text",
-                  "gepeto.interfaces.images",
-                  "gepeto.plugins",
-                  "gepeto.util",
-                  "gepeto.util.elementtree",
+                  "smart",
+                  "smart.backends",
+                  "smart.backends.rpm",
+                  "smart.backends.deb",
+                  "smart.backends.slack",
+                  "smart.channels",
+                  "smart.commands",
+                  "smart.interfaces",
+                  "smart.interfaces.gtk",
+                  "smart.interfaces.text",
+                  "smart.interfaces.images",
+                  "smart.plugins",
+                  "smart.util",
+                  "smart.util.elementtree",
                  ],
-      scripts = ["gpt"],
+      scripts = ["smart.py"],
       ext_modules = [
-                     Extension("gepeto.ccache", ["gepeto/ccache.c"]),
-                     Extension("gepeto.backends.rpm.crpmver",
-                               ["gepeto/backends/rpm/crpmver.c"]),
+                     Extension("smart.ccache", ["smart/ccache.c"]),
+                     Extension("smart.backends.rpm.crpmver",
+                               ["smart/backends/rpm/crpmver.c"]),
                     ],
-      data_files = [(PYTHONLIB+"/gepeto/interfaces/images", 
-                     glob.glob("gepeto/interfaces/images/*.png"))],
+      data_files = [(PYTHONLIB+"/smart/interfaces/images", 
+                     glob.glob("smart/interfaces/images/*.png"))],
       )
 
