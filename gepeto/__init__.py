@@ -77,6 +77,8 @@ def init(opts=None):
             ifacename = "text"
         else:
             raise Error, "No interface selected"
+    else:
+        ifacename = "text"
     iface.object = createInterface(ifacename, ctrl,
                                    not bool(opts and opts.command))
 
