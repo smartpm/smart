@@ -19,24 +19,27 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.backends.slack.loader import SlackDBLoader
+from smart.backends.deb.loader import DebTagFileLoader
+from smart.util.filetools import getFileDigest
 from smart.channel import PackageChannel
+from smart import *
+import os
 
-class SlackDBChannel(PackageChannel):
+class DebSysChannel(PackageChannel):
 
     def __init__(self, *args):
-        super(SlackDBChannel, self).__init__(*args)
+        super(DebStatusChannel, self).__init__(*args)
         self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
-        dir = os.path.join(sysconf.get("slack-root", "/"),
-                           sysconf.get("slack-packages-dir",
-                                       "/var/log/packages"))
-        digest = os.path.getmtime(dir)
+        path = os.path.join(sysconf.get("deb-root", "/"),
+                            "var/lib/dpkg/status")
+        digest = os.path.getmtime(path)
         if digest == self._digest:
             return True
         self.removeLoaders()
-        loader = SlackDBLoader()
+        loader = DebTagFileLoader(path)
+        loader.setInstalled(True)
         loader.setChannel(self)
         self._loaders.append(loader)
         self._digest = digest
@@ -45,11 +48,11 @@ class SlackDBChannel(PackageChannel):
 def create(alias, data):
     if data["removable"]:
         raise Error, "%s channels cannot be removable" % data["type"]
-    return SlackDBChannel(data["type"],
-                          alias,
-                          data["name"],
-                          data["manual"],
-                          data["removable"],
-                          data["priority"])
+    return DebSysChannel(data["type"],
+                         alias,
+                         data["name"],
+                         data["manual"],
+                         data["removable"],
+                         data["priority"])
 
 # vim:ts=4:sw=4:et

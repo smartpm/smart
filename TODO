@@ -6,4 +6,3 @@
 - Autodetection of removable media for apt-deb channels.
 - C implementation of deb's tagfile.py.
 - Implement package content listing for deb backend.
-- Rename rpm-db channel type to rpm-sys, and so on.

@@ -24,7 +24,7 @@ from smart.channel import PackageChannel
 from smart import *
 import os
 
-class RPMDBChannel(PackageChannel):
+class RPMSysChannel(PackageChannel):
 
     def __init__(self, *args):
         super(RPMDBChannel, self).__init__(*args)
@@ -46,11 +46,11 @@ class RPMDBChannel(PackageChannel):
 def create(alias, data):
     if data["removable"]:
         raise Error, "%s channels cannot be removable" % data["type"]
-    return RPMDBChannel(data["type"],
-                        alias,
-                        data["name"],
-                        data["manual"],
-                        data["removable"],
-                        data["priority"])
+    return RPMSysChannel(data["type"],
+                         alias,
+                         data["name"],
+                         data["manual"],
+                         data["removable"],
+                         data["priority"])
 
 # vim:ts=4:sw=4:et
