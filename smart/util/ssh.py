@@ -44,7 +44,7 @@ class SSH:
                 outlist.append(p.before)
             elif i == 2 or i == 3:
                 if not self.password:
-                    raise Error, "ssh asked for password, " \
+                    raise Error, "SSH asked for password, " \
                                  "but no password is available"
                 p.sendline(self.password)
                 outlist = []
