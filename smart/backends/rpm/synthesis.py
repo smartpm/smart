@@ -146,7 +146,11 @@ class URPMISynthesisLoader(Loader):
                 if epoch != "0":
                     version = "%s:%s" % (epoch, version)
 
-                version, arch = version.rsplit(".", 1)
+                dot = rfind(".")
+                if dot == -1:
+                    arch = "unknown"
+                else:
+                    version, arch = version[:dot], version[dot+1:]
                 versionarch = "@".join((version, arch))
 
                 name = "-".join(rpmnameparts[0:-2])

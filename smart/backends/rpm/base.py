@@ -25,7 +25,7 @@
 import zlib
 
 from smart.backends.rpm.pm import RPMPackageManager
-from rpmver import checkdep, vercmp, splitarch
+from rpmver import checkdep, vercmp, splitarch, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
 import fnmatch
@@ -112,14 +112,14 @@ class RPMPackage(Package):
                 _, ratio2 = globdistance(nameversion, "%s@%s" %
                                          (myname, myarch), cutoff)
                 _, ratio3 = globdistance(nameversion, "%s-%s@%s" %
-                                         (myname, myversion.rsplit("-", 1)[0],
+                                         (myname, splitrelease(myversion)[0],
                                           myarch), cutoff)
             else:
                 _, ratio1 = globdistance(nameversion, myname, cutoff)
                 _, ratio2 = globdistance(nameversion,
                                          "%s-%s" % (myname, myversion), cutoff)
                 _, ratio3 = globdistance(nameversion, "%s-%s" %
-                                         (myname, myversion.rsplit("-", 1)[0]),
+                                         (myname, splitrelease(myversion)[0]),
                                          cutoff)
             ratio = max(ratio, ratio1, ratio2, ratio3)
         if ratio:

@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.slack.pm import SlackPackageManager
-from slackver import checkdep, vercmp
+from slackver import checkdep, vercmp, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
 import fnmatch
@@ -47,7 +47,7 @@ class SlackPackage(Package):
             _, ratio2 = globdistance(nameversion,
                                      "%s-%s" % (myname, myversion), cutoff)
             _, ratio3 = globdistance(nameversion, "%s-%s" %
-                                     (myname, myversion.rsplit("-", 1)[0]),
+                                     (myname, splitrelease(myversion)[0]),
                                      cutoff)
             ratio = max(ratio, ratio1, ratio2, ratio3)
         if ratio:

@@ -74,7 +74,7 @@ class DebPackage(Package):
             _, ratio2 = globdistance(nameversion,
                                      "%s-%s" % (myname, myversion), cutoff)
             _, ratio3 = globdistance(nameversion, "%s-%s" %
-                                     (myname, myversion.rsplit("-", 1)[0]),
+                                     (myname, splitrelease(myversion)[0]),
                                      cutoff)
             ratio = max(ratio, ratio1, ratio2, ratio3)
         if ratio:

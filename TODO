@@ -1,4 +1,3 @@
-- Support for selecting packages by provided dependencies.
 - Make slack-site default priority be 100 or so?
 - Clean stdin buffer before asking for user input.
 - Autodetection of removable media for apt-deb channels.

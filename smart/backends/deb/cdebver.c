@@ -223,6 +223,38 @@ parserelation(char *buf, char **n, char **r, char **v)
     if (!*v) *r = *v = NULL;
 }
 
+static PyObject *
+cdebver_splitrelease(PyObject *self, PyObject *version)
+{
+    PyObject *ret, *ver, *rel;
+    const char *str, *p;
+    int size;
+    if (!PyString_Check(version)) {
+        PyErr_SetString(PyExc_TypeError, "version string expected");
+        return NULL;
+    }
+    str = PyString_AS_STRING(version);
+    size = PyString_GET_SIZE(version);
+    p = str+size;
+    while (p != str && *p != '-') p--;
+    if (p == str) {
+        Py_INCREF(version);
+        Py_INCREF(Py_None);
+        ver = version;
+        rel = Py_None;
+    } else {
+        ver = PyString_FromStringAndSize(str, p-str);
+        if (!ver) return NULL;
+        rel = PyString_FromStringAndSize(p+1, str+size-p-1);
+        if (!rel) return NULL;
+    }
+    ret = PyTuple_New(2);
+    if (!ret) return NULL;
+    PyTuple_SET_ITEM(ret, 0, ver);
+    PyTuple_SET_ITEM(ret, 1, rel);
+    return ret;
+}
+
 
 static PyObject *
 cdebver_parserelation(PyObject *self, PyObject *version)
@@ -425,6 +457,7 @@ cdebver_vercmppart(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef cdebver_methods[] = {
+    {"splitrelease", (PyCFunction)cdebver_splitrelease, METH_O, NULL},
     {"parserelation", (PyCFunction)cdebver_parserelation, METH_O, NULL},
     {"parserelations", (PyCFunction)cdebver_parserelations, METH_O, NULL},
     {"checkdep", (PyCFunction)cdebver_checkdep, METH_VARARGS, NULL},
