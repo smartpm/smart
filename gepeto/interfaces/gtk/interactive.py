@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL
+from gepeto.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP
 from gepeto.transaction import Transaction, ChangeSet
 from gepeto.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from gepeto.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
@@ -29,6 +29,7 @@ from gepeto.interfaces.gtk.priorities import GtkPriorities
 from gepeto.interfaces.gtk.packageview import GtkPackageView
 from gepeto.interfaces.gtk.packageinfo import GtkPackageInfo
 from gepeto.interfaces.gtk.interface import GtkInterface
+from gepeto.interfaces.gtk import getPixbuf
 from gepeto.const import NEVER, VERSION
 from gepeto import *
 import shlex, re
@@ -378,6 +379,8 @@ class GtkInteractiveInterface(GtkInterface):
         if self._ctrl.commitTransaction(transaction):
             del self._undo[:]
             del self._redo[:]
+            self._redomenuitem.set_property("sensitive", False)
+            self._undomenuitem.set_property("sensitive", False)
             self._changeset.clear()
             self._ctrl.updateCache()
             self.refreshPackages()
@@ -422,17 +425,18 @@ class GtkInteractiveInterface(GtkInterface):
     def togglePackage(self, pkg, reinstall=False):
         transaction = Transaction(self._ctrl.getCache(), policy=PolicyInstall)
         transaction.setState(self._changeset)
+        changeset = transaction.getChangeSet()
         if pkg.installed:
             if reinstall:
                 transaction.enqueue(pkg, REINSTALL)
-            elif pkg in self._changeset:
-                transaction.enqueue(pkg, INSTALL)
+            elif pkg in changeset:
+                transaction.enqueue(pkg, KEEP)
             else:
                 transaction.setPolicy(PolicyRemove)
                 transaction.enqueue(pkg, REMOVE)
         else:
-            if pkg in self._changeset:
-                transaction.enqueue(pkg, REMOVE)
+            if pkg in changeset:
+                transaction.enqueue(pkg, KEEP)
             else:
                 transaction.enqueue(pkg, INSTALL)
         try:
@@ -440,14 +444,15 @@ class GtkInteractiveInterface(GtkInterface):
         except Error, e:
             self.error(str(e[0]))
         else:
-            changeset = transaction.getChangeSet()
             if self.confirmChange(self._changeset, changeset):
                 self.saveUndo()
                 self._changeset.setState(changeset)
                 self.changedMarks()
 
     def packagePopup(self, packageview, pkg, event):
+
         menu = gtk.Menu()
+
         names = sysconf.get("package-flags", {}).get("lock")
         if (names and pkg.name in names and 
             ("=", pkg.version) in names[pkg.name]):
@@ -456,38 +461,72 @@ class GtkInteractiveInterface(GtkInterface):
         else:
             thislocked = False
             alllocked = sysconf.testFlag("lock", pkg)
+
+        image = gtk.Image()
         if thislocked:
-            item = gtk.MenuItem("Unlock this version")
+            item = gtk.ImageMenuItem("Unlock this version")
+            if pkg.installed:
+                image.set_from_pixbuf(getPixbuf("package-installed"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available"))
             def unlock_this(x):
                 names[pkg.name].remove(("=", pkg.version))
                 self._pv.queue_draw()
             item.connect("activate", unlock_this)
         else:
-            item = gtk.MenuItem("Lock this version")
+            item = gtk.ImageMenuItem("Lock this version")
+            if pkg.installed:
+                image.set_from_pixbuf(getPixbuf("package-installed-locked"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available-locked"))
             def lock_this(x):
                 names.setdefault(pkg.name, []).append(("=", pkg.version))
                 self._pv.queue_draw()
             item.connect("activate", lock_this)
+        item.set_image(image)
+        if pkg in self._changeset:
+            item.set_sensitive(False)
         menu.append(item)
+
+        image = gtk.Image()
         if alllocked:
-            item = gtk.MenuItem("Unlock all versions")
+            item = gtk.ImageMenuItem("Unlock all versions")
+            if pkg.installed:
+                image.set_from_pixbuf(getPixbuf("package-installed"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available"))
+            if pkg in self._changeset:
+                item.set_sensitive(False)
             def unlock_all(x):
                 del names[pkg.name]
                 self._pv.queue_draw()
             item.connect("activate", unlock_all)
         else:
-            item = gtk.MenuItem("Lock all versions")
+            item = gtk.ImageMenuItem("Lock all versions")
+            if pkg.installed:
+                image.set_from_pixbuf(getPixbuf("package-installed-locked"))
+            else:
+                image.set_from_pixbuf(getPixbuf("package-available-locked"))
             def lock_all(x):
                 names.setdefault(pkg.name, []).append((None, None))
                 self._pv.queue_draw()
             item.connect("activate", lock_all)
+        item.set_image(image)
+        if pkg in self._changeset:
+            item.set_sensitive(False)
         menu.append(item)
-        if pkg.installed:
-            item = gtk.MenuItem("Reinstall")
-            def reinstall(x):
-                self.togglePackage(pkg, reinstall=True)
-            item.connect("activate", reinstall)
+
+        image = gtk.Image()
+        image.set_from_pixbuf(getPixbuf("package-reinstall"))
+        item = gtk.ImageMenuItem("Reinstall")
+        item.set_image(image)
+        def reinstall(x):
+            self.togglePackage(pkg, reinstall=True)
+        item.connect("activate", reinstall)
+        if not pkg.installed:
+            item.set_sensitive(False)
         menu.append(item)
+
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
 

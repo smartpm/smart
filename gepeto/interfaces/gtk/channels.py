@@ -178,11 +178,13 @@ class GtkChannels(object):
             channel = channels[row[1]]
             if row[0]:
                 if "disabled" in channel:
+                    if strToBool(channel.get("disabled")):
+                        self._changed = True
                     del channel["disabled"]
-                    self._changed = True
             else:
-                channel["disabled"] = "yes"
-                self._changed = True
+                if not strToBool(channel.get("disabled")):
+                    channel["disabled"] = "yes"
+                    self._changed = True
             
     def show(self):
         self.fill()

@@ -19,7 +19,7 @@
 # along with Gepeto; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from gepeto.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL
+from gepeto.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP
 from gepeto.cache import PreRequires
 from gepeto import *
 
@@ -57,21 +57,21 @@ class ChangeSet(dict):
     def copy(self):
         return ChangeSet(self._cache, self)
 
-    def set(self, pkg, op):
+    def set(self, pkg, op, force=False):
         if self.get(pkg) is op:
             return
         if op is INSTALL:
-            if pkg.installed:
-                if pkg in self:
-                    del self[pkg]
-            else:
+            if force or not pkg.installed:
                 self[pkg] = INSTALL
-        else:
-            if not pkg.installed:
+            else:
                 if pkg in self:
                     del self[pkg]
-            else:
+        else:
+            if force or pkg.installed:
                 self[pkg] = REMOVE
+            else:
+                if pkg in self:
+                    del self[pkg]
 
     def installed(self, pkg):
         op = self.get(pkg)
@@ -941,7 +941,10 @@ class Transaction(object):
 
             for pkg in self._queue:
                 op = self._queue[pkg]
-                if op is INSTALL:
+                if op is KEEP:
+                    if pkg in changeset:
+                        del changeset[pkg]
+                elif op is INSTALL:
                     if not isinst(pkg) and pkg in locked:
                         raise Failed, "Can't install %s: it's locked" % pkg
                     changeset.set(pkg, INSTALL)
@@ -952,12 +955,17 @@ class Transaction(object):
                 elif op is REINSTALL:
                     if pkg in locked:
                         raise Failed, "Can't reinstall %s: it's locked" % pkg
-                    changeset[pkg] = INSTALL
+                    changeset.set(pkg, INSTALL, force=True)
 
             upgpkgs = []
             fixpkgs = []
             for pkg in self._queue:
                 op = self._queue[pkg]
+                if op is KEEP:
+                    if pkg.installed:
+                        op = INSTALL
+                    else:
+                        op = REMOVE
                 if op is INSTALL or op is REINSTALL:
                     self._install(pkg, changeset, locked, pending)
                 elif op is REMOVE:

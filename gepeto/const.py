@@ -25,9 +25,10 @@ VERSION = "0.7"
 INSTALL = 1
 REMOVE  = 2
 
-UPGRADE = 3
-FIX     = 4
-REINSTALL = 5
+KEEP      = 3
+REINSTALL = 4
+UPGRADE   = 5
+FIX       = 6
 
 OPTIONAL = 1
 NEVER    = 2
