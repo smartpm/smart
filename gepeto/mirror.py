@@ -51,6 +51,10 @@ class MirrorSystem(object):
             elements = [MirrorElement(self, "", "")]
         return MirrorItem(self, url, elements)
 
+    def getPenalities(self):
+        self.updatePenality()
+        return self._penality
+
     def updatePenality(self):
         if not self._changed:
             return
@@ -70,7 +74,7 @@ class MirrorSystem(object):
             mirrordata = data[mirror]
             penality = 0
             if mirrordata["size"] and mirrordata["time"] >= 1:
-                penality += (mirrordata["size"]/1000000.)/mirrordata["time"]
+                penality += float(mirrordata["time"])/mirrordata["size"]
             penality += mirrordata["failed"]*((penality or 1)*0.1)
             if penality:
                 self._penality[mirror] = penality
