@@ -51,20 +51,17 @@ def sizeToStr(bytes):
     if bytes is None:
         return "Unknown"
     if bytes < 1024:
-        return "%db" % bytes
+        return "%dB" % bytes
     elif bytes < 1024000:
-        return "%.1fkb" % (bytes/1024.)
+        return "%.1fkB" % (bytes/1024.)
     else:
-        return "%.1fMb" % (bytes/1024000.)
+        return "%.1fMB" % (bytes/1024000.)
 
-def sizeTimeToSpeed(bytes, time):
-    if bytes is None:
+def speedToStr(speed):
+    if speed < 1:
         return "Stalled"
-    if time < 1:
-        time = 1
-    speed = bytes/float(time)
-    if speed < 1024:
-        return "%db/s" % speed
+    elif speed < 1024:
+        return "%dB/s" % speed
     elif speed < 1024000:
         return "%.1fkB/s" % (speed/1024.)
     else:

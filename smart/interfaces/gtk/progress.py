@@ -40,6 +40,7 @@ class GtkProgress(Progress, gtk.Window):
         self._shorturl = ShortURL(50)
         self._ticking = False
         self._stopticking = False
+        self._fetcher = None
 
         if hassub:
             self.set_size_request(500, 400)
@@ -51,21 +52,21 @@ class GtkProgress(Progress, gtk.Window):
         self.set_modal(True)
         self.set_position(gtk.WIN_POS_CENTER)
 
-        self._vbox = gtk.VBox()
-        self._vbox.set_border_width(10)
-        self._vbox.set_spacing(10)
-        self._vbox.show()
-        gtk.Window.add(self, self._vbox)
+        vbox = gtk.VBox()
+        vbox.set_border_width(10)
+        vbox.set_spacing(10)
+        vbox.show()
+        gtk.Window.add(self, vbox)
 
         self._topic = gtk.Label()
         self._topic.set_alignment(0, 0.5)
         self._topic.show()
-        self._vbox.pack_start(self._topic, expand=False, fill=False)
+        vbox.pack_start(self._topic, expand=False, fill=False)
 
         self._progress = gtk.ProgressBar()
         self._progress.set_size_request(-1, 25)
         self._progress.show()
-        self._vbox.pack_start(self._progress, expand=False, fill=False)
+        vbox.pack_start(self._progress, expand=False, fill=False)
 
         if hassub:
             self._scrollwin = gtk.ScrolledWindow()
@@ -73,7 +74,7 @@ class GtkProgress(Progress, gtk.Window):
                                        gtk.POLICY_AUTOMATIC)
             self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
             self._scrollwin.show()
-            self._vbox.pack_start(self._scrollwin)
+            vbox.pack_start(self._scrollwin)
 
             self._treemodel = gtk.ListStore(gobject.TYPE_INT,
                                             gobject.TYPE_STRING,
@@ -117,6 +118,28 @@ class GtkProgress(Progress, gtk.Window):
             self._subiters = {}
             self._subindex = 0
             self._lastpath = None
+
+            self._bbox = gtk.HButtonBox()
+            self._bbox.set_spacing(10)
+            self._bbox.set_layout(gtk.BUTTONBOX_END)
+            vbox.pack_start(self._bbox, expand=False)
+
+            button = gtk.Button(stock="gtk-cancel")
+            button.show()
+            button.connect("clicked", self._cancel)
+            self._bbox.pack_start(button)
+
+    def setFetcher(self, fetcher):
+        if fetcher:
+            self._bbox.show()
+            self._fetcher = fetcher
+        else:
+            self._bbox.hide()
+            self._fetcher = None
+
+    def _cancel(self, widget):
+        if self._fetcher:
+            self._fetcher.cancel()
 
     def tick(self):
         while not self._stopticking:

@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.util.strtools import sizeToStr, sizeTimeToSpeed
+from smart.util.strtools import sizeToStr, speedToStr
 from smart.uncompress import Uncompressor
 from smart.mirror import MirrorSystem
 from smart.media import MediaSet
@@ -34,12 +34,15 @@ import time
 import os
 import re
 
+MAXRETRIES = 30
+SPEEDDELAY = 2
+
+class FetcherCancelled(Error): pass
+
 class Fetcher(object):
 
     _registry = {}
     _localschemes = []
-
-    MAXRETRIES = 30
 
     def __init__(self):
         self._uncompressor = Uncompressor()
@@ -53,10 +56,16 @@ class Fetcher(object):
         self._handlers = {}
         self._forcecopy = False
         self._localpathprefix = None
+        self._cancel = False
+        self._speedupdated = 0
+        self.time = 0
 
     def reset(self):
         self._items.clear()
         self._uncompressing = 0
+
+    def cancel(self):
+        self._cancel = True
 
     def getItem(self, url):
         return self._items.get(url)
@@ -144,6 +153,8 @@ class Fetcher(object):
             handler.runLocal()
 
     def run(self, what=None, progress=None):
+        self._cancel = False
+        self.time = time.time()
         handlers = self._handlers.values()
         total = len(self._items)
         self.runLocal()
@@ -174,14 +185,29 @@ class Fetcher(object):
         active = handlers[:]
         uncomp = self._uncompressor
         uncompchecked = {}
+        self._speedupdated = self.time
         while active or self._uncompressing:
+            self.time = time.time()
+            if self._cancel:
+                for handler in active[:]:
+                    if not handler.wasCancelled():
+                        handler.cancel()
+                    if not handler.tick():
+                        active.remove(handler)
+                prog.show()
+                continue
             for handler in active[:]:
                 if not handler.tick():
                     active.remove(handler)
+            if self._speedupdated+SPEEDDELAY < self.time:
+                self._speedupdated = self.time
+                updatespeed = True
+            else:
+                updatespeed = False
             for url in self._items:
                 item = self._items[url]
                 if item.getStatus() == FAILED:
-                    if (item.getRetries() < self.MAXRETRIES and
+                    if (item.getRetries() < MAXRETRIES and
                         item.setNextURL()):
                         item.reset()
                         handler = self.getHandlerInstance(item)
@@ -191,6 +217,8 @@ class Fetcher(object):
                     continue
                 elif (item.getStatus() != SUCCEEDED or
                       not item.getInfo("uncomp")):
+                    if updatespeed:
+                        item.updateSpeed()
                     continue
                 localpath = item.getTargetPath()
                 if localpath in uncompchecked:
@@ -213,6 +241,8 @@ class Fetcher(object):
             handler.stop()
         if not progress:
             prog.stop()
+        if self._cancel:
+            raise FetcherCancelled, "Fetch cancelled"
 
     def _uncompress(self, item, localpath, uncomphandler):
         try:
@@ -336,6 +366,11 @@ class FetchItem(object):
         self._urlobj = URL(mirror.getNext())
         self._retries = 0
         self._starttime = None
+        self._current = 0
+        self._total = 0
+        self._speed = 0
+        self._speedtime = 0
+        self._speedcurrent = 0
 
         self._info = {}
 
@@ -350,6 +385,11 @@ class FetchItem(object):
         self._failedreason = None
         self._targetpath = None
         self._starttime = None
+        self._current = 0
+        self._total = 0
+        self._speed = 0
+        self._speedtime = 0
+        self._speedcurrent = 0
         url = self._urlobj.original
         if self._progress.getSub(url):
             self._progress.setSubStopped(url)
@@ -413,7 +453,7 @@ class FetchItem(object):
         if self._status is RUNNING:
             return
         self._status = RUNNING
-        self._starttime = time.time()
+        self._starttime = self._fetcher.time
         prog = self._progress
         url = self._urlobj.original
         prog.setSubTopic(url, url)
@@ -423,23 +463,44 @@ class FetchItem(object):
         prog.show()
 
     def progress(self, current, total):
+        self._current = current
+        self._total = total
         if total:
             subdata = {}
             subdata["current"] = sizeToStr(current)
             subdata["total"] = sizeToStr(total)
-            subdata["speed"] = sizeTimeToSpeed(current,
-                                               time.time()-self._starttime)
+            subdata["speed"] = speedToStr(self._speed)
             self._progress.setSub(self._urlobj.original, current, total, 1,
                                   subdata)
             self._progress.show()
+
+    def updateSpeed(self):
+        if self._status is RUNNING:
+            now = self._fetcher.time
+            if not self._current or not self._speedtime:
+                self._speedcurrent = self._current
+                self._speedtime = now
+            elif self._speedtime+1 < now:
+                speed = self._speed
+                currentdelta = self._current-self._speedcurrent
+                timedelta = now-self._speedtime
+                speed = currentdelta/timedelta
+                self._speed = self._speed+(speed-self._speed)*0.25
+                self._speedtime = now
+                self._speedcurrent = self._current
+                self.progress(self._current, self._total)
 
     def setSucceeded(self, targetpath, fetchedsize=0):
         self._status = SUCCEEDED
         self._targetpath = targetpath
         if self._starttime:
             if fetchedsize:
-                self._mirror.addInfo(time=time.time()-self._starttime,
-                                     size=fetchedsize)
+                now = self._fetcher.time
+                timedelta = now-self._starttime
+                if timedelta < 1:
+                    timedelta = 1
+                self._mirror.addInfo(time=timedelta, size=fetchedsize)
+                self._speed = fetchedsize/timedelta
             self._progress.setSubDone(self._urlobj.original)
             self._progress.show()
 
@@ -450,6 +511,9 @@ class FetchItem(object):
             self._mirror.addInfo(failed=1)
             self._progress.setSubStopped(self._urlobj.original)
             self._progress.show()
+
+    def setCancelled(self):
+        self.setFailed("Cancelled")
 
 class URL(object):
     def __init__(self, url=None):
@@ -527,9 +591,13 @@ class FetcherHandler(object):
     def __init__(self, fetcher):
         self._fetcher = fetcher
         self._queue = []
+        self._cancel = False
 
     def getQueue(self):
         return self._queue
+
+    def wasCancelled(self):
+        return self._cancel
 
     def enqueue(self, item):
         self._queue.append(item)
@@ -538,18 +606,34 @@ class FetcherHandler(object):
         self._queue.remove(item)
 
     def start(self):
+        # Fetcher is starting.
         self._queue.sort()
+        self._cancel = False
 
     def stop(self):
+        # Fetcher is stopping.
         pass
 
+    def cancel(self):
+        # Downloads are being cancelled.
+        self._cancel = True
+        queue = self._queue[:]
+        del self._queue[:]
+        for item in queue:
+            item.setCancelled()
+
     def tick(self):
+        # Ticking does periodic maintenance of the tasks running
+        # inside the handler. It should return true while there
+        # is still something to be done, and should not lock for
+        # very long. Threads should be started for that purpose.
         return False
 
     def getLocalPath(self, item):
         return self._fetcher.getLocalPath(item)
 
     def runLocal(self, caching=None):
+        # That's part of the caching magic.
         fetcher = self._fetcher
         if not caching:
             caching = fetcher.getCaching()
@@ -747,7 +831,7 @@ class FTPHandler(FetcherHandler):
                             if len(self._inactive) > self.MAXINACTIVE:
                                 del self._inactive[ftp]
                             ftp = ftplib.FTP()
-                            ftp.lasttime = time.time()
+                            ftp.lasttime = self._fetcher.time
                             self._active[ftp] = url.host
                             thread.start_new_thread(self.connect,
                                                     (ftp, item, len(hostactive)))
@@ -786,13 +870,17 @@ class FTPHandler(FetcherHandler):
         fetcher = self._fetcher
         url = item.getURL()
 
+        if self._cancel:
+            item.setCancelled()
+            return
+
         item.start()
 
         try:
             try:
                 ftp.cwd(os.path.dirname(url.path))
             except ftplib.Error:
-                if ftp.lasttime+self.TIMEOUT < time.time():
+                if ftp.lasttime+self.TIMEOUT < fetcher.time:
                     raise EOFError
                 raise
 
@@ -843,6 +931,8 @@ class FTPHandler(FetcherHandler):
                     raise Error, "%s: %s" % (localpathpart, e)
 
                 def write(data):
+                    if self._cancel:
+                        raise FetcherCancelled
                     local.write(data)
                     item.current += len(data)
                     item.progress(item.current, total)
@@ -890,8 +980,11 @@ class FTPHandler(FetcherHandler):
         except (Error, IOError, OSError, ftplib.Error), e:
             item.setFailed(str(e))
 
+        except FetcherCancelled:
+            item.setCancelled()
+
         self._lock.acquire()
-        ftp.lasttime = time.time()
+        ftp.lasttime = fetcher.time
         self._inactive[ftp] = (url.user, url.host, url.port)
         del self._active[ftp]
         self._lock.release()
@@ -934,7 +1027,7 @@ class URLLIBHandler(FetcherHandler):
         
         fetcher = self._fetcher
 
-        while True:
+        while not self._cancel:
 
             self._lock.acquire()
             if not self._queue:
@@ -1013,6 +1106,8 @@ class URLLIBHandler(FetcherHandler):
                 try:
                     data = remote.read(BLOCKSIZE)
                     while data:
+                        if self._cancel:
+                            raise FetcherCancelled
                         local.write(data)
                         current += len(data)
                         item.progress(current, total)
@@ -1062,6 +1157,9 @@ class URLLIBHandler(FetcherHandler):
                 except IndexError:
                     errmsg = str(e)
                 item.setFailed(errmsg)
+
+            except FetcherCancelled:
+                item.setCancelled()
 
         self._lock.acquire()
         self._active -= 1
@@ -1263,6 +1361,19 @@ class PyCurlHandler(FetcherHandler):
 
         fetcher = self._fetcher
         multi = self._multi
+
+        if self._cancel:
+            self._lock.acquire()
+            for handle in self._active:
+                item = handle.item
+                item.setCancelled()
+                url = item.getURL()
+                multi.remove_handle(handle)
+                userhost = (url.user, url.host, url.port)
+                # May it be reused, even stopping unfinished?
+                self._inactive[handle] = userhost
+            del self._active[:]
+            self._lock.release()
 
         num = 1
         while num != 0:

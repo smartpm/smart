@@ -49,6 +49,8 @@ class GtkInterface(Interface):
     def getProgress(self, obj, hassub=False):
         if hassub:
             self._progress.hide()
+            fetcher = isinstance(obj, Fetcher) and obj or None
+            self._hassubprogress.setFetcher(fetcher)
             return self._hassubprogress
         else:
             self._hassubprogress.hide()
@@ -168,6 +170,8 @@ class GtkInterface(Interface):
 
     def _excepthook(self, type, value, tb):
         if issubclass(type, Error) and not sysconf.get("log-level") is DEBUG:
+            self._hassubprogress.hide()
+            self._progress.hide()
             iface.error(str(value[0]))
         else:
             import traceback
@@ -183,3 +187,4 @@ class GtkInterface(Interface):
     def hideProgress(self):
         self._progress.hide()
         self._hassubprogress.hide()
+

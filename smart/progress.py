@@ -79,15 +79,16 @@ class Progress(object):
         current, total, data = self.__progress
         subexpose = []
         for subkey in self.__subprogress.keys():
-            subcurrent, subtotal, fragment, subdata = self.__subprogress[subkey]
+            sub = self.__subprogress[subkey]
+            subcurrent, subtotal, fragment, subdata = sub
             subpercent = int(100*float(subcurrent)/(subtotal or 1))
             if fragment:
                 current += int(fragment*float(subpercent)/100)
             subtopic = self.__subtopic.get(subkey)
             if (subkey not in self.__subdone and
-                (subtopic, subpercent) == self.__sublastshown.get(subkey)):
+                sub == self.__sublastshown.get(subkey)):
                 continue
-            self.__sublastshown[subkey] = (subtopic, subpercent)
+            self.__sublastshown[subkey] = sub
             subdone = False
             if subpercent == 100:
                 self.__subdone[subkey] = True
