@@ -51,6 +51,10 @@ gpt channel --add mychannel type=apt-rpm name="Some repository" \\
 gpt channel --set mychannel priority=-100
 gpt channel --disable mychannel
 gpt channel --remove mychannel
+gpt channel --show
+gpt channel --show mychannel > mychannel.txt
+gpt channel --add ./mychannel.txt
+gpt channel --add http://some.url/mychannel.txt
 """
 
 def build_types():
