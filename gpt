@@ -49,6 +49,7 @@ Query commands:
 Setup commands:
     channel
     priority
+    mirror
     flag
 
 Run "gpt command --help" for more information.
