@@ -293,6 +293,7 @@ class FetchItem(object):
         self._status = WAITING
         self._failedreason = None
         self._targetpath = None
+        self._starttime = None
         if self._progress.getSub(url):
             self._progress.setSubStopped(url)
             self._progress.show()
@@ -366,20 +367,22 @@ class FetchItem(object):
             self._progress.show()
 
     def setSucceeded(self, targetpath, fetchedsize=0):
-        if fetchedsize and self._starttime:
-            self._mirror.addInfo(time=time.time()-self._starttime,
-                                 size=fetchedsize)
         self._status = SUCCEEDED
         self._targetpath = targetpath
-        self._progress.setSubDone(self._urlobj.original)
-        self._progress.show()
+        if self._starttime:
+            if fetchedsize:
+                self._mirror.addInfo(time=time.time()-self._starttime,
+                                     size=fetchedsize)
+            self._progress.setSubDone(self._urlobj.original)
+            self._progress.show()
 
     def setFailed(self, reason):
-        self._mirror.addInfo(failed=1)
         self._status = FAILED
         self._failedreason = reason
-        self._progress.setSubStopped(self._urlobj.original)
-        self._progress.show()
+        if self._starttime:
+            self._mirror.addInfo(failed=1)
+            self._progress.setSubStopped(self._urlobj.original)
+            self._progress.show()
 
 class URL(object):
     def __init__(self, url=None):
@@ -493,10 +496,10 @@ class FetcherHandler(object):
                                                      withreason=True)
                 if valid:
                     del self._queue[i]
-                    fetcher.setSucceeded(url, localpath)
+                    item.setSucceeded(localpath)
                 elif caching is ALWAYS:
                     del self._queue[i]
-                    fetcher.setFailed(url, reason)
+                    item.setFailed(reason)
 
 class FileHandler(FetcherHandler):
 
