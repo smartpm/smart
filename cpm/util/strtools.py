@@ -36,3 +36,13 @@ _nulltrans = string.maketrans('', '')
 def isRegEx(s):
     return s.translate(_nulltrans, '^{[*') != s
 
+def strToBool(s, default=False):
+    if not s:
+        return default
+    s = s.strip().lower()
+    if s in ("y", "yes", "true", "1"):
+        return True
+    if s in ("n", "no", "false", "0"):
+        return False
+    return default
+

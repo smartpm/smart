@@ -3,6 +3,7 @@ from cpm.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from cpm.interfaces.gtk.packageview import GtkPackageView
 from cpm.interfaces.gtk.packageinfo import GtkPackageInfo
 from cpm.interfaces.gtk.interface import GtkInterface
+from cpm.interfaces.gtk.channels import GtkChannels
 from cpm.const import NEVER
 from cpm import *
 import shlex, re
@@ -91,7 +92,7 @@ ACTIONS = [
     ("find", "gtk-find", "Find...", "<control>f",
      "Find packages", "self.toggleSearch()"),
     ("edit-channels", None, "Channels", None,
-     "Edit channels", ""),
+     "Edit channels", "self.editChannels()"),
     ("edit-preferences", "gtk-preferences", "_Preferences", None,
      "Edit preferences", ""),
 
@@ -428,6 +429,10 @@ class GtkInteractiveInterface(GtkInterface):
         if mode != sysconf.get("package-tree"):
             sysconf.set("package-tree", mode)
             self.refreshPackages()
+
+    def editChannels(self):
+        channels = GtkChannels()
+        channels.show()
 
     def setBusy(self, flag):
         if flag:

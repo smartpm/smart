@@ -468,6 +468,7 @@ class Transaction(object):
                         if reqpkg in locked:
                             raise Failed, "%s is locked" % reqpkg
                         self._remove(reqpkg, changeset, locked, pending, depth)
+                        pending.append((PENDING_UPDOWN, reqpkg))
 
     def _updown(self, pkg, changeset, locked, depth=0):
         #print "[%03d] _updown(%s)" % (depth, pkg)
