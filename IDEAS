@@ -165,4 +165,12 @@ Examples of cases where the upgrading algorithm is better
 - Package A is obsoleted by B and C, and they don't conflict.
   Will package B and C be selected for installation?
 
+High level interface
+--------------------
+
+- Implement a higher level interface for package selection.
+
+http://fedora.redhat.com/projects/anaconda-installer/images/screenshot-0002.png
+http://people.debian.org/~mvo/synaptic/ideas/synaptic-app-idea2.png
+
 vim:ts=4:sw=4:et
