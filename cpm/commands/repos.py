@@ -61,8 +61,6 @@ def main(opts):
 
             replst.append(rep)
 
-            sysconf.get("repositories", [], setdefault=True).append(rep)
-
         changed = False
         curreplst = sysconf.get("repositories", [], setdefault=True)
         for rep in replst:
