@@ -409,9 +409,9 @@ def main(ctrl, opts, reloadchannels=True):
                             output.showConflictsProvidedBy(pkg, upg,
                                                            prv, prvpkg)
 
-    output.stopGrabOutput()
-
     output.end()
+
+    output.stopGrabOutput()
 
 
 class NullOutput(object):
@@ -430,8 +430,8 @@ class NullOutput(object):
     def startGrabOutput(self, output=None):
         if output or self.opts.output:
             self.output = output or open(self.opts.output, "w")
-            sys.stdout = self.output
             self.__sys_stdout = sys.stdout
+            sys.stdout = self.output
         else:
             self.output = sys.stdout
             self.__sys_stdout = None
@@ -691,10 +691,92 @@ class DottyOutput(GraphVizOutput):
 
     def end(self):
         GraphVizOutput.end(self)
+        self.stopGrabOutput()
         try:
             os.system("dotty %s" % self.__filename)
         finally:
             if self.__filename != self.opts.output:
                 os.unlink(self.__filename)
+
+class PrologOutput(NullOutput):
+
+    def add(self, fact):
+        self._facts[fact] = True
+
+    def start(self):
+        self._facts = {}
+        self._firstrequires = True
+        self._firstrequiredby = True
+
+    def end(self):
+        facts = self._facts.keys()
+        self._facts.clear()
+        facts.sort()
+        for fact in facts:
+            print fact
+        print
+    
+    def showPackage(self, pkg):
+        self.add("package('%s')." % pkg)
+        if self.opts.show_priority:
+            self.add("priority('%s', %d)." % (pkg, pkg.getPriority()))
+
+    def showProvides(self, pkg, prv):
+        self.add("provides('%s', '%s')." % (pkg, prv))
+
+    def showRequiredBy(self, pkg, prv, req, reqpkg):
+        self.showPackage(reqpkg)
+        self.showRequires(reqpkg, req)
+        tup = (prv, req)
+        if isinstance(req, PreRequires):
+            self.add("prerequiredby('%s', '%s')." % (prv, req))
+        else:
+            self.add("requiredby('%s', '%s')." % (prv, req))
+        if self._firstrequiredby:
+            self._firstrequiredby = False
+        self.add("requiredby(X, Y) :- prerequiredby(X, Y).")
+
+    def showUpgradedBy(self, pkg, prv, upg, upgpkg):
+        self.showPackage(upgpkg)
+        self.showUpgrades(upgpkg, upg)
+        self.add("upgradedby('%s', '%s')." % (prv, upg))
+
+    def showConflictedBy(self, pkg, prv, cnf, cnfpkg):
+        self.showPackage(cnfpkg)
+        self.showConflicts(cnfpkg, cnf)
+        self.add("conflictedby('%s', '%s')." % (prv, cnf))
+
+    def showRequires(self, pkg, req):
+        if isinstance(req, PreRequires):
+            self.add("prerequires('%s', '%s')." % (pkg, req))
+        else:
+            self.add("requires('%s', '%s')." % (pkg, req))
+        if self._firstrequires:
+            self._firstrequires = False
+            self.add("requires(X, Y) :- prerequires(X, Y).")
+
+    def showRequiresProvidedBy(self, pkg, req, prv, prvpkg):
+        self.showPackage(prvpkg)
+        self.showProvides(prvpkg, prv)
+        if isinstance(req, PreRequires):
+            self.add("prerequiredby('%s', '%s')." % (prv, req))
+        else:
+            self.add("requiredby('%s', '%s')." % (prv, req))
+
+    def showUpgrades(self, pkg, upg):
+        self.add("upgrades('%s', '%s')." % (pkg, upg))
+
+    def showUpgradesProvidedBy(self, pkg, upg, prv, prvpkg):
+        self.showPackage(prvpkg)
+        self.showProvides(prvpkg, prv)
+        self.add("upgradedby('%s', '%s')." % (prv, upg))
+
+    def showConflicts(self, pkg, cnf):
+        self.add("conflicts('%s', '%s')." % (pkg, cnf))
+
+    def showConflictsProvidedBy(self, pkg, cnf, prv, prvpkg):
+        self.showPackage(prvpkg)
+        self.showProvides(prvpkg, prv)
+        self.add("conflictedby('%s', '%s')." % (prv, cnf))
 
 # vim:ts=4:sw=4:et
