@@ -61,29 +61,45 @@ class ElementSorter(object):
                     self._getAllPredecessors(pred, set)
 
     def getAllSuccessors(self, elem):
+        # Rewrite this using the same logic in getLoop().
         set = Set()
         self._getAllSuccessors(elem, set)
         return set
 
     def getAllPredecessors(self, elem):
+        # Rewrite this using the same logic in getLoop().
         set = Set()
         self._getAllPredecessors(elem, set)
         return set
 
     def getLoop(self, elem):
-        succs = self.getAllSuccessors(elem)
-        preds = self.getAllPredecessors(elem)
-        return succs.intersection(preds)
+        successors = self._successors
+        path = [elem]
+        done = {}
+        loop = {}
+        while path:
+            dct = successors.get(path[-1])
+            if dct:
+                for succ in dct:
+                    if succ in loop or succ is elem:
+                        loop.update(dict.fromkeys(path, True))
+                    elif succ not in done:
+                        done[succ] = True
+                        path.append(succ)
+                        break
+                else:
+                    path.pop()
+            else:
+                path.pop()
+        return loop
 
     def getLoops(self):
         predecessors = self._predecessors
-        checked = Set()
+        checked = {}
         loops = []
         for elem in predecessors:
             if predecessors[elem] and elem not in checked:
-                succs = self.getAllSuccessors(elem)
-                preds = self.getAllPredecessors(elem)
-                loop = succs.intersection(preds)
+                loop = self.getLoop(elem)
                 if loop:
                     loops.append(loop)
                     checked.update(loop)
@@ -102,6 +118,7 @@ class ElementSorter(object):
         return paths
 
     def getLoopPaths(self, loop):
+        # Rewrite this using the same logic in getLoop().
         if not loop:
             return []
         return self._getLoopPaths(loop, [iter(loop).next()])
@@ -214,14 +231,12 @@ class ElementSorter(object):
 
     def breakLoops(self):
         predecessors = self._predecessors
-        checked = Set()
+        checked = {}
         saved = {}
         loops = []
         for elem in predecessors:
             if predecessors[elem] and elem not in checked:
-                succs = self.getAllSuccessors(elem)
-                preds = self.getAllPredecessors(elem)
-                loop = succs.intersection(preds)
+                loop = self.getLoop(elem)
                 if loop and not self._breakLoop(elem, loop, saved):
                     checked.update(loop)
                     loops.append(loop)
