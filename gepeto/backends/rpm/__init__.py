@@ -173,8 +173,6 @@ class RPMNameProvides(RPMProvides): pass
 class RPMDepends(Depends):
 
     def matches(self, prv):
-        if self.name != prv.name:
-            return False
         if not self.version or not prv.version:
             return True
         selfver, selfarch = splitarch(self.version)
@@ -190,8 +188,6 @@ class RPMObsoletes(Depends):
 
     def matches(self, prv):
         if prv.__class__ != RPMNameProvides:
-            return False
-        if self.name != prv.name:
             return False
         if self.version and not prv.version:
             return False

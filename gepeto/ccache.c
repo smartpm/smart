@@ -1883,6 +1883,7 @@ Cache_reset(CacheObject *self, PyObject *args)
     PyDict_Clear(self->_reqnames);
     PyDict_Clear(self->_upgnames);
     PyDict_Clear(self->_cnfnames);
+    PyDict_Clear(self->_pkgmap);
     PyDict_Clear(self->_prvmap);
     PyDict_Clear(self->_reqmap);
     PyDict_Clear(self->_upgmap);
@@ -1944,6 +1945,11 @@ Cache_load(CacheObject *self, PyObject *args)
         CALLMETHOD(loader, "load", NULL);
     }
     CALLMETHOD(self, "loadFileProvides", NULL);
+    PyDict_Clear(self->_pkgmap);
+    PyDict_Clear(self->_prvmap);
+    PyDict_Clear(self->_reqmap);
+    PyDict_Clear(self->_upgmap);
+    PyDict_Clear(self->_cnfmap);
     CALLMETHOD(self, "linkDeps", NULL);
     CALLMETHOD(prog, "add", "i", 1);
     CALLMETHOD(prog, "show", NULL);
