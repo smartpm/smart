@@ -18,8 +18,8 @@ class Progress:
         self.__lock = thread.allocate_lock()
         self._hassub = False
 
-    def start(self, hassub=False):
-        self._hassub = hassub
+    def start(self):
+        pass
 
     def stop(self):
         self.__topic = ""
@@ -30,6 +30,16 @@ class Progress:
         self.__sublastshown.clear()
         self.__subdone.clear()
         self.__lasttime = 0
+        self.__hassub = False
+
+    def setHasSub(self, flag):
+        self.__hassub = flag
+
+    def getHasSub(self):
+        return self.__hassub
+
+    def getHasActiveSub(self):
+        return bool(self.__subprogress)
 
     def show(self):
         now = time.time()

@@ -11,7 +11,7 @@ class RPMPackageManager(PackageManager):
     def commit(self, install, remove, pkgpath):
 
         prog = iface.getProgress(self)
-        prog.start(True)
+        prog.start()
         prog.setTopic("Committing transaction...")
         prog.show()
 

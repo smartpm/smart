@@ -115,9 +115,8 @@ class GtkProgress(Progress):
         self._subindex = 0
         self._lastpath = None
 
-    def start(self, hassub=False):
-        Progress.start(self, hassub)
-        if hassub:
+    def start(self):
+        if self.getHasSub():
             self._scrollwin.show()
             self._window.set_size_request(500, 400)
         else:
@@ -138,7 +137,7 @@ class GtkProgress(Progress):
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         self._window.show()
         
-        if self._hassub and subkey:
+        if self.getHasSub() and subkey:
             if subkey in self._subiters:
                 iter = self._subiters[subkey]
             else:

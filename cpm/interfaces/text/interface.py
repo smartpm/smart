@@ -8,7 +8,8 @@ class TextInterface(Interface):
     def __init__(self):
         self._progress = TextProgress()
 
-    def getProgress(self, obj):
+    def getProgress(self, obj, hassub=True):
+        self._progress.setHasSub(hassub)
         return self._progress
 
     def showStatus(self, msg):

@@ -14,7 +14,7 @@ class TextProgress(Progress):
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
         out = sys.stdout
-        if self._hassub:
+        if self.getHasSub():
             if topic != self._lasttopic:
                 self._lasttopic = topic
                 print topic
@@ -24,11 +24,11 @@ class TextProgress(Progress):
                 now = time.time()
                 if subkey == self._lastsubkey:
                     if (self._lastsubkeystart+2 < now and
-                        len(self._subprogress) > 1):
+                        self.getHasActiveSub()):
                         return
                 else:
                     if (self._lastsubkeystart+2 > now and
-                        len(self._subprogress) > 1):
+                        self.getHasActiveSub()):
                         return
                     self._lastsubkey = subkey
                     self._lastsubkeystart = now

@@ -122,7 +122,7 @@ class Fetcher(object):
         if total == 0:
             return
         prog = iface.getProgress(self)
-        prog.start(True)
+        prog.start()
         prog.setTopic("Fetching %s..." % what)
         prog.set(0, total)
         prog.show()

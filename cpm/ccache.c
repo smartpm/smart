@@ -1773,7 +1773,8 @@ Cache_load(CacheObject *self, PyObject *args)
     int total = 1;
     PyObject *prog;
     CALLMETHOD(self, "reset", NULL);
-    prog = PyObject_CallMethod(getIface(), "getProgress", "O", self);
+    prog = PyObject_CallMethod(getIface(), "getProgress", "OO",
+                               self, Py_False);
     CALLMETHOD(prog, "start", NULL);
     CALLMETHOD(prog, "setTopic", "s", "Building cache...");
     CALLMETHOD(prog, "set", "ii", 0, 1);
