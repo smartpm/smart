@@ -73,6 +73,8 @@ def init(opts=None):
                 raise Error, "Can't use commands with shell interfaces"
         elif opts.interface:
             ifacename = opts.interface
+        elif opts.command:
+            ifacename = "text"
         else:
             raise Error, "No interface selected"
     iface.object = createInterface(ifacename, ctrl,
@@ -94,7 +96,7 @@ def init(opts=None):
     # Run distribution script, if available.
     if os.path.isfile(DISTROFILE):
         execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
-                              "sysconf": sysconf})
+                              "sysconf": sysconf, "hooks": hooks})
 
     return ctrl
 
