@@ -78,9 +78,11 @@ class Control(object):
             raise Error, "Channel not found for '%s'" % filename
 
     def askForRemovableChannels(self, channels):
-        removable = [x for x in channels if x.isRemovable()]
+        removable = [(x.getName(), x) for x in channels if x.isRemovable()]
         if not removable:
             return True
+        removable.sort()
+        removable = [x for name, x in removable]
         self._mediaset.umountAll()
         if not iface.insertRemovableChannels(removable):
             return False
