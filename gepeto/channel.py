@@ -30,7 +30,7 @@ DEFAULTFIELDS = [("alias", "Alias",
                   "Channel description"),
                  ("priority", "Priority",
                   "Default priority assigned to all packages "
-                  "available in this channel (default is 0). If "
+                  "available in this channel (0 if not set). If "
                   "the exact same package is available in more "
                   "than one channel, the highest priority is used."),
                  ("manual", "Manual updates",

@@ -29,7 +29,7 @@ USAGE="gpt channel [options]"
 
 DESCRIPTION="""
 This command allows one to manipulate channels. Channels are
-used as source of information about installed and available
+used as sources of information about installed and available
 packages. Depending on the channel type, a different backend
 is used to handle interactions with the operating system and
 extraction of information from the given channel.
@@ -94,21 +94,22 @@ def parse_options(argv):
     parser.defaults["disable"] = []
     parser.defaults["show"] = None
     parser.add_option("--add", action="callback", callback=append_all,
-                      help="arguments are key=value pairs defining a "
-                           "channel, or a filename/url pointing to "
-                           "a channel description")
+                      help="argument is either an alias and one or more "
+                           "key=value pairs defining a channel, or a "
+                           "filename/url pointing to a channel description "
+                           "in the same format used by --show")
     parser.add_option("--set", action="callback", callback=append_all,
                       help="argument is an alias, and one or more key=value "
-                           "pair modifying a channel")
+                           "pairs modifying a channel")
     parser.add_option("--remove", action="callback", callback=append_all,
                       help="arguments are channel aliases to be removed")
     parser.add_option("--show", action="callback", callback=append_all,
-                      help="show channels with aliases given as arguments "
-                           "or all channels, if no argument was given")
+                      help="show channels with given aliases, or all "
+                           "channels if no arguments were given")
     parser.add_option("--enable", action="callback", callback=append_all,
-                      help="arguments are channel aliases to be enabled")
+                      help="enable channels with given aliases")
     parser.add_option("--disable", action="callback", callback=append_all,
-                      help="arguments are channel aliases to be disabled")
+                      help="disable channels with given aliases")
     parser.add_option("--force", action="store_true",
                       help="execute without asking")
     parser.add_option("--help-type", action="store", metavar="TYPE",
