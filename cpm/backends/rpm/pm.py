@@ -3,6 +3,7 @@ from cpm.backends.rpm.crpmver import splitarch
 from cpm.pm import PackageManager
 from cpm import *
 import sys, os
+import errno
 import rpm
 
 class RPMPackageManager(PackageManager):
@@ -76,7 +77,9 @@ class RPMPackageManager(PackageManager):
         ts.setProbFilter(0)
         prog.set(0, packages or 1)
         cb = RPMCallback(prog)
+        cb.grabOutput(True)
         probs = ts.run(cb, None)
+        cb.grabOutput(False)
         prog.setDone()
         if probs:
             raise Error, "\n".join([x[0] for x in probs])
@@ -87,11 +90,53 @@ class RPMCallback:
         self.data = {"item-number": 0}
         self.prog = prog
         self.fd = None
+        self.rpmout = None
+
+    def grabOutput(self, flag):
+        if flag:
+            if not self.rpmout:
+                # Grab rpm output, but not the python one.
+                sys.stdout = os.fdopen(os.dup(1), "w")
+                sys.stderr = os.fdopen(os.dup(2), "w")
+                self.stdout = sys.stdout
+                self.stderr = sys.stderr
+                pipe = os.pipe()
+                os.dup2(pipe[1], 1)
+                os.dup2(pipe[1], 2)
+                os.close(pipe[1])
+                self.rpmout = pipe[0]
+                import fcntl
+                flags = fcntl.fcntl(self.rpmout, fcntl.F_GETFL, 0)
+                flags |= os.O_NONBLOCK
+                fcntl.fcntl(self.rpmout, fcntl.F_SETFL, flags)
+        else:
+            if self.rpmout:
+                os.dup2(sys.stdout.fileno(), 1)
+                os.dup2(sys.stderr.fileno(), 2)
+                sys.stdout.close()
+                sys.stderr.close()
+                sys.stdout = self.stdout
+                sys.stderr = self.stderr
+                del self.stdout
+                del self.stderr
+                os.close(self.rpmout)
+                self.rpmout = None
 
     def __call__(self, what, amount, total, infopath, data):
 
+        if self.rpmout:
+            try:
+                output = os.read(self.rpmout, 1024)
+            except OSError, e:
+                if e[0] != errno.EWOULDBLOCK:
+                    raise
+            else:
+                if output:
+                    logger.info(output)
+
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
+            logger.debug("processing %s in %s" % (info.getPackage(), path))
             self.fd = os.open(path, os.O_RDONLY)
             return self.fd
         
@@ -102,10 +147,12 @@ class RPMCallback:
 
         elif what == rpm.RPMCALLBACK_INST_START:
             info, path = infopath
+            pkg = info.getPackage()
             self.data["item-number"] += 1
             self.prog.add(1)
-            self.prog.setSubTopic(infopath, info.getPackage().name)
+            self.prog.setSubTopic(infopath, pkg.name)
             self.prog.setSub(infopath, 0, 1, subdata=self.data)
+            self.prog.show()
 
         elif (what == rpm.RPMCALLBACK_TRANS_PROGRESS or
               what == rpm.RPMCALLBACK_INST_PROGRESS):

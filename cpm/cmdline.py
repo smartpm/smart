@@ -48,12 +48,7 @@ class TextFeedback(ControlFeedback):
 
 def initCmdLine(opts=None):
     sysconf = SysConfig()
-    if opts and opts.log_level:
-        level = {"error": ERROR, "warning": WARNING,
-                 "debug": DEBUG, "info": INFO}.get(opts.log_level)
-        if level is None:
-            raise Error, "unknown log level"
-        sysconf.set("log-level", level)
+    sysconf.set("log-level", WARNING)
     from cpm import init
     init(sysconf, Logger())
     ctrl = Control()
@@ -63,6 +58,14 @@ def initCmdLine(opts=None):
     else:
         ctrl.setFeedback(TextFeedback(ctrl))
     ctrl.loadSysConf(opts and opts.config_file)
+    if opts and opts.log_level:
+        level = {"error": ERROR, "warning": WARNING,
+                 "debug": DEBUG, "info": INFO}.get(opts.log_level)
+        if level is None:
+            raise Error, "unknown log level"
+        sysconf.set("log-level", level)
+    else:
+        sysconf.set("log-level", INFO)
     return ctrl
 
 

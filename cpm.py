@@ -23,7 +23,7 @@ def parse_options(argv):
                            "~/.cpm/config or /etc/cpm.conf)")
     parser.add_option("--log-level", metavar="LEVEL",
                       help="set logging level to LEVEL (debug, info, "
-                           "warning, error)", default="warning")
+                           "warning, error)", default="info")
     parser.add_option("--gui", action="store_true",
                       help="try to use a graphic interface")
     opts, args = parser.parse_args()
@@ -55,7 +55,10 @@ def main(argv):
             import traceback
             traceback.print_exc()
             sys.exit(1)
-        logger.error(str(e))
+        if logger:
+            logger.error(str(e))
+        else:
+            sys.stderr.write("error: %s\n" % e)
         sys.exit(1)
     except KeyboardInterrupt:
         if opts.log_level == "debug":

@@ -284,6 +284,8 @@ class URL(object):
             self.reset()
             self.original = url
             self.path = os.path.normpath(rest)
+            if self.path.startswith("//"):
+                self.path = self.path[1:]
             return
         self.original = url
         host, rest = urllib.splithost(rest)

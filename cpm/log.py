@@ -5,19 +5,19 @@ import sys
 class Logger:
 
     def error(self, msg):
-        if sysconf.get("log-level", WARNING) >= ERROR:
+        if sysconf.get("log-level", INFO) >= ERROR:
             self.message(ERROR, msg)
 
     def warning(self, msg):
-        if sysconf.get("log-level", WARNING) >= WARNING:
+        if sysconf.get("log-level", INFO) >= WARNING:
             self.message(WARNING, msg)
 
     def info(self, msg):
-        if sysconf.get("log-level", WARNING) >= INFO:
+        if sysconf.get("log-level", INFO) >= INFO:
             self.message(INFO, msg)
 
     def debug(self, msg):
-        if sysconf.get("log-level", WARNING) >= DEBUG:
+        if sysconf.get("log-level", INFO) >= DEBUG:
             self.message(DEBUG, msg)
 
     def message(self, level, msg):
@@ -28,5 +28,5 @@ class Logger:
                 sys.stderr.write("%s: %s\n" % (prefix, line))
         else:
             msg = msg[0].upper()+msg[1:]
-            sys.stderr.write("%s\n" % msg)
+            sys.stderr.write("%s\n" % msg.rstrip())
 
