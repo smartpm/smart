@@ -59,7 +59,7 @@ class Up2DateMirrorsChannel(MirrorsChannel):
                             mirrors[_origin] = [_mirror]
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
-                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+                     u"%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
         return True
 

@@ -77,7 +77,7 @@ class APTDEBChannel(PackageChannel):
             progress.show()
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring information for '%s':") % self,
-                         "%s: %s" % (item.getURL(), failed)]
+                         u"%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
 
@@ -201,8 +201,8 @@ class APTDEBChannel(PackageChannel):
                 loader.setChannel(self)
                 self._loaders.append(loader)
             else:
-                errorlines.append("%s: %s" % (pkgitem.getURL(),
-                                              pkgitem.getFailedReason()))
+                errorlines.append(u"%s: %s" % (pkgitem.getURL(),
+                                               pkgitem.getFailedReason()))
 
         if errorlines:
             if fetcher.getCaching() is NEVER:

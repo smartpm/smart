@@ -205,8 +205,8 @@ class APTRPMChannel(PackageChannel):
                 loader.setChannel(self)
                 self._loaders.append(loader)
             else:
-                errorlines.append("%s: %s" % (pkgitem.getURL(),
-                                              pkgitem.getFailedReason()))
+                errorlines.append(u"%s: %s" % (pkgitem.getURL(),
+                                               pkgitem.getFailedReason()))
         if errorlines:
             if fetcher.getCaching() is NEVER:
                 errorlines.insert(0, _("Failed acquiring information for "

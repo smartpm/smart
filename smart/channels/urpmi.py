@@ -90,7 +90,7 @@ class URPMIChannel(PackageChannel):
             failed = hdlitem.getFailedReason()
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring information for '%s':") % self,
-                         "%s: %s" % (hdlitem.getURL(), failed)]
+                         u"%s: %s" % (hdlitem.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
         else:

@@ -56,7 +56,7 @@ class RPMMetaDataChannel(PackageChannel):
             progress.add(self.getFetchSteps()-1)
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring release file for '%s':") % self,
-                         "%s: %s" % (item.getURL(), item.getFailedReason())]
+                         u"%s: %s" % (item.getURL(), item.getFailedReason())]
                 raise Error, "\n".join(lines)
             return False
 
@@ -117,7 +117,7 @@ class RPMMetaDataChannel(PackageChannel):
             return False
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
-                       "%s: %s" % (item.getURL(), item.getFailedReason())]
+                       u"%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
         else:
             return False
