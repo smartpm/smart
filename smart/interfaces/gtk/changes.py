@@ -181,7 +181,7 @@ class GtkChanges(object):
                                                                         remove
 
         if keep:
-            packages[_("Keep (%d)") % len(keep)] = keep
+            packages[Sorter(_("Keep (%d)") % len(keep))] = keep
 
         dsize = report.getDownloadSize()
         size = report.getInstallSize() - report.getRemoveSize()
