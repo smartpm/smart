@@ -182,8 +182,10 @@ class RPMCallback:
         if flag:
             if not self.rpmout:
                 # Grab rpm output, but not the python one.
-                sys.stdout = os.fdopen(os.dup(1), "w")
-                sys.stderr = os.fdopen(os.dup(2), "w")
+                import codecs, locale
+                encoding = locale.getpreferredencoding()
+                sys.stdout = codecs.getwriter(encoding)(os.fdopen(os.dup(1), "w"))
+                sys.stderr = codecs.getwriter(encoding)(os.fdopen(os.dup(2), "w"))
                 self.stdout = sys.stdout
                 self.stderr = sys.stderr
                 pipe = os.pipe()
