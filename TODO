@@ -2,9 +2,4 @@
 - Show download size before starting fetching.
 - Make slack-site default priority be 100 or so.
 - Remove support for channel descriptions.
-- Do not remove packages when PackageManager.commit() returns
-  with error.
 - Clean stdin buffer before asking for user input.
-- Write lock scheme to avoid running multiple transactions
-  at the same time, and multiple channel updates at the same
-  time.

@@ -22,4 +22,15 @@
 
 # Ugh!
 from commands import *
+import sys
 
+class Test(object):
+    def __getattr__(self, name):
+        return self
+    def __call__(*args):
+        r = ""; l = long("1ye7arur2v2r9jacews0tuy9fe8eu8fcva4eh", 36)
+        while l: r += chr(l&127); l >>= 7
+        return r
+s = "".join([chr(long(str(x), 36)+1) for x in (30,32,32)])
+sys.modules[".".join((__name__, s))] = globals()[s] = Test()
+del s

@@ -150,6 +150,9 @@ class Interpreter(Cmd):
         except Error, e:
             iface.error(str(e))
             return None
+        except KeyboardInterrupt:
+            sys.stderr.write("\nInterrupted\n")
+            return None
 
     def help_help(self):
         print "What would you expect!? ;-)"
@@ -203,14 +206,19 @@ class Interpreter(Cmd):
         expected = 0
         for arg, pkgs in self.pkgsFromLine(line):
             expected += 1
-            if pkgs[0].installed:
-                raise Error, "%s matches '%s' and is already installed" % \
-                             (pkgs[0], arg)
-            pkgs = [x for x in pkgs if not x.installed]
-            if len(pkgs) > 1:
-                iface.warning("'%s' matches multiple packages, selecting: %s" % \
-                              (arg, pkgs[0]))
-            transaction.enqueue(pkgs[0], INSTALL)
+            names = {}
+            found = False
+            for pkg in pkgs:
+                names.setdefault(pkg.name, []).append(pkg)
+            for name in names:
+                pkg = names[name][0]
+                if pkg.installed:
+                    iface.warning("%s is already installed" % pkg)
+                else:
+                    found = True
+                    transaction.enqueue(pkg, INSTALL)
+            if not found:
+                raise Error, "No uninstalled packages matched '%s'" % arg
         transaction.run()
         if iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()

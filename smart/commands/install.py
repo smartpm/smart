@@ -97,14 +97,19 @@ def main(ctrl, opts):
             raise Error, "'%s' matches no packages" % arg
         if len(pkgs) > 1:
             sortUpgrades(pkgs)
-        if pkgs[0].installed:
-            raise Error, "%s matches '%s' and is already installed" % \
-                         (pkgs[0], arg)
-        pkgs = [x for x in pkgs if not x.installed]
-        if len(pkgs) > 1:
-            iface.warning("'%s' matches multiple packages, selecting: %s" % \
-                          (arg, pkgs[0]))
-        trans.enqueue(pkgs[0], INSTALL)
+        names = {}
+        found = False
+        for pkg in pkgs:
+            names.setdefault(pkg.name, []).append(pkg)
+        for name in names:
+            pkg = names[name][0]
+            if pkg.installed:
+                iface.warning("%s is already installed" % pkg)
+            else:
+                found = True
+                trans.enqueue(pkg, INSTALL)
+        if not found:
+            raise Error, "No uninstalled packages matched '%s'" % arg
     iface.showStatus("Computing transaction...")
     trans.run()
     iface.hideStatus()
