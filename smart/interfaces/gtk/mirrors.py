@@ -161,7 +161,7 @@ class MirrorCreator(object):
 
         self._window = gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title("New Mirror")
+        self._window.set_title(_("New Mirror"))
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -182,7 +182,7 @@ class MirrorCreator(object):
         table.show()
         vbox.pack_start(table)
         
-        label = gtk.Label("Origin URL:")
+        label = gtk.Label(_("Origin URL:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
@@ -192,7 +192,7 @@ class MirrorCreator(object):
         self._origin.show()
         table.attach(self._origin, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
 
-        label = gtk.Label("Mirror URL:")
+        label = gtk.Label(_("Mirror URL:"))
         label.set_alignment(1.0, 0.5)
         label.show()
         table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -240,11 +240,11 @@ class MirrorCreator(object):
                 self._result = False
                 origin = self._origin.get_text().strip()
                 if not origin:
-                    iface.error("No origin provided!")
+                    iface.error(_("No origin provided!"))
                     continue
                 mirror = self._mirror.get_text().strip()
                 if not mirror:
-                    iface.error("No mirror provided!")
+                    iface.error(_("No mirror provided!"))
                     continue
                 break
             origin = mirror = None
