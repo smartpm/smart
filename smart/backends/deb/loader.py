@@ -22,7 +22,7 @@
 from smart.cache import Loader, PackageInfo
 from smart.util.tagfile import TagFile
 from smart.backends.deb.debver import parserelation, parserelations
-from smart.backends.deb import *
+from smart.backends.deb.base import *
 from smart import *
 import locale
 import stat

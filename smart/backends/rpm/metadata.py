@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.cache import PackageInfo, Loader
-from smart.backends.rpm import *
+from smart.backends.rpm.base import *
 from smart import *
 import posixpath
 import locale

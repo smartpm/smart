@@ -22,7 +22,7 @@
 from smart.backends.rpm.rpmver import splitarch
 from smart.cache import Loader, PackageInfo
 from smart.channel import FileChannel
-from smart.backends.rpm import *
+from smart.backends.rpm.base import *
 from smart import *
 import locale
 import stat
