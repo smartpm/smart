@@ -36,25 +36,6 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label("Description")
         self._notebook.append_page(sw, label)
 
-        label = gtk.Label("Options")
-        table = gtk.Table()
-        table.set_border_width(5)
-        table.show()
-        frame = gtk.Frame("Lock")
-        frame.show()
-        vbox = gtk.VBox()
-        vbox.set_border_width(5)
-        vbox.show()
-        frame.add(vbox)
-        self._lockthis = gtk.CheckButton("This version")
-        self._lockthis.show()
-        vbox.pack_start(self._lockthis)
-        self._lockall = gtk.CheckButton("All versions")
-        self._lockall.show()
-        vbox.pack_start(self._lockall)
-        table.attach(frame, 0, 1, 0, 1, xoptions=0, yoptions=0)
-        self._notebook.append_page(table, label)
-
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
         sw.set_shadow_type(gtk.SHADOW_IN)
@@ -128,12 +109,6 @@ class GtkPackageInfo(gtk.Alignment):
 
         elif num == 1:
 
-            pass
-
-            # Update options.
-
-        elif num == 2:
-
             # Update contents.
 
             iter = contbuf.get_end_iter()
@@ -146,7 +121,7 @@ class GtkPackageInfo(gtk.Alignment):
             for path in info.getPathList():
                 contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
 
-        elif num == 3:
+        elif num == 2:
 
             self._setRelations(pkg)
 

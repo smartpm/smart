@@ -174,8 +174,8 @@ class GtkPackageView(gtk.Alignment):
             model = gtk.ListStore(gobject.TYPE_PYOBJECT)
         elif isinstance(packages, dict):
             model = gtk.TreeStore(gobject.TYPE_PYOBJECT)
-        self._treeview.set_model(model)
         self._setPackage(None, model, None, packages)
+        self._treeview.set_model(model)
         self._treeview.queue_draw()
 
     def _setPackage(self, report, model, parent, item):
