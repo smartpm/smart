@@ -117,10 +117,10 @@ class FileChannel(PackageChannel):
     def getFileName(self):
         return self._filename
 
-class MirrorChannel(Channel):
+class MirrorsChannel(Channel):
     def __init__(self, type, alias, name=None,
                  manualupdate=False, removable=False):
-        super(MirrorChannel, self).__init__(type, alias, name,
+        super(MirrorsChannel, self).__init__(type, alias, name,
                                              manualupdate, removable)
         self._mirrors = {}
 

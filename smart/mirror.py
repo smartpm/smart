@@ -21,8 +21,10 @@
 #
 from smart import *
 import random
+import time
 
-HISTORYSIZE = 100
+HISTORYPERMIRROR = 20
+HISTORYCUTDELAY = 60
 GRANULARITY = 100
 
 class MirrorSystem(object):
@@ -33,6 +35,7 @@ class MirrorSystem(object):
         self._penality = {}
         self._changed = False
         self._historychanged = False
+        self._lastcuttime = 0
 
     def getMirrors(self):
         return self._mirrors
@@ -57,7 +60,13 @@ class MirrorSystem(object):
             self._changed = True
             self._history.insert(0, (mirror, info))
             self._historychanged = True
-            del self._history[HISTORYSIZE:]
+            now = time.time()
+            if now-self._lastcuttime > HISTORYCUTDELAY:
+                self._lastcuttime = now
+                count = 0
+                for origin in self._mirrors:
+                    count += 1+len(self._mirrors[origin])
+                del self._history[count*HISTORYPERMIRROR:]
 
     def get(self, url): 
         elements = {}

@@ -184,7 +184,7 @@ class Control(object):
     def reloadMirrors(self):
         mirrors = sysconf.get("mirrors", {})
         for channel in self._channels.values():
-            if isinstance(channel, MirrorChannel):
+            if isinstance(channel, MirrorsChannel):
                 cmirrors = channel.getMirrors()
                 if cmirrors:
                     for origin in cmirrors:

@@ -23,11 +23,14 @@ from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.channel import MirrorsChannel
 from smart import *
 import posixpath
+import os
 
-class StandardMirrorsChannel(MirrorsChannel):
+ARCHS = ["i386", "x86_64"]
+
+class Up2DateMirrorsChannel(MirrorsChannel):
 
     def __init__(self, url, *args):
-        super(StandardMirrorsChannel, self).__init__(*args)
+        super(Up2DateMirrorsChannel, self).__init__(*args)
         self._url = url
 
     def getFetchSteps(self):
@@ -41,18 +44,19 @@ class StandardMirrorsChannel(MirrorsChannel):
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
-            for line in open(localpath):
-                if line[0].isspace():
-                    if origin:
-                        mirror = line.strip()
-                        if mirror:
-                            if origin in mirrors:
-                                if mirror not in mirrors[origin]:
-                                    mirrors[origin].append(mirror)
-                            else:
-                                mirrors[origin] = [mirror]
-                else:
-                    origin = line.strip()
+            file = open(localpath)
+            origin = file.readline().strip()
+            for mirror in file:
+                mirror = mirror.strip()
+                if mirror:
+                    for arch in ARCHS:
+                        _origin = origin.replace("$ARCH", arch)
+                        _mirror = mirror.replace("$ARCH", arch)
+                        if _origin in mirrors:
+                            if _mirror not in mirrors[_origin]:
+                                mirrors[_origin].append(_mirror)
+                        else:
+                            mirrors[_origin] = [_mirror]
         elif fetcher.getCaching() is NEVER:
             lines = ["Failed acquiring information for '%s':" % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
@@ -60,11 +64,11 @@ class StandardMirrorsChannel(MirrorsChannel):
         return True
 
 def create(alias, data):
-    return StandardMirrorsChannel(data["url"],
-                                  data["type"],
-                                  alias,
-                                  data["name"],
-                                  data["manual"],
-                                  data["removable"])
+    return Up2DateMirrorsChannel(data["url"],
+                                 data["type"],
+                                 alias,
+                                 data["name"],
+                                 data["manual"],
+                                 data["removable"])
 
 # vim:ts=4:sw=4:et
