@@ -87,7 +87,8 @@ def test():
     prog = TextProgress()
     data = {"item-number": 0}
     total, subtotal = 100, 100
-    prog.start(True)
+    prog.setHasSub(True)
+    prog.start()
     prog.setTopic("Installing packages...")
     for n in range(1,total+1):
         data["item-number"] = n

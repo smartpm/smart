@@ -83,11 +83,11 @@ class Progress:
                     del self.__subprogress[subkey]
                     del self.__sublastshown[subkey]
                     del self.__subtopic[subkey]
-            if percent == 100:
+            if percent == 100 and len(self.__subprogress) == 0:
                 self.__done = True
             self.expose(topic, percent, None, None, None, data, self.__done)
         elif (topic, percent) != self.__lastshown:
-            if percent == 100:
+            if percent == 100 and len(self.__subprogress) == 0:
                 self.__done = True
             self.expose(topic, percent, None, None, None, data, self.__done)
         self.__lock.release()
