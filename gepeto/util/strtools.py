@@ -46,6 +46,8 @@ class ShortURL(object):
         return shorturl
 
 def getSizeStr(bytes):
+    if bytes is None:
+        return "Unknown"
     if bytes < 1000:
         return "%db" % bytes
     elif bytes < 1000000:

@@ -71,6 +71,9 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getMD5(self, url):
         return self._loader.getMD5(self)
 
+    def getInstalledSize(self):
+        return self._h[rpm.RPMTAG_SIZE]
+
     def getDescription(self):
         return self._h[rpm.RPMTAG_DESCRIPTION].decode(ENCODING)
 
@@ -254,7 +257,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
                                     h[rpm.RPMTAG_ARCH])
 
     def getSize(self, info):
-        return 0
+        return None
 
     def getMD5(self, info):
         return None
@@ -335,7 +338,7 @@ class RPMDBLoader(RPMHeaderLoader):
         return None
 
     def getSize(self, info):
-        return 0
+        return None
 
     def getMD5(self, info):
         return None

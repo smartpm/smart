@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gepeto.interfaces.gtk.packageview import GtkPackageView
+from gepeto.util.strtools import getSizeStr
+from gepeto import *
 import gobject, gtk, pango
 
 class GtkPackageInfo(gtk.Alignment):
@@ -35,6 +37,57 @@ class GtkPackageInfo(gtk.Alignment):
         self._notebook.show()
         self.add(self._notebook)
         
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        #sw.set_border_width(5)
+        sw.show()
+
+        table = gtk.Table()
+        table.set_row_spacings(2)
+        table.set_col_spacings(5)
+        table.set_border_width(5)
+        table.show()
+        sw.add_with_viewport(table)
+
+        self._info = type("Info", (), {})()
+
+        fontdesc = table.style.font_desc.copy()
+        fontdesc.set_size(fontdesc.get_size()-pango.SCALE)
+        attrsleft = pango.AttrList()
+        attrsleft.insert(pango.AttrFontDesc(fontdesc, 0, -1))
+
+        fontdesc = fontdesc.copy()
+        fontdesc.set_weight(pango.WEIGHT_BOLD)
+        attrsright = pango.AttrList()
+        attrsright.insert(pango.AttrFontDesc(fontdesc, 0, -1))
+
+        row = 0
+        for attr, text in [("status", "Status:"),
+                           ("priority", "Priority:"),
+                           ("group", "Group:"),
+                           ("installedsize", "Installed Size:"),
+                           ("channels", "Channels:")]:
+            label = gtk.Label(text)
+            label.set_attributes(attrsleft)
+            if attr == "channels":
+                label.set_alignment(1.0, 0.0)
+            else:
+                label.set_alignment(1.0, 0.5)
+            label.show()
+            table.attach(label, 0, 1, row, row+1, gtk.FILL, gtk.FILL)
+            setattr(self._info, attr+"_label", label)
+            label = gtk.Label()
+            label.set_attributes(attrsright)
+            label.set_alignment(0.0, 0.5)
+            label.show()
+            table.attach(label, 1, 2, row, row+1, gtk.FILL, gtk.FILL)
+            setattr(self._info, attr, label)
+            row += 1
+
+        label = gtk.Label("General")
+        self._notebook.append_page(sw, label)
+
+
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
         sw.set_shadow_type(gtk.SHADOW_IN)
@@ -58,6 +111,7 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label("Description")
         self._notebook.append_page(sw, label)
 
+
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
         sw.set_shadow_type(gtk.SHADOW_IN)
@@ -79,12 +133,15 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label("Content")
         self._notebook.append_page(sw, label)
 
-        label = gtk.Label("Relations")
+
         self._relations = GtkPackageView()
         self._relations.set_border_width(5)
         self._relations.getTreeView().set_headers_visible(False)
         self._relations.show()
+
+        label = gtk.Label("Relations")
         self._notebook.append_page(self._relations, label)
+
 
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -92,18 +149,25 @@ class GtkPackageInfo(gtk.Alignment):
         sw.set_shadow_type(gtk.SHADOW_IN)
         sw.show()
 
-        model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
-        self._channels = gtk.TreeView(model)
-        self._channels.show()
+        model = gtk.ListStore(gobject.TYPE_STRING,
+                              gobject.TYPE_STRING,
+                              gobject.TYPE_STRING)
+        self._urls = gtk.TreeView(model)
+        self._urls.set_headers_visible(False)
+        self._urls.show()
+        fontdesc = self._urls.style.font_desc.copy()
+        fontdesc.set_size(fontdesc.get_size()-pango.SCALE)
         renderer = gtk.CellRendererText()
-        self._channels.insert_column_with_attributes(-1, "Alias",
-                                                     renderer, text=0)
-        self._channels.insert_column_with_attributes(-1, "Name",
-                                                     renderer, text=1)
-        sw.add(self._channels)
+        renderer.set_property("font-desc", fontdesc)
+        self._urls.insert_column_with_attributes(-1, "Channel",
+                                                 renderer, text=0)
+        self._urls.insert_column_with_attributes(-1, "Size", renderer, text=1)
+        self._urls.insert_column_with_attributes(-1, "URL", renderer, text=2)
+        sw.add(self._urls)
 
-        label = gtk.Label("Channels")
+        label = gtk.Label("URLs")
         self._notebook.append_page(sw, label)
+
 
         self._notebook.connect("switch_page", self._switchPage)
 
@@ -124,7 +188,54 @@ class GtkPackageInfo(gtk.Alignment):
 
         if num == 0:
 
-            # Update summary/description.
+            # Update general information
+
+            if not pkg:
+                self._info.status.set_text("")
+                self._info.group.set_text("")
+                self._info.installedsize.set_text("")
+                self._info.priority.set_text("")
+                self._info.channels.set_text("")
+                return
+
+            group = None
+            installedsize = None
+            channels = []
+            for loader in pkg.loaders:
+                info = loader.getInfo(pkg)
+                if group is None:
+                    group = info.getGroup()
+                if installedsize is None:
+                    installedsize = info.getInstalledSize()
+                channel = loader.getChannel()
+                channels.append("%s (%s)" %
+                                (channel.getName() or channel.getAlias(),
+                                 channel.getAlias()))
+
+            flags = sysconf.getAllFlags(pkg)
+            if flags:
+                flags.sort()
+                flags = " (%s)" % ", ".join(flags)
+            else:
+                flags = ""
+
+            status = pkg.installed and "Installed" or "Available"
+            self._info.status.set_text(status+flags)
+            self._info.group.set_text(group or "Unknown")
+            self._info.priority.set_text(str(pkg.getPriority()))
+            self._info.channels.set_text("\n".join(channels))
+
+            if installedsize:
+                self._info.installedsize.set_text(getSizeStr(installedsize))
+                self._info.installedsize.show()
+                self._info.installedsize_label.show()
+            else:
+                self._info.installedsize.hide()
+                self._info.installedsize_label.hide()
+
+        elif num == 1:
+
+            # Update summary/description
 
             descrbuf = self._descrtv.get_buffer()
             descrbuf.set_text("")
@@ -146,9 +257,9 @@ class GtkPackageInfo(gtk.Alignment):
             else:
                 loader = pkg.loaders.keys()[0]
 
-        elif num == 1:
+        elif num == 2:
 
-            # Update contents.
+            # Update contents
 
             contbuf = self._conttv.get_buffer()
             contbuf.set_text("")
@@ -164,7 +275,9 @@ class GtkPackageInfo(gtk.Alignment):
             for path in info.getPathList():
                 contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
 
-        elif num == 2:
+        elif num == 3:
+
+            # Update relations
 
             if not pkg:
                 self._relations.setPackages([])
@@ -172,9 +285,11 @@ class GtkPackageInfo(gtk.Alignment):
 
             self._setRelations(pkg)
 
-        elif num == 3:
+        elif num == 4:
 
-            model = self._channels.get_model()
+            # Update URLs
+
+            model = self._urls.get_model()
             model.clear()
 
             if not pkg:
@@ -183,8 +298,10 @@ class GtkPackageInfo(gtk.Alignment):
             items = []
             for loader in pkg.loaders:
                 channel = loader.getChannel()
-                item = (channel.getAlias(), channel.getName() or "")
-                items.append(item)
+                alias = channel.getAlias()
+                info = loader.getInfo(pkg)
+                for url in info.getURLs():
+                    items.append((alias, getSizeStr(info.getSize(url)), url))
 
             items.sort()
 

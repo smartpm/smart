@@ -560,6 +560,7 @@ class GtkInteractiveInterface(GtkInterface):
                 for pkg in pkgs:
                     names[pkg.name].remove(("=", pkg.version))
                 self._pv.queue_draw()
+                self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_this)
         else:
             item = gtk.ImageMenuItem("Lock this version")
@@ -571,6 +572,7 @@ class GtkInteractiveInterface(GtkInterface):
                 for pkg in pkgs:
                     names.setdefault(pkg.name, []).append(("=", pkg.version))
                 self._pv.queue_draw()
+                self._pi.setPackage(pkgs[0])
             item.connect("activate", lock_this)
         item.set_image(image)
         if inconsistent:
@@ -588,6 +590,7 @@ class GtkInteractiveInterface(GtkInterface):
                 for pkg in pkgs:
                     del names[pkg.name]
                 self._pv.queue_draw()
+                self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_all)
         else:
             item = gtk.ImageMenuItem("Lock all versions")
@@ -599,6 +602,7 @@ class GtkInteractiveInterface(GtkInterface):
                 for pkg in pkgs:
                     names.setdefault(pkg.name, []).append((None, None))
                 self._pv.queue_draw()
+                self._pi.setPackage(pkgs[0])
             item.connect("activate", lock_all)
         item.set_image(image)
         if inconsistent:
@@ -608,6 +612,7 @@ class GtkInteractiveInterface(GtkInterface):
         item = gtk.MenuItem("Priority")
         def priority(x):
             GtkSinglePriority().show(pkgs[0])
+            self._pi.setPackage(pkgs[0])
         item.connect("activate", priority)
         if len(pkgs) != 1:
             item.set_sensitive(False)

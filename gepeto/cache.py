@@ -114,13 +114,13 @@ class PackageInfo(object):
         return None
 
     def getInstalledSize(self):
-        return 0
+        return None
 
     def getURLs(self):
         return []
 
     def getSize(self, url):
-        return 0
+        return None
 
     def getMD5(self, url):
         return None

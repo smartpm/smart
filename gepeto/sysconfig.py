@@ -150,6 +150,14 @@ class SysConfig(object):
                         return True
         return False
 
+    def getAllFlags(self, pkg):
+        result = []
+        flags = self.get("package-flags", {})
+        for flag in flags:
+            if self.testFlag(flag, pkg):
+                result.append(flag)
+        return result
+
     def filterByFlag(self, flag, pkgs):
         fpkgs = []
         names = self.get("package-flags", {}).get(flag)

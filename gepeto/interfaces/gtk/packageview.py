@@ -149,6 +149,7 @@ class GtkPackageView(gtk.Alignment):
         self._apixbuf = getPixbuf("package-available")
         self._alpixbuf = getPixbuf("package-available-locked")
         self._npixbuf = getPixbuf("package-new")
+        self._nlpixbuf = getPixbuf("package-new-locked")
         self._fpixbuf = getPixbuf("folder")
         self._Ipixbuf = getPixbuf("package-install")
         self._Rpixbuf = getPixbuf("package-remove")
@@ -172,10 +173,13 @@ class GtkPackageView(gtk.Alignment):
         else:
             if self._changeset.get(pkg) is INSTALL:
                 cell.set_property("pixbuf", self._Ipixbuf)
+            elif sysconf.testFlag("lock", pkg):
+                if sysconf.testFlag("new", pkg):
+                    cell.set_property("pixbuf", self._nlpixbuf)
+                else:
+                    cell.set_property("pixbuf", self._alpixbuf)
             elif sysconf.testFlag("new", pkg):
                 cell.set_property("pixbuf", self._npixbuf)
-            elif sysconf.testFlag("lock", pkg):
-                cell.set_property("pixbuf", self._alpixbuf)
             else:
                 cell.set_property("pixbuf", self._apixbuf)
 
