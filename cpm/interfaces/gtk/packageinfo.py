@@ -22,6 +22,7 @@ class GtkPackageInfo(gtk.Alignment):
 
         self._descrtv = gtk.TextView()
         self._descrtv.set_editable(False)
+        self._descrtv.set_cursor_visible(False)
         self._descrtv.set_left_margin(5)
         self._descrtv.set_right_margin(5)
         self._descrtv.show()
@@ -44,6 +45,7 @@ class GtkPackageInfo(gtk.Alignment):
 
         self._conttv = gtk.TextView()
         self._conttv.set_editable(False)
+        self._conttv.set_cursor_visible(False)
         self._conttv.set_left_margin(5)
         self._conttv.set_right_margin(5)
         self._conttv.show()
@@ -62,6 +64,25 @@ class GtkPackageInfo(gtk.Alignment):
         self._relations.getTreeView().set_headers_visible(False)
         self._relations.show()
         self._notebook.append_page(self._relations, label)
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw.set_border_width(5)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.show()
+
+        model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
+        self._channels = gtk.TreeView(model)
+        self._channels.show()
+        renderer = gtk.CellRendererText()
+        self._channels.insert_column_with_attributes(-1, "Alias",
+                                                     renderer, text=0)
+        self._channels.insert_column_with_attributes(-1, "Name",
+                                                     renderer, text=1)
+        sw.add(self._channels)
+
+        label = gtk.Label("Channels")
+        self._notebook.append_page(sw, label)
 
         self._notebook.connect("switch_page", self._switchPage)
 
@@ -127,6 +148,27 @@ class GtkPackageInfo(gtk.Alignment):
 
             self._setRelations(pkg)
 
+        elif num == 3:
+
+            model = self._channels.get_model()
+            model.clear()
+
+            if not pkg:
+                return
+
+            items = []
+            for loader in pkg.loaders:
+                channel = loader.getChannel()
+                item = (channel.getAlias(), channel.getName() or "")
+                items.append(item)
+
+            items.sort()
+
+            lastitem = None
+            for item in items:
+                if item != lastitem:
+                    lastitem = item
+                    model.append(item)
 
     def _setRelations(self, pkg):
 

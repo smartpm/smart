@@ -540,7 +540,8 @@ class GtkInteractiveInterface(GtkInterface):
             done = {}
             for pkg in packages:
                 for loader in pkg.loaders:
-                    group = loader.getChannel().getName()
+                    channel = loader.getChannel()
+                    group = channel.getName() or channel.getAlias()
                     donetuple = (group, pkg)
                     if donetuple not in done:
                         done[donetuple] = True
@@ -554,7 +555,8 @@ class GtkInteractiveInterface(GtkInterface):
             done = {}
             for pkg in packages:
                 for loader in pkg.loaders:
-                    group = loader.getChannel().getName()
+                    channel = loader.getChannel()
+                    group = channel.getName() or channel.getAlias()
                     subgroup = loader.getInfo(pkg).getGroup()
                     donetuple = (group, subgroup, pkg)
                     if donetuple not in done:

@@ -120,7 +120,7 @@ class Control:
             self._cache.removeLoader(channel.getLoader())
             if channel.getFetchSteps() > 0:
                 progress.setTopic("Fetching information for '%s'..." %
-                                  channel.getName())
+                                  (channel.getName() or channel.getAlias()))
                 progress.show()
             channel.fetch(self._fetcher, progress)
             self._cache.addLoader(channel.getLoader())

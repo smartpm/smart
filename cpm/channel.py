@@ -1,6 +1,6 @@
 from cpm import *
 
-class Channel:
+class Channel(object):
 
     def __init__(self, type, alias, name=None, description=None, priority=0):
         self._type = type
@@ -18,7 +18,7 @@ class Channel:
         return self._alias
 
     def getName(self):
-        return self._name or self._alias
+        return self._name
 
     def getDescription(self):
         return self._description
