@@ -18,5 +18,6 @@ def main(opts):
     ctrl.standardInit()
     import __main__
     __main__.ctrl = ctrl
+    __main__.cache = ctrl.getCache()
 
 # vim:ts=4:sw=4:et
