@@ -84,8 +84,7 @@ def main(opts, ctrl):
         if len(pkgs) > 1:
             iface.warning("'%s' matches multiple packages, selecting: %s" % \
                           (arg, pkgs[0]))
-        pkg = pkgs[0]
-        trans.enqueue(pkg, INSTALL)
+        trans.enqueue(pkgs[0], INSTALL)
     iface.showStatus("Computing transaction...")
     trans.run()
     iface.hideStatus()

@@ -68,8 +68,7 @@ def main(opts, ctrl):
             raise Error, "'%s' matches no installed packages" % arg
         if len(pkgs) > 1:
             raise Error, "'%s' matches multiple installed packages" % arg
-        pkg = pkgs[0]
-        trans.enqueue(pkg, REINSTALL)
+        trans.enqueue(pkgs[0], REINSTALL)
     iface.showStatus("Computing transaction...")
     trans.run()
     iface.hideStatus()

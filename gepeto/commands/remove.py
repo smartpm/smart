@@ -59,15 +59,15 @@ def main(opts, ctrl):
     ctrl.updateCache()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyRemove)
-    found = False
     for arg in opts.args:
+        found = False
         matcher = MasterMatcher(arg)
         for pkg in matcher.filter(cache.getPackages()):
             if pkg.installed:
                 found = True
                 trans.enqueue(pkg, REMOVE)
-    if not found:
-        raise Error, "No installed packages matched given arguments"
+        if not found:
+            raise Error, "'%s' matches no installed packages" % arg
     iface.showStatus("Computing transaction...")
     trans.run()
     iface.hideStatus()

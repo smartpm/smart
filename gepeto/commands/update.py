@@ -65,6 +65,7 @@ def main(opts, ctrl):
         iface.showStatus("Channels have no new packages.")
     else:
         if len(newpackages) <= 10:
+            newpackages.sort()
             info = ":\n"
             for pkg in newpackages:
                 info += "    %s\n" % pkg
