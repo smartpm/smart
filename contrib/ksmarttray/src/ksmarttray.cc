@@ -168,17 +168,21 @@ void KSmartTray::processDone(KProcess *)
         case StateUpdating:
             if (!process.normalExit() || process.exitStatus() != 0)
                 updateFailed = true;
-            process.resetAll();
-            process << "smart" << "upgrade" << "--check-update";
-            if (!process.start()) {
-                KNotifyClient::event(sysTray.winId(), "fatalerror",
-                                     "Couldn't run 'smart upgrade'.");
+            if (updateFailed && !lastKnownStatus.isEmpty()) {
                 state = StateWaiting;
-                lastKnownStatus = "";
             } else {
-                QToolTip::add(&sysTray,
-                              "Verifying upgradable packages...");
-                state = StateChecking;
+                process.resetAll();
+                process << "smart" << "upgrade" << "--check-update";
+                if (!process.start()) {
+                    KNotifyClient::event(sysTray.winId(), "fatalerror",
+                                         "Couldn't run 'smart upgrade'.");
+                    state = StateWaiting;
+                    lastKnownStatus = "";
+                } else {
+                    QToolTip::add(&sysTray,
+                                  "Verifying upgradable packages...");
+                    state = StateChecking;
+                }
             }
             break;
 
