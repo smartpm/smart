@@ -597,9 +597,192 @@ class FTPHandler(FetcherHandler):
 
 Fetcher.setHandler("ftp", FTPHandler)
 
+class URLLIBHandler(FetcherHandler):
+
+    MAXACTIVE = 5
+
+    def __init__(self, *args):
+        FetcherHandler.__init__(self, *args)
+        self._active = 0
+        self._lock = thread.allocate_lock()
+
+    def tick(self):
+        self._lock.acquire()
+        if self._queue:
+            while self._active < self.MAXACTIVE:
+                self._active += 1
+                thread.start_new_thread(self.fetch, ())
+        self._lock.release()
+        return bool(self._queue or self._active)
+
+    def fetch(self):
+        import urllib, rfc822
+
+        class Opener(urllib.FancyURLopener):
+            user = None
+            passwd = None
+            def prompt_user_passwd(self, host, realm):
+                return self.user, self.passwd
+            def http_error_default(self, url, fp, errcode, errmsg, headers):
+                info = urllib.addinfourl(fp, headers, "http:" + url)
+                info.errcode = errcode
+                info.errmsg = errmsg
+                return info
+
+        opener = Opener()
+        
+        fetcher = self._fetcher
+        prog = self._progress
+
+        while True:
+
+            self._lock.acquire()
+            if not self._queue:
+                self._lock.release()
+                break
+            url = self._queue.pop()
+            self._lock.release()
+
+            urlobj = URL(url)
+
+            opener.user = urlobj.user
+            opener.passwd = urlobj.passwd
+
+            prog.setSubTopic(url, os.path.basename(URL(url).path))
+            prog.setSub(url, 0, 1, 1)
+            prog.show()
+
+            succeeded = False
+
+            try:
+
+                localpath = self.getLocalPath(url)
+                current = 0
+                total = None
+
+                size = fetcher.getInfo(url, "size")
+
+                del opener.addheaders[:]
+
+                if (os.path.isfile(localpath) and
+                    fetcher.validate(url, localpath)):
+                    mtime = os.path.getmtime(localpath)
+                    opener.addheader("if-modified-since",
+                                     rfc822.formatdate(mtime))
+
+                localpathpart = localpath+".part"
+                if os.path.isfile(localpathpart):
+                    partsize = os.path.getsize(localpathpart)
+                    if not size or partsize < size:
+                        opener.addheader("range", "bytes=%d-" % partsize)
+
+                remote = opener.open(url)
+
+                if hasattr(remote, "errcode") and remote.errcode == 416:
+                    # Range not satisfiable, try again without it.
+                    opener.addheaders = [x for x in opener.addheaders
+                                         if x[0] != "range"]
+                    remote = opener.open(url)
+
+                if hasattr(remote, "errcode") and remote.errcode != 206:
+                    # 206 = Partial Content
+                    raise remote
+
+                info = remote.info()
+
+                if "content-length" in info:
+                    total = int(info["content-length"])
+                elif size:
+                    total = size
+
+                if "content-range" in info:
+                    openmode = "a"
+                    current = partsize
+                    total += partsize
+                else:
+                    openmode = "w"
+
+                if size and total and size != total:
+                    raise Error, "server reports unexpected size"
+
+                try:
+                    local = open(localpathpart, openmode)
+                except (IOError, OSError), e:
+                    raise IOError, "%s: %s" % (localpathpart, e)
+
+                try:
+                    data = remote.read(8192)
+                    while data:
+                        local.write(data)
+                        current += len(data)
+                        if total:
+                            prog.setSub(url, current, total, 1)
+                            prog.show()
+                        data = remote.read(8192)
+                finally:
+                    local.close()
+                    remote.close()
+
+                os.rename(localpathpart, localpath)
+
+                valid, reason = fetcher.validate(url, localpath,
+                                                 withreason=True)
+                if not valid:
+                    if openmode == "a":
+                        # Try again, from the very start.
+                        prog.setSubDone(url)
+                        prog.show()
+                        prog.resetSub(url)
+                        self._lock.acquire()
+                        self._queue.append(url)
+                        self._lock.release()
+                    else:
+                        raise Error, reason
+                else:
+                    succeeded = True
+
+                    if "last-modified" in info:
+                        mtimes = info["last-modified"]
+                        mtimet = rfc822.parsedate(mtimes)
+                        if mtimet:
+                            mtime = time.mktime(mtimet)
+                            os.utime(localpath, (mtime, mtime))
+
+            except urllib.addinfourl, remote:
+                if remote.errcode == 304: # Not modified
+                    succeeded = True
+                else:
+                    fetcher.setFailed(url, remote.errmsg)
+                    prog.setSubDone(url)
+                    prog.show()
+
+            except (IOError, OSError, Error), e:
+                fetcher.setFailed(url, str(e))
+                prog.setSubDone(url)
+                prog.show()
+
+            if succeeded:
+                fetcher.setSucceeded(url, localpath)
+                prog.setSubDone(url)
+                prog.show()
+
+        self._lock.acquire()
+        self._active -= 1
+        self._lock.release()
+
+#Fetcher.setHandler("ftp", URLLIBHandler)
+Fetcher.setHandler("http", URLLIBHandler)
+Fetcher.setHandler("https", URLLIBHandler)
+Fetcher.setHandler("gopher", URLLIBHandler)
+
+# This is not in use, since urllib2 is not thread safe, and
+# the authentication scheme requires additional steps which
+# are still not implemented. Also, we need some way to handle
+# 206 returns without breaking out.
+"""
 class URLLIB2Handler(FetcherHandler):
 
-    MAXACTIVE = 1 # urllib2 is not thread safe
+    MAXACTIVE = 1
     USECACHEDFTP = True
 
     _openerinstalled = False
@@ -628,8 +811,7 @@ class URLLIB2Handler(FetcherHandler):
         return bool(self._queue or self._active)
 
     def fetch(self):
-        from cpm.util import urllib2
-        import rfc822
+        import urllib2, rfc822
         
         fetcher = self._fetcher
         prog = self._progress
@@ -765,6 +947,7 @@ class URLLIB2Handler(FetcherHandler):
 Fetcher.setHandler("http", URLLIB2Handler)
 Fetcher.setHandler("https", URLLIB2Handler)
 Fetcher.setHandler("gopher", URLLIB2Handler)
+"""#"""
 
 class PyCurlHandler(FetcherHandler):
 
