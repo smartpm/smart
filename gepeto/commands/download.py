@@ -22,7 +22,7 @@
 from gepeto.transaction import Transaction, PolicyInstall, sortUpgrades
 from gepeto.transaction import INSTALL, REINSTALL
 from gepeto.matcher import MasterMatcher
-from gepeto.option import OptionParser
+from gepeto.option import OptionParser, append_all
 from gepeto.channel import FileChannel
 from gepeto import *
 import string
@@ -41,18 +41,24 @@ gpt download '*kgna*'
 gpt download pkgname-1.0
 gpt download pkgname-1.0-1
 gpt download pkgname1 pkgname2
-gpt download pkgname --dump-urls 2> pkgname-url.txt
+gpt download pkgname --urls 2> pkgname-url.txt
+gpt download --from-urls pkgname-url.txt
+gpt download --from-urls http://some.url/some/path/somefile
 """
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
+    parser.defaults["from_urls"] = []
     parser.defaults["target"] = os.getcwd()
     parser.add_option("--target", action="store", metavar="DIR",
                       help="packages will be saved in given directory")
-    parser.add_option("--dump-urls", action="store_true",
+    parser.add_option("--urls", action="store_true",
                       help="dump needed urls and don't download packages")
+    parser.add_option("--from-urls", action="callback", callback=append_all,
+                      help="download files from the given urls and/or from "
+                           "the given files with lists of urls")
     opts, args = parser.parse_args(argv)
     opts.args = args
     if not os.path.isdir(opts.target):
@@ -60,22 +66,33 @@ def parse_options(argv):
     return opts
 
 def main(opts, ctrl):
-    ctrl.updateCache()
-    cache = ctrl.getCache()
     packages = []
-    for arg in opts.args:
-        matcher = MasterMatcher(arg)
-        pkgs = matcher.filter(cache.getPackages())
-        if not pkgs:
-            raise Error, "'%s' matches no packages" % arg
-        if len(pkgs) > 1:
-            sortUpgrades(pkgs)
-            iface.warning("'%s' matches multiple packages, selecting: %s" % \
-                          (arg, pkgs[0]))
-        packages.append(pkgs[0])
-    if opts.dump_urls:
-        ctrl.dumpURLs(packages)
-    else:
-        ctrl.fetchPackages(packages, targetdir=opts.target)
+    if opts.args:
+        ctrl.updateCache()
+        cache = ctrl.getCache()
+        for arg in opts.args:
+            matcher = MasterMatcher(arg)
+            pkgs = matcher.filter(cache.getPackages())
+            if not pkgs:
+                raise Error, "'%s' matches no packages" % arg
+            if len(pkgs) > 1:
+                sortUpgrades(pkgs)
+                iface.warning("'%s' matches multiple packages, selecting: %s"
+                              % (arg, pkgs[0]))
+            packages.append(pkgs[0])
+        if opts.urls:
+            ctrl.dumpURLs(packages)
+        else:
+            ctrl.fetchPackages(packages, targetdir=opts.target)
+    elif opts.from_urls:
+        urls = []
+        for arg in opts.from_urls:
+            if ":/" in arg:
+                urls.append(arg)
+            elif os.path.isfile(arg):
+                urls.extend([x.strip() for x in open(arg)])
+            else:
+                raise Error, "Argument is not a file nor url: %s" % arg
+        ctrl.fetchFiles(urls, "URLs", targetdir=opts.target)
 
 # vim:ts=4:sw=4:et

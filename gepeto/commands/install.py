@@ -51,8 +51,10 @@ def parse_options(argv):
                           examples=EXAMPLES)
     parser.add_option("--stepped", action="store_true",
                       help="split operation in steps")
-    parser.add_option("--dump-urls", action="store_true",
+    parser.add_option("--urls", action="store_true",
                       help="dump needed urls and don't commit operation")
+    parser.add_option("--download", action="store_true",
+                      help="download packages and don't commit operation")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -88,8 +90,10 @@ def main(opts, ctrl):
     trans.run()
     iface.hideStatus()
     if trans:
-        if opts.dump_urls:
+        if opts.urls:
             ctrl.dumpTransactionURLs(trans)
+        elif opts.download:
+            ctrl.downloadTransaction(trans)
         elif opts.stepped:
             ctrl.commitTransactionStepped(trans)
         else:

@@ -228,10 +228,9 @@ class Control(object):
             localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
             if not os.path.isdir(localdir):
                 os.makedirs(localdir)
-            fetcher.setLocalDir(localdir, mangle=False)
+            fetcher.setLocalDir(localdir, mangle=True)
         else:
             fetcher.setLocalDir(targetdir, mangle=False)
-        fetcher.setLocalDir(localdir, mangle=True)
         fetcher.setCaching(caching)
         for url in urllst:
             fetcher.enqueue(url)

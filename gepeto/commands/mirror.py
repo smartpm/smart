@@ -172,6 +172,6 @@ def main(opts, ctrl):
         mirrorsystem = MirrorSystem()
         penalities = mirrorsystem.getPenalities()
         for url in penalities:
-            print "%s %.5f" % (url, penalities[url])
+            print "%s %d" % (url, penalities[url])
 
 # vim:ts=4:sw=4:et

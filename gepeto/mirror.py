@@ -22,9 +22,10 @@
 from gepeto import *
 import random
 
-class MirrorSystem(object):
+HISTORYSIZE = 100
+GRANULARITY = 100
 
-    HISTORYSIZE = 100
+class MirrorSystem(object):
 
     def __init__(self):
         self._mirrors = sysconf.get("mirrors", setdefault={})
@@ -36,7 +37,7 @@ class MirrorSystem(object):
         if mirror:
             self._changed = True
             self._history.insert(0, (mirror, info))
-            del self._history[self.HISTORYSIZE:]
+            del self._history[HISTORYSIZE:]
 
     def get(self, url): 
         elements = {}
@@ -70,14 +71,25 @@ class MirrorSystem(object):
             mirrordata["size"] += info.get("size", 0)
             mirrordata["time"] += info.get("time", 0)
             mirrordata["failed"] += info.get("failed", 0)
+        maxpenality = 1
+        justerrors = []
         for mirror in data:
             mirrordata = data[mirror]
-            penality = 0
-            if mirrordata["size"] and mirrordata["time"] >= 1:
-                penality += float(mirrordata["time"])/mirrordata["size"]
-            penality += mirrordata["failed"]*((penality or 1)*0.1)
-            if penality:
+            if mirrordata["size"]:
+                penality = (mirrordata["time"]*1000000)/mirrordata["size"]
+                penality += mirrordata["failed"]*(penality*0.1)
+                # Integer division by granularity ensures that mirrors
+                # which are close enough will be considered equal to
+                # distribute load.
+                penality /= GRANULARITY
                 self._penality[mirror] = penality
+                if penality > maxpenality:
+                    maxpenality = penality
+            elif mirrordata["failed"]:
+                justerrors.append(mirror)
+        if justerrors:
+            for mirror in justerrors:
+                self._penality[mirror] = maxpenality
 
 class MirrorElement(object):
 
@@ -92,8 +104,8 @@ class MirrorElement(object):
                   other.mirror.startswith("file://"))
         if rc == 0:
             # Otherwise, check penality.
-            penal = self._system._penality
-            rc = cmp(penal.get(self.mirror, 0), penal.get(other.mirror, 0))
+            pen = self._system._penality
+            rc = cmp(pen.get(self.mirror, 0), pen.get(other.mirror, 0))
         return rc
 
 class MirrorItem(object):
@@ -113,6 +125,9 @@ class MirrorItem(object):
             self._system.updatePenality()
             random.shuffle(self._elements)
             self._elements.sort()
+            #for i, item in enumerate(self._elements):
+            #    penality = self._system.getPenalities().get(item.mirror, 0)
+            #    print "%d. %s (%d)" % (i, item.mirror, penality)
             self._current = elem = self._elements.pop(0)
             return elem.mirror+self._url[len(elem.origin):]
         else:
