@@ -34,6 +34,8 @@ class GtkProgress(Progress, gtk.Window):
         gtk.Window.__init__(self)
         self.__gobject_init__()
 
+        self.connect("delete-event", lambda x,y: True)
+
         self._hassub = hassub
         self._shorturl = ShortURL(50)
         self._ticking = False
