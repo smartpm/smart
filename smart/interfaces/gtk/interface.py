@@ -42,8 +42,9 @@ class GtkInterface(Interface):
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
-        Interface.run(self, command, argv)
+        result = Interface.run(self, command, argv)
         self.setCatchExceptions(False)
+        return result
 
     def getProgress(self, obj, hassub=False):
         if hassub:
