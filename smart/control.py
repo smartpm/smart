@@ -89,7 +89,7 @@ class Control(object):
             raise Error, "Channel not found for '%s'" % filename
 
     def askForRemovableChannels(self, channels):
-        removable = [(x.getName(), x) for x in channels if x.isRemovable()]
+        removable = [(str(x), x) for x in channels if x.isRemovable()]
         if not removable:
             return True
         removable.sort()
