@@ -105,6 +105,7 @@ TagFile_setOffset(TagFileObject *self, PyObject *offset)
         PyErr_SetString(PyExc_ValueError, "Invalid offset");
         return NULL;
     }
+    self->_bufread = 0;
     self->_offset = PyInt_AsLong(offset);
     if (fseek(self->_file, self->_offset, SEEK_SET) == -1) {
         PyErr_SetFromErrnoWithFilename(PyExc_IOError, self->_filename);
