@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.util.strtools import ShortURL, getSizeStr
+from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
 import gobject, gtk
 import posixpath
@@ -34,7 +34,6 @@ class GtkProgress(Progress, gtk.Window):
         self.__gobject_init__()
 
         self._hassub = hassub
-        self._fetchermode = False
         self._shorturl = ShortURL(50)
         self._ticking = False
         self._stopticking = False
@@ -75,6 +74,7 @@ class GtkProgress(Progress, gtk.Window):
             self._treemodel = gtk.ListStore(gobject.TYPE_INT,
                                             gobject.TYPE_STRING,
                                             gobject.TYPE_STRING,
+                                            gobject.TYPE_STRING,
                                             gobject.TYPE_STRING)
             self._treeview = gtk.TreeView(self._treemodel)
             self._treeview.show()
@@ -100,6 +100,12 @@ class GtkProgress(Progress, gtk.Window):
 
             renderer = gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
+            column = gtk.TreeViewColumn("Speed", renderer, text=4)
+            self._speedcolumn = column
+            self._treeview.append_column(column)
+
+            renderer = gtk.CellRendererText()
+            renderer.set_fixed_height_from_font(True)
             column = gtk.TreeViewColumn("Description", renderer, text=1)
             column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
             self._treeview.append_column(column)
@@ -107,11 +113,6 @@ class GtkProgress(Progress, gtk.Window):
             self._subiters = {}
             self._subindex = 0
             self._lastpath = None
-
-    def setFetcherMode(self, flag):
-        self._fetchermode = flag
-        self._currentcolumn.set_visible(flag)
-        self._totalcolumn.set_visible(flag)
 
     def tick(self):
         while not self._stopticking:
@@ -128,6 +129,10 @@ class GtkProgress(Progress, gtk.Window):
         self.setHasSub(self._hassub)
         self._ticking = True
         self._stopticking = False
+        if self._hassub:
+            self._currentcolumn.set_visible(False)
+            self._totalcolumn.set_visible(False)
+            self._speedcolumn.set_visible(False)
 
         thread.start_new_thread(self.tick, ())
 
@@ -169,11 +174,18 @@ class GtkProgress(Progress, gtk.Window):
                 if not self._lastpath or isvisible:
                     self._treeview.scroll_to_cell(path, None, True, 0, 0)
                 self._lastpath = path
-            if self._fetchermode:
-                subinfo = self.getSub(subkey)
-                if subinfo and subinfo[1] > 1:
-                    self._treemodel.set(iter, 2, getSizeStr(subinfo[0]),
-                                              3, getSizeStr(subinfo[1]))
+
+            current = data.get("current", "")
+            if current:
+                self._currentcolumn.set_visible(True)
+            total = data.get("total", "")
+            if total:
+                self._totalcolumn.set_visible(True)
+            speed = data.get("speed", "")
+            if speed:
+                self._speedcolumn.set_visible(True)
+            if current or total or speed:
+                self._treemodel.set(iter, 2, current, 3, total, 4, speed)
                 subtopic = self._shorturl.get(subtopic)
             self._treemodel.set(iter, 0, subpercent, 1, subtopic)
         else:

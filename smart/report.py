@@ -155,4 +155,39 @@ class Report(object):
                 if map:
                     self.requiredby[pkg] = map.keys()
 
+    def getDownloadSize(self):
+        total = 0
+        for pkg in self.install:
+            for loader in pkg.loaders:
+                if not loader.getInstalled():
+                    break
+            else:
+                continue
+            info = loader.getInfo(pkg)
+            for url in info.getURLs():
+                size = info.getSize(url)
+                if size:
+                    total += size
+        return total
+
+    def getInstallSize(self):
+        total = 0
+        for pkg in self.install:
+            loader = iter(pkg.loaders).next()
+            info = loader.getInfo(pkg)
+            size = info.getInstalledSize()
+            if size:
+                total += size
+        return total
+
+    def getRemoveSize(self):
+        total = 0
+        for pkg in self.remove:
+            loader = iter(pkg.loaders).next()
+            info = loader.getInfo(pkg)
+            size = info.getInstalledSize()
+            if size:
+                total += size
+        return total
+
 # vim:ts=4:sw=4:et

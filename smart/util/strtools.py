@@ -22,6 +22,7 @@
 import posixpath
 import string
 import md5
+import sys
 
 class ShortURL(object):
     def __init__(self, maxlen):
@@ -46,15 +47,28 @@ class ShortURL(object):
             self._cache[url] = shorturl
         return shorturl
 
-def getSizeStr(bytes):
+def sizeToStr(bytes):
     if bytes is None:
         return "Unknown"
     if bytes < 1000:
         return "%db" % bytes
     elif bytes < 1000000:
-        return "%.1fk" % (bytes/1000.)
+        return "%.1fkb" % (bytes/1000.)
     else:
-        return "%.1fM" % (bytes/1000000.)
+        return "%.1fMb" % (bytes/1000000.)
+
+def sizeTimeToSpeed(bytes, time):
+    if bytes is None:
+        return "Stalled"
+    if time < 1:
+        time = 1
+    speed = bytes/float(time)
+    if speed < 1000:
+        return "%db/s" % speed
+    elif speed < 1000000:
+        return "%.1fkb/s" % (speed/1000.)
+    else:
+        return "%.1fMb/s" % (speed/1000000.)
 
 _nulltrans = string.maketrans('', '')
 def isRegEx(s):
@@ -75,3 +89,30 @@ def strToBool(s, default=False):
         return False
     return default
 
+def printColumns(lst, indent=0, spacing=2, width=80, out=None):
+    maxstrlen = 0
+    for item in lst:
+        strlen = len(str(item))
+        if strlen > maxstrlen:
+            maxstrlen = strlen
+
+    perline = (width-indent)/(maxstrlen+spacing)
+    if perline == 0:
+        perline = 1
+
+    columnlen = (width-indent)/perline
+    numitems = len(lst)
+    numlines = (numitems+perline-1)/perline
+    blank = " "*columnlen
+    if out is None:
+        out = sys.stdout
+    for line in range(numlines):
+        out.write(" "*indent)
+        for entry in range(perline):
+            k = line+(entry*numlines)
+            if k >= numitems:
+                break
+            s = str(lst[k])
+            out.write(s)
+            out.write(" "*(columnlen-len(s)))
+        print

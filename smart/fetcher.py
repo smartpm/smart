@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.util.strtools import sizeToStr, sizeTimeToSpeed
 from smart.uncompress import Uncompressor
 from smart.mirror import MirrorSystem
 from smart.media import MediaSet
@@ -37,7 +38,7 @@ class Fetcher(object):
     _registry = {}
     _localschemes = []
 
-    MAXRETRIES = 3
+    MAXRETRIES = 30
 
     def __init__(self):
         self._uncompressor = Uncompressor()
@@ -422,7 +423,13 @@ class FetchItem(object):
 
     def progress(self, current, total):
         if total:
-            self._progress.setSub(self._urlobj.original, current, total, 1)
+            subdata = {}
+            subdata["current"] = sizeToStr(current)
+            subdata["total"] = sizeToStr(total)
+            subdata["speed"] = sizeTimeToSpeed(total,
+                                               time.time()-self._starttime)
+            self._progress.setSub(self._urlobj.original, current, total, 1,
+                                  subdata)
             self._progress.show()
 
     def setSucceeded(self, targetpath, fetchedsize=0):

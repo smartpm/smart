@@ -21,6 +21,7 @@
 #
 from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.interfaces.gtk import getPixbuf
+from smart.util.strtools import sizeToStr
 from smart.report import Report
 import gobject, gtk
 
@@ -52,6 +53,9 @@ class GtkChanges(object):
         self._pv.setExpandPackage(True)
         self._pv.show()
         self._vbox.pack_start(self._pv)
+
+        self._sizelabel = gtk.Label()
+        self._vbox.pack_start(self._sizelabel, expand=False)
 
         self._confirmbbox = gtk.HButtonBox()
         self._confirmbbox.set_spacing(10)
@@ -174,6 +178,21 @@ class GtkChanges(object):
 
         if keep:
             packages["Keep (%d)" % len(keep)] = keep
+
+        dsize = report.getDownloadSize()
+        size = report.getInstallSize() - report.getRemoveSize()
+        if dsize:
+            sizestr = "%s of package files are needed. " % sizeToStr(dsize)
+        if size > 0:
+            sizestr += "%s will be used." % sizeToStr(size)
+        elif size < 0:
+            size *= -1
+            sizestr += "%s will be freed." % sizeToStr(size)
+        if dsize or size:
+            self._sizelabel.set_text(sizestr)
+            self._sizelabel.show()
+        else:
+            self._sizelabel.hide()
 
         if confirm:
             self._confirmbbox.show()

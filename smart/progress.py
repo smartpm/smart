@@ -173,6 +173,9 @@ class Progress(object):
     def getSub(self, subkey):
         return self.__subprogress.get(subkey)
 
+    def getSubData(self, subkey, _none=[None]):
+        return self.__subprogress.get(subkey, _none)[-1]
+
     def setSub(self, subkey, subcurrent, subtotal, fragment=0, subdata={}):
         self.__lock.acquire()
         if self.__done or subkey in self.__subdone:

@@ -21,8 +21,10 @@
 #
 from smart.interfaces.text.progress import TextProgress
 from smart.interface import Interface, getScreenWidth
+from smart.util.strtools import sizeToStr, printColumns
 from smart.fetcher import Fetcher
 from smart.report import Report
+from smart import *
 import sys
 import os
 
@@ -118,42 +120,63 @@ class TextInterface(Interface):
         report = Report(changeset)
         report.compute()
 
+        screenwidth = getScreenWidth()
+
+        hideversion = sysconf.get("text-hide-version", len(changeset) > 40)
+        if hideversion:
+            def cvt(lst):
+                return [x.name for x in lst]
+        else:
+            def cvt(lst):
+                return lst
+
         print
         if keep:
+            keep = cvt(keep)
             keep.sort()
-            print "The following packages are being kept:"
-            for pkg in keep:
-                print "   ", pkg
+            print "Kept packages (%d):" % len(keep)
+            printColumns(keep, indent=2, width=screenwidth)
             print
-        pkgs = report.install.keys()
+        pkgs = report.upgrading.keys()
         if pkgs:
+            pkgs = cvt(pkgs)
             pkgs.sort()
-            print "The following packages are being installed:"
-            for pkg in pkgs:
-                if pkg.installed:
-                    print "   ", pkg, "(reinstalled)"
-                else:
-                    print "   ", pkg
-                for upgpkg in report.upgrading.get(pkg, ()):
-                    print "       Upgrades:",
-                    if upgpkg in report.remove:
-                        print upgpkg
-                    else:
-                        print upgpkg, "(not removed)"
-                for upgpkg in report.downgrading.get(pkg, ()):
-                    print "       Downgrades:",
-                    if upgpkg in report.remove:
-                        print upgpkg
-                    else:
-                        print upgpkg, "(not removed)"
+            print "Upgrading packages (%d):" % len(pkgs)
+            printColumns(pkgs, indent=2, width=screenwidth)
+            print
+        pkgs = report.downgrading.keys()
+        if pkgs:
+            pkgs = cvt(pkgs)
+            pkgs.sort()
+            print "Downgrading packages (%d):" % len(pkgs)
+            printColumns(pkgs, indent=2, width=screenwidth)
+            print
+        pkgs = report.installing.keys()
+        if pkgs:
+            pkgs = cvt(pkgs)
+            pkgs.sort()
+            print "Installed packages (%d):" % len(pkgs)
+            printColumns(pkgs, indent=2, width=screenwidth)
             print
         pkgs = report.removed.keys()
         if pkgs:
+            pkgs = cvt(pkgs)
             pkgs.sort()
-            print "The following packages are being removed:"
-            for pkg in pkgs:
-                print "   ", pkg
+            print "Removed packages:" % len(pkgs)
+            printColumns(pkgs, indent=2, width=screenwidth)
             print
+        dsize = report.getDownloadSize()
+        size = report.getInstallSize() - report.getRemoveSize()
+        if dsize:
+            sys.stdout.write("%s of package files are needed. " %
+                             sizeToStr(dsize))
+        if size > 0:
+            sys.stdout.write("%s will be used." % sizeToStr(size))
+        elif size < 0:
+            size *= -1
+            sys.stdout.write("%s will be freed." % sizeToStr(size))
+        if dsize or size:
+            sys.stdout.write("\n\n")
         if confirm:
             return self.askYesNo("Confirm changes", True)
         return True

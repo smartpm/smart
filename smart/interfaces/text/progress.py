@@ -41,7 +41,7 @@ class TextProgress(Progress):
     def setScreenWidth(self, width):
         self._screenwidth = width
         self._topicwidth = int(width*0.4)
-        self._hashwidth = int(width-self._topicwidth-7-1) # " [100%]" == 7
+        self._hashwidth = int(width-self._topicwidth-1)
         self._topicmask = "%%-%d.%ds" % (self._topicwidth, self._topicwidth)
         self._topicmaskn = "%%4d:%%-%d.%ds" % (self._topicwidth-5,
                                                self._topicwidth-5)
@@ -92,7 +92,6 @@ class TextProgress(Progress):
                 topic = posixpath.basename(topic)
         else:
             current = percent
-        hashes = int(self._hashwidth*current/100)
         n = data.get("item-number")
         if n:
             if len(topic) > self._topicwidth-6:
@@ -102,14 +101,25 @@ class TextProgress(Progress):
             if len(topic) > self._topicwidth-1:
                 topic = topic[:self._topicwidth-3]+".."
             out.write(self._topicmask % topic)
-        out.write("#"*hashes)
-        out.write(" "*(self._hashwidth-hashes+1))
+
         if not done:
-            out.write("(%3d%%)\r" % current)
+            speed = data.get("speed")
+            if speed:
+                suffix = "(%s - %d%%)\r" % (speed, current)
+            else:
+                suffix = "(%3d%%)\r" % current
         elif subpercent is None:
-            out.write("[%3d%%]\n" % current)
+            suffix = "[%3d%%]\n" % current
         else:
-            out.write("[%3d%%]\n" % percent)
+            suffix = "[%3d%%]\n" % percent
+
+        hashwidth = self._hashwidth-len(suffix)
+
+        hashes = int(hashwidth*current/100)
+        out.write("#"*hashes)
+        out.write(" "*(hashwidth-hashes+1))
+
+        out.write(suffix)
         out.flush()
 
 def test():

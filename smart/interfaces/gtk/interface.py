@@ -48,7 +48,6 @@ class GtkInterface(Interface):
     def getProgress(self, obj, hassub=False):
         if hassub:
             self._progress.hide()
-            self._hassubprogress.setFetcherMode(isinstance(obj, Fetcher))
             return self._hassubprogress
         else:
             self._hassubprogress.hide()

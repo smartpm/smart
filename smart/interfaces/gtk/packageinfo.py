@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.gtk.packageview import GtkPackageView
-from smart.util.strtools import getSizeStr
+from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk, pango
 
@@ -220,7 +220,7 @@ class GtkPackageInfo(gtk.Alignment):
             self._info.channels.set_text("\n".join(channels))
 
             if installedsize:
-                self._info.installedsize.set_text(getSizeStr(installedsize))
+                self._info.installedsize.set_text(sizeToStr(installedsize))
                 self._info.installedsize.show()
                 self._info.installedsize_label.show()
             else:
@@ -295,7 +295,7 @@ class GtkPackageInfo(gtk.Alignment):
                 alias = channel.getAlias()
                 info = loader.getInfo(pkg)
                 for url in info.getURLs():
-                    items.append((alias, getSizeStr(info.getSize(url)), url))
+                    items.append((alias, sizeToStr(info.getSize(url)), url))
 
             items.sort()
 
