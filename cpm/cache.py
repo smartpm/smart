@@ -1,4 +1,4 @@
-from cpm import Error
+from cpm import *
 import os
 
 class Package(object):
@@ -167,6 +167,8 @@ class Provides(object):
         rc = cmp(self.name, other.name)
         if rc == 0:
             rc = cmp(self.version, other.version)
+            if rc == 0:
+                rc = cmp(self.__class__, other.__class__)
         return rc
 
 class Depends(object):
@@ -190,6 +192,8 @@ class Depends(object):
         rc = cmp(self.name, other.name)
         if rc == 0:
             rc = cmp(self.version, other.version)
+            if rc == 0:
+                rc = cmp(self.__class__, other.__class__)
         return rc
 
 class PreRequires(Depends): pass
@@ -202,7 +206,7 @@ class Loader(object):
         self._channel = None
         self._cache = None
         self._installed = False
-        self.reset()
+        self._packages = []
 
     def getChannel(self):
         return self._channel
@@ -229,7 +233,7 @@ class Loader(object):
         return None
 
     def reset(self):
-        self._packages = []
+        del self._packages[:]
 
     def load(self):
         pass
@@ -398,6 +402,10 @@ class Loader(object):
             else:
                 cache._prvnames[prv.name] = [prv]
             cache._provides.append(prv)
+
+        if prv in pkg.provides:
+            return
+
         prv.packages.append(pkg)
         pkg.provides.append(prv)
 
@@ -429,6 +437,8 @@ class Loader(object):
             else:
                 cache._reqnames[req.name] = [req]
             cache._requires.append(req)
+        if req in pkg.requires:
+            return
         req.packages.append(pkg)
         pkg.requires.append(req)
 
@@ -444,6 +454,8 @@ class Loader(object):
             else:
                 cache._upgnames[upg.name] = [upg]
             cache._upgrades.append(upg)
+        if upg in pkg.upgrades:
+            return
         upg.packages.append(pkg)
         pkg.upgrades.append(upg)
 
@@ -459,6 +471,8 @@ class Loader(object):
             else:
                 cache._cnfnames[cnf.name] = [cnf]
             cache._conflicts.append(cnf)
+        if cnf in pkg.conflicts:
+            return
         cnf.packages.append(pkg)
         pkg.conflicts.append(cnf)
 
