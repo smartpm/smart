@@ -39,6 +39,7 @@ class RPMPackageManager(PackageManager):
                 if ":" in version:
                     version = version[version.find(":")+1:]
                 ts.addErase("%s-%s" % (pkg.name, version))
+        ts.order()
         ts.run(RPMStandardCallback(), None)
 
 
