@@ -76,7 +76,7 @@ class Control(object):
             # Give a chance for backends to register
             # themselves on FileChannel hooks.
             self.rebuildSysConfChannels()
-        found = True
+        found = False
         for channel in hooks.call("create-file-channel", filename):
             if channel:
                 if channel.getAlias() in self._channels:
