@@ -122,9 +122,8 @@ class SlackPackage(Package):
         return False
 
     def __lt__(self, other):
-        rc = -1
+        rc = cmp(self.name, other.name)
         if type(other) is SlackPackage:
-            rc = cmp(self.name, other.name)
             if rc == 0 and self.version != other.version:
                 rc = vercmp(self.version, other.version)
         return rc == -1

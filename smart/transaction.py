@@ -860,8 +860,10 @@ class Transaction(object):
                 # coexist with this one.
                 namepkgs = self._cache.getPackages(pkg.name)
                 for namepkg in namepkgs:
-                    if namepkg is not pkg and not pkg.coexists(namepkg):
-                        iface.debug("Package %s can't coexist with %s" % (namepkg, pkg))
+                    if (isinst(namepkg) and namepkg is not pkg
+                        and not pkg.coexists(namepkg)):
+                        iface.debug("Package %s can't coexist with %s" %
+                                    (namepkg, pkg))
                         raise StopIteration
             except StopIteration:
                 pass

@@ -188,9 +188,8 @@ class RPMPackage(Package):
         return checkdep(selfver, relation, ver)
 
     def __lt__(self, other):
-        rc = -1
+        rc = cmp(self.name, other.name)
         if type(other) is RPMPackage:
-            rc = cmp(self.name, other.name)
             if rc == 0 and self.version != other.version:
                 selfver, selfarch = splitarch(self.version)
                 otherver, otherarch = splitarch(other.version)

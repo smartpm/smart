@@ -162,7 +162,7 @@ class TextInterface(Interface):
         if pkgs:
             pkgs = cvt(pkgs)
             pkgs.sort()
-            print "Removed packages:" % len(pkgs)
+            print "Removed packages: (%d)" % len(pkgs)
             printColumns(pkgs, indent=2, width=screenwidth)
             print
         dsize = report.getDownloadSize()

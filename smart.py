@@ -40,6 +40,7 @@ Action commands:
     reinstall
     upgrade
     remove
+    check
     fix
     download
 
