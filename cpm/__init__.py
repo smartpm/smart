@@ -46,7 +46,7 @@ def init(opts=None):
         ifacename = opts.interface
     else:
         ifacename = "text"
-    iface.object = createInterface(ifacename)
+    iface.object = createInterface(ifacename, not bool(opts.command))
     return ctrl
 
 # vim:ts=4:sw=4:et

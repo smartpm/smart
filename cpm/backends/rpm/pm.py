@@ -132,7 +132,7 @@ class RPMCallback:
                     raise
             else:
                 if output:
-                    logger.info(output)
+                    iface.info(output)
 
     def __call__(self, what, amount, total, infopath, data):
 
@@ -140,7 +140,7 @@ class RPMCallback:
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
-            logger.debug("processing %s in %s" % (info.getPackage(), path))
+            iface.debug("processing %s in %s" % (info.getPackage(), path))
             self.fd = os.open(path, os.O_RDONLY)
             return self.fd
         

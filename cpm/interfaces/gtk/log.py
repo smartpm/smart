@@ -4,53 +4,53 @@ import gtk
 class GtkLog:
 
     def __init__(self):
-        self.window = gtk.Window()
-        self.window.set_title("Log")
-        self.window.set_geometry_hints(min_width=400, min_height=300)
-        self.window.set_modal(True)
+        self._window = gtk.Window()
+        self._window.set_title("Log")
+        self._window.set_geometry_hints(min_width=400, min_height=300)
+        self._window.set_modal(True)
 
-        self.vbox = gtk.VBox()
-        self.vbox.set_border_width(10)
-        self.vbox.set_spacing(10)
-        self.vbox.show()
-        self.window.add(self.vbox)
+        self._vbox = gtk.VBox()
+        self._vbox.set_border_width(10)
+        self._vbox.set_spacing(10)
+        self._vbox.show()
+        self._window.add(self._vbox)
 
-        self.scrollwin = gtk.ScrolledWindow()
-        self.scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self.scrollwin.show()
-        self.vbox.add(self.scrollwin)
+        self._scrollwin = gtk.ScrolledWindow()
+        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        self._scrollwin.show()
+        self._vbox.add(self._scrollwin)
 
-        self.textview = gtk.TextView()
-        self.textview.set_editable(False)
-        self.textview.show()
-        self.scrollwin.add(self.textview)
+        self._textview = gtk.TextView()
+        self._textview.set_editable(False)
+        self._textview.show()
+        self._scrollwin.add(self._textview)
 
-        self.buttonbox = gtk.HButtonBox()
-        self.buttonbox.set_spacing(10)
-        self.buttonbox.set_layout(gtk.BUTTONBOX_END)
-        self.buttonbox.show()
-        self.vbox.pack_start(self.buttonbox, expand=False, fill=False)
+        self._buttonbox = gtk.HButtonBox()
+        self._buttonbox.set_spacing(10)
+        self._buttonbox.set_layout(gtk.BUTTONBOX_END)
+        self._buttonbox.show()
+        self._vbox.pack_start(self._buttonbox, expand=False, fill=False)
 
-        self.clearbutton = gtk.Button(stock="gtk-clear")
-        self.clearbutton.show()
-        self.clearbutton.connect("clicked",
-                                 lambda x: self.textview.get_buffer()
-                                                        .set_text(""))
-        self.buttonbox.pack_start(self.clearbutton)
+        self._clearbutton = gtk.Button(stock="gtk-clear")
+        self._clearbutton.show()
+        self._clearbutton.connect("clicked",
+                                  lambda x: self._textview.get_buffer()
+                                                         .set_text(""))
+        self._buttonbox.pack_start(self._clearbutton)
 
-        self.closebutton = gtk.Button(stock="gtk-close")
-        self.closebutton.show()
-        self.closebutton.connect("clicked", lambda x: self.window.hide())
-        self.buttonbox.pack_start(self.closebutton)
+        self._closebutton = gtk.Button(stock="gtk-close")
+        self._closebutton.show()
+        self._closebutton.connect("clicked", lambda x: self._window.hide())
+        self._buttonbox.pack_start(self._closebutton)
 
     def isVisible(self):
-        return self.window.get_property("visible")
+        return self._window.get_property("visible")
 
     def message(self, level, msg):
         prefix = {ERROR: "error", WARNING: "warning",
                   DEBUG: "debug"}.get(level)
-        buffer = self.textview.get_buffer()
+        buffer = self._textview.get_buffer()
         iter = buffer.get_end_iter()
         if prefix:
             for line in msg.split("\n"):
@@ -65,5 +65,5 @@ class GtkLog:
                                        message_format=msg)
             dialog.run()
         else:
-            self.window.show()
+            self._window.show()
 

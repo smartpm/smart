@@ -6,7 +6,7 @@ from cpm import *
 import time
 import gtk
 
-class GtkInterface(Interface):
+class GtkCommandInterface(Interface):
 
     def __init__(self):
         self._log = GtkLog()
@@ -40,35 +40,34 @@ class GtkInterface(Interface):
             while gtk.events_pending():
                 gtk.main_iteration()
 
-
 class GtkStatus:
 
     def __init__(self):
-        self.window = gtk.Window()
-        self.window.set_title("Status")
-        self.window.set_modal(True)
-        self.window.set_position(gtk.WIN_POS_CENTER)
-        self.window.set_border_width(20)
+        self._window = gtk.Window()
+        self._window.set_title("Status")
+        self._window.set_modal(True)
+        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_border_width(20)
 
-        self.label = gtk.Label()
-        self.label.show()
-        self.window.add(self.label)
+        self._label = gtk.Label()
+        self._label.show()
+        self._window.add(self._label)
 
-        self.lastshown = 0
+        self._lastshown = 0
 
     def show(self, msg):
-        self.label.set_text(msg)
-        self.window.show()
-        self.lastshown = time.time()
+        self._label.set_text(msg)
+        self._window.show()
+        self._lastshown = time.time()
 
     def hide(self):
-        self.window.hide()
+        self._window.hide()
 
     def isVisible(self):
-        return self.window.get_property("visible")
+        return self._window.get_property("visible")
 
     def wait(self):
-        while self.isVisible() and self.lastshown+3 > time.time():
+        while self.isVisible() and self._lastshown+3 > time.time():
             time.sleep(0.3)
             while gtk.events_pending():
                 gtk.main_iteration()

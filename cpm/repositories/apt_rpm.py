@@ -24,9 +24,9 @@ class APTRPMRepository(Repository):
         fetcher.run("release file for '%s'" % self._name)
         failed = fetcher.getFailed(url)
         if failed:
-            logger.warning("failed acquiring release file for '%s': %s" %
-                           (self._name, failed))
-            logger.debug("%s: %s" % (url, failed))
+            iface.warning("failed acquiring release file for '%s': %s" %
+                          (self._name, failed))
+            iface.debug("%s: %s" % (url, failed))
             return
 
         # Parse release file
@@ -61,7 +61,7 @@ class APTRPMRepository(Repository):
                 pkglist += ".gz"
                 url += ".gz"
             elif pkglist not in md5sum:
-                logger.warning("component '%s' is not in release file" % comp)
+                iface.warning("component '%s' is not in release file" % comp)
                 continue
             else:
                 upkglist = None
@@ -82,13 +82,13 @@ class APTRPMRepository(Repository):
                 self._loader.append(loader)
         failed = fetcher.getFailedSet()
         if failed:
-            logger.warning("failed acquiring pkglists for '%s': %s" %
-                           (self._name, ", ".join(["%s (%s)" %
+            iface.warning("failed acquiring pkglists for '%s': %s" %
+                          (self._name, ", ".join(["%s (%s)" %
                                                    (urlcomp[x], failed[x])
                                                    for x in failed])))
             if sysconf.get("log-level") >= DEBUG:
                 for url in failed:
-                    logger.debug("%s: %s" % (url, failed[url]))
+                    iface.debug("%s: %s" % (url, failed[url]))
 
 def create(reptype, data):
     name = None

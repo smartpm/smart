@@ -700,24 +700,24 @@ class Transaction(object):
                             continue
                         break
                     else:
-                        logger.debug("unsatisfied dependency: "
-                                     "%s requires %s" % (pkg, req))
+                        iface.debug("unsatisfied dependency: "
+                                    "%s requires %s" % (pkg, req))
                         raise StopIteration
                 for cnf in pkg.conflicts:
                     for prv in cnf.providedby:
                         for prvpkg in prv.packages:
                             if isinst(prvpkg):
-                                logger.debug("unsatisfied dependency: "
-                                             "%s conflicts with %s"
-                                             % (pkg, prvpkg))
+                                iface.debug("unsatisfied dependency: "
+                                            "%s conflicts with %s"
+                                            % (pkg, prvpkg))
                                 raise StopIteration
                 for prv in pkg.provides:
                     for cnf in prv.conflictedby:
                         for cnfpkg in cnf.packages:
                             if isinst(cnfpkg):
-                                logger.debug("unsatisfied dependency: "
-                                             "%s conflicts with %s"
-                                             % (cnfpkg, pkg))
+                                iface.debug("unsatisfied dependency: "
+                                            "%s conflicts with %s"
+                                            % (cnfpkg, pkg))
                                 raise StopIteration
             except StopIteration:
                 pass

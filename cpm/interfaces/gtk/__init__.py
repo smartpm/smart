@@ -11,9 +11,13 @@ except ImportError:
         traceback.print_exc()
     raise Error, "system has no support for gtk python interface"
 
-def create():
-    from cpm.interfaces.gtk.interface import GtkInterface
-    return GtkInterface()
+def create(interactive):
+    if interactive:
+        from cpm.interfaces.gtk.interactive import GtkInteractiveInterface
+        return GtkInteractiveInterface()
+    else:
+        from cpm.interfaces.gtk.command import GtkCommandInterface
+        return GtkCommandInterface()
     
 _icons = {}
 

@@ -66,103 +66,103 @@ class GtkProgress(Progress):
     def __init__(self):
         Progress.__init__(self)
 
-        self.window = gtk.Window()
-        self.window.set_title("Operation Progress")
-        self.window.set_modal(True)
-        self.window.set_position(gtk.WIN_POS_CENTER)
+        self._window = gtk.Window()
+        self._window.set_title("Operation Progress")
+        self._window.set_modal(True)
+        self._window.set_position(gtk.WIN_POS_CENTER)
 
-        self.vbox = gtk.VBox()
-        self.vbox.set_border_width(10)
-        self.vbox.set_spacing(10)
-        self.vbox.show()
-        self.window.add(self.vbox)
+        self._vbox = gtk.VBox()
+        self._vbox.set_border_width(10)
+        self._vbox.set_spacing(10)
+        self._vbox.show()
+        self._window.add(self._vbox)
 
-        self.topic = gtk.Label()
-        self.topic.set_alignment(0, 0.5)
-        self.topic.show()
-        self.vbox.pack_start(self.topic, expand=False, fill=False)
+        self._topic = gtk.Label()
+        self._topic.set_alignment(0, 0.5)
+        self._topic.show()
+        self._vbox.pack_start(self._topic, expand=False, fill=False)
 
-        self.progress = gtk.ProgressBar()
-        self.progress.set_size_request(-1, 25)
-        self.progress.show()
-        self.vbox.pack_start(self.progress, expand=False, fill=False)
+        self._progress = gtk.ProgressBar()
+        self._progress.set_size_request(-1, 25)
+        self._progress.show()
+        self._vbox.pack_start(self._progress, expand=False, fill=False)
 
-        self.scrollwin = gtk.ScrolledWindow()
-        self.scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self.vbox.pack_start(self.scrollwin)
+        self._scrollwin = gtk.ScrolledWindow()
+        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        self._vbox.pack_start(self._scrollwin)
 
-        self.treemodel = gtk.ListStore(gobject.TYPE_INT,
-                                       gobject.TYPE_STRING)
-        self.treeview = gtk.TreeView(self.treemodel)
-        #self.treeview.set_property("fixed_height_mode", True)
-        self.treeview.show()
-        self.scrollwin.add(self.treeview)
+        self._treemodel = gtk.ListStore(gobject.TYPE_INT,
+                                        gobject.TYPE_STRING)
+        self._treeview = gtk.TreeView(self._treemodel)
+        #self._treeview.set_property("fixed_height_mode", True)
+        self._treeview.show()
+        self._scrollwin.add(self._treeview)
 
         renderer = ProgressCellRenderer()
         column = gtk.TreeViewColumn("Progress", renderer, percent=0)
         column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         column.set_fixed_width(110)
-        self.treeview.append_column(column)
+        self._treeview.append_column(column)
 
         renderer = gtk.CellRendererText()
         renderer.set_fixed_height_from_font(True)
         column = gtk.TreeViewColumn("Description", renderer, text=1)
         column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        self.treeview.append_column(column)
+        self._treeview.append_column(column)
 
-        self.subprogress = {}
-        self.subindex = 0
-        self.lastpath = None
+        self._subiters = {}
+        self._subindex = 0
+        self._lastpath = None
 
     def start(self, hassub=False):
         Progress.start(self, hassub)
         if hassub:
-            self.scrollwin.show()
-            self.window.set_size_request(500, 400)
+            self._scrollwin.show()
+            self._window.set_size_request(500, 400)
         else:
-            self.scrollwin.hide()
-            self.window.set_size_request(300, 80)
+            self._scrollwin.hide()
+            self._window.set_size_request(300, 80)
 
     def stop(self):
         Progress.stop(self)
-        self.subprogress.clear()
-        self.subindex = 0
-        self.lastpath = None
-        #self.hide()
+        self._subiters.clear()
+        self._subindex = 0
+        self._lastpath = None
+        #self._hide()
 
     def hide(self):
-        self.window.hide()
-        self.window.unrealize()
+        self._window.hide()
+        self._window.unrealize()
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
-        self.window.show()
+        self._window.show()
         
         if self._hassub and subkey:
-            if subkey in self.subprogress:
-                iter = self.subprogress[subkey]
+            if subkey in self._subiters:
+                iter = self._subiters[subkey]
             else:
-                iter = self.treemodel.append()
-                self.subprogress[subkey] = iter
-                path = self.treemodel.get_path(iter)
-                if self.lastpath:
-                    column = self.treeview.get_column(1)
-                    cellarea = self.treeview.get_cell_area(self.lastpath,
-                                                           column)
-                    cellarea.x, cellarea.y = self.treeview.\
+                iter = self._treemodel.append()
+                self._subiters[subkey] = iter
+                path = self._treemodel.get_path(iter)
+                if self._lastpath:
+                    column = self._treeview.get_column(1)
+                    cellarea = self._treeview.get_cell_area(self._lastpath,
+                                                            column)
+                    cellarea.x, cellarea.y = self._treeview.\
                                              widget_to_tree_coords(cellarea.x,
                                                                    cellarea.y)
-                    visiblearea = self.treeview.get_visible_rect()
+                    visiblearea = self._treeview.get_visible_rect()
                     isvisible = visiblearea.intersect(cellarea).height
-                if not self.lastpath or isvisible:
-                    self.treeview.scroll_to_cell(path, None, True, 0, 0)
-                self.lastpath = path
-            self.treemodel.set(iter, 0, subpercent, 1, subtopic)
+                if not self._lastpath or isvisible:
+                    self._treeview.scroll_to_cell(path, None, True, 0, 0)
+                self._lastpath = path
+            self._treemodel.set(iter, 0, subpercent, 1, subtopic)
         else:
-            self.topic.set_text(topic)
-            self.progress.set_fraction(percent/100.)
-            self.progress.set_text("%d%%" % percent)
-            self.treeview.queue_draw()
+            self._topic.set_text(topic)
+            self._progress.set_fraction(percent/100.)
+            self._progress.set_text("%d%%" % percent)
+            self._treeview.queue_draw()
             while gtk.events_pending():
                 gtk.main_iteration()
 

@@ -18,9 +18,9 @@ class RPMHeaderListRepository(Repository):
         fetcher.run("header list for '%s'" % self._name)
         failed = fetcher.getFailedSet()
         if failed:
-            logger.warning("failed acquiring header list for '%s': %s" %
-                           (self._name, failed[self._hdlurl]))
-            logger.debug("%s: %s" % (self._hdlurl, failed[self._hdlurl]))
+            iface.warning("failed acquiring header list for '%s': %s" %
+                          (self._name, failed[self._hdlurl]))
+            iface.debug("%s: %s" % (self._hdlurl, failed[self._hdlurl]))
         else:
             localpath = fetcher.getSucceeded(self._hdlurl)
             self._loader = RPMHeaderListLoader(localpath, self._pkgbaseurl)

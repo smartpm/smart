@@ -60,7 +60,7 @@ class Interface:
         else:
             sys.stderr.write("%s\n" % msg.rstrip())
 
-def createInterface(name):
+def createInterface(name, interactive):
     try:
         xname = name.replace('-', '_').lower()
         cpm = __import__("cpm.interfaces."+xname)
@@ -71,7 +71,7 @@ def createInterface(name):
             import traceback
             traceback.print_exc()
         raise Error, "invalid interface '%s'" % name
-    return interface.create()
+    return interface.create(interactive)
 
 def getImagePath(name, _dirname=os.path.dirname(_images__file__)):
     return os.path.join(_dirname, name+".png")

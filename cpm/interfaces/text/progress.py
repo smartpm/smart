@@ -1,4 +1,5 @@
 from cpm.progress import Progress
+import time
 import sys
 
 class TextProgress(Progress):
