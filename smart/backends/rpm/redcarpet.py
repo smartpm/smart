@@ -256,7 +256,7 @@ class XMLParser(object):
             version = "%s:%s-%s" % (epoch, self._version, self._release)
         else:
             version = "%s-%s" % (self._version, self._release)
-        versionarch = "%s.%s" % (version, self._arch)
+        versionarch = "%s@%s" % (version, self._arch)
 
         self._upgdict[(RPMObsoletes, name, '<', versionarch)] = True
 

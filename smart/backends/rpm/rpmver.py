@@ -24,11 +24,11 @@ import re
 VERRE = re.compile("(?:([0-9]+):)?([^-]+)(?:-(.+))?")
 
 def splitarch(v):
-    dot = v.rfind(".")
+    at = v.rfind("@")
     slash = v.rfind("-")
-    if dot == -1 or slash == -1 or dot < slash:
+    if at == -1 or slash == -1 or at < slash:
         return v, None
-    return v[:dot], v[dot+1:]
+    return v[:at], v[at+1:]
 
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)

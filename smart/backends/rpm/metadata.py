@@ -241,7 +241,7 @@ class XMLParser(object):
             v = attrs.get("ver")
             r = attrs.get("rel")
             version = v
-            if e:
+            if e and e != "0":
                 version = "%s:%s" % (e, version)
             if r:
                 version = "%s-%s" % (version, r)
@@ -263,7 +263,7 @@ class XMLParser(object):
                 self._filedict[name] = True
             else:
                 if name == self._name and version == self._version:
-                    version = "%s.%s" % (version, self._arch)
+                    version = "%s@%s" % (version, self._arch)
                     Prv = RPMNameProvides
                 else:
                     Prv = RPMProvides
@@ -286,7 +286,7 @@ class XMLParser(object):
     def handlePackageEnd(self, name, attrs, data):
         name = self._name
         version = self._version
-        versionarch = "%s.%s" % (version, self._arch)
+        versionarch = "%s@%s" % (version, self._arch)
 
         self._upgdict[(RPMObsoletes, name, '<', versionarch)] = True
 

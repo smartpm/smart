@@ -162,7 +162,7 @@ class RPMHeaderLoader(Loader):
             else:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
                 version = "%s-%s" % (h[1001], h[1002])
-            versionarch = "%s.%s" % (version, arch)
+            versionarch = "%s@%s" % (version, arch)
 
             n = h[1047] # RPMTAG_PROVIDENAME
             v = h[1113] # RPMTAG_PROVIDEVERSION
@@ -171,6 +171,8 @@ class RPMHeaderLoader(Loader):
                 ni = n[i]
                 if not ni.startswith("config("):
                     vi = v[i]
+                    if vi and vi[:2] == "0:":
+                        vi = vi[2:]
                     if ni == name and vi == version:
                         prvdict[(NPrv, intern(ni), versionarch)] = True
                     else:
@@ -186,6 +188,8 @@ class RPMHeaderLoader(Loader):
                     ni = n[i]
                     if ni[:7] not in ("rpmlib(", "config("):
                         vi = v[i] or None
+                        if vi and vi[:2] == "0:":
+                            vi = vi[2:]
                         r = CM.get(f[i]&CF)
                         if ((r is not None and r != "=") or
                             ((Prv, ni, vi) not in prvdict)):
@@ -200,8 +204,12 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1053] # RPMTAG_CONFLICTFLAGS
                 v = h[1055] # RPMTAG_CONFLICTVERSION
-                cnfargs = [(Cnf, n[i], CM.get(f[i]&CF), v[i] or None)
-                           for i in range(len(n))]
+                cnfargs = []
+                for i in range(len(n)):
+                    vi = v[i] or None
+                    if vi and vi[:2] == "0:":
+                        vi = vi[2:]
+                    cnfargs.append((Cnf, n[i], CM.get(f[i]&CF), vi))
             else:
                 cnfargs = []
 
@@ -211,8 +219,12 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1114] # RPMTAG_OBSOLETEFLAGS
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
-                upgargs = [(Obs, n[i], CM.get(f[i]&CF), v[i] or None)
-                           for i in range(len(n))]
+                upgargs = []
+                for i in range(len(n)):
+                    vi = v[i] or None
+                    if vi and vi[:2] == "0:":
+                        vi = vi[2:]
+                    upgargs.append((Obs, n[i], CM.get(f[i]&CF), vi))
                 cnfargs.extend(upgargs)
                 upgargs.append(obstup)
             else:

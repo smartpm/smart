@@ -170,7 +170,7 @@ crpmver_splitarch(PyObject *self, PyObject *version)
     size = PyString_GET_SIZE(version);
     p = str+size;
     for (; p != str; p--) {
-        if (*p == '.') {
+        if (*p == '@') {
             const char *s = p;
             while (s != str && *s != '-') s--;
             if (s == str) break;
