@@ -32,11 +32,10 @@ import time
 import os
 import re
 
-LOCALSCHEMES = ["file", "localmedia"]
-
 class Fetcher(object):
 
     _registry = {}
+    _localschemes = []
 
     MAXRETRIES = 3
 
@@ -225,8 +224,14 @@ class Fetcher(object):
                 item.setSucceeded(uncomppath)
         self._uncompressing -= 1
 
-    def setHandler(self, scheme, klass):
+    def getLocalSchemes(self):
+        return self._localschemes
+    getLocalSchemes = classmethod(getLocalSchemes)
+
+    def setHandler(self, scheme, klass, local=False):
         self._registry[scheme] = klass
+        if local:
+            self._localschemes.append(scheme)
     setHandler = classmethod(setHandler)
 
     def getHandler(self, scheme, klass):
@@ -453,7 +458,7 @@ class URL(object):
         if ":/" not in url:
             raise Error, "Invalid URL: %s" % url
         self.scheme, rest = urllib.splittype(url)
-        if self.scheme in LOCALSCHEMES:
+        if self.scheme in Fetcher.getLocalSchemes():
             scheme = self.scheme
             self.reset()
             self.scheme = scheme
@@ -477,7 +482,7 @@ class URL(object):
         self.path = urllib.unquote(self.path)
 
     def __str__(self):
-        if self.scheme in LOCALSCHEMES:
+        if self.scheme in Fetcher.getLocalSchemes():
             return "%s://%s" % (self.scheme, urllib.quote(self.path))
         url = self.scheme+"://"
         if self.user:
@@ -640,7 +645,7 @@ class FileHandler(FetcherHandler):
                 item.setFailed(error)
         self._active = False
 
-Fetcher.setHandler("file", FileHandler)
+Fetcher.setHandler("file", FileHandler, local=True)
 
 class LocalMediaHandler(FileHandler):
 
@@ -674,7 +679,7 @@ class LocalMediaHandler(FileHandler):
                     continue
             item.setURL(media.joinURL(itempath))
 
-Fetcher.setHandler("localmedia", LocalMediaHandler)
+Fetcher.setHandler("localmedia", LocalMediaHandler, local=True)
 
 class FTPHandler(FetcherHandler):
 
@@ -689,6 +694,7 @@ class FTPHandler(FetcherHandler):
         self._active = {}   # ftp -> host
         self._inactive = {} # ftp -> (user, host, port)
         self._lock = thread.allocate_lock()
+        self._activelimit = {} # host -> num
 
     def tick(self):
         import ftplib
@@ -700,7 +706,9 @@ class FTPHandler(FetcherHandler):
                     url = item.getURL()
                     hostactive = [x for x in self._active
                                   if self._active[x] == url.host]
-                    if len(hostactive) < self.MAXPERHOST:
+                    maxactive = self._activelimit.get(url.host,
+                                                      self.MAXPERHOST)
+                    if len(hostactive) < maxactive:
                         del self._queue[i]
                         userhost = (url.user, url.host, url.port)
                         for ftp in self._inactive:
@@ -715,11 +723,12 @@ class FTPHandler(FetcherHandler):
                             ftp = ftplib.FTP()
                             ftp.lasttime = time.time()
                             self._active[ftp] = url.host
-                            thread.start_new_thread(self.connect, (ftp, item))
+                            thread.start_new_thread(self.connect,
+                                                    (ftp, item, len(hostactive)))
         self._lock.release()
         return bool(self._queue or self._active)
 
-    def connect(self, ftp, item):
+    def connect(self, ftp, item, active):
         item.start()
         url = item.getURL()
         import socket, ftplib
@@ -727,11 +736,18 @@ class FTPHandler(FetcherHandler):
             ftp.connect(url.host, url.port)
             ftp.login(url.user, url.passwd)
         except (socket.error, ftplib.Error), e:
-            try:
-                errmsg = str(e[1])
-            except IndexError:
-                errmsg = str(e)
-            item.setFailed(errmsg)
+            if isinstance(e, ftplib.error_perm) and active:
+                item.reset()
+                self._lock.acquire()
+                self._queue.append(item)
+                self._lock.release()
+                self._activelimit[item.getURL().host] = active
+            else:
+                try:
+                    errmsg = str(e[1])
+                except IndexError:
+                    errmsg = str(e)
+                item.setFailed(errmsg)
             self._lock.acquire()
             del self._active[ftp]
             self._lock.release()
@@ -1151,11 +1167,9 @@ class URLLIB2Handler(FetcherHandler):
                 if not valid:
                     if openmode == "a":
                         # Try again, from the very start.
-                        prog.setSubStopped(url)
-                        prog.show()
-                        prog.resetSub(url)
+                        item.reset()
                         self._lock.acquire()
-                        self._queue.append(url)
+                        self._queue.append(item)
                         self._lock.release()
                     else:
                         raise Error, reason
@@ -1205,6 +1219,7 @@ class PyCurlHandler(FetcherHandler):
         FetcherHandler.__init__(self, *args)
         self._active = {}   # handle -> (scheme, host)
         self._inactive = {} # handle -> (user, host, port)
+        self._activelimit = {} # host -> num
         self._running = False
         self._multi = pycurl.CurlMulti()
         self._lock = thread.allocate_lock()
@@ -1285,8 +1300,13 @@ class PyCurlHandler(FetcherHandler):
 
                 if handle.partsize and "byte ranges" in errmsg:
                     os.unlink(localpath+".part")
-                    prog.resetSub(url.original)
+                    item.reset()
                     self._queue.append(item)
+                elif handle.active and "password" in errmsg:
+                    item.reset()
+                    self._queue.append(item)
+                    self._activelimit[item.getURL().host] = handle.active
+                    del self._inactive[handle]
                 else:
                     item.setFailed(errmsg)
 
@@ -1299,7 +1319,9 @@ class PyCurlHandler(FetcherHandler):
                     schemehost = (url.scheme, url.host)
                     hostactive = [x for x in self._active
                                      if self._active[x] == schemehost]
-                    if len(hostactive) < self.MAXPERHOST:
+                    maxactive = self._activelimit.get(url.host,
+                                                      self.MAXPERHOST)
+                    if len(hostactive) < maxactive:
                         del self._queue[i]
 
                         userhost = (url.user, url.host, url.port)
@@ -1342,6 +1364,7 @@ class PyCurlHandler(FetcherHandler):
                         handle.item = item
                         handle.local = local
                         handle.localpath = localpath
+                        handle.active = len(hostactive)
 
                         item.start()
 
@@ -1355,7 +1378,7 @@ class PyCurlHandler(FetcherHandler):
                                 item.progress(partsize+downcurrent,
                                               partsize+downtotal)
 
-                        handle.setopt(pycurl.URL, url)
+                        handle.setopt(pycurl.URL, str(url))
                         handle.setopt(pycurl.OPT_FILETIME, 1)
                         handle.setopt(pycurl.NOPROGRESS, 0)
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
