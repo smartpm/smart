@@ -166,27 +166,36 @@ def main(opts):
                     first = False
                     print "  Provides:"
                 print "   ", prv
-                if opts.requiredby and prv.requiredby:
-                    print "      Required By:"
-                    for req in prv.requiredby:
-                        req.packages.sort()
-                        for reqpkg in req.packages:
+                if opts.requiredby:
+                    first_ = True
+                    for req, reqpkgs in prv.getRequiredBy():
+                        if first_:
+                            first_ = False
+                            print "      Required By:"
+                        reqpkgs.sort()
+                        for reqpkg in reqpkgs:
                             if opts.installed and not reqpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (reqpkg, prv)
-                if opts.obsoletedby and prv.obsoletedby:
-                    print "      Obsoleted By:"
-                    for obs in prv.obsoletedby:
-                        obs.packages.sort()
-                        for obspkg in obs.packages:
+                if opts.obsoletedby:
+                    first_ = True
+                    for obs, obspkgs in prv.getObsoletedBy():
+                        if first_:
+                            first_ = False
+                            print "      Obsoleted By:"
+                        obspkgs.sort()
+                        for obspkg in obspkgs:
                             if opts.installed and not obspkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (obspkg, prv)
-                if opts.conflictedby and prv.conflictedby:
-                    print "      Conflicted By:"
-                    for cnf in prv.conflictedby:
-                        cnf.packages.sort()
-                        for cnfpkg in cnf.packages:
+                if opts.conflictedby:
+                    first_ = True
+                    for cnf, cnfpkgs in prv.getConflictedBy():
+                        if first_:
+                            first_ = False
+                            print "      Conflicted By:"
+                        cnfpkgs.sort()
+                        for cnfpkg in cnfpkgs:
                             if opts.installed and not cnfpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (cnfpkg, prv)
@@ -204,11 +213,14 @@ def main(opts):
                     first = False
                     print "  Requires:"
                 print "   ", req
-                if opts.providedby and req.providedby:
-                    print "      Provided By:"
-                    for prv in req.providedby:
-                        prv.packages.sort()
-                        for prvpkg in prv.packages:
+                if opts.providedby:
+                    first_ = True
+                    for prv, prvpkgs in req.getProvidedBy():
+                        if first_:
+                            first_ = False
+                            print "      Provided By:"
+                        prvpkgs.sort()
+                        for prvpkg in prvpkgs:
                             if opts.installed and not prvpkg.installed:
                                 continue
                             print "       ", "%s (%s)" % (prvpkg, prv)
@@ -226,10 +238,13 @@ def main(opts):
                     first = False
                     print "  Obsoletes:"
                 print "   ", obs
-                if opts.providedby and obs.providedby:
-                    print "      Provided By:"
-                    for prv in obs.providedby:
-                        prv.packages.sort()
+                if opts.providedby:
+                    first_ = True
+                    for prv, prvpkgs in obs.getProvidedBy():
+                        if first_:
+                            first_ = False
+                            print "      Provided By:"
+                        prvpkgs.sort()
                         for prvpkg in prv.packages:
                             if opts.installed and not prvpkg.installed:
                                 continue
@@ -248,10 +263,13 @@ def main(opts):
                     first = False
                     print "  Conflicts:"
                 print "   ", cnf
-                if opts.providedby and cnf.providedby:
-                    print "      Provided By:"
-                    for prv in cnf.providedby:
-                        prv.packages.sort()
+                if opts.providedby:
+                    first_ = True
+                    for prv, prvpkgs in cnf.getProvidedBy():
+                        if first_:
+                            first_ = False
+                            print "      Provided By:"
+                        prvpkgs.sort()
                         for prvpkg in prv.packages:
                             if opts.installed and not prvpkg.installed:
                                 continue

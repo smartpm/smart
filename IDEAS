@@ -4,6 +4,10 @@ different "fixing" algorithms.
 
 Introduce "locking" in fixer and upgrader.
 
+About cache:
+    - Introduce multiple loaders per package, with equals() to
+      compare exact package match (same type and relations).
+
 About problem fixer:
     - Use backtracking?
     - Support partial problem fixing.

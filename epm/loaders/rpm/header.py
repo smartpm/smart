@@ -97,11 +97,11 @@ class RPMHeaderLoader(RPMLoader):
             if n:
                 f = h[1114] # RPMTAG_OBSOLETEFLAGS
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
-                obsargs = [(n[i], v[i] or None, CM.get(f[i]&CF), n[i])
+                obsargs = [(n[i], v[i] or None, CM.get(f[i]&CF))
                            for i in range(len(n))]
-                obsargs.append((name, version, '<', name))
+                obsargs.append((name, version, '<'))
             else:
-                obsargs = [(name, version, '<', name)]
+                obsargs = [(name, version, '<')]
 
             n = h[1054] # RPMTAG_CONFLICTNAME
             if n:

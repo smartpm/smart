@@ -59,6 +59,24 @@ class Provides(object):
         self.obsoletedby = []
         self.conflictedby = []
 
+    def getRequiredBy(self):
+        lst = []
+        for req in self.requiredby:
+            lst.append((req, req.packages))
+        return lst
+
+    def getObsoletedBy(self):
+        lst = []
+        for obs in self.obsoletedby:
+            lst.append((obs, obs.packages))
+        return lst
+
+    def getConflictedBy(self):
+        lst = []
+        for cnf in self.conflictedby:
+            lst.append((cnf, cnf.packages))
+        return lst
+
     def __str__(self):
         if self.version:
             return "%s = %s" % (self.name, self.version)
@@ -71,13 +89,18 @@ class Provides(object):
         return rc
 
 class Depends(object):
-    def __init__(self, name, version=None, relation=None, pkgname=None):
+    def __init__(self, name, version=None, relation=None):
         self.name = name
         self.version = version
         self.relation = relation
-        self.pkgname = pkgname
         self.packages = []
         self.providedby = []
+
+    def getProvidedBy(self):
+        lst = []
+        for prv in self.providedby:
+            lst.append((prv, prv.packages))
+        return lst
 
     def matches(self, prv):
         return False

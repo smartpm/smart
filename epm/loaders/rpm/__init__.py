@@ -18,7 +18,14 @@ class RPMPackage(Package):
                 rc = vercmp(self.version, other.version)
         return rc
 
-class RPMProvides(Provides): pass
+class RPMProvides(Provides):
+
+    def getObsoletedBy(self):
+        lst = []
+        for obs in self.obsoletedby:
+            lst.append((obs, [x for x in obs.packages
+                                 if x.name == obs.name]))
+        return lst
 
 class RPMDepends(Depends):
 
@@ -30,6 +37,13 @@ class RPMDepends(Depends):
         return checkdep(prov.version, self.relation, self.version)
 
 class RPMObsoletes(RPMDepends,Obsoletes):
+
+    def getProvidedBy(self):
+        lst = []
+        for prv in self.providedby:
+            lst.append((prv, [x for x in prv.packages
+                                 if x.name == prv.name]))
+        return lst
 
     def matches(self, prov):
         if self.name != prov.name:

@@ -81,7 +81,6 @@ class Transaction:
         self.queue = []
 
     def getState(self):
-        # Operation must be the first one, since we use state[0] in run().
         return (self.operation.copy(), self.touched.copy())
 
     def setState(self, state):
@@ -118,24 +117,21 @@ class Transaction:
 
         # We don't want to upgrade/downgrade that package.
         for obs in pkg.obsoletes:
-            for prv in obs.providedby:
-                for prvpkg in prv.packages:
-                    if obs.pkgname and obs.pkgname != prvpkg.name:
-                        continue
+            for prv, prvpkgs in obs.getProvidedBy():
+                for prvpkg in prvpkgs:
                     self.touched[prvpkg] = True
         for prv in pkg.provides:
-            for obs in prv.obsoletedby:
-                if obs.pkgname and obs.pkgname != pkg.name:
-                    continue
-                for obspkg in obs.packages:
+            for obs, obspkgs in prv.getObsoletedBy():
+                for obspkg in obspkgs:
                     self.touched[obspkg] = True
 
     def upgrade(self, pkg):
-        obspkgs = [obspkg for prv in pkg.provides
-                          for obs in prv.obsoletedby
-                          for obspkg in obs.packages
-                          if (not obs.pkgname or
-                              obs.pkgname == pkg.name)]
+        obspkgs = {}
+        for prv in pkg.provides:
+            for obs, obspkgs_ in prv.getObsoletedBy():
+                for obspkg in obspkgs_:
+                    obspkgs[obspkg] = True
+        obspkgs = obspkgs.keys()
         obspkgs.sort()
         self.install(obspkgs[-1])
 
@@ -153,16 +149,13 @@ class Transaction:
             pkg = queue.pop(0)
             if isinst(pkg):
                 for prv in pkg.provides:
-                    for obs in prv.obsoletedby:
-                        if obs.pkgname and obs.pkgname != pkg.name:
-                            continue
-                        for obspkg in obs.packages:
-                            if obspkg in touched:
+                    for obs, obspkgs in prv.getObsoletedBy():
+                        for obspkg in obspkgs:
+                            if obspkg in touched or obspkg in upgset:
                                 continue
-                            if obspkg not in upgset:
-                                print "%s obsoletes %s" % (obspkg, pkg)
-                                upgset[obspkg] = True
-                                queue.append(obspkg)
+                            print "%s obsoletes %s" % (obspkg, pkg)
+                            upgset[obspkg] = True
+                            queue.append(obspkg)
 
     def run(self):
         loopctrl = {}
@@ -183,8 +176,6 @@ class Transaction:
 
         while True:
 
-            failed = None
-
             try:
             
                 while True:
@@ -204,15 +195,11 @@ class Transaction:
 
                         # Remove packages obsoleted by this one.
                         for obs in pkg.obsoletes:
-                            for prv in obs.providedby:
-                                for prvpkg in prv.packages:
-                                    if (obs.pkgname and
-                                        obs.pkgname != prvpkg.name):
-                                        continue
+                            for prv, prvpkgs in obs.getProvidedBy():
+                                for prvpkg in prvpkgs:
                                     if not isinst(prvpkg):
                                         continue
                                     if prvpkg in touched:
-                                        failed = prv
                                         raise Failed
                                     self._remove(prvpkg,
                                                  REASON_OBSOLETES,
@@ -220,15 +207,11 @@ class Transaction:
 
                         # Remove packages obsoleting this one.
                         for prv in pkg.provides:
-                            for obs in prv.obsoletedby:
-                                for obspkg in obs.packages:
-                                    if (obs.pkgname and
-                                        obs.pkgname != pkg.name):
-                                        continue
+                            for obs, obspkgs in prv.getObsoletedBy():
+                                for obspkg in obspkgs:
                                     if not isinst(obspkg):
                                         continue
                                     if obspkg in touched:
-                                        failed = obs
                                         raise Failed
                                     self._remove(obspkg,
                                                  REASON_OBSOLETES,
@@ -236,15 +219,11 @@ class Transaction:
 
                         # Remove packages conflicted by this one.
                         for cnf in pkg.conflicts:
-                            for prv in cnf.providedby:
-                                for prvpkg in prv.packages:
-                                    if (cnf.pkgname and
-                                        cnf.pkgname != prvpkg.name):
-                                        continue
+                            for prv, prvpkgs in cnf.getProvidedBy():
+                                for prvpkg in prvpkgs:
                                     if not isinst(prvpkg):
                                         continue
                                     if prvpkg in touched:
-                                        failed = prv
                                         raise Failed
                                     self._remove(prvpkg,
                                                  REASON_CONFLICTS,
@@ -252,15 +231,11 @@ class Transaction:
 
                         # Remove packages conflicting with this one.
                         for prv in pkg.provides:
-                            for cnf in prv.conflictedby:
-                                for cnfpkg in cnf.packages:
-                                    if (cnf.pkgname and
-                                        cnf.pkgname != pkg.name):
-                                        continue
+                            for cnf, cnfpkgs in prv.getConflictedBy():
+                                for cnfpkg in cnfpkgs:
                                     if not isinst(cnfpkg):
                                         continue
                                     if cnfpkg in touched:
-                                        failed = cnf
                                         raise Failed
                                     self._remove(cnfpkg,
                                                  REASON_CONFLICTS,
@@ -268,34 +243,34 @@ class Transaction:
 
                         # Install packages required by this one.
                         for req in pkg.requires:
+
                             # Check if someone is already providing it.
-                            prvpkgs = [prvpkg for prv in req.providedby
-                                              for prvpkg in prv.packages
-                                              if (not req.pkgname or
-                                                  req.pkgname == prvpkg.name)]
+                            prvpkgs = {}
                             found = False
-                            for prvpkg in prvpkgs:
-                                if isinst(prvpkg):
-                                    found = True
-                                    break
+                            for prv, prvpkgs_ in req.getProvidedBy():
+                                for prvpkg in prvpkgs_:
+                                    if isinst(prvpkg):
+                                        found = True
+                                        break
+                                    if prvpkg not in touched:
+                                        prvpkgs[prvpkg] = True
+                                else:
+                                    continue
+                                break
                             if found:
                                 # Someone is already providing it. Good.
                                 continue
 
                             # No one is currently providing it. Do something.
-                            prvpkgs = [prvpkg for prvpkg in prvpkgs
-                                               if prvpkg not in touched]
+                            prvpkgs = prvpkgs.keys()
                             if not prvpkgs:
                                 # No packages provide it at all. Give up.
-                                failed = req
                                 raise Failed
                             if len(prvpkgs) > 1:
                                 # More than one package provide it.
                                 # Register alternatives.
                                 prvpkgs.sort()
                                 for prvpkg in prvpkgs[1:]:
-                                    if prvpkg in touched or isinst(prvpkg):
-                                        continue
                                     backtrack.append((prvpkg,
                                                       OPER_INSTALL,
                                                       REASON_REQUIRES,
@@ -308,30 +283,32 @@ class Transaction:
                                              REASON_REQUIRES,
                                              pkg, prvpkgs[0])
 
-                    else: # if OPER_REMOVE
+                    else: # if op == OPER_REMOVE:
 
                         # Remove packages requiring this one.
                         for prv in pkg.provides:
-                            for req in prv.requiredby:
-                                if req.pkgname and req.pkgname != pkg.name:
-                                    continue
+                            for req, reqpkgs in prv.getRequiredBy():
                                 # Check if someone installed is requiring it.
-                                for reqpkg in req.packages:
+                                for reqpkg in reqpkgs:
                                     if isinst(reqpkg):
                                         break
                                 else:
                                     # No one requires it, so it doesn't matter.
                                     continue
 
-                                # Check if someone installed is still providing it.
-                                prvpkgs = []
+                                # Check if someone installed is still
+                                # providing it.
+                                prvpkgs = {}
                                 found = False
-                                for prv in req.providedby:
-                                    for prvpkg in prv.packages:
+                                for prv, prvpkgs_ in req.getProvidedBy():
+                                    for prvpkg in prvpkgs_:
+                                        if prvpkg is pkg:
+                                            continue
                                         if isinst(prvpkg):
                                             found = True
                                             break
-                                        prvpkgs.append(prvpkg)
+                                        if prvpkg not in touched:
+                                            prvpkgs[prvpkg] = True
                                     else:
                                         continue
                                     break
@@ -342,37 +319,36 @@ class Transaction:
                                 # No one is providing it anymore. Try to install
                                 # other providing packages as alternatives.
                                 if prvpkgs:
+                                    prvpkgs = prvpkgs.keys()
                                     prvpkgs.sort()
                                     for prvpkg in prvpkgs:
-                                        if prvpkg in touched:
-                                            continue
                                         backtrack.append((prvpkg,
                                                           OPER_INSTALL,
                                                           REASON_REQUIRES,
-                                                          reqpkg, pkg,
+                                                          reqpkgs[0], pkg,
                                                           self.getState()))
 
                                 # Then, remove requiring packages.
-                                for reqpkg in req.packages:
+                                for reqpkg in reqpkgs:
                                     if not isinst(reqpkg):
                                         continue
                                     if reqpkg in touched:
-                                        failed = req
                                         raise Failed
                                     self._remove(reqpkg,
                                                  REASON_REQUIRES,
                                                  reqpkg, pkg)
             except Failed:
+                del queue[:]
                 backtrack[:] = savedbt
+                weight = getweight()+FAILED
+            else:
+                weight = getweight()
 
             # Queue is over. Consider alternatives.
             """
             print "Queue is over!"
-            print "Current weight is %d.\n" % self.getWeight()
+            print "Current weight is %d.\n" % weight
             """
-            weight = getweight()
-            if failed:
-                weight += FAILED
             if backtrack:
                 i += 1
                 if i == ilim:
@@ -382,17 +358,11 @@ class Transaction:
                     print "Replacing beststate (%d < %s)" % (weight, str(bestweight))
                     beststate = self.getState()
                     bestweight = weight
-                while backtrack:
-                    pkg, op, reason, pkg1, pkg2, state = backtrack.pop()
-                    self.setState(state)
-                    opmap[pkg] = (op, reason, pkg1, pkg2)
-                    break
-                    #if getweight() < bestweight:
-                    #    break
-                else:
-                    break
-                self.queue.append((pkg, op))
+                pkg, op, reason, pkg1, pkg2, state = backtrack.pop()
+                self.setState(state)
                 touched[pkg] = True
+                self.queue.append((pkg, op))
+                opmap[pkg] = (op, reason, pkg1, pkg2)
                 if i == ilim:
                     print "Starting weight: %d" % getweight()
                     i = 0
@@ -420,10 +390,8 @@ class Transaction:
         # Look for packages obsoleting the removed
         # package (upgrade) as an alternative.
         for prv in pkg.provides:
-            for obs in prv.obsoletedby:
-                if obs.pkgname and obs.pkgname != pkg.name:
-                    continue
-                for obspkg in obs.packages:
+            for obs, obspkgs in prv.getObsoletedBy():
+                for obspkg in obspkgs:
                     if obspkg in self.touched or self.getInstalled(obspkg):
                         continue
                     self.backtrack.append((obspkg,
@@ -433,10 +401,8 @@ class Transaction:
         # Look for packages obsoleted by the removed
         # package (downgrade) as an alternative.
         for obs in pkg.obsoletes:
-            for prv in obs.providedby:
-                for prvpkg in prv.packages:
-                    if obs.pkgname and obs.pkgname != prvpkg.name:
-                        continue
+            for prv, prvpkgs in obs.getProvidedBy():
+                for prvpkg in prvpkgs:
                     if prvpkg in self.touched or self.getInstalled(prvpkg):
                         continue
                     self.backtrack.append((prvpkg,
@@ -445,8 +411,8 @@ class Transaction:
                                            self.getState()))
 
         # Finally, remove the package.
-        self.queue.append((pkg, OPER_REMOVE))
         self.touched[pkg] = True
+        self.queue.append((pkg, OPER_REMOVE))
         self.operation[pkg] = (OPER_REMOVE, reason, pkg1, pkg2)
 
 try:

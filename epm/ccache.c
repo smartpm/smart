@@ -51,7 +51,6 @@ typedef struct {
     PyObject *name;
     PyObject *version;
     PyObject *relation;
-    PyObject *pkgname;
     PyObject *packages;
     PyObject *providedby;
 } DependsObject;
@@ -331,6 +330,81 @@ Provides_dealloc(ProvidesObject *self)
 }
 
 static PyObject *
+Provides_getRequiredBy(ProvidesObject *self)
+{
+    /* lst = [] */
+    PyObject *lst = PyList_New(0);
+    int i, len;
+    /* for req in self.requiredby: */
+    len = PyList_GET_SIZE(self->requiredby);
+    for (i = 0; i != len; i++) {
+        /* lst.append((req, req.packages)) */
+        PyObject *tuple = PyTuple_New(2);
+        DependsObject *reqobj;
+        PyObject *req = PyList_GET_ITEM(self->requiredby, i);
+        reqobj = (DependsObject *)req;
+        Py_INCREF(req);
+        Py_INCREF(reqobj->packages);
+        PyTuple_SET_ITEM(tuple, 0, req);
+        PyTuple_SET_ITEM(tuple, 1, reqobj->packages);
+        PyList_Append(lst, tuple);
+        Py_DECREF(tuple);
+    }
+    /* return lst */
+    return lst;
+}
+
+static PyObject *
+Provides_getObsoletedBy(ProvidesObject *self)
+{
+    /* lst = [] */
+    PyObject *lst = PyList_New(0);
+    int i, len;
+    /* for obs in self.obsoletedby: */
+    len = PyList_GET_SIZE(self->obsoletedby);
+    for (i = 0; i != len; i++) {
+        /* lst.append((obs, obs.packages)) */
+        PyObject *tuple = PyTuple_New(2);
+        DependsObject *obsobj;
+        PyObject *obs = PyList_GET_ITEM(self->obsoletedby, i);
+        obsobj = (DependsObject *)obs;
+        Py_INCREF(obs);
+        Py_INCREF(obsobj->packages);
+        PyTuple_SET_ITEM(tuple, 0, obs);
+        PyTuple_SET_ITEM(tuple, 1, obsobj->packages);
+        PyList_Append(lst, tuple);
+        Py_DECREF(tuple);
+    }
+    /* return lst */
+    return lst;
+}
+
+static PyObject *
+Provides_getConflictedBy(ProvidesObject *self)
+{
+    /* lst = [] */
+    PyObject *lst = PyList_New(0);
+    int i, len;
+    /* for cnf in self.conflictedby: */
+    len = PyList_GET_SIZE(self->conflictedby);
+    for (i = 0; i != len; i++) {
+        /* lst.append((cnf, cnf.packages)) */
+        PyObject *tuple = PyTuple_New(2);
+        DependsObject *cnfobj;
+        PyObject *cnf = PyList_GET_ITEM(self->conflictedby, i);
+        cnfobj = (DependsObject *)cnf;
+        Py_INCREF(cnf);
+        Py_INCREF(cnfobj->packages);
+        PyTuple_SET_ITEM(tuple, 0, cnf);
+        PyTuple_SET_ITEM(tuple, 1, cnfobj->packages);
+        PyList_Append(lst, tuple);
+        Py_DECREF(tuple);
+    }
+    /* return lst */
+    return lst;
+}
+
+static PyObject *
 Provides_str(ProvidesObject *self)
 {
     if (!PyString_Check(self->name)) {
@@ -373,6 +447,13 @@ static PyMemberDef Provides_members[] = {
 };
 #undef OFF
 
+static PyMethodDef Provides_methods[] = {
+    {"getRequiredBy", (PyCFunction)Provides_getRequiredBy, METH_NOARGS, NULL},
+    {"getObsoletedBy", (PyCFunction)Provides_getObsoletedBy, METH_NOARGS, NULL},
+    {"getConflictedBy", (PyCFunction)Provides_getConflictedBy, METH_NOARGS, NULL},
+    {NULL, NULL}
+};
+
 statichere PyTypeObject Provides_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,			/*ob_size*/
@@ -402,7 +483,7 @@ statichere PyTypeObject Provides_Type = {
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
     0,                      /*tp_iternext*/
-    0,                      /*tp_methods*/
+    Provides_methods,       /*tp_methods*/
     Provides_members,       /*tp_members*/
     0,                      /*tp_getset*/
     0,                      /*tp_base*/
@@ -422,14 +503,12 @@ Depends_init(DependsObject *self, PyObject *args)
 {
     self->version = Py_None;
     self->relation = Py_None;
-    self->pkgname = Py_None;
-    if (!PyArg_ParseTuple(args, "O!|OOO", &PyString_Type, &self->name,
-                          &self->version, &self->relation, &self->pkgname))
+    if (!PyArg_ParseTuple(args, "O!|OO", &PyString_Type, &self->name,
+                          &self->version, &self->relation))
         return -1;
     Py_INCREF(self->name);
     Py_INCREF(self->version);
     Py_INCREF(self->relation);
-    Py_INCREF(self->pkgname);
     self->packages = PyList_New(0);
     self->providedby = PyList_New(0);
     return 0;
@@ -441,10 +520,34 @@ Depends_dealloc(DependsObject *self)
     Py_XDECREF(self->name);
     Py_XDECREF(self->version);
     Py_XDECREF(self->relation);
-    Py_XDECREF(self->pkgname);
     Py_XDECREF(self->packages);
     Py_XDECREF(self->providedby);
     self->ob_type->tp_free((PyObject *)self);
+}
+
+static PyObject *
+Depends_getProvidedBy(DependsObject *self)
+{
+    /* lst = [] */
+    PyObject *lst = PyList_New(0);
+    int i, len;
+    /* for prv in self.providedby: */
+    len = PyList_GET_SIZE(self->providedby);
+    for (i = 0; i != len; i++) {
+        /* lst.append((prv, prv.packages)) */
+        PyObject *tuple = PyTuple_New(2);
+        ProvidesObject *prvobj;
+        PyObject *prv = PyList_GET_ITEM(self->providedby, i);
+        prvobj = (ProvidesObject *)prv;
+        Py_INCREF(prv);
+        Py_INCREF(prvobj->packages);
+        PyTuple_SET_ITEM(tuple, 0, prv);
+        PyTuple_SET_ITEM(tuple, 1, prvobj->packages);
+        PyList_Append(lst, tuple);
+        Py_DECREF(tuple);
+    }
+    /* return lst */
+    return lst;
 }
 
 static PyObject *
@@ -496,6 +599,7 @@ Depends_compare(DependsObject *self, DependsObject *other)
 }
 
 static PyMethodDef Depends_methods[] = {
+    {"getProvidedBy", (PyCFunction)Depends_getProvidedBy, METH_NOARGS, NULL},
     {"matches", (PyCFunction)Depends_matches, METH_O, NULL},
     {NULL, NULL}
 };
@@ -505,7 +609,6 @@ static PyMemberDef Depends_members[] = {
     {"name", T_OBJECT, OFF(name), 0, 0},
     {"version", T_OBJECT, OFF(version), 0, 0},
     {"relation", T_OBJECT, OFF(relation), 0, 0},
-    {"pkgname", T_OBJECT, OFF(pkgname), 0, 0},
     {"packages", T_OBJECT, OFF(packages), 0, 0},
     {"providedby", T_OBJECT, OFF(providedby), 0, 0},
     {NULL}
