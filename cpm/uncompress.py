@@ -1,3 +1,4 @@
+from cpm.const import BLOCKSIZE
 from cpm import *
 
 class Uncompressor(object):
@@ -46,10 +47,10 @@ class BZ2Handler(UncompressorHandler):
         try:
             input = bz2.BZ2File(localpath)
             output = open(self.getTargetPath(localpath), "w")
-            data = input.read(8192)
+            data = input.read(BLOCKSIZE)
             while data:
                 output.write(data)
-                data = input.read(8192)
+                data = input.read(BLOCKSIZE)
         except (IOError, OSError), e:
             raise Error, "%s: %s" % (localpath, e)
 
@@ -69,10 +70,10 @@ class GZipHandler:
         try:
             input = gzip.GzipFile(localpath)
             output = open(self.getTargetPath(localpath), "w")
-            data = input.read(8192)
+            data = input.read(BLOCKSIZE)
             while data:
                 output.write(data)
-                data = input.read(8192)
+                data = input.read(BLOCKSIZE)
         except (IOError, OSError), e:
             raise Error, "%s: %s" % (localpath, e)
 

@@ -1,3 +1,4 @@
+from cpm.const import BLOCKSIZE
 from cpm import *
 import os
 
@@ -118,10 +119,10 @@ class PackageInfo(object):
                 import md5
                 digest = md5.md5()
                 file = open(localpath)
-                data = file.read(8192)
+                data = file.read(BLOCKSIZE)
                 while data:
                     digest.update(data)
-                    data = file.read(8192)
+                    data = file.read(BLOCKSIZE)
                 lfilemd5 = digest.hexdigest()
                 if lfilemd5 != filemd5:
                     raise Error, "Invalid MD5 (expected %s, got %s)" % \
@@ -132,10 +133,10 @@ class PackageInfo(object):
                     import sha
                     digest = sha.sha()
                     file = open(localpath)
-                    data = file.read(8192)
+                    data = file.read(BLOCKSIZE)
                     while data:
                         digest.update(data)
-                        data = file.read(8192)
+                        data = file.read(BLOCKSIZE)
                     lfilesha = digest.hexdigest()
                     if lfilesha != filesha:
                         raise Error, "Invalid SHA (expected %s, got %s)" % \
