@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from cpm.interfaces.gtk.packageview import GtkPackageView
 from cpm.interfaces.gtk import getPixbuf
 from cpm.report import Report
 import gobject, gtk
@@ -11,7 +12,7 @@ class GtkChanges:
         self._window.set_title("Transaction")
         self._window.set_modal(True)
         self._window.set_position(gtk.WIN_POS_CENTER)
-        self._window.set_geometry_hints(min_width=400, min_height=300)
+        self._window.set_geometry_hints(min_width=600, min_height=400)
 
         self._vbox = gtk.VBox()
         self._vbox.set_border_width(10)
@@ -22,37 +23,11 @@ class GtkChanges:
         self._label = gtk.Label()
         self._vbox.pack_start(self._label, expand=False)
 
-        self._scrollwin = gtk.ScrolledWindow()
-        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        self._scrollwin.show()
-        self._vbox.pack_start(self._scrollwin)
-
-        self._treemodel = gtk.TreeStore(gobject.TYPE_OBJECT,
-                                        gobject.TYPE_STRING)
-        self._treeview = gtk.TreeView(self._treemodel)
-        #self._treeview.set_property("fixed_height_mode", True)
-        self._treeview.set_enable_search(True)
-        self._treeview.set_search_column(1)
-        def row_activated(tv, path, column):
-            if tv.row_expanded(path):
-                tv.collapse_row(path)
-            else:
-                tv.expand_row(path, False)
-        self._treeview.connect("row-activated", row_activated)
-        self._treeview.show()
-        self._scrollwin.add(self._treeview)
-
-        column = gtk.TreeViewColumn("Operations")
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        renderer = gtk.CellRendererPixbuf()
-        column.pack_start(renderer, False)
-        column.add_attribute(renderer, "pixbuf", 0)
-        renderer = gtk.CellRendererText()
-        renderer.set_fixed_height_from_font(True)
-        column.pack_start(renderer, True)
-        column.add_attribute(renderer, "text", 1)
-        self._treeview.append_column(column)
+        self._pv = GtkPackageView()
+        self._pv.getTreeView().set_headers_visible(False)
+        self._pv.setExpandPackage(True)
+        self._pv.show()
+        self._vbox.pack_start(self._pv)
 
         self._confirmbbox = gtk.HButtonBox()
         self._confirmbbox.set_spacing(10)
@@ -82,58 +57,61 @@ class GtkChanges:
         self._closebutton.connect("clicked", lambda x: gtk.main_quit())
         self._closebbox.pack_start(self._closebutton)
 
-    def showChangeSet(self, cache, changeset, confirm=False, label=None):
-        report = Report(cache, changeset)
-        report.compute()
+    def showChangeSet(self, changeset, keep=None, confirm=False, label=None):
 
-        self._treemodel.clear()
+        report = Report(changeset)
+        report.compute()
         
-        ipixbuf = getPixbuf("package-install")
-        Ipixbuf = getPixbuf("package-installed")
-        rpixbuf = getPixbuf("package-remove")
-        upixbuf = getPixbuf("package-upgrade")
-        dpixbuf = getPixbuf("package-downgrade")
+        packages = {}
+
         if report.install:
-            iterlabel = "Install (%d)" % len(report.install)
-            iiter = self._treemodel.append(None, (ipixbuf, iterlabel))
+            install = {}
             lst = report.install.keys()
             lst.sort()
             for pkg in lst:
-                iter = None
+                package = {}
+                done = {}
                 if pkg in report.upgrading:
-                    iter = self._treemodel.append(iiter, (upixbuf, str(pkg)))
                     for upgpkg in report.upgrading[pkg]:
-                        if upgpkg in report.remove:
-                            pixbuf = rpixbuf
-                        else:
-                            pixbuf = Ipixbuf
-                        self._treemodel.append(iter, (pixbuf, str(upgpkg)))
+                        package.setdefault("Upgrades", []).append(upgpkg)
+                        done[upgpkg] = True
                 if pkg in report.downgrading:
-                    if not iter:
-                        iter = self._treemodel.append(iiter,
-                                                      (dpixbuf, str(pkg)))
                     for dwnpkg in report.downgrading[pkg]:
-                        if dwnpkg in report.remove:
-                            pixbuf = rpixbuf
-                        else:
-                            pixbuf = Ipixbuf
-                        self._treemodel.append(iter, (pixbuf, str(dwnpkg)))
-                if not iter:
-                    self._treemodel.append(iiter, (ipixbuf, str(pkg)))
+                        package.setdefault("Downgrades", []).append(dwnpkg)
+                        done[dwnpkg] = True
+                if pkg in report.conflicts:
+                    for cnfpkg in report.conflicts[pkg]:
+                        if cnfpkg in done:
+                            continue
+                        package.setdefault("Conflicts", []).append(cnfpkg)
+                install[pkg] = package
+            packages["Install (%d)" % len(report.install)] = install
 
         if report.remove:
-            iterlabel = "Remove (%d)" % len(report.remove)
-            riter = self._treemodel.append(None, (rpixbuf, iterlabel))
+            remove = {}
             lst = report.remove.keys()
             lst.sort()
             for pkg in lst:
-                iter = self.treemodel.append(riter, (rpixbuf, str(pkg)))
+                package = {}
+                done = {}
                 if pkg in report.upgraded:
                     for upgpkg in report.upgraded[pkg]:
-                        self._treemodel.append(iter, (upixbuf, str(upgpkg)))
+                        package.setdefault("Upgraded By", []).append(upgpkg)
+                        done[upgpkg] = True
                 if pkg in report.downgraded:
                     for dwnpkg in report.downgraded[pkg]:
-                        self._treemodel.append(iter, (dpixbuf, str(dwnpkg)))
+                        package.setdefault("Downgraded By", []).append(upgpkg)
+                        done[dwnpkg] = True
+                if pkg in report.conflicts:
+                    for cnfpkg in report.conflicts[pkg]:
+                        if cnfpkg in done:
+                            continue
+                        package.setdefault("Conflicts", []).append(cnfpkg)
+                remove[pkg] = package
+            packages["Remove (%d)" % len(report.remove)] = remove
+
+        if keep:
+            packages["Keep (%d)" % len(keep)] = keep
 
         if confirm:
             self._confirmbbox.show()
@@ -148,7 +126,16 @@ class GtkChanges:
         else:
             self._label.hide()
 
-        self._treeview.queue_draw()
+        self._pv.setPackages(packages, changeset)
+
+        # Expand first level
+        treeview = self._pv.getTreeView()
+        treemodel = treeview.get_model()
+        child = treemodel.iter_children(None)
+        while child:
+            path = treemodel.get_path(child)
+            treeview.expand_row(path, False)
+            child = treemodel.iter_next(child)
 
         self._result = False
         self._window.show()

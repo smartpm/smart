@@ -42,12 +42,8 @@ class ProgressCellRenderer(gtk.GenericCellRenderer):
         if cell_area:
             width = cell_area.width
             height = cell_area.height
-            xalign = self.get_property("xalign")
-            x_offset = int(xalign*(cell_area.width-width-2*xpad))
-            x_offset = max(x_offset, 0) + xpad
-            yalign = self.get_property("yalign")
-            y_offset = int(yalign*(cell_area.height-height-2*ypad))
-            y_offset = max(y_offset, 0) + ypad
+            x_offset = xpad
+            y_offset = ypad
         else:
             width = self.get_property("width")
             height = self.get_property("height")
@@ -61,24 +57,22 @@ class ProgressCellRenderer(gtk.GenericCellRenderer):
 
 gobject.type_register(ProgressCellRenderer)
 
-class GtkProgress(Progress):
+class GtkProgress(Progress, gtk.Window):
 
     def __init__(self, parent=None):
         Progress.__init__(self)
+        gtk.Window.__init__(self)
+        self.__gobject_init__()
 
-        self._window = gtk.Window()
-        self._window.set_title("Operation Progress")
-        self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        
-        if parent:
-            self._window.set_transient_for(parent)
+        self.set_title("Operation Progress")
+        self.set_modal(True)
+        self.set_position(gtk.WIN_POS_CENTER)
 
         self._vbox = gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
-        self._window.add(self._vbox)
+        gtk.Window.add(self, self._vbox)
 
         self._topic = gtk.Label()
         self._topic.set_alignment(0, 0.5)
@@ -121,10 +115,10 @@ class GtkProgress(Progress):
     def start(self):
         if self.getHasSub():
             self._scrollwin.show()
-            self._window.set_size_request(500, 400)
+            self.set_size_request(500, 400)
         else:
             self._scrollwin.hide()
-            self._window.set_size_request(300, 80)
+            self.set_size_request(300, 80)
 
     def stop(self):
         Progress.stop(self)
@@ -134,11 +128,11 @@ class GtkProgress(Progress):
         #self._hide()
 
     def hide(self):
-        self._window.hide()
-        self._window.unrealize()
+        gtk.Window.hide(self)
+        self.unrealize()
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data):
-        self._window.show()
+        gtk.Window.show(self)
         
         if self.getHasSub() and subkey:
             if subkey in self._subiters:
@@ -167,6 +161,8 @@ class GtkProgress(Progress):
             self._treeview.queue_draw()
             while gtk.events_pending():
                 gtk.main_iteration()
+
+gobject.type_register(GtkProgress)
 
 def test():
     import sys, time

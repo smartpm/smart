@@ -1,27 +1,27 @@
+from cpm.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
+from cpm.transaction import Transaction, INSTALL, REMOVE
 from cpm.interfaces.gtk.packageview import GtkPackageView
 from cpm.interfaces.gtk.packageinfo import GtkPackageInfo
-from cpm.interfaces.gtk.progress import GtkProgress
-from cpm.interfaces.gtk.changes import GtkChanges
-from cpm.interfaces.gtk.log import GtkLog
-from cpm.interface import Interface
+from cpm.interfaces.gtk.interface import GtkInterface
 from cpm import *
 import gtk
 
-class GtkInteractiveInterface(Interface):
+class GtkInteractiveInterface(GtkInterface):
 
     def __init__(self):
+        GtkInterface.__init__(self)
+
         self._ctrl = None
+        self._transaction = None
 
         self._window = gtk.Window()
-
-        self._log = GtkLog()
-        self._progress = GtkProgress(self._window)
-        self._changes = None
-
         self._window.set_title("")
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=640, min_height=480)
         self._window.connect("destroy", lambda x: gtk.main_quit())
+
+        self._log.set_transient_for(self._window)
+        self._progress.set_transient_for(self._window)
 
         self._topvbox = gtk.VBox()
         self._topvbox.show()
@@ -129,23 +129,20 @@ class GtkInteractiveInterface(Interface):
         self._topvbox.pack_start(self._vpaned)
 
         self._pv = GtkPackageView()
-        self._vpaned.pack1(self._pv.getTopWidget(), True)
+        self._pv.show()
+        self._vpaned.pack1(self._pv, True)
 
         self._pi = GtkPackageInfo()
+        self._pi.show()
         self._pv.connect("package_selected",
                          lambda x, y: self._pi.setPackage(y))
-        self._vpaned.pack2(self._pi.getTopWidget(), False)
+        self._pv.connect("package_activated",
+                         lambda x, y: self.togglePackage(y))
+        self._vpaned.pack2(self._pi, False)
 
         self._status = gtk.Statusbar()
         self._status.show()
         self._topvbox.pack_start(self._status, False)
-
-    def getProgress(self, obj, hassub=False):
-        self._progress.setHasSub(hassub)
-        return self._progress
-
-    def getSubProgress(self, obj):
-        return self._progress
 
     def showStatus(self, msg):
         self._status.pop(0)
@@ -156,12 +153,48 @@ class GtkInteractiveInterface(Interface):
 
     def run(self, ctrl):
         self._ctrl = ctrl
+        self._transaction = Transaction(ctrl.getCache())
         self._window.show()
         ctrl.fetchRepositories()
         ctrl.loadCache()
         self._progress.hide()
         self.refreshPackages()
         gtk.main()
+
+    # Non-standard interface methods:
+
+    def togglePackage(self, pkg):
+        transaction = self._transaction
+        oldchangeset = transaction.getChangeSet()
+        newchangeset = oldchangeset.copy()
+        transaction.setChangeSet(newchangeset)
+        if pkg.installed:
+            if oldchangeset.get(pkg) is REMOVE:
+                policy = PolicyInstall
+                transaction.enqueue(pkg, INSTALL)
+            else:
+                policy = PolicyRemove
+                transaction.enqueue(pkg, REMOVE)
+        else:
+            if oldchangeset.get(pkg) is INSTALL:
+                policy = PolicyRemove
+                transaction.enqueue(pkg, REMOVE)
+            else:
+                policy = PolicyInstall
+                transaction.enqueue(pkg, INSTALL)
+        transaction.setPolicy(policy)
+        try:
+            transaction.run()
+        except Error, e:
+            self.error(str(e[0]))
+        else:
+            if self.confirmChange(oldchangeset, newchangeset):
+                oldchangeset.setState(newchangeset)
+                self._pv.queue_draw()
+        transaction.setChangeSet(oldchangeset)
+
+    def getTransaction(self):
+        return self._transaction
 
     def refreshPackages(self):
         if not self._ctrl:
@@ -234,20 +267,11 @@ class GtkInteractiveInterface(Interface):
         else:
             groups = packages
 
-        self._pv.setPackages(groups)
+        self._pv.setPackages(groups, self._transaction.getChangeSet())
 
         if filters:
             self.showStatus("There are filters being applied!")
         else:
             self.hideStatus()
 
-    def message(self, level, msg):
-        self._log.message(level, msg)
-
-    def confirmTransaction(self, trans):
-        if not self._changes:
-            self._changes = GtkChanges()
-        return self._changes.showChangeSet(trans.getCache(),
-                                           trans.getChangeSet(),
-                                           confirm=True)
-
+# vim:ts=4:sw=4:et

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from cpm.interfaces.gtk import getPixbuf
+from cpm.const import INSTALL, REMOVE
 import gobject, gtk
 
 class PixbufCellRenderer(gtk.GenericCellRenderer):
@@ -70,7 +71,7 @@ class PixbufCellRenderer(gtk.GenericCellRenderer):
 
 gobject.type_register(PixbufCellRenderer)
 
-class GtkPackageView(gobject.GObject):
+class GtkPackageView(gtk.Alignment):
 
     __gsignals__ = {
         "package_selected":  (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
@@ -80,23 +81,31 @@ class GtkPackageView(gobject.GObject):
     }
 
     def __init__(self):
+        gtk.Alignment.__init__(self)
         self.__gobject_init__()
+
+        self._expandpackage = False
+
+        self._changeset = {}
 
         self._scrollwin = gtk.ScrolledWindow()
         self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
         self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
         self._scrollwin.show()
+        self.add(self._scrollwin)
 
         self._treeview = gtk.TreeView()
         self._treeview.set_rules_hint(True)
         self._treeview.connect("button_press_event", self._buttonPress)
         self._treeview.connect("select_cursor_row", self._selectCursor)
-        self._treeview.connect_after("move_cursor", self._moveCursor)
         self._treeview.show()
         self._scrollwin.add(self._treeview)
 
+        selection = self._treeview.get_selection()
+        selection.set_mode(gtk.SELECTION_SINGLE)
+        selection.connect("changed", self._selectionChanged)
+
         column = gtk.TreeViewColumn("Package")
-        #renderer = gtk.CellRendererPixbuf()
         renderer = PixbufCellRenderer()
         renderer.set_property("activate", self._pixbufClicked)
         renderer.set_property("xpad", 3)
@@ -108,24 +117,30 @@ class GtkPackageView(gobject.GObject):
         column.set_cell_data_func(renderer, self._setName)
         self._treeview.append_column(column)
 
-        column = gtk.TreeViewColumn("Version")
         renderer = gtk.CellRendererText()
-        column.pack_start(renderer, True)
-        column.set_cell_data_func(renderer, self._setVersion)
-        self._treeview.append_column(column)
+        self._treeview.insert_column_with_data_func(-1, "Version", renderer,
+                                                    self._setVersion)
 
         self._ipixbuf = getPixbuf("package-installed")
         self._apixbuf = getPixbuf("package-available")
         self._fpixbuf = getPixbuf("folder")
+        self._Ipixbuf = getPixbuf("package-install")
+        self._Rpixbuf = getPixbuf("package-remove")
 
     def _setPixbuf(self, treeview, cell, model, iter):
         value = model.get_value(iter, 0)
         if not hasattr(value, "name"):
             cell.set_property("pixbuf", self._fpixbuf)
         elif value.installed:
-            cell.set_property("pixbuf", self._ipixbuf)
+            if self._changeset.get(value) is REMOVE:
+                cell.set_property("pixbuf", self._Rpixbuf)
+            else:
+                cell.set_property("pixbuf", self._ipixbuf)
         else:
-            cell.set_property("pixbuf", self._apixbuf)
+            if self._changeset.get(value) is INSTALL:
+                cell.set_property("pixbuf", self._Ipixbuf)
+            else:
+                cell.set_property("pixbuf", self._apixbuf)
 
     def _setName(self, treeview, cell, model, iter):
         value = model.get_value(iter, 0)
@@ -141,13 +156,20 @@ class GtkPackageView(gobject.GObject):
         else:
             cell.set_property("text", "")
 
-    def getTopWidget(self):
-        return self._scrollwin
-
     def getTreeView(self):
         return self._treeview
 
-    def setPackages(self, packages):
+    def setExpandPackage(self, flag):
+        self._expandpackage = flag
+
+    def setChangeSet(self, changeset):
+        if changeset is None:
+            self._changeset = {}
+        else:
+            self._changeset = changeset
+
+    def setPackages(self, packages, changeset=None):
+        self.setChangeSet(changeset)
         if isinstance(packages, list):
             model = gtk.ListStore(gobject.TYPE_PYOBJECT)
         elif isinstance(packages, dict):
@@ -175,49 +197,43 @@ class GtkPackageView(gobject.GObject):
             return iter
 
     def _buttonPress(self, treeview, event):
-        if event.window != treeview.get_bin_window():
+        if (event.type != gtk.gdk._2BUTTON_PRESS or
+            event.window != treeview.get_bin_window()):
             return
-        #if event.type == gtk.gdk.BUTTON_PRESS or
-        #    event.window == treeview.get_bin_window()):
-        #    return
         path, column, cellx, celly = treeview.get_path_at_pos(int(event.x),
                                                               int(event.y))
         model = treeview.get_model()
         iter = model.get_iter(path)
         value = model.get_value(iter, 0)
-        if hasattr(value, "name"):
-            if event.type == gtk.gdk._2BUTTON_PRESS:
-                self.emit("package_activated", value)
-            else:
-                self.emit("package_selected", value)
+        if not self._expandpackage and hasattr(value, "name"):
+            self.emit("package_activated", value)
+        elif treeview.row_expanded(path):
+            treeview.collapse_row(path)
         else:
-            self.emit("package_selected", None)
-            if event.type == gtk.gdk._2BUTTON_PRESS:
-                if treeview.row_expanded(path):
-                    treeview.collapse_row(path)
-                else:
-                    treeview.expand_row(path, False)
+            treeview.expand_row(path, False)
 
     def _selectCursor(self, treeview, start_editing=False):
         selection = treeview.get_selection()
         model, iter = selection.get_selected()
         value = model.get_value(iter, 0)
-        if hasattr(value, "name"):
+        if not self._expandpackage and hasattr(value, "name"):
             self.emit("package_activated", value)
         else:
-            self.emit("package_selected", None)
             path = model.get_path(iter)
             if treeview.row_expanded(path):
                 treeview.collapse_row(path)
             else:
                 treeview.expand_row(path, False)
 
-    def _moveCursor(self, treeview, step, count):
-        selection = treeview.get_selection()
+    def _selectionChanged(self, selection):
         model, iter = selection.get_selected()
-        value = model.get_value(iter, 0)
-        if hasattr(value, "name"):
-            self.emit("package_selected", value)
+        if iter:
+            value = model.get_value(iter, 0)
+            if hasattr(value, "name"):
+                self.emit("package_selected", value)
+            else:
+                self.emit("package_selected", None)
+            path = model.get_path(iter)
         else:
             self.emit("package_selected", None)
 

@@ -1,24 +1,21 @@
 from cpm.const import ERROR, WARNING, DEBUG
-import gtk
+import gtk, gobject
 
-class GtkLog:
+class GtkLog(gtk.Window):
 
-    def __init__(self, parent=None):
+    def __init__(self):
+        gtk.Window.__init__(self)
+        self.__gobject_init__()
 
-        self._window = gtk.Window()
-
-        if parent:
-            self._window.set_transient_for(parent)
-
-        self._window.set_title("Log")
-        self._window.set_geometry_hints(min_width=400, min_height=300)
-        self._window.set_modal(True)
+        self.set_title("Log")
+        self.set_geometry_hints(min_width=400, min_height=300)
+        self.set_modal(True)
 
         self._vbox = gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
-        self._window.add(self._vbox)
+        self.add(self._vbox)
 
         self._scrollwin = gtk.ScrolledWindow()
         self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -46,11 +43,11 @@ class GtkLog:
 
         self._closebutton = gtk.Button(stock="gtk-close")
         self._closebutton.show()
-        self._closebutton.connect("clicked", lambda x: self._window.hide())
+        self._closebutton.connect("clicked", lambda x: self.hide())
         self._buttonbox.pack_start(self._closebutton)
 
     def isVisible(self):
-        return self._window.get_property("visible")
+        return self.get_property("visible")
 
     def message(self, level, msg):
         prefix = {ERROR: "error", WARNING: "warning",
@@ -65,10 +62,15 @@ class GtkLog:
         buffer.insert(iter, "\n")
 
         if level == ERROR:
-            dialog = gtk.MessageDialog(type=gtk.MESSAGE_ERROR,
+            dialog = gtk.MessageDialog(self, flags=gtk.DIALOG_MODAL,
+                                       type=gtk.MESSAGE_ERROR,
                                        buttons=gtk.BUTTONS_OK,
                                        message_format=msg)
             dialog.run()
+            dialog.hide()
+            del dialog
         else:
-            self._window.show()
+            self.show()
+
+gobject.type_register(GtkLog)
 

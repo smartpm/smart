@@ -1,41 +1,19 @@
-from cpm.interfaces.gtk.progress import GtkProgress
-from cpm.interfaces.gtk.changes import GtkChanges
-from cpm.interfaces.gtk.log import GtkLog
-from cpm.interface import Interface
+from cpm.interfaces.gtk.interface import GtkInterface
 from cpm import *
 import time
 import gtk
 
-class GtkCommandInterface(Interface):
+class GtkCommandInterface(GtkInterface):
 
     def __init__(self):
-        self._log = GtkLog()
-        self._progress = GtkProgress()
-        self._changes = None
+        GtkInterface.__init__(self)
         self._status = GtkStatus()
-
-    def getProgress(self, obj, hassub=False):
-        self._progress.setHasSub(hassub)
-        return self._progress
-
-    def getSubProgress(self, obj):
-        return self._progress
 
     def showStatus(self, msg):
         self._status.show(msg)
 
     def hideStatus(self):
         self._status.hide()
-
-    def message(self, level, msg):
-        self._log.message(level, msg)
-
-    def confirmTransaction(self, trans):
-        if not self._changes:
-            self._changes = GtkChanges()
-        return self._changes.showChangeSet(trans.getCache(),
-                                           trans.getChangeSet(),
-                                           confirm=True)
 
     def finish(self):
         self._status.wait()

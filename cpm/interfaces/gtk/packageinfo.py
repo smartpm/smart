@@ -1,15 +1,18 @@
 #!/usr/bin/python
 from cpm.interfaces.gtk.packageview import GtkPackageView
-import gtk, pango
+import gobject, gtk, pango
 
-class GtkPackageInfo:
+class GtkPackageInfo(gtk.Alignment):
 
     def __init__(self):
+        gtk.Alignment.__init__(self)
+        self.__gobject_init__()
 
         self._pkg = None
 
         self._notebook = gtk.Notebook()
         self._notebook.show()
+        self.add(self._notebook)
         
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
@@ -34,9 +37,23 @@ class GtkPackageInfo:
         self._notebook.append_page(sw, label)
 
         label = gtk.Label("Options")
-        widget = gtk.Alignment()
-        widget.show()
-        self._notebook.append_page(widget, label)
+        table = gtk.Table()
+        table.set_border_width(5)
+        table.show()
+        frame = gtk.Frame("Lock")
+        frame.show()
+        vbox = gtk.VBox()
+        vbox.set_border_width(5)
+        vbox.show()
+        frame.add(vbox)
+        self._lockthis = gtk.CheckButton("This version")
+        self._lockthis.show()
+        vbox.pack_start(self._lockthis)
+        self._lockall = gtk.CheckButton("All versions")
+        self._lockall.show()
+        vbox.pack_start(self._lockall)
+        table.attach(frame, 0, 1, 0, 1, xoptions=0, yoptions=0)
+        self._notebook.append_page(table, label)
 
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
@@ -60,14 +77,12 @@ class GtkPackageInfo:
 
         label = gtk.Label("Relations")
         self._relations = GtkPackageView()
-        self._relations.getTopWidget().set_border_width(5)
+        self._relations.set_border_width(5)
         self._relations.getTreeView().set_headers_visible(False)
-        self._notebook.append_page(self._relations.getTopWidget(), label)
+        self._relations.show()
+        self._notebook.append_page(self._relations, label)
 
         self._notebook.connect("switch_page", self._switchPage)
-
-    def getTopWidget(self):
-        return self._notebook
 
     def _switchPage(self, notebook, page, pagenum):
         self.setPackage(self._pkg, _pagenum=pagenum)
@@ -133,10 +148,10 @@ class GtkPackageInfo:
 
         elif num == 3:
 
-            self.setRelations(pkg)
+            self._setRelations(pkg)
 
 
-    def setRelations(self, pkg):
+    def _setRelations(self, pkg):
 
         class Sorter(str):
             ORDER = ["Provides", "Upgrades", "Requires", "Conflicts"]
@@ -201,5 +216,7 @@ class GtkPackageInfo:
             relations[Sorter("Conflicts")] = conflicts
 
         self._relations.setPackages(relations)
+
+gobject.type_register(GtkPackageInfo)
 
 # vim:ts=4:sw=4:et
