@@ -428,7 +428,8 @@ class GtkInteractiveInterface(GtkInterface):
             self.showStatus("No interesting upgrades available!")
 
     def actOnPackages(self, pkgs, op=None):
-        transaction = Transaction(self._ctrl.getCache(), policy=PolicyInstall)
+        cache = self._ctrl.getCache()
+        transaction = Transaction(cache, policy=PolicyInstall)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         if op is None:
@@ -441,12 +442,19 @@ class GtkInteractiveInterface(GtkInterface):
                         break
                 else:
                     op = REMOVE
+        if op is REMOVE:
+            transaction.setPolicy(PolicyRemove)
+        policy = transaction.getPolicy()
         for pkg in pkgs:
             if op is KEEP:
                 transaction.enqueue(pkg, op)
             elif op in (REMOVE, REINSTALL, FIX):
                 if pkg.installed:
                     transaction.enqueue(pkg, op)
+                    if op is REMOVE:
+                        for _pkg in cache.getPackages(pkg.name):
+                            if not _pkg.installed:
+                                policy.setLocked(_pkg, True)
             elif op is INSTALL:
                 if not pkg.installed:
                     transaction.enqueue(pkg, op)

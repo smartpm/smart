@@ -688,12 +688,14 @@ class FileHandler(FetcherHandler):
         for item in self._queue:
             localpath = item.getURL().path
             localpath, media = self._mediaset.processFilePath(localpath)
-            if not media.wasMounted() and self._fetcher.getForceMountedCopy():
-                self._forcecopy[item] = True
-            if isinstance(media, DeviceMedia):
-                # We don't want item.getURL().original changed, so that
-                # progress still shows the original path.
-                item.getURL().path = localpath
+            if media:
+                if (not media.wasMounted() and
+                    self._fetcher.getForceMountedCopy()):
+                    self._forcecopy[item] = True
+                if isinstance(media, DeviceMedia):
+                    # We don't want item.getURL().original changed, so that
+                    # progress still shows the original path.
+                    item.getURL().path = localpath
 
     def getLocalPath(self, item):
         if item in self._forcecopy or self._fetcher.getForceCopy():
