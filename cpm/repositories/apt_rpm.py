@@ -90,25 +90,30 @@ class APTRPMRepository(Repository):
                 for url in failed:
                     logger.debug("%s: %s" % (url, failed[url]))
 
-def create(type, data):
-    if hasattr(data, "tag") and data.tag == "repository":
+def create(reptype, data):
+    name = None
+    baseurl = None
+    comps = None
+    if type(data) is dict:
+        name = data.get("name")
+        baseurl = data.get("baseurl")
+        comps = (data.get("components") or "").split()
+    elif hasattr(data, "tag") and data.tag == "repository":
         node = data
         name = node.get("name")
-        if not name:
-            raise Error, "repository of type '%s' has no name" % type
-        comps = None
-        baseurl = None
         for n in node.getchildren():
             if n.tag == "baseurl":
                 baseurl = n.text
             elif n.tag == "components":
                 comps = n.text.split()
-        if not baseurl:
-            raise Error, "repository '%s' has no baseurl" % name
-        if not comps:
-            raise Error, "repository '%s' has no components" % name
-        return APTRPMRepository(type, name, baseurl, comps)
     else:
         raise RepositoryDataError
+    if not name:
+        raise Error, "repository of type '%s' has no name" % reptype
+    if not baseurl:
+        raise Error, "repository '%s' has no baseurl" % name
+    if not comps:
+        raise Error, "repository '%s' has no components" % name
+    return APTRPMRepository(reptype, name, baseurl, comps)
 
 # vim:ts=4:sw=4:et

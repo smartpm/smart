@@ -1,11 +1,13 @@
 
 class PackageFlags(object):
-    def __init__(self):
-        self._flags = {}
-        self._matchers = {}
 
+    _matchers = {}
+
+    def __init__(self, map):
+        self._map = map
+    
     def add(self, flag, name, version=None, relation=None):
-        names = self._flags.get(flag)
+        names = self._map.get(flag)
         if names:
             lst = names.get(name)
             if lst:
@@ -13,10 +15,10 @@ class PackageFlags(object):
             else:
                 names[name] = [(relation, version)]
         else:
-            self._flags[flag] = {name: [(relation, version)]}
+            self._map[flag] = {name: [(relation, version)]}
 
     def test(self, flag, pkg):
-        names = self._flags.get(flag)
+        names = self._map.get(flag)
         if names:
             lst = names.get(pkg.name)
             if lst:
@@ -27,7 +29,7 @@ class PackageFlags(object):
 
     def filter(self, flag, pkgs):
         fpkgs = []
-        names = self._flags.get(flag)
+        names = self._map.get(flag)
         if names:
             for pkg in pkgs:
                 lst = names.get(pkg.name)

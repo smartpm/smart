@@ -1,4 +1,5 @@
 from cpm.const import INSTALL, REMOVE, UPGRADE, FIX
+from cpm.packageflags import PackageFlags
 from cpm.cache import PreRequires
 from cpm import *
 
@@ -63,32 +64,23 @@ class Policy(object):
     def __init__(self, trans):
         self._trans = trans
         self._locked = {}
-        self._upgradelocked = {}
-        self._downgradelocked = {}
-        pkgflags = sysconf.get("package-flags")
-        if pkgflags:
-            cache = trans.getCache()
-            lock = pkgflags.filter("lock", cache.getPackages())
-            self._locked = dict.fromkeys(lock)
-            lock = pkgflags.filter("upgrade-lock", cache.getPackages())
-            self._upgradelocked = dict.fromkeys(lock)
-            lock = pkgflags.filter("downgrade-lock", cache.getPackages())
-            self._downgradelocked = dict.fromkeys(lock)
+        self._sysconflocked = []
 
     def runStarting(self):
-        pass
+        pkgflags = PackageFlags(sysconf.get("package-flags", {}))
+        cache = self._trans.getCache()
+        for pkg in pkgflags.filter("lock", cache.getPackages()):
+            if pkg not in self._locked:
+                self._sysconflocked.append(pkg)
+                self._locked[pkg] = True
 
     def runFinished(self):
-        pass
+        for pkg in self._sysconflocked:
+            del self._locked[pkg]
+        del self._sysconflocked[:]
 
     def getLocked(self, pkg):
         return pkg in self._locked
-
-    def getUpgradeLocked(self, pkg):
-        return pkg in self._upgradelocked
-
-    def getDowngradeLocked(self, pkg):
-        return pkg in self._downgradelocked
 
     def setLocked(self, pkg, flag):
         if flag:
@@ -97,28 +89,8 @@ class Policy(object):
             if pkg in self._locked:
                 del self._locked[pkg]
 
-    def setUpgradeLocked(self, pkg, flag):
-        if flag:
-            self._upgradelocked[pkg] = True
-        else:
-            if pkg in self._upgradelocked:
-                del self._upgradelocked[pkg]
-
-    def setDowngradeLocked(self, pkg, flag):
-        if flag:
-            self._downgradelocked[pkg] = True
-        else:
-            if pkg in self._downgradelocked:
-                del self._downgradelocked[pkg]
-
     def getLockedSet(self):
         return self._locked
-
-    def getUpgradeLockedSet(self):
-        return self._upgradelocked
-
-    def getDowngradeLockedSet(self):
-        return self._upgradelocked
 
     def getWeight(self, changeset):
         return 0
@@ -127,6 +99,7 @@ class PolicyInstall(Policy):
     """Give precedence for keeping functionality in the system."""
 
     def runStarting(self):
+        Policy.runStarting(self)
         self._upgrading = upgrading = {}
         self._upgraded = upgraded = {}
         for pkg in self._trans.getCache().getPackages():
@@ -142,6 +115,7 @@ class PolicyInstall(Policy):
                                 upgraded[prvpkg] = [pkg]
 
     def runFinished(self):
+        Policy.runFinished(self)
         del self._upgrading
         del self._upgraded
 
@@ -184,6 +158,7 @@ class PolicyUpgrade(Policy):
     """Give precedence to the choice with more upgrades and smaller impact."""
 
     def runStarting(self):
+        Policy.runStarting(self)
         self._upgrading = upgrading = {}
         self._upgraded = upgraded = {}
         self._bonus = bonus = {}
@@ -211,6 +186,7 @@ class PolicyUpgrade(Policy):
                 bonus[pkg] = weight
 
     def runFinished(self):
+        Policy.runFinished(self)
         del self._upgrading
         del self._upgraded
         del self._bonus
@@ -806,47 +782,50 @@ class Transaction(object):
 
         self._policy.runStarting()
 
-        changeset = self._changeset
-        isinst = changeset.installed
-        locked = self._policy.getLockedSet().copy()
-        pending = []
+        try:
+            changeset = self._changeset
+            isinst = changeset.installed
+            locked = self._policy.getLockedSet().copy()
+            pending = []
 
-        for pkg in self._queue:
-            op = self._queue[pkg]
-            if op is INSTALL:
-                if not isinst(pkg) and pkg in locked:
-                    raise Failed, "can't install %s: it's locked" % pkg
-                changeset.set(pkg, op)
-            elif op is REMOVE:
-                if isinst(pkg) and pkg in locked:
-                    raise Failed, "can't remove %s: it's locked" % pkg
-                changeset.set(pkg, op)
+            for pkg in self._queue:
+                op = self._queue[pkg]
+                if op is INSTALL:
+                    if not isinst(pkg) and pkg in locked:
+                        raise Failed, "can't install %s: it's locked" % pkg
+                    changeset.set(pkg, op)
+                elif op is REMOVE:
+                    if isinst(pkg) and pkg in locked:
+                        raise Failed, "can't remove %s: it's locked" % pkg
+                    changeset.set(pkg, op)
 
-        upgpkgs = []
-        fixpkgs = []
-        for pkg in self._queue:
-            op = self._queue[pkg]
-            if op is INSTALL:
-                self._install(pkg, changeset, locked, pending)
-            elif op is REMOVE:
-                self._remove(pkg, changeset, locked, pending)
-            elif op is UPGRADE:
-                upgpkgs.append(pkg)
-            elif op is FIX:
-                fixpkgs.append(pkg)
+            upgpkgs = []
+            fixpkgs = []
+            for pkg in self._queue:
+                op = self._queue[pkg]
+                if op is INSTALL:
+                    self._install(pkg, changeset, locked, pending)
+                elif op is REMOVE:
+                    self._remove(pkg, changeset, locked, pending)
+                elif op is UPGRADE:
+                    upgpkgs.append(pkg)
+                elif op is FIX:
+                    fixpkgs.append(pkg)
 
-        if pending:
-            self._pending(changeset, locked, pending)
+            if pending:
+                self._pending(changeset, locked, pending)
 
-        if upgpkgs:
-            self._upgrade(upgpkgs, changeset, locked, pending)
+            if upgpkgs:
+                self._upgrade(upgpkgs, changeset, locked, pending)
 
-        if fixpkgs:
-            self._fix(fixpkgs, changeset, locked, pending)
+            if fixpkgs:
+                self._fix(fixpkgs, changeset, locked, pending)
 
-        self._queue.clear()
+            self._queue.clear()
 
-        self._policy.runFinished()
+        finally:
+
+            self._policy.runFinished()
 
 
 class ChangeSetSplitter:

@@ -1,4 +1,5 @@
 from cpm.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
+from cpm.repository import createRepository
 from cpm.fetcher import Fetcher
 from cpm.cache import Cache
 from cpm.const import *
@@ -8,7 +9,9 @@ import os
 class Control:
 
     def __init__(self, feedback=None):
-        self._repositories = sysconf.get("repositories", [])
+        self._conffile = CONFFILE
+        self._replst = []
+        self._sysconfreplst = []
         if not feedback:
             feedback = ControlFeedback()
         self._feedback = feedback
@@ -24,10 +27,15 @@ class Control:
         return self._feedback
 
     def getRepositories(self):
-        return self._repositories
+        return self._replst
 
-    def setRepositories(self, repositories):
-        self._repositories = repositories
+    def addRepository(self, repos):
+        self._replst.append(repos)
+
+    def removeRepository(self, repos):
+        if repos in self._sysconfreplst:
+            raise Error, "repository is in system configuration"
+        self._replst.remove(repos)
 
     def getCache(self):
         return self._cache
@@ -41,16 +49,57 @@ class Control:
     def reloadCache(self):
         self._cache.reload()
 
-    def fetchRepositories(self, repositories=None, caching=ALWAYS):
-        if not repositories:
-            repositories = self._repositories
+    def loadSysConf(self, conffile=None):
+        if conffile:
+            conffile = os.path.expanduser(conffile)
+            if not os.path.isfile(conffile):
+                raise Error, "configuration file not found: %s" % conffile
+            sysconf.load(conffile)
+        else:
+            conffile = os.path.expanduser(CONFFILE)
+            if os.path.isfile(conffile):
+                sysconf.load(conffile)
+        self._conffile = conffile
+
+    def saveSysConf(self, conffile=None):
+        if not conffile:
+            conffile = self._conffile
+        conffile = os.path.expanduser(conffile)
+        sysconf.save(conffile)
+
+    def reloadSysConfRepositories(self):
+        for repos in self._sysconfreplst:
+            self._replst.remove(repos)
+            self._cache.removeLoader(repos.getLoader())
+        self._replst = [x for x in self._replst
+                              if x not in self._sysconfreplst]
+        names = {}
+        for data in sysconf.get("repositories", ()):
+            if data.get("disabled"):
+                continue
+            type = data.get("type")
+            if not type:
+                raise Error, "repository without type in configuration"
+            repos = createRepository(type, data)
+            name = repos.getName()
+            if names.get(name):
+                raise Error, "'%s' is not a unique repository name" % name
+            else:
+                names[name] = True
+            self._sysconfreplst.append(repos)
+            self._replst.append(repos)
+
+    def fetchRepositories(self, replst=None, caching=ALWAYS):
+        if not replst:
+            self.reloadSysConfRepositories()
+            replst = self._replst
         localdir = os.path.join(sysconf.get("data-dir"), "repositories/")
         if not os.path.isdir(localdir):
             os.makedirs(localdir)
         self._fetcher.setLocalDir(localdir, mangle=True)
         self._fetcher.setCaching(caching)
         self._feedback.fetcherStarting(self._fetcher)
-        for repos in repositories:
+        for repos in replst:
             self._cache.removeLoader(repos.getLoader())
             repos.fetch(self._fetcher)
             self._cache.addLoader(repos.getLoader())
@@ -86,6 +135,20 @@ class Control:
         for pkg in packages:
             pkgpath[pkg] = succeeded[pkgurl[pkg]]
         return pkgpath
+
+    def fetchFiles(self, urllst, what, caching=NEVER):
+        localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
+        if not os.path.isdir(localdir):
+            os.makedirs(localdir)
+        fetcher = self._fetcher
+        fetcher.setLocalDir(localdir, mangle=True)
+        fetcher.setCaching(caching)
+        for url in urllst:
+            fetcher.enqueue(url)
+        self._feedback.fetcherStarting(fetcher)
+        fetcher.run(what)
+        self._feedback.fetcherFinished(fetcher)
+        return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
     def commitTransaction(self, trans, caching=OPTIONAL):
         self.commitChangeSet(trans.getChangeSet(), caching)

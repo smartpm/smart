@@ -1,9 +1,10 @@
-from cpm.const import DEBUG, INFO, WARNING, ERROR
+from cpm.const import DEBUG, INFO, WARNING, ERROR, CONFFILE
 from cpm.control import Control, ControlFeedback
 from cpm.progress import RPMStyleProgress
-from cpm.sysconfig import XMLSysConfig
+from cpm.sysconfig import SysConfig
 from cpm.report import Report
 from cpm.log import Logger
+import os
 
 class CommandLineFeedback(ControlFeedback):
 
@@ -26,22 +27,17 @@ class CommandLineFeedback(ControlFeedback):
         print
 
 def initCmdLine(opts=None):
-    sysconf = XMLSysConfig()
-    if opts:
-        if opts.config_file:
-            sysconf.set("config-file", opts.config_file)
-        if opts.log_level:
-            level = {"error": ERROR, "warning": WARNING,
-                     "debug": DEBUG, "info": INFO}.get(opts.log_level)
-            if level is None:
-                raise Error, "unknown log level"
-            sysconf.set("log-level", level)
-    else:
-        sysconf.set("log-level", WARNING)
-    sysconf.load()
+    sysconf = SysConfig()
+    if opts and opts.log_level:
+        level = {"error": ERROR, "warning": WARNING,
+                 "debug": DEBUG, "info": INFO}.get(opts.log_level)
+        if level is None:
+            raise Error, "unknown log level"
+        sysconf.set("log-level", level)
     from cpm import init
     init(sysconf, Logger())
     ctrl = Control(CommandLineFeedback())
+    ctrl.loadSysConf(opts and opts.config_file)
     return ctrl
 
 def confirmChanges(trans):

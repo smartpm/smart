@@ -1,5 +1,6 @@
 #from cpm.backends.rpm.rpmver import splitarch
 from cpm.backends.rpm.crpmver import splitarch
+from cpm.packageflags import PackageFlags
 from cpm.cache import Loader, PackageInfo
 from cpm.backends.rpm import *
 from cpm import *
@@ -88,7 +89,7 @@ class RPMHeaderLoader(Loader):
         self._offsets = {}
 
     def load(self):
-        pkgflags = sysconf.get("package-flags")
+        pkgflags = PackageFlags(sysconf.get("package-flags", {}))
         fpkg = RPMFlagPackage()
         CM = self.COMPMAP
         CF = self.COMPFLAGS

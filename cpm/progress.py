@@ -236,6 +236,7 @@ def test():
     data = {"item-number": 0}
     total, subtotal = 100, 1000
     prog.setTopic("Installing packages...")
+    prog.setHasSub(True)
     for n in range(1,total+1):
         data["item-number"] = n
         prog.set(n, total)
@@ -243,7 +244,7 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            #time.sleep(0.02)
+            time.sleep(0.02)
 
 if __name__ == "__main__":
     test()

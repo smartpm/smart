@@ -14,4 +14,7 @@ WARNING = 2
 INFO    = 3
 DEBUG   = 4
 
+CONFFILE = "~/.cpm/config"
+DATADIR = "~/.cpm/"
+
 # vim:ts=4:sw=4:et
