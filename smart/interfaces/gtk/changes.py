@@ -157,15 +157,13 @@ class GtkChanges(object):
                 packages[Sorter(_("Downgrade (%d)") % len(downgrade))] = \
                                                                     downgrade
 
-        if report.remove:
+        if report.removed:
             remove = {}
-            lst = report.remove.keys()
+            lst = report.removed.keys()
             lst.sort()
             for pkg in lst:
                 package = {}
                 done = {}
-                if pkg in report.upgraded or pkg in report.downgraded:
-                    continue
                 if pkg in report.requires:
                     for reqpkg in report.requires[pkg]:
                         package.setdefault(_("Requires"), []).append(reqpkg)
@@ -179,7 +177,7 @@ class GtkChanges(object):
                         package.setdefault(_("Conflicts"), []).append(cnfpkg)
                 remove[pkg] = package
             if remove:
-                packages[Sorter(_("Remove (%d)") % len(report.remove))] = \
+                packages[Sorter(_("Remove (%d)") % len(report.removed))] = \
                                                                         remove
 
         if keep:
