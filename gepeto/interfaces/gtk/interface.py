@@ -89,13 +89,13 @@ class GtkInterface(Interface):
     def message(self, level, msg):
         self._log.message(level, msg)
 
-    def confirmChange(self, oldchangeset, newchangeset):
+    def confirmChange(self, oldchangeset, newchangeset, expected=1):
         changeset = newchangeset.difference(oldchangeset)
         keep = []
         for pkg in oldchangeset:
             if pkg not in newchangeset:
                 keep.append(pkg)
-        if len(keep)+len(changeset) <= 1:
+        if len(keep)+len(changeset) <= expected:
             return True
         return self._changes.showChangeSet(changeset, keep=keep, confirm=True)
 

@@ -54,6 +54,7 @@ UI = """
         <menuitem action="clear-changes"/>
         <separator/>
         <menuitem action="upgrade-all"/>
+        <menuitem action="fix-all-problems"/>
         <separator/>
         <menuitem action="find"/>
         <separator/>
@@ -121,6 +122,8 @@ ACTIONS = [
      "Clear all changes", "self.clearChanges()"),
     ("upgrade-all", "gtk-go-up", "Upgrade _All...", None,
      "Upgrade all packages", "self.upgradeAll()"),
+    ("fix-all-problems", None, "Fix All _Problems...", None,
+     "Fix all problems", "self.fixAllProblems()"),
     ("find", "gtk-find", "_Find...", "<control>f",
      "Find packages", "self.toggleSearch()"),
     ("edit-channels", None, "_Channels", None,
@@ -455,7 +458,11 @@ class GtkInteractiveInterface(GtkInterface):
         except Error, e:
             self.error(str(e[0]))
         else:
-            if self.confirmChange(self._changeset, changeset):
+            if op is FIX:
+                expected = 0
+            else:
+                expected = 1
+            if self.confirmChange(self._changeset, changeset, expected):
                 self.saveUndo()
                 self._changeset.setState(changeset)
                 self.changedMarks()
@@ -607,6 +614,10 @@ class GtkInteractiveInterface(GtkInterface):
 
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
+
+    def fixAllProblems(self):
+        self.actOnPackages([pkg for pkg in self._ctrl.getCache().getPackages()
+                            if pkg.installed], FIX)
 
     def undo(self):
         if self._undo:
