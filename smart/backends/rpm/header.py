@@ -42,7 +42,7 @@ CRPMTAG_UPDATE_IMPORTANCE = 1000021
 CRPMTAG_UPDATE_DATE       = 1000022
 CRPMTAG_UPDATE_URL        = 1000023
 
-ENCODING = locale.getpreferredencoding()
+ENCODINGS = ["utf8", "iso-8859-1"]
 
 class RPMHeaderPackageInfo(PackageInfo):
 
@@ -74,13 +74,40 @@ class RPMHeaderPackageInfo(PackageInfo):
         return self._h[rpm.RPMTAG_SIZE]
 
     def getDescription(self):
-        return self._h[rpm.RPMTAG_DESCRIPTION].decode(ENCODING)
+        s = self._h[rpm.RPMTAG_DESCRIPTION]
+        for encoding in ENCODINGS:
+            try:
+                s = s.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+            break
+        else:
+            s = ""
+        return s
 
     def getSummary(self):
-        return self._h[rpm.RPMTAG_SUMMARY].decode(ENCODING)
+        s = self._h[rpm.RPMTAG_SUMMARY]
+        for encoding in ENCODINGS:
+            try:
+                s = s.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+            break
+        else:
+            s = ""
+        return s
 
     def getGroup(self):
-        return self._loader.getGroup(self._package).decode(ENCODING)
+        s = self._loader.getGroup(self._package)
+        for encoding in ENCODINGS:
+            try:
+                s = s.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+            break
+        else:
+            s = ""
+        return s
 
     def getPathList(self):
         if self._path is None:

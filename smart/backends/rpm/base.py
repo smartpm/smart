@@ -224,7 +224,7 @@ class RPMObsoletes(Depends):
         return checkdep(prvver, self.relation, selfver)
 
 # TODO: Embed color into nameprovides and obsoletes relations.
-_COLORMAP = {"x86_64": 2}
+_COLORMAP = {"x86_64": 2, "ppc64": 2}
 def getArchColor(arch):
     return _COLORMAP.get(arch, 1)
 
