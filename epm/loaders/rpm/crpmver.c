@@ -6,66 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-void
-parseversion(char *buf, char **e, char **v, char **r)
-{
-    char *s = strrchr(buf, '-');
-    if (s) {
-        *s++ = '\0';
-        *r = s;
-    } else {
-        *r = NULL;
-    }
-    s = buf;
-    while (isdigit(*s)) s++;
-    if (*s == ':') {
-        *e = buf;
-        *s++ = '\0';
-        *v = s;
-        if (**e == '\0') *e = "0";
-    } else {
-        *e = "0";
-        *v = buf;
-    }
-}
-
-int
-vercmp(const char *s1, const char *s2)
-{
-    char *e1, *v1, *r1, *e2, *v2, *r2;
-    char b1[64];
-    char b2[64];
-    int rc;
-    strncpy(b1, s1, sizeof(b1)-1);
-    strncpy(b2, s2, sizeof(b2)-1);
-    b1[sizeof(b1)-1] = '\0';
-    b2[sizeof(b1)-1] = '\0';
-    parseversion(b1, &e1, &v1, &r1);
-    parseversion(b2, &e2, &v2, &r2);
-    return vercmpparts(e1, v1, r1, e2, v2, r2);
-}
-
-int
-vercmpparts(const char *e1, const char *v1, const char *r1,
-            const char *e2, const char *v2, const char *r2)
-{
-    int rc;
-    if (e1 && !e2) return 1;
-    if (!e1 && e2) return -1;
-    if (e1 && e2) {
-        int e1i = atoi(e1);
-        int e2i = atoi(e2);
-        if (e1i < e2i) return -1;
-        if (e1i > e2i) return 1;
-    }
-    rc = vercmppart(v1, v2);
-    if (rc)
-        return rc;
-    else if (!r1 || !r2)
-        return 0;
-    return vercmppart(r1, r2);
-}
-
 /* Ripped from rpm. */
 int
 vercmppart(const char *a, const char *b)
@@ -132,6 +72,65 @@ vercmppart(const char *a, const char *b)
     if ((!*one) && (!*two)) return 0;
 
     if (!*one) return -1; else return 1;
+}
+
+int
+vercmpparts(const char *e1, const char *v1, const char *r1,
+            const char *e2, const char *v2, const char *r2)
+{
+    int rc;
+    if (e1 && !e2) return 1;
+    if (!e1 && e2) return -1;
+    if (e1 && e2) {
+        int e1i = atoi(e1);
+        int e2i = atoi(e2);
+        if (e1i < e2i) return -1;
+        if (e1i > e2i) return 1;
+    }
+    rc = vercmppart(v1, v2);
+    if (rc)
+        return rc;
+    else if (!r1 || !r2)
+        return 0;
+    return vercmppart(r1, r2);
+}
+
+void
+parseversion(char *buf, char **e, char **v, char **r)
+{
+    char *s = strrchr(buf, '-');
+    if (s) {
+        *s++ = '\0';
+        *r = s;
+    } else {
+        *r = NULL;
+    }
+    s = buf;
+    while (isdigit(*s)) s++;
+    if (*s == ':') {
+        *e = buf;
+        *s++ = '\0';
+        *v = s;
+        if (**e == '\0') *e = "0";
+    } else {
+        *e = "0";
+        *v = buf;
+    }
+}
+
+int
+vercmp(const char *s1, const char *s2)
+{
+    char *e1, *v1, *r1, *e2, *v2, *r2;
+    char b1[64];
+    char b2[64];
+    strncpy(b1, s1, sizeof(b1)-1);
+    strncpy(b2, s2, sizeof(b2)-1);
+    b1[sizeof(b1)-1] = '\0';
+    b2[sizeof(b1)-1] = '\0';
+    parseversion(b1, &e1, &v1, &r1);
+    parseversion(b2, &e2, &v2, &r2);
+    return vercmpparts(e1, v1, r1, e2, v2, r2);
 }
 
 PyObject *
