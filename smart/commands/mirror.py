@@ -195,8 +195,8 @@ def main(ctrl, opts):
             print
 
     if opts.show_penalities:
-        from smart.mirror import MirrorSystem
-        mirrorsystem = MirrorSystem()
+        ctrl.reloadMirrors()
+        mirrorsystem = ctrl.getFetcher().getMirrorSystem()
         penalities = mirrorsystem.getPenalities().copy()
         mirrors = sysconf.get("mirrors", ())
         for origin in mirrors:

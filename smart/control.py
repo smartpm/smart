@@ -112,6 +112,9 @@ class Control(object):
     def getCache(self):
         return self._cache
 
+    def getFetcher(self):
+        return self._fetcher
+
     def getMediaSet(self):
         return self._mediaset
 
