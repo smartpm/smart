@@ -47,7 +47,7 @@ EXAMPLES="""
 gpt channel --help-type apt-rpm
 gpt channel --add mydb type=rpm-db name="RPM Database"
 gpt channel --add mychannel type=apt-rpm name="Some repository" \\
-                  baseurl=http://somewhere.com/pub/repos
+                  baseurl=http://somewhere.com/pub/repos components=extra
 gpt channel --set mychannel priority=-100
 gpt channel --disable mychannel
 gpt channel --remove mychannel
