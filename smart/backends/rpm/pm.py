@@ -22,13 +22,17 @@
 from smart.backends.rpm.rpmver import splitarch
 from smart.util.filetools import setCloseOnExec
 from smart.sorter import ChangeSetSorter, LoopError
-from smart.const import INSTALL, REMOVE
+from smart.const import INSTALL, REMOVE, BLOCKSIZE
 from smart.pm import PackageManager
 from smart import *
 import sys, os
+import codecs
+import locale
 import errno
 import fcntl
 import rpm
+
+ENCODING = locale.getpreferredencoding()
 
 class RPMPackageManager(PackageManager):
 
@@ -182,40 +186,38 @@ class RPMCallback:
         if flag:
             if not self.rpmout:
                 # Grab rpm output, but not the python one.
-                import codecs, locale
-                encoding = locale.getpreferredencoding()
-                sys.stdout = codecs.getwriter(encoding)(os.fdopen(os.dup(1), "w"))
-                sys.stderr = codecs.getwriter(encoding)(os.fdopen(os.dup(2), "w"))
                 self.stdout = sys.stdout
                 self.stderr = sys.stderr
+                writer = codecs.getwriter(ENCODING)
+                reader = codecs.getreader(ENCODING)
+                sys.stdout = writer(os.fdopen(os.dup(1), "w"))
+                sys.stderr = writer(os.fdopen(os.dup(2), "w"))
                 pipe = os.pipe()
                 os.dup2(pipe[1], 1)
                 os.dup2(pipe[1], 2)
                 os.close(pipe[1])
-                self.rpmout = pipe[0]
-                setCloseOnExec(self.rpmout)
-                flags = fcntl.fcntl(self.rpmout, fcntl.F_GETFL, 0)
+                self.rpmout = reader(os.fdopen(pipe[0], "r"))
+                setCloseOnExec(self.rpmout.fileno())
+                flags = fcntl.fcntl(self.rpmout.fileno(), fcntl.F_GETFL, 0)
                 flags |= os.O_NONBLOCK
-                fcntl.fcntl(self.rpmout, fcntl.F_SETFL, flags)
+                fcntl.fcntl(self.rpmout.fileno(), fcntl.F_SETFL, flags)
         else:
             if self.rpmout:
                 self._rpmout()
                 os.dup2(sys.stdout.fileno(), 1)
                 os.dup2(sys.stderr.fileno(), 2)
-                #sys.stdout.close()
-                #sys.stderr.close()
                 sys.stdout = self.stdout
                 sys.stderr = self.stderr
                 del self.stdout
                 del self.stderr
-                os.close(self.rpmout)
+                self.rpmout.close()
                 self.rpmout = None
 
     def _rpmout(self):
         if self.rpmout:
             try:
-                output = os.read(self.rpmout, 8192)
-            except OSError, e:
+                output = self.rpmout.read(BLOCKSIZE)
+            except (OSError, IOError), e:
                 if e[0] != errno.EWOULDBLOCK:
                     raise
             else:
