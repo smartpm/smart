@@ -19,6 +19,11 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+
+# Import it before rpm to avoid segfault with zlib symbols
+# being linked with rpm. :-(
+import zlib
+
 from smart.backends.rpm.pm import RPMPackageManager
 from crpmver import checkdep, vercmp, splitarch
 #from rpmver import checkdep, vercmp, splitarch
@@ -116,24 +121,33 @@ class RPMPackage(Package):
 
     ignoreprereq = False
 
+    def __getstate__(self):
+        return Package.__getstate__(self) + \
+               (self.ignoreprereq,)
+
+    def __setstate__(self, state):
+        Package.__setstate__(self, state[:-1])
+        if state[-1]:
+            self.ignorepreqreq = True
+
     def equals(self, other):
         if not self.ignoreprereq:
             return Package.equals(self, other)
         fk = dict.fromkeys
         if (self.name != other.name or
             self.version != other.version or
-            len(self.provides) != len(other.provides) or
             len(self.upgrades) != len(other.upgrades) or
             len(self.conflicts) != len(other.conflicts) or
-            fk(self.provides) != fk(other.provides) or
             fk(self.upgrades) != fk(other.upgrades) or
-            fk(self.conflicts) != fk(other.conflicts)):
+            fk(self.conflicts) != fk(other.conflicts) or
+            fk([x for x in self.provides if x.name[0] != "/"]) !=
+            fk([x for x in other.provides if x.name[0] != "/"])):
             return False
         sreqs = fk(self.requires)
         oreqs = fk(other.requires)
         if sreqs != oreqs:
             for sreq in sreqs:
-                if sreq in oreqs:
+                if sreq.name[0] == "/" or sreq in oreqs:
                     continue
                 for oreq in oreqs:
                     if (sreq.name == oreq.name and
@@ -143,7 +157,7 @@ class RPMPackage(Package):
                 else:
                     return False
             for oreq in oreqs:
-                if oreq in sreqs:
+                if oreq.name[0] == "/" or oreq in sreqs:
                     continue
                 for sreq in sreqs:
                     if (sreq.name == oreq.name and

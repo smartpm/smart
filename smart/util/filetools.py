@@ -25,6 +25,18 @@ import fcntl
 import md5
 import os
 
+def getFileDigest(path, digest=None):
+    if not digest:
+        digest = md5.md5()
+    file = open(path)
+    while True:
+        data = file.read(BLOCKSIZE)
+        if not data:
+            break
+        digest.update(data)
+    file.close()
+    return digest.digest()
+
 def compareFiles(path1, path2):
     if not os.path.isfile(path1) or not os.path.isfile(path2):
         return False

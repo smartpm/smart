@@ -81,7 +81,7 @@ class RPMHeaderPackageInfo(PackageInfo):
         return self._h[rpm.RPMTAG_SUMMARY].decode(ENCODING)
 
     def getGroup(self):
-        return self._package._group.decode(ENCODING)
+        return self._loader.getGroup(self._package).decode(ENCODING)
 
     def getPathList(self):
         if self._path is None:
@@ -123,6 +123,7 @@ class RPMHeaderLoader(Loader):
     def __init__(self):
         Loader.__init__(self)
         self._offsets = {}
+        self._groups = {}
 
     def getHeaders(self, prog):
         return []
@@ -130,9 +131,13 @@ class RPMHeaderLoader(Loader):
     def getInfo(self, pkg):
         return RPMHeaderPackageInfo(pkg, self)
 
+    def getGroup(self, pkg):
+        return self._groups[pkg]
+
     def reset(self):
         Loader.reset(self)
         self._offsets.clear()
+        self._groups.clear()
 
     def load(self):
         CM = self.COMPMAP
@@ -168,9 +173,9 @@ class RPMHeaderLoader(Loader):
                 if not ni.startswith("config("):
                     vi = v[i]
                     if ni == name and vi == version:
-                        prvdict[(NPrv, ni, versionarch)] = True
+                        prvdict[(NPrv, intern(ni), versionarch)] = True
                     else:
-                        prvdict[(Prv, ni, vi or None)] = True
+                        prvdict[(Prv, intern(ni), vi or None)] = True
             prvargs = prvdict.keys()
 
             n = h[1049] # RPMTAG_REQUIRENAME
@@ -187,7 +192,7 @@ class RPMHeaderLoader(Loader):
                             ((Prv, ni, vi) not in prvdict)):
                             # RPMSENSE_PREREQ
                             reqdict[(f[i]&64 and PreReq or Req,
-                                     ni, r, vi)] = True
+                                     intern(ni), r, vi)] = True
                 reqargs = reqdict.keys()
             else:
                 reqargs = None
@@ -217,8 +222,8 @@ class RPMHeaderLoader(Loader):
             pkg = self.buildPackage((Pkg, name, versionarch),
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
-            pkg._group = h[rpm.RPMTAG_GROUP]
             self._offsets[offset] = pkg
+            self._groups[pkg] = intern(h[rpm.RPMTAG_GROUP])
 
 class RPMHeaderListLoader(RPMHeaderLoader):
 
@@ -272,8 +277,9 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         bfp = self.buildFileProvides
         while h:
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
-                if fn in fndict and offset in self._offsets:
-                    bfp(self._offsets[offset], (RPMProvides, fn))
+                fn = fndict.get(fn)
+                if fn and offset in self._offsets:
+                    bfp(self._offsets[offset], (RPMProvides, fn, None))
             h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
 
@@ -350,13 +356,13 @@ class RPMDBLoader(RPMHeaderLoader):
     def loadFileProvides(self, fndict):
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
         bfp = self.buildFileProvides
-        for fn in fndict.keys():
+        for fn in fndict:
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
             h = mi.next()
             while h:
                 i = mi.instance()
                 if i in self._offsets:
-                    bfp(self._offsets[i], (RPMProvides, fn))
+                    bfp(self._offsets[i], (RPMProvides, fn, None))
                 h = mi.next()
 
 class RPMDirLoader(RPMHeaderLoader):
@@ -422,8 +428,9 @@ class RPMDirLoader(RPMHeaderLoader):
             h = ts.hdrFromFdno(file.fileno())
             file.close()
             for fn in h[1027]: # RPMTAG_OLDFILENAMES
-                if fn in fndict:
-                    bfp(self._offsets[i], (RPMProvides, fn))
+                fn = fndict.get(fn)
+                if fn:
+                    bfp(self._offsets[i], (RPMProvides, fn, None))
 
 class RPMFileChannel(FileChannel):
 

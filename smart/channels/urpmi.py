@@ -41,8 +41,6 @@ class URPMIChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
 
-        self._loader = None
-
         fetcher.reset()
 
         url = posixpath.join(self._baseurl, "MD5SUM")
@@ -56,13 +54,19 @@ class URPMIChannel(PackageChannel):
                          "%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
-        else:
-            basename = posixpath.basename(self._hdlurl)
-            for line in open(item.getTargetPath()):
-                md5, name = line.split()
-                if name == basename:
-                    hdlmd5 = md5
-                    break
+
+
+        digest = getFileDigest(item.getTargetPath())
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+
+        basename = posixpath.basename(self._hdlurl)
+        for line in open(item.getTargetPath()):
+            md5, name = line.split()
+            if name == basename:
+                hdlmd5 = md5
+                break
 
         fetcher.reset()
         item = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
@@ -92,8 +96,11 @@ class URPMIChannel(PackageChannel):
                             raise
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
-            self._loader = URPMILoader(localpath, self._baseurl)
-            self._loader.setChannel(self)
+            loader = URPMILoader(localpath, self._baseurl)
+            loader.setChannel(self)
+            self._loaders.append(loader)
+
+        self._digest = digest
 
         return True
 

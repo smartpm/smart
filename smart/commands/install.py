@@ -85,10 +85,11 @@ def main(ctrl, opts):
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
     for channel in ctrl.getFileChannels():
-        for pkg in channel.getLoader().getPackages():
-            if pkg.installed:
-                raise Error, "%s is already installed" % pkg
-            trans.enqueue(pkg, INSTALL)
+        for loader in channel.getLoaders():
+            for pkg in loader.getPackages():
+                if pkg.installed:
+                    raise Error, "%s is already installed" % pkg
+                trans.enqueue(pkg, INSTALL)
     for arg in opts.args:
         matcher = MasterMatcher(arg)
         pkgs = matcher.filter(cache.getPackages())

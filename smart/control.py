@@ -27,10 +27,11 @@ from smart.util.strtools import strToBool
 from smart.media import MediaSet
 from smart.progress import Progress
 from smart.fetcher import Fetcher
-from smart.cache import Cache
+from smart.cache import Cache, StateVersionError
 from smart.channel import *
 from smart.const import *
 from smart import *
+import cPickle
 import sys, os
 import copy
 import time
@@ -38,52 +39,57 @@ import md5
 
 class Control(object):
 
-    def __init__(self, conffile=None, forcelocks=False):
-        self._conffile = None
-        self._channels = []
-        self._sysconfchannels = []
+    def __init__(self, confpath=None, forcelocks=False):
+        self._confpath = None
+        self._channels = {}
+        self._sysconfchannels = {}
         self._pathlocks = PathLocks(forcelocks)
-
-        self.loadSysConf(conffile)
-
         self._cache = Cache()
+
+        self.loadSysConf(confpath)
+
         self._fetcher = Fetcher()
         self._mediaset = self._fetcher.getMediaSet()
         self._achanset = AvailableChannelSet(self._fetcher)
+        self._cachechanged = False
 
     def getChannels(self):
-        return self._channels
+        return self._channels.values()
 
-    def addChannel(self, channel):
-        self._channels.append(channel)
-
-    def removeChannel(self, channel):
-        if channel in self._sysconfchannels:
-            raise Error, "Channel is in system configuration"
-        self._channels.remove(channel)
+    def removeChannel(self, alias):
+        channel = self._channels[alias]
+        if isinstance(channel, PackageChannel):
+            self._cache.removeLoaders(channel.getLoaders())
+        del self._channels[alias]
+        if alias in self._sysconfchannels:
+            del self._sysconfchannels[alias]
 
     def getFileChannels(self):
-        return [x for x in self._channels if isinstance(x, FileChannel)]
+        return [x for x in self._channels.values()
+                if isinstance(x, FileChannel)]
 
     def addFileChannel(self, filename):
         if not self._sysconfchannels:
             # Give a chance for backends to register
             # themselves on FileChannel hooks.
             self.reloadSysConfChannels()
-        channels = []
+        found = True
         for channel in hooks.call("create-file-channel", filename):
             if channel:
-                channels.append(channel)
-        if not channels:
+                if channel.getAlias() in channels:
+                    raise Error, "There's another channel with alias '%s'" \
+                                 % channel.getAlias()
+                self._channels[channel.getAlias()] = channel
+                found = True
+        if not found:
             raise Error, "Unable to create channel for file: %s" % filename
-        self._channels.extend(channels)
 
     def removeFileChannel(self, filename):
         filename = os.path.abspath(filename)
-        for channel in self._channels:
+        for channel in self._channels.values():
             if (isinstance(channel, FileChannel) and
                 channel.getFileName() == filename):
-                self._filechannels.remove(channel)
+                self._cache.removeLoaders(channel.getLoaders())
                 break
         else:
             raise Error, "Channel not found for '%s'" % filename
@@ -109,21 +115,23 @@ class Control(object):
     def restoreMediaState(self):
         self._mediaset.restoreState()
 
-    def loadSysConf(self, conffile=None):
+    __stateversion__ = 1
+
+    def loadSysConf(self, confpath=None):
         loaded = False
         datadir = sysconf.get("data-dir")
-        if conffile:
-            conffile = os.path.expanduser(conffile)
-            if not os.path.isfile(conffile):
-                raise Error, "Configuration file not found: %s" % conffile
-            sysconf.load(conffile)
+        if confpath:
+            confpath = os.path.expanduser(confpath)
+            if not os.path.isfile(confpath):
+                raise Error, "Configuration file not found: %s" % confpath
+            sysconf.load(confpath)
             loaded = True
         else:
-            conffile = os.path.join(datadir, CONFFILE)
-            if os.path.isfile(conffile):
-                sysconf.load(conffile)
+            confpath = os.path.join(datadir, CONFFILE)
+            if os.path.isfile(confpath):
+                sysconf.load(confpath)
                 loaded = True
-        self._conffile = conffile
+        self._confpath = confpath
 
         if os.path.isdir(datadir):
             writable = os.access(datadir, os.W_OK)
@@ -139,24 +147,38 @@ class Control(object):
 
         sysconf.setReadOnly(not writable)
 
-    def saveSysConf(self, conffile=None):
+    def saveSysConf(self, confpath=None):
         msys = self._fetcher.getMirrorSystem()
         if msys.getHistoryChanged() and not sysconf.getReadOnly():
             sysconf.set("mirrors-history", msys.getHistory())
-        if not conffile:
+        if confpath:
+            confpath = os.path.expanduser(confpath)
+        else:
             if sysconf.getReadOnly():
                 return
+
+            cachepath = os.path.join(sysconf.get("data-dir"), "cache")
+            if self._cachechanged:
+                cachefile = open(cachepath+".new", "w")
+                state = (self.__stateversion__,
+                         self._cache,
+                         self._channels,
+                         self._sysconfchannels)
+                cPickle.dump(state, cachefile, 2)
+                cachefile.close()
+                os.rename(cachepath+".new", cachepath)
+
             if not sysconf.getModified():
                 return
+
             sysconf.resetModified()
-            conffile = self._conffile
-        else:
-            conffile = os.path.expanduser(conffile)
-        sysconf.save(conffile)
+            confpath = self._confpath
+
+        sysconf.save(confpath)
 
     def reloadMirrors(self):
         mirrors = sysconf.get("mirrors", {})
-        for channel in self._channels:
+        for channel in self._channels.values():
             if isinstance(channel, MirrorChannel):
                 cmirrors = channel.getMirrors()
                 if cmirrors:
@@ -169,28 +191,63 @@ class Control(object):
         if not msys.getHistory():
             msys.setHistory(sysconf.get("mirrors-history", []))
 
+    # rename to rebuildSysConfChannels()
     def reloadSysConfChannels(self):
-        for channel in self._sysconfchannels:
-            self._channels.remove(channel)
-            if isinstance(channel, PackageChannel):
-                self._cache.removeLoader(channel.getLoader())
-        del self._sysconfchannels[:]
+
         channels = sysconf.get("channels", ())
+
+        if channels and not self._channels:
+            cachepath = os.path.join(sysconf.get("data-dir"), "cache")
+            if os.path.isfile(cachepath):
+                iface.showStatus("Loading cache...")
+                cachefile = open(cachepath)
+                try:
+                    state = cPickle.load(cachefile)
+                    if state[0] != self.__stateversion__:
+                        raise StateVersionError
+                    (_,
+                     self._cache,
+                     self._channels,
+                     self._sysconfchannels) = state
+                    for alias in self._channels:
+                        if alias not in self._sysconfchannels:
+                            self.removeChannel(alias)
+                except (StateVersionError, cPickle.UnpicklingError):
+                    os.unlink(cachepath)
+                cachefile.close()
+                iface.hideStatus()
+
         for alias in channels:
             data = channels[alias]
             # Remove strToBool from here ASAP!
             if strToBool(data.get("disabled")):
                 continue
-            channel = createChannel(alias, data)
-            self._sysconfchannels.append(channel)
-            self._channels.append(channel)
 
+            if alias in self._sysconfchannels:
+                if self._sysconfchannels[alias] == data:
+                    continue
+                else:
+                    channel = self._channels[alias]
+                    if isinstance(channel, PackageChannel):
+                        self._cache.removeLoaders(channel.getLoaders())
+                    del self._channels[alias]
+                    del self._sysconfchannels[alias]
+
+            channel = createChannel(alias, data)
+            self._sysconfchannels[alias] = data
+            self._channels[alias] = channel
+
+        for alias in self._sysconfchannels:
+            if alias not in channels:
+                self.removeChannel(alias)
+
+    # rename to reloadChannels()
     def updateCache(self, channels=None, caching=ALWAYS):
 
         if channels is None:
             manual = False
             self.reloadSysConfChannels()
-            channels = self._channels
+            channels = self._channels.values()
         else:
             manual = True
 
@@ -216,7 +273,7 @@ class Control(object):
         # necessary to move channels with installed packages to the front,
         # since they know about provided files and perhaps other information
         # better than non-installed ones.
-        channels.sort()
+        channels.sort() # REMOVE IT!
 
         # Prepare progress. If we're reading from the cache, we don't want
         # too much information being shown. Otherwise, ask for a full-blown
@@ -236,7 +293,7 @@ class Control(object):
         progress.set(0, steps)
 
         # Yeah! Lots of memory! :-)
-        self._cache.unload()
+        #self._cache.unload()
 
         # Rebuild mirror information.
         self.reloadMirrors()
@@ -244,8 +301,7 @@ class Control(object):
         # Do the real work.
         result = True
         for channel in channels:
-            if isinstance(channel, PackageChannel):
-                self._cache.removeLoader(channel.getLoader())
+            digest = channel.getDigest()
             if not manual and channel.hasManualUpdate():
                 self._fetcher.setCaching(ALWAYS)
             else:
@@ -264,8 +320,10 @@ class Control(object):
                 iface.error(str(e))
                 iface.debug("Failed fetching channel '%s'" % channel)
                 result = False
-            if isinstance(channel, PackageChannel):
-                self._cache.addLoader(channel.getLoader())
+            if (channel.getDigest() != digest and
+                isinstance(channel, PackageChannel)):
+                channel.addLoaders(self._cache)
+                self._cachechanged = True
         if result and caching is not ALWAYS:
             sysconf.set("last-update", time.time())
         self._fetcher.setForceCopy(False)
@@ -288,13 +346,14 @@ class Control(object):
                     pkgconf.setFlag("new", pkg.name, "=", pkg.version)
 
         # Remove unused files from channels directory.
-        aliases = dict.fromkeys([x.getAlias() for x in self._channels], True)
+        aliases = self._channels.copy()
         aliases.update(dict.fromkeys(sysconf.get("channels", ()), True))
         for entry in os.listdir(channelsdir):
             sep = entry.find("%%")
             if sep == -1 or entry[:sep] not in aliases:
                 os.unlink(os.path.join(channelsdir, entry))
 
+        # Change back to a shared lock.
         self._pathlocks.lock(channelsdir)
         return result
 

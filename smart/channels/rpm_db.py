@@ -21,6 +21,8 @@
 #
 from smart.backends.rpm.header import RPMDBLoader
 from smart.channel import PackageChannel
+from smart import *
+import os
 
 class RPMDBChannel(PackageChannel):
 
@@ -29,8 +31,16 @@ class RPMDBChannel(PackageChannel):
         self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
-        self._loader = RPMDBLoader()
-        self._loader.setChannel(self)
+        path = os.path.join(sysconf.get("rpm-root", "/"),
+                            "/var/lib/rpm/Packages")
+        digest = os.path.getmtime(path)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        loader = RPMDBLoader()
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
         return True
 
 def create(alias, data):

@@ -21,6 +21,7 @@
 #
 from smart.backends.rpm.header import RPMHeaderListLoader
 from smart.const import SUCCEEDED, FAILED, NEVER
+from smart.util.filetools import getFileDigest
 from smart.channel import PackageChannel
 from smart import *
 import posixpath
@@ -44,12 +45,22 @@ class RPMHeaderListChannel(PackageChannel):
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
-            self._loader = RPMHeaderListLoader(localpath, self._baseurl)
-            self._loader.setChannel(self)
+            digest = getFileDigest(localpath)
+            if digest == self._digest:
+                return True
+            self.removeLoaders()
+            loader = RPMHeaderListLoader(localpath, self._baseurl)
+            loader.setChannel(self)
+            self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
             lines = ["Failed acquiring information for '%s':" % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
+        else:
+            return False
+
+        digest = self._digest
+
         return True
 
 def create(alias, data):

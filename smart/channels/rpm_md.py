@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.metadata import RPMMetaDataLoader
+from smart.util.filetools import getFileDigest
 from smart.util.elementtree import ElementTree
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.channel import PackageChannel
@@ -46,8 +47,6 @@ class RPMMetaDataChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         
-        self._loader = None
-
         fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
         item = fetcher.enqueue(repomd)
@@ -60,6 +59,11 @@ class RPMMetaDataChannel(PackageChannel):
                          "%s: %s" % (item.getURL(), item.getFailedReason())]
                 raise Error, "\n".join(lines)
             return False
+
+        digest = getFileDigest(item.getTargetPath())
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
 
         info = {}
         root = ElementTree.parse(item.getTargetPath()).getroot()
@@ -91,8 +95,9 @@ class RPMMetaDataChannel(PackageChannel):
 
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
-            self._loader = RPMMetaDataLoader(localpath, self._baseurl)
-            self._loader.setChannel(self)
+            loader = RPMMetaDataLoader(localpath, self._baseurl)
+            loader.setChannel(self)
+            self._loaders.append(loader)
         else:
             lines = ["Failed acquiring information for '%s':" % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]

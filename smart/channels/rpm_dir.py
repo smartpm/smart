@@ -31,12 +31,17 @@ class RPMDirChannel(PackageChannel):
         self._path = path
 
     def fetch(self, fetcher, progress):
-        self._loader = None
         if not os.path.isdir(self._path):
             raise Error, "Channel '%s' has invalid directory: %s" % \
                          (self, self._path)
-        self._loader = RPMDirLoader(self._path)
-        self._loader.setChannel(self)
+        digest = os.path.getmtime(self._path)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        loader = RPMDirLoader(self._path)
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
         return True
 
 def create(alias, data):

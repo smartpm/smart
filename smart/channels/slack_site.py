@@ -39,8 +39,6 @@ class SlackSiteChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
 
-        self._loader = None
-
         fetcher.reset()
 
         # Fetch packages file
@@ -49,12 +47,21 @@ class SlackSiteChannel(PackageChannel):
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
-            self._loader = SlackSiteLoader(localpath, self._baseurl)
-            self._loader.setChannel(self)
+            digest = getFileDigest(localpath)
+            if digest == self._digest:
+                return True
+            self.removeLoaders()
+            loader = SlackSiteLoader(localpath, self._baseurl)
+            loader.setChannel(self)
+            self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
             lines = ["Failed acquiring information for '%s':" % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
+        else:
+            return False
+
+        self._digest = digest
 
         return True
 

@@ -337,9 +337,13 @@ class GtkInteractiveInterface(GtkInterface):
     def showStatus(self, msg):
         self._status.pop(0)
         self._status.push(0, msg)
+        while gtk.events_pending():
+            gtk.main_iteration()
 
     def hideStatus(self):
         self._status.pop(0)
+        while gtk.events_pending():
+            gtk.main_iteration()
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)

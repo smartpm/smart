@@ -292,7 +292,7 @@ class RPMMetaDataLoader(Loader):
         for pkg in self._fileprovides:
             for fn in self._fileprovides[pkg]:
                 if fn in fndict:
-                    bfp(pkg, (RPMProvides, fn))
+                    bfp(pkg, (RPMProvides, fn, None))
 
     def getInfo(self, pkg):
         return RPMMetaDataPackageInfo(pkg, pkg.loaders[self])

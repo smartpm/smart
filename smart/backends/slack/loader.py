@@ -149,7 +149,9 @@ class SlackDBLoader(SlackLoader):
     def __init__(self, dir=None):
         SlackLoader.__init__(self)
         if dir is None:
-            dir = sysconf.get("slack-packages-dir", "/var/log/packages")
+            dir = os.path.join(sysconf.get("slack-root", "/"),
+                               sysconf.get("slack-packages-dir",
+                                           "/var/log/packages"))
         self._dir = dir
         self.setInstalled(True)
     

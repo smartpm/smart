@@ -29,8 +29,17 @@ class SlackDBChannel(PackageChannel):
         self._fetchorder = 500
 
     def fetch(self, fetcher, progress):
-        self._loader = SlackDBLoader()
-        self._loader.setChannel(self)
+        dir = os.path.join(sysconf.get("slack-root", "/"),
+                           sysconf.get("slack-packages-dir",
+                                       "/var/log/packages"))
+        digest = os.path.getmtime(dir)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        loader = SlackDBLoader()
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
         return True
 
 def create(alias, data):

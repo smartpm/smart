@@ -3,3 +3,7 @@
 - Make slack-site default priority be 100 or so.
 - Remove support for channel descriptions.
 - Clean stdin buffer before asking for user input.
+- Autodetection of removable media for apt-deb channels.
+- C implementation of deb's tagfile.py.
+- Implement package content listing for deb backend.
+- Rename rpm-db channel type to rpm-sys, and so on.

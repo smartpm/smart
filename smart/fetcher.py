@@ -546,6 +546,10 @@ class FetcherHandler(object):
             for i in range(len(self._queue)-1,-1,-1):
                 item = self._queue[i]
                 localpath = self.getLocalPath(item)
+                media = self._fetcher.getMediaSet() \
+                                     .findMountPoint(localpath, subpath=True)
+                if media:
+                    media.mount()
                 uncomphandler = uncompressor.getHandler(localpath)
                 if uncomphandler and item.getInfo("uncomp"):
                     uncomppath = uncomphandler.getTargetPath(localpath)
@@ -590,6 +594,8 @@ class FileHandler(FetcherHandler):
             uncompressor = fetcher.getUncompressor()
             for i in range(len(self._queue)-1,-1,-1):
                 item = self._queue[i]
+                if not item.getInfo("uncomp"):
+                    continue
                 localpath = self.getLocalPath(item)
                 media = self._fetcher.getMediaSet() \
                                      .findMountPoint(localpath, subpath=True)

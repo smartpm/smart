@@ -20,14 +20,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.deb.loader import DebTagFileLoader
+from smart.util.filetools import getFileDigest
 from smart.backends.deb import DEBARCH
 from smart.channel import PackageChannel
-from smart.const import SUCCEEDED, FAILED, NEVER
-from smart.cache import LoaderSet
+from smart.const import SUCCEEDED, NEVER
 from smart import *
 import posixpath
-import tempfile
 import commands
+import md5
 import os
 
 class APTDEBChannel(PackageChannel):
@@ -43,8 +43,6 @@ class APTDEBChannel(PackageChannel):
                                          if not x.isspace()])
         else:
             self._fingerprint = None
-
-        self._loader = LoaderSet()
 
     def _getURL(self, filename="", component=None, subpath=False):
         if subpath:
@@ -67,8 +65,6 @@ class APTDEBChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
 
-        del self._loader[:]
-
         fetcher.reset()
 
         # Fetch release file
@@ -84,6 +80,11 @@ class APTDEBChannel(PackageChannel):
                          "%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
+
+        digest = getFileDigest(item.getTargetPath())
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
 
         # Parse release file
         md5sum = {}
@@ -192,14 +193,17 @@ class APTDEBChannel(PackageChannel):
                 localpath = pkgitem.getTargetPath()
                 loader = DebTagFileLoader(localpath, self._baseurl)
                 loader.setChannel(self)
-                self._loader.append(loader)
+                self._loaders.append(loader)
             else:
                 errorlines.append("%s: %s" % (pkgitem.getURL(),
                                               pkgitem.getFailedReason()))
+
         if errorlines:
             errorlines.insert(0, "Failed acquiring information for '%s':" %
                                  self)
             raise Error, "\n".join(errorlines)
+
+        self._digest = digest
 
         return True
 

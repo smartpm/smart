@@ -20,9 +20,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.header import RPMPackageListLoader
+from smart.util.filetools import getFileDigest
 from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, FAILED, NEVER
-from smart.cache import LoaderSet
 from smart import *
 import posixpath
 import tempfile
@@ -41,8 +41,6 @@ class APTRPMChannel(PackageChannel):
         else:
             self._fingerprint = None
 
-        self._loader = LoaderSet()
-
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "base/release")]
 
@@ -50,8 +48,6 @@ class APTRPMChannel(PackageChannel):
         return len(self._comps)*2+1
 
     def fetch(self, fetcher, progress):
-
-        del self._loader[:]
 
         fetcher.reset()
 
@@ -67,6 +63,11 @@ class APTRPMChannel(PackageChannel):
                          "%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
             return False
+
+        digest = getFileDigest(item.getTargetPath())
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
 
         # Parse release file
         md5sum = {}
@@ -197,7 +198,7 @@ class APTRPMChannel(PackageChannel):
                 localpath = pkgitem.getTargetPath()
                 loader = RPMPackageListLoader(localpath, self._baseurl, count)
                 loader.setChannel(self)
-                self._loader.append(loader)
+                self._loaders.append(loader)
             else:
                 errorlines.append("%s: %s" % (pkgitem.getURL(),
                                               pkgitem.getFailedReason()))
@@ -205,6 +206,8 @@ class APTRPMChannel(PackageChannel):
             errorlines.insert(0, "Failed acquiring information for '%s':" %
                                  self)
             raise Error, "\n".join(errorlines)
+
+        self._digest = digest
 
         return True
 

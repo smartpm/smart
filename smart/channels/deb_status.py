@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.deb.loader import DebTagFileLoader
+from smart.util.filetools import getFileDigest
 from smart.channel import PackageChannel
 from smart import *
 import os
@@ -33,9 +34,15 @@ class DebStatusChannel(PackageChannel):
     def fetch(self, fetcher, progress):
         path = os.path.join(sysconf.get("deb-root", "/"),
                             "var/lib/dpkg/status")
-        self._loader = DebTagFileLoader(path)
-        self._loader.setInstalled(True)
-        self._loader.setChannel(self)
+        digest = os.path.getmtime(path)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        loader = DebTagFileLoader(path)
+        loader.setInstalled(True)
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
         return True
 
 def create(alias, data):

@@ -171,8 +171,11 @@ class DebRequires(DebDepends,Requires): pass
 class DebOrDepends(Depends):
 
     def __init__(self, nrv, descr):
-        Depends.__init__(self, descr)
+        Depends.__init__(self, descr, None, None)
         self._nrv = nrv
+
+    def getInitArgs(self):
+        return (self.__class__, self._nrv, self.name)
 
     def getMatchNames(self):
         return [x[0] for x in self._nrv]
@@ -189,6 +192,9 @@ class DebOrDepends(Depends):
                 if checkdep(prv.version, relation, version):
                     return True
         return False
+
+    def __reduce__(self):
+        return (self.__class__, (self._nrv, self.name))
 
 class DebOrRequires(DebOrDepends,Requires): pass
 class DebOrPreRequires(DebOrDepends,PreRequires): pass

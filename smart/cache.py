@@ -23,7 +23,10 @@ from smart.const import BLOCKSIZE
 from smart import *
 import os
 
+class StateVersionError(Error): pass
+
 class Package(object):
+
     def __init__(self, name, version):
         self.name = name
         self.version = version
@@ -36,19 +39,22 @@ class Package(object):
         self.priority = 0
         self.loaders = {}
 
+    def getInitArgs(self):
+        return (self.__class__, self.name, self.version)
+
     def equals(self, other):
         # These two packages are exactly the same?
         fk = dict.fromkeys
         if (self.name != other.name or
             self.version != other.version or
-            len(self.provides) != len(other.provides) or
-            len(self.requires) != len(other.requires) or
             len(self.upgrades) != len(other.upgrades) or
             len(self.conflicts) != len(other.conflicts) or
-            fk(self.provides) != fk(other.provides) or
-            fk(self.requires) != fk(other.requires) or
             fk(self.upgrades) != fk(other.upgrades) or
-            fk(self.conflicts) != fk(other.conflicts)):
+            fk(self.conflicts) != fk(other.conflicts) or
+            fk([x for x in self.provides if x.name[0] != "/"]) !=
+            fk([x for x in other.provides if x.name[0] != "/"]) or
+            fk([x for x in self.requires if x.name[0] != "/"]) !=
+            fk([x for x in other.requires if x.name[0] != "/"])):
             return False
         return True
 
@@ -65,7 +71,7 @@ class Package(object):
             return priority
         channelpriority = None
         for loader in self.loaders:
-            priority = loader.getChannel().getInfo("priority")
+            priority = loader.getChannel().getPriority()
             if channelpriority is None or priority > channelpriority:
                 channelpriority = priority
         return channelpriority+self.priority
@@ -84,6 +90,30 @@ class Package(object):
             if rc == 0:
                 rc = cmp(self.version, other.version)
         return rc == -1
+
+    def __getstate__(self):
+        return (self.name,
+                self.version,
+                self.provides,
+                self.requires,
+                self.upgrades,
+                self.conflicts,
+                self.installed,
+                self.essential,
+                self.priority,
+                self.loaders)
+
+    def __setstate__(self, state):
+        (self.name,
+         self.version,
+         self.provides,
+         self.requires,
+         self.upgrades,
+         self.conflicts,
+         self.installed,
+         self.essential,
+         self.priority,
+         self.loaders) = state
 
 class PackageInfo(object):
     def __init__(self, package):
@@ -180,13 +210,19 @@ class PackageInfo(object):
             return True
 
 class Provides(object):
-    def __init__(self, name, version=None):
+    def __init__(self, name, version):
         self.name = name
         self.version = version
         self.packages = []
         self.requiredby = ()
         self.upgradedby = ()
         self.conflictedby = ()
+
+    def getInitArgs(self):
+        return (self.__class__, self.name, self.version)
+
+    def __repr__(self):
+        return str(self)
 
     def __str__(self):
         if self.version:
@@ -201,19 +237,28 @@ class Provides(object):
                 rc = cmp(self.__class__, other.__class__)
         return rc
 
+    def __reduce__(self):
+        return (self.__class__, (self.name, self.version))
+
 class Depends(object):
-    def __init__(self, name, relation=None, version=None):
+    def __init__(self, name, relation, version):
         self.name = name
         self.relation = relation
         self.version = version
         self.packages = []
         self.providedby = ()
 
+    def getInitArgs(self):
+        return (self.__class__, self.name, self.relation, self.version)
+
     def getMatchNames(self):
         return (self.name,)
 
     def matches(self, prv):
         return False
+
+    def __repr__(self):
+        return str(self)
 
     def __str__(self):
         if self.version:
@@ -229,12 +274,16 @@ class Depends(object):
                 rc = cmp(self.__class__, other.__class__)
         return rc
 
+    def __reduce__(self):
+        return (self.__class__, (self.name, self.relation, self.version))
+
 class PreRequires(Depends): pass
 class Requires(Depends): pass
 class Upgrades(Depends): pass
 class Conflicts(Depends): pass
 
 class Loader(object):
+
     def __init__(self):
         self._packages = []
         self._channel = None
@@ -371,59 +420,21 @@ class Loader(object):
                 if not req.packages:
                     cache._requires.remove(req)
 
-class LoaderSet(list):
+    __stateversion__ = 1
+    
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["__stateversion__"] = self.__stateversion__
+        return state
 
-    def getPackages(self):
-        packages = []
-        for loader in self:
-            packages.extend(loader.getPackages())
-        return packages
-
-    def getChannel(self):
-        if self:
-            return self[0].getChannel()
-        return None
-
-    def setChannel(self, channel):
-        for loader in self:
-            loader.setChannel(channel)
-
-    def getCache(self):
-        if self:
-            return self[0].getCache()
-        return None
-
-    def setCache(self, cache):
-        for loader in self:
-            loader.setCache(cache)
-
-    def getLoadSteps(self):
-        steps = 0
-        for loader in self:
-            steps += loader.getLoadSteps()
-        return steps
-
-    def reset(self):
-        for loader in self:
-            loader.reset()
-
-    def load(self):
-        for loader in self:
-            loader.load()
-
-    def loadFileProvides(self, fndict):
-        for loader in self:
-            loader.loadFileProvides(fndict)
-
-    def unload(self):
-        for loader in self:
-            loader.unload()
-
-    def reload(self):
-        for loader in self:
-            loader.reload()
+    def __setstate__(self, state):
+        if state["__stateversion__"] != self.__stateversion__:
+            raise StateVersionError
+        self.__dict__.update(state)
+        del self.__stateversion__
 
 class Cache(object):
+
     def __init__(self):
         self._loaders = []
         self._packages = []
@@ -463,29 +474,78 @@ class Cache(object):
 
     def addLoader(self, loader):
         if loader:
-            self._loaders.append(loader)
-            loader.setCache(self)
+            if loader not in self._loaders:
+                self._loaders.append(loader)
+                loader.setCache(self)
 
     def removeLoader(self, loader):
         if loader:
-            self._loaders.remove(loader)
-            loader.setCache(None)
+            if loader in self._loaders:
+                self._loaders.remove(loader)
+                loader.setCache(None)
+                loader.unload()
+
+    def _reload(self):
+        packages = {}
+        provides = {}
+        requires = {}
+        upgrades = {}
+        conflicts = {}
+        objmap = self._objmap
+        loaders = dict.fromkeys(self._loaders, True)
+        for loader in loaders:
+            for pkg in loader._packages:
+                if pkg in packages:
+                    pkg.installed |= loader._installed
+                else:
+                    pkg.installed = loader._installed
+                    packages[pkg] = True
+                    objmap.setdefault(pkg.getInitArgs(), []).append(pkg)
+                    for pkgloader in pkg.loaders.keys():
+                        if pkgloader not in loaders:
+                            del pkg.loaders[pkgloader]
+                    for prv in pkg.provides:
+                        prv.packages.append(pkg)
+                        if prv not in provides:
+                            provides[prv] = True
+                            objmap[prv.getInitArgs()] = prv
+                    for req in pkg.requires[:]:
+                        req.packages.append(pkg)
+                        if req not in requires:
+                            objmap[req.getInitArgs()] = req
+                            requires[req] = True
+                    for upg in pkg.upgrades:
+                        upg.packages.append(pkg)
+                        if upg not in upgrades:
+                            upgrades[upg] = True
+                            objmap[upg.getInitArgs()] = upg
+                    for cnf in pkg.conflicts:
+                        cnf.packages.append(pkg)
+                        if cnf not in conflicts:
+                            conflicts[cnf] = True
+                            objmap[cnf.getInitArgs()] = cnf
+        self._packages[:] = packages.keys()
+        self._provides[:] = provides.keys()
+        self._requires[:] = requires.keys()
+        self._upgrades[:] = upgrades.keys()
+        self._conflicts[:] = conflicts.keys()
 
     def load(self):
-        self.reset()
+        self._reload()
         prog = iface.getProgress(self)
         prog.start()
-        prog.setTopic("Building cache...")
+        prog.setTopic("Updating cache...")
         prog.set(0, 1)
         prog.show()
         total = 1
         for loader in self._loaders:
-            total += loader.getLoadSteps()
+            if not loader._packages:
+                total += loader.getLoadSteps()
         prog.set(0, total)
         prog.show()
         for loader in self._loaders:
-            loader.reset()
-            loader.load()
+            if not loader._packages:
+                loader.load()
         self.loadFileProvides()
         self._objmap.clear()
         self.linkDeps()
@@ -501,8 +561,9 @@ class Cache(object):
     def loadFileProvides(self):
         fndict = {}
         for req in self._requires:
-            if req.name[0] == "/":
-                fndict[req.name] = True
+            name = req.name
+            if name[0] == "/":
+                fndict[name] = name
         for loader in self._loaders:
             loader.loadFileProvides(fndict)
 
@@ -598,6 +659,43 @@ class Cache(object):
             return self._conflicts
         else:
             return [x for x in self._conflicts if x.name == name]
+
+    __stateversion__ = 1
+
+    def __getstate__(self):
+        state = {}
+        state["__stateversion__"] = self.__stateversion__
+        state["_loaders"] = self._loaders
+        state["_packages"] = self._packages
+        return state
+
+    def __setstate__(self, state):
+        if state["__stateversion__"] != self.__stateversion__:
+            raise StateVersionError
+        self._loaders = state["_loaders"]
+        self._packages = state["_packages"]
+        provides = {}
+        requires = {}
+        upgrades = {}
+        conflicts = {}
+        for pkg in self._packages:
+            for prv in pkg.provides:
+                prv.packages.append(pkg)
+                provides[prv] = True
+            for req in pkg.requires:
+                req.packages.append(pkg)
+                requires[req] = True
+            for upg in pkg.upgrades:
+                upg.packages.append(pkg)
+                upgrades[upg] = True
+            for cnf in pkg.conflicts:
+                cnf.packages.append(pkg)
+                conflicts[cnf] = True
+        self._provides = provides.keys()
+        self._requires = requires.keys()
+        self._upgrades = upgrades.keys()
+        self._conflicts = conflicts.keys()
+        self._objmap = {}
 
 from ccache import *
 

@@ -31,6 +31,7 @@ class Channel(object):
         self._fetchorder = 1000
         self._manualupdate = manualupdate
         self._removable = removable
+        self._digest = object()
 
     def getType(self):
         return self._type
@@ -48,10 +49,19 @@ class Channel(object):
         return self._removable
 
     def getFetchOrder(self):
-        return self._fetchorder
+        return -self._fetchorder
+        #return 0 
 
     def getFetchSteps(self):
         return 0
+
+    def getDigest(self):
+        """
+        Having the same channel digest means that information in
+        the channel haven't changed at all, thus reprocessing
+        information contained in it is optional.
+        """
+        return self._digest
 
     def getCacheCompareURLs(self):
         """
@@ -84,11 +94,22 @@ class PackageChannel(Channel):
                  manualupdate=False, removable=False, priority=0):
         super(PackageChannel, self).__init__(type, alias, name,
                                              manualupdate, removable)
-        self._loader = None
+        self._loaders = []
         self._priority = priority
 
-    def getLoader(self):
-        return self._loader
+    def getLoaders(self):
+        return self._loaders
+
+    def addLoaders(self, cache):
+        for loader in self._loaders:
+            cache.addLoader(loader)
+
+    def removeLoaders(self):
+        for loader in self._loaders:
+            cache = loader.getCache()
+            cache.removeLoader(loader)
+        del self._loaders[:]
+        self._digest = object()
 
     def getPriority(self):
         return self._priority

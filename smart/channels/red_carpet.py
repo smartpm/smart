@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.redcarpet import RPMRedCarpetLoader
+from smart.util.filetools import getFileDigest
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart.channel import PackageChannel
 from smart import *
@@ -40,8 +41,6 @@ class RedCarpetChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
 
-        self._loader = None
-
         pkginfourl = self._packageinfourl
         if not pkginfourl:
             pkginfourl = posixpath.join(self._baseurl, "packageinfo.xml.gz")
@@ -52,12 +51,23 @@ class RedCarpetChannel(PackageChannel):
 
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
-            self._loader = RPMRedCarpetLoader(localpath, self._baseurl)
-            self._loader.setChannel(self)
+
+            digest = getFileDigest(localpath)
+            if digest == self._digest:
+                return True
+            self.removeLoaders()
+
+            loader = RPMRedCarpetLoader(localpath, self._baseurl)
+            loader.setChannel(self)
+            self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
             lines = ["Failed acquiring information for '%s':" % self,
                      "%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
+        else:
+            return False
+
+        self._digest = digest
 
         return True
 
