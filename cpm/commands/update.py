@@ -15,6 +15,7 @@ def parse_options(argv):
 
 def main(opts):
     ctrl = initCmdLine(opts)
+    ctrl.reloadSysConfRepositories()
     repositories = ctrl.getRepositories()
     if opts.args:
         repositories = [x for x in repositories if x.getName() in opts.args]

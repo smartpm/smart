@@ -159,6 +159,7 @@ class Fetcher(object):
                     thread.start_new_thread(self._uncompress,
                                             (url, localpath,
                                              uncomphandler))
+            prog.show()
             time.sleep(0.1)
         for handler in handlers:
             handler.stop()
@@ -469,7 +470,7 @@ class FTPHandler(FetcherHandler):
         prog.setSubTopic(url, os.path.basename(urlobj.path))
         prog.setSub(url, 0, 1, 1)
         prog.show()
-        import socket
+        import socket, ftplib
         try:
             ftp.connect(urlobj.host, urlobj.port)
             ftp.login(urlobj.user, urlobj.passwd)

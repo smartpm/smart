@@ -8,17 +8,13 @@ import os
 
 class Control:
 
-    def __init__(self, feedback=None):
+    def __init__(self):
         self._conffile = CONFFILE
         self._replst = []
         self._sysconfreplst = []
-        if not feedback:
-            feedback = ControlFeedback()
-        self._feedback = feedback
         self._cache = Cache()
-        feedback.cacheCreated(self._cache)
         self._fetcher = Fetcher()
-        feedback.fetcherCreated(self._fetcher)
+        self._feedback = ControlFeedback(self)
 
     def setFeedback(self, feedback):
         self._feedback = feedback
@@ -90,7 +86,7 @@ class Control:
             self._replst.append(repos)
 
     def fetchRepositories(self, replst=None, caching=ALWAYS):
-        if not replst:
+        if replst is None:
             self.reloadSysConfRepositories()
             replst = self._replst
         localdir = os.path.join(sysconf.get("data-dir"), "repositories/")
@@ -150,13 +146,14 @@ class Control:
         self._feedback.fetcherFinished(fetcher)
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
-    def commitTransaction(self, trans, caching=OPTIONAL):
-        self.commitChangeSet(trans.getChangeSet(), caching)
+    def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
+        if not confirm or self._feedback.confirmTransaction(trans):
+            self.commitChangeSet(trans.getChangeSet(), caching)
 
     def commitChangeSet(self, changeset, caching=OPTIONAL):
         pkgpath = self.fetchPackages([pkg for pkg in changeset
                                       if changeset[pkg] is INSTALL],
-                                     caching)
+                                      caching)
         pmpkgs = {}
         for pkg in changeset:
             pmclass = pkg.packagemanager
@@ -166,7 +163,6 @@ class Control:
                 pmpkgs[pmclass].append(pkg)
         for pmclass in pmpkgs:
             pm = pmclass()
-            self._feedback.packageManagerCreated(pm)
             pminstall = [pkg for pkg in pmpkgs[pmclass]
                          if changeset[pkg] is INSTALL]
             pmremove  = [pkg for pkg in pmpkgs[pmclass]
@@ -175,8 +171,9 @@ class Control:
             pm.commit(pminstall, pmremove, pkgpath)
             self._feedback.packageManagerFinished(pm)
 
-    def commitTransactionStepped(self, trans, caching=OPTIONAL):
-        self.commitChangeSetStepped(trans.getChangeSet(), caching)
+    def commitTransactionStepped(self, trans, caching=OPTIONAL, confirm=True):
+        if not confirm or self._feedback.confirmTransaction(trans):
+            self.commitChangeSetStepped(trans.getChangeSet(), caching)
 
     def commitChangeSetStepped(self, changeset, caching=OPTIONAL):
 
@@ -205,11 +202,8 @@ class Control:
 
 class ControlFeedback:
 
-    def cacheCreated(self, cache):
-        pass
-
-    def fetcherCreated(self, fetcher):
-        pass
+    def __init__(self, ctrl):
+        self._ctrl = ctrl
 
     def fetcherStarting(self, fetcher):
         pass
@@ -217,13 +211,13 @@ class ControlFeedback:
     def fetcherFinished(self, fetcher):
         pass
 
-    def packageManagerCreated(self, pm):
-        pass
-
     def packageManagerStarting(self, pm):
         pass
 
     def packageManagerFinished(self, pm):
         pass
+
+    def confirmTransaction(self, trans):
+        return True
 
 # vim:ts=4:sw=4:et

@@ -24,6 +24,8 @@ def parse_options(argv):
     parser.add_option("--log-level", metavar="LEVEL",
                       help="set logging level to LEVEL (debug, info, "
                            "warning, error)", default="warning")
+    parser.add_option("--gui", action="store_true",
+                      help="try to use a graphic interface")
     opts, args = parser.parse_args()
     if len(args) < 1:
         parser.print_help(sys.stderr)
@@ -53,10 +55,7 @@ def main(argv):
             import traceback
             traceback.print_exc()
             sys.exit(1)
-        sys.stderr.write("\n")
-        for line in str(e).split("\n"):
-            if line.strip():
-                sys.stderr.write("error: %s\n" % line)
+        logger.error(str(e))
         sys.exit(1)
     except KeyboardInterrupt:
         if opts.log_level == "debug":

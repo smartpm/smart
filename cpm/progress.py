@@ -49,7 +49,7 @@ class Progress:
                 continue
             self._sublastshown[subkey] = (subtopic, subpercent)
             if subpercent == 100:
-                if fragment and current != total:
+                if fragment:
                     _current, _total, _data = self._progress
                     self._progress = (_current+fragment, _total, _data)
                     if _current == _total:

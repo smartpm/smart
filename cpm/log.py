@@ -1,5 +1,6 @@
 from cpm.const import ERROR, WARNING, INFO, DEBUG
 from cpm import *
+import sys
 
 class Logger:
 
@@ -20,11 +21,12 @@ class Logger:
             self.message(DEBUG, msg)
 
     def message(self, level, msg):
-        prefix = {ERROR: "error:", WARNING: "warning:",
-                  DEBUG: "debug:"}.get(level)
+        prefix = {ERROR: "error", WARNING: "warning",
+                  DEBUG: "debug"}.get(level)
         if prefix:
-            print prefix, msg
+            for line in msg.split("\n"):
+                sys.stderr.write("%s: %s\n" % (prefix, line))
         else:
             msg = msg[0].upper()+msg[1:]
-            print msg
+            sys.stderr.write("%s\n" % msg)
 

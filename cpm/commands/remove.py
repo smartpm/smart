@@ -30,7 +30,7 @@ def main(opts):
     if not found:
         raise Error, "no installed packages matched given arguments"
     trans.run()
-    if trans and confirmChanges(trans):
+    if trans:
         ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et

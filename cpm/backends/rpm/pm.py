@@ -105,20 +105,21 @@ class RPMCallback:
             self.data["item-number"] += 1
             self.prog.add(1)
             self.prog.setSubTopic(infopath, info.getPackage().name)
-            self.prog.setSub(info, 0, 1, subdata=self.data)
+            self.prog.setSub(infopath, 0, 1, subdata=self.data)
 
         elif (what == rpm.RPMCALLBACK_TRANS_PROGRESS or
               what == rpm.RPMCALLBACK_INST_PROGRESS):
-            self.prog.setSub(infopath, amount, total, subdata=self.data)
+            self.prog.setSub(infopath or "trans", amount, total,
+                             subdata=self.data)
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_START:
-            self.prog.setSubTopic(infopath, "Preparing...")
-            self.prog.setSub(infopath, 0, 1)
+            self.prog.setSubTopic("trans", "Preparing...")
+            self.prog.setSub("trans", 0, 1)
             self.prog.show()
 
         elif what == rpm.RPMCALLBACK_TRANS_STOP:
-            self.prog.setSubDone(infopath)
+            self.prog.setSubDone("trans")
             self.prog.show()
 
 # vim:ts=4:sw=4:et

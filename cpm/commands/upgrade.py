@@ -10,6 +10,8 @@ USAGE="cpm upgrade [options] [packages]"
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
+    parser.add_option("--stepped", action="store_true",
+                      help="split operation in steps")
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -36,8 +38,9 @@ def main(opts):
     trans.run()
     if not trans:
         print "No upgrades available!"
-    elif confirmChanges(trans):
-        #ctrl.commitTransaction(trans)
+    elif opts.stepped:
         ctrl.commitTransactionStepped(trans)
+    else:
+        ctrl.commitTransaction(trans)
 
 # vim:ts=4:sw=4:et
