@@ -20,9 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.util.strtools import isGlob
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
-from smart.cache import Provides, PreRequires
+from smart.cache import Provides, PreRequires, Package
 from smart import *
 import tempfile
 import fnmatch
@@ -131,10 +130,29 @@ def main(ctrl, opts, reloadchannels=True):
     if not opts.args:
         packages = cache.getPackages()[:]
     else:
-        packages = []
+        packages = {}
         for arg in opts.args:
-            matcher = MasterMatcher(arg)
-            packages.extend(matcher.filter(cache.getPackages()))
+            ratio, results, suggestions = ctrl.search(arg, addprovides=False)
+            if not results:
+                if suggestions:
+                    dct = {}
+                    for r, obj in suggestions:
+                        if isinstance(obj, Package):
+                            dct[obj] = True
+                        else:
+                            dct.update(dct.fromkeys(obj.packages, True))
+                    raise Error, _("'%s' matches no packages. "
+                                   "Suggestions:\n%s") % \
+                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                else:
+                    raise Error, _("'%s' matches no packages") % arg
+            else:
+                for obj in results:
+                    if isinstance(obj, Package):
+                        packages[obj] = True
+                    else:
+                        packages.update(dict.fromkeys(obj.packages, True))
+        packages = packages.keys()
 
     if opts.installed:
         packages = [pkg for pkg in packages if pkg.installed]

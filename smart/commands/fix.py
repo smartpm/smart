@@ -20,7 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.transaction import Transaction, PolicyInstall, FIX
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
 from smart import *
 import string
@@ -65,16 +64,35 @@ def main(ctrl, opts):
     ctrl.reloadChannels()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
-    pkgs = cache.getPackages()
     if opts.args:
-        newpkgs = []
+        pkgs = {}
         for arg in opts.args:
-            matcher = MasterMatcher(arg)
-            fpkgs = matcher.filter(pkgs)
-            if not fpkgs:
-                raise Error, _("'%s' matches no packages") % arg
-            newpkgs.extend(fpkgs)
-        pkgs = dict.fromkeys(newpkgs).keys()
+            ratio, results, suggestions = ctrl.search(arg)
+
+            if not results:
+                if suggestions:
+                    dct = {}
+                    for r, obj in suggestions:
+                        if isinstance(obj, Package):
+                            dct[obj] = True
+                        else:
+                            dct.update(dict.fromkeys(obj.packages, True))
+                    raise Error, _("'%s' matches no packages. "
+                                   "Suggestions:\n%s") % \
+                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                else:
+                    raise Error, _("'%s' matches no packages") % arg
+
+            dct = {}
+            for obj in results:
+                if isinstance(obj, Package):
+                    dct[obj] = True
+                else:
+                    dct.update(dict.fromkeys(obj.packages, True))
+            pkgs.update(dct)
+        pkgs = pkgs.keys()
+    else:
+        pkgs = cache.getPackages()
     for pkg in pkgs:
         trans.enqueue(pkg, FIX)
     iface.showStatus(_("Computing transaction..."))

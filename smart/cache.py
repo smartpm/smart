@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.util.strtools import globdistance
 from smart.const import BLOCKSIZE
 from smart import *
 import os
@@ -64,6 +65,18 @@ class Package(object):
 
     def matches(self, relation, version):
         return False
+
+    def search(self, searcher):
+        myname = self.name
+        myversion = self.version
+        ratio = 0
+        for nameversion, cutoff in searcher.nameversion:
+            _, ratio1 = globdistance(nameversion, myname, cutoff)
+            _, ratio2 = globdistance(nameversion,
+                                     "%s-%s" % (myname, myversion), cutoff)
+            ratio = max(ratio, ratio1, ratio2)
+        if ratio:
+            searcher.addResult(self, ratio)
 
     def getPriority(self):
         priority = pkgconf.getPriority(self)
@@ -227,6 +240,18 @@ class Provides(object):
 
     def getInitArgs(self):
         return (self.__class__, self.name, self.version)
+
+    def search(self, searcher):
+        myname = self.name
+        myversion = self.version
+        ratio = 0
+        for provides, cutoff in searcher.provides:
+            _, ratio1 = globdistance(provides, myname, cutoff)
+            _, ratio2 = globdistance(provides, "%s-%s" % (myname, myversion),
+                                     cutoff)
+            ratio = max(ratio, ratio1, ratio2)
+        if ratio:
+            searcher.addResult(self, ratio)
 
     def __repr__(self):
         return str(self)
@@ -426,6 +451,65 @@ class Loader(object):
                 req.packages.remove(pkg)
                 if not req.packages:
                     cache._requires.remove(req)
+
+    def search(self, searcher):
+        # Loaders are responsible for searching on PackageInfo. They
+        # should use the fastest possible method. The one here is
+        # generic, and should be replaced if possible.
+        for pkg in self._packages:
+            info = self.getInfo(pkg)
+            ratio = 0
+            if searcher.url:
+                for url, cutoff in searcher.url:
+                    for refurl in info.getReferenceURLs():
+                        _, newratio = globdistance(url, refurl, cutoff)
+                        if newratio > ratio:
+                            ratio = newratio
+                            if ratio == 1:
+                                break
+                    else:
+                        continue
+                    break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.path:
+                for spath, cutoff in searcher.path:
+                    for path in info.getPathList():
+                        _, newratio = globdistance(spath, path, cutoff)
+                        if newratio > ratio:
+                            ratio = newratio
+                            if ratio == 1:
+                                break
+                    else:
+                        continue
+                    break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.group:
+                for pat in searcher.group:
+                    if pat.search(info.getGroup()):
+                        ratio = 1
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.summary:
+                for pat in searcher.summary:
+                    if pat.search(info.getSummary()):
+                        ratio = 1
+                        break
+            if ratio == 1:
+                searcher.addResult(pkg, ratio)
+                continue
+            if searcher.description:
+                for pat in searcher.summary:
+                    if pat.search(info.getSummary()):
+                        ratio = 1
+                        break
+            if ratio:
+                searcher.addResult(pkg, ratio)
 
     __stateversion__ = 1
     
@@ -666,6 +750,35 @@ class Cache(object):
             return self._conflicts
         else:
             return [x for x in self._conflicts if x.name == name]
+
+    def search(self, searcher):
+        if searcher.nameversion:
+            for pkg in self._packages:
+                pkg.search(searcher)
+        if searcher.provides:
+            for prv in self._provides:
+                prv.search(searcher)
+        if searcher.requires:
+            for prv in searcher.requires:
+                prvname = prv.name
+                for req in self._requires:
+                    if prvname in req.getMatchNames() and req.matches(prv):
+                        searcher.addResult(req)
+        if searcher.upgrades:
+            for prv in searcher.upgrades:
+                prvname = prv.name
+                for upg in self._upgrades:
+                    if prvname in upg.getMatchNames() and upg.matches(prv):
+                        searcher.addResult(upg)
+        if searcher.conflicts:
+            for prv in searcher.conflicts:
+                prvname = prv.name
+                for cnf in self._conflicts:
+                    if prvname in cnf.getMatchNames() and cnf.matches(prv):
+                        searcher.addResult(cnf)
+        if searcher.needsPackageInfo():
+            for loader in self._loaders:
+                loader.search(searcher)
 
     __stateversion__ = 1
 

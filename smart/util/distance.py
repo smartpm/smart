@@ -28,23 +28,22 @@ def distance(a, b, cutoff=None):
         return 0, 1.0
     al = len(a)
     bl = len(b)
-    if al < bl:
+    if al > bl:
         a, al, b, bl = b, bl, a, al
     if cutoff and type(cutoff) is float:
-        cutoff = int(al-cutoff*al)
-    lst = range(1,al+1)
-    for bi in range(bl):
-        last, lst[0] = lst[0], min(lst[0]+1, bi+(a[0] != b[bi]))
-        for ai in range(1, al):
-            last, lst[ai] = lst[ai], min(lst[ai-1]+1, lst[ai]+1,
-                                         last+(a[ai] != b[bi]))
-        print lst
+        cutoff = int(bl-cutoff*bl)
+    lst = range(1,bl+1)
+    for ai in range(al):
+        last, lst[0] = lst[0], min(lst[0]+1, ai+(b[0] != a[ai]))
+        for bi in range(1, bl):
+            last, lst[bi] = lst[bi], min(lst[bi-1]+1, lst[bi]+1,
+                                         last+(b[bi] != b[ai]))
         if cutoff is not None and min(lst) > cutoff:
-            return al, 0.0
+            return bl, 0.0
     res = lst[-1]
     if cutoff is not None and res > cutoff:
-        return al, 0.0
-    return res, float(al-res)/al
+        return bl, 0.0
+    return res, float(bl-res)/bl
 
 def globdistance(a, b, cutoff=None):
     """
@@ -59,26 +58,26 @@ def globdistance(a, b, cutoff=None):
     maxl = al > bl and al or bl
     if cutoff and type(cutoff) is float:
         cutoff = int(maxl-cutoff*maxl)
-    lst = range(1,al+1)
-    for bi in range(bl):
-        if b[bi] == "*":
-            last, lst[0] = lst[0], min(lst[0], bi)
-            for ai in range(1,al):
-                last, lst[ai] = lst[ai], min(lst[ai-1], lst[ai], last)
-        elif b[bi] == "?":
-            last, lst[0] = lst[0], min(lst[0]+1, bi)
-            for ai in range(1,al):
-                last, lst[ai] = lst[ai], min(lst[ai-1]+1, lst[ai]+1, last)
+    lst = range(1,bl+1)
+    for ai in range(al):
+        if a[ai] == "*":
+            last, lst[0] = lst[0], min(lst[0], ai)
+            for bi in range(1,bl):
+                last, lst[bi] = lst[bi], min(lst[bi-1], lst[bi], last)
+        elif a[ai] == "?":
+            last, lst[0] = lst[0], min(lst[0]+1, ai)
+            for bi in range(1,bl):
+                last, lst[bi] = lst[bi], min(lst[bi-1]+1, lst[bi]+1, last)
         else:
-            last, lst[0] = lst[0], min(lst[0]+1, bi+(a[0] != b[bi]))
-            for ai in range(1, al):
-                last, lst[ai] = lst[ai], min(lst[ai-1]+1, lst[ai]+1,
-                                             last+(a[ai] != b[bi]))
+            last, lst[0] = lst[0], min(lst[0]+1, ai+(b[0] != a[ai]))
+            for bi in range(1, bl):
+                last, lst[bi] = lst[bi], min(lst[bi-1]+1, lst[bi]+1,
+                                             last+(b[bi] != a[ai]))
         if cutoff is not None and min(lst) > cutoff:
-            return al, 0.0
+            return bl, 0.0
     res = lst[-1]
     if cutoff is not None and res > cutoff:
-        return al, 0.0
+        return bl, 0.0
     return res, float(maxl-res)/maxl
 
 from cdistance import *

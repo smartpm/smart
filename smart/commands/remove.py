@@ -20,8 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.transaction import Transaction, PolicyRemove, REMOVE
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
+from smart.cache import Package
 from smart import *
 import string
 import re
@@ -64,9 +64,42 @@ def main(ctrl, opts):
     trans = Transaction(cache, PolicyRemove)
     policy = trans.getPolicy()
     for arg in opts.args:
+
+        ratio, results, suggestions = ctrl.search(arg)
+
+        if not results:
+            if suggestions:
+                dct = {}
+                for r, obj in suggestions:
+                    if isinstance(obj, Package):
+                        if obj.installed:
+                            dct[obj] = True
+                    else:
+                        for pkg in obj.packages:
+                            if pkg.installed:
+                                dct[pkg] = True
+                if not dct:
+                    del suggestions[:]
+            if suggestions:
+                raise Error, _("'%s' matches no packages. "
+                               "Suggestions:\n%s") % \
+                             (arg, "\n".join(["    "+str(x) for x in dct]))
+            else:
+                raise Error, _("'%s' matches no packages") % arg
+
+        pkgs = []
+
+        for obj in results:
+            if isinstance(obj, Package):
+                pkgs.append(obj)
+
+        if not pkgs:
+            for obj in results:
+                for pkg in obj.packages:
+                    pkgs.append(pkg)
+
         found = False
-        matcher = MasterMatcher(arg)
-        for pkg in matcher.filter(cache.getPackages()):
+        for pkg in pkgs:
             if pkg.installed:
                 found = True
                 trans.enqueue(pkg, REMOVE)
@@ -74,6 +107,7 @@ def main(ctrl, opts):
                 policy.setLocked(pkg, True)
         if not found:
             iface.warning(_("'%s' matches no installed packages") % arg)
+
     iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()

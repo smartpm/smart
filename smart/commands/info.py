@@ -20,8 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.util.strtools import sizeToStr
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
+from smart.cache import Package
 from smart import *
 import re
 
@@ -59,11 +59,29 @@ def main(ctrl, opts, reloadchannels=True):
     if opts.args:
         pkgs = {}
         for arg in opts.args:
-            matcher = MasterMatcher(arg)
-            fpkgs = [pkg for pkg in matcher.filter(cache.getPackages())]
-            if not fpkgs:
-                raise Error, _("'%s' matches no packages") % arg
-            pkgs.update(dict.fromkeys(fpkgs, True))
+            ratio, results, suggestions = ctrl.search(arg, addprovides=False)
+
+            if not results:
+                if suggestions:
+                    dct = {}
+                    for r, obj in suggestions:
+                        if isinstance(obj, Package):
+                            dct[obj] = True
+                        else:
+                            dct.update(dict.fromkeys(obj.packages, True))
+                    raise Error, _("'%s' matches no packages. "
+                                   "Suggestions:\n%s") % \
+                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                else:
+                    raise Error, _("'%s' matches no packages") % arg
+
+            dct = {}
+            for obj in results:
+                if isinstance(obj, Package):
+                    dct[obj] = True
+                else:
+                    dct.update(dict.fromkeys(obj.packages, True))
+            pkgs.update(dct)
         pkgs = pkgs.keys()
     else:
         pkgs = cache.getPackages()

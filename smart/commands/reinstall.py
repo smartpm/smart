@@ -21,8 +21,8 @@
 #
 from smart.transaction import Transaction, PolicyInstall, sortUpgrades
 from smart.transaction import INSTALL, REINSTALL
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
+from smart.cache import Package
 from smart import *
 import string
 import re
@@ -64,23 +64,58 @@ def main(ctrl, opts):
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
     for arg in opts.args:
-        matcher = MasterMatcher(arg)
-        pkgs = matcher.filter(cache.getPackages())
-        pkgs = [x for x in pkgs if x.installed]
+
+        ratio, results, suggestions = ctrl.search(arg)
+
+        if not results:
+            if suggestions:
+                dct = {}
+                for r, obj in suggestions:
+                    if isinstance(obj, Package):
+                        if obj.installed:
+                            dct[obj] = True
+                    else:
+                        for pkg in obj.packages:
+                            if pkg.installed:
+                                dct[pkg] = True
+                if not dct:
+                    del suggestions[:]
+            if suggestions:
+                raise Error, _("'%s' matches no packages. "
+                               "Suggestions:\n%s") % \
+                             (arg, "\n".join(["    "+str(x) for x in dct]))
+            else:
+                raise Error, _("'%s' matches no packages") % arg
+
+        pkgs = []
+
+        for obj in results:
+            if isinstance(obj, Package):
+                pkgs.append(obj)
+
         if not pkgs:
-            raise Error, _("'%s' matches no installed packages") % arg
-        if len(pkgs) > 1:
-            raise Error, _("'%s' matches multiple installed packages") % arg
-        pkg = pkgs[0]
-        for loader in pkg.loaders:
-            if not loader.getInstalled():
-                break
-        else:
-            raise Error, _("'%s' is not available for reinstallation") % pkg
-        trans.enqueue(pkg, REINSTALL)
+            for obj in results:
+                for pkg in obj.packages:
+                    pkgs.append(pkg)
+
+        found = False
+        for pkg in pkgs:
+            if pkg.installed:
+                found = True
+                trans.enqueue(pkg, REINSTALL)
+                for loader in pkg.loaders:
+                    if not loader.getInstalled():
+                        break
+                else:
+                    raise Error, _("'%s' is not available for "
+                                   "reinstallation") % pkg
+        if not found:
+            iface.warning(_("'%s' matches no installed packages") % arg)
+
     iface.showStatus(_("Computing transaction..."))
     trans.run()
     iface.hideStatus()
+
     if trans:
         confirm = not opts.yes
         if opts.urls:

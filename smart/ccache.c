@@ -149,6 +149,20 @@ getIface(void)
 }
 
 static PyObject *
+getGlobDistance(void)
+{
+    static PyObject *globdistance = NULL;
+    if (globdistance == NULL) {
+        PyObject *module = PyImport_ImportModule("smart.util.strtools");
+        if (module) {
+            globdistance = PyObject_GetAttrString(module, "globdistance");
+            Py_DECREF(module);
+        }
+    }
+    return globdistance;
+}
+
+static PyObject *
 _(const char *str)
 {
     static PyObject *_ = NULL;
@@ -431,6 +445,80 @@ Package_matches(PackageObject *self, PyObject *args)
     return Py_False;
 }
 
+static PyObject *
+Package_search(PackageObject *self, PyObject *searcher)
+{
+    PyObject *globdistance = getGlobDistance();
+    PyObject *tmp, *lst, *tup, *res;
+    PyObject *ratio = NULL;
+    int i;
+
+    if (globdistance == NULL)
+        return NULL;
+
+    lst = PyObject_GetAttrString(searcher, "nameversion");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid nameversion attribute");
+        return NULL;
+    }
+    for (i = 0; i != PyList_GET_SIZE(lst); i++) {
+        tup = PyList_GET_ITEM(lst, i);
+        if (PyTuple_GET_SIZE(tup) != 2) {
+            PyErr_SetString(PyExc_ValueError, "Invalid nameversion tuple size");
+            return NULL;
+        }
+        res = PyObject_CallFunction(globdistance, "OOO",
+                                    PyTuple_GET_ITEM(tup, 0), self->name,
+                                    PyTuple_GET_ITEM(tup, 1));
+        if (res == NULL)
+            return NULL;
+        if (PyTuple_GET_SIZE(res) != 2 ||
+            !PyFloat_Check(PyTuple_GET_ITEM(res, 1))) {
+            PyErr_SetString(PyExc_ValueError, "Invalid globdistance "
+                                              "answer size");
+            return NULL;
+        }
+        if (ratio == NULL || PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(res, 1)) >
+                             PyFloat_AS_DOUBLE(ratio)) {
+            Py_XDECREF(ratio);
+            ratio = PyTuple_GET_ITEM(res, 1);
+            Py_INCREF(ratio);
+        }
+        Py_DECREF(res);
+
+        tmp = PyString_FromFormat("%s-%s", PyString_AS_STRING(self->name),
+                                           PyString_AS_STRING(self->version));
+        if (tmp == NULL)
+            return NULL;
+        res = PyObject_CallFunction(globdistance, "OOO",
+                                    PyTuple_GET_ITEM(tup, 0), tmp,
+                                    PyTuple_GET_ITEM(tup, 1));
+        Py_DECREF(tmp);
+        if (res == NULL)
+            return NULL;
+        if (PyTuple_GET_SIZE(res) != 2 ||
+            !PyFloat_Check(PyTuple_GET_ITEM(res, 1))) {
+            PyErr_SetString(PyExc_ValueError, "Invalid globdistance "
+                                              "answer size");
+            return NULL;
+        }
+        if (ratio == NULL || PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(res, 1)) >
+                             PyFloat_AS_DOUBLE(ratio)) {
+            Py_XDECREF(ratio);
+            ratio = PyTuple_GET_ITEM(res, 1);
+            Py_INCREF(ratio);
+        }
+        Py_DECREF(res);
+    }
+    Py_DECREF(lst);
+
+    if (ratio && PyFloat_AS_DOUBLE(ratio))
+        CALLMETHOD(searcher, "addResult", "OO", self, ratio);
+    Py_XDECREF(ratio);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyObject *
 Package_getPriority(PackageObject *self, PyObject *args)
@@ -528,6 +616,7 @@ static PyMethodDef Package_methods[] = {
     {"equals", (PyCFunction)Package_equals, METH_O, NULL},
     {"coexists", (PyCFunction)Package_coexists, METH_O, NULL},
     {"matches", (PyCFunction)Package_matches, METH_VARARGS, NULL},
+    {"search", (PyCFunction)Package_search, METH_O, NULL},
     {"getPriority", (PyCFunction)Package_getPriority, METH_NOARGS, NULL},
     {"__getstate__", (PyCFunction)Package__getstate__, METH_NOARGS, NULL},
     {"__setstate__", (PyCFunction)Package__setstate__, METH_O, NULL},
@@ -636,6 +725,81 @@ Provides_getInitArgs(ProvidesObject *self, PyObject *args)
 }
 
 static PyObject *
+Provides_search(PackageObject *self, PyObject *searcher)
+{
+    PyObject *globdistance = getGlobDistance();
+    PyObject *tmp, *lst, *tup, *res;
+    PyObject *ratio = NULL;
+    int i;
+
+    if (globdistance == NULL)
+        return NULL;
+
+    lst = PyObject_GetAttrString(searcher, "provides");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid provides attribute");
+        return NULL;
+    }
+    for (i = 0; i != PyList_GET_SIZE(lst); i++) {
+        tup = PyList_GET_ITEM(lst, i);
+        if (PyTuple_GET_SIZE(tup) != 2) {
+            PyErr_SetString(PyExc_ValueError, "Invalid provides tuple size");
+            return NULL;
+        }
+        res = PyObject_CallFunction(globdistance, "OOO",
+                                    PyTuple_GET_ITEM(tup, 0), self->name,
+                                    PyTuple_GET_ITEM(tup, 1));
+        if (res == NULL)
+            return NULL;
+        if (PyTuple_GET_SIZE(res) != 2 ||
+            !PyFloat_Check(PyTuple_GET_ITEM(res, 1))) {
+            PyErr_SetString(PyExc_ValueError, "Invalid globdistance "
+                                              "answer size");
+            return NULL;
+        }
+        if (ratio == NULL || PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(res, 1)) >
+                             PyFloat_AS_DOUBLE(ratio)) {
+            Py_XDECREF(ratio);
+            ratio = PyTuple_GET_ITEM(res, 1);
+            Py_INCREF(ratio);
+        }
+        Py_DECREF(res);
+
+        tmp = PyString_FromFormat("%s-%s", PyString_AS_STRING(self->name),
+                                           PyString_AS_STRING(self->version));
+        if (tmp == NULL)
+            return NULL;
+        res = PyObject_CallFunction(globdistance, "OOO",
+                                    PyTuple_GET_ITEM(tup, 0), tmp,
+                                    PyTuple_GET_ITEM(tup, 1));
+        Py_DECREF(tmp);
+        if (res == NULL)
+            return NULL;
+        if (PyTuple_GET_SIZE(res) != 2 ||
+            !PyFloat_Check(PyTuple_GET_ITEM(res, 1))) {
+            PyErr_SetString(PyExc_ValueError, "Invalid globdistance "
+                                              "answer size");
+            return NULL;
+        }
+        if (ratio == NULL || PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(res, 1)) >
+                             PyFloat_AS_DOUBLE(ratio)) {
+            Py_XDECREF(ratio);
+            ratio = PyTuple_GET_ITEM(res, 1);
+            Py_INCREF(ratio);
+        }
+        Py_DECREF(res);
+    }
+    Py_DECREF(lst);
+
+    if (ratio && PyFloat_AS_DOUBLE(ratio))
+        CALLMETHOD(searcher, "addResult", "OO", self, ratio);
+    Py_XDECREF(ratio);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 Provides_str(ProvidesObject *self)
 {
     if (!PyString_Check(self->name)) {
@@ -702,6 +866,7 @@ Provides__reduce__(ProvidesObject *self, PyObject *_)
 
 static PyMethodDef Provides_methods[] = {
     {"getInitArgs", (PyCFunction)Provides_getInitArgs, METH_NOARGS, NULL},
+    {"search", (PyCFunction)Provides_search, METH_O, NULL},
     {"__reduce__", (PyCFunction)Provides__reduce__, METH_NOARGS, NULL},
     {NULL, NULL}
 };
@@ -733,7 +898,7 @@ statichere PyTypeObject Provides_Type = {
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
 	0,			/*tp_as_mapping*/
-	0,			/*tp_hash*/
+	(hashfunc)_Py_HashPointer, /*tp_hash*/
     0,                      /*tp_call*/
     (reprfunc)Provides_str, /*tp_str*/
     PyObject_GenericGetAttr,/*tp_getattro*/
@@ -920,7 +1085,7 @@ statichere PyTypeObject Depends_Type = {
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
 	0,			/*tp_as_mapping*/
-	0,			/*tp_hash*/
+	(hashfunc)_Py_HashPointer, /*tp_hash*/
     0,                      /*tp_call*/
     (reprfunc)Depends_str, /*tp_str*/
     PyObject_GenericGetAttr,/*tp_getattro*/
@@ -1532,6 +1697,215 @@ Loader_buildFileProvides(LoaderObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+Loader_search(LoaderObject *self, PyObject *searcher)
+{
+    PyObject *tmp, *lst1, *lst2, *tup, *res, *pat;
+    PyObject *globdistance = getGlobDistance();
+    PyObject *ratio = NULL;
+    PyObject *pkg, *info;
+    int i, j, k;
+
+    if (globdistance == NULL)
+        return NULL;
+
+    for (i = 0; i != PyList_GET_SIZE(self->_packages); i++) {
+        pkg = PyList_GET_ITEM(self->_packages, i);
+        info = PyObject_CallMethod((PyObject *)self, "getInfo", "O", pkg);
+        if (info == NULL)
+            return NULL;
+    
+        lst1 = PyObject_GetAttrString(searcher, "url");
+        if (lst1 == NULL || !PyList_Check(lst1)) {
+            PyErr_SetString(PyExc_TypeError, "Invalid url attribute");
+            return NULL;
+        }
+        for (j = 0; j != PyList_GET_SIZE(lst1); j++) {
+            tup = PyList_GET_ITEM(lst1, j);
+            if (PyTuple_GET_SIZE(tup) != 2) {
+                PyErr_SetString(PyExc_ValueError, "Invalid url tuple size");
+                return NULL;
+            }
+            lst2 = PyObject_CallMethod(info, "getReferenceURLs", NULL);
+            if (lst2 == NULL)
+                return NULL;
+            for (k = 0; k != PyList_GET_SIZE(lst2); k++) {
+                res = PyObject_CallFunction(globdistance, "OOO",
+                                            PyTuple_GET_ITEM(tup, 0),
+                                            PyList_GET_ITEM(lst2, k),
+                                            PyTuple_GET_ITEM(tup, 1));
+                if (res == NULL)
+                    return NULL;
+                if (PyTuple_GET_SIZE(res) != 2 ||
+                    !PyFloat_Check(PyTuple_GET_ITEM(res, 1))) {
+                    PyErr_SetString(PyExc_ValueError, "Invalid globdistance "
+                                                      "answer size");
+                    return NULL;
+                }
+                if (ratio == NULL ||
+                    PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(res, 1)) >
+                    PyFloat_AS_DOUBLE(ratio)) {
+                    Py_XDECREF(ratio);
+                    ratio = PyTuple_GET_ITEM(res, 1);
+                    Py_INCREF(ratio);
+                }
+                Py_DECREF(res);
+            }
+            Py_DECREF(lst2);
+        }
+        Py_DECREF(lst1);
+
+        if (ratio && PyFloat_AS_DOUBLE(ratio) == 1) {
+            CALLMETHOD(searcher, "addResult", "OO", pkg, ratio);
+            Py_DECREF(ratio);
+            Py_DECREF(info);
+            ratio = NULL;
+            continue;
+        }
+
+
+        lst1 = PyObject_GetAttrString(searcher, "path");
+        if (lst1 == NULL || !PyList_Check(lst1)) {
+            PyErr_SetString(PyExc_TypeError, "Invalid url attribute");
+            return NULL;
+        }
+        for (j = 0; j != PyList_GET_SIZE(lst1); j++) {
+            tup = PyList_GET_ITEM(lst1, j);
+            if (PyTuple_GET_SIZE(tup) != 2) {
+                PyErr_SetString(PyExc_ValueError, "Invalid url tuple size");
+                return NULL;
+            }
+            lst2 = PyObject_CallMethod(info, "getPathList", NULL);
+            if (lst2 == NULL)
+                return NULL;
+            for (k = 0; k != PyList_GET_SIZE(lst2); k++) {
+                res = PyObject_CallFunction(globdistance, "OOO",
+                                            PyTuple_GET_ITEM(tup, 0),
+                                            PyList_GET_ITEM(lst2, k),
+                                            PyTuple_GET_ITEM(tup, 1));
+                if (res == NULL)
+                    return NULL;
+                if (PyTuple_GET_SIZE(res) != 2 ||
+                    !PyFloat_Check(PyTuple_GET_ITEM(res, 1))) {
+                    PyErr_SetString(PyExc_ValueError, "Invalid globdistance "
+                                                      "answer size");
+                    return NULL;
+                }
+                if (ratio == NULL ||
+                    PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(res, 1)) >
+                    PyFloat_AS_DOUBLE(ratio)) {
+                    Py_XDECREF(ratio);
+                    ratio = PyTuple_GET_ITEM(res, 1);
+                    Py_INCREF(ratio);
+                }
+                Py_DECREF(res);
+            }
+            Py_DECREF(lst2);
+        }
+        Py_DECREF(lst1);
+
+        if (ratio && PyFloat_AS_DOUBLE(ratio) == 1) {
+            CALLMETHOD(searcher, "addResult", "OO", pkg, ratio);
+            Py_DECREF(ratio);
+            Py_DECREF(info);
+            ratio = NULL;
+            continue;
+        }
+
+
+        lst1 = PyObject_GetAttrString(searcher, "group");
+        if (lst1 == NULL || !PyList_Check(lst1)) {
+            PyErr_SetString(PyExc_TypeError, "Invalid group attribute");
+            return NULL;
+        }
+        for (j = 0; j != PyList_GET_SIZE(lst1); j++) {
+            pat = PyList_GET_ITEM(lst1, j);
+            tmp = PyObject_CallMethod(info, "getGroup", NULL);
+            if (tmp == NULL)
+                return NULL;
+            res = PyObject_CallMethod(pat, "search", "O", tmp);
+            Py_DECREF(tmp);
+            if (PyObject_IsTrue(res)) {
+                ratio = PyFloat_FromDouble(1);
+                Py_DECREF(res);
+                break;
+            }
+            Py_DECREF(res);
+        }
+        Py_DECREF(lst1);
+
+        if (ratio && PyFloat_AS_DOUBLE(ratio) == 1) {
+            CALLMETHOD(searcher, "addResult", "OO", pkg, ratio);
+            Py_DECREF(ratio);
+            Py_DECREF(info);
+            ratio = NULL;
+            continue;
+        }
+
+
+        lst1 = PyObject_GetAttrString(searcher, "summary");
+        if (lst1 == NULL || !PyList_Check(lst1)) {
+            PyErr_SetString(PyExc_TypeError, "Invalid group attribute");
+            return NULL;
+        }
+        for (j = 0; j != PyList_GET_SIZE(lst1); j++) {
+            pat = PyList_GET_ITEM(lst1, j);
+            tmp = PyObject_CallMethod(info, "getSummary", NULL);
+            if (tmp == NULL)
+                return NULL;
+            res = PyObject_CallMethod(pat, "search", "O", tmp);
+            Py_DECREF(tmp);
+            if (PyObject_IsTrue(res)) {
+                ratio = PyFloat_FromDouble(1);
+                Py_DECREF(res);
+                break;
+            }
+            Py_DECREF(res);
+        }
+        Py_DECREF(lst1);
+
+        if (ratio && PyFloat_AS_DOUBLE(ratio) == 1) {
+            CALLMETHOD(searcher, "addResult", "OO", pkg, ratio);
+            Py_DECREF(ratio);
+            Py_DECREF(info);
+            ratio = NULL;
+            continue;
+        }
+
+
+        lst1 = PyObject_GetAttrString(searcher, "description");
+        if (lst1 == NULL || !PyList_Check(lst1)) {
+            PyErr_SetString(PyExc_TypeError, "Invalid description attribute");
+            return NULL;
+        }
+        for (j = 0; j != PyList_GET_SIZE(lst1); j++) {
+            pat = PyList_GET_ITEM(lst1, j);
+            tmp = PyObject_CallMethod(info, "getDescription", NULL);
+            if (tmp == NULL)
+                return NULL;
+            res = PyObject_CallMethod(pat, "search", "O", tmp);
+            Py_DECREF(tmp);
+            if (PyObject_IsTrue(res)) {
+                ratio = PyFloat_FromDouble(1);
+                Py_DECREF(res);
+                break;
+            }
+            Py_DECREF(res);
+        }
+        Py_DECREF(lst1);
+
+        if (ratio && PyFloat_AS_DOUBLE(ratio))
+            CALLMETHOD(searcher, "addResult", "OO", pkg, ratio);
+        Py_XDECREF(ratio);
+        ratio = NULL;
+
+        Py_DECREF(info);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 #define Loader__stateversion__ 1
 
 static PyObject *
@@ -1550,8 +1924,10 @@ Loader__getstate__(LoaderObject *self, PyObject *args)
         Py_DECREF(obj);
         i += 1;
     }
-    if (dict)
+    if (dict) {
         PyDict_Update(state, dict);
+        Py_DECREF(dict);
+    }
     self__stateversion__ = PyObject_GetAttrString((PyObject *)self,
                                                   "__stateversion__");
     if (!self__stateversion__)
@@ -1640,6 +2016,7 @@ static PyMethodDef Loader_methods[] = {
     {"loadFileProvides", (PyCFunction)Loader_loadFileProvides, METH_O, NULL},
     {"buildPackage", (PyCFunction)Loader_buildPackage, METH_VARARGS, NULL},
     {"buildFileProvides", (PyCFunction)Loader_buildFileProvides, METH_VARARGS, NULL},
+    {"search", (PyCFunction)Loader_search, METH_O, NULL},
     {"__getstate__", (PyCFunction)Loader__getstate__, METH_NOARGS, NULL},
     {"__setstate__", (PyCFunction)Loader__setstate__, METH_O, NULL},
     {NULL, NULL}
@@ -1670,7 +2047,7 @@ statichere PyTypeObject Loader_Type = {
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
 	0,			/*tp_as_mapping*/
-	0,			/*tp_hash*/
+	(hashfunc)_Py_HashPointer, /*tp_hash*/
     0,                      /*tp_call*/
     0,                      /*tp_str*/
     PyObject_GenericGetAttr,/*tp_getattro*/
@@ -2536,6 +2913,149 @@ Cache_getConflicts(CacheObject *self, PyObject *args)
     return lst;
 }
 
+PyObject *
+Cache_search(CacheObject *self, PyObject *searcher)
+{
+    PyObject *lst, *res;
+    int i, j, k;
+
+    lst = PyObject_GetAttrString(searcher, "nameversion");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid provides attribute");
+        return NULL;
+    }
+    if (PyList_GET_SIZE(lst) != 0) {
+        for (i = 0; i != PyList_GET_SIZE(self->_packages); i++) {
+            PyObject *pkg = PyList_GET_ITEM(self->_packages, i);
+            CALLMETHOD(pkg, "search", "O", searcher);
+        }
+    }
+    Py_DECREF(lst);
+
+    lst = PyObject_GetAttrString(searcher, "provides");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid provides attribute");
+        return NULL;
+    }
+    if (PyList_GET_SIZE(lst) != 0) {
+        for (i = 0; i != PyList_GET_SIZE(self->_provides); i++) {
+            PyObject *prv = PyList_GET_ITEM(self->_provides, i);
+            CALLMETHOD(prv, "search", "O", searcher);
+        }
+    }
+    Py_DECREF(lst);
+
+    lst = PyObject_GetAttrString(searcher, "requires");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid requires attribute");
+        return NULL;
+    }
+    for (i = 0; i != PyList_GET_SIZE(lst); i++) {
+        ProvidesObject *prv = (ProvidesObject *)PyList_GET_ITEM(lst, i);
+        for (j = 0; j != PyList_GET_SIZE(self->_requires); j++) {
+            PyObject *req = PyList_GET_ITEM(self->_requires, j);
+            PyObject *names = PyObject_CallMethod(req, "getMatchNames", NULL);
+            PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                                   "non-sequence object");
+            if (seq == NULL) return NULL;
+            for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
+                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyString_AS_STRING(prv->name)) == 0) {
+                    res = PyObject_CallMethod(req, "matches", "O", prv);
+                    if (res == NULL)
+                        return NULL;
+                    if (PyObject_IsTrue(res))
+                        CALLMETHOD(searcher, "addResult", "O", req);
+                    Py_DECREF(res);
+                    break;
+                }
+            }
+
+            Py_DECREF(names);
+            Py_DECREF(seq);
+        }
+    }
+    Py_DECREF(lst);
+
+    lst = PyObject_GetAttrString(searcher, "upgrades");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid upgrades attribute");
+        return NULL;
+    }
+    for (i = 0; i != PyList_GET_SIZE(lst); i++) {
+        ProvidesObject *prv = (ProvidesObject *)PyList_GET_ITEM(lst, i);
+        for (j = 0; j != PyList_GET_SIZE(self->_upgrades); j++) {
+            PyObject *upg = PyList_GET_ITEM(self->_upgrades, j);
+            PyObject *names = PyObject_CallMethod(upg, "getMatchNames", NULL);
+            PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                                   "non-sequence object");
+            if (seq == NULL) return NULL;
+            for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
+                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyString_AS_STRING(prv->name)) == 0) {
+                    res = PyObject_CallMethod(upg, "matches", "O", prv);
+                    if (res == NULL)
+                        return NULL;
+                    if (PyObject_IsTrue(res))
+                        CALLMETHOD(searcher, "addResult", "O", upg);
+                    Py_DECREF(res);
+                    break;
+                }
+            }
+
+            Py_DECREF(names);
+            Py_DECREF(seq);
+        }
+    }
+    Py_DECREF(lst);
+
+    lst = PyObject_GetAttrString(searcher, "conflicts");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid conflicts attribute");
+        return NULL;
+    }
+    for (i = 0; i != PyList_GET_SIZE(lst); i++) {
+        ProvidesObject *prv = (ProvidesObject *)PyList_GET_ITEM(lst, i);
+        for (j = 0; j != PyList_GET_SIZE(self->_conflicts); j++) {
+            PyObject *cnf = PyList_GET_ITEM(self->_conflicts, j);
+            PyObject *names = PyObject_CallMethod(cnf, "getMatchNames", NULL);
+            PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                                   "non-sequence object");
+            if (seq == NULL) return NULL;
+            for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
+                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyString_AS_STRING(prv->name)) == 0) {
+                    res = PyObject_CallMethod(cnf, "matches", "O", prv);
+                    if (res == NULL)
+                        return NULL;
+                    if (PyObject_IsTrue(res))
+                        CALLMETHOD(searcher, "addResult", "O", cnf);
+                    Py_DECREF(res);
+                    break;
+                }
+            }
+
+            Py_DECREF(names);
+            Py_DECREF(seq);
+        }
+    }
+    Py_DECREF(lst);
+
+    res = PyObject_CallMethod(searcher, "needsPackageInfo", NULL);
+    if (res == NULL)
+        return NULL;
+    if (PyObject_IsTrue(res)) {    
+        for (i = 0; i != PyList_GET_SIZE(self->_loaders); i++)
+            CALLMETHOD(PyList_GET_ITEM(self->_loaders, i),
+                       "search", "O", searcher);
+    }
+    Py_DECREF(res);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
 #define Cache__stateversion__ 1
 
 static PyObject *
@@ -2697,6 +3217,7 @@ static PyMethodDef Cache_methods[] = {
     {"getRequires", (PyCFunction)Cache_getRequires, METH_VARARGS, NULL},
     {"getUpgrades", (PyCFunction)Cache_getUpgrades, METH_VARARGS, NULL},
     {"getConflicts", (PyCFunction)Cache_getConflicts, METH_VARARGS, NULL},
+    {"search", (PyCFunction)Cache_search, METH_O, NULL},
     {"__getstate__", (PyCFunction)Cache__getstate__, METH_NOARGS, NULL},
     {"__setstate__", (PyCFunction)Cache__setstate__, METH_O, NULL},
     {NULL, NULL}
@@ -2730,7 +3251,7 @@ statichere PyTypeObject Cache_Type = {
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
 	0,			/*tp_as_mapping*/
-	0,			/*tp_hash*/
+	(hashfunc)_Py_HashPointer, /*tp_hash*/
     0,                      /*tp_call*/
     0,                      /*tp_str*/
     PyObject_GenericGetAttr,/*tp_getattro*/

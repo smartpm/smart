@@ -46,7 +46,7 @@ distance(const char *a, int al, const char *b, int bl,
     int lst[MAXSIZE];
     const char *t;
     int tl, last, nextlast;
-    int ai, bi, minlstai;
+    int ai, bi, minlstbi;
     int res;
     if (al > MAXSIZE)
         al = MAXSIZE;
@@ -57,38 +57,38 @@ distance(const char *a, int al, const char *b, int bl,
             *ratio = 1.0;
         return 0;
     }
-    if (al < bl) {
+    if (al > bl) {
         t = a; tl = al;
         a = b; al = bl;
         b = t; bl = tl;
     }
-    for (ai = 0; ai != al; ai++)
-        lst[ai] = ai+1;
-    for (bi = 0; bi != bl; bi++) {
+    for (bi = 0; bi != bl; bi++)
+        lst[bi] = bi+1;
+    for (ai = 0; ai != al; ai++) {
         last = lst[0];
-        lst[0] = minlstai = min2(lst[0]+1, bi+(a[0] != b[bi]?1:0));
-        for (ai = 1; ai != al; ai++) {
-            nextlast = lst[ai];
-            lst[ai] = min3(lst[ai-1]+1, lst[ai]+1,
-                           last+(a[ai] != b[bi]?1:0));
+        lst[0] = minlstbi = min2(lst[0]+1, ai+(b[0] != a[ai]?1:0));
+        for (bi = 1; bi != bl; bi++) {
+            nextlast = lst[bi];
+            lst[bi] = min3(lst[bi-1]+1, lst[bi]+1,
+                           last+(b[bi] != a[ai]?1:0));
             last = nextlast;
-            if (cutoff != -1 && lst[ai] < minlstai)
-                minlstai = lst[ai];
+            if (cutoff != -1 && lst[bi] < minlstbi)
+                minlstbi = lst[bi];
         }
-        if (cutoff != -1 && minlstai > cutoff) {
+        if (cutoff != -1 && minlstbi > cutoff) {
             if (ratio)
                 *ratio = 0.0;
-            return al;
+            return bl;
         }
     }
-    res = lst[al-1];
+    res = lst[bl-1];
     if (cutoff != -1 && res > cutoff) {
         if (ratio)
             *ratio = 0.0;
-        return al;
+        return bl;
     }
     if (ratio)
-        *ratio = ((float)al-res)/al;
+        *ratio = ((float)bl-res)/bl;
     return res;
 }
 
@@ -103,7 +103,7 @@ globdistance(const char *a, int al, const char *b, int bl,
 {
     int lst[MAXSIZE];
     int last, nextlast;
-    int ai, bi, minlstai;
+    int ai, bi, minlstbi;
     int maxl;
     int res;
     if (al > MAXSIZE)
@@ -116,48 +116,48 @@ globdistance(const char *a, int al, const char *b, int bl,
         return 0;
     }
     maxl = al>bl?al:bl;
-    for (ai = 0; ai != al; ai++)
-        lst[ai] = ai+1;
-    for (bi = 0; bi != bl; bi++) {
-        if (b[bi] == '*') {
+    for (bi = 0; bi != bl; bi++)
+        lst[bi] = bi+1;
+    for (ai = 0; ai != al; ai++) {
+        if (a[ai] == '*') {
             last = lst[0];
-            lst[0] = minlstai = min2(lst[0], bi);
-            for (ai = 1; ai != al; ai++) {
-                nextlast = lst[ai];
-                lst[ai] = min3(lst[ai-1], lst[ai], last);
+            lst[0] = minlstbi = min2(lst[0], ai);
+            for (bi = 1; bi != bl; bi++) {
+                nextlast = lst[bi];
+                lst[bi] = min3(lst[bi-1], lst[bi], last);
                 last = nextlast;
-                if (cutoff != -1 && lst[ai] < minlstai)
-                    minlstai = lst[ai];
+                if (cutoff != -1 && lst[bi] < minlstbi)
+                    minlstbi = lst[bi];
             }
-        } else if (b[bi] == '?') {
+        } else if (a[ai] == '?') {
             last = lst[0];
-            lst[0] = minlstai = min2(lst[0]+1, bi);
-            for (ai = 1; ai != al; ai++) {
-                nextlast = lst[ai];
-                lst[ai] = min3(lst[ai-1]+1, lst[ai]+1, last);
+            lst[0] = minlstbi = min2(lst[0]+1, ai);
+            for (bi = 1; bi != bl; bi++) {
+                nextlast = lst[bi];
+                lst[bi] = min3(lst[bi-1]+1, lst[bi]+1, last);
                 last = nextlast;
-                if (cutoff != -1 && lst[ai] < minlstai)
-                    minlstai = lst[ai];
+                if (cutoff != -1 && lst[bi] < minlstbi)
+                    minlstbi = lst[bi];
             }
         } else {
             last = lst[0];
-            lst[0] = minlstai = min2(lst[0]+1, bi+(a[0] != b[bi]?1:0));
-            for (ai = 1; ai != al; ai++) {
-                nextlast = lst[ai];
-                lst[ai] = min3(lst[ai-1]+1, lst[ai]+1,
-                               last+(a[ai] != b[bi]?1:0));
+            lst[0] = minlstbi = min2(lst[0]+1, ai+(b[0] != a[ai]?1:0));
+            for (bi = 1; bi != bl; bi++) {
+                nextlast = lst[bi];
+                lst[bi] = min3(lst[bi-1]+1, lst[bi]+1,
+                               last+(b[bi] != a[ai]?1:0));
                 last = nextlast;
-                if (cutoff != -1 && lst[ai] < minlstai)
-                    minlstai = lst[ai];
+                if (cutoff != -1 && lst[bi] < minlstbi)
+                    minlstbi = lst[bi];
             }
         }
-        if (cutoff != -1 && minlstai > cutoff) {
+        if (cutoff != -1 && minlstbi > cutoff) {
             if (ratio)
                 *ratio = 0.0;
             return maxl;
         }
     }
-    res = lst[al-1];
+    res = lst[bl-1];
     if (cutoff != -1 && res > cutoff) {
         if (ratio)
             *ratio = 0.0;
@@ -171,19 +171,15 @@ globdistance(const char *a, int al, const char *b, int bl,
 static PyObject *
 cdistance_distance(PyObject *self, PyObject *args)
 {
-    PyObject *ao, *bo, *cutoffo = Py_None;
     PyObject *resulto, *ratioo, *ret;
+    PyObject *cutoffo = Py_None;
     const char *a, *b, *t;
     int cutoff = -1;
     int al, bl, tl;
     float ratio;
-    if (!PyArg_ParseTuple(args, "SS|O", &ao, &bo, &cutoffo))
+    if (!PyArg_ParseTuple(args, "s#s#|O", &a, &al, &b, &bl, &cutoffo))
         return NULL;
-    a = PyString_AS_STRING(ao);
-    b = PyString_AS_STRING(bo);
-    al = PyString_GET_SIZE(ao);
-    bl = PyString_GET_SIZE(bo);
-    if (al < bl) {
+    if (al > bl) {
         t = a; tl = al;
         a = b; al = bl;
         b = t; bl = tl;
@@ -192,7 +188,7 @@ cdistance_distance(PyObject *self, PyObject *args)
         if (PyInt_Check(cutoffo)) {
             cutoff = (int)PyInt_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
-            cutoff = al-(int)((float)PyFloat_AsDouble(cutoffo)*al);
+            cutoff = (int)(float)(bl-PyFloat_AsDouble(cutoffo)*bl);
         } else {
             PyErr_SetString(PyExc_TypeError, "cutoff must be int or float");
             return NULL;
@@ -212,24 +208,20 @@ cdistance_distance(PyObject *self, PyObject *args)
 static PyObject *
 cdistance_globdistance(PyObject *self, PyObject *args)
 {
-    PyObject *ao, *bo, *cutoffo = Py_None;
     PyObject *resulto, *ratioo, *ret;
+    PyObject *cutoffo = Py_None;
     const char *a, *b;
     int cutoff = -1;
     int al, bl, maxl;
     float ratio;
-    if (!PyArg_ParseTuple(args, "SS|O", &ao, &bo, &cutoffo))
+    if (!PyArg_ParseTuple(args, "s#s#|O", &a, &al, &b, &bl, &cutoffo))
         return NULL;
-    a = PyString_AS_STRING(ao);
-    b = PyString_AS_STRING(bo);
-    al = PyString_GET_SIZE(ao);
-    bl = PyString_GET_SIZE(bo);
     maxl = al>bl?al:bl;
     if (cutoffo != Py_None) {
         if (PyInt_Check(cutoffo)) {
             cutoff = (int)PyInt_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
-            cutoff = maxl-(int)((float)PyFloat_AsDouble(cutoffo)*maxl);
+            cutoff = (int)(float)(maxl-PyFloat_AsDouble(cutoffo)*maxl);
         } else {
             PyErr_SetString(PyExc_TypeError, "cutoff must be int or float");
             return NULL;

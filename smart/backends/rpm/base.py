@@ -27,7 +27,6 @@ import zlib
 from smart.backends.rpm.pm import RPMPackageManager
 from rpmver import checkdep, vercmp, splitarch
 from smart.util.strtools import isGlob
-from smart.matcher import Matcher
 from smart.cache import *
 import fnmatch
 import string
@@ -38,85 +37,9 @@ from rpm import archscore
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes"]
 
-class RPMMatcher(Matcher):
-
-    def __init__(self, str):
-        Matcher.__init__(self, str)
-        self._options = [] # (name, version)
-        # First, try to match the whole thing against the name.
-        name = str
-        if isGlob(name):
-            try:
-                name = re.compile(fnmatch.translate(name))
-            except re.error:
-                pass
-        self._options.append((name, None))
-        tokens = str.split("-")
-        if len(tokens) > 1:
-            # Then, consider the last section as the version.
-            name = "-".join(tokens[:-1])
-            if isGlob(name):
-                try:
-                    name = re.compile(fnmatch.translate(name))
-                except re.error:
-                    pass
-            version = tokens[-1]
-            if isGlob(version):
-                if ":" not in version and version[0].isdigit():
-                    pattern = "(?:\d+:)?"+fnmatch.translate(version)
-                else:
-                    pattern = version
-                try:
-                    version = re.compile(pattern)
-                except re.error:
-                    pass
-            self._options.append((name, version))
-            # Finally, consider last two sections as the version.
-            if len(tokens) > 2:
-                name = "-".join(tokens[:-2])
-                if isGlob(name):
-                    try:
-                        name = re.compile(fnmatch.translate(name))
-                    except re.error:
-                        pass
-                version = "-".join(tokens[-2:])
-                if isGlob(version):
-                    if ":" not in version and version[0].isdigit():
-                        pattern = "(?:\d+:)?"+fnmatch.translate(version)
-                    else:
-                        pattern = version
-                    try:
-                        version = re.compile(pattern)
-                    except re.error:
-                        pass
-                self._options.append((name, version))
-
-    def matches(self, obj):
-        for name, version in self._options:
-            if type(name) is str:
-                if name != obj.name:
-                    continue
-            else:
-                if not name.match(obj.name):
-                    continue
-            if version:
-                if type(version) is str:
-                    if ":" not in version and ":" in obj.version:
-                        ov = obj.version
-                        version = ov[:ov.find(":")+1]+version
-                    objver, objarch = splitarch(obj.version)
-                    if vercmp(version, objver) != 0:
-                        ver, arch = splitarch(version)
-                        if arch != objarch or vercmp(ver, objver) != 0:
-                            continue
-                elif not version.match(obj.version):
-                    continue
-            return True
-
 class RPMPackage(Package):
 
     packagemanager = RPMPackageManager
-    matcher = RPMMatcher
 
     def equals(self, other):
         if self.name != other.name or self.version != other.version:
@@ -175,6 +98,32 @@ class RPMPackage(Package):
         selfver, selfarch = splitarch(self.version)
         ver, arch = splitarch(version)
         return checkdep(selfver, relation, ver)
+
+    def search(self, searcher, _epochre=re.compile("[0-9]+:")):
+        myname = self.name
+        myversion, myarch = splitarch(self.version)
+        myversion = _epochre.sub("", myversion)
+        ratio = 0
+        for nameversion, cutoff in searcher.nameversion:
+            nameversion = _epochre.sub("", nameversion)
+            if '@' in nameversion:
+                _, ratio1 = globdistance(nameversion, "%s-%s" %
+                                         (myname, self.version), cutoff)
+                _, ratio2 = globdistance(nameversion, "%s@%s" %
+                                         (myname, myarch), cutoff)
+                _, ratio3 = globdistance(nameversion, "%s-%s@%s" %
+                                         (myname, myversion.rsplit("-", 1)[0],
+                                          myarch), cutoff)
+            else:
+                _, ratio1 = globdistance(nameversion, myname, cutoff)
+                _, ratio2 = globdistance(nameversion,
+                                         "%s-%s" % (myname, myversion), cutoff)
+                _, ratio3 = globdistance(nameversion, "%s-%s" %
+                                         (myname, myversion.rsplit("-", 1)[0]),
+                                         cutoff)
+            ratio = max(ratio, ratio1, ratio2, ratio3)
+        if ratio:
+            searcher.addResult(self, ratio)
 
     def __lt__(self, other):
         rc = cmp(self.name, other.name)

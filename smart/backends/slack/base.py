@@ -22,7 +22,6 @@
 from smart.backends.slack.pm import SlackPackageManager
 from slackver import checkdep, vercmp
 from smart.util.strtools import isGlob
-from smart.matcher import Matcher
 from smart.cache import *
 import fnmatch
 import string
@@ -30,91 +29,29 @@ import os, re
 
 __all__ = ["SlackPackage", "SlackProvides", "SlackUpgrades"]
 
-class SlackMatcher(Matcher):
-
-    def __init__(self, str):
-        Matcher.__init__(self, str)
-        self._options = [] # (name, version)
-        # First, try to match the whole thing against the name.
-        name = str
-        if isGlob(name):
-            try:
-                name = re.compile(fnmatch.translate(name))
-            except re.error:
-                pass
-        self._options.append((name, None))
-        tokens = str.split("-")
-        if len(tokens) > 1:
-            # Then, consider the last section as the version.
-            name = "-".join(tokens[:-1])
-            if isGlob(name):
-                try:
-                    name = re.compile(fnmatch.translate(name))
-                except re.error:
-                    pass
-            version = tokens[-1]
-            if isGlob(version):
-                try:
-                    version = re.compile(fnmatch.translate(version))
-                except re.error:
-                    pass
-            self._options.append((name, version))
-            # Now, consider last two sections as the version.
-            if len(tokens) > 2:
-                name = "-".join(tokens[:-2])
-                if isGlob(name):
-                    try:
-                        name = re.compile(fnmatch.translate(name))
-                    except re.error:
-                        pass
-                version = "-".join(tokens[-2:])
-                if isGlob(version):
-                    try:
-                        version = re.compile(fnmatch.translate(version))
-                    except re.error:
-                        pass
-                self._options.append((name, version))
-                # Finally, consider last three sections as the version.
-                if len(tokens) > 3:
-                    name = "-".join(tokens[:-3])
-                    if isGlob(name):
-                        try:
-                            name = re.compile(fnmatch.translate(name))
-                        except re.error:
-                            pass
-                    version = "-".join(tokens[-3:])
-                    if isGlob(version):
-                        try:
-                            version = re.compile(fnmatch.translate(version))
-                        except re.error:
-                            pass
-                    self._options.append((name, version))
-
-    def matches(self, obj):
-        for name, version in self._options:
-            if type(name) is str:
-                if name != obj.name:
-                    continue
-            else:
-                if not name.match(obj.name):
-                    continue
-            if version:
-                if type(version) is str:
-                    if vercmp(version, obj.version) != 0:
-                        continue
-                elif not version.match(obj.version):
-                    continue
-            return True
-
 class SlackPackage(Package):
 
     packagemanager = SlackPackageManager
-    matcher = SlackMatcher
 
     def matches(self, relation, version):
         if not relation:
             return True
         return checkdep(self.version, relation, version)
+
+    def search(self, searcher):
+        myname = self.name
+        myversion = self.version
+        ratio = 0
+        for nameversion, cutoff in searcher.nameversion:
+            _, ratio1 = globdistance(nameversion, myname, cutoff)
+            _, ratio2 = globdistance(nameversion,
+                                     "%s-%s" % (myname, myversion), cutoff)
+            _, ratio3 = globdistance(nameversion, "%s-%s" %
+                                     (myname, myversion.rsplit("-", 1)[0]),
+                                     cutoff)
+            ratio = max(ratio, ratio1, ratio2, ratio3)
+        if ratio:
+            searcher.addResult(self, ratio)
 
     def coexists(self, other):
         if not isinstance(other, SlackPackage):

@@ -20,8 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.transaction import Transaction, PolicyUpgrade, UPGRADE
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
+from smart.cache import Package
 from smart import *
 import cPickle
 import string
@@ -71,18 +71,56 @@ def main(ctrl, opts):
     ctrl.reloadChannels()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyUpgrade)
-    pkgs = [x for x in cache.getPackages() if x.installed]
+
     if opts.args:
-        newpkgs = []
+
         for arg in opts.args:
-            matcher = MasterMatcher(arg)
-            fpkgs = matcher.filter(pkgs)
-            if not fpkgs:
-                raise Error, _("'%s' matches no installed packages") % arg
-            newpkgs.extend(fpkgs)
-        pkgs = dict.fromkeys(newpkgs).keys()
-    for pkg in pkgs:
-        trans.enqueue(pkg, UPGRADE)
+
+            ratio, results, suggestions = ctrl.search(arg)
+
+            if not results:
+                if suggestions:
+                    dct = {}
+                    for r, obj in suggestions:
+                        if isinstance(obj, Package):
+                            if obj.installed:
+                                dct[obj] = True
+                        else:
+                            for pkg in obj.packages:
+                                if pkg.installed:
+                                    dct[pkg] = True
+                    if not dct:
+                        del suggestions[:]
+                if suggestions:
+                    raise Error, _("'%s' matches no packages. "
+                                   "Suggestions:\n%s") % \
+                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                else:
+                    raise Error, _("'%s' matches no packages") % arg
+
+            foundany = False
+            foundinstalled = False
+            for obj in results:
+                if isinstance(obj, Package):
+                    if obj.installed:
+                        trans.enqueue(obj, UPGRADE)
+                        foundinstalled = True
+                    foundany = True
+            if not foundany:
+                for obj in results:
+                    if not isinstance(obj, Packages):
+                        for pkg in obj.packages:
+                            if pkg.installed:
+                                foundinstalled = True
+                                trans.enqueue(obj, UPGRADE)
+                            foundany = True
+            if not foundinstalled:
+                iface.warning(_("'%s' matches no installed packages") % arg)
+    else:
+        for pkg in cache.getPackages():
+            if pkg.installed:
+                trans.enqueue(pkg, UPGRADE)
+
     iface.showStatus(_("Computing transaction..."))
     trans.run()
 

@@ -21,8 +21,8 @@
 #
 from smart.transaction import Transaction, PolicyInstall, sortUpgrades
 from smart.transaction import INSTALL, REINSTALL
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser, append_all
+from smart.cache import Package
 from smart import *
 import string
 import re
@@ -70,16 +70,64 @@ def main(ctrl, opts):
     if opts.args:
         ctrl.reloadChannels()
         cache = ctrl.getCache()
+        packages = {}
         for arg in opts.args:
-            matcher = MasterMatcher(arg)
-            pkgs = matcher.filter(cache.getPackages())
+
+            ratio, results, suggestions = ctrl.search(arg)
+
+            if not results:
+                if suggestions:
+                    dct = {}
+                    for r, obj in suggestions:
+                        if isinstance(obj, Package):
+                            dct[obj] = True
+                        else:
+                            dct.update(dict.fromkeys(obj.packages, True))
+                    raise Error, _("'%s' matches no packages. "
+                                   "Suggestions:\n%s") % \
+                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                else:
+                    raise Error, _("'%s' matches no packages") % arg
+
+            pkgs = []
+
+            for obj in results:
+                if isinstance(obj, Package):
+                    pkgs.append(obj)
+
             if not pkgs:
-                raise Error, _("'%s' matches no packages") % arg
+                installed = False
+                names = {}
+                for obj in results:
+                    for pkg in obj.packages:
+                        if pkg.installed:
+                            iface.warning(_("%s (for %s) is already installed")
+                                          % (pkg, arg))
+                            installed = True
+                            break
+                        else:
+                            pkgs.append(pkg)
+                            names[pkg.name] = True
+                    else:
+                        continue
+                    break
+                if installed:
+                    continue
+                if len(names) > 1:
+                    raise Error, _("There are multiple matches for '%s':\n%s") % \
+                                  (arg, "\n".join(["    "+str(x) for x in pkgs]))
+
             if len(pkgs) > 1:
                 sortUpgrades(pkgs)
-                iface.warning(_("'%s' matches multiple packages, "
-                                "selecting: %s") % (arg, pkgs[0]))
-            packages.append(pkgs[0])
+
+            names = {}
+            for pkg in pkgs:
+                names.setdefault(pkg.name, []).append(pkg)
+            for name in names:
+                packages[names[name][0]] = True
+
+        packages = packages.keys()
+
         if opts.urls:
             ctrl.dumpURLs(packages)
         else:

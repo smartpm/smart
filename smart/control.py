@@ -24,11 +24,12 @@ from smart.util.filetools import compareFiles, setCloseOnExecAll
 from smart.util.objdigest import getObjectDigest
 from smart.util.pathlocks import PathLocks
 from smart.util.strtools import strToBool
+from smart.searcher import Searcher
 from smart.media import MediaSet
 from smart.progress import Progress
 from smart.fetcher import Fetcher
-from smart.cache import Cache, StateVersionError
 from smart.channel import *
+from smart.cache import *
 from smart.const import *
 from smart import *
 import cPickle
@@ -623,6 +624,47 @@ class Control(object):
             pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
         return pkgpaths
 
+    def search(self, s, cutoff=1.00, suggestioncutoff=0.70,
+               globcutoff=1.00, globsuggestioncutoff=0.95,
+               addprovides=True):
+        ratio = 0
+        results = []
+        suggestions = []
+
+        objects = []
+
+        # If we find packages with exactly the given
+        # name or name-version, use them.
+        for pkg in self._cache.getPackages(s):
+            if pkg.name == s or "%s-%s" % (pkg.name, pkg.version) == s:
+                objects.append((1.0, pkg))
+         
+        if not objects:
+            if "*" in s:
+                cutoff = globcutoff
+                suggestioncutoff = globsuggestioncutoff
+            searcher = Searcher()
+            searcher.addAuto(s, suggestioncutoff)
+            if addprovides:
+                searcher.addProvides(s, suggestioncutoff)
+            self._cache.search(searcher)
+            objects = searcher.getResults()
+
+        if objects:
+            bestratio = objects[0][0]
+            if bestratio < cutoff:
+                suggestions = objects
+            else:
+                for i in range(len(objects)):
+                    ratio, obj = objects[i]
+                    if ratio == bestratio:
+                        results.append(obj)
+                    else:
+                        suggestions = objects[i:]
+                        break
+                if results:
+                    ratio = bestratio
+        return ratio, results, suggestions
 
 class AvailableChannelSet(object):
 

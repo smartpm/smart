@@ -20,7 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.util.strtools import sizeToStr
-from smart.matcher import MasterMatcher
 from smart.option import OptionParser
 from smart import *
 import re

@@ -20,7 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.text.interface import TextInterface, getScreenWidth
-from smart.matcher import MasterMatcher
 from smart.const import VERSION, NEVER
 from smart.option import OptionParser
 from smart.transaction import *
@@ -114,10 +113,29 @@ class Interpreter(Cmd):
     def pkgsFromLine(self, line):
         args = shlex.split(line)
         for arg in args:
-            matcher = MasterMatcher(arg)
-            pkgs = matcher.filter(self._ctrl.getCache().getPackages())
-            if not pkgs:
-                raise Error, _("'%s' matches no packages") % arg
+            ratio, results, suggestions = self._ctrl.search(arg,
+                                                            addprovides=False)
+            if not results:
+                if suggestions:
+                    dct = {}
+                    for r, obj in suggestions:
+                        if isinstance(obj, Package):
+                            dct[obj] = True
+                        else:
+                            dct.update(dct.fromkeys(obj.packages, True))
+                    raise Error, _("'%s' matches no packages. "
+                                   "Suggestions:\n%s") % \
+                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                else:
+                    raise Error, _("'%s' matches no packages") % arg
+            else:
+                pkgs = {}
+                for obj in results:
+                    if isinstance(obj, Package):
+                        pkgs[obj] = True
+                    else:
+                        pkgs.update(dict.fromkeys(obj.packages, True))
+            pkgs = pkgs.keys()
             if len(pkgs) > 1:
                 sortUpgrades(pkgs)
             yield arg, pkgs
@@ -433,7 +451,6 @@ class Interpreter(Cmd):
 
     complete_ls = completeAll
     def do_ls(self, line):
-        pkgs = self._ctrl.getCache().getPackages()
         args = shlex.split(line)
         parser = OptionParser(add_help_option=False)
         parser.add_option("-i", action="store_true", dest="installed")
@@ -441,19 +458,37 @@ class Interpreter(Cmd):
         parser.add_option("-s", action="store_true", dest="summary")
         parser.add_option("-n", action="store_true", dest="new")
         opts, args = parser.parse_args(args)
+        if args:
+            pkgs = {}
+            for arg in args:
+                ratio, results, suggestions = self._ctrl.search(arg,
+                                                         addprovides=False)
+                if not results:
+                    if suggestions:
+                        dct = {}
+                        for r, obj in suggestions:
+                            if isinstance(obj, Package):
+                                dct[obj] = True
+                            else:
+                                dct.update(dct.fromkeys(obj.packages, True))
+                        raise Error, _("'%s' matches no packages. "
+                                       "Suggestions:\n%s") % \
+                                     (arg, "\n".join(["    "+str(x)
+                                                      for x in dct]))
+                    else:
+                        raise Error, _("'%s' matches no packages") % arg
+                else:
+                    for obj in results:
+                        if isinstance(obj, Package):
+                            pkgs[obj] = True
+                        else:
+                            pkgs.update(dict.fromkeys(obj.packages, True))
+        else:
+            pkgs = self._ctrl.getCache().getPackages()
         if opts.installed:
             pkgs = [x for x in pkgs if x.installed]
         if opts.new:
             pkgs = pkgconf.filterByFlag("new", pkgs)
-        if args:
-            newpkgs = []
-            for arg in args:
-                matcher = MasterMatcher(arg)
-                fpkgs = matcher.filter(pkgs)
-                if not fpkgs:
-                    raise Error, _("'%s' matches no packages") % arg
-                newpkgs.extend(fpkgs)
-            pkgs = newpkgs
         pkgs = dict.fromkeys(pkgs).keys()
         pkgs.sort()
 
@@ -551,7 +586,10 @@ class Interpreter(Cmd):
     def do_flag(self, line):
         from smart.commands import flag
         try:
-            opts = flag.parse_options(shlex.split(line))
+            try:
+                opts = flag.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
             flag.main(self._ctrl, opts)
         except SystemExit:
             pass
@@ -567,7 +605,10 @@ class Interpreter(Cmd):
     def do_query(self, line):
         from smart.commands import query
         try:
-            opts = query.parse_options(shlex.split(line))
+            try:
+                opts = query.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
             query.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
@@ -581,7 +622,10 @@ class Interpreter(Cmd):
     def do_search(self, line):
         from smart.commands import search
         try:
-            opts = search.parse_options(shlex.split(line))
+            try:
+                opts = search.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
             search.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
@@ -595,7 +639,10 @@ class Interpreter(Cmd):
     def do_info(self, line):
         from smart.commands import info
         try:
-            opts = info.parse_options(shlex.split(line))
+            try:
+                opts = info.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
             info.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
@@ -608,7 +655,10 @@ class Interpreter(Cmd):
     def do_stats(self, line):
         from smart.commands import stats
         try:
-            opts = stats.parse_options(shlex.split(line))
+            try:
+                opts = stats.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
             stats.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
