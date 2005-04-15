@@ -171,6 +171,17 @@ class Interpreter(Cmd):
             sys.stderr.write(_("\nInterrupted\n"))
             return None
 
+    def print_topics(self, header, cmds, cmdlen, maxcol):
+        if cmds:
+            # The header may be a unicode string. That's the only
+            # reason to implement our own print_topics()
+            self.stdout.write(header)
+            self.stdout.write("\n")
+            if self.ruler:
+                self.stdout.write("%s\n"%str(self.ruler * len(header)))
+            self.columnize(cmds, maxcol-1)
+            self.stdout.write("\n")
+
     def help_help(self):
         print _("What would you expect!? ;-)")
 
