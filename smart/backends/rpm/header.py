@@ -28,8 +28,12 @@ from smart.progress import Progress
 from smart import *
 import locale
 import stat
-import rpm
 import os
+
+try:
+    import rpm
+except ImportError:
+    raise Error, _("'rpm' python module is not available")
 
 try:
     import rpmhelper

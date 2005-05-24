@@ -30,7 +30,11 @@ import codecs
 import locale
 import errno
 import fcntl
-import rpm
+
+try:
+    import rpm
+except ImportError:
+    raise Error, _("'rpm' python module is not available")
 
 ENCODING = locale.getpreferredencoding()
 

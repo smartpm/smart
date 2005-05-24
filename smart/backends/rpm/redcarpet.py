@@ -24,8 +24,12 @@ from smart.backends.rpm.base import *
 from smart import *
 import posixpath
 import locale
-import rpm
 import os
+
+try:
+    import rpm
+except ImportError:
+    raise Error, _("'rpm' python module is not available")
 
 from xml.parsers import expat
 
