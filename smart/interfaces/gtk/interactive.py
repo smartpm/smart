@@ -184,7 +184,10 @@ class GtkInteractiveInterface(GtkInterface):
         self._window.set_title("Smart Package Manager %s" % VERSION)
         self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.set_geometry_hints(min_width=640, min_height=480)
-        self._window.connect("destroy", lambda x: gtk.main_quit())
+        def delete(widget, event):
+            gtk.main_quit()
+            return True
+        self._window.connect("delete-event", delete)
 
         self._log.set_transient_for(self._window)
         self._progress.set_transient_for(self._window)
