@@ -104,6 +104,7 @@ globdistance(const char *a, int al, const char *b, int bl,
     int lst[MAXSIZE];
     int last, nextlast;
     int ai, bi, minlstbi;
+    int wildstart = 0;
     int maxl;
     int res;
     if (al > MAXSIZE)
@@ -115,9 +116,16 @@ globdistance(const char *a, int al, const char *b, int bl,
             *ratio = 1.0;
         return 0;
     }
+    for (; *a == '*'; a++, al--)
+        wildstart = 1;
     maxl = al>bl?al:bl;
-    for (bi = 0; bi != bl; bi++)
-        lst[bi] = bi+1;
+    if (wildstart) {
+        for (bi = 0; bi != bl; bi++)
+            lst[bi] = 0;
+    } else {
+        for (bi = 0; bi != bl; bi++)
+            lst[bi] = bi+1;
+    }
     for (ai = 0; ai != al; ai++) {
         if (a[ai] == '*') {
             last = lst[0];
