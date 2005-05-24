@@ -276,7 +276,7 @@ def main(ctrl, opts):
                 sysconf.set(("channels", alias, "disabled"), "yes")
 
     if opts.show is not None:
-        for alias in (opts.show or sysconf.get("channels")):
+        for alias in (opts.show or sysconf.get("channels", ())):
             channel = sysconf.get(("channels", alias))
             if not channel:
                 iface.warning(_("Channel '%s' not found.") % alias)
