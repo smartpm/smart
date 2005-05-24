@@ -169,10 +169,12 @@ class URPMISynthesisLoader(Loader):
 
                 reqdict = {}
                 for n, r, v, f in requires:
-                    if f:
-                        reqdict[(PreReq, n, r, v)] = True
-                    else:
-                        reqdict[(Req, n, r, v)] = True
+                    if ((r is not None and r != "=") or
+                        ((Prv, n, v) not in prvdict)):
+                        if f:
+                            reqdict[(PreReq, n, r, v)] = True
+                        else:
+                            reqdict[(Req, n, r, v)] = True
 
                 cnfdict = {}
                 for n, r, v, f in conflicts:
