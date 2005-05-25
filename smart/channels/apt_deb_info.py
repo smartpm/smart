@@ -33,7 +33,7 @@ fields = [("baseurl", _("Base URL"), str, None,
            _("Base URL of repository, where dists/ is located.")),
           ("distribution", _("Distribution"), str, None,
            _("Distribution to use.")),
-          ("components", _("Components"), str, None,
+          ("components", _("Components"), str, "",
            _("Space separated list of components.")),
           ("fingerprint", _("Fingerprint"), str, "",
            _("GPG fingerprint of key signing the channel."))]

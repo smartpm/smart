@@ -34,6 +34,9 @@ class APTDEBChannel(PackageChannel):
 
     def __init__(self, baseurl, distro, comps, fingerprint, *args):
         super(APTDEBChannel, self).__init__(*args)
+
+        while distro.startswith("/"):
+            distro = distro[1:]
         
         self._baseurl = baseurl
         self._distro = distro
@@ -47,11 +50,13 @@ class APTDEBChannel(PackageChannel):
     def _getURL(self, filename="", component=None, subpath=False):
         if subpath:
             distrourl = ""
+        elif not self._comps:
+            distrourl = posixpath.join(self._baseurl, self._distro)
         else:
             distrourl = posixpath.join(self._baseurl, "dists", self._distro)
         if component:
             return posixpath.join(distrourl, component,
-                                  "binary-"+DEBARCH, filename)
+                                 "binary-"+DEBARCH, filename)
         else:
             return posixpath.join(distrourl, filename)
 
@@ -59,129 +64,153 @@ class APTDEBChannel(PackageChannel):
         return [self._getURL("Release")]
 
     def getFetchSteps(self):
-        # Release files are not being used
-        #return len(self._comps)*2+2
-        return len(self._comps)+2
+        if self._comps:
+            # Release files are not being used
+            #return len(self._comps)*2+2
+            return len(self._comps)+2
+        else:
+            return 1
 
     def fetch(self, fetcher, progress):
 
         fetcher.reset()
 
-        # Fetch release file
-        item = fetcher.enqueue(self._getURL("Release"))
-        gpgitem = fetcher.enqueue(self._getURL("Release.gpg"))
-        fetcher.run(progress=progress)
-        failed = item.getFailedReason()
-        if failed:
-            progress.add(self.getFetchSteps()-2)
-            progress.show()
-            if fetcher.getCaching() is NEVER:
-                lines = [_("Failed acquiring information for '%s':") % self,
-                         u"%s: %s" % (item.getURL(), failed)]
-                raise Error, "\n".join(lines)
-            return False
+        if self._comps:
 
-        digest = getFileDigest(item.getTargetPath())
-        if digest == self._digest:
-            progress.add(self.getFetchSteps()-2)
-            progress.show()
-            return True
-        self.removeLoaders()
-
-        # Parse release file
-        md5sum = {}
-        insidemd5sum = False
-        for line in open(item.getTargetPath()):
-            if not insidemd5sum:
-                if line.startswith("MD5Sum:"):
-                    insidemd5sum = True
-            elif not line.startswith(" "):
-                insidemd5sum = False
-            else:
-                try:
-                    md5, size, path = line.split()
-                except ValueError:
-                    pass
-                else:
-                    md5sum[path] = (md5, int(size))
-
-        if self._fingerprint:
-            try:
-                failed = gpgitem.getFailedReason()
-                if failed:
-                    raise Error, _("Channel '%s' has fingerprint but download "
-                                   "of Release.gpg failed: %s")%(self, failed)
-
-                status, output = commands.getstatusoutput(
-                    "gpg --batch --no-secmem-warning --status-fd 1 "
-                    "--verify %s %s" % (gpgitem.getTargetPath(),
-                                        item.getTargetPath()))
-
-                badsig = False
-                goodsig = False
-                validsig = None
-                for line in output.splitlines():
-                    if line.startswith("[GNUPG:]"):
-                        tokens = line[8:].split()
-                        first = tokens[0]
-                        if first == "VALIDSIG":
-                            validsig = tokens[1]
-                        elif first == "GOODSIG":
-                            goodsig = True
-                        elif first == "BADSIG":
-                            badsig = True
-                if badsig:
-                    raise Error, _("Channel '%s' has bad signature") % self
-                if not goodsig or validsig != self._fingerprint:
-                    raise Error, _("Channel '%s' signed with unknown key") \
-                                 % self
-            except Error, e:
+            # Fetch release file
+            item = fetcher.enqueue(self._getURL("Release"))
+            gpgitem = fetcher.enqueue(self._getURL("Release.gpg"))
+            fetcher.run(progress=progress)
+            failed = item.getFailedReason()
+            if failed:
                 progress.add(self.getFetchSteps()-2)
                 progress.show()
                 if fetcher.getCaching() is NEVER:
-                    raise
+                    lines = [_("Failed acquiring information for '%s':") % self,
+                             u"%s: %s" % (item.getURL(), failed)]
+                    raise Error, "\n".join(lines)
+                return False
+
+            digest = getFileDigest(item.getTargetPath())
+            if digest == self._digest:
+                progress.add(self.getFetchSteps()-2)
+                progress.show()
+                return True
+            self.removeLoaders()
+
+            # Parse release file
+            md5sum = {}
+            insidemd5sum = False
+            for line in open(item.getTargetPath()):
+                if not insidemd5sum:
+                    if line.startswith("MD5Sum:"):
+                        insidemd5sum = True
+                elif not line.startswith(" "):
+                    insidemd5sum = False
                 else:
-                    return False
+                    try:
+                        md5, size, path = line.split()
+                    except ValueError:
+                        pass
+                    else:
+                        md5sum[path] = (md5, int(size))
 
-        # Fetch component package lists and release files
-        fetcher.reset()
-        pkgitems = []
-        #relitems = []
-        for comp in self._comps:
-            packages = self._getURL("Packages", comp, subpath=True)
-            url = self._getURL("Packages", comp)
-            if packages+".bz2" in md5sum:
-                upackages = packages
-                packages += ".bz2"
-                url += ".bz2"
-            elif packages+".gz" in md5sum:
-                upackages = packages
-                packages += ".gz"
-                url += ".gz"
-            elif packages not in md5sum:
-                iface.warning(_("Component '%s' is not in Release file "
-                                "for channel '%s'") % (comp, self))
-                continue
-            else:
-                upackages = None
-            info = {"component": comp, "uncomp": True}
-            info["md5"], info["size"] = md5sum[packages]
-            if upackages:
-                info["uncomp_md5"], info["uncomp_size"] = md5sum[upackages]
-            pkgitems.append(fetcher.enqueue(url, **info))
+            if self._fingerprint:
+                try:
+                    failed = gpgitem.getFailedReason()
+                    if failed:
+                        raise Error, _("Channel '%s' has fingerprint but download "
+                                       "of Release.gpg failed: %s")%(self, failed)
 
-            #release = self._getURL("Release", comp, subpath=True)
-            #if release in md5sum:
-            #    url = self._getURL("Release", comp)
-            #    info = {"component": comp}
-            #    info["md5"], info["size"] = md5sum[release]
-            #    relitems.append(fetcher.enqueue(url, **info))
-            #else:
-            #    progress.add(1)
-            #    progress.show()
-            #    relitems.append(None)
+                    status, output = commands.getstatusoutput(
+                        "gpg --batch --no-secmem-warning --status-fd 1 "
+                        "--verify %s %s" % (gpgitem.getTargetPath(),
+                                            item.getTargetPath()))
 
-        fetcher.run(progress=progress)
+                    badsig = False
+                    goodsig = False
+                    validsig = None
+                    for line in output.splitlines():
+                        if line.startswith("[GNUPG:]"):
+                            tokens = line[8:].split()
+                            first = tokens[0]
+                            if first == "VALIDSIG":
+                                validsig = tokens[1]
+                            elif first == "GOODSIG":
+                                goodsig = True
+                            elif first == "BADSIG":
+                                badsig = True
+                    if badsig:
+                        raise Error, _("Channel '%s' has bad signature") % self
+                    if not goodsig or validsig != self._fingerprint:
+                        raise Error, _("Channel '%s' signed with unknown key") \
+                                     % self
+                except Error, e:
+                    progress.add(self.getFetchSteps()-2)
+                    progress.show()
+                    if fetcher.getCaching() is NEVER:
+                        raise
+                    else:
+                        return False
+
+            # Fetch component package lists and release files
+            fetcher.reset()
+            pkgitems = []
+            #relitems = []
+            for comp in self._comps:
+                packages = self._getURL("Packages", comp, subpath=True)
+                url = self._getURL("Packages", comp)
+                if packages+".bz2" in md5sum:
+                    upackages = packages
+                    packages += ".bz2"
+                    url += ".bz2"
+                elif packages+".gz" in md5sum:
+                    upackages = packages
+                    packages += ".gz"
+                    url += ".gz"
+                elif packages not in md5sum:
+                    iface.warning(_("Component '%s' is not in Release file "
+                                    "for channel '%s'") % (comp, self))
+                    continue
+                else:
+                    upackages = None
+                info = {"component": comp, "uncomp": True}
+                info["md5"], info["size"] = md5sum[packages]
+                if upackages:
+                    info["uncomp_md5"], info["uncomp_size"] = md5sum[upackages]
+                pkgitems.append(fetcher.enqueue(url, **info))
+
+                #release = self._getURL("Release", comp, subpath=True)
+                #if release in md5sum:
+                #    url = self._getURL("Release", comp)
+                #    info = {"component": comp}
+                #    info["md5"], info["size"] = md5sum[release]
+                #    relitems.append(fetcher.enqueue(url, **info))
+                #else:
+                #    progress.add(1)
+                #    progress.show()
+                #    relitems.append(None)
+
+            fetcher.run(progress=progress)
+
+        else: # if not self._comps:
+
+            item = fetcher.enqueue(self._getURL("Packages.gz"), uncomp=True)
+            fetcher.run(progress=progress)
+            failed = item.getFailedReason()
+            if failed:
+                if fetcher.getCaching() is NEVER:
+                    lines = [_("Failed acquiring information for '%s':") %
+                             self, u"%s: %s" % (item.getURL(), failed)]
+                    raise Error, "\n".join(lines)
+                return False
+
+            digest = getFileDigest(item.getTargetPath())
+            if digest == self._digest:
+                return True
+            self.removeLoaders()
+
+            pkgitems = [item]
 
         errorlines = []
         for i in range(len(pkgitems)):
