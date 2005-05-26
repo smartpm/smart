@@ -809,7 +809,6 @@ class Transaction(object):
         getweight = self._policy.getWeight
 
         sortUpgrades(pkgs, self._policy)
-        pkgs.reverse()
 
         lockedstate = {}
 
