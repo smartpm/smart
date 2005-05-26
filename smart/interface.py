@@ -126,9 +126,9 @@ class Interface(object):
             sys.stderr.write(" "*(getScreenWidth()-1)+"\r")
         if prefix:
             for line in msg.split("\n"):
-                sys.stderr.write("%s: %s\n" % (prefix, line))
+                sys.stderr.write(u"%s: %s\n" % (prefix, line))
         else:
-            sys.stderr.write("%s\n" % msg.rstrip())
+            sys.stderr.write(u"%s\n" % msg.rstrip())
 
 def getScreenWidth():
     s = struct.pack('HHHH', 0, 0, 0, 0)
