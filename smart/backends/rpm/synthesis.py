@@ -42,11 +42,8 @@ class URPMISynthesisPackageInfo(PackageInfo):
         self._info = info
 
     def getURLs(self):
-        name = self._package.name
-        version, arch = splitarch(self._package.version)
-        version = EPOCHRE.sub("", version)
         return [posixpath.join(self._loader._baseurl,
-                               "%s-%s.%s.rpm" % (name, version, arch))]
+                               self._loader.getFileName(self))]
 
     def getInstalledSize(self):
         return int(self._info.get("size"))
@@ -60,16 +57,31 @@ class URPMISynthesisPackageInfo(PackageInfo):
 
 class URPMISynthesisLoader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+2
+    __stateversion__ = Loader.__stateversion__+3
 
-    def __init__(self, filename, baseurl, filelistname):
+    def __init__(self, filename, baseurl, listfile):
         Loader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
-        self._filelistname = filelistname
+        self._prefix = {}
+        if listfile:
+            for entry in open(listfile):
+                if entry[:2] == "./":
+                    entry = entry[2:]
+                dirname, basename = os.path.split(entry.rstrip())
+                self._prefix[basename] = dirname
 
     def getInfo(self, pkg):
         return URPMISynthesisPackageInfo(pkg, self, pkg.loaders[self])
+
+    def getFileName(self, info):
+        name = info._package.name
+        version, arch = splitarch(info._package.version)
+        version = EPOCHRE.sub("", version)
+        filename = "%s-%s.%s.rpm" % (name, version, arch)
+        if filename in self._prefix:
+            filename = os.path.join(self._prefix[filename], filename)
+        return filename
 	
     def getLoadSteps(self):
         indexfile = open(self._filename)
