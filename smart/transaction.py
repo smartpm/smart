@@ -365,9 +365,8 @@ class PolicyUpgrade(Policy):
         for pkg in upgradedmap:
             sb = stablebonus.get(pkg)
             if sb:
-                for upgpkg in sb:
-                    if upgpkg not in changeset:
-                        weight += sb[upgpkg]
+                lst = [sb[upgpkg] for upgpkg in sb if upgpkg not in changeset]
+                if lst: weight += min(lst)
 
         upgradedcount = len(upgradedmap)
         weight += -30*upgradedcount+(installedcount-upgradedcount)
