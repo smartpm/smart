@@ -30,6 +30,11 @@ import posixpath
 import os
 import re
 
+try:
+    import rpm
+except ImportError:
+    raise Error, _("'rpm' python module is not available")
+
 DEPENDSRE = re.compile("^([^[]*)(\[\*\])?(\[.*\])?")
 OPERATIONRE = re.compile("\[([<>=]*) *(.+)?\]")
 EPOCHRE = re.compile("[0-9]+:")
@@ -164,6 +169,9 @@ class URPMISynthesisLoader(Loader):
                 else:
                     version, arch = version[:dot], version[dot+1:]
                 versionarch = "@".join((version, arch))
+                
+                if rpm.archscore(arch) == 0:
+                    continue
 
                 name = "-".join(rpmnameparts[0:-2])
 

@@ -32,7 +32,11 @@ import fnmatch
 import string
 import os, re
 
-from rpm import archscore
+try:
+    from rpm import archscore
+except ImportError:
+    raise Error, _("'rpm' python module is not available")
+
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes"]
