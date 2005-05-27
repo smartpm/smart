@@ -55,6 +55,9 @@ def parse_options(argv):
                       help=_("dump needed urls and don't commit operation"))
     parser.add_option("--download", action="store_true",
                       help=_("download packages and don't commit operation"))
+    parser.add_option("--update", action="store_true",
+                      help=_("update channel information before trying "
+                             "to upgrade"))
     parser.add_option("--check", action="store_true",
                       help=_("just check if there are upgrades to be done"))
     parser.add_option("--check-update", action="store_true",
@@ -68,7 +71,13 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
-    ctrl.reloadChannels()
+    if opts.update:
+        from smart.commands import update
+        updateopts = update.parse_options([])
+        update.main(ctrl, updateopts)
+    else:
+        ctrl.reloadChannels()
+
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyUpgrade)
 
