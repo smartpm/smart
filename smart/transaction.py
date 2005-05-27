@@ -253,7 +253,7 @@ class PolicyUpgrade(Policy):
         self._upgrading = upgrading = {}
         self._upgraded = upgraded = {}
         self._sortbonus = sortbonus = {}
-        self._requiredbonus = requiredbonus = {}
+        self._stablebonus = stablebonus = {}
         queue = self._trans.getQueue()
         for pkg in self._trans.getCache().getPackages():
             # Precompute upgrade relations.
@@ -289,6 +289,41 @@ class PolicyUpgrade(Policy):
                             else:
                                 upgraded[upgpkg] = [pkg]
 
+        # If package A-2.0 upgrades package A-1.0, and package A-2.0 is
+        # upgraded by A-3.0, give a bonus if A-1.0 is upgraded without
+        # installing A-2.0. In practice, this is a little bit more
+        # complex since there might be multiple levels of upgrades, and
+        # we can't penalize a possible package A2-2.0 which upgrades
+        # A-1.0 as well, and is not upgraded by anyone else.
+        for bonuspkg in upgraded:
+            upgmap = dict.fromkeys(upgraded[bonuspkg])
+            sb = {}
+            seen = {}
+            queue = [[bonuspkg]]
+            while queue:
+                path = queue.pop(0)
+                pkg = path[-1]
+                for prv in pkg.provides:
+                    for upg in prv.upgradedby:
+                        for upgpkg in upg.packages:
+                            if (not upgpkg.installed and
+                                upgpkg in upgmap and upgpkg not in path and
+                                self.getPriority(pkg) <=
+                                self.getPriority(upgpkg)):
+                                sb[pkg] = -30*(len(path)-1)
+                                queue.append(path+[upgpkg])
+                for upg in pkg.upgrades:
+                    for prv in upg.providedby:
+                        for prvpkg in prv.packages:
+                            if (not prvpkg.installed and
+                                prvpkg in upgmap and prvpkg not in seen and
+                                self.getPriority(pkg) <
+                                self.getPriority(upgpkg)):
+                                sb[pkg] = -30*(len(path)-1)
+                                queue.append(path+[prvpkg])
+            if sb:
+                stablebonus[bonuspkg] = sb
+
         pkgs = self._trans._queue.keys()
         sortUpgrades(pkgs, self)
         for i, pkg in enumerate(pkgs):
@@ -304,7 +339,7 @@ class PolicyUpgrade(Policy):
         upgrading = self._upgrading
         upgraded = self._upgraded
         sortbonus = self._sortbonus
-        requiredbonus = self._requiredbonus
+        stablebonus = self._stablebonus
 
         installedcount = 0
         upgradedmap = {}
@@ -326,6 +361,14 @@ class PolicyUpgrade(Policy):
                 if upgpkgs:
                     weight += sortbonus.get(pkg, 0)
                     upgradedmap.update(upgpkgs)
+
+        for pkg in upgradedmap:
+            sb = stablebonus.get(pkg)
+            if sb:
+                for upgpkg in sb:
+                    if upgpkg not in changeset:
+                        weight += sb[upgpkg]
+
         upgradedcount = len(upgradedmap)
         weight += -30*upgradedcount+(installedcount-upgradedcount)
         return weight
