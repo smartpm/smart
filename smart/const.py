@@ -52,15 +52,15 @@ NEVER     = Enum("NEVER")
 ENFORCE   = Enum("ENFORCE")
 ALWAYS    = Enum("ALWAYS")
 
-ERROR     = Enum("ERROR")
-WARNING   = Enum("WARNING")
-INFO      = Enum("INFO")
-DEBUG     = Enum("DEBUG")
-
 WAITING   = Enum("WAITING")
 RUNNING   = Enum("RUNNING")
 FAILED    = Enum("FAILED")
 SUCCEEDED = Enum("SUCCEEDED")
+
+ERROR     = 1
+WARNING   = 2
+INFO      = 3
+DEBUG     = 4
 
 BLOCKSIZE = 16384
 
