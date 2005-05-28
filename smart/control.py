@@ -165,17 +165,20 @@ class Control(object):
                 return
 
             if self._cachechanged:
-                iface.showStatus(_("Saving cache..."))
                 cachepath = os.path.join(sysconf.get("data-dir"), "cache")
-                cachefile = open(cachepath+".new", "w")
-                state = (self.__stateversion__,
-                         self._cache,
-                         self._channels,
-                         self._sysconfchannels)
-                cPickle.dump(state, cachefile, 2)
-                cachefile.close()
-                os.rename(cachepath+".new", cachepath)
-                iface.hideStatus()
+                if sysconf.get("disk-cache", True):
+                    iface.showStatus(_("Saving cache..."))
+                    cachefile = open(cachepath+".new", "w")
+                    state = (self.__stateversion__,
+                             self._cache,
+                             self._channels,
+                             self._sysconfchannels)
+                    cPickle.dump(state, cachefile, 2)
+                    cachefile.close()
+                    os.rename(cachepath+".new", cachepath)
+                    iface.hideStatus()
+                elif os.path.isfile(cachepath):
+                    os.unlink(cachepath)
 
             if not sysconf.getModified():
                 return
@@ -215,7 +218,7 @@ class Control(object):
 
         if channels and not self._channels:
             cachepath = os.path.join(sysconf.get("data-dir"), "cache")
-            if os.path.isfile(cachepath):
+            if os.path.isfile(cachepath) and sysconf.get("disk-cache", True):
                 iface.showStatus(_("Loading cache..."))
                 cachefile = open(cachepath)
                 try:
