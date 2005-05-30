@@ -357,6 +357,7 @@ class GtkInteractiveInterface(GtkInterface):
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
+        self.loadState()
         self._window.set_icon(getPixbuf("smart"))
         self._window.show()
         self._ctrl.reloadChannels()
@@ -365,9 +366,26 @@ class GtkInteractiveInterface(GtkInterface):
         self._progress.hide()
         self.refreshPackages()
         gtk.main()
+        self.saveState()
         self.setCatchExceptions(False)
 
     # Non-standard interface methods:
+
+    def saveState(self):
+        sysconf.set("gtk-size", self._window.get_size())
+        #sysconf.set("gtk-position", self._window.get_position())
+        sysconf.set("gtk-vpaned-position", self._vpaned.get_position())
+
+    def loadState(self):
+        var = sysconf.get("gtk-size")
+        if var is not None:
+            self._window.set_size_request(*var)
+        #var = sysconf.get("gtk-position")
+        #if var is not None:
+        #    self._window.move(*var)
+        var = sysconf.get("gtk-vpaned-position")
+        if var is not None:
+            self._vpaned.set_position(var)
 
     def getChangeSet(self):
         return self._changeset
