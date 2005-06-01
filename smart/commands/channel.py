@@ -292,7 +292,9 @@ def main(ctrl, opts):
         
         fd, name = tempfile.mkstemp(".ini")
         file = os.fdopen(fd, "w")
-        for alias in sysconf.get("channels"):
+        aliases = sysconf.keys("channels")
+        aliases.sort()
+        for alias in aliases:
             channel = sysconf.get(("channels", alias))
             desc = createChannelDescription(alias, parseChannelData(channel))
             print >>file, desc
