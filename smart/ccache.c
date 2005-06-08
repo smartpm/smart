@@ -801,6 +801,7 @@ Provides_search(PackageObject *self, PyObject *searcher)
         Py_DECREF(res);
     }
     Py_DECREF(lst);
+    Py_DECREF(ignorecase);
 
     if (ratio && PyFloat_AS_DOUBLE(ratio))
         CALLMETHOD(searcher, "addResult", "OO", self, ratio);
@@ -1919,6 +1920,7 @@ Loader_search(LoaderObject *self, PyObject *searcher)
 
         Py_DECREF(info);
     }
+    Py_DECREF(ignorecase);
 
     Py_INCREF(Py_None);
     return Py_None;
