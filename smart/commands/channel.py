@@ -46,7 +46,7 @@ Use --help-type <type> for more information.
 
 EXAMPLES=_("""
 smart channel --help-type apt-rpm
-smart channel --add mydb type=rpm-db name="RPM Database"
+smart channel --add mydb type=rpm-sys name="RPM Database"
 smart channel --add mychannel type=apt-rpm name="Some repository" \\
                   baseurl=http://somewhere.com/pub/repos components=extra
 smart channel --set mychannel priority=-100
