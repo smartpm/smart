@@ -108,23 +108,25 @@ class RPMPackage(Package):
         myversion, myarch = splitarch(self.version)
         myversion = _epochre.sub("", myversion)
         ratio = 0
+        ic = searcher.ignorecase
         for nameversion, cutoff in searcher.nameversion:
             nameversion = _epochre.sub("", nameversion)
             if '@' in nameversion:
                 _, ratio1 = globdistance(nameversion, "%s-%s" %
-                                         (myname, self.version), cutoff)
+                                         (myname, self.version), cutoff, ic)
                 _, ratio2 = globdistance(nameversion, "%s@%s" %
-                                         (myname, myarch), cutoff)
+                                         (myname, myarch), cutoff, ic)
                 _, ratio3 = globdistance(nameversion, "%s-%s@%s" %
                                          (myname, splitrelease(myversion)[0],
-                                          myarch), cutoff)
+                                          myarch), cutoff, ic)
             else:
-                _, ratio1 = globdistance(nameversion, myname, cutoff)
+                _, ratio1 = globdistance(nameversion, myname, cutoff, ic)
                 _, ratio2 = globdistance(nameversion,
-                                         "%s-%s" % (myname, myversion), cutoff)
+                                         "%s-%s" % (myname, myversion),
+                                         cutoff, ic)
                 _, ratio3 = globdistance(nameversion, "%s-%s" %
                                          (myname, splitrelease(myversion)[0]),
-                                         cutoff)
+                                         cutoff, ic)
             ratio = max(ratio, ratio1, ratio2, ratio3)
         if ratio:
             searcher.addResult(self, ratio)

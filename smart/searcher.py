@@ -62,6 +62,7 @@ class Searcher(object):
         self.group = []
         self.summary = []
         self.description = []
+        self.ignorecase = True
 
     def reset(self):
         self._results.clear()
@@ -130,12 +131,30 @@ class Searcher(object):
             self.addDescription(s[6:])
         elif s.startswith("description:"):
             self.addDescription(s[12:])
+        elif s.startswith("name:"):
+            self.addNameVersion(s[5:], cutoff)
         elif s[0] == "/":
             self.addPath(s, cutoff)
         elif ":/" in s:
             self.addURL(s, cutoff)
         else:
             self.addNameVersion(s, cutoff)
+
+    def hasAutoMeaning(self, s):
+        return s and (
+                s.startswith("provides:") or
+                s.startswith("requires:") or
+                s.startswith("upgrades:") or
+                s.startswith("conflicts:") or
+                s.startswith("url:") or
+                s.startswith("path:") or
+                s.startswith("group:") or
+                s.startswith("summary:") or
+                s.startswith("descr:") or
+                s.startswith("description:") or
+                s.startswith("name:") or
+                s[0] == "/" or ":/" in s
+            )
 
     def addNameVersion(self, s, cutoff=1.0):
         self.nameversion.append((s, cutoff))
@@ -174,15 +193,15 @@ class Searcher(object):
 
     def addGroup(self, s):
         s = fnmatch.translate(s)[:-1].replace("\ ", " ")
-        p = re.compile("\s+".join(s.split()), re.I)
+        p = re.compile("\s+".join(s.split()), self.ignorecase and re.I or 0)
         self.group.append(p)
 
     def addSummary(self, s):
         s = fnmatch.translate(s)[:-1].replace("\ ", " ")
-        p = re.compile("\s+".join(s.split()), re.I)
+        p = re.compile("\s+".join(s.split()), self.ignorecase and re.I or 0)
         self.summary.append(p)
 
     def addDescription(self, s):
         s = fnmatch.translate(s)[:-1].replace("\ ", " ")
-        p = re.compile("\s+".join(s.split()), re.I)
+        p = re.compile("\s+".join(s.split()), self.ignorecase and re.I or 0)
         self.description.append(p)

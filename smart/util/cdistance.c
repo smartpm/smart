@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define MAXSIZE 1024
 
@@ -99,7 +100,7 @@ distance(const char *a, int al, const char *b, int bl,
 */
 static int
 globdistance(const char *a, int al, const char *b, int bl,
-             int cutoff, float *ratio)
+             int cutoff, float *ratio, int ignorecase)
 {
     int lst[MAXSIZE];
     int last, nextlast;
@@ -149,11 +150,20 @@ globdistance(const char *a, int al, const char *b, int bl,
             }
         } else {
             last = lst[0];
-            lst[0] = minlstbi = min2(lst[0]+1, ai+(b[0] != a[ai]?1:0));
+            if (ignorecase)
+                lst[0] = minlstbi = min2(lst[0]+1, ai+(tolower(b[0]) !=
+                                                       tolower(a[ai])?1:0));
+            else
+                lst[0] = minlstbi = min2(lst[0]+1, ai+(b[0] != a[ai]?1:0));
             for (bi = 1; bi != bl; bi++) {
                 nextlast = lst[bi];
-                lst[bi] = min3(lst[bi-1]+1, lst[bi]+1,
-                               last+(b[bi] != a[ai]?1:0));
+                if (ignorecase)
+                    lst[bi] = min3(lst[bi-1]+1, lst[bi]+1,
+                                   last+(tolower(b[bi]) !=
+                                         tolower(a[ai])?1:0));
+                else
+                    lst[bi] = min3(lst[bi-1]+1, lst[bi]+1,
+                                   last+(b[bi] != a[ai]?1:0));
                 last = nextlast;
                 if (cutoff != -1 && lst[bi] < minlstbi)
                     minlstbi = lst[bi];
@@ -220,9 +230,11 @@ cdistance_globdistance(PyObject *self, PyObject *args)
     PyObject *cutoffo = Py_None;
     const char *a, *b;
     int cutoff = -1;
+    int ignorecase = 0;
     int al, bl, maxl;
     float ratio;
-    if (!PyArg_ParseTuple(args, "s#s#|O", &a, &al, &b, &bl, &cutoffo))
+    if (!PyArg_ParseTuple(args, "s#s#|Oi",
+                          &a, &al, &b, &bl, &cutoffo, &ignorecase))
         return NULL;
     maxl = al>bl?al:bl;
     if (cutoffo != Py_None) {
@@ -235,7 +247,8 @@ cdistance_globdistance(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    resulto = PyInt_FromLong(globdistance(a, al, b, bl, cutoff, &ratio));
+    resulto = PyInt_FromLong(globdistance(a, al, b, bl,
+                                          cutoff, &ratio, ignorecase));
     if (!resulto) return NULL;
     ratioo = PyFloat_FromDouble((double)ratio);
     if (!ratioo) return NULL;

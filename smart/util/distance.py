@@ -45,6 +45,51 @@ def distance(a, b, cutoff=None):
         return bl, 0.0
     return res, float(bl-res)/bl
 
+def globdistance(a, b, cutoff=None, ignorecase=False):
+    """
+    Compute Levenhstein distance - http://www.merriampark.com/ld.htm
+
+    Algorithm changed by Gustavo Niemeyer to implement wildcards support.
+    """
+    if ignorecase:
+        a = a.lower()
+        b = b.lower()
+    if a == b:
+        return 0, 1.0
+    wildstart = False
+    while a.startswith("*"):
+        wildstart = True
+        a = a[1:]
+    al = len(a)
+    bl = len(b)
+    maxl = al > bl and al or bl
+    if cutoff and type(cutoff) is float:
+        cutoff = int(maxl-cutoff*maxl)
+    if wildstart:
+        lst = [0]*bl
+    else:
+        lst = range(1,bl+1)
+    for ai in range(al):
+        if a[ai] == "*":
+            last, lst[0] = lst[0], min(lst[0], ai)
+            for bi in range(1,bl):
+                last, lst[bi] = lst[bi], min(lst[bi-1], lst[bi], last)
+        elif a[ai] == "?":
+            last, lst[0] = lst[0], min(lst[0]+1, ai)
+            for bi in range(1,bl):
+                last, lst[bi] = lst[bi], min(lst[bi-1]+1, lst[bi]+1, last)
+        else:
+            last, lst[0] = lst[0], min(lst[0]+1, ai+(b[0] != a[ai]))
+            for bi in range(1, bl):
+                last, lst[bi] = lst[bi], min(lst[bi-1]+1, lst[bi]+1,
+                                             last+(b[bi] != a[ai]))
+        if cutoff is not None and min(lst) > cutoff:
+            return bl, 0.0
+    res = lst[-1]
+    if cutoff is not None and res > cutoff:
+        return bl, 0.0
+    return res, float(maxl-res)/maxl
+
 def globdistance(a, b, cutoff=None):
     """
     Compute Levenhstein distance - http://www.merriampark.com/ld.htm

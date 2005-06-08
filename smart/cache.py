@@ -70,10 +70,11 @@ class Package(object):
         myname = self.name
         myversion = self.version
         ratio = 0
+        ic = searcher.ignorecase
         for nameversion, cutoff in searcher.nameversion:
-            _, ratio1 = globdistance(nameversion, myname, cutoff)
+            _, ratio1 = globdistance(nameversion, myname, cutoff, ic)
             _, ratio2 = globdistance(nameversion,
-                                     "%s-%s" % (myname, myversion), cutoff)
+                                     "%s-%s" % (myname, myversion), cutoff, ic)
             ratio = max(ratio, ratio1, ratio2)
         if ratio:
             searcher.addResult(self, ratio)
@@ -245,10 +246,11 @@ class Provides(object):
         myname = self.name
         myversion = self.version
         ratio = 0
+        ic = searcher.ignorecase
         for provides, cutoff in searcher.provides:
-            _, ratio1 = globdistance(provides, myname, cutoff)
+            _, ratio1 = globdistance(provides, myname, cutoff, ic)
             _, ratio2 = globdistance(provides, "%s-%s" % (myname, myversion),
-                                     cutoff)
+                                     cutoff, ic)
             ratio = max(ratio, ratio1, ratio2)
         if ratio:
             searcher.addResult(self, ratio)
@@ -456,13 +458,14 @@ class Loader(object):
         # Loaders are responsible for searching on PackageInfo. They
         # should use the fastest possible method. The one here is
         # generic, and should be replaced if possible.
+        ic = searcher.ignorecase
         for pkg in self._packages:
             info = self.getInfo(pkg)
             ratio = 0
             if searcher.url:
                 for url, cutoff in searcher.url:
                     for refurl in info.getReferenceURLs():
-                        _, newratio = globdistance(url, refurl, cutoff)
+                        _, newratio = globdistance(url, refurl, cutoff, ic)
                         if newratio > ratio:
                             ratio = newratio
                             if ratio == 1:
@@ -476,7 +479,7 @@ class Loader(object):
             if searcher.path:
                 for spath, cutoff in searcher.path:
                     for path in info.getPathList():
-                        _, newratio = globdistance(spath, path, cutoff)
+                        _, newratio = globdistance(spath, path, cutoff, ic)
                         if newratio > ratio:
                             ratio = newratio
                             if ratio == 1:

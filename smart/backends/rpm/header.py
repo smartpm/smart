@@ -290,6 +290,7 @@ class RPMHeaderLoader(Loader):
             self._groups[pkg] = intern(h[rpm.RPMTAG_GROUP])
 
     def search(self, searcher):
+        ic = searcher.ignorecase
         for h, offset in self.getHeaders(Progress()):
             pkg = self._offsets.get(offset)
             if not pkg:
@@ -300,7 +301,7 @@ class RPMHeaderLoader(Loader):
                 refurl = h[rpm.RPMTAG_URL]
                 if refurl:
                     for url, cutoff in searcher.url:
-                        _, newratio = globdistance(url, refurl, cutoff)
+                        _, newratio = globdistance(url, refurl, cutoff, ic)
                         if newratio > ratio:
                             ratio = newratio
                             if ratio == 1:
@@ -313,7 +314,7 @@ class RPMHeaderLoader(Loader):
                 if paths:
                     for spath, cutoff in searcher.path:
                         for path in paths:
-                            _, newratio = globdistance(spath, path, cutoff)
+                            _, newratio = globdistance(spath, path, cutoff, ic)
                             if newratio > ratio:
                                 ratio = newratio
                                 if ratio == 1:

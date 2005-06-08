@@ -756,7 +756,10 @@ class GtkInteractiveInterface(GtkInterface):
                     if tokens:
                         dosearch = True
                         for tok in tokens:
-                            searcher.addAuto(tok)
+                            if searcher.hasAutoMeaning(tok):
+                                searcher.addAuto(tok)
+                            else:
+                                searcher.addNameVersion("*%s*" % tok)
 
             packages = []
             if dosearch:

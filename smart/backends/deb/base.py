@@ -69,13 +69,14 @@ class DebPackage(Package):
         myname = self.name
         myversion = self.version
         ratio = 0
+        ic = searcher.ignorecase
         for nameversion, cutoff in searcher.nameversion:
-            _, ratio1 = globdistance(nameversion, myname, cutoff)
+            _, ratio1 = globdistance(nameversion, myname, cutoff, ic)
             _, ratio2 = globdistance(nameversion,
-                                     "%s-%s" % (myname, myversion), cutoff)
+                                     "%s-%s" % (myname, myversion), cutoff, ic)
             _, ratio3 = globdistance(nameversion, "%s-%s" %
                                      (myname, splitrelease(myversion)[0]),
-                                     cutoff)
+                                     cutoff, ic)
             ratio = max(ratio, ratio1, ratio2, ratio3)
         if ratio:
             searcher.addResult(self, ratio)

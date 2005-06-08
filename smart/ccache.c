@@ -451,9 +451,14 @@ Package_search(PackageObject *self, PyObject *searcher)
     PyObject *globdistance = getGlobDistance();
     PyObject *tmp, *lst, *tup, *res;
     PyObject *ratio = NULL;
+    PyObject *ignorecase;
     int i;
 
     if (globdistance == NULL)
+        return NULL;
+
+    ignorecase = PyObject_GetAttrString(searcher, "ignorecase");
+    if (ignorecase == NULL)
         return NULL;
 
     lst = PyObject_GetAttrString(searcher, "nameversion");
@@ -467,9 +472,9 @@ Package_search(PackageObject *self, PyObject *searcher)
             PyErr_SetString(PyExc_ValueError, "Invalid nameversion tuple size");
             return NULL;
         }
-        res = PyObject_CallFunction(globdistance, "OOO",
+        res = PyObject_CallFunction(globdistance, "OOOO",
                                     PyTuple_GET_ITEM(tup, 0), self->name,
-                                    PyTuple_GET_ITEM(tup, 1));
+                                    PyTuple_GET_ITEM(tup, 1), ignorecase);
         if (res == NULL)
             return NULL;
         if (PyTuple_GET_SIZE(res) != 2 ||
@@ -490,9 +495,9 @@ Package_search(PackageObject *self, PyObject *searcher)
                                            PyString_AS_STRING(self->version));
         if (tmp == NULL)
             return NULL;
-        res = PyObject_CallFunction(globdistance, "OOO",
+        res = PyObject_CallFunction(globdistance, "OOOO",
                                     PyTuple_GET_ITEM(tup, 0), tmp,
-                                    PyTuple_GET_ITEM(tup, 1));
+                                    PyTuple_GET_ITEM(tup, 1), ignorecase);
         Py_DECREF(tmp);
         if (res == NULL)
             return NULL;
@@ -511,6 +516,7 @@ Package_search(PackageObject *self, PyObject *searcher)
         Py_DECREF(res);
     }
     Py_DECREF(lst);
+    Py_DECREF(ignorecase);
 
     if (ratio && PyFloat_AS_DOUBLE(ratio))
         CALLMETHOD(searcher, "addResult", "OO", self, ratio);
@@ -730,9 +736,14 @@ Provides_search(PackageObject *self, PyObject *searcher)
     PyObject *globdistance = getGlobDistance();
     PyObject *tmp, *lst, *tup, *res;
     PyObject *ratio = NULL;
+    PyObject *ignorecase;
     int i;
 
     if (globdistance == NULL)
+        return NULL;
+
+    ignorecase = PyObject_GetAttrString(searcher, "ignorecase");
+    if (ignorecase == NULL)
         return NULL;
 
     lst = PyObject_GetAttrString(searcher, "provides");
@@ -746,9 +757,9 @@ Provides_search(PackageObject *self, PyObject *searcher)
             PyErr_SetString(PyExc_ValueError, "Invalid provides tuple size");
             return NULL;
         }
-        res = PyObject_CallFunction(globdistance, "OOO",
+        res = PyObject_CallFunction(globdistance, "OOOO",
                                     PyTuple_GET_ITEM(tup, 0), self->name,
-                                    PyTuple_GET_ITEM(tup, 1));
+                                    PyTuple_GET_ITEM(tup, 1), ignorecase);
         if (res == NULL)
             return NULL;
         if (PyTuple_GET_SIZE(res) != 2 ||
@@ -769,9 +780,9 @@ Provides_search(PackageObject *self, PyObject *searcher)
                                            PyString_AS_STRING(self->version));
         if (tmp == NULL)
             return NULL;
-        res = PyObject_CallFunction(globdistance, "OOO",
+        res = PyObject_CallFunction(globdistance, "OOOO",
                                     PyTuple_GET_ITEM(tup, 0), tmp,
-                                    PyTuple_GET_ITEM(tup, 1));
+                                    PyTuple_GET_ITEM(tup, 1), ignorecase);
         Py_DECREF(tmp);
         if (res == NULL)
             return NULL;
@@ -1703,10 +1714,15 @@ Loader_search(LoaderObject *self, PyObject *searcher)
     PyObject *tmp, *lst1, *lst2, *tup, *res, *pat;
     PyObject *globdistance = getGlobDistance();
     PyObject *ratio = NULL;
+    PyObject *ignorecase;
     PyObject *pkg, *info;
     int i, j, k;
 
     if (globdistance == NULL)
+        return NULL;
+
+    ignorecase = PyObject_GetAttrString(searcher, "ignorecase");
+    if (ignorecase == NULL)
         return NULL;
 
     for (i = 0; i != PyList_GET_SIZE(self->_packages); i++) {
@@ -1730,10 +1746,11 @@ Loader_search(LoaderObject *self, PyObject *searcher)
             if (lst2 == NULL)
                 return NULL;
             for (k = 0; k != PyList_GET_SIZE(lst2); k++) {
-                res = PyObject_CallFunction(globdistance, "OOO",
+                res = PyObject_CallFunction(globdistance, "OOOO",
                                             PyTuple_GET_ITEM(tup, 0),
                                             PyList_GET_ITEM(lst2, k),
-                                            PyTuple_GET_ITEM(tup, 1));
+                                            PyTuple_GET_ITEM(tup, 1),
+                                            ignorecase);
                 if (res == NULL)
                     return NULL;
                 if (PyTuple_GET_SIZE(res) != 2 ||
@@ -1779,10 +1796,11 @@ Loader_search(LoaderObject *self, PyObject *searcher)
             if (lst2 == NULL)
                 return NULL;
             for (k = 0; k != PyList_GET_SIZE(lst2); k++) {
-                res = PyObject_CallFunction(globdistance, "OOO",
+                res = PyObject_CallFunction(globdistance, "OOOO",
                                             PyTuple_GET_ITEM(tup, 0),
                                             PyList_GET_ITEM(lst2, k),
-                                            PyTuple_GET_ITEM(tup, 1));
+                                            PyTuple_GET_ITEM(tup, 1),
+                                            ignorecase);
                 if (res == NULL)
                     return NULL;
                 if (PyTuple_GET_SIZE(res) != 2 ||
