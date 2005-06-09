@@ -146,13 +146,13 @@ class TextInterface(Interface):
                 if (pkg in report.installing or
                     pkg in report.upgrading or
                     pkg in report.downgrading):
-                    return _("(being installed)")
+                    return _("(installed)")
                 elif pkg in report.upgraded:
-                    return _("(being upgraded)")
+                    return _("(upgraded)")
                 elif pkg in report.removed:
-                    return _("(being removed)")
+                    return _("(removed)")
                 elif pkg in report.downgraded:
-                    return _("(being downgraded)")
+                    return _("(downgraded)")
                 else:
                     return "" # Shouldn't happen
             def showPackages(pkgs, showrelations=True):
