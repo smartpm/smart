@@ -76,6 +76,28 @@ class RPMPackageManager(PackageManager):
 
         ts = rpm.ts(sysconf.get("rpm-root", "/"))
 
+        flags = ts.setFlags(0)
+        if sysconf.get("rpm-allfiles", False):
+            flags |= rpm.RPMTRANS_FLAG_ALLFILES
+        if sysconf.get("rpm-justdb", False):
+            flags |= rpm.RPMTRANS_FLAG_JUSTDB
+        if sysconf.get("rpm-noconfigs", False):
+            flags |= rpm.RPMTRANS_FLAG_NOCONFIGS
+        if (sysconf.get("rpm-nodocs", False) or
+            sysconf.get("rpm-excludedocs", False)):
+            flags |= rpm.RPMTRANS_FLAG_NODOCS
+        if sysconf.get("rpm-nomd5", False):
+            flags |= rpm.RPMTRANS_FLAG_NOMD5
+        if sysconf.get("rpm-noscripts", False):
+            flags |= rpm.RPMTRANS_FLAG_NOSCRIPTS
+        if sysconf.get("rpm-notriggers", False):
+            flags |= rpm.RPMTRANS_FLAG_NOTRIGGERS
+        if sysconf.get("rpm-repackage", False):
+            flags |= rpm.RPMTRANS_FLAG_REPACKAGE
+        if sysconf.get("rpm-test", False):
+            flags |= rpm.RPMTRANS_FLAG_TEST
+        ts.setFlags(flags)
+
         if not sysconf.get("rpm-check-signatures", False):
             ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
 
