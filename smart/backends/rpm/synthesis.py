@@ -221,4 +221,11 @@ class URPMISynthesisLoader(Loader):
                 conflicts = ()
                 obsoletes = ()
 
+def enablePsyco(psyco):
+    psyco.bind(URPMISynthesisLoader.getLoadSteps)
+    psyco.bind(URPMISynthesisLoader.splitDepends)
+    psyco.bind(URPMISynthesisLoader.load)
+
+hooks.register("enable-psyco", enablePsyco)
+
 # vim:ts=4:sw=4:et

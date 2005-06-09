@@ -27,6 +27,16 @@ class Hooks:
         self._hook = {}
     
     def register(self, hookname, hookfunc, priority=500, threaded=0):
+        metahookname = hookname+"-registered"
+        if metahookname in self._hook:
+            for hook in self._hook[metahookname][:]:
+                if hook[2]:
+                    start_new_thread(hook[0],
+                                     (hookname, hookfunc, priority, threaded))
+                else:
+                    val = hook[0](hookname, hookfunc, priority, threaded)
+                    if val == -1:
+                        break
         hook = self._hook.get(hookname)
         if not hook:
             self._hook[hookname] = [(hookfunc,priority,threaded)]

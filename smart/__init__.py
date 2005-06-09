@@ -145,4 +145,16 @@ def initPlugins():
             if os.path.isfile(initpath):
                 __import__("smart.backends."+entry)
 
+def initPsyco():
+    if sysconf.get("psyco", True):
+        try:
+            import psyco
+        except ImportError:
+            pass
+        else:
+            hooks.call("enable-psyco", psyco)
+            def autocall(hookname, hookfunc, priority, threaded, psyco=psyco):
+                hookfunc(psyco)
+            hooks.register("enable-psyco-registered", autocall)
+
 # vim:ts=4:sw=4:et

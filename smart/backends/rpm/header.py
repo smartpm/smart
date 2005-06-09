@@ -687,4 +687,18 @@ def createFileChannel(filename):
 
 hooks.register("create-file-channel", createFileChannel)
 
+def enablePsyco(psyco):
+    psyco.bind(RPMHeaderLoader.load)
+    psyco.bind(RPMHeaderLoader.search)
+    psyco.bind(RPMHeaderListLoader.getHeaders)
+    psyco.bind(RPMHeaderListLoader.getHeadersHDL)
+    psyco.bind(RPMHeaderListLoader.loadFileProvides)
+    psyco.bind(RPMHeaderListLoader.loadFileProvidesHDL)
+    psyco.bind(RPMDirLoader.getHeaders)
+    psyco.bind(RPMDirLoader.loadFileProvides)
+    psyco.bind(RPMDBLoader.getHeaders)
+    psyco.bind(RPMDBLoader.loadFileProvides)
+
+hooks.register("enable-psyco", enablePsyco)
+
 # vim:ts=4:sw=4:et

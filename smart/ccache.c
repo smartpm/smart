@@ -1126,6 +1126,182 @@ statichere PyTypeObject Depends_Type = {
     0,                      /*tp_is_gc*/
 };
 
+statichere PyTypeObject PreRequires_Type = {
+	PyObject_HEAD_INIT(NULL)
+	0,			/*ob_size*/
+	"smart.cache.PreRequires",	/*tp_name*/
+	sizeof(DependsObject), /*tp_basicsize*/
+	0,			/*tp_itemsize*/
+	0,          /*tp_dealloc*/
+	0,			/*tp_print*/
+	0,			/*tp_getattr*/
+	0,			/*tp_setattr*/
+	0,          /*tp_compare*/
+	0,          /*tp_repr*/
+	0,			/*tp_as_number*/
+	0,			/*tp_as_sequence*/
+	0,			/*tp_as_mapping*/
+	0,          /*tp_hash*/
+    0,          /*tp_call*/
+    0,          /*tp_str*/
+    0,          /*tp_getattro*/
+    0,          /*tp_setattro*/
+    0,          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                      /*tp_doc*/
+    0,                      /*tp_traverse*/
+    0,                      /*tp_clear*/
+    0,                      /*tp_richcompare*/
+    0,                      /*tp_weaklistoffset*/
+    0,                      /*tp_iter*/
+    0,                      /*tp_iternext*/
+    0,                      /*tp_methods*/
+    0,                      /*tp_members*/
+    0,                      /*tp_getset*/
+    &Depends_Type,          /*tp_base*/
+    0,                      /*tp_dict*/
+    0,                      /*tp_descr_get*/
+    0,                      /*tp_descr_set*/
+    0,                      /*tp_dictoffset*/
+    0,                      /*tp_init*/
+    0,                      /*tp_alloc*/
+    0,                      /*tp_new*/
+    0,                      /*tp_free*/
+    0,                      /*tp_is_gc*/
+};
+
+statichere PyTypeObject Requires_Type = {
+	PyObject_HEAD_INIT(NULL)
+	0,			/*ob_size*/
+	"smart.cache.Requires",	/*tp_name*/
+	sizeof(DependsObject), /*tp_basicsize*/
+	0,			/*tp_itemsize*/
+	0,          /*tp_dealloc*/
+	0,			/*tp_print*/
+	0,			/*tp_getattr*/
+	0,			/*tp_setattr*/
+	0,          /*tp_compare*/
+	0,          /*tp_repr*/
+	0,			/*tp_as_number*/
+	0,			/*tp_as_sequence*/
+	0,			/*tp_as_mapping*/
+	0,          /*tp_hash*/
+    0,          /*tp_call*/
+    0,          /*tp_str*/
+    0,          /*tp_getattro*/
+    0,          /*tp_setattro*/
+    0,          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                      /*tp_doc*/
+    0,                      /*tp_traverse*/
+    0,                      /*tp_clear*/
+    0,                      /*tp_richcompare*/
+    0,                      /*tp_weaklistoffset*/
+    0,                      /*tp_iter*/
+    0,                      /*tp_iternext*/
+    0,                      /*tp_methods*/
+    0,                      /*tp_members*/
+    0,                      /*tp_getset*/
+    &Depends_Type,          /*tp_base*/
+    0,                      /*tp_dict*/
+    0,                      /*tp_descr_get*/
+    0,                      /*tp_descr_set*/
+    0,                      /*tp_dictoffset*/
+    0,                      /*tp_init*/
+    0,                      /*tp_alloc*/
+    0,                      /*tp_new*/
+    0,                      /*tp_free*/
+    0,                      /*tp_is_gc*/
+};
+
+statichere PyTypeObject Upgrades_Type = {
+	PyObject_HEAD_INIT(NULL)
+	0,			/*ob_size*/
+	"smart.cache.Upgrades",	/*tp_name*/
+	sizeof(DependsObject), /*tp_basicsize*/
+	0,			/*tp_itemsize*/
+	0,          /*tp_dealloc*/
+	0,			/*tp_print*/
+	0,			/*tp_getattr*/
+	0,			/*tp_setattr*/
+	0,          /*tp_compare*/
+	0,          /*tp_repr*/
+	0,			/*tp_as_number*/
+	0,			/*tp_as_sequence*/
+	0,			/*tp_as_mapping*/
+	0,          /*tp_hash*/
+    0,          /*tp_call*/
+    0,          /*tp_str*/
+    0,          /*tp_getattro*/
+    0,          /*tp_setattro*/
+    0,          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                      /*tp_doc*/
+    0,                      /*tp_traverse*/
+    0,                      /*tp_clear*/
+    0,                      /*tp_richcompare*/
+    0,                      /*tp_weaklistoffset*/
+    0,                      /*tp_iter*/
+    0,                      /*tp_iternext*/
+    0,                      /*tp_methods*/
+    0,                      /*tp_members*/
+    0,                      /*tp_getset*/
+    &Depends_Type,          /*tp_base*/
+    0,                      /*tp_dict*/
+    0,                      /*tp_descr_get*/
+    0,                      /*tp_descr_set*/
+    0,                      /*tp_dictoffset*/
+    0,                      /*tp_init*/
+    0,                      /*tp_alloc*/
+    0,                      /*tp_new*/
+    0,                      /*tp_free*/
+    0,                      /*tp_is_gc*/
+};
+
+statichere PyTypeObject Conflicts_Type = {
+	PyObject_HEAD_INIT(NULL)
+	0,			/*ob_size*/
+	"smart.cache.Conflicts",	/*tp_name*/
+	sizeof(DependsObject), /*tp_basicsize*/
+	0,			/*tp_itemsize*/
+	0,          /*tp_dealloc*/
+	0,			/*tp_print*/
+	0,			/*tp_getattr*/
+	0,			/*tp_setattr*/
+	0,          /*tp_compare*/
+	0,          /*tp_repr*/
+	0,			/*tp_as_number*/
+	0,			/*tp_as_sequence*/
+	0,			/*tp_as_mapping*/
+	0,          /*tp_hash*/
+    0,          /*tp_call*/
+    0,          /*tp_str*/
+    0,          /*tp_getattro*/
+    0,          /*tp_setattro*/
+    0,          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                      /*tp_doc*/
+    0,                      /*tp_traverse*/
+    0,                      /*tp_clear*/
+    0,                      /*tp_richcompare*/
+    0,                      /*tp_weaklistoffset*/
+    0,                      /*tp_iter*/
+    0,                      /*tp_iternext*/
+    0,                      /*tp_methods*/
+    0,                      /*tp_members*/
+    0,                      /*tp_getset*/
+    &Depends_Type,          /*tp_base*/
+    0,                      /*tp_dict*/
+    0,                      /*tp_descr_get*/
+    0,                      /*tp_descr_set*/
+    0,                      /*tp_dictoffset*/
+    0,                      /*tp_init*/
+    0,                      /*tp_alloc*/
+    0,                      /*tp_new*/
+    0,                      /*tp_free*/
+    0,                      /*tp_is_gc*/
+};
+
 static int
 Loader_init(LoaderObject *self, PyObject *args)
 {
@@ -3324,17 +3500,30 @@ initccache(void)
     PyDict_SetItemString(Cache_Type.tp_dict, "__stateversion__", o);
     Py_DECREF(o);
 
+    PyType_Ready(&PreRequires_Type);
+    PyType_Ready(&Requires_Type);
+    PyType_Ready(&Upgrades_Type);
+    PyType_Ready(&Conflicts_Type);
+
     m = Py_InitModule3("ccache", ccache_methods, "");
     Py_INCREF(&Package_Type);
-    PyModule_AddObject(m, "Package", (PyObject*)&Package_Type);
-    Py_INCREF(&Provides_Type);
-    PyModule_AddObject(m, "Provides", (PyObject*)&Provides_Type);
-    Py_INCREF(&Depends_Type);
-    PyModule_AddObject(m, "Depends", (PyObject*)&Depends_Type);
-    Py_INCREF(&Loader_Type);
-    PyModule_AddObject(m, "Loader", (PyObject*)&Loader_Type);
-    Py_INCREF(&Cache_Type);
-    PyModule_AddObject(m, "Cache", (PyObject*)&Cache_Type);
+
+#define REGISTER_TYPE(name) \
+    do { \
+        Py_INCREF(&name##_Type); \
+        PyModule_AddObject(m, #name, (PyObject*)&name##_Type); \
+    } while(0)
+
+    REGISTER_TYPE(Package);
+    REGISTER_TYPE(Provides);
+    REGISTER_TYPE(Depends);
+    REGISTER_TYPE(PreRequires);
+    REGISTER_TYPE(Requires);
+    REGISTER_TYPE(Upgrades);
+    REGISTER_TYPE(Conflicts);
+    REGISTER_TYPE(Loader);
+    REGISTER_TYPE(Cache);
+
     StateVersionError = PyErr_NewException("ccache.StateVersionError",
                                            NULL, NULL);
     PyModule_AddObject(m, "StateVersionError", StateVersionError);

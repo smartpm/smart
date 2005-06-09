@@ -104,4 +104,10 @@ def vercmppart(a, b):
     else:
         return 1
 
+def enablePsyco(psyco):
+    psyco.bind(vercmppart)
+    psyco.bind(vercmpparts)
+
+hooks.register("enable-psyco", enablePsyco)
+
 # vim:ts=4:sw=4

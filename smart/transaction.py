@@ -1727,4 +1727,19 @@ def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
 
     return not problems
 
+def enablePsyco(psyco):
+    psyco.bind(PolicyInstall.getWeight)
+    psyco.bind(PolicyRemove.getWeight)
+    psyco.bind(PolicyUpgrade.getWeight)
+    psyco.bind(Transaction._install)
+    psyco.bind(Transaction._remove)
+    psyco.bind(Transaction._updown)
+    psyco.bind(Transaction._pending)
+    psyco.bind(Transaction._upgrade)
+    psyco.bind(Transaction.enqueue)
+    psyco.bind(sortUpgrades)
+    psyco.bind(recursiveUpgrades)
+
+hooks.register("enable-psyco", enablePsyco)
+
 # vim:ts=4:sw=4:et

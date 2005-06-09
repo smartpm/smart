@@ -314,4 +314,10 @@ class XMLParser(object):
         self.updateProgress()
         self._file.close()
 
+def enablePsyco(psyco):
+    psyco.bind(RPMRedCarpetLoader.loadFileProvides)
+    psyco.bind(XMLParser)
+
+hooks.register("enable-psyco", enablePsyco)
+
 # vim:ts=4:sw=4:et

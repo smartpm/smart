@@ -347,4 +347,12 @@ def getControl(filename):
             file.seek(int(size), 1)
     return None
 
+def enablePsyco(psyco):
+    psyco.bind(DebTagLoader.load)
+    psyco.bind(DebTagLoader.search)
+    psyco.bind(DebTagFileLoader.getSections)
+    psyco.bind(DebDirLoader.getSections)
+
+hooks.register("enable-psyco", enablePsyco)
+
 # vim:ts=4:sw=4:et

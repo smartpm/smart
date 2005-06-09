@@ -25,8 +25,8 @@ if sys.version_info < (2, 3):
     sys.exit("error: Python 2.3 or later required")
 
 from smart.const import VERSION, DEBUG, DATADIR
+from smart import init, initPlugins, initPsyco
 from smart.option import OptionParser
-from smart import init, initPlugins
 from smart import *
 import pwd
 import os
@@ -154,6 +154,7 @@ def main(argv):
         if opts.option:
             set_config_options(opts.option)
         initPlugins()
+        initPsyco()
         exitcode = iface.run(opts.command, opts.argv)
         if exitcode is None:
             exitcode = 0

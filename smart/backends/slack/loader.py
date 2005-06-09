@@ -156,7 +156,6 @@ class SlackDBLoader(SlackLoader):
         self.setInstalled(True)
     
     def getInfoList(self):
-
         for entry in os.listdir(self._dir):
             infolst = parsePackageInfo(os.path.join(self._dir, entry))
             if infolst:
@@ -185,5 +184,12 @@ class SlackSiteLoader(SlackLoader):
                 total += 1
         file.close()
         return total
+
+def enablePsyco(psyco):
+    psyco.bind(parsePackageInfo)
+    psyco.bind(SlackLoader.load)
+    psyco.bind(SlackDBLoader.getInfoList)
+
+hooks.register("enable-psyco", enablePsyco)
 
 # vim:ts=4:sw=4:et

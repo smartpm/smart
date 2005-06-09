@@ -31,7 +31,14 @@ __all__ = ["SlackPackage", "SlackProvides", "SlackUpgrades"]
 
 class SlackPackage(Package):
 
+    __slots__ = ()
+
     packagemanager = SlackPackageManager
+
+    def coexists(self, other):
+        if not isinstance(other, SlackPackage):
+            return True
+        return False
 
     def matches(self, relation, version):
         if not relation:
@@ -54,11 +61,6 @@ class SlackPackage(Package):
         if ratio:
             searcher.addResult(self, ratio)
 
-    def coexists(self, other):
-        if not isinstance(other, SlackPackage):
-            return True
-        return False
-
     def __lt__(self, other):
         rc = cmp(self.name, other.name)
         if type(other) is SlackPackage:
@@ -66,9 +68,11 @@ class SlackPackage(Package):
                 rc = vercmp(self.version, other.version)
         return rc == -1
 
-class SlackProvides(Provides): pass
+class SlackProvides(Provides): __slots__ = ()
 
 class SlackDepends(Depends):
+
+    __slots__ = ()
 
     def matches(self, prv):
         if not isinstance(prv, SlackProvides) and type(prv) is not Provides:
@@ -77,6 +81,15 @@ class SlackDepends(Depends):
             return True
         return checkdep(prv.version, self.relation, self.version)
 
-class SlackUpgrades(SlackDepends,Upgrades): pass
+class SlackUpgrades(SlackDepends,Upgrades): __slots__ = ()
+
+def enablePsyco(psyco):
+    psyco.bind(SlackPackage.coexists)
+    psyco.bind(SlackPackage.matches)
+    psyco.bind(SlackPackage.search)
+    psyco.bind(SlackPackage.__lt__)
+    psyco.bind(SlackDepends.matches)
+
+hooks.register("enable-psyco", enablePsyco)
 
 # vim:ts=4:sw=4:et

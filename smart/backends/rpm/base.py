@@ -43,6 +43,8 @@ __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
 
 class RPMPackage(Package):
 
+    __slots__ = ()
+
     packagemanager = RPMPackageManager
 
     def equals(self, other):
@@ -143,10 +145,12 @@ class RPMPackage(Package):
                     rc = -cmp(archscore(selfarch), archscore(otherarch))
         return rc == -1
 
-class RPMProvides(Provides): pass
-class RPMNameProvides(RPMProvides): pass
+class RPMProvides(Provides):         __slots__ = ()
+class RPMNameProvides(RPMProvides):  __slots__ = ()
 
 class RPMDepends(Depends):
+
+    __slots__ = ()
 
     def matches(self, prv):
         if not isinstance(prv, RPMProvides) and type(prv) is not Provides:
@@ -157,12 +161,13 @@ class RPMDepends(Depends):
         prvver, prvarch = splitarch(prv.version)
         return checkdep(prvver, self.relation, selfver)
 
-class RPMPreRequires(RPMDepends,PreRequires): pass
-class RPMRequires(RPMDepends,Requires): pass
-class RPMUpgrades(RPMDepends,Upgrades): pass
-class RPMConflicts(RPMDepends,Conflicts): pass
+class RPMPreRequires(RPMDepends,PreRequires): __slots__ = ()
+class RPMRequires(RPMDepends,Requires):       __slots__ = ()
+class RPMUpgrades(RPMDepends,Upgrades):       __slots__ = ()
+class RPMConflicts(RPMDepends,Conflicts):     __slots__ = ()
 
 class RPMObsoletes(Depends):
+    __slots__ = ()
 
     def matches(self, prv):
         if not isinstance(prv, RPMNameProvides) and type(prv) is not Provides:
@@ -182,5 +187,16 @@ class RPMObsoletes(Depends):
 _COLORMAP = {"x86_64": 2, "ppc64": 2, "s390x": 2, "sparc64": 2}
 def getArchColor(arch, _cm=_COLORMAP):
     return _cm.get(arch, 1)
+
+def enablePsyco(psyco):
+    psyco.bind(RPMPackage.equals)
+    psyco.bind(RPMPackage.coexists)
+    psyco.bind(RPMPackage.matches)
+    psyco.bind(RPMPackage.search)
+    psyco.bind(RPMPackage.__lt__)
+    psyco.bind(RPMDepends.matches)
+    psyco.bind(RPMObsoletes.matches)
+
+hooks.register("enable-psyco", enablePsyco)
 
 # vim:ts=4:sw=4:et

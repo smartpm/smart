@@ -53,6 +53,8 @@ DEBARCH = sysconf.get("deb-arch", getArchitecture())
 
 class DebPackage(Package):
 
+    __slots__ = ()
+
     packagemanager = DebPackageManager
     
     def coexists(self, other):
@@ -88,10 +90,12 @@ class DebPackage(Package):
                 rc = vercmp(self.version, other.version)
         return rc == -1
 
-class DebProvides(Provides): pass
-class DebNameProvides(DebProvides): pass
+class DebProvides(Provides):        __slots__ = ()
+class DebNameProvides(DebProvides): __slots__ = ()
 
 class DebDepends(Depends):
+
+    __slots__ = ()
 
     def matches(self, prv):
         if not isinstance(prv, DebProvides) and type(prv) is not Provides:
@@ -102,10 +106,12 @@ class DebDepends(Depends):
             return False
         return checkdep(prv.version, self.relation, self.version)
 
-class DebPreRequires(DebDepends,PreRequires): pass
-class DebRequires(DebDepends,Requires): pass
+class DebPreRequires(DebDepends,PreRequires): __slots__ = ()
+class DebRequires(DebDepends,Requires):       __slots__ = ()
 
 class DebOrDepends(Depends):
+
+    __slots__ = ("_nrv",)
 
     def __init__(self, nrv):
         name = " | ".join([(x[2] and " ".join(x) or x[0]) for x in nrv])
@@ -134,10 +140,12 @@ class DebOrDepends(Depends):
     def __reduce__(self):
         return (self.__class__, (self._nrv,))
 
-class DebOrRequires(DebOrDepends,Requires): pass
-class DebOrPreRequires(DebOrDepends,PreRequires): pass
+class DebOrRequires(DebOrDepends,Requires):       __slots__ = ()
+class DebOrPreRequires(DebOrDepends,PreRequires): __slots__ = ()
 
 class DebUpgrades(DebDepends,Upgrades):
+
+    __slots__ = ()
 
     def matches(self, prv):
         if not isinstance(prv, DebNameProvides) and type(prv) is not Provides:
@@ -146,6 +154,17 @@ class DebUpgrades(DebDepends,Upgrades):
             return True
         return checkdep(prv.version, self.relation, self.version)
 
-class DebConflicts(DebDepends,Conflicts): pass
+class DebConflicts(DebDepends,Conflicts): __slots__ = ()
+
+def enablePsyco(psyco):
+    psyco.bind(DebPackage.coexists)
+    psyco.bind(DebPackage.matches)
+    psyco.bind(DebPackage.search)
+    psyco.bind(DebPackage.__lt__)
+    psyco.bind(DebDepends.matches)
+    psyco.bind(DebOrDepends.matches)
+    psyco.bind(DebUpgrades.matches)
+
+hooks.register("enable-psyco", enablePsyco)
 
 # vim:ts=4:sw=4:et
