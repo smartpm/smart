@@ -132,12 +132,10 @@ class TextInterface(Interface):
         report = Report(changeset)
         report.compute()
 
-        screenwidth = getScreenWidth()
 
-        explain = sysconf.get("explain-changesets", False)
-        hideversion = sysconf.get("text-hide-version", len(changeset) > 40)
-
-        if not explain:
+        if not sysconf.get("explain-changesets", False):
+            screenwidth = getScreenWidth()
+            hideversion = sysconf.get("text-hide-version", len(changeset) > 40)
             def showPackages(pkgs, showrelations=None):
                 if hideversion:
                     pkgs = [x.name for x in pkgs]
