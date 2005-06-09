@@ -35,7 +35,10 @@ class URPMIChannel(PackageChannel):
         super(URPMIChannel, self).__init__(*args)
         self._baseurl = baseurl
         if hdlurl:
-            self._hdlurl = hdlurl
+            if hdlurl[0] != "/" and ":/" not in hdlurl:
+                self._hdlurl = posixpath.join(self._baseurl, hdlurl)
+            else:
+                self._hdlurl = hdlurl
         else:
             self._hdlurl = posixpath.join(self._baseurl, "hdlist.cz")
         self._compareurl = self._hdlurl

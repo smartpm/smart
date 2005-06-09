@@ -28,10 +28,14 @@ import posixpath
 
 class RPMHeaderListChannel(PackageChannel):
 
-    def __init__(self, hdlurl, baseurl, *args):
+    def __init__(self, baseurl, hdlurl, *args):
         super(RPMHeaderListChannel, self).__init__(*args)
-        self._hdlurl = hdlurl
         self._baseurl = baseurl
+        self._hdlurl = hdlurl
+        if hdlurl[0] != "/" and ":/" not in hdlurl:
+            self._hdlurl = posixpath.join(self._baseurl, hdlurl)
+        else:
+            self._hdlurl = hdlurl
 
     def getCacheCompareURLs(self):
         return [self._hdlurl]
@@ -64,8 +68,8 @@ class RPMHeaderListChannel(PackageChannel):
         return True
 
 def create(alias, data):
-    return RPMHeaderListChannel(data["hdlurl"],
-                                data["baseurl"],
+    return RPMHeaderListChannel(data["baseurl"],
+                                data["hdlurl"],
                                 data["type"],
                                 alias,
                                 data["name"],

@@ -29,7 +29,7 @@ description = _("""
 Packages from an RPM Header List.
 """)
 
-fields = [("hdlurl", _("Header List URL"), str, None,
-           _("URL for the header list")),
-          ("baseurl", _("Base URL for packages"), str, None,
-           _("Base URL where package files are found"))]
+fields = [("baseurl", _("Base URL for packages"), str, None,
+           _("Base URL where package files are found")),
+          ("hdlurl", _("Header List URL"), str, None,
+           _("URL for the header list"))]
