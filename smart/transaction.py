@@ -298,10 +298,12 @@ class PolicyUpgrade(Policy):
         for bonuspkg in upgraded:
             upgmap = dict.fromkeys(upgraded[bonuspkg])
             sb = {}
-            seen = {}
+            bonusvalue = {}
+            bonusdeps = {}
             queue = [[bonuspkg]]
             while queue:
                 path = queue.pop(0)
+                pathlen = len(path)
                 pkg = path[-1]
                 for prv in pkg.provides:
                     for upg in prv.upgradedby:
@@ -310,19 +312,32 @@ class PolicyUpgrade(Policy):
                                 upgpkg in upgmap and upgpkg not in path and
                                 self.getPriority(pkg) <=
                                 self.getPriority(upgpkg)):
-                                sb[pkg] = -30*(len(path)-1)
+                                if pathlen > 1:
+                                    # Paths always increase in size, so we can
+                                    # be sure that the value being introduced
+                                    # here is >= to the previous one.
+                                    bonusvalue[pkg] = -30*(pathlen-1)
+                                    deps = bonusdeps.setdefault(pkg, {})
+                                    for pathpkg in path[1:]:
+                                        deps[pathpkg] = True
                                 queue.append(path+[upgpkg])
                 for upg in pkg.upgrades:
                     for prv in upg.providedby:
                         for prvpkg in prv.packages:
                             if (not prvpkg.installed and
-                                prvpkg in upgmap and prvpkg not in seen and
+                                prvpkg in upgmap and prvpkg not in path and
                                 self.getPriority(pkg) <
-                                self.getPriority(upgpkg)):
-                                sb[pkg] = -30*(len(path)-1)
+                                self.getPriority(prvpkg)):
+                                if pathlen > 1:
+                                    bonusvalue[pkg] = -30*(pathlen-1)
+                                    deps = bonusdeps.setdefault(pkg, {})
+                                    for pathpkg in path[1:-1]:
+                                        deps[pathpkg] = True
                                 queue.append(path+[prvpkg])
-            if sb:
-                stablebonus[bonuspkg] = sb
+            if bonusvalue:
+                lst = [(bonusvalue[pkg], bonusdeps[pkg]) for pkg in bonusvalue]
+                lst.sort()
+                stablebonus[bonuspkg] = lst
 
         pkgs = self._trans._queue.keys()
         sortUpgrades(pkgs, self)
@@ -365,8 +380,13 @@ class PolicyUpgrade(Policy):
         for pkg in upgradedmap:
             sb = stablebonus.get(pkg)
             if sb:
-                lst = [sb[upgpkg] for upgpkg in sb if upgpkg not in changeset]
-                if lst: weight += min(lst)
+                for bonusvalue, bonusdeps in sb:
+                    for deppkg in bonusdeps:
+                        if deppkg in changeset:
+                            break
+                    else:
+                        weight += bonusvalue
+                        break
 
         upgradedcount = len(upgradedmap)
         weight += -30*upgradedcount+(installedcount-upgradedcount)
