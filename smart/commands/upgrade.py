@@ -63,6 +63,9 @@ def parse_options(argv):
     parser.add_option("--check-update", action="store_true",
                       help=_("check if there are upgrades to be done, and "
                              "update the known upgrades"))
+    parser.add_option("--explain", action="store_true",
+                      help=_("include additional information about changes,"
+                             "when possible"))
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
@@ -70,6 +73,9 @@ def parse_options(argv):
     return opts
 
 def main(ctrl, opts):
+
+    if opts.explain:
+        sysconf.set("explain-changesets", True, soft=True)
 
     if opts.update:
         from smart.commands import update

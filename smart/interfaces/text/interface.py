@@ -134,49 +134,81 @@ class TextInterface(Interface):
 
         screenwidth = getScreenWidth()
 
+        explain = sysconf.get("explain-changesets", False)
         hideversion = sysconf.get("text-hide-version", len(changeset) > 40)
-        if hideversion:
-            def cvt(lst):
-                return [x.name for x in lst]
+
+        if not explain:
+            def showPackages(pkgs, showrelations=None):
+                if hideversion:
+                    pkgs = [x.name for x in pkgs]
+                pkgs.sort()
+                printColumns(pkgs, indent=2, width=screenwidth)
         else:
-            def cvt(lst):
-                return lst
+            def being(pkg):
+                if (pkg in report.installing or
+                    pkg in report.upgrading or
+                    pkg in report.downgrading):
+                    return _("(being installed)")
+                elif pkg in report.upgraded:
+                    return _("(being upgraded)")
+                elif pkg in report.removed:
+                    return _("(being removed)")
+                elif pkg in report.downgraded:
+                    return _("(being downgraded)")
+                else:
+                    return "" # Shouldn't happen
+            def showPackages(pkgs, showrelations=True):
+                pkgs.sort()
+                for pkg in pkgs:
+                    print " ", pkg
+                    if showrelations:
+                        if pkg in report.upgrading:
+                            print "   ", _("Upgrades:")
+                            for upgpkg in report.upgrading[pkg]:
+                                print "     ", upgpkg, being(upgpkg)
+                        if pkg in report.downgrading:
+                            print "   ", _("Downgrades:")
+                            for dwnpkg in report.downgrading[pkg]:
+                                print "     ", dwnpkg, being(dwnpkg)
+                        if pkg in report.requires:
+                            print "   ", _("Requires:")
+                            for reqpkg in report.requires[pkg]:
+                                print "     ", reqpkg, being(reqpkg)
+                        if pkg in report.requiredby:
+                            print "   ", _("Required By:")
+                            for reqpkg in report.requiredby[pkg]:
+                                print "     ", reqpkg, being(reqpkg)
+                        if pkg in report.conflicts:
+                            print "   ", _("Conflicts:")
+                            for cnfpkg in report.conflicts[pkg]:
+                                print "     ", cnfpkg, being(cnfpkg)
 
         print
         if keep:
-            keep = cvt(keep)
-            keep.sort()
             print _("Kept packages (%d):") % len(keep)
-            printColumns(keep, indent=2, width=screenwidth)
+            showPackages(keep, False)
             print
         pkgs = report.upgrading.keys()
         if pkgs:
-            pkgs = cvt(pkgs)
-            pkgs.sort()
             print _("Upgrading packages (%d):") % len(pkgs)
-            printColumns(pkgs, indent=2, width=screenwidth)
+            showPackages(pkgs)
             print
         pkgs = report.downgrading.keys()
         if pkgs:
-            pkgs = cvt(pkgs)
-            pkgs.sort()
             print _("Downgrading packages (%d):") % len(pkgs)
-            printColumns(pkgs, indent=2, width=screenwidth)
+            showPackages(pkgs)
             print
         pkgs = report.installing.keys()
         if pkgs:
-            pkgs = cvt(pkgs)
-            pkgs.sort()
             print _("Installed packages (%d):") % len(pkgs)
-            printColumns(pkgs, indent=2, width=screenwidth)
+            showPackages(pkgs)
             print
         pkgs = report.removed.keys()
         if pkgs:
-            pkgs = cvt(pkgs)
-            pkgs.sort()
             print _("Removed packages (%d):") % len(pkgs)
-            printColumns(pkgs, indent=2, width=screenwidth)
+            showPackages(pkgs)
             print
+
         dsize = report.getDownloadSize()
         size = report.getInstallSize() - report.getRemoveSize()
         if dsize:

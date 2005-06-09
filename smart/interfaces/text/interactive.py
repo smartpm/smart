@@ -68,6 +68,20 @@ class Interpreter(Cmd):
         self._undo = []
         self._redo = []
 
+        if sysconf.has("explain-changesets", soft=True):
+            self._explain = bool(sysconf.get("explain-changesets", soft=True))
+        else:
+            self._explain = None
+
+    def setExplain(self, value):
+        if value:
+            sysconf.set("explain-changesets", True, soft=True)
+        else:
+            if self._explain is None:
+                sysconf.remove("explain-changesets", soft=True)
+            else:
+                sysconf.set("explain-changesets", self._explain, soft=True)
+
     def completeAll(self, text, line, begidx, endidx):
         matches = []
         for pkg in self._ctrl.getCache().getPackages():
@@ -110,9 +124,10 @@ class Interpreter(Cmd):
             del self._redo[:]
             del self._undo[20:]
 
-    def pkgsFromLine(self, line):
-        args = shlex.split(line)
-        for arg in args:
+    def pkgsFromArgs(self, obj):
+        if type(obj) is str:
+            obj = shlex.split(obj)
+        for arg in obj:
             ratio, results, suggestions = self._ctrl.search(arg,
                                                             addprovides=False)
             if not results:
@@ -223,16 +238,24 @@ class Interpreter(Cmd):
     def help_install(self):
         print _("The install command marks packages for installation.")
         print
+        print _("Options:")
+        print _("   --explain  Include additional information about\n"
+                "              changes, when possible")
+        print
         print _("Usage: install <pkgname> ...")
 
     complete_install = completeAvailable
     def do_install(self, line):
+        args = shlex.split(line)
+        parser = OptionParser(add_help_option=False)
+        parser.add_option("--explain", action="store_true")
+        opts, args = parser.parse_args(args)
         cache = self._ctrl.getCache()
         transaction = Transaction(cache, policy=PolicyInstall)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         expected = 0
-        for arg, pkgs in self.pkgsFromLine(line):
+        for arg, pkgs in self.pkgsFromArgs(args):
             expected += 1
             names = {}
             found = False
@@ -248,23 +271,35 @@ class Interpreter(Cmd):
             if not found:
                 raise Error, _("No uninstalled packages matched '%s'") % arg
         transaction.run()
+        if opts.explain:
+            self.setExplain(True)
         if iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+        if opts.explain:
+            self.setExplain(False)
 
     def help_reinstall(self):
         print _("The reinstall command marks packages for reinstallation.")
+        print
+        print _("Options:")
+        print _("   --explain  Include additional information about\n"
+                "              changes, when possible")
         print
         print _("Usage: reinstall <pkgname> ...")
 
     complete_reinstall = completeInstalled
     def do_reinstall(self, line):
+        args = shlex.split(line)
+        parser = OptionParser(add_help_option=False)
+        parser.add_option("--explain", action="store_true")
+        opts, args = parser.parse_args(args)
         cache = self._ctrl.getCache()
         transaction = Transaction(cache, policy=PolicyInstall)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         expected = 0
-        for arg, pkgs in self.pkgsFromLine(line):
+        for arg, pkgs in self.pkgsFromArgs(args):
             expected += 1
             if not pkgs:
                 raise Error, _("'%s' matches no installed packages") % arg
@@ -272,28 +307,40 @@ class Interpreter(Cmd):
                 raise Error, _("'%s' matches multiple installed packages")%arg
             transaction.enqueue(pkgs[0], REINSTALL)
         transaction.run()
+        if opts.explain:
+            self.setExplain(True)
         if iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+        if opts.explain:
+            self.setExplain(False)
 
     def help_upgrade(self):
         print _("The upgrade command marks packages for upgrading.")
+        print
+        print _("Options:")
+        print _("   --explain  Include additional information about\n"
+                "              changes, when possible")
         print
         print _("Usage: upgrade <pkgname> ...")
 
     complete_upgrade = completeInstalled
     def do_upgrade(self, line):
+        args = shlex.split(line)
+        parser = OptionParser(add_help_option=False)
+        parser.add_option("--explain", action="store_true")
+        opts, args = parser.parse_args(args)
         cache = self._ctrl.getCache()
         transaction = Transaction(cache, policy=PolicyUpgrade)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         expected = 0
-        if not line.strip():
+        if not args:
             for pkg in cache.getPackages():
                 if pkg.installed:
                     transaction.enqueue(pkg, UPGRADE)
         else:
-            for arg, pkgs in self.pkgsFromLine(line):
+            for arg, pkgs in self.pkgsFromArgs(args):
                 expected += 1
                 found = False
                 for pkg in pkgs:
@@ -303,26 +350,38 @@ class Interpreter(Cmd):
                 if not found:
                     raise Error, _("'%s' matches no installed packages") % arg
         transaction.run()
+        if opts.explain:
+            self.setExplain(True)
         if changeset == self._changeset:
             print _("No interesting upgrades available!")
         elif iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+        if opts.explain:
+            self.setExplain(False)
 
     def help_remove(self):
         print _("The remove command marks packages for being removed.")
+        print
+        print _("Options:")
+        print _("   --explain  Include additional information about\n"
+                "              changes, when possible")
         print
         print _("Usage: remove <pkgname> ...")
 
     complete_remove = completeInstalled
     def do_remove(self, line):
+        args = shlex.split(line)
+        parser = OptionParser(add_help_option=False)
+        parser.add_option("--explain", action="store_true")
+        opts, args = parser.parse_args(args)
         cache = self._ctrl.getCache()
         transaction = Transaction(cache, policy=PolicyRemove)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         policy = transaction.getPolicy()
         expected = 0
-        for arg, pkgs in self.pkgsFromLine(line):
+        for arg, pkgs in self.pkgsFromArgs(args):
             expected += 1
             found = False
             for pkg in pkgs:
@@ -335,23 +394,35 @@ class Interpreter(Cmd):
             if not found:
                 raise Error, _("'%s' matches no installed packages") % arg
         transaction.run()
+        if opts.explain:
+            self.setExplain(True)
         if iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+        if opts.explain:
+            self.setExplain(False)
 
     def help_keep(self):
         print _("The keep command unmarks currently marked packages.")
+        print
+        print _("Options:")
+        print _("   --explain  Include additional information about\n"
+                "              changes, when possible")
         print
         print _("Usage: keep <pkgname> ...")
 
     complete_keep = completeMarked
     def do_keep(self, line):
+        args = shlex.split(line)
+        parser = OptionParser(add_help_option=False)
+        parser.add_option("--explain", action="store_true")
+        opts, args = parser.parse_args(args)
         cache = self._ctrl.getCache()
         transaction = Transaction(cache, policy=PolicyInstall)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         expected = 0
-        for arg, pkgs in self.pkgsFromLine(line):
+        for arg, pkgs in self.pkgsFromArgs(args):
             expected += 1
             pkgs = [x for x in pkgs if x in changeset]
             if not pkgs:
@@ -359,33 +430,49 @@ class Interpreter(Cmd):
             for pkg in pkgs:
                 transaction.enqueue(pkg, KEEP)
         transaction.run()
+        if opts.explain:
+            self.setExplain(True)
         if iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+        if opts.explain:
+            self.setExplain(False)
 
     def help_fix(self):
         print _("The fix command verifies relations of given packages\n"
                 "and marks the necessary changes for fixing them.")
         print
+        print _("Options:")
+        print _("   --explain  Include additional information about\n"
+                "              changes, when possible")
+        print
         print _("Usage: fix <pkgname> ...")
 
     complete_fix = completeAll
     def do_fix(self, line):
+        args = shlex.split(line)
+        parser = OptionParser(add_help_option=False)
+        parser.add_option("--explain", action="store_true")
+        opts, args = parser.parse_args(args)
         cache = self._ctrl.getCache()
         transaction = Transaction(cache, policy=PolicyInstall)
         transaction.setState(self._changeset)
         changeset = transaction.getChangeSet()
         expected = 0
-        for arg, pkgs in self.pkgsFromLine(line):
+        for arg, pkgs in self.pkgsFromArgs(args):
             expected += 1
             for pkg in pkgs:
                 transaction.enqueue(pkg, FIX)
         transaction.run()
+        if opts.explain:
+            self.setExplain(True)
         if changeset == self._changeset:
             print _("No problems to resolve!")
         elif iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+        if opts.explain:
+            self.setExplain(False)
 
     def help_download(self):
         print _("The download command fetches the given packages\n"
@@ -396,7 +483,7 @@ class Interpreter(Cmd):
     complete_download = completeAll
     def do_download(self, line):
         packages = []
-        for arg, pkgs in self.pkgsFromLine(line):
+        for arg, pkgs in self.pkgsFromArgs(line):
             if len(pkgs) > 1:
                 iface.warning(_("'%s' matches multiple packages, "
                                 "selecting: %s") % (arg, pkgs[0]))
