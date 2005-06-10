@@ -31,11 +31,6 @@ import stat
 import os
 
 try:
-    import rpm
-except ImportError:
-    raise Error, _("'rpm' python module is not available")
-
-try:
     import rpmhelper
 except ImportError:
     rpmhelper = None
@@ -531,8 +526,7 @@ class RPMDBLoader(RPMHeaderLoader):
         return 1000
 
     def getHeaders(self, prog):
-        ts = rpm.ts(sysconf.get("rpm-root", "/"))
-        mi = ts.dbMatch()
+        mi = getTS().dbMatch()
         total = left = self.getLoadSteps()
         for h in mi:
             if h[1000] != "gpg-pubkey": # RPMTAG_NAME
@@ -547,13 +541,11 @@ class RPMDBLoader(RPMHeaderLoader):
 
     if rpmhelper:
         def getHeader(self, pkg):
-            ts = rpm.ts(sysconf.get("rpm-root", "/"))
-            mi = rpmhelper.dbMatch(ts, 0, pkg.loaders[self])
+            mi = rpmhelper.dbMatch(getTS(), 0, pkg.loaders[self])
             return mi.next()
     else:
         def getHeader(self, pkg):
-            ts = rpm.ts(sysconf.get("rpm-root", "/"))
-            mi = ts.dbMatch(0, pkg.loaders[self])
+            mi = getTS().dbMatch(0, pkg.loaders[self])
             return mi.next()
 
     def getURL(self):
@@ -569,7 +561,7 @@ class RPMDBLoader(RPMHeaderLoader):
         return None
 
     def loadFileProvides(self, fndict):
-        ts = rpm.ts(sysconf.get("rpm-root", "/"))
+        ts = getTS()
         bfp = self.buildFileProvides
         for fn in fndict:
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
@@ -599,7 +591,7 @@ class RPMDirLoader(RPMHeaderLoader):
         return len(self._filenames)
 
     def getHeaders(self, prog):
-        ts = rpm.ts()
+        ts = getTS()
         for i, filename in enumerate(self._filenames):
             filepath = os.path.join(self._dir, filename)
             file = open(filepath)
@@ -617,7 +609,7 @@ class RPMDirLoader(RPMHeaderLoader):
         filename = self._filenames[pkg.loaders[self]]
         filepath = os.path.join(self._dir, filename)
         file = open(filepath)
-        ts = rpm.ts()
+        ts = getTS()
         try:
             h = ts.hdrFromFdno(file.fileno())
         except rpm.error, e:
@@ -647,7 +639,7 @@ class RPMDirLoader(RPMHeaderLoader):
         return None
 
     def loadFileProvides(self, fndict):
-        ts = rpm.ts()
+        ts = getTS()
         bfp = self.buildFileProvides
         for i, filename in enumerate(self._filenames):
             if i not in self._offsets:

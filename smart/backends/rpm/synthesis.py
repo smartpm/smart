@@ -30,11 +30,6 @@ import posixpath
 import os
 import re
 
-try:
-    import rpm
-except ImportError:
-    raise Error, _("'rpm' python module is not available")
-
 DEPENDSRE = re.compile("^([^[]*)(\[\*\])?(\[.*\])?")
 OPERATIONRE = re.compile("\[([<>=]*) *(.+)?\]")
 EPOCHRE = re.compile("[0-9]+:")

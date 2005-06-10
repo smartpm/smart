@@ -24,22 +24,45 @@
 # being linked with rpm. :-(
 import zlib
 
-from smart.backends.rpm.pm import RPMPackageManager
 from rpmver import checkdep, vercmp, splitarch, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
+from smart import *
 import fnmatch
 import string
 import os, re
 
 try:
-    from rpm import archscore
+    import rpm
 except ImportError:
     raise Error, _("'rpm' python module is not available")
 
+archscore = rpm.archscore
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
-           "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes"]
+           "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes",
+           "rpm", "getTS"]
+
+def getTS(new=False):
+    if not hasattr(getTS, "ts"):
+        getTS.root = sysconf.get("rpm-root", "/")
+        getTS.ts = rpm.ts(getTS.root)
+        if not os.path.isfile(os.path.join(getTS.root, "var/lib/rpm/Packages")):
+            try:
+                getTS.ts.initDB()
+            except rpm.error:
+                raise Error, _("Couldn't initizalize rpm database at %s") \
+                             % getTS.root
+            else:
+                iface.warning(_("Initialized new rpm database at %s")
+                              % getTS.root)
+    if new:
+        return rpm.ts(getTS.root)
+    else:
+        return getTS.ts
+
+# Here because pm requires getTS and rpm defined/imported above.
+from smart.backends.rpm.pm import RPMPackageManager
 
 class RPMPackage(Package):
 

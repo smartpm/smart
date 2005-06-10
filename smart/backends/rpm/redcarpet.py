@@ -26,11 +26,6 @@ import posixpath
 import locale
 import os
 
-try:
-    import rpm
-except ImportError:
-    raise Error, _("'rpm' python module is not available")
-
 from xml.parsers import expat
 
 BYTESPERPKG = 3000

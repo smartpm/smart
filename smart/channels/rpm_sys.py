@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.header import RPMDBLoader
+from smart.backends.rpm.base import getTS
 from smart.channel import PackageChannel
 from smart import *
 import os
@@ -30,6 +31,7 @@ class RPMSysChannel(PackageChannel):
         super(RPMSysChannel, self).__init__(*args)
 
     def fetch(self, fetcher, progress):
+        getTS() # Make sure the db exists.
         path = os.path.join(sysconf.get("rpm-root", "/"),
                             "var/lib/rpm/Packages")
         digest = os.path.getmtime(path)

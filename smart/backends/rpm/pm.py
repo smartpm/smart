@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.rpmver import splitarch
+from smart.backends.rpm.base import rpm, getTS
 from smart.util.filetools import setCloseOnExec
 from smart.sorter import ChangeSetSorter, LoopError
 from smart.const import INSTALL, REMOVE, BLOCKSIZE
@@ -30,11 +31,6 @@ import codecs
 import locale
 import errno
 import fcntl
-
-try:
-    import rpm
-except ImportError:
-    raise Error, _("'rpm' python module is not available")
 
 ENCODING = locale.getpreferredencoding()
 
@@ -74,7 +70,7 @@ class RPMPackageManager(PackageManager):
                             if upgpkg in changeset:
                                 del changeset[upgpkg]
 
-        ts = rpm.ts(sysconf.get("rpm-root", "/"))
+        ts = getTS(True)
 
         flags = ts.setFlags(0)
         if sysconf.get("rpm-allfiles", False):
