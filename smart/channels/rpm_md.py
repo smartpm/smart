@@ -27,6 +27,8 @@ from smart.channel import PackageChannel
 from smart import *
 import posixpath
 
+from xml.parsers import expat
+
 NS = "{http://linux.duke.edu/metadata/repo}"
 DATA = NS+"data"
 LOCATION = NS+"location"
@@ -67,7 +69,12 @@ class RPMMetaDataChannel(PackageChannel):
         self.removeLoaders()
 
         info = {}
-        root = ElementTree.parse(item.getTargetPath()).getroot()
+        try:
+            root = ElementTree.parse(item.getTargetPath()).getroot()
+        except expat.error, e:
+            raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
+                          (item.getTargetPath(), repomd, str(e))
+
         for node in root.getchildren():
             if node.tag != DATA:
                 continue
