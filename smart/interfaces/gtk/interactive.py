@@ -408,10 +408,10 @@ class GtkInteractiveInterface(GtkInterface):
         self._changeset.setPersistentState(state)
         self.refreshPackages()
 
-    def applyChanges(self):
+    def applyChanges(self, confirm=True):
         transaction = Transaction(self._ctrl.getCache(),
                                   changeset=self._changeset)
-        if self._ctrl.commitTransaction(transaction):
+        if self._ctrl.commitTransaction(transaction, confirm=confirm):
             del self._undo[:]
             del self._redo[:]
             self._redomenuitem.set_property("sensitive", False)
@@ -449,10 +449,11 @@ class GtkInteractiveInterface(GtkInterface):
         if changeset != self._changeset:
             if self.confirmChange(self._changeset, changeset):
                 self.saveUndo()
+                emptychangeset = not self._changeset
                 self._changeset.setState(changeset)
                 self.changedMarks()
                 if self.askYesNo(_("Apply marked changes now?"), True):
-                    self.applyChanges()
+                    self.applyChanges(confirm=not emptychangeset)
         else:
             self.showStatus(_("No interesting upgrades available!"))
 
