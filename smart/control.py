@@ -125,19 +125,16 @@ class Control(object):
     __stateversion__ = 2
 
     def loadSysConf(self, confpath=None):
-        loaded = False
         datadir = sysconf.get("data-dir")
         if confpath:
             confpath = os.path.expanduser(confpath)
             if not os.path.isfile(confpath):
                 raise Error, _("Configuration file not found: %s") % confpath
             sysconf.load(confpath)
-            loaded = True
         else:
             confpath = os.path.join(datadir, CONFFILE)
             if os.path.isfile(confpath):
                 sysconf.load(confpath)
-                loaded = True
         self._confpath = confpath
 
         if os.path.isdir(datadir):
@@ -147,7 +144,7 @@ class Control(object):
                 os.makedirs(datadir)
                 writable = True
             except OSError:
-                raise Error, _("No configuration found!")
+                raise Error, _("Can't create datadir at %s") % datadir
 
         if writable and not self._pathlocks.lock(datadir, exclusive=True):
             writable = False
