@@ -93,7 +93,9 @@ def syncChannels(channelsdir=CHANNELSDIR, force=None):
                     else:
                         sysconf.set(("channelsync", alias), newdescr)
 
-                elif not chndescr:
+                elif (not chndescr or
+                      newdescr == chndescr or
+                      newdescr == olddescr):
                     continue
 
                 elif not newdescr.get("type"):
@@ -102,7 +104,14 @@ def syncChannels(channelsdir=CHANNELSDIR, force=None):
                 elif newdescr.get("type") != chndescr.get("type"):
                     if (force or
                         iface.askYesNo(_("Change in channel '%s' detected.\n"
-                                         "Do you want to replace it?") % name,
+                                         "Old channel:\n\n%s\n\n"
+                                         "New channel:\n\n%s\n\n"
+                                         "Do you want to replace it?") %
+                                         (name,
+                                          createChannelDescription(alias,
+                                                                   chndescr),
+                                          createChannelDescription(alias,
+                                                                   newdescr)),
                                        True)):
                         try:
                             createChannel(alias, newdescr)
@@ -115,8 +124,7 @@ def syncChannels(channelsdir=CHANNELSDIR, force=None):
                     else:
                         sysconf.set(("channelsync", alias), newdescr)
 
-                elif newdescr != olddescr:
-
+                else:
                     info = getChannelInfo(chndescr["type"])
                     def getLabel(key, info=info):
                         for _key, label, ftype, default, descr in info.fields:
