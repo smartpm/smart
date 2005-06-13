@@ -207,6 +207,8 @@ def parseChannelData(data):
     info = getChannelInfo(ctype)
     if not info:
         raise Error, _("Unknown channel type: %s") % ctype
+    if hasattr(info, "preParse"):
+        data = info.preParse(data)
     newdata = {}
     for key, label, ftype, default, descr in info.fields:
         if key == "alias":
@@ -241,6 +243,8 @@ def parseChannelData(data):
             raise Error, _("Invalid value for '%s' (%s) field: %s") % \
                          (label, key, `value`)
         newdata[key] = value
+    if hasattr(info, "postParse"):
+        newdata = info.postParse(newdata)
     return newdata
 
 def parseChannelsDescription(data):

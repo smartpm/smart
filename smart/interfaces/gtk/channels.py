@@ -181,7 +181,8 @@ class GtkChannels(object):
             if editor.show(None, newchannel, editalias=True):
                 alias = newchannel["alias"]
                 del newchannel["alias"]
-                sysconf.set(("channels", alias), newchannel)
+                sysconf.set(("channels", alias),
+                            parseChannelData(newchannel))
                 self._changed = True
                 if newchannel.get("removable"):
                     removable.append(alias)
@@ -228,7 +229,8 @@ class GtkChannels(object):
                 if editor.show(alias, newchannel, editalias=True):
                     alias = newchannel["alias"]
                     del newchannel["alias"]
-                    sysconf.set(("channels", alias), newchannel)
+                    sysconf.set(("channels", alias),
+                                parseChannelData(newchannel))
                     self._changed = True
                     if newchannel.get("removable"):
                         removable.append(alias)
@@ -260,7 +262,8 @@ class GtkChannels(object):
                                editalias=True):
                     alias = newchannel["alias"]
                     del newchannel["alias"]
-                    sysconf.set(("channels", alias), newchannel)
+                    sysconf.set(("channels", alias),
+                                parseChannelData(newchannel))
                     self._changed = True
                     if newchannel.get("removable"):
                         removable.append(alias)
@@ -287,7 +290,8 @@ class GtkChannels(object):
         channel = sysconf.get(("channels", alias), {})
         editor = ChannelEditor()
         if editor.show(alias, channel):
-            sysconf.set(("channels", alias), channel)
+            sysconf.set(("channels", alias),
+                        parseChannelData(channel))
             self._changed = True
             self.fill()
 
