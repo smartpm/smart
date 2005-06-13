@@ -19,8 +19,8 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import cPickle as pickle
 from smart import *
-import cPickle
 import sys, os
 import copy
 import re
@@ -81,12 +81,23 @@ class SysConfig(object):
         file = open(filepath)
         self._hardmap.clear()
         try:
-            self._hardmap.update(cPickle.load(file))
+            self._hardmap.update(pickle.load(file))
         except:
-            if os.path.isfile(filepath+".old"):
+            filepathold = filepath+".old"
+            if (os.path.isfile(filepathold) and
+                os.path.getsize(filepathold) > 0):
+                iface.warning(_("Broken configuration file at %s") % filepath)
+                iface.warning(_("Trying backup at %s") % filepathold)
                 file.close()
-                file = open(filepath+".old")
-                self._hardmap.update(cPickle.load(file))
+                file = open(filepathold)
+                try:
+                    self._hardmap.update(pickle.load(file))
+                except:
+                    raise Error, _("Broken configuration file at %s") % \
+                                  filepathold
+            else:
+                raise Error, _("Broken configuration file at %s") % \
+                              filepath
         file.close()
 
     def save(self, filepath):
@@ -97,7 +108,7 @@ class SysConfig(object):
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
         file = open(filepath, "w")
-        cPickle.dump(self._hardmap, file, 2)
+        pickle.dump(self._hardmap, file, 2)
         file.close()
 
     def _traverse(self, obj, path, default=NOTHING, setvalue=NOTHING):
