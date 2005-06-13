@@ -34,7 +34,8 @@ fields = [("baseurl", _("Base URL"), str, None,
              "Using ' with <hdlurl>' pattern is also supported.")),
           ("hdlurl", _("Header List URL"), str, "",
            _("URL for header list (hdlist or synthesis). If it's hdlist.cz "
-             "inside the given base URL, may be left empty."))]
+             "inside the given base URL, may be left empty. URLs relative "
+             "to the Base URL are supported"))]
 
 def postParse(data):
     import re
