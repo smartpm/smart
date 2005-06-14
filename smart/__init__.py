@@ -85,7 +85,7 @@ def init(command=None, argv=None,
          datadir=None, configfile=None,
          gui=False, shell=False, interface=None,
          forcelocks=False, loglevel=None):
-    from smart.const import DEBUG, INFO, WARNING, ERROR, DISTROFILE
+    from smart.const import DEBUG, INFO, WARNING, ERROR
     from smart.const import DATADIR, USERDATADIR
     from smart.interface import Interface, createInterface
     from smart.sysconfig import SysConfig
@@ -124,6 +124,7 @@ def init(command=None, argv=None,
 
 def initDistro():
     # Run distribution script, if available.
+    from smart.const import DISTROFILE
     distrofile = sysconf.get("distro-init-file", DISTROFILE)
     if distrofile and os.path.isfile(distrofile):
         execfile(distrofile, {"ctrl": ctrl, "iface": iface,
