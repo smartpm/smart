@@ -160,7 +160,7 @@ def main(argv):
                     forcelocks=opts.ignore_locks, loglevel=opts.log_level)
         if opts.option:
             set_config_options(opts.option)
-        initDistro()
+        initDistro(ctrl)
         initPlugins()
         initPsyco()
         exitcode = iface.run(opts.command, opts.argv)

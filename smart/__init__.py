@@ -122,7 +122,7 @@ def init(command=None, argv=None,
 
     return ctrl
 
-def initDistro():
+def initDistro(ctrl):
     # Run distribution script, if available.
     from smart.const import DISTROFILE
     distrofile = sysconf.get("distro-init-file", DISTROFILE)
