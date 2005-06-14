@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.images import __file__ as _images__file__
+from smart.progress import Progress
 from smart.const import *
 from smart import *
 import sys, os
@@ -59,10 +60,14 @@ class Interface(object):
         pass
 
     def getProgress(self, obj, hassub=False):
-        return None
+        if not hasattr(self, "_progress"):
+            self._progress = Progress()
+        return self._progress
 
     def getSubProgress(self):
-        return None
+        if not hasattr(self, "_progress"):
+            self._progress = Progress()
+        return self._progress
 
     def askYesNo(self, question, default=False):
         return True
