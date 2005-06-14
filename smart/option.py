@@ -19,10 +19,14 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.util import optparse
 from smart import Error, _
-import optparse
 import textwrap
 import sys, os
+
+# NOTICE: The standard optparse module haven't been touched, but since
+#         this code subclasses it and trusts on a specific interface,
+#         an internal copy is being used to avoid future breakage.
 
 __all__ = ["OptionParser", "OptionValueError", "append_all"]
 
@@ -62,12 +66,14 @@ class HelpFormatter(optparse.HelpFormatter):
 
 class OptionParser(optparse.OptionParser):
 
-    def __init__(self, usage=None, help=None, examples=None, **kwargs):
+    def __init__(self, usage=None, help=None, examples=None, skipunknown=False,
+                 **kwargs):
         if not "formatter" in kwargs:
             kwargs["formatter"] = HelpFormatter()
         optparse.OptionParser.__init__(self, usage, **kwargs)
         self._override_help = help
         self._examples = examples
+        self._skipunknown = skipunknown
 
     def format_help(self, formatter=None):
         if formatter is None:
@@ -91,6 +97,93 @@ class OptionParser(optparse.OptionParser):
 
     def error(self, msg):
         raise Error, msg
+
+    def _process_args(self, largs, rargs, values):
+        """_process_args(largs : [string],
+                         rargs : [string],
+                         values : Values)
+
+        Process command-line arguments and populate 'values', consuming
+        options and arguments from 'rargs'.  If 'allow_interspersed_args' is
+        false, stop at the first non-option argument.  If true, accumulate any
+        interspersed non-option arguments in 'largs'.
+        """
+        while rargs:
+            arg = rargs[0]
+            # We handle bare "--" explicitly, and bare "-" is handled by the
+            # standard arg handler since the short arg case ensures that the
+            # len of the opt string is greater than 1.
+            if arg == "--":
+                del rargs[0]
+                return
+            elif arg[0:2] == "--":
+                # process a single long option (possibly with value(s))
+                try:
+                    self._process_long_opt(rargs, values)
+                except optparse.BadOptionError:
+                    # That's the reason to change this function. We want
+                    # to be able to skip unknown options.
+                    if not self._skipunknown:
+                        raise
+                    largs.append(arg)
+            elif arg[:1] == "-" and len(arg) > 1:
+                # process a cluster of short options (possibly with
+                # value(s) for the last one only)
+                try:
+                    self._process_short_opts(rargs, values)
+                except optparse.BadOptionError:
+                    # That's the reason to change this function. We want
+                    # to be able to skip unknown options.
+                    if not self._skipunknown:
+                        raise
+                    largs.append(arg)
+            elif self.allow_interspersed_args:
+                largs.append(arg)
+                del rargs[0]
+            else:
+                return                  # stop now, leave this arg in rargs
+
+    def _process_short_opts(self, rargs, values):
+        arg = rargs.pop(0)
+        stop = False
+        i = 1
+        for ch in arg[1:]:
+            opt = "-" + ch
+            option = self._short_opt.get(opt)
+            i += 1                      # we have consumed a character
+
+            if not option:
+                # That's the reason to change this function. We must
+                # raise an error so that the argument is post-processed
+                # when using skipunknown.
+                raise optparse.BadOptionError, _("no such option: %s") % opt
+            if option.takes_value():
+                # Any characters left in arg?  Pretend they're the
+                # next arg, and stop consuming characters of arg.
+                if i < len(arg):
+                    rargs.insert(0, arg[i:])
+                    stop = True
+
+                nargs = option.nargs
+                if len(rargs) < nargs:
+                    if nargs == 1:
+                        self.error(_("%s option requires an argument") % opt)
+                    else:
+                        self.error(_("%s option requires %d arguments")
+                                   % (opt, nargs))
+                elif nargs == 1:
+                    value = rargs.pop(0)
+                else:
+                    value = tuple(rargs[0:nargs])
+                    del rargs[0:nargs]
+
+            else:                       # option doesn't take a value
+                value = None
+
+            option.process(opt, value, values, self)
+
+            if stop:
+                break
 
 def append_all(option, opt, value, parser):
     if option.dest is None:

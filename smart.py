@@ -74,8 +74,9 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES,
+                          skipunknown=True,
+                          add_help_option=False,
                           version="smart %s" % VERSION)
-    parser.disable_interspersed_args()
     parser.add_option("--config-file", metavar=_("FILE"),
                       help=_("configuration file "
                              "(default is <data-dir>/config)"))
@@ -97,8 +98,14 @@ def parse_options(argv):
                       help=_("set the option given by a name=value pair"))
     opts, args = parser.parse_args()
     if args:
-        opts.command = args[0]
+        opts.command = arg = args[0]
         opts.argv = args[1:]
+        if arg and arg[0] == "-":
+            if arg == "-h" or len(arg) > 2 and "--help".startswith(arg):
+                parser.print_help()
+                sys.exit(0)
+            else:
+                raise Error, _("no such option: %s") % arg
     else:
         opts.command = None
         opts.argv = []
