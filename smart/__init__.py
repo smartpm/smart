@@ -120,13 +120,15 @@ def init(command=None, argv=None,
         ifacename = "text"
     iface.object = createInterface(ifacename, ctrl, command, argv)
 
+    return ctrl
+
+def initDistro():
     # Run distribution script, if available.
-    if os.path.isfile(DISTROFILE):
-        execfile(DISTROFILE, {"ctrl": ctrl, "iface": iface,
+    distrofile = sysconf.get("distro-init-file", DISTROFILE)
+    if distrofile and os.path.isfile(distrofile):
+        execfile(distrofile, {"ctrl": ctrl, "iface": iface,
                               "sysconf": sysconf, "pkgconf": pkgconf,
                               "hooks": hooks})
-
-    return ctrl
 
 def initPlugins():
     # Import every plugin, and let they do whatever they want. Backends
