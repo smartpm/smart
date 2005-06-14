@@ -761,5 +761,22 @@ class Interpreter(Cmd):
         except SystemExit:
             pass
 
+    def help_check(self):
+        print _("The check command verifies relations between packages,\n"
+                "and accepts the same options available in the command\n"
+                "line interface.")
+        print
+        print _("Usage: check [options] [<pkgname>] ...")
+
+    def do_check(self, line):
+        from smart.commands import check
+        try:
+            try:
+                opts = check.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
+            check.main(self._ctrl, opts, reloadchannels=False)
+        except SystemExit:
+            pass
 
 # vim:ts=4:sw=4:et

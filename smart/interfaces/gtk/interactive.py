@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP, FIX
-from smart.transaction import Transaction, ChangeSet, checkPackages
+from smart.transaction import Transaction, ChangeSet, checkPackagesSimple
 from smart.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
 from smart.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from smart.interfaces.gtk.mirrors import GtkMirrors
@@ -651,9 +651,11 @@ class GtkInteractiveInterface(GtkInterface):
         menu.popup(None, None, None, event.button, event.time)
 
     def checkPackages(self, all=False, uninstalled=False):
-        cache = self._ctrl.getCache()
-        if checkPackages(cache, cache.getPackages(), report=True,
-                         all=all, uninstalled=uninstalled):
+        installed = not uninstalled
+        available = all or uninstalled
+        self.info(_("Checking relations..."))
+        if checkPackagesSimple(self._ctrl.getCache(), report=True,
+                               installed=installed, available=available):
             self.info(_("All checked packages have correct relations."))
 
     def fixAllProblems(self):

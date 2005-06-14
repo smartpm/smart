@@ -1678,45 +1678,50 @@ def getAlternates(pkg, cache):
 
     return alternates
 
-def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
-    pkgs.sort()
+def checkPackagesSimple(cache, checkset=None, report=False,
+                        installed=False, available=False):
+    if installed and available:
+        relateset = cache.getPackages()
+    elif installed:
+        relateset = [pkg for pkg in cache.getPackages() if pkg.installed]
+    elif available:
+        relateset = []
+        for pkg in cache.getPackages():
+            if not pkg.installed:
+                relateset.append(pkg)
+            else:
+                for loader in pkg.loaders:
+                    if not loader.getInstalled():
+                        relateset.append(pkg)
+                        break
+    else:
+        raise Error, "checkPackagesSimple() called with invalid parameters"
+    if checkset is None:
+        checkset = relateset
+    return checkPackages(cache, checkset, relateset, report)
+
+def checkPackages(cache, checkset, relateset, report=False):
+    checkset = list(checkset)
+    checkset.sort()
+    relateset = dict.fromkeys(relateset, True)
 
     problems = False
     coexistchecked = {}
-    for pkg in pkgs:
-
-        if not all:
-            if uninstalled:
-                for loader in pkg.loaders:
-                    if not loader.getInstalled():
-                        break
-                else:
-                    continue
-            elif not pkg.installed:
-                continue
-
+    for pkg in checkset:
         for req in pkg.requires:
             for prv in req.providedby:
                 for prvpkg in prv.packages:
-                    if all:
-                        break
-                    elif uninstalled:
-                        for loader in prvpkg.loaders:
-                            if not loader.getInstalled():
-                                break
-                        else:
-                            continue
-                        break
-                    elif prvpkg.installed:
+                    if prvpkg in relateset:
                         break
                 else:
                     continue
                 break
             else:
-                if report:
-                    iface.info(_("Unsatisfied dependency: %s requires %s") %
-                               (pkg, req))
+                if not report:
+                    return False
                 problems = True
+                iface.info(_("Unsatisfied dependency: %s requires %s") %
+                           (pkg, req))
 
         if not pkg.installed:
             continue
@@ -1724,26 +1729,28 @@ def checkPackages(cache, pkgs, report=False, all=False, uninstalled=False):
         for cnf in pkg.conflicts:
             for prv in cnf.providedby:
                 for prvpkg in prv.packages:
-                    if prvpkg is pkg:
-                        continue
-                    if prvpkg.installed:
-                        if report:
-                            iface.info(_("Unsatisfied dependency: "
-                                         "%s conflicts with %s") %
-                                       (pkg, prvpkg))
+                    if (prvpkg is not pkg and
+                        prvpkg.installed and
+                        prvpkg in relateset):
+                        if not report:
+                            return False
                         problems = True
+                        iface.info(_("Unsatisfied dependency: "
+                                     "%s conflicts with %s") % (pkg, prvpkg))
 
         namepkgs = cache.getPackages(pkg.name)
         for namepkg in namepkgs:
-            if (namepkg, pkg) in coexistchecked:
-                continue
-            coexistchecked[(pkg, namepkg)] = True
-            if (namepkg.installed and namepkg is not pkg and
-                not pkg.coexists(namepkg)):
-                if report:
+            if (namepkg is not pkg and
+                namepkg.installed and
+                namepkg in relateset and
+                (namepkg, pkg) not in coexistchecked):
+                coexistchecked[(pkg, namepkg)] = True
+                if not pkg.coexists(namepkg):
+                    if not report:
+                        return False
+                    problems = True
                     iface.info(_("Package %s can't coexist with %s") %
                                (namepkg, pkg))
-                problems = True
 
     return not problems
 
@@ -1759,6 +1766,7 @@ def enablePsyco(psyco):
     psyco.bind(Transaction.enqueue)
     psyco.bind(sortUpgrades)
     psyco.bind(recursiveUpgrades)
+    psyco.bind(checkPackages)
 
 hooks.register("enable-psyco", enablePsyco)
 

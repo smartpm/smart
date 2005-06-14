@@ -29,10 +29,13 @@ import re
 USAGE=_("smart check [options] [package] ...")
 
 DESCRIPTION=_("""
-This command will check relations of the given installed
-packages. If no packages are given, all installed packages
-will be checked. Use the 'fix' command to fix broken
-relations.
+This command will check relations between packages. If no
+packages are explicitly given, all packages in the selected
+channels will be checked. Relations of the checked packages
+will only match packages inside the selected channels.
+
+Use the 'fix' command to fix broken relations of
+installed packages.
 """)
 
 EXAMPLES=_("""
@@ -49,20 +52,69 @@ def parse_options(argv):
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--all", action="store_true",
-                      help=_("check uninstalled packages as well"))
-    parser.add_option("--uninstalled", action="store_true",
-                      help=_("check only uninstalled packages"))
+                      help=_("check packages in all channels"))
+    parser.add_option("--installed", action="store_true",
+                      help=_("check packages which are in at least "
+                             "one installed channel (default)"))
+    parser.add_option("--available", action="store_true",
+                      help=_("check packages which are in at least "
+                             "one non-installed channel"))
+    parser.add_option("--channels", action="store", metavar="ALIASES",
+                      help=_("check packages which are inside the "
+                             "given channels (comma separated aliases)"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
 
-def main(ctrl, opts):
+def main(ctrl, opts, reloadchannels=True):
 
-    ctrl.reloadChannels()
+    if reloadchannels:
+        ctrl.reloadChannels()
+
     cache = ctrl.getCache()
 
+    if opts.all:
+        relateset = dict.fromkeys(cache.getPackages(), True)
+    else:
+        relateset = {}
+        if opts.available:
+            for pkg in cache.getPackages():
+                if not pkg.installed:
+                    relateset[pkg] = True
+                else:
+                    for loader in pkg.loaders:
+                        if not loader.getInstalled():
+                            relateset[pkg] = True
+                            break
+
+        if opts.channels:
+            aliases = opts.channels.split(",")
+            notfound = []
+            disabled = []
+            channels = sysconf.get("channels", ())
+            for alias in aliases:
+                if alias not in channels:
+                    notfound.append(alias)
+                elif channels[alias].get("disabled"):
+                    disabled.append(alias)
+            if notfound:
+                raise Error, _("Channels not found: %s") % ", ".join(notfound)
+            elif disabled:
+                iface.warning(_("Channels are disabled: %s") % \
+                              ", ".join(disabled))
+            for pkg in cache.getPackages():
+                for loader in pkg.loaders:
+                    if loader.getChannel().getAlias() in opts.channels:
+                        relateset[pkg] = True
+                        break
+
+        if opts.installed or not opts.channels and not opts.available:
+            for pkg in cache.getPackages():
+                if pkg.installed:
+                    relateset[pkg] = True
+
     if opts.args:
-        pkgs = {}
+        checkset = {}
         for arg in opts.args:
             ratio, results, suggestions = ctrl.search(arg)
 
@@ -86,12 +138,10 @@ def main(ctrl, opts):
                     dct[obj] = True
                 else:
                     dct.update(dict.fromkeys(obj.packages, True))
-            pkgs.update(dct)
-        pkgs = pkgs.keys()
+            checkset.update(dct)
     else:
-        pkgs = cache.getPackages()
+        checkset = relateset
 
-    return not checkPackages(cache, pkgs, report=True,
-                             all=opts.all, uninstalled=opts.uninstalled)
+    return not checkPackages(cache, checkset, relateset, report=True)
 
 # vim:ts=4:sw=4:et
