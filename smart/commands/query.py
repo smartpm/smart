@@ -346,7 +346,8 @@ def main(ctrl, opts, reloadchannels=True):
                             if opts.installed and not cnfpkg.installed:
                                 continue
                             output.showConflictedBy(pkg, prv, cnf, cnfpkg)
-        if pkg.requires and (opts.show_requires or opts.show_prerequires):
+        if pkg.requires and (opts.show_requires or opts.show_prerequires
+                             or whorequires):
             pkg.requires.sort()
             first = True
             for req in pkg.requires:
@@ -368,7 +369,7 @@ def main(ctrl, opts, reloadchannels=True):
                                 continue
                             output.showRequiresProvidedBy(pkg, req,
                                                           prv, prvpkg)
-        if pkg.upgrades and opts.show_upgrades:
+        if pkg.upgrades and (opts.show_upgrades or whoupgrades):
             pkg.upgrades.sort()
             first = True
             for upg in pkg.upgrades:
@@ -388,7 +389,7 @@ def main(ctrl, opts, reloadchannels=True):
                                 continue
                             output.showUpgradesProvidedBy(pkg, upg,
                                                           prv, prvpkg)
-        if pkg.conflicts and opts.show_conflicts:
+        if pkg.conflicts and (opts.show_conflicts or whoconflicts):
             pkg.conflicts.sort()
             first = True
             for cnf in pkg.conflicts:
