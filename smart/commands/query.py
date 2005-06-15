@@ -515,6 +515,9 @@ class TextOutput(NullOutput):
         self._firstconflictsprovidedby = True
 
     def showProvides(self, pkg, prv):
+        self._firstrequiredby = True
+        self._firstupgradedby = True
+        self._firstconflictedby = True
         if self._firstprovides:
             self._firstprovides = False
             print " ", _("Provides:")
