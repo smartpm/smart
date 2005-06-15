@@ -20,9 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.option import OptionParser, append_all
+from smart.util.filetools import getFileDigest
 from smart.channel import *
 from smart import *
 import textwrap
+import tempfile
 import sys, os
 
 USAGE=_("smart mirror [options]")
@@ -62,6 +64,19 @@ smart mirror --clear-history ftp://mirror.url/path/
 smart mirror --clear-history
 """)
 
+EDITEXAMPLE=_("""\
+#
+# Example:
+#
+# http://origin.url/some/path/
+#     http://mirror.url/another/path/
+#     http://some.mirror.url/to/the/same/content/
+#
+# http://another.origin.url/another/path/
+#     http://another.mirror.url/yet/another/path/
+#
+""")
+
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
@@ -86,6 +101,8 @@ def parse_options(argv):
                       help=_("synchronize mirrors from the given file/url, "
                              "so that origins in the given file will have "
                              "exactly the specified mirrors"))
+    parser.add_option("--edit", action="store_true",
+                      help=_("edit mirrors in editor set by $EDITOR"))
     parser.add_option("--clear-history", action="callback", callback=append_all,
                       help=_("clear history for the given origins/mirrors, or "
                              "for all mirrors"))
@@ -115,7 +132,7 @@ def read_mirrors(ctrl, filename):
         mirror = None
         for line in open(filename):
             url = line.strip()
-            if not url:
+            if not url or url[0] == "#":
                 continue
             if line[0].isspace():
                 mirror = url
@@ -193,6 +210,43 @@ def main(ctrl, opts):
             for mirror in mirrors[origin]:
                 print "   ", mirror
             print
+
+    if opts.edit:
+        sysconf.assertWritable()
+        
+        fd, name = tempfile.mkstemp(".txt")
+        file = os.fdopen(fd, "w")
+        print >>file, EDITEXAMPLE
+        origins = sysconf.keys("mirrors")
+        origins.sort()
+        for origin in origins:
+            print >>file, origin
+            mirrors = sysconf.get(("mirrors", origin))
+            for mirror in mirrors:
+                print >>file, "   ", mirror
+            print >>file
+        file.close()
+        editor = os.environ.get("EDITOR", "vi")
+        olddigest = getFileDigest(name)
+        while True:
+            os.system("%s %s" % (editor, name))
+            newdigest = getFileDigest(name)
+            if newdigest == olddigest:
+                break
+            try:
+                lst = read_mirrors(ctrl, name)
+            except Error, e:
+                iface.error(unicode(e))
+                if not iface.askYesNo(_("Continue?"), True):
+                    break
+                else:continue
+            newmirrors = {}
+            for i in range(0,len(lst),2):
+                origin, mirror = lst[i:i+2]
+                newmirrors.setdefault(origin, []).append(mirror)
+            sysconf.set("mirrors", newmirrors)
+            break
+        os.unlink(name)
 
     if opts.show_penalities:
         ctrl.reloadMirrors()
