@@ -28,6 +28,7 @@ from cmd import Cmd
 import sys, os
 import shlex
 
+HISTFILE = "~/.smart_history"
 
 class TextInteractiveInterface(TextInterface):
 
@@ -35,7 +36,20 @@ class TextInteractiveInterface(TextInterface):
         print "Smart Package Manager %s - Shell Mode" % VERSION
         print
         self._ctrl.reloadChannels()
+        histfile = os.path.expanduser(HISTFILE)
+        try:
+            import readline
+            if os.path.isfile(histfile) and os.access(histfile, os.R_OK):
+                readline.read_history_file(histfile)
+        except ImportError:
+            readline = None
         Interpreter(self._ctrl).cmdloop()
+        if readline:
+            readline.set_history_length(100)
+            try:
+                readline.write_history_file(histfile)
+            except IOError:
+                pass
 
     def confirmChange(self, oldchangeset, newchangeset, expected=0):
         if newchangeset == oldchangeset:
