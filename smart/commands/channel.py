@@ -90,11 +90,11 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=description,
                           examples=EXAMPLES)
-    parser.defaults["add"] = []
-    parser.defaults["set"] = []
-    parser.defaults["remove"] = []
-    parser.defaults["enable"] = []
-    parser.defaults["disable"] = []
+    parser.defaults["add"] = None
+    parser.defaults["set"] = None
+    parser.defaults["remove"] = None
+    parser.defaults["enable"] = None
+    parser.defaults["disable"] = None
     parser.defaults["show"] = None
     parser.add_option("--add", action="callback", callback=append_all,
                       help=_("argument is an alias and one or more "
@@ -140,8 +140,16 @@ def main(ctrl, opts):
         print
         sys.exit(0)
     
-    if opts.add:
-        if len(opts.add) == 1:
+    if opts.add is not None:
+        if not opts.add and opts.args == ["-"]:
+            newchannels = []
+            data = sys.stdin.read()
+            descriptions = parseChannelsDescription(data)
+            for alias in descriptions:
+                channel = descriptions[alias]
+                channel["alias"] = alias
+                newchannels.append(channel)
+        elif len(opts.add) == 1:
             arg = opts.add[0]
             if os.path.isdir(arg):
                 sysconf.set("default-localmedia", arg, soft=True)
