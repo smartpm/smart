@@ -61,7 +61,11 @@ class TextInterface(Interface):
     def askYesNo(self, question, default=False):
         self.hideStatus()
         mask = default and _("%s (Y/n): ") or _("%s (y/N): ")
-        res = raw_input(mask % question).strip().lower()
+        try:
+            res = raw_input(mask % question).strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print
+            return False
         print
         if res:
             return (_("yes").startswith(res) and not
@@ -74,7 +78,11 @@ class TextInterface(Interface):
             mask = _("%s (Continue/cancel): ")
         else:
             mask = _("%s (continue/Cancel): ")
-        res = raw_input(mask % question).strip().lower()
+        try:
+            res = raw_input(mask % question).strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print
+            return False
         print
         if res:
             return (_("continue").startswith(res) and not
@@ -84,7 +92,11 @@ class TextInterface(Interface):
     def askOkCancel(self, question, default=False):
         self.hideStatus()
         mask = default and _("%s (Ok/cancel): ") or _("%s (ok/Cancel): ")
-        res = raw_input(mask % question).strip().lower()
+        try:
+            res = raw_input(mask % question).strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print
+            return False
         print
         if res:
             return (_("ok").startswith(res) and not
@@ -104,7 +116,7 @@ class TextInterface(Interface):
                 res = raw_input(prompt)
             else:
                 res = getpass.getpass(prompt)
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, EOFError):
             res = ""
         print
         return res
