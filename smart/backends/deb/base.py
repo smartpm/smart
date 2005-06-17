@@ -37,11 +37,14 @@ def getArchitecture():
               "sparc64": "sparc",
               "ppc": "powerpc",
               "mipseb":	"mips",
-              "shel": "sh"}.get(arch)
+              "shel": "sh",
+              "x86_64": "amd64"}.get(arch)
     if result:
         return result
     elif len(arch) == 4 and arch[0] == "i" and arch.endswith("86"):
         return "i386"
+    elif arch.startswith("arm"):
+        return "arm"
     elif arch.startswith("hppa"):
         return "hppa"
     elif arch.startswith("alpha"):
