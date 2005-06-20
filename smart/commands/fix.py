@@ -21,6 +21,7 @@
 #
 from smart.transaction import Transaction, PolicyInstall, FIX
 from smart.option import OptionParser
+from smart.cache import Package
 from smart import *
 import string
 import re
