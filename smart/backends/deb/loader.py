@@ -66,9 +66,11 @@ class DebPackageInfo(PackageInfo):
         return None
 
     def getDescription(self):
-        toks = self._dict.get("description").split("\n", 1)
-        if len(toks) == 2:
-            return toks[1]
+        description = self._dict.get("description")
+        if description:
+            toks = description.split("\n", 1)
+            if len(toks) == 2:
+                return toks[1]
         return ""
 
     def getSummary(self):
