@@ -47,10 +47,12 @@ def getTS(new=False):
     if not hasattr(getTS, "ts"):
         getTS.root = sysconf.get("rpm-root", "/")
         getTS.ts = rpm.ts(getTS.root)
-        if not os.path.isfile(os.path.join(getTS.root, "var/lib/rpm/Packages")):
+        dbdir = os.path.join(getTS.root, "var/lib/rpm")
+        if not os.path.isfile(os.path.join(dbdir, "Packages")):
             try:
+                os.makedirs(dbdir)
                 getTS.ts.initDB()
-            except rpm.error:
+            except (rpm.error, OSError):
                 raise Error, _("Couldn't initizalize rpm database at %s") \
                              % getTS.root
             else:
@@ -130,15 +132,19 @@ class RPMPackage(Package):
 
     def search(self, searcher, _epochre=re.compile("[0-9]+:")):
         myname = self.name
-        myversion, myarch = splitarch(self.version)
-        myversion = _epochre.sub("", myversion)
+        myversionwithepoch, myarch = splitarch(self.version)
+        myversionwithoutepoch = _epochre.sub("", myversionwithepoch)
         ratio = 0
         ic = searcher.ignorecase
         for nameversion, cutoff in searcher.nameversion:
-            nameversion = _epochre.sub("", nameversion)
+            if _epochre.search(nameversion):
+                myversion = myversionwithepoch
+            else:
+                myversion = myversionwithoutepoch
             if '@' in nameversion:
-                _, ratio1 = globdistance(nameversion, "%s-%s" %
-                                         (myname, self.version), cutoff, ic)
+                _, ratio1 = globdistance(nameversion, "%s-%s@%s" %
+                                         (myname, myversion, myarch),
+                                         cutoff, ic)
                 _, ratio2 = globdistance(nameversion, "%s@%s" %
                                          (myname, myarch), cutoff, ic)
                 _, ratio3 = globdistance(nameversion, "%s-%s@%s" %
