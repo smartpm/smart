@@ -615,7 +615,7 @@ class GraphVizOutput(NullOutput):
     def start(self):
         self._shown = {}
         print "digraph Packages {"
-        print "    rankdir=LR;"
+        #print "    rankdir=LR;"
 
     def end(self):
         print "}"
@@ -623,7 +623,7 @@ class GraphVizOutput(NullOutput):
     def showPackage(self, pkg):
         if pkg not in self._shown:
             self._shown[pkg] = True
-            print '    "%s" [ shape = box ];' % pkg
+            print '    "%s" [ shape=box, style=filled, fillcolor=yellow ];'%pkg
 
     def showProvides(self, pkg, prv):
         if (pkg, prv) not in self._shown:
