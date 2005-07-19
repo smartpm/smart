@@ -126,6 +126,8 @@ class OptionParser(optparse.OptionParser):
                     if not self._skipunknown:
                         raise
                     largs.append(arg)
+                    if "=" in arg:
+                        rargs.pop(0)
             elif arg[:1] == "-" and len(arg) > 1:
                 # process a cluster of short options (possibly with
                 # value(s) for the last one only)
