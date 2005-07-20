@@ -94,9 +94,6 @@ class RPMPackageManager(PackageManager):
             flags |= rpm.RPMTRANS_FLAG_TEST
         ts.setFlags(flags)
 
-        if not sysconf.get("rpm-check-signatures", False):
-            ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
-
         # Let's help RPM, since it doesn't do a good
         # ordering job on erasures.
         try:

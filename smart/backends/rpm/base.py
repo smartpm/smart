@@ -47,6 +47,8 @@ def getTS(new=False):
     if not hasattr(getTS, "ts"):
         getTS.root = sysconf.get("rpm-root", "/")
         getTS.ts = rpm.ts(getTS.root)
+        if not sysconf.get("rpm-check-signatures", False):
+            getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
         dbdir = os.path.join(getTS.root, "var/lib/rpm")
         if not os.path.isfile(os.path.join(dbdir, "Packages")):
             try:
@@ -59,7 +61,10 @@ def getTS(new=False):
                 iface.warning(_("Initialized new rpm database at %s")
                               % getTS.root)
     if new:
-        return rpm.ts(getTS.root)
+        ts = rpm.ts(getTS.root)
+        if not sysconf.get("rpm-check-signatures", False):
+            ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+        return ts
     else:
         return getTS.ts
 
