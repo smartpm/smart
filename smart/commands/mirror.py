@@ -175,14 +175,14 @@ def main(ctrl, opts):
         for i in range(0,len(opts.remove),2):
             origin, mirror = opts.remove[i:i+2]
             if not sysconf.has(("mirrors", origin)):
-                iface.waring(_("Origin not found: %s") % origin)
+                iface.warning(_("Origin not found: %s") % origin)
             if not sysconf.remove(("mirrors", origin), mirror):
-                iface.waring(_("Mirror not found: %s") % mirror)
+                iface.warning(_("Mirror not found: %s") % mirror)
 
     if opts.remove_all:
         for origin in opts.remove_all:
             if not sysconf.remove(("mirrors", origin)):
-                iface.waring(_("Origin not found: %s") % origin)
+                iface.warning(_("Origin not found: %s") % origin)
 
     if opts.sync:
         reset = {}
