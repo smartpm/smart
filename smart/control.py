@@ -577,7 +577,7 @@ class Control(object):
             cs = ChangeSet(self._cache, unioncs)
             splitter.include(unioncs, pkg)
             cs = unioncs.difference(cs)
-            self.commitChangeSet(cs)
+            self.commitChangeSet(cs, confirm=confirm)
 
         return True
 
