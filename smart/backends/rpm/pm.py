@@ -29,8 +29,10 @@ from smart import *
 import sys, os
 import codecs
 import locale
+import thread
 import errno
 import fcntl
+import time
 
 ENCODING = locale.getpreferredencoding()
 
@@ -186,6 +188,7 @@ class RPMPackageManager(PackageManager):
         try:
             probs = ts.run(cb, None)
         finally:
+            del getTS.ts
             cb.grabOutput(False)
             prog.setDone()
             if probs:
@@ -199,57 +202,85 @@ class RPMCallback:
         self.data = {"item-number": 0}
         self.fd = None
         self.rpmout = None
+        self.rpmoutbuffer = ""
+        self.rpmoutlock = thread.allocate_lock()
         self.lasttopic = None
         self.topic = None
 
     def grabOutput(self, flag):
-        if flag:
-            if not self.rpmout:
-                # Grab rpm output, but not the python one.
-                self.stdout = sys.stdout
-                self.stderr = sys.stderr
-                writer = codecs.getwriter(ENCODING)
-                reader = codecs.getreader(ENCODING)
-                sys.stdout = writer(os.fdopen(os.dup(1), "w"))
-                sys.stderr = writer(os.fdopen(os.dup(2), "w"))
-                pipe = os.pipe()
-                os.dup2(pipe[1], 1)
-                os.dup2(pipe[1], 2)
-                os.close(pipe[1])
-                self.rpmout = reader(os.fdopen(pipe[0], "r"))
-                setCloseOnExec(self.rpmout.fileno())
-                flags = fcntl.fcntl(self.rpmout.fileno(), fcntl.F_GETFL, 0)
-                flags |= os.O_NONBLOCK
-                fcntl.fcntl(self.rpmout.fileno(), fcntl.F_SETFL, flags)
-        else:
-            if self.rpmout:
-                self._rpmout()
-                os.dup2(sys.stdout.fileno(), 1)
-                os.dup2(sys.stderr.fileno(), 2)
-                sys.stdout = self.stdout
-                sys.stderr = self.stderr
-                del self.stdout
-                del self.stderr
-                self.rpmout.close()
-                self.rpmout = None
-
-    def _rpmout(self):
-        if self.rpmout:
-            try:
-                output = self.rpmout.read(BLOCKSIZE)
-            except (OSError, IOError), e:
-                if e[0] != errno.EWOULDBLOCK:
-                    raise
+        self.rpmoutlock.acquire()
+        try:
+            if flag:
+                if not self.rpmout:
+                    # Grab rpm output, but not the python one.
+                    self.stdout = sys.stdout
+                    self.stderr = sys.stderr
+                    writer = codecs.getwriter(ENCODING)
+                    reader = codecs.getreader(ENCODING)
+                    sys.stdout = writer(os.fdopen(os.dup(1), "w"))
+                    sys.stderr = writer(os.fdopen(os.dup(2), "w"))
+                    pipe = os.pipe()
+                    os.dup2(pipe[1], 1)
+                    os.dup2(pipe[1], 2)
+                    os.close(pipe[1])
+                    self.rpmout = reader(os.fdopen(pipe[0], "r"))
+                    setCloseOnExec(self.rpmout.fileno())
+                    flags = fcntl.fcntl(self.rpmout.fileno(), fcntl.F_GETFL, 0)
+                    flags |= os.O_NONBLOCK
+                    fcntl.fcntl(self.rpmout.fileno(), fcntl.F_SETFL, flags)
+                    thread.start_new(self._rpmoutthread, ())
             else:
-                if output:
-                    if self.topic and self.topic != self.lasttopic:
-                        self.lasttopic = self.topic
-                        iface.info(self.topic)
-                    iface.info(output)
+                if self.rpmout:
+                    self.rpmoutlock.release()
+                    self._rpmout()
+                    self.rpmoutlock.acquire()
+                    os.dup2(sys.stdout.fileno(), 1)
+                    os.dup2(sys.stderr.fileno(), 2)
+                    sys.stdout = self.stdout
+                    sys.stderr = self.stderr
+                    del self.stdout
+                    del self.stderr
+                    self.rpmout.close()
+                    self.rpmout = None
+        finally:
+            self.rpmoutlock.release()
+
+    def _rpmoutthread(self):
+        try:
+            while self.rpmout:
+                time.sleep(1)
+                self._rpmout(True)
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def _rpmout(self, tobuffer=False):
+        self.rpmoutlock.acquire()
+        try:
+            if self.rpmout:
+                try:
+                    output = self.rpmout.read(BLOCKSIZE)
+                except (OSError, IOError), e:
+                    if e[0] != errno.EWOULDBLOCK:
+                        raise
+                    output = ""
+                if output or not tobuffer and self.rpmoutbuffer:
+                    if tobuffer:
+                        self.rpmoutbuffer += output
+                    else:
+                        output = self.rpmoutbuffer+output
+                        self.rpmoutbuffer = ""
+                        if self.topic and self.topic != self.lasttopic:
+                            self.lasttopic = self.topic
+                            iface.info(self.topic)
+                        iface.info(output)
+        finally:
+            self.rpmoutlock.release()
 
     def __call__(self, what, amount, total, infopath, data):
 
-        self._rpmout()
+        if self.rpmout:
+            self._rpmout()
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath

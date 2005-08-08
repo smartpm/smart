@@ -1073,18 +1073,24 @@ class Transaction(object):
                 if op is KEEP:
                     if pkg in changeset:
                         del changeset[pkg]
+                    locked[pkg] = True
                 elif op is INSTALL:
                     if not isinst(pkg) and pkg in locked:
                         raise Failed, _("Can't install %s: it's locked") % pkg
                     changeset.set(pkg, INSTALL)
+                    locked[pkg] = True
                 elif op is REMOVE:
                     if isinst(pkg) and pkg in locked:
                         raise Failed, _("Can't remove %s: it's locked") % pkg
                     changeset.set(pkg, REMOVE)
+                    locked[pkg] = True
                 elif op is REINSTALL:
                     if pkg in locked:
                         raise Failed, _("Can't reinstall %s: it's locked")%pkg
                     changeset.set(pkg, INSTALL, force=True)
+                    locked[pkg] = True
+                elif op is UPGRADE:
+                    pass
 
             upgpkgs = []
             fixpkgs = []
