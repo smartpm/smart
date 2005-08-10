@@ -935,6 +935,8 @@ class Transaction(object):
         getweight = self._policy.getWeight
         isinst = changeset.installed
 
+        sortUpgrades(pkgs)
+
         for pkg in pkgs:
 
             if not isinst(pkg):
