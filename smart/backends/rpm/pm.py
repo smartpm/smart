@@ -181,6 +181,7 @@ class RPMPackageManager(PackageManager):
         if force or reinstall:
             probfilter |= rpm.RPMPROB_FILTER_REPLACEPKG
             probfilter |= rpm.RPMPROB_FILTER_REPLACEOLDFILES
+            probfilter |= rpm.RPMPROB_FILTER_REPLACENEWFILES
         ts.setProbFilter(probfilter)
         cb = RPMCallback(prog, upgradednames)
         cb.grabOutput(True)
