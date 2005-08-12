@@ -257,7 +257,11 @@ class RPMHeaderLoader(Loader):
                     vi = v[i] or None
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    cnfargs.append((Cnf, n[i], CM.get(f[i]&CF), vi))
+                    if i==0 and type(f) != list:
+                        fi = f
+                    else:
+                        fi = f[i]
+                    cnfargs.append((Cnf, n[i], CM.get(fi&CF), vi))
             else:
                 cnfargs = []
 
@@ -272,7 +276,11 @@ class RPMHeaderLoader(Loader):
                     vi = v[i] or None
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    upgargs.append((Obs, n[i], CM.get(f[i]&CF), vi))
+                    if i==0 and type(f) != list:
+                        fi = f
+                    else:
+                        fi = f[i]
+                    upgargs.append((Obs, n[i], CM.get(fi&CF), vi))
                 cnfargs.extend(upgargs)
                 upgargs.append(obstup)
             else:
