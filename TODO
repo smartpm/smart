@@ -8,3 +8,4 @@
 - Implement "info" command, to show information about packages.
 - Implement per-channel package signature checking.
 - Implement something close to urpmi's --no-uninstall
+- Add command for explicit cache rebuilding
