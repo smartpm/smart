@@ -21,17 +21,19 @@
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+#define _GNU_SOURCE
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <stdio.h>
 #include <pwd.h>
 
 int main(int argc, char *argv[], char *envp[])
 {
-    char *const smart_argv[] = {"/usr/bin/smart", "update", NULL, NULL};
-    char *const smart_envp[] = {"PATH=/bin:/usr/bin", "HOME=", NULL};
+    char *smart_argv[] = {"/usr/bin/smart", "update", NULL, NULL};
+    char *smart_envp[] = {"PATH=/bin:/usr/bin", "HOME=", NULL};
     struct passwd *pwd = getpwuid(geteuid());
     if (!pwd) {
         fprintf(stderr, "error: Unable to find passwd entry for uid %d\n",

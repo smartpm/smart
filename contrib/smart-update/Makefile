@@ -1,3 +1,6 @@
 
 smart-update: smart-update.c
-	$(CC) $< -o $@
+	$(CC) -Wall $< -o $@
+
+clean:
+	rm -f smart-update
