@@ -25,7 +25,7 @@ import os
 
 CHANNELSDIR = "/etc/smart/channels/"
 
-def syncChannels(channelsdir=CHANNELSDIR, force=None):
+def syncChannels(channelsdir, force=None):
 
     if force is None:
         force = sysconf.get("force-channelsync", False)
@@ -197,5 +197,5 @@ def syncChannels(channelsdir=CHANNELSDIR, force=None):
                     sysconf.remove(("channels", alias))
 
 if not sysconf.getReadOnly():
-    syncChannels()
+    syncChannels(sysconf.get("channel-sync-dir", CHANNELSDIR))
 
