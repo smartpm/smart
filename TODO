@@ -10,4 +10,3 @@
 - Implement something close to urpmi's --no-uninstall
 - Add command for explicit cache rebuilding
 - Add channel --list, similar to urpmi --list-media
-- Add automatic detection of system channels.
