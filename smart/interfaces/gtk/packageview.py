@@ -104,8 +104,7 @@ class GtkPackageView(gtk.Alignment):
     }
 
     def __init__(self):
-        gtk.Alignment.__init__(self)
-        self.__gobject_init__()
+        gtk.Alignment.__init__(self, 0.5, 0.5, 1.0, 1.0)
 
         self._expandpackage = False
 
