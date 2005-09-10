@@ -124,8 +124,12 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getPathList(self):
         if self._path is None:
             paths = self._h[rpm.RPMTAG_OLDFILENAMES]
+            if type(paths) != list:
+                paths = [paths]
             modes = self._h[rpm.RPMTAG_FILEMODES]
             if modes:
+                if type(modes) != list:
+                    modes = [modes]
                 self._path = {}
                 for i in range(len(paths)):
                     self._path[paths[i]] = modes[i]
@@ -257,7 +261,7 @@ class RPMHeaderLoader(Loader):
                     vi = v[i] or None
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    if i==0 and type(f) != list:
+                    if i == 0 and type(f) != list:
                         fi = f
                     else:
                         fi = f[i]
@@ -276,7 +280,7 @@ class RPMHeaderLoader(Loader):
                     vi = v[i] or None
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    if i==0 and type(f) != list:
+                    if i == 0 and type(f) != list:
                         fi = f
                     else:
                         fi = f[i]
@@ -315,6 +319,8 @@ class RPMHeaderLoader(Loader):
             if searcher.path:
                 paths = h[rpm.RPMTAG_OLDFILENAMES]
                 if paths:
+                    if type(paths) != list:
+                        paths = [paths]
                     for spath, cutoff in searcher.path:
                         for path in paths:
                             _, newratio = globdistance(spath, path, cutoff, ic)
@@ -462,7 +468,10 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         h, offset = rpm.readHeaderFromFD(file.fileno())
         bfp = self.buildFileProvides
         while h:
-            for fn in h[1027]: # RPMTAG_OLDFILENAMES
+            fnlst = h[1027] # RPMTAG_OLDFILENAMES
+            if type(fnlst) != list:
+                fnlst = [fnlst]
+            for fn in fnlst:
                 fn = fndict.get(fn)
                 if fn and offset in self._offsets:
                     bfp(self._offsets[offset], (RPMProvides, fn, None))
@@ -472,7 +481,10 @@ class RPMHeaderListLoader(RPMHeaderLoader):
     def loadFileProvidesHDL(self, fndict):
         bfp = self.buildFileProvides
         for offset, h in enumerate(self._hdl):
-            for fn in h[1027]: # RPMTAG_OLDFILENAMES
+            fnlst = h[1027] # RPMTAG_OLDFILENAMES
+            if type(fnlst) != list:
+                fnlst = [fnlst]
+            for fn in fnlst:
                 fn = fndict.get(fn)
                 if fn and offset in self._offsets:
                     bfp(self._offsets[offset], (RPMProvides, fn, None))
@@ -661,7 +673,10 @@ class RPMDirLoader(RPMHeaderLoader):
                 iface.error("%s: %s" % (os.path.basename(filepath), e))
             else:
                 file.close()
-                for fn in h[1027]: # RPMTAG_OLDFILENAMES
+                fnlst = h[1027] # RPMTAG_OLDFILENAMES
+                if type(fnlst) != list:
+                    fnlst = [fnlst]
+                for fn in fnlst:
                     fn = fndict.get(fn)
                     if fn:
                         bfp(self._offsets[i], (RPMProvides, fn, None))
