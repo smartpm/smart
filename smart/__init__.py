@@ -124,6 +124,20 @@ def init(command=None, argv=None,
         ifacename = "text"
     iface.object = createInterface(ifacename, ctrl, command, argv)
 
+    # Python's default to SIGPIPE is SIG_IGN, set by initsigs() in
+    # pythonrun.c. As a side effect:
+    #
+    #   >>> os.system("yes | read any")
+    #   yes: standard output: Broken pipe
+    #   yes: write error
+    #
+    #   >>> signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    #   >>> os.system("yes | read any")
+    #   >>>
+    #
+    import signal
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
     return ctrl
 
 def initDistro(ctrl):
