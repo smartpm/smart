@@ -82,6 +82,16 @@ class DebPackageInfo(PackageInfo):
     def getGroup(self):
         return self._loader.getSection(self._package)
 
+    def getPathList(self):
+        self._paths = self._loader.getPaths(self)
+        return self._paths.keys()
+
+    def pathIsDir(self, path):
+        return self._paths[path] == "d"
+
+    def pathIsFile(self, path):
+        return self._paths[path] == "f"
+
 class DebTagLoader(Loader):
 
     def __init__(self, baseurl=None):
@@ -219,9 +229,15 @@ class DebTagLoader(Loader):
                          "implement the getDict() method"
 
     def getFileName(self, info):
-        return self._baseurl
         raise TypeError, "Subclasses of DebTagLoader must " \
                          "implement the getFileName() method"
+
+    def getSize(self, info):
+        raise TypeError, "Subclasses of DebTagLoader must " \
+                         "implement the getFileName() method"
+
+    def getPaths(self, info):
+        return {}
 
 
 class DebTagFileLoader(DebTagLoader):
@@ -259,6 +275,25 @@ class DebTagFileLoader(DebTagLoader):
         if size:
             return long(size)
         return None
+
+    def getPaths(self, info):
+        listname = os.path.join(os.path.dirname(self._filename), "info", info._package.name+".list")
+        paths = {}
+        if os.path.isfile(listname):
+            md5name = listname[:-4]+"md5sums"
+            dirs = {}
+            if os.path.isfile(md5name):
+                for line in open(md5name):
+                    toks = line.split()
+                    if len(toks) == 2:
+                        dirs["/"+toks[1]] = True
+            for line in open(listname):
+                path = line.strip()
+                if path:
+                    paths[path] = path in dirs and "d" or "f"
+            if "/." in paths:
+                del paths["/."]
+        return paths
 
 class DebDirLoader(DebTagLoader):
 
