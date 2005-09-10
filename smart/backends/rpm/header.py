@@ -389,9 +389,9 @@ class RPMHeaderListLoader(RPMHeaderLoader):
                                 "As a consequence, Smart will consume "
                                 "extra memory."))
 
-            self.__class__.getHeaders = self.getHeadersHDL
-            self.__class__.getHeader = self.getHeaderHDL
-            self.__class__.loadFileProvides = self.loadFileProvidesHDL
+            self.__class__.getHeaders = self.getHeadersHDL.im_func
+            self.__class__.getHeader = self.getHeaderHDL.im_func
+            self.__class__.loadFileProvides = self.loadFileProvidesHDL.im_func
 
             self._hdl = rpm.readHeaderListFromFile(self._filename)
 
