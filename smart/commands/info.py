@@ -150,7 +150,9 @@ def main(ctrl, opts, reloadchannels=True):
 
         if opts.paths:
             print _("Paths:")
-            for entry in info.getPathList():
+            paths = info.getPathList()
+            paths.sort()
+            for entry in paths:
                 print "", entry
         print
 
