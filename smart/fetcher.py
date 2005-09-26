@@ -1647,7 +1647,7 @@ try:
 except ImportError:
     pass
 else:
-    schemes = pycurl.version_info()[-1]
+    schemes = pycurl.version_info()[8]
     for scheme in schemes:
         if scheme != "file":
             Fetcher.setHandler(scheme, PyCurlHandler)

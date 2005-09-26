@@ -11,3 +11,4 @@
 - Add command for explicit cache rebuilding
 - Add channel --list, similar to urpmi --list-media
 - Add option to enable mixed dependency satisfaction.
+- Transform "Stopped" progress in elapsed time

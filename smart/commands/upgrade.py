@@ -123,7 +123,7 @@ def main(ctrl, opts):
                     foundany = True
             if not foundany:
                 for obj in results:
-                    if not isinstance(obj, Packages):
+                    if not isinstance(obj, Package):
                         for pkg in obj.packages:
                             if pkg.installed:
                                 foundinstalled = True

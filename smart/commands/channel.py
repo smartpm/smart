@@ -178,7 +178,7 @@ def main(ctrl, opts):
                     newchannels.append(channel)
             else:
                 raise Error, _("File not found: %s") % arg
-        else:
+        elif opts.add:
             alias = opts.add.pop(0).strip()
             if not alias:
                 raise Error, _("Channel has no alias")
@@ -191,6 +191,8 @@ def main(ctrl, opts):
             channel = parseChannelData(channel)
             channel["alias"] = alias
             newchannels = [channel]
+        else:
+            raise Error, _("Channel information needed")
 
         newaliases = []
         for channel in newchannels:
