@@ -93,6 +93,9 @@ class DebPackage(Package):
                 rc = vercmp(self.version, other.version)
         return rc == -1
 
+    def __str__(self):
+        return "%s_%s" % (self.name, self.version)
+
 class DebProvides(Provides):        __slots__ = ()
 class DebNameProvides(DebProvides): __slots__ = ()
 
