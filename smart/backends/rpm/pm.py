@@ -232,8 +232,10 @@ class RPMCallback:
             else:
                 if self.rpmout:
                     self.rpmoutlock.release()
-                    self._rpmout()
-                    self.rpmoutlock.acquire()
+                    try:
+                        self._rpmout()
+                    finally:
+                        self.rpmoutlock.acquire()
                     os.dup2(sys.stdout.fileno(), 1)
                     os.dup2(sys.stderr.fileno(), 2)
                     sys.stdout = self.stdout

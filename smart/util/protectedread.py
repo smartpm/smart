@@ -22,6 +22,8 @@
 import codecs
 
 def protectedread(self, size=-1, chars=-1):
+    if not hasattr(self, "charbuffer"):
+        self.charbuffer = u""
     while True:
         if chars < 0:
             if self.charbuffer:
