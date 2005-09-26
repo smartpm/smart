@@ -847,20 +847,22 @@ class LocalMediaHandler(FileHandler):
         mediaset = self._fetcher.getMediaSet()
         for i in range(len(self._queue)-1,-1,-1):
             item = self._queue[i]
-            itempath = item.getURL().path
-            media = item.getInfo("media")
-            if not media:
-                media = mediaset.getDefault()
-                if media:
-                    media.mount()
-                else:
-                    mediaset.mountAll()
-                    media = mediaset.findFile(itempath)
-                if not media or not media.isMounted():
-                    item.setFailed(_("Media not found"))
-                    del self._queue[i]
-                    continue
-            item.setURL(media.joinURL(itempath))
+            url = item.getURL()
+            if url.scheme == "localmedia":
+                itempath = url.path
+                media = item.getInfo("media")
+                if not media:
+                    media = mediaset.getDefault()
+                    if media:
+                        media.mount()
+                    else:
+                        mediaset.mountAll()
+                        media = mediaset.findFile(itempath)
+                    if not media or not media.isMounted():
+                        item.setFailed(_("Media not found"))
+                        del self._queue[i]
+                        continue
+                item.setURL(media.joinURL(itempath))
 
 Fetcher.setHandler("localmedia", LocalMediaHandler, local=True)
 

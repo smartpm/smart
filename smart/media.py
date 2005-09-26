@@ -223,7 +223,7 @@ class Media(object):
         return path
 
     def hasFile(self, path, comparepath=None):
-        if media.isMounted():
+        if self.isMounted():
             filepath = self.joinPath(path)
             if (os.path.isfile(filepath) and
                 not comparepath or compareFiles(path, comparepath)):
