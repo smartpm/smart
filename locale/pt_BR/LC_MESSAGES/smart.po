@@ -279,10 +279,10 @@ msgstr "Repositório URPMI"
 #: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:28
 msgid ""
 "\n"
-"Repository created for Mandrake's URPMI package manager.\n"
+"Repository created for Mandriva's URPMI package manager.\n"
 msgstr ""
 "\n"
-"Repositório criado para o gerenciador URPMI da Mandrake.\n"
+"Repositório criado para o gerenciador URPMI da Mandriva.\n"
 
 #: smart/channels/urpmi_info.py:32 smart/channels/apt_rpm_info.py:32
 #: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32

@@ -26,7 +26,7 @@ kind = "package"
 name = _("URPMI Repository")
 
 description = _("""
-Repository created for Mandrake's URPMI package manager.
+Repository created for Mandriva's URPMI package manager.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
