@@ -675,7 +675,7 @@ class Interpreter(Cmd):
         cache = self._ctrl.getCache()
         newpackages = pkgconf.filterByFlag("new", cache.getPackages())
         if not newpackages:
-            iface.showStatus(_("Channels have no new packages."))
+            print _("Channels have no new packages.")
         else:
             if len(newpackages) <= 10:
                 newpackages.sort()
@@ -684,8 +684,9 @@ class Interpreter(Cmd):
                     info += "    %s\n" % pkg
             else:
                 info = "."
-            iface.showStatus(_("Channels have %d new packages%s")
-                             % (len(newpackages), info))
+            print _("Channels have %d new packages%s") % \
+                   (len(newpackages), info)
+        print
 
     def help_flag(self):
         print _("The flag command allows configuring, removing and\n"

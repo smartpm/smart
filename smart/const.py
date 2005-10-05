@@ -21,7 +21,7 @@
 #
 import sys
 
-VERSION = "0.39"
+VERSION = "0.40"
 
 RECURSIONLIMIT = sys.getrecursionlimit()
 
