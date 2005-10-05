@@ -25,7 +25,7 @@ if sys.version_info < (2, 3):
     sys.exit("error: Python 2.3 or later required")
 
 from smart import init, initDistro, initPlugins, initPsyco
-from smart.const import VERSION, DEBUG, DATADIR
+from smart.const import VERSION, DATADIR
 from smart.option import OptionParser
 from smart import *
 import pwd
@@ -115,7 +115,7 @@ def parse_options(argv):
     return opts
 
 def set_config_options(options):
-    import re, copy
+    import re
 
     globals = {}
     globals["__builtins__"] = {}
