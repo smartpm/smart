@@ -71,7 +71,7 @@ class RPMMetaDataPackageInfo(PackageInfo):
 
 class RPMMetaDataLoader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+1
+    __stateversion__ = Loader.__stateversion__+2
  
     def __init__(self, filename, filelistsname, baseurl):
         Loader.__init__(self)
@@ -79,20 +79,22 @@ class RPMMetaDataLoader(Loader):
         self._filelistsname = filelistsname
         self._baseurl = baseurl
         self._fileprovides = {}
+        self._parsedflist = False
         self._pkgids = {}
 
     def reset(self):
         Loader.reset(self)
         self._fileprovides.clear()
+        self._parsedflist = False
+        self._pkgids.clear()
 
     def loadFileProvides(self, fndict):
         bfp = self.buildFileProvides
-        parsed = False
+        parsed = self._parsedflist
         for fn in fndict:
             if fn not in self._fileprovides:
                 if not parsed:
-                    parsed = True
-                    self._fileprovides.clear()
+                    self._parsedflist = parsed = True
                     XMLFileListsParser(self).parse(fndict)
                     if fn not in self._fileprovides:
                         pkgs = self._fileprovides[fn] = ()
