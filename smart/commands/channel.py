@@ -108,6 +108,8 @@ def parse_options(argv):
                              "pairs modifying a channel"))
     parser.add_option("--remove", action="callback", callback=append_all,
                       help=_("arguments are channel aliases to be removed"))
+    parser.add_option("--remove-all", action="store_true",
+                      help=_("remove all existent channels"))
     parser.add_option("--show", action="callback", callback=append_all,
                       help=_("show channels with given aliases, or all "
                            "channels if no arguments were given"))
@@ -270,6 +272,11 @@ def main(ctrl, opts):
                 iface.askYesNo(_("Remove channel '%s'?") % alias)):
                 if not sysconf.remove(("channels", alias)):
                     iface.warning(_("Channel '%s' not found.") % alias)
+
+    if opts.remove_all:
+        if (not sysconf.get("channels") or opts.yes or
+            iface.askYesNo(_("Remove ALL channels?"))):
+            sysconf.remove("channels")
 
     if opts.enable:
         for alias in opts.enable:
