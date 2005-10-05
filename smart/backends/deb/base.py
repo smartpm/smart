@@ -78,8 +78,8 @@ class DebPackage(Package):
         for nameversion, cutoff in searcher.nameversion:
             _, ratio1 = globdistance(nameversion, myname, cutoff, ic)
             _, ratio2 = globdistance(nameversion,
-                                     "%s-%s" % (myname, myversion), cutoff, ic)
-            _, ratio3 = globdistance(nameversion, "%s-%s" %
+                                     "%s_%s" % (myname, myversion), cutoff, ic)
+            _, ratio3 = globdistance(nameversion, "%s_%s" %
                                      (myname, splitrelease(myversion)[0]),
                                      cutoff, ic)
             ratio = max(ratio, ratio1, ratio2, ratio3)
