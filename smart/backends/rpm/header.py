@@ -231,6 +231,8 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1048] # RPMTAG_REQUIREFLAGS
                 v = h[1050] # RPMTAG_REQUIREVERSION
+                if type(f) != list:
+                    f = [f]
                 reqdict = {}
                 for i in range(len(n)):
                     ni = n[i]
