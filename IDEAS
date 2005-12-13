@@ -9,6 +9,13 @@ Commands
 
 - Introduce a mixed-mode command, allowing to install/remove/upgrade.
 
+Guessing unused packages
+------------------------
+
+<acme> a heur?stica levaria em considera??o: "idade" do pacote (i.e. h? quanto
+tempo ele foi instalado), tamanho, fato de nenhum outro precisar dele, tempo de
+acesso a seus componentes, etc
+
 Downloading and committing
 --------------------------
 
