@@ -12,3 +12,7 @@
 - Add channel --list, similar to urpmi --list-media
 - Add option to enable mixed dependency satisfaction.
 - Transform "Stopped" progress in elapsed time
+- Make it more clear that action commands on shell do not commit
+  immediately.
+- Implement flag --edit
+- Add rpm-* option for rpm.setVerbosity(rpm.RPMLOG_*)
