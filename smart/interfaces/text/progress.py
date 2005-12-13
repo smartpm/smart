@@ -57,6 +57,8 @@ class TextProgress(Progress):
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         out = sys.stdout
+        if not out.isatty() and not done:
+            return
         if self.getHasSub():
             if topic != self._lasttopic:
                 self._lasttopic = topic
