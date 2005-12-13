@@ -70,10 +70,12 @@ class URPMIChannel(PackageChannel):
 
             basename = posixpath.basename(self._hdlurl)
             for line in open(item.getTargetPath()):
-                md5, name = line.split()
-                if name == basename:
-                    hdlmd5 = md5
-                    break
+                line = line.strip()
+                if line:
+                    md5, name = line.split()
+                    if name == basename:
+                        hdlmd5 = md5
+                        break
 
         fetcher.reset()
         hdlitem = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
