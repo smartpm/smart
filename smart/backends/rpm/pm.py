@@ -25,6 +25,7 @@ from smart.sorter import ChangeSetSorter, LoopError
 from smart.const import INSTALL, REMOVE, BLOCKSIZE
 from smart.pm import PackageManager
 from smart import *
+import tempfile
 import sys, os
 import codecs
 import locale
@@ -203,86 +204,56 @@ class RPMCallback:
         self.fd = None
         self.rpmout = None
         self.rpmoutbuffer = ""
-        self.rpmoutlock = thread.allocate_lock()
         self.lasttopic = None
         self.topic = None
 
     def grabOutput(self, flag):
-        self.rpmoutlock.acquire()
-        try:
-            if flag:
-                if not self.rpmout:
-                    # Grab rpm output, but not the python one.
-                    self.stdout = sys.stdout
-                    self.stderr = sys.stderr
-                    writer = codecs.getwriter(ENCODING)
-                    reader = codecs.getreader(ENCODING)
-                    sys.stdout = writer(os.fdopen(os.dup(1), "w"))
-                    sys.stderr = writer(os.fdopen(os.dup(2), "w"))
-                    pipe = os.pipe()
-                    os.dup2(pipe[1], 1)
-                    os.dup2(pipe[1], 2)
-                    os.close(pipe[1])
-                    self.rpmout = reader(os.fdopen(pipe[0], "r"))
-                    setCloseOnExec(self.rpmout.fileno())
-                    flags = fcntl.fcntl(self.rpmout.fileno(), fcntl.F_GETFL, 0)
-                    flags |= os.O_NONBLOCK
-                    fcntl.fcntl(self.rpmout.fileno(), fcntl.F_SETFL, flags)
-                    thread.start_new(self._rpmoutthread, ())
-            else:
-                if self.rpmout:
-                    self.rpmoutlock.release()
-                    try:
-                        self._rpmout()
-                    finally:
-                        self.rpmoutlock.acquire()
-                    os.dup2(sys.stdout.fileno(), 1)
-                    os.dup2(sys.stderr.fileno(), 2)
-                    sys.stdout = self.stdout
-                    sys.stderr = self.stderr
-                    del self.stdout
-                    del self.stderr
-                    self.rpmout.close()
-                    self.rpmout = None
-        finally:
-            self.rpmoutlock.release()
-
-    def _rpmoutthread(self):
-        try:
-            while self.rpmout:
-                time.sleep(1)
-                self._rpmout(True)
-        except:
-            import traceback
-            traceback.print_exc()
-
-    def _rpmout(self, tobuffer=False):
-        self.rpmoutlock.acquire()
-        try:
+        if flag:
+            if not self.rpmout:
+                # Grab rpm output, but not the python one.
+                self.stdout = sys.stdout
+                self.stderr = sys.stderr
+                writer = codecs.getwriter(ENCODING)
+                reader = codecs.getreader(ENCODING)
+                sys.stdout = writer(os.fdopen(os.dup(1), "w"))
+                sys.stderr = writer(os.fdopen(os.dup(2), "w"))
+                fd, rpmoutpath = tempfile.mkstemp("-smart-rpm-out.txt")
+                os.dup2(fd, 1)
+                os.dup2(fd, 2)
+                os.close(fd)
+                self.rpmout = reader(open(rpmoutpath))
+                os.unlink(rpmoutpath)
+        else:
             if self.rpmout:
-                try:
-                    output = self.rpmout.read(BLOCKSIZE)
-                except (OSError, IOError), e:
-                    if e[0] != errno.EWOULDBLOCK:
-                        raise
-                    output = ""
-                if output or not tobuffer and self.rpmoutbuffer:
-                    if tobuffer:
-                        self.rpmoutbuffer += output
-                    else:
-                        output = self.rpmoutbuffer+output
-                        self.rpmoutbuffer = ""
-                        if self.topic and self.topic != self.lasttopic:
-                            self.lasttopic = self.topic
-                            iface.info(self.topic)
-                        iface.info(output)
-        finally:
-            self.rpmoutlock.release()
+                self._process_rpmout()
+                os.dup2(sys.stdout.fileno(), 1)
+                os.dup2(sys.stderr.fileno(), 2)
+                sys.stdout = self.stdout
+                sys.stderr = self.stderr
+                del self.stdout
+                del self.stderr
+                self.rpmout.close()
+                self.rpmout = None
+                self.rpmoutbuffer = ""
+
+    def _process_rpmout(self, tobuffer=False):
+        if self.rpmout:
+            output = self.rpmout.read()
+            if output or not tobuffer and self.rpmoutbuffer:
+                if tobuffer:
+                    self.rpmoutbuffer += output
+                else:
+                    output = self.rpmoutbuffer+output
+                    self.rpmoutbuffer = ""
+                    if self.topic and self.topic != self.lasttopic:
+                        self.lasttopic = self.topic
+                        iface.info(self.topic)
+                    iface.info(output)
 
     def __call__(self, what, amount, total, infopath, data):
 
         if self.rpmout:
-            self._rpmout()
+            self._process_rpmout()
 
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
