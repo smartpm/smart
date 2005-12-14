@@ -1,0 +1,32 @@
+From: 		Mauricio Teixeira (netmask) <netmask@webset.net>
+To: 		smart@labix.org
+Subject: 	Smart KDE service menu
+Date: 		Sat, 03 Dec 2005 15:37:04 -0200
+
+Hi!
+
+Using an interesting SUSE idea of using a KDE service menu to add new
+repositories into YaST, I've managed to code something similar for
+Smart. I'm sending the necessary files attached:
+
+* add_smart_channel.desktop
+copy into <kdedir>/share/apps/konqueror/servicemenus/
+(on SUSE it's /opt/kde3/share/apps/konqueror/servicemenus/)
+
+* kde_add_smart_channel.sh
+copy somwhere in your $PATH (don't forget to chmod 755!)
+
+After that, you can right click on a directory under Konqueror and it will:
+
+a) Detect what kind of packages you have there (either RPM or DEB)
+b) Ask what kind of channel to add (RPM, DEB or Both)
+
+Please, give me any feedbacks on it ok? I've not tested it too much, but
+who knows what can happen? :)
+
+-- 
+% Mauricio Teixeira (netmask)
+% mteixeira{a}webset{d}net <> Maceio/AL/BR
+% TI+Telecom Analyst <> Linux Specialist
+% http://mteixeira.webset.net <> http://pmping.sf.net
+% [D0CE 6BD4 526B B7D1 6F4E  85FA A7A0 1A6F B23A A9EE]

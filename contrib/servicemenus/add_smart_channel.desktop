@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=inode/directory
+Actions=Add
+
+[Desktop Action Add]
+Name=Add directory as Smart channel
+Name[pt_BR]=Adicionar diretório como canal do Smart
+Exec=kdesu --nonewdcop -- kde_add_smart_channel.sh %U
+Icon=smart
+
+
