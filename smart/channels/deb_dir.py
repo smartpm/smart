@@ -41,7 +41,7 @@ class DebDirChannel(PackageChannel):
         loader = DebDirLoader(self._path)
         loader.setChannel(self)
         self._loaders.append(loader)
-        if getattr(self, "_recursive", True):
+        if getattr(self, "_recursive", False):
             for root, dirs, files in os.walk(self._path):
                 for name in dirs:
                     loader = DebDirLoader(os.path.join(root, name))
