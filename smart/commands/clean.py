@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2004 Conectiva, Inc.
+# Copyright (c) 2005 Canonical
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
+#            Mauricio Teixeira <mteixeira@webset.net>
 #
 # This file is part of Smart Package Manager.
 #
@@ -21,7 +22,7 @@
 #
 from smart.option import OptionParser
 from smart import *
-import re, os
+import os
 
 USAGE=_("smart clean [options]")
 
@@ -36,30 +37,26 @@ def parse_options(argv):
                           description=DESCRIPTION)
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
-    parser.add_option("-v", "--verbose", action="store_true",
-                      help=_("show cleaned packages"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
 
 def main(ctrl, opts):
 
-    localdir = os.path.join(sysconf.get("data-dir"), "packages/")
+    packagesdir = os.path.join(sysconf.get("data-dir"), "packages/")
 
-    if not os.path.isdir(localdir):
-        raise Error, _("Cache directory %s not found.") % localdir
+    if not os.path.isdir(packagesdir):
+        raise Error, _("Directory not found: %s") % packagesdir
 
-    iface.info(_("Cleaning package cache..."))
+    iface.info(_("Removing cached package files..."))
    
-    os.chdir(localdir)
-    for root, dirs, files in os.walk(localdir):
+    for root, dirs, files in os.walk(packagesdir):
         for cached_pkg in files:
-            if opts.yes or iface.askYesNo(_("Clean %s?") % cached_pkg):
-                try:
-                    os.unlink(cached_pkg)
-                    if opts.verbose:
-                        iface.info(_("Cleaned %s..." % cached_pkg))
-                except os.error, msg:
-                    raise Error, _("Can't remove cached package %s: %s") % (cached_pkg, str(msg))
+            try:
+                os.unlink(os.path.join(root, cached_pkg))
+                iface.debug(_("Removed %s") % cached_pkg)
+            except os.error, e:
+                iface.error(_("Can't remove cached package %s: %s") \
+                            % (cached_pkg, str(e)))
 
 # vim:ts=4:sw=4:et
