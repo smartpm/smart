@@ -23,7 +23,7 @@ import codecs
 
 def protectedread(self, size=-1, chars=-1):
 
-    if not hasattr(self, "charbuffer"):
+    if not hasattr(self, "charbuffer") or not hasattr(self, "linebuffer"):
         self.charbuffer = u""
         self.bytebuffer = u""
         self.linebuffer = None
