@@ -197,7 +197,7 @@ class XMLParser(object):
             self._arch = data
 
     def handleSectionEnd(self, name, attrs, data):
-        self._info["group"] = intern(data)
+        self._info["group"] = data
 
     def handleSummaryEnd(self, name, attrs, data):
         self._info["summary"] = data
