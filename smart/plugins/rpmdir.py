@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2005 Canonical
 # Copyright (c) 2004 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
@@ -26,11 +27,11 @@ if sysconf.has("rpm-dir"):
     from smart.channels.rpm_dir import RPMDirChannel
 
     def createRPMDirChannel():
-        channel = RPMDirChannel(sysconf.get("rpm-dir"),
+        channel = RPMDirChannel(sysconf.get("rpm-dir"), True,
                                 "rpm-dir",
                                 "rpm-dir-option",
                                 _("Dynamic RPM Directory"),
-                                True, False, 0, True) 
+                                True, False, 0) 
         return [channel]
     
     hooks.register("rebuild-dynamic-channels", createRPMDirChannel)

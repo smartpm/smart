@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2005 Canonical
 # Copyright (c) 2004 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
@@ -26,11 +27,11 @@ if sysconf.has("deb-dir"):
     from smart.channels.deb_dir import DebDirChannel
 
     def createDebDirChannel():
-        channel = DebDirChannel(sysconf.get("deb-dir"),
+        channel = DebDirChannel(sysconf.get("deb-dir"), True,
                                 "deb-dir",
                                 "deb-dir-option",
                                 _("Dynamic DEB Directory"),
-                                True, False, 0, True) 
+                                True, False, 0)
         return [channel]
     
     hooks.register("rebuild-dynamic-channels", createDebDirChannel)
