@@ -35,8 +35,6 @@ an incomplete transaction.
 def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION)
-    parser.add_option("-y", "--yes", action="store_true",
-                      help=_("do not ask for confirmation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
