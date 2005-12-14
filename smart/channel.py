@@ -81,11 +81,12 @@ class Channel(object):
 
 class PackageChannel(Channel):
     def __init__(self, type, alias, name=None,
-                 manualupdate=False, removable=False, priority=0):
+                 manualupdate=False, removable=False, priority=0, recursive=False):
         super(PackageChannel, self).__init__(type, alias, name,
                                              manualupdate, removable)
         self._loaders = []
         self._priority = priority
+        self._recursive = recursive
 
     def getLoaders(self):
         return self._loaders

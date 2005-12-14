@@ -30,7 +30,7 @@ if sysconf.has("deb-dir"):
                                 "deb-dir",
                                 "deb-dir-option",
                                 _("Dynamic DEB Directory"),
-                                True, False, 0) 
+                                True, False, 0, False) 
         return [channel]
     
     hooks.register("rebuild-dynamic-channels", createDebDirChannel)

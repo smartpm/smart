@@ -30,4 +30,6 @@ Local directory with DEB packages.
 """)
 
 fields = [("path", _("Directory Path"), str, None,
-           _("Path of directory containing DEB packages."))]
+           _("Path of directory containing DEB packages.")),
+          ("recursive", _("Recursive"), bool, False,
+           _("Search for files recursively."))]

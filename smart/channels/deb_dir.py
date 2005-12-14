@@ -41,6 +41,12 @@ class DebDirChannel(PackageChannel):
         loader = DebDirLoader(self._path)
         loader.setChannel(self)
         self._loaders.append(loader)
+        if getattr(self, "_recursive", True):
+            for root, dirs, files in os.walk(self._path):
+                for name in dirs:
+                    loader = DebDirLoader(os.path.join(root, name))
+                    loader.setChannel(self)
+                    self._loaders.append(loader)
         self._digest = digest
         return True
 
@@ -53,6 +59,7 @@ def create(alias, data):
                          data["name"],
                          data["manual"],
                          data["removable"],
-                         data["priority"])
+                         data["priority"],
+                         data["recursive"])
 
 # vim:ts=4:sw=4:et

@@ -30,4 +30,6 @@ Local directory with RPM packages.
 """)
 
 fields = [("path", _("Directory Path"), str, None,
-           _("Path of directory containing RPM packages."))]
+           _("Path of directory containing RPM packages.")),
+          ("recursive", _("Recursive"), bool, False,
+           _("Search for files recursively."))]

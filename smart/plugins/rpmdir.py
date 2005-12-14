@@ -30,7 +30,7 @@ if sysconf.has("rpm-dir"):
                                 "rpm-dir",
                                 "rpm-dir-option",
                                 _("Dynamic RPM Directory"),
-                                True, False, 0) 
+                                True, False, 0, False) 
         return [channel]
     
     hooks.register("rebuild-dynamic-channels", createRPMDirChannel)
