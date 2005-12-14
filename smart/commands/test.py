@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2004 Conectiva, Inc.
+# Copyright (c) 2005 Canonical
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
 #
