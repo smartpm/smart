@@ -46,6 +46,7 @@ Action commands:
     check
     fix
     download
+    clean
 
 Query commands:
     search
