@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2005 Canonical
 # Copyright (c) 2004 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
@@ -81,12 +82,11 @@ class Channel(object):
 
 class PackageChannel(Channel):
     def __init__(self, type, alias, name=None,
-                 manualupdate=False, removable=False, priority=0, recursive=False):
+                 manualupdate=False, removable=False, priority=0):
         super(PackageChannel, self).__init__(type, alias, name,
                                              manualupdate, removable)
         self._loaders = []
         self._priority = priority
-        self._recursive = recursive
 
     def getLoaders(self):
         return self._loaders

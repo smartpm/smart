@@ -26,9 +26,10 @@ import os
 
 class RPMDirChannel(PackageChannel):
 
-    def __init__(self, path, *args):
+    def __init__(self, path, recursive, *args):
         super(RPMDirChannel, self).__init__(*args)
         self._path = path
+        self._recursive = recursive
 
     def fetch(self, fetcher, progress):
         if not os.path.isdir(self._path):
@@ -54,12 +55,12 @@ def create(alias, data):
     if data["removable"]:
         raise Error, _("%s channels cannot be removable") % data["type"]
     return RPMDirChannel(data["path"],
+                         data["recursive"],
                          data["type"],
                          alias,
                          data["name"],
                          data["manual"],
                          data["removable"],
-                         data["priority"],
-                         data["recursive"])
+                         data["priority"])
 
 # vim:ts=4:sw=4:et
