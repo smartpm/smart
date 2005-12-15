@@ -1,6 +1,6 @@
 #
 # ElementTree
-# $Id: //modules/elementtree/elementtree/ElementInclude.py#2 $
+# $Id: ElementInclude.py 1862 2004-06-18 07:31:02Z Fredrik $
 #
 # limited xinclude support for element trees
 #
@@ -8,7 +8,7 @@
 # 2003-08-15 fl   created
 # 2003-11-14 fl   fixed default loader
 #
-# Copyright (c) 2003 by Fredrik Lundh.  All rights reserved.
+# Copyright (c) 2003-2004 by Fredrik Lundh.  All rights reserved.
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
@@ -16,7 +16,7 @@
 # --------------------------------------------------------------------
 # The ElementTree toolkit is
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh
+# Copyright (c) 1999-2004 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its
 # associated documentation, you agree that you have read, understood,
@@ -41,6 +41,10 @@
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
 
+##
+# Limited XInclude support for the ElementTree package.
+##
+
 import copy
 import ElementTree
 
@@ -49,8 +53,23 @@ XINCLUDE = "{http://www.w3.org/2001/XInclude}"
 XINCLUDE_INCLUDE = XINCLUDE + "include"
 XINCLUDE_FALLBACK = XINCLUDE + "fallback"
 
+##
+# Fatal include error.
+
 class FatalIncludeError(SyntaxError):
     pass
+
+##
+# Default loader.  This loader reads an included resource from disk.
+#
+# @param href Resource reference.
+# @param parse Parse mode.  Either "xml" or "text".
+# @param encoding Optional text encoding.
+# @return The expanded resource.  If the parse mode is "xml", this
+#    is an ElementTree instance.  If the parse mode is "text", this
+#    is a Unicode string.  If the loader fails, it can return None
+#    or raise an IOError exception.
+# @throws IOError If the loader fails to load the resource.
 
 def default_loader(href, parse, encoding=None):
     file = open(href)
@@ -62,6 +81,17 @@ def default_loader(href, parse, encoding=None):
             data = data.decode(encoding)
     file.close()
     return data
+
+##
+# Expand XInclude directives.
+#
+# @param elem Root element.
+# @param loader Optional resource loader.  If omitted, it defaults
+#     to {@link default_loader}.  If given, it should be a callable
+#     that implements the same interface as <b>default_loader</b>.
+# @throws FatalIncludeError If the function fails to include a given
+#     resource, or if the tree contains malformed XInclude elements.
+# @throws IOError If the function fails to load a given resource.
 
 def include(elem, loader=None):
     if loader is None:

@@ -1,6 +1,6 @@
 #
 # ElementTree
-# $Id: //modules/elementtree/elementtree/XMLTreeBuilder.py#1 $
+# $Id: XMLTreeBuilder.py 2305 2005-03-01 17:43:09Z fredrik $
 #
 # an XML tree builder
 #
@@ -11,7 +11,7 @@
 # 2002-08-17 fl   use tag/attribute name memo cache
 # 2002-12-04 fl   moved XMLTreeBuilder to the ElementTree module
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh.  All rights reserved.
+# Copyright (c) 1999-2004 by Fredrik Lundh.  All rights reserved.
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
@@ -19,7 +19,7 @@
 # --------------------------------------------------------------------
 # The ElementTree toolkit is
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh
+# Copyright (c) 1999-2004 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its
 # associated documentation, you agree that you have read, understood,
@@ -44,10 +44,15 @@
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
 
+##
+# Tools to build element trees from XML files.
+##
+
 import ElementTree
 
 ##
-# (obsolete) ElementTree builder for XML source data.
+# (obsolete) ElementTree builder for XML source data, based on the
+# <b>expat</b> parser.
 # <p>
 # This class is an alias for ElementTree.XMLTreeBuilder.  New code
 # should use that version instead.
@@ -58,21 +63,23 @@ class TreeBuilder(ElementTree.XMLTreeBuilder):
     pass
 
 ##
-# (experimental) An alternate parser that supports manipulation of new
-# elements.
+# (experimental) An alternate builder that supports manipulation of
+# new elements.
 
 class FancyTreeBuilder(TreeBuilder):
 
     def __init__(self, html=0):
         TreeBuilder.__init__(self, html)
-        self._parser.StartElementHandler = self._start
-        self._parser.EndElementHandler = self._end
         self._parser.StartNamespaceDeclHandler = self._start_ns
         self._parser.EndNamespaceDeclHandler = self._end_ns
         self.namespaces = []
 
     def _start(self, tag, attrib_in):
         elem = TreeBuilder._start(self, tag, attrib_in)
+        self.start(elem)
+
+    def _start_list(self, tag, attrib_in):
+        elem = TreeBuilder._start_list(self, tag, attrib_in)
         self.start(elem)
 
     def _end(self, tag):
@@ -87,16 +94,18 @@ class FancyTreeBuilder(TreeBuilder):
 
     ##
     # Hook method that's called when a new element has been opened.
-    # May access the 'namespaces' attribute.
+    # May access the <b>namespaces</b> attribute.
     #
-    # @param element The new element.
+    # @param element The new element.  The tag name and attributes are,
+    #     set, but it has no children, and the text and tail attributes
+    #     are still empty.
 
     def start(self, element):
         pass
 
     ##
     # Hook method that's called when a new element has been closed.
-    # May access the 'namespaces' attribute.
+    # May access the <b>namespaces</b> attribute.
     #
     # @param element The new element.
 

@@ -1,6 +1,6 @@
 #
 # ElementTree
-# $Id: //modules/elementtree/elementtree/SimpleXMLTreeBuilder.py#1 $
+# $Id: SimpleXMLTreeBuilder.py 1862 2004-06-18 07:31:02Z Fredrik $
 #
 # A simple XML tree builder, based on Python's xmllib
 #
@@ -14,7 +14,7 @@
 # 2002-05-01 fl   added namespace support for xmllib
 # 2002-08-17 fl   added xmllib sanity test
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh.  All rights reserved.
+# Copyright (c) 1999-2004 by Fredrik Lundh.  All rights reserved.
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
@@ -22,7 +22,7 @@
 # --------------------------------------------------------------------
 # The ElementTree toolkit is
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh
+# Copyright (c) 1999-2004 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its
 # associated documentation, you agree that you have read, understood,
@@ -47,6 +47,16 @@
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
 
+##
+# Tools to build element trees from XML files, using <b>xmllib</b>.
+# This module can be used instead of the standard tree builder, for
+# Python versions where "expat" is not available (such as 1.5.2).
+# <p>
+# Note that due to bugs in <b>xmllib</b>, the namespace support is
+# not reliable (you can run the module as a script to find out exactly
+# how unreliable it is on your Python version).
+##
+
 import xmllib, string
 
 import ElementTree
@@ -64,6 +74,20 @@ class TreeBuilder(xmllib.XMLParser):
             import htmlentitydefs
             self.entitydefs.update(htmlentitydefs.entitydefs)
         xmllib.XMLParser.__init__(self)
+
+    ##
+    # Feeds data to the parser.
+    #
+    # @param data Encoded data.
+
+    def feed(self, data):
+        xmllib.XMLParser.feed(self, data)
+
+    ##
+    # Finishes feeding data to the parser.
+    #
+    # @return An element structure.
+    # @defreturn Element
 
     def close(self):
         xmllib.XMLParser.close(self)

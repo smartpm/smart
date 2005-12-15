@@ -1,6 +1,6 @@
 #
 # ElementTree
-# $Id: //modules/elementtree/elementtree/HTMLTreeBuilder.py#3 $
+# $Id: HTMLTreeBuilder.py 2325 2005-03-16 15:50:43Z fredrik $
 #
 # a simple tree builder, for HTML input
 #
@@ -9,8 +9,10 @@
 # 2002-04-07 fl   ignore IMG and HR end tags
 # 2002-04-07 fl   added support for 1.5.2 and later
 # 2003-04-13 fl   added HTMLTreeBuilder alias
+# 2004-12-02 fl   don't feed non-ASCII charrefs/entities as 8-bit strings
+# 2004-12-05 fl   don't feed non-ASCII CDATA as 8-bit strings
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh.  All rights reserved.
+# Copyright (c) 1999-2004 by Fredrik Lundh.  All rights reserved.
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
@@ -18,7 +20,7 @@
 # --------------------------------------------------------------------
 # The ElementTree toolkit is
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh
+# Copyright (c) 1999-2004 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its
 # associated documentation, you agree that you have read, understood,
@@ -43,13 +45,23 @@
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
 
+##
+# Tools to build element trees from HTML files.
+##
+
 import htmlentitydefs
-import string
+import re, string, sys
+import mimetools, StringIO
 
 import ElementTree
 
 AUTOCLOSE = "p", "li", "tr", "th", "td", "head", "body"
-IGNOREEND = "img", "hr", "meta", "link"
+IGNOREEND = "img", "hr", "meta", "link", "br"
+
+if sys.version[:3] == "1.5":
+    is_not_ascii = re.compile(r"[\x80-\xff]").search # 1.5.2
+else:
+    is_not_ascii = re.compile(eval(r'u"[\u0080-\uffff]"')).search
 
 try:
     from HTMLParser import HTMLParser
@@ -75,17 +87,30 @@ except ImportError:
 # tag, and ignores any end tags for the following group: IMG, HR,
 # META, and LINK.
 #
+# @keyparam builder Optional builder object.  If omitted, the parser
+#     uses the standard <b>elementtree</b> builder.
+# @keyparam encoding Optional character encoding, if known.  If omitted,
+#     the parser looks for META tags inside the document.  If no tags
+#     are found, the parser defaults to ISO-8859-1.  Note that if your
+#     document uses a non-ASCII compatible encoding, you must decode
+#     the document before parsing.
+#
 # @see elementtree.ElementTree
 
 class HTMLTreeBuilder(HTMLParser):
 
-    def __init__(self):
+    # FIXME: shouldn't this class be named Parser, not Builder?
+
+    def __init__(self, builder=None, encoding=None):
         self.__stack = []
-        self.__builder = ElementTree.TreeBuilder()
+        if builder is None:
+            builder = ElementTree.TreeBuilder()
+        self.__builder = builder
+        self.encoding = encoding or "iso-8859-1"
         HTMLParser.__init__(self)
 
     ##
-    # Flush parser buffers, and return the root element.
+    # Flushes parser buffers, and return the root element.
     #
     # @return An Element instance.
 
@@ -93,10 +118,26 @@ class HTMLTreeBuilder(HTMLParser):
         HTMLParser.close(self)
         return self.__builder.close()
 
-    #
-    # all other methods are internal
+    ##
+    # (Internal) Handles start tags.
 
     def handle_starttag(self, tag, attrs):
+        if tag == "meta":
+            # look for encoding directives
+            http_equiv = content = None
+            for k, v in attrs:
+                if k == "http-equiv":
+                    http_equiv = string.lower(v)
+                elif k == "content":
+                    content = v
+            if http_equiv == "content-type" and content:
+                # use mimetools to parse the http header
+                header = mimetools.Message(
+                    StringIO.StringIO("%s: %s\n\n" % (http_equiv, content))
+                    )
+                encoding = header.getparam("charset")
+                if encoding:
+                    self.encoding = encoding
         if tag in AUTOCLOSE:
             if self.__stack and self.__stack[-1] == tag:
                 self.handle_endtag(tag)
@@ -110,6 +151,9 @@ class HTMLTreeBuilder(HTMLParser):
             self.__stack.pop()
             self.__builder.end(tag)
 
+    ##
+    # (Internal) Handles end tags.
+
     def handle_endtag(self, tag):
         if tag in IGNOREEND:
             return
@@ -118,26 +162,51 @@ class HTMLTreeBuilder(HTMLParser):
             self.handle_endtag(lasttag)
         self.__builder.end(tag)
 
+    ##
+    # (Internal) Handles character references.
+
     def handle_charref(self, char):
         if char[:1] == "x":
             char = int(char[1:], 16)
         else:
             char = int(char)
-        if 0 <= char < 256:
+        if 0 <= char < 128:
             self.__builder.data(chr(char))
         else:
-            self.__builder.data(unichr(char)) # hmm...
+            self.__builder.data(unichr(char))
+
+    ##
+    # (Internal) Handles entity references.
 
     def handle_entityref(self, name):
         entity = htmlentitydefs.entitydefs.get(name)
-        if entity and len(entity) == 1:
-            self.__builder.data(entity)
+        if entity:
+            if len(entity) == 1:
+                entity = ord(entity)
+            else:
+                entity = int(entity[2:-1])
+            if 0 <= entity < 128:
+                self.__builder.data(chr(entity))
+            else:
+                self.__builder.data(unichr(entity))
         else:
-            # FIXME: deal with it
-            print "UNSUPPORTED ENTITY", name, entity
+            self.unknown_entityref(name)
+
+    ##
+    # (Internal) Handles character data.
 
     def handle_data(self, data):
+        if isinstance(data, type('')) and is_not_ascii(data):
+            # convert to unicode, but only if necessary
+            data = unicode(data, self.encoding, "ignore")
         self.__builder.data(data)
+
+    ##
+    # (Hook) Handles unknown entity references.  The default action
+    # is to ignore unknown entities.
+
+    def unknown_entityref(self, name):
+        pass # ignore by default; override if necessary
 
 ##
 # An alias for the <b>HTMLTreeBuilder</b> class.
@@ -148,10 +217,13 @@ TreeBuilder = HTMLTreeBuilder
 # Parse an HTML document or document fragment.
 #
 # @param source A filename or file object containing HTML data.
+# @param encoding Optional character encoding, if known.  If omitted,
+#     the parser looks for META tags inside the document.  If no tags
+#     are found, the parser defaults to ISO-8859-1.
 # @return An ElementTree instance
 
-def parse(source):
-    return ElementTree.parse(source, TreeBuilder())
+def parse(source, encoding=None):
+    return ElementTree.parse(source, HTMLTreeBuilder(encoding=encoding))
 
 if __name__ == "__main__":
     import sys

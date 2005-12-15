@@ -1,6 +1,6 @@
 #
-# TidyXHTMLTreeBuilder
-# $Id: //modules/elementtree/elementtree/TidyTools.py#1 $
+# ElementTree
+# $Id: TidyTools.py 1862 2004-06-18 07:31:02Z Fredrik $
 #
 # tools to run the "tidy" command on an HTML or XHTML file, and return
 # the contents as an XHTML element tree.
@@ -8,22 +8,30 @@
 # history:
 # 2002-10-19 fl   added to ElementTree library; added getzonebody function
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh.  All rights reserved.
+# Copyright (c) 1999-2004 by Fredrik Lundh.  All rights reserved.
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
+#
+
+##
+# Tools to build element trees from HTML, using the external <b>tidy</b>
+# utility.
+##
 
 import glob, string, os, sys
 
 from ElementTree import ElementTree, Element
+
+NS_XHTML = "{http://www.w3.org/1999/xhtml}"
 
 ##
 # Convert an HTML or HTML-like file to XHTML, using the <b>tidy</b>
 # command line utility.
 #
 # @param file Filename.
-# @param new_inline_tags An optional list of valid but
-#    non-standard inline tags.
+# @param new_inline_tags An optional list of valid but non-standard
+#     inline tags.
 # @return An element tree, or None if not successful.
 
 def tidy(file, new_inline_tags=None):
@@ -50,8 +58,8 @@ def tidy(file, new_inline_tags=None):
                "(check %s.err for info)" % (file, file))
         tree = None
     else:
-        # if os.path.isfile(file + ".out"):
-        #     os.remove(file + ".out")
+        if os.path.isfile(file + ".out"):
+            os.remove(file + ".out")
         if os.path.isfile(file + ".err"):
             os.remove(file + ".err")
 
@@ -70,14 +78,14 @@ def getbody(file, **options):
 
     # get xhtml tree
     try:
-        tree = tidy(file, **options)
+        tree = apply(tidy, (file,), options)
         if tree is None:
             return
     except IOError, v:
         print "***", v
         return None
 
-    NS = "{http://www.w3.org/1999/xhtml}"
+    NS = NS_XHTML
 
     # remove namespace uris
     for node in tree.getiterator():
@@ -90,7 +98,7 @@ def getbody(file, **options):
 
 ##
 # Same as <b>getbody</b>, but turns plain text at the start of the
-# document into a H1 tag.  This function can be used to parse zone
+# document into an H1 tag.  This function can be used to parse zone
 # documents.
 #
 # @param file Filename.

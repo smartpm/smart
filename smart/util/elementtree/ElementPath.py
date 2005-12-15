@@ -1,6 +1,6 @@
 #
-# (Simple)ElementTree
-# $Id: //modules/elementtree/elementtree/ElementPath.py#9 $
+# ElementTree
+# $Id: ElementPath.py 1858 2004-06-17 21:31:41Z Fredrik $
 #
 # limited xpath support for element trees
 #
@@ -9,7 +9,7 @@
 # 2003-05-28 fl   added support for // etc
 # 2003-08-27 fl   fixed parsing of periods in element names
 #
-# Copyright (c) 2003 by Fredrik Lundh.  All rights reserved.
+# Copyright (c) 2003-2004 by Fredrik Lundh.  All rights reserved.
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
@@ -17,7 +17,7 @@
 # --------------------------------------------------------------------
 # The ElementTree toolkit is
 #
-# Copyright (c) 1999-2003 by Fredrik Lundh
+# Copyright (c) 1999-2004 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its
 # associated documentation, you agree that you have read, understood,
@@ -41,6 +41,12 @@
 # ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
+
+##
+# Implementation module for XPath support.  There's usually no reason
+# to import this module directly; the <b>ElementTree</b> does this for
+# you, if needed.
+##
 
 import re
 
@@ -106,17 +112,17 @@ class Path:
     ##
     # Find text for first matching object.
 
-    def findtext(self, element):
+    def findtext(self, element, default=None):
         tag = self.tag
         if tag is None:
             nodeset = self.findall(element)
             if not nodeset:
-                return None
-            return nodeset[0].text
+                return default
+            return nodeset[0].text or ""
         for elem in element:
             if elem.tag == tag:
-                return elem.text
-        return None
+                return elem.text or ""
+        return default
 
     ##
     # Find all matching objects.
@@ -179,8 +185,8 @@ def find(element, path):
 ##
 # Find text for first matching object.
 
-def findtext(element, path):
-    return _compile(path).findtext(element)
+def findtext(element, path, default=None):
+    return _compile(path).findtext(element, default)
 
 ##
 # Find all matching objects.

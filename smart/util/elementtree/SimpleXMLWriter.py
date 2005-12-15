@@ -1,6 +1,6 @@
 #
 # SimpleXMLWriter
-# $Id: //modules/elementtree/elementtree/SimpleXMLWriter.py#1 $
+# $Id: SimpleXMLWriter.py 2312 2005-03-02 18:13:39Z fredrik $
 #
 # a simple XML writer
 #
@@ -8,8 +8,11 @@
 # 2001-12-28 fl   created
 # 2002-11-25 fl   fixed attribute encoding
 # 2002-12-02 fl   minor fixes for 1.5.2
+# 2004-06-17 fl   added pythondoc markup
+# 2004-07-23 fl   added flush method (from Jay Graves)
+# 2004-10-03 fl   added declaration method
 #
-# Copyright (c) 2001-2003 by Fredrik Lundh
+# Copyright (c) 2001-2004 by Fredrik Lundh
 #
 # fredrik@pythonware.com
 # http://www.pythonware.com
@@ -17,7 +20,7 @@
 # --------------------------------------------------------------------
 # The SimpleXMLWriter module is
 #
-# Copyright (c) 2001-2003 by Fredrik Lundh
+# Copyright (c) 2001-2004 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its
 # associated documentation, you agree that you have read, understood,
@@ -41,6 +44,48 @@
 # ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
+
+##
+# Tools to write XML files, without having to deal with encoding
+# issues, well-formedness, etc.
+# <p>
+# The current version does not provide built-in support for
+# namespaces. To create files using namespaces, you have to provide
+# "xmlns" attributes and explicitly add prefixes to tags and
+# attributes.
+#
+# <h3>Patterns</h3>
+#
+# The following example generates a small XHTML document.
+# <pre>
+#
+# from elementtree.SimpleXMLWriter import XMLWriter
+# import sys
+#
+# w = XMLWriter(sys.stdout)
+#
+# html = w.start("html")
+#
+# w.start("head")
+# w.element("title", "my document")
+# w.element("meta", name="generator", value="my application 1.0")
+# w.end()
+#
+# w.start("body")
+# w.element("h1", "this is a heading")
+# w.element("p", "this is a paragraph")
+#
+# w.start("p")
+# w.data("this is ")
+# w.element("b", "bold")
+# w.data(" and ")
+# w.element("i", "italic")
+# w.data(".")
+# w.end("p")
+#
+# w.close(html)
+# </pre>
+##
 
 import re, sys, string
 
@@ -95,16 +140,28 @@ def escape_attrib(s, encoding=None, replace=string.replace):
             return encode_entity(s)
     return s
 
+##
+# XML writer class.
+#
+# @param file A file or file-like object.  This object must implement
+#    a <b>write</b> method that takes an 8-bit string.
+# @param encoding Optional encoding.
+
 class XMLWriter:
 
     def __init__(self, file, encoding="us-ascii"):
+        if not hasattr(file, "write"):
+            file = open(file, "w")
         self.__write = file.write
+        if hasattr(file, "flush"):
+            self.flush = file.flush
         self.__open = 0 # true if start tag is open
         self.__tags = []
         self.__data = []
         self.__encoding = encoding
 
     def __flush(self):
+        # flush internal buffers
         if self.__open:
             self.__write(">")
             self.__open = 0
@@ -112,6 +169,29 @@ class XMLWriter:
             data = string.join(self.__data, "")
             self.__write(escape_cdata(data, self.__encoding))
             self.__data = []
+
+    ##
+    # Writes an XML declaration.
+
+    def declaration(self):
+        encoding = self.__encoding
+        if encoding == "us-ascii" or encoding == "utf-8":
+            self.__write("<?xml version='1.0'?>\n")
+        else:
+            self.__write("<?xml version='1.0' encoding='%s'?>\n" % encoding)
+
+    ##
+    # Opens a new element.  Attributes can be given as keyword
+    # arguments, or as a string/string dictionary. You can pass in
+    # 8-bit strings or Unicode strings; the former are assumed to use
+    # the encoding passed to the constructor.  The method returns an
+    # opaque identifier that can be passed to the <b>close</b> method,
+    # to close all open elements up to and including this one.
+    #
+    # @param tag Element tag.
+    # @param attrib Attribute dictionary.  Alternatively, attributes
+    #    can be given as keyword arguments.
+    # @return An element identifier.
 
     def start(self, tag, attrib={}, **extra):
         self.__flush()
@@ -131,14 +211,29 @@ class XMLWriter:
         self.__open = 1
         return len(self.__tags)-1
 
+    ##
+    # Adds a comment to the output stream.
+    #
+    # @param comment Comment text, as an 8-bit string or Unicode string.
+
     def comment(self, comment):
-        # add comment to output stream
         self.__flush()
         self.__write("<!-- %s -->\n" % escape_cdata(comment, self.__encoding))
 
+    ##
+    # Adds character data to the output stream.
+    #
+    # @param text Character data, as an 8-bit string or Unicode string.
+
     def data(self, text):
-        # add data to output stream
         self.__data.append(text)
+
+    ##
+    # Closes the current element (opened by the most recent call to
+    # <b>start</b>).
+    #
+    # @param tag Element tag.  If given, the tag must match the start
+    #    tag.  If omitted, the current element is closed.
 
     def end(self, tag=None):
         if tag:
@@ -156,16 +251,29 @@ class XMLWriter:
             return
         self.__write("</%s>" % tag)
 
+    ##
+    # Closes open elements, up to (and including) the element identified
+    # by the given identifier.
+    #
+    # @param id Element identifier, as returned by the <b>start</b> method.
+
     def close(self, id):
-        # close current element, and all elements up to
-        # the one identified by the given identifier (as
-        # returned by start)
         while len(self.__tags) > id:
             self.end()
 
-    def element(self, xmltag, xmltext=None, xmlattrib={}, **xmlextra):
-        # create a full element
-        apply(self.start, (xmltag, xmlattrib), xmlextra)
-        if xmltext:
-            self.data(xmltext)
+    ##
+    # Adds an entire element.  This is the same as calling <b>start</b>,
+    # <b>data</b>, and <b>end</b> in sequence. The <b>text</b> argument
+    # can be omitted.
+
+    def element(self, tag, text=None, attrib={}, **extra):
+        apply(self.start, (tag, attrib), extra)
+        if text:
+            self.data(text)
         self.end()
+
+    ##
+    # Flushes the output stream.
+
+    def flush(self):
+        pass # replaced by the constructor
