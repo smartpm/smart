@@ -97,6 +97,21 @@ class RPMPackageManager(PackageManager):
             flags |= rpm.RPMTRANS_FLAG_TEST
         ts.setFlags(flags)
 
+        # Set rpm verbosity level.
+        levelname = sysconf.get('rpm-log-level')
+        level = {
+            'emerg':   rpm.RPMLOG_EMERG,
+            'alert':   rpm.RPMLOG_ALERT,
+            'crit':    rpm.RPMLOG_CRIT,
+            'err':     rpm.RPMLOG_ERR,
+            'warning': rpm.RPMLOG_WARNING,
+            'notice':  rpm.RPMLOG_NOTICE,
+            'info':    rpm.RPMLOG_INFO,
+            'debug':   rpm.RPMLOG_DEBUG
+        }.get(levelname)
+        if level is not None:
+            rpm.setVerbosity(level)
+
         # Let's help RPM, since it doesn't do a good
         # ordering job on erasures.
         try:
