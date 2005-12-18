@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from distutils.command.install_scripts import install_scripts
 from distutils.core import setup, Extension
-from distutils.sysconfig import get_python_lib
+from distutils import sysconfig
 import distutils.file_util
 import distutils.dir_util
 import sys, os
@@ -34,19 +34,39 @@ def copy_tree(*args, **kwargs):
 distutils.file_util.copy_file = copy_file
 distutils.dir_util.copy_tree = copy_tree
 
-PYTHONLIB = get_python_lib(1)
+PYTHONLIB = sysconfig.get_python_lib(1)
 
 I18NFILES = []
 for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
     targetpath = os.path.dirname(os.path.join(sys.prefix, "share", filepath))
     I18NFILES.append((targetpath, [filepath]))
 
+config_h = sysconfig.get_config_h_filename()
+config_h_vars = sysconfig.parse_config_h(open(config_h))
+
+# cElementTree needed defines
+CET_DEFINES = [
+    ("XML_STATIC", None),
+    ("XML_NS", "1"),
+    ("XML_DTD", "1"),
+    ("XML_CONTEXT_BYTES", "1024")
+    ]
+if "HAVE_MEMMOVE" in config_h_vars:
+    CET_DEFINES.append(("HAVE_MEMMOVE", "1"))
+if "HAVE_BCOPY" in config_h_vars:
+    CET_DEFINES.append(("HAVE_BCOPY", "1"))
+if sys.byteorder == "little":
+    CET_DEFINES.append(("BYTEORDER", "1234"))
+else:
+    CET_DEFINES.append(("BYTEORDER", "4321"))
+
+
 setup(name="smart",
       version = VERSION,
       description = "Smart Package Manager is a next generation package "
                     "handling tool",
       author = "Gustavo Niemeyer",
-      author_email = "niemeyer@conectiva.com",
+      author_email = "gustavo@niemeyer.net",
       license = "GPL",
       url = "http://smartpm.org",
       long_description =
@@ -80,6 +100,13 @@ Smart Package Manager is a next generation package handling tool.
                                ["smart/util/ctagfile.c"]),
                      Extension("smart.util.cdistance",
                                ["smart/util/cdistance.c"]),
+                     Extension("smart.util.cElementTree",
+                               ["smart/util/celementtree/cElementTree.c",
+                                "smart/util/celementtree/expat/xmlparse.c",
+                                "smart/util/celementtree/expat/xmlrole.c",
+                                "smart/util/celementtree/expat/xmltok.c"],
+                                include_dirs=["smart/util/celementtree/expat"],
+                                define_macros=CET_DEFINES),
                     ],
       data_files = I18NFILES +
                    [(PYTHONLIB+"/smart/interfaces/images", 
