@@ -2543,6 +2543,9 @@ initcElementTree(void)
 
     g = PyDict_New();
 
+    /* XXX Hack to make it work inside Smart. */
+    PyDict_SetItemString(g, "cElementTree", m);
+
     PyDict_SetItemString(g, "__builtins__", PyEval_GetBuiltins());
 
     bootstrap = (
@@ -2553,14 +2556,22 @@ initcElementTree(void)
 
         "from copy import copy, deepcopy\n"
 
+/* XXX Hacked to work inside Smart.
+ 
         "try:\n"
         "  from elementtree import ElementTree\n"
         "except ImportError:\n"
         "  import ElementTree\n"
+*/ 
+        "from smart.util.elementtree import ElementTree\n"
+	
         "ET = ElementTree\n"
         "del ElementTree\n"
 
+/* XXX Hacked to work inside Smart.
+
         "import cElementTree\n"
+*/
 
         "try:\n" /* check if copy works as is */
         "  copy(cElementTree.Element('x'))\n"
