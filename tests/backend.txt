@@ -1,0 +1,136 @@
+
+In that test we'll create a dummy backend to ensure that the core
+package system is working.
+
+We want everything from the cache.
+
+  >>> from smart.cache import *
+
+  >>> class TestPackage(Package): pass
+  >>> class TestProvides(Provides): pass
+  >>> class TestDepends(Depends):
+  ...   def matches(self, prv):
+  ...     return prv.name == self.name and prv.version == self.version
+  >>> class TestRequires(Requires, TestDepends): pass
+  >>> class TestUpgrades(Requires, TestDepends): pass
+  >>> class TestConflicts(Requires, TestDepends): pass
+
+  >>> class TestLoader(Loader):
+  ...     def load(self):
+  ...         pkg1 = self.buildPackage(
+  ...             (TestPackage, "name1", "version1"),
+  ...             [(TestProvides, "name1", "version1"),
+  ...              (TestProvides, "name2", "version2")],
+  ...             [(TestRequires, "name1", "=", "version1"),
+  ...              (TestRequires, "name2", "=", "version2")],
+  ...             [(TestUpgrades, "name1", "=", "version1"),
+  ...              (TestUpgrades, "name2", "=", "version2")],
+  ...             [(TestConflicts, "name1", "=", "version1"),
+  ...              (TestConflicts, "name2", "=", "version2")])
+  ...         pkg1.loaders[self] = 1
+  ...         pkg2 = self.buildPackage(
+  ...             (TestPackage, "name2", "version2"),
+  ...             [(TestProvides, "name1", "version1"),
+  ...              (TestProvides, "name2", "version2")],
+  ...             [(TestRequires, "name1", "=", "version1"),
+  ...              (TestRequires, "name2", "=", "version2")],
+  ...             [(TestUpgrades, "name1", "=", "version1"),
+  ...              (TestUpgrades, "name2", "=", "version2")],
+  ...             [(TestConflicts, "name1", "=", "version1"),
+  ...              (TestConflicts, "name2", "=", "version2")])
+  ...         pkg2.loaders[self] = 2
+  ...         pkg3 = self.buildPackage(
+  ...             (TestPackage, "name3", "version3"),
+  ...             [(TestProvides, "name1", "version1"),
+  ...              (TestProvides, "name2", "version2")],
+  ...             [(TestRequires, "name1", "=", "version1"),
+  ...              (TestRequires, "name2", "=", "version2")],
+  ...             [(TestUpgrades, "name1", "=", "version1"),
+  ...              (TestUpgrades, "name2", "=", "version2")],
+  ...             [(TestConflicts, "name1", "=", "version1"),
+  ...              (TestConflicts, "name2", "=", "version2")])
+  ...         pkg3.loaders[self] = 3
+
+
+Then, we create an instance of it.
+
+  >>> loader = TestLoader()
+
+
+We'll also create a cache, to include the loader into.
+
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+Loading the cache should activate the loader.
+
+  >>> cache.load()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+
+
+Let's see if our data got loaded correctly.
+
+  >>> cache.getPackages()
+  [name1-version1, name2-version2, name3-version3]
+  >>> [type(x).__name__ for x in cache.getPackages()]
+  ['TestPackage', 'TestPackage', 'TestPackage']
+
+  >>> cache.getProvides()
+  [name1 = version1, name2 = version2]
+  >>> [type(x).__name__ for x in cache.getProvides()]
+  ['TestProvides', 'TestProvides']
+
+  >>> cache.getRequires()
+  [name1 = version1, name2 = version2]
+  >>> [type(x).__name__ for x in cache.getRequires()]
+  ['TestRequires', 'TestRequires']
+
+  >>> cache.getUpgrades()
+  [name1 = version1, name2 = version2]
+  >>> [type(x).__name__ for x in cache.getUpgrades()]
+  ['TestUpgrades', 'TestUpgrades']
+
+  >>> cache.getConflicts()
+  [name1 = version1, name2 = version2]
+  >>> [type(x).__name__ for x in cache.getConflicts()]
+  ['TestConflicts', 'TestConflicts']
+
+
+Good. Now let's check if items were linked as expected.
+
+  >>> prv1, prv2 = cache.getProvides()
+  >>> prv1.requiredby, type(prv1.requiredby[0]).__name__
+  ([name1 = version1], 'TestRequires')
+  >>> prv1.upgradedby, type(prv1.upgradedby[0]).__name__
+  ([name1 = version1], 'TestUpgrades')
+  >>> prv1.conflictedby, type(prv1.conflictedby[0]).__name__
+  ([name1 = version1], 'TestConflicts')
+  >>> prv2.requiredby, type(prv2.requiredby[0]).__name__
+  ([name2 = version2], 'TestRequires')
+  >>> prv2.upgradedby, type(prv2.upgradedby[0]).__name__
+  ([name2 = version2], 'TestUpgrades')
+  >>> prv2.conflictedby, type(prv2.conflictedby[0]).__name__
+  ([name2 = version2], 'TestConflicts')
+
+  >>> req1, req2 = cache.getRequires()
+  >>> req1.providedby, type(req1.providedby[0]).__name__
+  ([name1 = version1], 'TestProvides')
+  >>> req2.providedby, type(req2.providedby[0]).__name__
+  ([name2 = version2], 'TestProvides')
+
+  >>> upg1, upg2 = cache.getRequires()
+  >>> upg1.providedby, type(upg1.providedby[0]).__name__
+  ([name1 = version1], 'TestProvides')
+  >>> upg2.providedby, type(upg2.providedby[0]).__name__
+  ([name2 = version2], 'TestProvides')
+
+  >>> cnf1, cnf2 = cache.getRequires()
+  >>> cnf1.providedby, type(cnf1.providedby[0]).__name__
+  ([name1 = version1], 'TestProvides')
+  >>> cnf2.providedby, type(cnf2.providedby[0]).__name__
+  ([name2 = version2], 'TestProvides')
+
+
+vim:ft=doctest

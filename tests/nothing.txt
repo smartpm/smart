@@ -1,20 +1,16 @@
 
 This test will execute the 'nothing' command. That command should
-just load the cache, and return.
+just build the cache, and return.
 
-  >>> import subprocess
-  >>> import sys
-
-  >>> process = subprocess.Popen("%s nothing" % sys.argv[0], shell=True,
-  ...		                 stdout=subprocess.PIPE)
-
+  >>> process = smart_process("nothing")
   >>> process.wait()
   0
 
   >>> print process.stdout.read()
-  Loading cache...
   Updating cache...               ######################################## [100%]
   <BLANKLINE>
+  Saving cache...
   <BLANKLINE>
   <BLANKLINE>
 
+vim:ft=doctest
