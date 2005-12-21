@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Smart Package Manager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-08-08 15:53-0300\n"
+"POT-Creation-Date: 2005-12-21 12:45-0200\n"
 "PO-Revision-Date: 2005-03-22 15:19+0100\n"
 "Last-Translator: Fabien ILLIDE <fabienillide@users.sourceforge.net>\n"
 "Language-Team: Fabien ILLIDE <fabienillide@users.sourceforge.net>\n"
@@ -18,77 +18,214 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: smart/channel.py:113 smart/interfaces/gtk/channels.py:205
-#: smart/commands/channel.py:180 smart/commands/mirror.py:128
-#: smart/sysconfig.py:78 build/lib.linux-i686-2.4/smart/channel.py:119
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:204
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:172
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:111
-#: build/lib.linux-i686-2.4/smart/sysconfig.py:78
+#: smart.py:37
+msgid "smart command [options] [arguments]"
+msgstr "smart commande [options] [arguments]"
+
+#: smart.py:39
+#, fuzzy
+msgid ""
+"\n"
+"Action commands:\n"
+"    update\n"
+"    install\n"
+"    reinstall\n"
+"    upgrade\n"
+"    remove\n"
+"    check\n"
+"    fix\n"
+"    download\n"
+"    clean\n"
+"\n"
+"Query commands:\n"
+"    search\n"
+"    query\n"
+"    info\n"
+"    stats\n"
+"\n"
+"Setup commands:\n"
+"    channel\n"
+"    priority\n"
+"    mirror\n"
+"    flag\n"
+"\n"
+"Run \"smart command --help\" for more information.\n"
+msgstr ""
+"\n"
+"Commandes d'action :\n"
+"    update\n"
+"    install\n"
+"    reinstall\n"
+"    upgrade\n"
+"    remove\n"
+"    check\n"
+"    fix\n"
+"    download\n"
+"\n"
+"Commandes de requête :\n"
+"    search\n"
+"    query\n"
+"    info\n"
+"    stats\n"
+"\n"
+"Commandes de configuration :\n"
+"    channel\n"
+"    priority\n"
+"    mirror\n"
+"    flag\n"
+"\n"
+"Lancez \"smart command --help\" pour plus d'information.\n"
+
+#: smart.py:66
+msgid ""
+"\n"
+"smart install --help\n"
+"smart install pkgname\n"
+"smart --gui\n"
+"smart --gui install pkgname\n"
+"smart --shell\n"
+msgstr ""
+"\n"
+"smart install --help\n"
+"smart install NomDuPaquetage\n"
+"smart --gui\n"
+"smart --gui install NomDuPaquetage\n"
+"smart --shell\n"
+
+#: smart.py:81
+msgid "FILE"
+msgstr "FICHIER"
+
+#: smart.py:82
+msgid "configuration file (default is <data-dir>/config)"
+msgstr "fichier de configuration (par défaut <rep-données>/config)"
+
+#: smart.py:84
+msgid "DIR"
+msgstr "REP"
+
+#: smart.py:85
+#, python-format
+msgid "data directory (default is %s)"
+msgstr "répertoire de données (%s par défaut)"
+
+#: smart.py:86
+msgid "LEVEL"
+msgstr "NIVEAU"
+
+#: smart.py:87
+msgid "set the log level to LEVEL (debug, info, warning, error)"
+msgstr "définit le niveau de journalisation (debug, info, warning, error)"
+
+#: smart.py:90
+msgid "use the default graphic interface"
+msgstr "utiliser l'interface graphique par défaut"
+
+#: smart.py:92
+msgid "use the default shell interface"
+msgstr "utiliser l'interface texte par défaut"
+
+#: smart.py:93
+msgid "NAME"
+msgstr "NOM"
+
+#: smart.py:94
+msgid "use the given interface"
+msgstr "utiliser l'interface donnée"
+
+#: smart.py:96
+msgid "don't respect locking"
+msgstr "ne pas respecter le verrouillage"
+
+#: smart.py:98
+msgid "OPT"
+msgstr "OPT"
+
+#: smart.py:99
+msgid "set the option given by a name=value pair"
+msgstr "définit l'option donnée par le couple nom=valeur"
+
+#: smart.py:109 smart/option.py:161 smart/util/optparse.py:1402
+#: smart/util/optparse.py:1556
+#, fuzzy, python-format
+msgid "no such option: %s"
+msgstr "Option invalide : %s"
+
+#: smart.py:135
+#, python-format
+msgid "Invalid option: %s"
+msgstr "Option invalide : %s"
+
+#: smart.py:179
+#, python-format
+msgid "error: %s\n"
+msgstr "erreur : %s\n"
+
+#: smart.py:188 smart/interfaces/text/interactive.py:200
+msgid ""
+"\n"
+"Interrupted\n"
+msgstr ""
+"\n"
+"Interrompu\n"
+
+#: smart/channel.py:114 smart/interfaces/gtk/channels.py:205
+#: smart/commands/channel.py:183 smart/commands/mirror.py:128
+#: smart/sysconfig.py:78
 #, python-format
 msgid "File not found: %s"
 msgstr "Fichier introuvable : %s"
 
-#: smart/channel.py:131 smart/interfaces/gtk/channels.py:83
+#: smart/channel.py:132 smart/interfaces/gtk/channels.py:83
 #: smart/interfaces/gtk/channels.py:352
-#: build/lib.linux-i686-2.4/smart/channel.py:137
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:83
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:348
 msgid "Alias"
 msgstr "Alias"
 
-#: smart/channel.py:132 build/lib.linux-i686-2.4/smart/channel.py:138
+#: smart/channel.py:133
 msgid "Unique identification for the channel."
 msgstr "Identifiant unique pour le canal"
 
-#: smart/channel.py:133 smart/interfaces/gtk/channels.py:85
+#: smart/channel.py:134 smart/interfaces/gtk/channels.py:85
 #: smart/interfaces/gtk/channels.py:354
-#: build/lib.linux-i686-2.4/smart/channel.py:139
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:85
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:350
 msgid "Type"
 msgstr "Type"
 
-#: smart/channel.py:134 build/lib.linux-i686-2.4/smart/channel.py:140
+#: smart/channel.py:135
 msgid "Channel type"
 msgstr "Type du canal"
 
-#: smart/channel.py:135 smart/interfaces/gtk/channels.py:87
+#: smart/channel.py:136 smart/interfaces/gtk/channels.py:87
 #: smart/interfaces/gtk/channels.py:356
-#: build/lib.linux-i686-2.4/smart/channel.py:141
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:87
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:352
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:309
 msgid "Name"
 msgstr "Nom"
 
-#: smart/channel.py:136 build/lib.linux-i686-2.4/smart/channel.py:142
+#: smart/channel.py:137
 msgid "Channel name"
 msgstr "Nom du canal"
 
-#: smart/channel.py:137 build/lib.linux-i686-2.4/smart/channel.py:143
+#: smart/channel.py:138
 msgid "Manual updates"
 msgstr "Mises à jour manuelles"
 
-#: smart/channel.py:138 build/lib.linux-i686-2.4/smart/channel.py:144
+#: smart/channel.py:139
 msgid ""
 "If set to a true value, the given channel will only be updated when manually "
 "selected."
 msgstr "Si coché, le canal actuel ne sera mis à jour qu'en sélection manuelle."
 
-#: smart/channel.py:140 build/lib.linux-i686-2.4/smart/channel.py:146
+#: smart/channel.py:141
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: smart/channel.py:141 build/lib.linux-i686-2.4/smart/channel.py:147
+#: smart/channel.py:142
 msgid "If set to a true value, the given channel won't be used."
 msgstr "Si coché, le canal actuel ne sera pas utilisé."
 
-#: smart/channel.py:143 build/lib.linux-i686-2.4/smart/channel.py:149
+#: smart/channel.py:144
 msgid "Removable"
 msgstr "Amovible"
 
-#: smart/channel.py:144 build/lib.linux-i686-2.4/smart/channel.py:150
+#: smart/channel.py:145
 msgid ""
 "If set to a true value, the given channel will be considered as being "
 "available in a removable media (cdrom, etc)."
@@ -96,16 +233,12 @@ msgstr ""
 "Si coché, le canal donné sera considéré comme étant sur un média amovible "
 "(cdrom, etc.)."
 
-#: smart/channel.py:149 smart/interfaces/gtk/priorities.py:83
+#: smart/channel.py:150 smart/interfaces/gtk/priorities.py:83
 #: smart/interfaces/gtk/interactive.py:641 smart/commands/priority.py:98
-#: build/lib.linux-i686-2.4/smart/channel.py:155
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:83
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:621
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:98
 msgid "Priority"
 msgstr "Priorité"
 
-#: smart/channel.py:150 build/lib.linux-i686-2.4/smart/channel.py:156
+#: smart/channel.py:151
 msgid ""
 "Default priority assigned to all packages available in this channel (0 if "
 "not set). If the exact same package is available in more than one channel, "
@@ -115,118 +248,86 @@ msgstr ""
 "(0 si non défini). Si exactement le même paquetage est disponible sur plus "
 "d'un canal, celui ayant la plus haute priorité est utilisé."
 
-#: smart/channel.py:167 build/lib.linux-i686-2.4/smart/channel.py:173
+#: smart/channel.py:168
 #, python-format
 msgid "Unable to create channel of type '%s'"
 msgstr "Impossible de créer le canal de type '%s'"
 
-#: smart/channel.py:180 smart/channel.py:206
-#: build/lib.linux-i686-2.4/smart/channel.py:186
-#: build/lib.linux-i686-2.4/smart/channel.py:212
+#: smart/channel.py:181 smart/channel.py:207
 msgid "Channel has no type"
 msgstr "Le canal n'a pas de type"
 
-#: smart/channel.py:183 smart/channel.py:209
-#: build/lib.linux-i686-2.4/smart/channel.py:189
-#: build/lib.linux-i686-2.4/smart/channel.py:215
+#: smart/channel.py:184 smart/channel.py:210
 #, python-format
 msgid "Unknown channel type: %s"
 msgstr "Type de canal inconnu : %s"
 
-#: smart/channel.py:193 smart/channel.py:221
-#: build/lib.linux-i686-2.4/smart/channel.py:199
-#: build/lib.linux-i686-2.4/smart/channel.py:225
+#: smart/channel.py:194 smart/channel.py:222
 #, python-format
 msgid "%s (%s) is a needed field for '%s' channels"
 msgstr "%s (%s) est un champ nécessaire pour '%s' canaux "
 
-#: smart/channel.py:228 smart/util/strtools.py:87
-#: build/lib.linux-i686-2.4/smart/channel.py:232
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:85
+#: smart/channel.py:229 smart/util/strtools.py:87
 msgid "y"
 msgstr "o"
 
-#: smart/channel.py:228 smart/util/strtools.py:87
-#: smart/interfaces/text/interface.py:71
-#: build/lib.linux-i686-2.4/smart/channel.py:232
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:85
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:67
+#: smart/channel.py:229 smart/util/strtools.py:87
+#: smart/interfaces/text/interface.py:72
 msgid "yes"
 msgstr "oui"
 
-#: smart/channel.py:228 smart/util/strtools.py:87
-#: build/lib.linux-i686-2.4/smart/channel.py:232
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:85
+#: smart/channel.py:229 smart/util/strtools.py:87
 msgid "true"
 msgstr "vrai"
 
-#: smart/channel.py:231 smart/util/strtools.py:89
-#: build/lib.linux-i686-2.4/smart/channel.py:235
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:87
+#: smart/channel.py:232 smart/util/strtools.py:89
 msgid "n"
 msgstr "n"
 
-#: smart/channel.py:231 smart/util/strtools.py:89
-#: smart/interfaces/text/interface.py:72
-#: build/lib.linux-i686-2.4/smart/channel.py:235
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:87
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:68
+#: smart/channel.py:232 smart/util/strtools.py:89
+#: smart/interfaces/text/interface.py:73
 msgid "no"
 msgstr "non"
 
-#: smart/channel.py:231 smart/util/strtools.py:89
-#: build/lib.linux-i686-2.4/smart/channel.py:235
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:87
+#: smart/channel.py:232 smart/util/strtools.py:89
 msgid "false"
 msgstr "faux"
 
-#: smart/channel.py:234 smart/channel.py:240 smart/channel.py:243
-#: build/lib.linux-i686-2.4/smart/channel.py:238
-#: build/lib.linux-i686-2.4/smart/channel.py:244
-#: build/lib.linux-i686-2.4/smart/channel.py:247
+#: smart/channel.py:235 smart/channel.py:241 smart/channel.py:244
 #, python-format
 msgid "Invalid value for '%s' (%s) field: %s"
 msgstr "Valeur invalide pour '%s' (%s) champ : %s"
 
-#: smart/channel.py:260 build/lib.linux-i686-2.4/smart/channel.py:262
+#: smart/channel.py:261
 #, python-format
 msgid "Channel '%s' has no type"
 msgstr "Le canal '%s' n'a pas de type"
 
-#: smart/channel.py:282 build/lib.linux-i686-2.4/smart/channel.py:284
+#: smart/channel.py:283
 #, python-format
 msgid "Invalid channel type '%s'"
 msgstr "Type de canal invalide '%s'"
 
 #: smart/option.py:35 smart/util/optparse.py:1136
-#: build/lib.linux-i686-2.4/smart/option.py:31
 msgid "show this help message and exit"
 msgstr "affiche ce message d'aide et quitte"
 
 #: smart/option.py:37 smart/util/optparse.py:1141
-#: build/lib.linux-i686-2.4/smart/option.py:33
 msgid "show program's version number and exit"
 msgstr "affiche la version du logiciel et quitte"
 
-#: smart/option.py:49 build/lib.linux-i686-2.4/smart/option.py:45
+#: smart/option.py:49
 #, python-format
 msgid "Usage: %s\n"
 msgstr "Utilisation : %s\n"
 
 #: smart/option.py:54 smart/util/optparse.py:1502
-#: build/lib.linux-i686-2.4/smart/option.py:50
 msgid "options"
 msgstr "options"
 
-#: smart/option.py:89 build/lib.linux-i686-2.4/smart/option.py:83
+#: smart/option.py:89
 msgid "examples"
 msgstr "exemples"
-
-#: smart/option.py:161 smart/util/optparse.py:1402 smart/util/optparse.py:1556
-#: smart.py:108
-#, fuzzy, python-format
-msgid "no such option: %s"
-msgstr "Option invalide : %s"
 
 #: smart/option.py:172 smart/util/optparse.py:1374 smart/util/optparse.py:1413
 #, python-format
@@ -241,31 +342,18 @@ msgstr "L'option %s nécessite %d arguments"
 #: smart/channels/rpm_hdl.py:60 smart/channels/up2date_mirrors.py:61
 #: smart/channels/red_carpet.py:64 smart/channels/rpm_md.py:126
 #: smart/channels/apt_deb.py:89 smart/channels/apt_deb.py:203
-#: smart/channels/apt_deb.py:238 smart/channels/urpmi.py:95
+#: smart/channels/apt_deb.py:238 smart/channels/urpmi.py:98
 #: smart/channels/slack_site.py:59 smart/channels/apt_rpm.py:62
 #: smart/channels/apt_rpm.py:212 smart/channels/mirrors.py:58
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl.py:56
-#: build/lib.linux-i686-2.4/smart/channels/up2date_mirrors.py:61
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet.py:64
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md.py:119
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb.py:79
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb.py:209
-#: build/lib.linux-i686-2.4/smart/channels/urpmi.py:92
-#: build/lib.linux-i686-2.4/smart/channels/slack_site.py:59
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm.py:62
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm.py:212
-#: build/lib.linux-i686-2.4/smart/channels/mirrors.py:58
 #, python-format
 msgid "Failed acquiring information for '%s':"
 msgstr "Échec de l'acquisition d'information pour '%s' :"
 
 #: smart/channels/urpmi_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:26
 msgid "URPMI Repository"
 msgstr "Dépôt URPMI"
 
 #: smart/channels/urpmi_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:28
 msgid ""
 "\n"
 "Repository created for Mandriva's URPMI package manager.\n"
@@ -276,11 +364,6 @@ msgstr ""
 #: smart/channels/urpmi_info.py:32 smart/channels/apt_rpm_info.py:32
 #: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32
 #: smart/channels/apt_deb_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/slack_site_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:32
 msgid "Base URL"
 msgstr "URL de base"
 
@@ -288,12 +371,11 @@ msgstr "URL de base"
 msgid ""
 "Base URL where packages or the 'list' file are found under. Using ' with "
 "<hdlurl>' pattern is also supported."
-msgstr "URL de base où les paquetages ou le fichier 'list' se trouvent. "
-"Il est aussi possible d'utiliser ' avec une entrée <hdlurl>'."
+msgstr ""
+"URL de base où les paquetages ou le fichier 'list' se trouvent. Il est aussi "
+"possible d'utiliser ' avec une entrée <hdlurl>'."
 
 #: smart/channels/urpmi_info.py:35 smart/channels/rpm_hdl_info.py:34
-#: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:34
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl_info.py:32
 msgid "Header List URL"
 msgstr "URL de la liste d'en-têtes"
 
@@ -305,36 +387,31 @@ msgid ""
 "supported"
 msgstr ""
 "URL pour la liste d'en-têtes (hdlist ou synthesis). Peut être laissé vide "
-"s'il s'agit du hdlist.cz contenu dans l'URL de base donnée. Les URLs relatives "
-"à l'URL de base sont autorisées."
+"s'il s'agit du hdlist.cz contenu dans l'URL de base donnée. Les URLs "
+"relatives à l'URL de base sont autorisées."
 
 #: smart/channels/urpmi_info.py:45
 msgid "Base URL has 'with', but Header List URL was provided"
-msgstr "L'URL de base a une clause 'with', alors que l'URL de la liste d'en-têtes est spécifiée"
+msgstr ""
+"L'URL de base a une clause 'with', alors que l'URL de la liste d'en-têtes "
+"est spécifiée"
 
 #: smart/channels/urpmi_info.py:49
 msgid "Base URL has invalid 'with' pattern"
 msgstr "L'URL de base a une clause 'with' invalide"
 
 #: smart/channels/slack_sys.py:48 smart/channels/deb_sys.py:49
-#: smart/channels/deb_dir.py:49 smart/channels/rpm_sys.py:49
-#: smart/channels/rpm_dir.py:49
-#: build/lib.linux-i686-2.4/smart/channels/slack_sys.py:48
-#: build/lib.linux-i686-2.4/smart/channels/deb_sys.py:49
-#: build/lib.linux-i686-2.4/smart/channels/deb_dir.py:49
-#: build/lib.linux-i686-2.4/smart/channels/rpm_sys.py:47
-#: build/lib.linux-i686-2.4/smart/channels/rpm_dir.py:49
+#: smart/channels/deb_dir.py:57 smart/channels/rpm_sys.py:49
+#: smart/channels/rpm_dir.py:57
 #, python-format
 msgid "%s channels cannot be removable"
 msgstr "Les canaux %s ne peuvent être amovibles"
 
 #: smart/channels/apt_rpm_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:26
 msgid "APT-RPM Repository"
 msgstr "Dépôt APT-RPM"
 
 #: smart/channels/apt_rpm_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:28
 msgid ""
 "\n"
 "Repositories created for APT-RPM.\n"
@@ -343,48 +420,35 @@ msgstr ""
 "Dépôts créés pour APT-RPM.\n"
 
 #: smart/channels/apt_rpm_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:33
 msgid "Base URL of APT-RPM repository, where base/ is located."
 msgstr "URL de base du dépôt APT-RPM, où se trouve base/."
 
 #: smart/channels/apt_rpm_info.py:34 smart/channels/apt_deb_info.py:36
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:34
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:36
 msgid "Components"
 msgstr "Composants"
 
 #: smart/channels/apt_rpm_info.py:35 smart/channels/apt_deb_info.py:37
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:35
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:37
 msgid "Space separated list of components."
 msgstr "Liste des composants séparé par des espaces."
 
 #: smart/channels/apt_rpm_info.py:36 smart/channels/apt_deb_info.py:38
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:36
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:38
 msgid "Fingerprint"
 msgstr "Empreinte digitale"
 
 #: smart/channels/apt_rpm_info.py:37 smart/channels/apt_deb_info.py:39
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm_info.py:37
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:39
 msgid "GPG fingerprint of key signing the channel."
 msgstr "Empreinte digitale de la clef GPG signant le canal."
 
-#: smart/channels/deb_dir.py:35 smart/channels/rpm_dir.py:35
-#: build/lib.linux-i686-2.4/smart/channels/deb_dir.py:35
-#: build/lib.linux-i686-2.4/smart/channels/rpm_dir.py:35
+#: smart/channels/deb_dir.py:37 smart/channels/rpm_dir.py:37
 #, python-format
 msgid "Channel '%s' has invalid directory: %s"
 msgstr "Le canal '%s' a un répertoire invalide : %s"
 
 #: smart/channels/slack_sys_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/slack_sys_info.py:26
 msgid "Slackware Installed Packages"
 msgstr "Paquetages Slackware installés"
 
 #: smart/channels/slack_sys_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/slack_sys_info.py:28
 msgid ""
 "\n"
 "Installed packages in a slackware system.\n"
@@ -393,12 +457,10 @@ msgstr ""
 "Paquetages installés sur un système Slackware.\n"
 
 #: smart/channels/rpm_sys_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/rpm_sys_info.py:26
 msgid "RPM Installed Packages"
 msgstr "Paquetages RPM installés"
 
 #: smart/channels/rpm_sys_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/rpm_sys_info.py:28
 msgid ""
 "\n"
 "Installed packages from the local RPM database.\n"
@@ -407,7 +469,6 @@ msgstr ""
 "Paquetages installés dans la base de RPM locale.\n"
 
 #: smart/channels/rpm_md.py:60
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md.py:58
 #, python-format
 msgid "Failed acquiring release file for '%s':"
 msgstr "Échec de l'acquisition du fichier de version pour '%s' :"
@@ -422,26 +483,22 @@ msgid ""
 msgstr "Valeur invalide pour '%s' (%s) champ : %s"
 
 #: smart/channels/rpm_md.py:94
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md.py:87
 #, python-format
 msgid "Primary information not found in repository metadata for '%s'"
 msgstr ""
 "Information primaire introuvable dans les meta-données de dépôt pour '%s'"
 
 #: smart/channels/rpm_md.py:122
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md.py:115
 msgid "You must fetch channel information to acquire needed filelists."
 msgstr ""
 "Vous devez récupérer l'information du canal pour obtenir les listes "
 "nécessaires."
 
 #: smart/channels/mirrors_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/mirrors_info.py:26
 msgid "Mirror Information"
 msgstr "Information de miroirs"
 
 #: smart/channels/mirrors_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/mirrors_info.py:28
 msgid ""
 "\n"
 "Mirror information file.\n"
@@ -450,19 +507,14 @@ msgstr ""
 "Fichier d'informations du miroir.\n"
 
 #: smart/channels/mirrors_info.py:32 smart/channels/up2date_mirrors_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/mirrors_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/up2date_mirrors_info.py:32
 msgid "Mirror File URL"
 msgstr "URL du miroir"
 
 #: smart/channels/mirrors_info.py:33 smart/channels/up2date_mirrors_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/mirrors_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/up2date_mirrors_info.py:33
 msgid "URL for the mirror information file"
 msgstr "URL du fichier d'information du miroir"
 
 #: smart/channels/apt_deb.py:122
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb.py:112
 #, python-format
 msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
 msgstr ""
@@ -470,32 +522,25 @@ msgstr ""
 "gpg a échoué : %s"
 
 #: smart/channels/apt_deb.py:144 smart/channels/apt_rpm.py:131
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb.py:134
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm.py:131
 #, python-format
 msgid "Channel '%s' has bad signature"
 msgstr "Le canal '%s' a une signature incorrecte"
 
 #: smart/channels/apt_deb.py:146 smart/channels/apt_rpm.py:133
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb.py:136
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm.py:133
 #, python-format
 msgid "Channel '%s' signed with unknown key"
 msgstr "Le canal '%s' est signé avec une clef inconnue"
 
 #: smart/channels/apt_deb.py:172
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb.py:162
 #, python-format
 msgid "Component '%s' is not in Release file for channel '%s'"
 msgstr "Le composant '%s' n'est pas dans le fichier de version du canal '%s'"
 
 #: smart/channels/red_carpet_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet_info.py:26
 msgid "Red Carpet Channel"
 msgstr "Canal Red Carpet"
 
 #: smart/channels/red_carpet_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet_info.py:28
 msgid ""
 "\n"
 "Channel for the Red Carpet package tool.\n"
@@ -504,23 +549,18 @@ msgstr ""
 "Canal pour l'outil de paquetage de Red Carpet.\n"
 
 #: smart/channels/red_carpet_info.py:32 smart/channels/rpm_hdl_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl_info.py:34
 msgid "Base URL for packages"
 msgstr "URL de base pour les paquetages"
 
 #: smart/channels/red_carpet_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet_info.py:33
 msgid "URL where packages are found"
 msgstr "URL où se trouvent les paquetages"
 
 #: smart/channels/red_carpet_info.py:34
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet_info.py:34
 msgid "URL for packageinfo XML"
 msgstr "URL de packageinfo en XML"
 
 #: smart/channels/red_carpet_info.py:35
-#: build/lib.linux-i686-2.4/smart/channels/red_carpet_info.py:35
 msgid ""
 "URL for packageinfo.xml.gz including filename (option may be ommitted if "
 "file is named packageinfo.xml.gz and is inside the base url)"
@@ -530,12 +570,10 @@ msgstr ""
 "base)"
 
 #: smart/channels/deb_dir_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/deb_dir_info.py:26
 msgid "DEB Directory"
 msgstr "Répertoire DEB"
 
 #: smart/channels/deb_dir_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/deb_dir_info.py:28
 msgid ""
 "\n"
 "Local directory with DEB packages.\n"
@@ -544,23 +582,26 @@ msgstr ""
 "Répertoire local contenant des paquetages DEB.\n"
 
 #: smart/channels/deb_dir_info.py:32 smart/channels/rpm_dir_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/deb_dir_info.py:32
-#: build/lib.linux-i686-2.4/smart/channels/rpm_dir_info.py:32
 msgid "Directory Path"
 msgstr "Chemin du répertoire"
 
 #: smart/channels/deb_dir_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/deb_dir_info.py:33
 msgid "Path of directory containing DEB packages."
 msgstr "Chemin du répertoire contenant les paquetages DEB."
 
+#: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
+msgid "Recursive"
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
+msgid "Search for files recursively."
+msgstr ""
+
 #: smart/channels/rpm_hdl_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl_info.py:26
 msgid "RPM Header List"
 msgstr "Liste d'en-têtes RPM"
 
 #: smart/channels/rpm_hdl_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl_info.py:28
 msgid ""
 "\n"
 "Packages from an RPM Header List.\n"
@@ -569,22 +610,18 @@ msgstr ""
 "Paquetages d'une liste d'en-têtes de RPM.\n"
 
 #: smart/channels/rpm_hdl_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl_info.py:35
 msgid "Base URL where package files are found"
 msgstr "URL de base où se trouvent les paquetages"
 
 #: smart/channels/rpm_hdl_info.py:35
-#: build/lib.linux-i686-2.4/smart/channels/rpm_hdl_info.py:33
 msgid "URL for the header list"
 msgstr "URL pour la liste d'en-têtes"
 
 #: smart/channels/deb_sys_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/deb_sys_info.py:26
 msgid "DPKG Installed Packages"
 msgstr "Paquetages DPKG installés"
 
 #: smart/channels/deb_sys_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/deb_sys_info.py:28
 msgid ""
 "\n"
 "Installed packages from dpkg status.\n"
@@ -593,12 +630,10 @@ msgstr ""
 "Paquetages installés selon l'état dpkg.\n"
 
 #: smart/channels/rpm_md_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md_info.py:26
 msgid "RPM MetaData"
 msgstr "MétaData RPM"
 
 #: smart/channels/rpm_md_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md_info.py:28
 msgid ""
 "\n"
 "Repository created with the rpm-metadata project.\n"
@@ -607,17 +642,14 @@ msgstr ""
 "Dépôt créé avec le projet rpm-metadata.\n"
 
 #: smart/channels/rpm_md_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/rpm_md_info.py:33
 msgid "URL where repodata/ subdirectory is found"
 msgstr "URL où se trouve le sous-répertoire repodata/"
 
 #: smart/channels/slack_site_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/slack_site_info.py:26
 msgid "Slackware Repository"
 msgstr "Dépôt Slackware"
 
 #: smart/channels/slack_site_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/slack_site_info.py:28
 msgid ""
 "\n"
 "Remote repository with slackware packages.\n"
@@ -626,17 +658,14 @@ msgstr ""
 "Dépôt distant de paquetages Slackware.\n"
 
 #: smart/channels/slack_site_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/slack_site_info.py:33
 msgid "Base URL where PACKAGES.TXT is located"
 msgstr "URL de base où se trouve PACKAGES.TXT"
 
 #: smart/channels/rpm_dir_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/rpm_dir_info.py:26
 msgid "RPM Directory"
 msgstr "Répertoire RPM"
 
 #: smart/channels/rpm_dir_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/rpm_dir_info.py:28
 msgid ""
 "\n"
 "Local directory with RPM packages.\n"
@@ -645,29 +674,24 @@ msgstr ""
 "Répertoire local contenant les paquetages RPM.\n"
 
 #: smart/channels/rpm_dir_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/rpm_dir_info.py:33
 msgid "Path of directory containing RPM packages."
 msgstr "Chemin du répertoire contenant les paquetages RPM."
 
 #: smart/channels/apt_rpm.py:102
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm.py:102
 #, python-format
 msgid "Channel '%s' has fingerprint but is not signed"
 msgstr "Le canal '%s' a une empreinte digitale mais n'est pas signé"
 
 #: smart/channels/apt_rpm.py:165
-#: build/lib.linux-i686-2.4/smart/channels/apt_rpm.py:165
 #, python-format
 msgid "Component '%s' is not in release file for channel '%s'"
 msgstr "Le composant '%s' n'est pas dans le fichier de version du canal '%s'"
 
 #: smart/channels/apt_deb_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:26
 msgid "APT-DEB Repository"
 msgstr "Dépôt APT-DEB"
 
 #: smart/channels/apt_deb_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:28
 msgid ""
 "\n"
 "Repositories created for APT-DEB.\n"
@@ -676,27 +700,22 @@ msgstr ""
 "Dépôts créés pour APT-DEB.\n"
 
 #: smart/channels/apt_deb_info.py:33
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:33
 msgid "Base URL of repository, where dists/ is located."
 msgstr "URL de base du dépôt, où se trouve dists/."
 
 #: smart/channels/apt_deb_info.py:34
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:34
 msgid "Distribution"
 msgstr "Distribution"
 
 #: smart/channels/apt_deb_info.py:35
-#: build/lib.linux-i686-2.4/smart/channels/apt_deb_info.py:35
 msgid "Distribution to use."
 msgstr "Distribution à utiliser."
 
 #: smart/channels/up2date_mirrors_info.py:26
-#: build/lib.linux-i686-2.4/smart/channels/up2date_mirrors_info.py:26
 msgid "Mirror Information (up2date format)"
 msgstr "Information de miroir (au format up2date)"
 
 #: smart/channels/up2date_mirrors_info.py:28
-#: build/lib.linux-i686-2.4/smart/channels/up2date_mirrors_info.py:28
 msgid ""
 "\n"
 "Mirror information file, in up2date format.\n"
@@ -704,70 +723,62 @@ msgstr ""
 "\n"
 "Fichier d'information du miroir, au format up2date.\n"
 
-#: smart/uncompress.py:44 build/lib.linux-i686-2.4/smart/uncompress.py:44
+#: smart/uncompress.py:44
 #, python-format
 msgid "Unknown compressed file: %s"
 msgstr "Fichier compressé inconnu : %s"
 
-#: smart/uncompress.py:55 build/lib.linux-i686-2.4/smart/uncompress.py:55
+#: smart/uncompress.py:55
 msgid "Unsupported file type"
 msgstr "Type de fichier non supporté"
 
-#: smart/interface.py:51 build/lib.linux-i686-2.4/smart/interface.py:50
+#: smart/interface.py:51
 #, python-format
 msgid "Invalid command '%s'"
 msgstr "Commande invalide '%s'"
 
-#: smart/interface.py:89 build/lib.linux-i686-2.4/smart/interface.py:84
+#: smart/interface.py:89
 msgid "Password"
 msgstr "Mot de passe"
 
-#: smart/interface.py:90 build/lib.linux-i686-2.4/smart/interface.py:85
+#: smart/interface.py:90
 #, python-format
 msgid "A password is needed for '%s'."
 msgstr "Un mot de passe est nécessaire pour '%s'."
 
 #: smart/interface.py:128 smart/interfaces/gtk/log.py:80
-#: build/lib.linux-i686-2.4/smart/interface.py:123
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/log.py:80
 msgid "error"
 msgstr "erreur"
 
 #: smart/interface.py:128 smart/interfaces/gtk/log.py:80
-#: build/lib.linux-i686-2.4/smart/interface.py:123
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/log.py:80
 msgid "warning"
 msgstr "avertissement"
 
 #: smart/interface.py:129 smart/interfaces/gtk/log.py:81
-#: build/lib.linux-i686-2.4/smart/interface.py:124
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/log.py:81
 msgid "debug"
 msgstr "débogage"
 
-#: smart/interface.py:156 build/lib.linux-i686-2.4/smart/interface.py:151
+#: smart/interface.py:157
 #, python-format
 msgid "Interface '%s' not available"
 msgstr "L'interface '%s' est indisponible"
 
 #: smart/control.py:84 smart/control.py:275
-#: build/lib.linux-i686-2.4/smart/control.py:84
-#: build/lib.linux-i686-2.4/smart/control.py:287
 #, python-format
 msgid "There's another channel with alias '%s'"
 msgstr "Il y a déjà un autre canal ayant l'alias '%s'"
 
-#: smart/control.py:89 build/lib.linux-i686-2.4/smart/control.py:89
+#: smart/control.py:89
 #, python-format
 msgid "Unable to create channel for file: %s"
 msgstr "Impossible de créer le canal pour le fichier : %s"
 
-#: smart/control.py:99 build/lib.linux-i686-2.4/smart/control.py:99
+#: smart/control.py:99
 #, python-format
 msgid "Channel not found for '%s'"
 msgstr "Canal introuvable pour '%s'"
 
-#: smart/control.py:132 build/lib.linux-i686-2.4/smart/control.py:133
+#: smart/control.py:132
 #, python-format
 msgid "Configuration file not found: %s"
 msgstr "Fichier de configuration introuvable : %s"
@@ -777,85 +788,68 @@ msgstr "Fichier de configuration introuvable : %s"
 msgid "Can't create datadir at %s"
 msgstr "Ne peut créer le répertoire de données en %s"
 
-#: smart/control.py:167 build/lib.linux-i686-2.4/smart/control.py:170
+#: smart/control.py:167
 msgid "Saving cache..."
 msgstr "Enregistrement du cache..."
 
-#: smart/control.py:219 build/lib.linux-i686-2.4/smart/control.py:227
+#: smart/control.py:219
 msgid "Loading cache..."
 msgstr "Chargement du cache..."
 
-#: smart/control.py:300 build/lib.linux-i686-2.4/smart/control.py:312
+#: smart/control.py:300
 msgid "Unable to create channel directory."
 msgstr "Impossible de créer le répertoire du canal."
 
-#: smart/control.py:303 build/lib.linux-i686-2.4/smart/control.py:315
+#: smart/control.py:303
 msgid "Configuration is in readonly mode!"
 msgstr "La configuration est en lecture seule !"
 
-#: smart/control.py:305 build/lib.linux-i686-2.4/smart/control.py:317
+#: smart/control.py:305
 msgid "Channel information is locked for writing."
 msgstr "L'information de canal est verrouillée en écriture."
 
-#: smart/control.py:307 build/lib.linux-i686-2.4/smart/control.py:319
+#: smart/control.py:307
 msgid "Can't update channels in readonly mode."
 msgstr "Ne peut mettre à jour les canaux en mode lecture seule."
 
-#: smart/control.py:309 build/lib.linux-i686-2.4/smart/control.py:321
+#: smart/control.py:309
 msgid "Can't update channels with active readers."
 msgstr "Ne peut mettre à jour les canaux ayant des lectures en cours."
 
-#: smart/control.py:345 build/lib.linux-i686-2.4/smart/control.py:357
+#: smart/control.py:345
 #, python-format
 msgid "Fetching information for '%s'..."
 msgstr "Récupération des informations pour '%s'..."
 
 #: smart/control.py:352 smart/control.py:356
-#: build/lib.linux-i686-2.4/smart/control.py:364
-#: build/lib.linux-i686-2.4/smart/control.py:368
 #, python-format
 msgid "Failed fetching channel '%s'"
 msgstr "Échec de la récupération du canal '%s'"
 
-#: smart/control.py:410 build/lib.linux-i686-2.4/smart/control.py:422
+#: smart/control.py:442
 #, python-format
 msgid "Package %s is not available for downloading"
 msgstr "Le paquetage %s n'est pas disponible en telechargement"
 
-#: smart/control.py:605 build/lib.linux-i686-2.4/smart/control.py:617
+#: smart/control.py:645
 #, python-format
 msgid "No channel available for package %s"
 msgstr "Aucun canal disponible pour le paquetage %s"
 
-#: smart/control.py:618 smart/commands/install.py:82
-#: build/lib.linux-i686-2.4/smart/control.py:630
-#: build/lib.linux-i686-2.4/smart/commands/install.py:76
+#: smart/control.py:658 smart/commands/install.py:82
 msgid "packages"
 msgstr "paquetages"
 
-#: smart/control.py:622 smart/commands/install.py:85
-#: build/lib.linux-i686-2.4/smart/control.py:634
-#: build/lib.linux-i686-2.4/smart/commands/install.py:79
+#: smart/control.py:662 smart/commands/install.py:85
 msgid "Failed to download packages:\n"
 msgstr "Échec du téléchargement des paquetages :\n"
 
-#: smart/control.py:799 build/lib.linux-i686-2.4/smart/control.py:811
+#: smart/control.py:839
 #, python-format
 msgid "%s is not available for downloading"
 msgstr "%s n'est pas disponible en téléchargement"
 
-#: smart/backends/rpm/metadata.py:364 smart/backends/rpm/metadata.py:458
-#: smart/backends/rpm/redcarpet.py:307
-#: build/lib.linux-i686-2.4/smart/backends/rpm/metadata.py:369
-#: build/lib.linux-i686-2.4/smart/backends/rpm/metadata.py:463
-#: build/lib.linux-i686-2.4/smart/backends/rpm/redcarpet.py:308
-#, python-format
-msgid "Error parsing %s: %s"
-msgstr "Erreur en analysant la syntaxe de %s : %s"
-
 #: smart/backends/rpm/base.py:38
-#: build/lib.linux-i686-2.4/smart/backends/rpm/metadata.py:32
-#: build/lib.linux-i686-2.4/smart/backends/rpm/base.py:38
 msgid "'rpm' python module is not available"
 msgstr ""
 
@@ -869,80 +863,65 @@ msgstr "Ne peut initialiser la base rpm en %s"
 msgid "Initialized new rpm database at %s"
 msgstr "Nouvelle base rpm initialisée en %s"
 
-#: smart/backends/rpm/pm.py:45 smart/backends/deb/pm.py:124
+#: smart/backends/rpm/redcarpet.py:307
+#, python-format
+msgid "Error parsing %s: %s"
+msgstr "Erreur en analysant la syntaxe de %s : %s"
+
+#: smart/backends/rpm/pm.py:46 smart/backends/deb/pm.py:124
 #: smart/backends/slack/pm.py:33
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:43
-#: build/lib.linux-i686-2.4/smart/backends/deb/pm.py:124
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:33
 msgid "Committing transaction..."
 msgstr "Transaction en cours..."
 
-#: smart/backends/rpm/pm.py:106 smart/backends/deb/pm.py:151
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:85
-#: build/lib.linux-i686-2.4/smart/backends/deb/pm.py:151
+#: smart/backends/rpm/pm.py:122 smart/backends/deb/pm.py:151
 msgid "Found unbreakable loops:"
 msgstr "Boucle infinie trouvée :"
 
-#: smart/backends/rpm/pm.py:111
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:90
+#: smart/backends/rpm/pm.py:127
 msgid "Will ask RPM to order it."
 msgstr "Demandera à RPM de l'effectuer."
 
-#: smart/backends/rpm/pm.py:173
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:152
+#: smart/backends/rpm/pm.py:189
 #, python-format
 msgid "%s requires %s"
 msgstr "%s requiert %s"
 
-#: smart/backends/rpm/pm.py:175
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:154
+#: smart/backends/rpm/pm.py:191
 #, python-format
 msgid "%s conflicts with %s"
 msgstr "%s est en conflit avec %s"
 
-#: smart/backends/rpm/pm.py:288
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:238
+#: smart/backends/rpm/pm.py:277
 #, python-format
 msgid "Processing %s in %s"
 msgstr "Traitement %s sur %s"
 
-#: smart/backends/rpm/pm.py:289 smart/backends/rpm/pm.py:324
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:239
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:274
+#: smart/backends/rpm/pm.py:278 smart/backends/rpm/pm.py:313
 #, python-format
 msgid "Output from %s:"
 msgstr "Sortie de %s :"
 
-#: smart/backends/rpm/pm.py:304 smart/backends/slack/pm.py:59
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:254
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:59
+#: smart/backends/rpm/pm.py:293 smart/backends/slack/pm.py:59
 #, python-format
 msgid "Installing %s"
 msgstr "Installation de %s"
 
-#: smart/backends/rpm/pm.py:315
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:265
+#: smart/backends/rpm/pm.py:304
 msgid "Preparing..."
 msgstr "Préparation..."
 
-#: smart/backends/rpm/pm.py:329 smart/backends/rpm/pm.py:343
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:279
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:293
+#: smart/backends/rpm/pm.py:318 smart/backends/rpm/pm.py:332
 #, python-format
 msgid "Cleaning %s"
 msgstr "Nettoyage de %s"
 
-#: smart/backends/rpm/pm.py:331 smart/backends/rpm/pm.py:345
+#: smart/backends/rpm/pm.py:320 smart/backends/rpm/pm.py:334
 #: smart/backends/slack/pm.py:87
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:281
-#: build/lib.linux-i686-2.4/smart/backends/rpm/pm.py:295
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:87
 #, python-format
 msgid "Removing %s"
 msgstr "Suppression de %s"
 
-#: smart/backends/rpm/header.py:379
-#: build/lib.linux-i686-2.4/smart/backends/rpm/header.py:315
+#: smart/backends/rpm/header.py:396
 msgid ""
 "Your rpm module has no support for readHeaderFromFD()!\n"
 "As a consequence, Smart will consume extra memory."
@@ -950,145 +929,117 @@ msgstr ""
 "Votre module RPM ne supporte pas readHeaderFromFD() !\n"
 "En conséquence, Smart consommera plus de mémoire."
 
-#: smart/backends/rpm/header.py:478 smart/backends/rpm/header.py:506
-#: build/lib.linux-i686-2.4/smart/backends/rpm/header.py:414
-#: build/lib.linux-i686-2.4/smart/backends/rpm/header.py:442
+#: smart/backends/rpm/header.py:501 smart/backends/rpm/header.py:529
 msgid "Package list with no CRPMTAG_FILENAME tag"
 msgstr "Liste de paquetages sans CRPMTAG_FILENAME"
 
 #: smart/backends/deb/pm.py:234
-#: build/lib.linux-i686-2.4/smart/backends/deb/pm.py:234
 #, python-format
 msgid "Sub-process %s has received a segmentation fault"
 msgstr "Le sous-processus %s a reçu un défaut de segmentation"
 
 #: smart/backends/deb/pm.py:237
-#: build/lib.linux-i686-2.4/smart/backends/deb/pm.py:237
 #, python-format
 msgid "Sub-process %s returned an error code (%d)"
 msgstr "Le sous-processus %s a retourné un code d'erreur (%d)"
 
 #: smart/backends/deb/pm.py:240
-#: build/lib.linux-i686-2.4/smart/backends/deb/pm.py:240
 #, python-format
 msgid "Sub-process %s exited unexpectedly"
 msgstr "Le sous-processus %s s'est terminé de façon inattendue"
 
 #: smart/backends/slack/pm.py:67
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:67
 #, python-format
 msgid "Got status %d installing %s:"
 msgstr "Obtention du statut %d en installant %s :"
 
 #: smart/backends/slack/pm.py:70
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:70
 #, python-format
 msgid "Installing %s:"
 msgstr "Installation de %s :"
 
 #: smart/backends/slack/pm.py:73
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:73
 #, python-format
 msgid "Upgrading %s"
 msgstr "Mise à jour de %s"
 
 #: smart/backends/slack/pm.py:81
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:81
 #, python-format
 msgid "Got status %d upgrading %s:"
 msgstr "Obtention du statut %d en mettant à jour %s :"
 
 #: smart/backends/slack/pm.py:84
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:84
 #, python-format
 msgid "Upgrading %s:"
 msgstr "Mise à jour de %s :"
 
 #: smart/backends/slack/pm.py:95
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:95
 #, python-format
 msgid "Got status %d removing %s:"
 msgstr "Obtention du statut %d en supprimant %s :"
 
 #: smart/backends/slack/pm.py:98
-#: build/lib.linux-i686-2.4/smart/backends/slack/pm.py:98
 #, python-format
 msgid "Removing %s:"
 msgstr "Suppression de %s :"
 
 #: smart/backends/slack/loader.py:68
-#: build/lib.linux-i686-2.4/smart/backends/slack/loader.py:68
 #, python-format
 msgid "Invalid package name: %s"
 msgstr "Nom de paquetage invalide : %s"
 
-#: smart/fetcher.py:166 build/lib.linux-i686-2.4/smart/fetcher.py:166
+#: smart/fetcher.py:167
 #, python-format
 msgid "%s is already in the queue"
 msgstr "%s est déjà dans la file d'attente"
 
-#: smart/fetcher.py:200 smart/fetcher.py:207
-#: build/lib.linux-i686-2.4/smart/fetcher.py:200
-#: build/lib.linux-i686-2.4/smart/fetcher.py:207
+#: smart/fetcher.py:201 smart/fetcher.py:208
 #, python-format
 msgid "Fetching %s..."
 msgstr "Récupération de %s..."
 
-#: smart/fetcher.py:209 build/lib.linux-i686-2.4/smart/fetcher.py:209
+#: smart/fetcher.py:210
 msgid "Fetching information..."
 msgstr "Récupération d'information..."
 
-#: smart/fetcher.py:286 smart/fetcher.py:558
-#: build/lib.linux-i686-2.4/smart/fetcher.py:286
-#: build/lib.linux-i686-2.4/smart/fetcher.py:558
+#: smart/fetcher.py:287 smart/fetcher.py:559
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: smart/fetcher.py:326 build/lib.linux-i686-2.4/smart/fetcher.py:326
+#: smart/fetcher.py:327
 #, python-format
 msgid "Unsupported scheme: %s"
 msgstr "Architecture non supportée : %s"
 
-#: smart/fetcher.py:341 smart/cache.py:185
-#: build/lib.linux-i686-2.4/smart/fetcher.py:341
-#: build/lib.linux-i686-2.4/smart/cache.py:215
+#: smart/fetcher.py:342 smart/cache.py:185
 msgid "File not found"
 msgstr "Fichier introuvable"
 
-#: smart/fetcher.py:362 smart/cache.py:191
-#: build/lib.linux-i686-2.4/smart/fetcher.py:362
-#: build/lib.linux-i686-2.4/smart/cache.py:221
+#: smart/fetcher.py:363 smart/cache.py:191
 #, python-format
 msgid "Unexpected size (expected %d, got %d)"
 msgstr "Taille inattendue (devrait être %d, est %d)"
 
-#: smart/fetcher.py:376 smart/cache.py:205
-#: build/lib.linux-i686-2.4/smart/fetcher.py:376
-#: build/lib.linux-i686-2.4/smart/cache.py:235
+#: smart/fetcher.py:377 smart/cache.py:205
 #, python-format
 msgid "Invalid MD5 (expected %s, got %s)"
 msgstr "MD5 invalide (devrait être %s, est %s)"
 
-#: smart/fetcher.py:390 smart/cache.py:219
-#: build/lib.linux-i686-2.4/smart/fetcher.py:390
-#: build/lib.linux-i686-2.4/smart/cache.py:249
+#: smart/fetcher.py:391 smart/cache.py:219
 #, python-format
 msgid "Invalid SHA (expected %s, got %s)"
 msgstr "SHA invalide (devrait être %s, est %s)"
 
-#: smart/fetcher.py:583 build/lib.linux-i686-2.4/smart/fetcher.py:583
+#: smart/fetcher.py:584
 #, python-format
 msgid "Invalid URL: %s"
 msgstr "URL invalide : %s"
 
-#: smart/fetcher.py:860 build/lib.linux-i686-2.4/smart/fetcher.py:860
+#: smart/fetcher.py:863
 msgid "Media not found"
 msgstr "Média introuvable"
 
-#: smart/fetcher.py:987 smart/fetcher.py:1180 smart/fetcher.py:1740
-#: build/lib.linux-i686-2.4/smart/fetcher.py:987
-#: build/lib.linux-i686-2.4/smart/fetcher.py:1180
-#: build/lib.linux-i686-2.4/smart/fetcher.py:1740
+#: smart/fetcher.py:991 smart/fetcher.py:1184 smart/fetcher.py:1744
 msgid "Server reports unexpected size"
 msgstr "Le serveur rapporte une taille inattendue"
 
@@ -1143,42 +1094,33 @@ msgstr ""
 msgid "ambiguous option: %s (%s?)"
 msgstr ""
 
-#: smart/util/strtools.py:56 smart/interfaces/gtk/packageinfo.py:220
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:54
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:220
+#: smart/util/strtools.py:56 smart/interfaces/gtk/packageinfo.py:219
 msgid "Unknown"
 msgstr "Inconnu"
 
 #: smart/util/strtools.py:66
-#: build/lib.linux-i686-2.4/smart/util/strtools.py:64
 msgid "Stalled"
 msgstr "Bloqué"
 
-#: smart/util/ssh.py:53 build/lib.linux-i686-2.4/smart/util/ssh.py:53
+#: smart/util/ssh.py:53
 msgid "SSH asked for password, but no password is available"
 msgstr "SSH demande un mot de passe, mais aucun mot de passe n'est disponible"
 
-#: smart/plugins/rpmdir.py:32
-#: build/lib.linux-i686-2.4/smart/plugins/rpmdir.py:32
+#: smart/plugins/rpmdir.py:33
 msgid "Dynamic RPM Directory"
 msgstr "Répertoire dynamique RPM"
 
-#: smart/plugins/debdir.py:32
+#: smart/plugins/debdir.py:33
 msgid "Dynamic DEB Directory"
 msgstr "Répertoire dynamique DEB"
 
 #: smart/plugins/channelsync.py:52 smart/plugins/channelsync.py:88
 #: smart/plugins/channelsync.py:119 smart/plugins/channelsync.py:145
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:52
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:88
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:110
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:137
 #, python-format
 msgid "While using %s: %s"
 msgstr "En utilisant %s : %s"
 
 #: smart/plugins/channelsync.py:83
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:83
 #, python-format
 msgid ""
 "New channel '%s' detected.\n"
@@ -1188,7 +1130,6 @@ msgstr ""
 "L'inclure ?"
 
 #: smart/plugins/channelsync.py:102
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:100
 #, python-format
 msgid "Channel in %s has no type."
 msgstr "Un canal dans %s n'a pas de type."
@@ -1211,23 +1152,18 @@ msgstr ""
 "Voulez-vous le remplacer ?"
 
 #: smart/plugins/channelsync.py:137
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:129
 msgid "Yes"
 msgstr "Oui"
 
 #: smart/plugins/channelsync.py:137
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:129
 msgid "No"
 msgstr "Non"
 
 #: smart/plugins/channelsync.py:139 smart/interfaces/gtk/interactive.py:224
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:131
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:219
 msgid "None"
 msgstr "Aucun"
 
 #: smart/plugins/channelsync.py:157
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:149
 #, python-format
 msgid ""
 "Change in field '%(label)s' of channel '%(name)s' detected.\n"
@@ -1241,7 +1177,6 @@ msgstr ""
 "Remplacer la valeur actuelle ?"
 
 #: smart/plugins/channelsync.py:194
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:186
 #, python-format
 msgid ""
 "Removing channel '%s' was suggested.\n"
@@ -1250,190 +1185,156 @@ msgstr ""
 "La suppression du canal '%s' a été suggérée.\n"
 "Voulez-vous le supprimer ?"
 
-#: smart/interfaces/text/interface.py:63
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:63
+#: smart/interfaces/text/interface.py:64
 #, python-format
 msgid "%s (Y/n): "
 msgstr "%s (O/n) : "
 
-#: smart/interfaces/text/interface.py:63
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:63
+#: smart/interfaces/text/interface.py:64
 #, python-format
 msgid "%s (y/N): "
 msgstr "%s (o/N) : "
 
-#: smart/interfaces/text/interface.py:78
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:74
+#: smart/interfaces/text/interface.py:79
 #, python-format
 msgid "%s (Continue/cancel): "
 msgstr "%s (Continuer/annuler) : "
 
-#: smart/interfaces/text/interface.py:80
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:76
+#: smart/interfaces/text/interface.py:81
 #, python-format
 msgid "%s (continue/Cancel): "
 msgstr "%s (continuer/Annuler) : "
 
-#: smart/interfaces/text/interface.py:88
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:80
+#: smart/interfaces/text/interface.py:89
 msgid "continue"
 msgstr "continuer"
 
-#: smart/interfaces/text/interface.py:89
-#: smart/interfaces/text/interface.py:103
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:81
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:91
+#: smart/interfaces/text/interface.py:90
+#: smart/interfaces/text/interface.py:104
 msgid "cancel"
 msgstr "annuler"
 
-#: smart/interfaces/text/interface.py:94
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:86
+#: smart/interfaces/text/interface.py:95
 #, python-format
 msgid "%s (Ok/cancel): "
 msgstr "%s (Ok/annuler) : "
 
-#: smart/interfaces/text/interface.py:94
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:86
+#: smart/interfaces/text/interface.py:95
 #, python-format
 msgid "%s (ok/Cancel): "
 msgstr "%s (ok/Annuler) : "
 
-#: smart/interfaces/text/interface.py:102
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:90
+#: smart/interfaces/text/interface.py:103
 msgid "ok"
 msgstr "ok"
 
-#: smart/interfaces/text/interface.py:133
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:121
+#: smart/interfaces/text/interface.py:134
 msgid "Insert one or more of the following removable channels:"
 msgstr "Insérer un ou plusieurs des canaux amovibles suivants :"
 
-#: smart/interfaces/text/interface.py:138 smart/commands/channel.py:325
-#: smart/commands/channel.py:338 smart/commands/mirror.py:240
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:126
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:313
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:326
+#: smart/interfaces/text/interface.py:139 smart/commands/channel.py:335
+#: smart/commands/channel.py:348 smart/commands/mirror.py:240
 msgid "Continue?"
 msgstr "Continuer ?"
 
-#: smart/interfaces/text/interface.py:161
+#: smart/interfaces/text/interface.py:167
 #, fuzzy
 msgid "(installed)"
 msgstr "Installé"
 
-#: smart/interfaces/text/interface.py:163
+#: smart/interfaces/text/interface.py:169
 #, fuzzy
 msgid "(upgraded)"
 msgstr "Mis à jour (%d)"
 
-#: smart/interfaces/text/interface.py:165
+#: smart/interfaces/text/interface.py:171
 #, fuzzy
 msgid "(removed)"
 msgstr "Désinstallé (%d)"
 
-#: smart/interfaces/text/interface.py:167
+#: smart/interfaces/text/interface.py:173
 #, fuzzy
 msgid "(downgraded)"
 msgstr "Rétrogradé (%d)"
 
-#: smart/interfaces/text/interface.py:176 smart/commands/query.py:583
-#: build/lib.linux-i686-2.4/smart/commands/query.py:571
+#: smart/interfaces/text/interface.py:182 smart/commands/query.py:583
 msgid "Upgrades:"
 msgstr "Met à jour :"
 
-#: smart/interfaces/text/interface.py:180
+#: smart/interfaces/text/interface.py:186
 #, fuzzy
 msgid "Downgrades:"
 msgstr "Rétrograde :"
 
-#: smart/interfaces/text/interface.py:184 smart/commands/query.py:564
-#: build/lib.linux-i686-2.4/smart/commands/query.py:552
+#: smart/interfaces/text/interface.py:190 smart/commands/query.py:564
 msgid "Requires:"
 msgstr "Requiert :"
 
-#: smart/interfaces/text/interface.py:188 smart/commands/query.py:530
-#: build/lib.linux-i686-2.4/smart/commands/query.py:518
+#: smart/interfaces/text/interface.py:194 smart/commands/query.py:530
 msgid "Required By:"
 msgstr "Requis par :"
 
-#: smart/interfaces/text/interface.py:192 smart/commands/query.py:599
-#: build/lib.linux-i686-2.4/smart/commands/query.py:587
+#: smart/interfaces/text/interface.py:198 smart/commands/query.py:599
 msgid "Conflicts:"
 msgstr "Conflits :"
 
-#: smart/interfaces/text/interface.py:198
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:149
+#: smart/interfaces/text/interface.py:204
 #, python-format
 msgid "Kept packages (%d):"
 msgstr "Paquetages conservés (%d) :"
 
-#: smart/interfaces/text/interface.py:203
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:156
+#: smart/interfaces/text/interface.py:209
 #, python-format
 msgid "Upgrading packages (%d):"
 msgstr "Paquetages mis à jour (%d) :"
 
-#: smart/interfaces/text/interface.py:208
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:163
+#: smart/interfaces/text/interface.py:214
 #, python-format
 msgid "Downgrading packages (%d):"
 msgstr "Paquetages rétrogradés (%d) :"
 
-#: smart/interfaces/text/interface.py:213
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:170
+#: smart/interfaces/text/interface.py:219
 #, python-format
 msgid "Installed packages (%d):"
 msgstr "Paquetages installés (%d) :"
 
-#: smart/interfaces/text/interface.py:218
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:177
+#: smart/interfaces/text/interface.py:224
 #, python-format
 msgid "Removed packages (%d):"
 msgstr "Paquetages supprimés (%d) :"
 
-#: smart/interfaces/text/interface.py:225 smart/interfaces/gtk/changes.py:190
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:183
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:190
+#: smart/interfaces/text/interface.py:231 smart/interfaces/gtk/changes.py:190
 #, python-format
 msgid "%s of package files are needed. "
 msgstr "%s sont nécessaires aux fichiers des paquetages. "
 
-#: smart/interfaces/text/interface.py:228 smart/interfaces/gtk/changes.py:192
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:186
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:192
+#: smart/interfaces/text/interface.py:234 smart/interfaces/gtk/changes.py:192
 #, python-format
 msgid "%s will be used."
 msgstr "%s de plus seront utilisés sur le système."
 
-#: smart/interfaces/text/interface.py:231 smart/interfaces/gtk/changes.py:195
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:189
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:195
+#: smart/interfaces/text/interface.py:237 smart/interfaces/gtk/changes.py:195
 #, python-format
 msgid "%s will be freed."
 msgstr "%s seront libérés. "
 
-#: smart/interfaces/text/interface.py:235
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interface.py:193
+#: smart/interfaces/text/interface.py:241
 msgid "Confirm changes?"
 msgstr "Confirmer les changements ?"
 
 #: smart/interfaces/text/interactive.py:72
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:58
 msgid "Documented commands (type help <topic>):"
 msgstr "Commandes documentées (tapez help <sujet>) :"
 
 #: smart/interfaces/text/interactive.py:73
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:59
 msgid "Undocumented commands:"
 msgstr "Commandes non documentées :"
 
 #: smart/interfaces/text/interactive.py:74
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:60
 msgid "Miscelaneous help topics:"
 msgstr "Sujets d'aide divers :"
 
 #: smart/interfaces/text/interactive.py:75
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:61
 #, python-format
 msgid "*** No help on %s"
 msgstr "*** Pas d'aide pour %s"
@@ -1443,18 +1344,7 @@ msgstr "*** Pas d'aide pour %s"
 #: smart/commands/fix.py:87 smart/commands/reinstall.py:90
 #: smart/commands/install.py:114 smart/commands/query.py:146
 #: smart/commands/download.py:86 smart/commands/check.py:129
-#: smart/commands/info.py:72 smart/commands/upgrade.py:110
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:126
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:474
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:84
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:80
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:84
-#: build/lib.linux-i686-2.4/smart/commands/install.py:108
-#: build/lib.linux-i686-2.4/smart/commands/query.py:144
-#: build/lib.linux-i686-2.4/smart/commands/download.py:86
-#: build/lib.linux-i686-2.4/smart/commands/check.py:77
-#: build/lib.linux-i686-2.4/smart/commands/info.py:72
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:95
+#: smart/commands/info.py:73 smart/commands/upgrade.py:110
 #, fuzzy, python-format
 msgid ""
 "'%s' matches no packages. Suggestions:\n"
@@ -1466,85 +1356,50 @@ msgstr "'%s' ne correspond à aucun paquetage"
 #: smart/commands/fix.py:91 smart/commands/reinstall.py:94
 #: smart/commands/install.py:118 smart/commands/query.py:150
 #: smart/commands/download.py:90 smart/commands/check.py:133
-#: smart/commands/info.py:76 smart/commands/upgrade.py:114
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:130
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:479
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:88
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:84
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:88
-#: build/lib.linux-i686-2.4/smart/commands/install.py:112
-#: build/lib.linux-i686-2.4/smart/commands/query.py:148
-#: build/lib.linux-i686-2.4/smart/commands/download.py:90
-#: build/lib.linux-i686-2.4/smart/commands/check.py:81
-#: build/lib.linux-i686-2.4/smart/commands/info.py:76
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:99
+#: smart/commands/info.py:77 smart/commands/upgrade.py:114
 #, python-format
 msgid "'%s' matches no packages"
 msgstr "'%s' ne correspond à aucun paquetage"
 
-#: smart/interfaces/text/interactive.py:200
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:171
-#: build/scripts-2.4/smart.py:178 smart.py:187
-msgid ""
-"\n"
-"Interrupted\n"
-msgstr ""
-"\n"
-"Interrompu\n"
-
 #: smart/interfaces/text/interactive.py:215
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:175
 msgid "What would you expect!? ;-)"
 msgstr "Qu'attendiez-vous ?! :-)"
 
 #: smart/interfaces/text/interactive.py:218
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:178
 msgid "The exit/quit/EOF command returns to the system."
 msgstr "La commande exit/quit/EOF retourne au système."
 
 #: smart/interfaces/text/interactive.py:229
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:189
 msgid "The shell command offers execution of system commands."
 msgstr "La commande shell permet l'exécution de commandes système."
 
 #: smart/interfaces/text/interactive.py:231
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:191
 msgid "Usage: shell [<cmd>]"
 msgstr "Utilisation : shell [<cmd>]"
 
 #: smart/interfaces/text/interactive.py:232
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:192
 msgid "       ![<cmd>]"
 msgstr "       ![<cmd>]"
 
 #: smart/interfaces/text/interactive.py:240
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:200
 msgid "The status command shows currently marked changes."
 msgstr "La commande status affiche les changements actuellement marqués."
 
 #: smart/interfaces/text/interactive.py:242
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:202
 msgid "Usage: status"
 msgstr "Utilisation : status"
 
-#: smart/interfaces/text/interactive.py:246 smart/commands/channel.py:236
+#: smart/interfaces/text/interactive.py:246 smart/commands/channel.py:241
 #: smart/commands/priority.py:79 smart/commands/priority.py:93
 #: smart/commands/flag.py:91
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:206
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:228
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:79
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:93
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:91
 msgid "Invalid arguments"
 msgstr "Arguments invalides"
 
 #: smart/interfaces/text/interactive.py:248
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:208
 msgid "There are no marked changes."
 msgstr "Il n'y a pas de changement marqué."
 
 #: smart/interfaces/text/interactive.py:253
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:213
 msgid "The install command marks packages for installation."
 msgstr "La commande install marque les paquetages à installer."
 
@@ -1555,7 +1410,6 @@ msgstr "La commande install marque les paquetages à installer."
 #: smart/interfaces/text/interactive.py:422
 #: smart/interfaces/text/interactive.py:459
 #: smart/interfaces/text/interactive.py:556
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:444
 msgid "Options:"
 msgstr "Options :"
 
@@ -1571,32 +1425,25 @@ msgid ""
 msgstr ""
 
 #: smart/interfaces/text/interactive.py:259
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:215
 msgid "Usage: install <pkgname> ..."
 msgstr "Utilisation : install <nom du paquetage> ..."
 
 #: smart/interfaces/text/interactive.py:281 smart/commands/install.py:98
 #: smart/commands/install.py:157
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:233
-#: build/lib.linux-i686-2.4/smart/commands/install.py:92
-#: build/lib.linux-i686-2.4/smart/commands/install.py:151
 #, python-format
 msgid "%s is already installed"
 msgstr "%s est déjà installé"
 
 #: smart/interfaces/text/interactive.py:286
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:238
 #, python-format
 msgid "No uninstalled packages matched '%s'"
 msgstr "Aucun paquetage non installé ne correspond à '%s'"
 
 #: smart/interfaces/text/interactive.py:297
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:245
 msgid "The reinstall command marks packages for reinstallation."
 msgstr "La commande reinstall marque les paquetages à réinstaller."
 
 #: smart/interfaces/text/interactive.py:303
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:247
 msgid "Usage: reinstall <pkgname> ..."
 msgstr "Utilisation : reinstall <nom du paquetage> ..."
 
@@ -1604,68 +1451,51 @@ msgstr "Utilisation : reinstall <nom du paquetage> ..."
 #: smart/interfaces/text/interactive.py:365
 #: smart/interfaces/text/interactive.py:409 smart/commands/remove.py:115
 #: smart/commands/reinstall.py:119 smart/commands/upgrade.py:133
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:259
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:293
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:325
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:109
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:113
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:118
 #, python-format
 msgid "'%s' matches no installed packages"
 msgstr "'%s' ne correspond à aucun paquetage installé"
 
 #: smart/interfaces/text/interactive.py:321
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:261
 #, python-format
 msgid "'%s' matches multiple installed packages"
 msgstr "'%s' correspond à plusieurs paquetages installés"
 
 #: smart/interfaces/text/interactive.py:333
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:269
 msgid "The upgrade command marks packages for upgrading."
 msgstr "La commande upgrade marque les paquetages à mettre à jour."
 
 #: smart/interfaces/text/interactive.py:339
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:271
 msgid "Usage: upgrade <pkgname> ..."
 msgstr "Utilisation : upgrade <nom du paquetage> ..."
 
 #: smart/interfaces/text/interactive.py:370
 #: smart/interfaces/gtk/interactive.py:458
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:296
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:438
 msgid "No interesting upgrades available!"
 msgstr "Aucune mise à jour intéressante disponible !"
 
 #: smart/interfaces/text/interactive.py:378
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:302
 msgid "The remove command marks packages for being removed."
 msgstr "La commande remove marque les paquetages à supprimer."
 
 #: smart/interfaces/text/interactive.py:384
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:304
 msgid "Usage: remove <pkgname> ..."
 msgstr "Utilisation : remove <nom du paquetage> ..."
 
 #: smart/interfaces/text/interactive.py:420
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:332
 msgid "The keep command unmarks currently marked packages."
 msgstr ""
 "La commande keep supprime la marque des paquetages actuellement marqués."
 
 #: smart/interfaces/text/interactive.py:426
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:334
 msgid "Usage: keep <pkgname> ..."
 msgstr "Utilisation : keep <nom du paquetage> ..."
 
 #: smart/interfaces/text/interactive.py:443
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:347
 #, python-format
 msgid "'%s' matches no marked packages"
 msgstr "'%s' ne correspond à aucun paquetage marqué"
 
 #: smart/interfaces/text/interactive.py:456
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:356
 msgid ""
 "The fix command verifies relations of given packages\n"
 "and marks the necessary changes for fixing them."
@@ -1674,18 +1504,14 @@ msgstr ""
 "et marque les changements nécessaires pour les corriger."
 
 #: smart/interfaces/text/interactive.py:463
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:359
 msgid "Usage: fix <pkgname> ..."
 msgstr "Utilisation : fix <nom du paquetage> ..."
 
 #: smart/interfaces/text/interactive.py:484 smart/commands/fix.py:108
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:374
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:101
 msgid "No problems to resolve!"
 msgstr "Pas de problèmes à résoudre !"
 
 #: smart/interfaces/text/interactive.py:492
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:380
 msgid ""
 "The download command fetches the given packages\n"
 "to the local filesystem."
@@ -1694,48 +1520,39 @@ msgstr ""
 "donnés vers le système de fichiers local."
 
 #: smart/interfaces/text/interactive.py:495
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:383
 msgid "Usage: download <pkgname> ..."
 msgstr "Utilisation : download <nom du paquetage> ..."
 
 #: smart/interfaces/text/interactive.py:502
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:390
 #, python-format
 msgid "'%s' matches multiple packages, selecting: %s"
 msgstr "'%s' correspond à plusieurs paquetages, sélection de : %s"
 
 #: smart/interfaces/text/interactive.py:509
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:397
 msgid "The commit command applies marked changes in the system."
 msgstr "La commande commit applique au système les changements marqués."
 
 #: smart/interfaces/text/interactive.py:511
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:399
 msgid "Usage: commit"
 msgstr "Utilisation : commit"
 
 #: smart/interfaces/text/interactive.py:523
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:411
 msgid "The undo command reverts marked changes."
 msgstr "La commande undo annule les changements marqués."
 
 #: smart/interfaces/text/interactive.py:525
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:413
 msgid "Usage: undo"
 msgstr "Utilisation : undo"
 
 #: smart/interfaces/text/interactive.py:538
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:426
 msgid "The redo command reapplies undone changes."
 msgstr "La commande redo rapplique les changements annulés."
 
 #: smart/interfaces/text/interactive.py:540
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:428
 msgid "Usage: redo"
 msgstr "Utilisation : redo"
 
 #: smart/interfaces/text/interactive.py:553
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:441
 msgid ""
 "The ls command lists packages by name. Wildcards\n"
 "are accepted."
@@ -1744,55 +1561,43 @@ msgstr ""
 "Les jokers sont acceptés."
 
 #: smart/interfaces/text/interactive.py:557
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:445
 msgid "   -i  List only installed packages"
 msgstr "   -i  Liste les paquetages installés seulement"
 
 #: smart/interfaces/text/interactive.py:558
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:446
 msgid "   -n  List only new packages"
 msgstr "   -n  Liste les nouveaux paquetages seulement"
 
 #: smart/interfaces/text/interactive.py:559
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:447
 msgid "   -v  Show versions"
 msgstr "   -v  Affiche les versions"
 
 #: smart/interfaces/text/interactive.py:560
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:448
 msgid "   -s  Show summaries"
 msgstr "   -s  Affiche les résumés"
 
 #: smart/interfaces/text/interactive.py:562
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:450
 msgid "Usage: ls [options] [<string>] ..."
 msgstr "Utilisation : ls [options] [<chaîne de caractères>] ..."
 
 #: smart/interfaces/text/interactive.py:653
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:541
 msgid "The update command will update channel information."
 msgstr "La commande update mettra à jour l'information du canal."
 
 #: smart/interfaces/text/interactive.py:655
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:543
 msgid "Usage: update [<alias>] ..."
 msgstr "Utilisation : update [<alias>] ..."
 
 #: smart/interfaces/text/interactive.py:678 smart/commands/update.py:82
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:566
-#: build/lib.linux-i686-2.4/smart/commands/update.py:82
 msgid "Channels have no new packages."
 msgstr "Les canaux n'ont pas de nouveaux paquetages."
 
 #: smart/interfaces/text/interactive.py:687 smart/commands/update.py:91
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:575
-#: build/lib.linux-i686-2.4/smart/commands/update.py:91
 #, python-format
 msgid "Channels have %d new packages%s"
 msgstr "Les canaux ont %d nouveaux paquetages %s"
 
-#: smart/interfaces/text/interactive.py:691
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:579
+#: smart/interfaces/text/interactive.py:692
 msgid ""
 "The flag command allows configuring, removing and\n"
 "verifying package flags, and accepts the same options\n"
@@ -1803,13 +1608,11 @@ msgstr ""
 "mêmes options que celles disponibles dans l'interface\n"
 "en ligne de commande."
 
-#: smart/interfaces/text/interactive.py:695
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:583
+#: smart/interfaces/text/interactive.py:696
 msgid "Usage: flag [options]"
 msgstr "Utilisation : flag [options]"
 
-#: smart/interfaces/text/interactive.py:710
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:598
+#: smart/interfaces/text/interactive.py:711
 msgid ""
 "The query command allows querying package information,\n"
 "and accepts the same options available in the command\n"
@@ -1819,42 +1622,35 @@ msgstr ""
 "les informations de paquetage, et accepte les même options\n"
 "que celles disponibles dans l'interface en ligne de commande."
 
-#: smart/interfaces/text/interactive.py:714
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:602
+#: smart/interfaces/text/interactive.py:715
 msgid "Usage: query [options] [<pkgname>] ..."
 msgstr "Utilisation : query [options] [<nom du paquetage>] ..."
 
-#: smart/interfaces/text/interactive.py:729
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:617
+#: smart/interfaces/text/interactive.py:730
 msgid "The search command allows searching for packages."
 msgstr "La commande search permet de chercher des paquetages."
 
-#: smart/interfaces/text/interactive.py:731
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:619
+#: smart/interfaces/text/interactive.py:732
 msgid "Usage: search <string> ..."
 msgstr "Utilisation : search <chaîne de caractères> ..."
 
-#: smart/interfaces/text/interactive.py:746
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:634
+#: smart/interfaces/text/interactive.py:747
 msgid "The info command shows information about packages."
 msgstr "La commande info affiche des informations à propos des paquetages."
 
-#: smart/interfaces/text/interactive.py:748
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:636
+#: smart/interfaces/text/interactive.py:749
 msgid "Usage: info <pkgname> ..."
 msgstr "Utilisation : info <nom du paquetage> ..."
 
-#: smart/interfaces/text/interactive.py:763
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:651
+#: smart/interfaces/text/interactive.py:764
 msgid "The stats command shows some statistics."
 msgstr "La commande stats affiche des statistiques."
 
-#: smart/interfaces/text/interactive.py:765
-#: build/lib.linux-i686-2.4/smart/interfaces/text/interactive.py:653
+#: smart/interfaces/text/interactive.py:766
 msgid "Usage: stats"
 msgstr "Utilisation : stats"
 
-#: smart/interfaces/text/interactive.py:779
+#: smart/interfaces/text/interactive.py:780
 #, fuzzy
 msgid ""
 "The check command verifies relations between packages,\n"
@@ -1865,791 +1661,609 @@ msgstr ""
 "les informations de paquetage, et accepte les même options\n"
 "que celles disponibles dans l'interface en ligne de commande."
 
-#: smart/interfaces/text/interactive.py:783
+#: smart/interfaces/text/interactive.py:784
 #, fuzzy
 msgid "Usage: check [options] [<pkgname>] ..."
 msgstr "Utilisation : query [options] [<nom du paquetage>] ..."
 
 #: smart/interfaces/gtk/command.py:58
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/command.py:58
 msgid "Status"
 msgstr "État"
 
 #: smart/interfaces/gtk/flags.py:35 smart/interfaces/gtk/flags.py:81
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:35
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:81
 msgid "Flags"
 msgstr "Etiquettes"
 
 #: smart/interfaces/gtk/flags.py:127
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:127
 msgid "Targets"
 msgstr "Cibles"
 
 #: smart/interfaces/gtk/flags.py:199 smart/interfaces/gtk/flags.py:243
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:199
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:243
 msgid "Flag already exists!"
 msgstr "L'étiquette existe déjà !"
 
 #: smart/interfaces/gtk/flags.py:228 smart/interfaces/gtk/flags.py:255
 #: smart/interfaces/gtk/flags.py:260 smart/interfaces/gtk/flags.py:449
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:228
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:255
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:260
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:449
 msgid "Invalid target!"
 msgstr "Cible invalide !"
 
 #: smart/interfaces/gtk/flags.py:293
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:293
 msgid "New Flag"
 msgstr "Nouvelle étiquette"
 
-#: smart/interfaces/gtk/flags.py:314 smart/commands/info.py:104
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:314
-#: build/lib.linux-i686-2.4/smart/commands/info.py:104
+#: smart/interfaces/gtk/flags.py:314 smart/commands/info.py:105
 msgid "Name:"
 msgstr "Nom :"
 
 #: smart/interfaces/gtk/flags.py:358
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:358
 msgid "No flag name provided!"
 msgstr "Aucun nom d'étiquette donné !"
 
 #: smart/interfaces/gtk/flags.py:374
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:374
 msgid "New Target"
 msgstr "Nouvelle cible"
 
 #: smart/interfaces/gtk/flags.py:395
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:395
 msgid "Target:"
 msgstr "Cible :"
 
 #: smart/interfaces/gtk/flags.py:405
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:405
 msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
 msgstr ""
 "Exemples : \"NomDuPaquetage\", \"NomDuPaquetage = 1.0\" or \"NomDuPaquetage "
 "<= 1.0\""
 
 #: smart/interfaces/gtk/flags.py:445
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/flags.py:445
 msgid "No target provided!"
 msgstr "Aucune cible donnée !"
 
 #: smart/interfaces/gtk/channels.py:39 smart/interfaces/gtk/interactive.py:222
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:39
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:217
 msgid "Channels"
 msgstr "Canaux"
 
 #: smart/interfaces/gtk/channels.py:197
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:196
 msgid "Select Channel Description"
 msgstr "Sélection de la description du canal"
 
 #: smart/interfaces/gtk/channels.py:211
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:210
 msgid "Description URL"
 msgstr "URL de description"
 
 #: smart/interfaces/gtk/channels.py:215
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:214
 msgid "channel description"
 msgstr "description du canal"
 
-#: smart/interfaces/gtk/channels.py:217 smart/commands/channel.py:168
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:216
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:160
+#: smart/interfaces/gtk/channels.py:217 smart/commands/channel.py:171
 #, python-format
 msgid "Unable to fetch channel description: %s"
 msgstr "Impossible de récupérer la description du canal : %s"
 
 #: smart/interfaces/gtk/channels.py:245
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:243
 msgid "Select Path"
 msgstr "Sélection du chemin"
 
-#: smart/interfaces/gtk/channels.py:253
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:251
+#: smart/interfaces/gtk/channels.py:253 smart/commands/clean.py:47
 #, python-format
 msgid "Directory not found: %s"
 msgstr "Répertoire introuvable : %s"
 
 #: smart/interfaces/gtk/channels.py:272
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:269
 msgid "No channels detected!"
 msgstr "Aucun canal détecté !"
 
 #: smart/interfaces/gtk/channels.py:309
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:305
 msgid "Select Channels"
 msgstr "Sélectionner les canaux"
 
 #: smart/interfaces/gtk/channels.py:416
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:412
 msgid "Edit Channel"
 msgstr "Éditer le canal"
 
 #: smart/interfaces/gtk/channels.py:501 smart/interfaces/gtk/channels.py:556
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:497
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:552
 #, python-format
 msgid "Don't know how to handle %s fields"
 msgstr "Ne sait pas comment traiter les champs %s"
 
 #: smart/interfaces/gtk/channels.py:562
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:558
 msgid "Invalid alias!"
 msgstr "Alias invalide !"
 
 #: smart/interfaces/gtk/channels.py:565
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:561
 msgid "Alias already in use!"
 msgstr "Alias déjà utilisé !"
 
 #: smart/interfaces/gtk/channels.py:588 smart/interfaces/gtk/channels.py:684
 #: smart/interfaces/gtk/channels.py:785
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:584
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:680
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:781
 msgid "New Channel"
 msgstr "Nouveau canal"
 
-#: smart/interfaces/gtk/channels.py:609 smart/commands/channel.py:132
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:605
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:132
+#: smart/interfaces/gtk/channels.py:609 smart/commands/channel.py:135
 msgid "Type:"
 msgstr "Type :"
 
 #: smart/interfaces/gtk/channels.py:704
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:700
 msgid "Method:"
 msgstr "Méthode :"
 
 #: smart/interfaces/gtk/channels.py:743
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:739
 msgid "Provide channel information"
 msgstr "Choisir les paramètres du canal"
 
 #: smart/interfaces/gtk/channels.py:745
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:741
 msgid "Read channel description from local path"
 msgstr "Lis la description du canal depuis le chemin local"
 
 #: smart/interfaces/gtk/channels.py:747
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:743
 msgid "Read channel description from URL"
 msgstr "Lis la description du canal depuis une URL"
 
 #: smart/interfaces/gtk/channels.py:749
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:745
 msgid "Detect channel in media (CDROM, DVD, etc)"
 msgstr "Détecter un canal sur un média (CDROM, DVD, etc)"
 
 #: smart/interfaces/gtk/channels.py:751
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:747
 msgid "Detect channel in local path"
 msgstr "Détecter un canal dans le chemin local"
 
 #: smart/interfaces/gtk/channels.py:806
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:802
 msgid "Media path:"
 msgstr "Chemin du média :"
 
 #: smart/interfaces/gtk/channels.py:860
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/channels.py:856
 msgid "No local media found!"
 msgstr "Aucun média local trouvé !"
 
 #: smart/interfaces/gtk/interface.py:83
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interface.py:83
 msgid " Continue?"
 msgstr " Continuer ?"
 
 #: smart/interfaces/gtk/interface.py:104
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interface.py:104
 msgid "Input"
 msgstr "Entrée"
 
 #: smart/interfaces/gtk/interface.py:144
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interface.py:144
 msgid "Insert one or more of the following removable channels:\n"
 msgstr "Insérer un ou plusieurs canal parmi les canaux amovibles suivants :\n"
 
 #: smart/interfaces/gtk/priorities.py:33
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:33
 msgid "Priorities"
 msgstr "Priorités"
 
 #: smart/interfaces/gtk/priorities.py:67
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:67
 msgid "Package Name"
 msgstr "Nom du paquetage"
 
 #: smart/interfaces/gtk/priorities.py:75
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:75
 msgid "Channel Alias"
 msgstr "Alias de canal"
 
 #: smart/interfaces/gtk/priorities.py:129
 #: smart/interfaces/gtk/priorities.py:167
 #: smart/interfaces/gtk/priorities.py:177
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:129
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:167
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:177
 msgid "Name/alias pair already exists!"
 msgstr "Couple nom/alias déjà existant !"
 
 #: smart/interfaces/gtk/priorities.py:192
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:192
 msgid "Invalid priority!"
 msgstr "Priorité invalide !"
 
 #: smart/interfaces/gtk/priorities.py:202
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:202
 msgid "New Package Priority"
 msgstr "Nouvelle priorité de paquetage"
 
 #: smart/interfaces/gtk/priorities.py:223
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:223
 msgid "Package Name:"
 msgstr "Nom du paquetage :"
 
 #: smart/interfaces/gtk/priorities.py:232
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:232
 msgid "Channel Alias:"
 msgstr "Alias de canal :"
 
 #: smart/interfaces/gtk/priorities.py:242
-#: smart/interfaces/gtk/packageinfo.py:67 smart/commands/info.py:106
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:242
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:67
-#: build/lib.linux-i686-2.4/smart/commands/info.py:106
+#: smart/interfaces/gtk/packageinfo.py:66 smart/commands/info.py:107
 msgid "Priority:"
 msgstr "Priorité :"
 
 #: smart/interfaces/gtk/priorities.py:292
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:292
 msgid "No name provided!"
 msgstr "Aucun nom fournis !"
 
 #: smart/interfaces/gtk/priorities.py:312
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:312
 msgid "Package Priority"
 msgstr "Priorité du paquetage"
 
 #: smart/interfaces/gtk/priorities.py:352
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:352
 msgid "Package:"
 msgstr "Paquetage :"
 
 #: smart/interfaces/gtk/priorities.py:375
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:375
 msgid "Default priority:"
 msgstr "Priorité par défaut :"
 
 #: smart/interfaces/gtk/priorities.py:385
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:385
 msgid "Channel default"
 msgstr "Canal par défaut"
 
 #: smart/interfaces/gtk/priorities.py:390
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:390
 msgid "Set to"
 msgstr "Définir à"
 
 #: smart/interfaces/gtk/priorities.py:406
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/priorities.py:406
 msgid "Channel priority:"
 msgstr "Priorité de canal :"
 
-#: smart/interfaces/gtk/packageinfo.py:66
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:66
+#: smart/interfaces/gtk/packageinfo.py:65
 msgid "Status:"
 msgstr "État :"
 
-#: smart/interfaces/gtk/packageinfo.py:68 smart/commands/info.py:107
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:68
-#: build/lib.linux-i686-2.4/smart/commands/info.py:107
+#: smart/interfaces/gtk/packageinfo.py:67 smart/commands/info.py:108
 msgid "Group:"
 msgstr "Groupes :"
 
-#: smart/interfaces/gtk/packageinfo.py:69 smart/commands/info.py:108
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:69
-#: build/lib.linux-i686-2.4/smart/commands/info.py:108
+#: smart/interfaces/gtk/packageinfo.py:68 smart/commands/info.py:109
 msgid "Installed Size:"
 msgstr "Taille installé :"
 
-#: smart/interfaces/gtk/packageinfo.py:70 smart/commands/info.py:120
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:70
-#: build/lib.linux-i686-2.4/smart/commands/info.py:120
+#: smart/interfaces/gtk/packageinfo.py:69 smart/commands/info.py:121
 msgid "Channels:"
 msgstr "Canaux :"
 
-#: smart/interfaces/gtk/packageinfo.py:88
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:88
+#: smart/interfaces/gtk/packageinfo.py:87
 msgid "General"
 msgstr "Général"
 
-#: smart/interfaces/gtk/packageinfo.py:109
+#: smart/interfaces/gtk/packageinfo.py:108
 #: smart/interfaces/gtk/interactive.py:319
 #: smart/interfaces/gtk/progress.py:115
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:109
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:314
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/progress.py:115
 msgid "Description"
 msgstr "Description"
 
-#: smart/interfaces/gtk/packageinfo.py:129
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:129
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:318
+#: smart/interfaces/gtk/packageinfo.py:128
 msgid "Content"
 msgstr "Contenu"
 
-#: smart/interfaces/gtk/packageinfo.py:138
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:138
+#: smart/interfaces/gtk/packageinfo.py:137
 msgid "Relations"
 msgstr "Relations"
 
-#: smart/interfaces/gtk/packageinfo.py:156 smart/commands/priority.py:98
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:156
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:98
+#: smart/interfaces/gtk/packageinfo.py:155 smart/commands/priority.py:98
 msgid "Channel"
 msgstr "Canal"
 
-#: smart/interfaces/gtk/packageinfo.py:158
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:158
+#: smart/interfaces/gtk/packageinfo.py:157
 msgid "Size"
 msgstr "Taille"
 
-#: smart/interfaces/gtk/packageinfo.py:160
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:160
+#: smart/interfaces/gtk/packageinfo.py:159
 msgid "URL"
 msgstr "URL"
 
-#: smart/interfaces/gtk/packageinfo.py:164 smart/commands/download.py:144
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:164
-#: build/lib.linux-i686-2.4/smart/commands/download.py:144
+#: smart/interfaces/gtk/packageinfo.py:163 smart/commands/download.py:144
 msgid "URLs"
 msgstr "URLs"
 
-#: smart/interfaces/gtk/packageinfo.py:218
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:218
+#: smart/interfaces/gtk/packageinfo.py:217
 msgid "Installed"
 msgstr "Installé"
 
-#: smart/interfaces/gtk/packageinfo.py:218
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:218
+#: smart/interfaces/gtk/packageinfo.py:217
 msgid "Available"
 msgstr "Disponible"
 
-#: smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:348
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:315
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:348
+#: smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:347
 msgid "Provides"
 msgstr "Fournit"
 
-#: smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:367 smart/interfaces/gtk/changes.py:124
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:315
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:367
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:124
+#: smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:366 smart/interfaces/gtk/changes.py:124
 msgid "Upgrades"
 msgstr "Met à jour"
 
-#: smart/interfaces/gtk/packageinfo.py:316
-#: smart/interfaces/gtk/packageinfo.py:358 smart/interfaces/gtk/changes.py:132
+#: smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:357 smart/interfaces/gtk/changes.py:132
 #: smart/interfaces/gtk/changes.py:169
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:316
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:358
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:132
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:169
 msgid "Requires"
 msgstr "Requiert"
 
-#: smart/interfaces/gtk/packageinfo.py:316
-#: smart/interfaces/gtk/packageinfo.py:376 smart/interfaces/gtk/changes.py:140
+#: smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:375 smart/interfaces/gtk/changes.py:140
 #: smart/interfaces/gtk/changes.py:177
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:316
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:376
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:140
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:177
 msgid "Conflicts"
 msgstr "En conflit avec"
 
-#: smart/interfaces/gtk/packageinfo.py:333 smart/interfaces/gtk/changes.py:135
+#: smart/interfaces/gtk/packageinfo.py:332 smart/interfaces/gtk/changes.py:135
 #: smart/interfaces/gtk/changes.py:172
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:333
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:135
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:172
 msgid "Required By"
 msgstr "Requis par"
 
-#: smart/interfaces/gtk/packageinfo.py:339
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:339
+#: smart/interfaces/gtk/packageinfo.py:338
 msgid "Upgraded By"
 msgstr "Mis à jour par"
 
-#: smart/interfaces/gtk/packageinfo.py:345
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageinfo.py:345
+#: smart/interfaces/gtk/packageinfo.py:344
 msgid "Conflicted By"
 msgstr "En conflit avec"
 
 #: smart/interfaces/gtk/changes.py:35
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:35
 msgid "Change Summary"
 msgstr "Résumé des changements"
 
 #: smart/interfaces/gtk/changes.py:96 smart/interfaces/gtk/interactive.py:531
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:96
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:511
 msgid "Remove"
 msgstr "Supprime"
 
 #: smart/interfaces/gtk/changes.py:96
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:96
 msgid "Downgrade"
 msgstr "Rétrograde"
 
 #: smart/interfaces/gtk/changes.py:96 smart/interfaces/gtk/interactive.py:521
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:96
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:501
 msgid "Reinstall"
 msgstr "Réinstalle"
 
 #: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:512
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:97
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:492
 msgid "Install"
 msgstr "Installe"
 
 #: smart/interfaces/gtk/changes.py:97
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:97
 msgid "Upgrade"
 msgstr "Met à jour"
 
 #: smart/interfaces/gtk/changes.py:128
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:128
 msgid "Downgrades"
 msgstr "Rétrograde"
 
 #: smart/interfaces/gtk/changes.py:150
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:150
 #, python-format
 msgid "Reinstall (%d)"
 msgstr "Réinstalle (%d)"
 
 #: smart/interfaces/gtk/changes.py:153
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:153
 #, python-format
 msgid "Install (%d)"
 msgstr "Installe (%d)"
 
 #: smart/interfaces/gtk/changes.py:155
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:155
 #, python-format
 msgid "Upgrade (%d)"
 msgstr "Met à jour (%d)"
 
 #: smart/interfaces/gtk/changes.py:157
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:157
 #, python-format
 msgid "Downgrade (%d)"
 msgstr "Rétrograde (%d)"
 
 #: smart/interfaces/gtk/changes.py:180
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:180
 #, python-format
 msgid "Remove (%d)"
 msgstr "Désinstalle (%d)"
 
 #: smart/interfaces/gtk/changes.py:184
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/changes.py:184
 #, python-format
 msgid "Keep (%d)"
 msgstr "Conserve (%d)"
 
 #: smart/interfaces/gtk/interactive.py:111
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:109
 msgid "_File"
 msgstr "_Fichier"
 
 #: smart/interfaces/gtk/interactive.py:112
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:110
 msgid "Update _Selected Channels..."
 msgstr "Mettre à jour une _sélection de canaux"
 
 #: smart/interfaces/gtk/interactive.py:113
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:111
 msgid "Update given channels"
 msgstr "Met à jour les canaux donnés"
 
 #: smart/interfaces/gtk/interactive.py:114
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:112
 msgid "_Update Channels"
 msgstr "Mettre à jour _tous les canaux"
 
 #: smart/interfaces/gtk/interactive.py:115
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:113
 msgid "Update channels"
 msgstr "Mettre à jour les canaux"
 
 #: smart/interfaces/gtk/interactive.py:116
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:114
 msgid "_Rebuild Cache"
 msgstr "_Mise à jour du cache"
 
 #: smart/interfaces/gtk/interactive.py:117
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:115
 msgid "Reload package information"
 msgstr "Recharger les informations du paquetage"
 
 #: smart/interfaces/gtk/interactive.py:118
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:116
 msgid "_Execute Changes..."
 msgstr "_Effectuer les changements..."
 
 #: smart/interfaces/gtk/interactive.py:119
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:117
 msgid "Apply marked changes"
 msgstr "Appliquer les changements marqués"
 
 #: smart/interfaces/gtk/interactive.py:120
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:118
 msgid "_Quit"
 msgstr "_Quitter"
 
 #: smart/interfaces/gtk/interactive.py:121
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:119
 msgid "Quit application"
 msgstr "Quitter l'application"
 
 #: smart/interfaces/gtk/interactive.py:123
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:121
 msgid "_Edit"
 msgstr "_Edition"
 
 #: smart/interfaces/gtk/interactive.py:124
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:122
 msgid "_Undo"
 msgstr "_Annuler"
 
 #: smart/interfaces/gtk/interactive.py:125
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:123
 msgid "Undo last change"
 msgstr "Annuler le dernier changement"
 
 #: smart/interfaces/gtk/interactive.py:126
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:124
 msgid "_Redo"
 msgstr "_Refaire"
 
 #: smart/interfaces/gtk/interactive.py:127
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:125
 msgid "Redo last undone change"
 msgstr "Refaire le dernier changement"
 
 #: smart/interfaces/gtk/interactive.py:128
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:126
 msgid "Clear Marked Changes"
 msgstr "Effacer les changements marqués"
 
 #: smart/interfaces/gtk/interactive.py:129
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:127
 msgid "Clear all changes"
 msgstr "Effacer tous les changements"
 
 #: smart/interfaces/gtk/interactive.py:130
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:128
 msgid "Check Installed Packages..."
 msgstr "Vérifier les paquetages installés..."
 
 #: smart/interfaces/gtk/interactive.py:131
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:129
 msgid "Check installed packages"
 msgstr "Vérifie les paquetages installés"
 
 #: smart/interfaces/gtk/interactive.py:132
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:130
 msgid "Check Uninstalled Packages..."
 msgstr "Vérifier les paquetages disponibles..."
 
 #: smart/interfaces/gtk/interactive.py:133
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:131
 msgid "Check uninstalled packages"
 msgstr "Vérifie les paquetages disponibles"
 
 #: smart/interfaces/gtk/interactive.py:134
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:132
 msgid "Check All Packages..."
 msgstr "Vérifier tous les paquetages..."
 
 #: smart/interfaces/gtk/interactive.py:135
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:133
 msgid "Check all packages"
 msgstr "Vérifie tous les paquetages"
 
 #: smart/interfaces/gtk/interactive.py:136
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:134
 msgid "Upgrade _All..."
 msgstr "_Tout mettre à jour..."
 
 #: smart/interfaces/gtk/interactive.py:137
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:135
 msgid "Upgrade all packages"
 msgstr "Mettre à jour tous les paquetages"
 
 #: smart/interfaces/gtk/interactive.py:138
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:136
 msgid "Fix All _Problems..."
 msgstr "Corrige tous les _problèmes..."
 
 #: smart/interfaces/gtk/interactive.py:139
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:137
 msgid "Fix all problems"
 msgstr "Corrige tout les problèmes"
 
 #: smart/interfaces/gtk/interactive.py:140
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:138
 msgid "_Find..."
 msgstr "_Rechercher..."
 
 #: smart/interfaces/gtk/interactive.py:141
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:139
 msgid "Find packages"
 msgstr "Rechercher des paquetages"
 
 #: smart/interfaces/gtk/interactive.py:142
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:140
 msgid "_Channels"
 msgstr "_Canaux"
 
 #: smart/interfaces/gtk/interactive.py:143
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:141
 msgid "Edit channels"
 msgstr "Éditer les canaux"
 
 #: smart/interfaces/gtk/interactive.py:144
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:142
 msgid "_Mirrors"
 msgstr "_Miroirs"
 
 #: smart/interfaces/gtk/interactive.py:145
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:143
 msgid "Edit mirrors"
 msgstr "Éditer les miroirs"
 
 #: smart/interfaces/gtk/interactive.py:146
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:144
 msgid "_Flags"
 msgstr "_Étiquettes"
 
 #: smart/interfaces/gtk/interactive.py:147
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:145
 msgid "Edit package flags"
 msgstr "Éditer les étiquettes du paquetage"
 
 #: smart/interfaces/gtk/interactive.py:148
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:146
 msgid "_Priorities"
 msgstr "_Priorités"
 
 #: smart/interfaces/gtk/interactive.py:149
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:147
 msgid "Edit package priorities"
 msgstr "Éditer les priorités de paquetages"
 
 #: smart/interfaces/gtk/interactive.py:151
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:149
 msgid "_View"
 msgstr "_Affichage"
 
 #: smart/interfaces/gtk/interactive.py:152
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:150
 msgid "_Tree Style"
 msgstr "_Arborescence"
 
 #: smart/interfaces/gtk/interactive.py:153
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:151
 msgid "_Expand All"
 msgstr "Tout _déplier"
 
 #: smart/interfaces/gtk/interactive.py:154
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:152
 msgid "Expand all items in the tree"
 msgstr "Déplie tous les éléments de l'arbre"
 
 #: smart/interfaces/gtk/interactive.py:155
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:153
 msgid "_Collapse All"
 msgstr "Tout _replier"
 
 #: smart/interfaces/gtk/interactive.py:156
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:154
 msgid "Collapse all items in the tree"
 msgstr "Replie tout les éléments de l'arbre"
 
 #: smart/interfaces/gtk/interactive.py:157
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:155
 msgid "_Summary Window"
 msgstr "Fenêtre de _résumé"
 
 #: smart/interfaces/gtk/interactive.py:158
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:156
 msgid "Show summary window"
 msgstr "Affiche la fenêtre de résumé"
 
 #: smart/interfaces/gtk/interactive.py:159
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:157
 msgid "_Log Window"
 msgstr "Fenêtre du _journal"
 
 #: smart/interfaces/gtk/interactive.py:160
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:158
 msgid "Show log window"
 msgstr "Affiche la fenêtre du journal"
 
 #: smart/interfaces/gtk/interactive.py:210
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:205
 msgid "Hide Non-upgrades"
 msgstr "Cacher les non-mises à jour"
 
 #: smart/interfaces/gtk/interactive.py:211
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:206
 msgid "Hide Installed"
 msgstr "Cacher les installés"
 
 #: smart/interfaces/gtk/interactive.py:212
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:207
 msgid "Hide Uninstalled"
 msgstr "Cacher les disponibles"
 
 #: smart/interfaces/gtk/interactive.py:213
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:208
 msgid "Hide Unmarked"
 msgstr "Cacher les non marqués"
 
 #: smart/interfaces/gtk/interactive.py:214
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:209
 msgid "Hide Old"
 msgstr "Cacher les vieilles versions"
 
 #: smart/interfaces/gtk/interactive.py:221
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:216
 msgid "Groups"
 msgstr "Groupes"
 
 #: smart/interfaces/gtk/interactive.py:223
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:218
 msgid "Channels & Groups"
 msgstr "Canaux et groupes"
 
 #: smart/interfaces/gtk/interactive.py:274
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:269
 msgid "Search:"
 msgstr "Chercher :"
 
@@ -2658,37 +2272,30 @@ msgid "Automatic"
 msgstr ""
 
 #: smart/interfaces/gtk/interactive.py:455
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:435
 msgid "Apply marked changes now?"
 msgstr "Appliquer les changements marqués maintenant ?"
 
 #: smart/interfaces/gtk/interactive.py:543
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:523
 msgid "Keep"
 msgstr "Conserver"
 
 #: smart/interfaces/gtk/interactive.py:552
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:532
 msgid "Fix problems"
 msgstr "Corrige les problèmes"
 
 #: smart/interfaces/gtk/interactive.py:583
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:563
 msgid "Unlock this version"
 msgstr "Déverrouille cette version"
 
 #: smart/interfaces/gtk/interactive.py:595
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:575
 msgid "Lock this version"
 msgstr "Verrouille cette version"
 
 #: smart/interfaces/gtk/interactive.py:613
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:593
 msgid "Unlock all versions"
 msgstr "Déverrouille toutes les versions"
 
 #: smart/interfaces/gtk/interactive.py:625
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:605
 msgid "Lock all versions"
 msgstr "Verrouille toutes les versions"
 
@@ -2698,118 +2305,95 @@ msgid "Checking relations..."
 msgstr "Récupération d'information..."
 
 #: smart/interfaces/gtk/interactive.py:659
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/interactive.py:637
 msgid "All checked packages have correct relations."
 msgstr "Tout les paquetages vérifiés ont des relations correctes."
 
 #: smart/interfaces/gtk/progress.py:52
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/progress.py:52
 msgid "Operation Progress"
 msgstr "Progression de l'opération"
 
 #: smart/interfaces/gtk/progress.py:90
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/progress.py:90
 msgid "Progress"
 msgstr "Progression"
 
 #: smart/interfaces/gtk/progress.py:97
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/progress.py:97
 msgid "Current"
 msgstr "Actuel"
 
 #: smart/interfaces/gtk/progress.py:103
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/progress.py:103
 msgid "Total"
 msgstr "Total"
 
 #: smart/interfaces/gtk/progress.py:109
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/progress.py:109
 msgid "Speed"
 msgstr "Vitesse"
 
 #: smart/interfaces/gtk/__init__.py:35
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/__init__.py:35
 msgid "System has no support for gtk python interface"
 msgstr "Le système n'a pas le support pour l'interface GTK Python"
 
 #: smart/interfaces/gtk/__init__.py:54
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/__init__.py:54
 #, python-format
 msgid "Image '%s' not found"
 msgstr "Image '%s' introuvable"
 
-#: smart/interfaces/gtk/packageview.py:131 smart/commands/priority.py:98
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageview.py:131
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:98
+#: smart/interfaces/gtk/packageview.py:130 smart/commands/priority.py:98
 msgid "Package"
 msgstr "Paquetage"
 
-#: smart/interfaces/gtk/packageview.py:144
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/packageview.py:144
+#: smart/interfaces/gtk/packageview.py:143
 msgid "Version"
 msgstr "Version"
 
 #: smart/interfaces/gtk/log.py:37
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/log.py:37
 msgid "Log"
 msgstr "Journal"
 
 #: smart/interfaces/gtk/mirrors.py:32
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:32
 msgid "Mirrors"
 msgstr "Miroirs"
 
 #: smart/interfaces/gtk/mirrors.py:65
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:65
 msgid "Mirror"
 msgstr "Mirroir"
 
 #: smart/interfaces/gtk/mirrors.py:145
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:145
 msgid "Origin already exists!"
 msgstr "L'origine existe déjà !"
 
 #: smart/interfaces/gtk/mirrors.py:152
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:152
 msgid "Mirror already exists!"
 msgstr "Miroir déjà existant !"
 
 #: smart/interfaces/gtk/mirrors.py:164
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:164
 msgid "New Mirror"
 msgstr "Nouveau miroir"
 
 #: smart/interfaces/gtk/mirrors.py:185
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:185
 msgid "Origin URL:"
 msgstr "URL d'origine :"
 
 #: smart/interfaces/gtk/mirrors.py:195
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:195
 msgid "Mirror URL:"
 msgstr "URL du miroir :"
 
 #: smart/interfaces/gtk/mirrors.py:243
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:243
 msgid "No origin provided!"
 msgstr "Aucune origine donnée !"
 
 #: smart/interfaces/gtk/mirrors.py:247
-#: build/lib.linux-i686-2.4/smart/interfaces/gtk/mirrors.py:247
 msgid "No mirror provided!"
 msgstr "Aucun miroir fournis !"
 
-#: smart/media.py:182 build/lib.linux-i686-2.4/smart/media.py:182
+#: smart/media.py:183
 msgid "/proc/mounts not found"
 msgstr "/proc/mounts introuvable"
 
-#: smart/commands/channel.py:31
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:31
+#: smart/commands/channel.py:32
 msgid "smart channel [options]"
 msgstr "smart channel [options]"
 
-#: smart/commands/channel.py:33
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:33
+#: smart/commands/channel.py:34
 #, python-format
 msgid ""
 "\n"
@@ -2838,7 +2422,7 @@ msgstr ""
 "\n"
 "Utilisez --help-type <type> pour plus d'information.\n"
 
-#: smart/commands/channel.py:47
+#: smart/commands/channel.py:48
 #, fuzzy
 msgid ""
 "\n"
@@ -2869,8 +2453,7 @@ msgstr ""
 "smart channel --add http://some.url/mychannel.txt\n"
 "smart channel --add /mnt/cdrom\n"
 
-#: smart/commands/channel.py:100
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:100
+#: smart/commands/channel.py:101
 msgid ""
 "argument is an alias and one or more key=value pairs defining a channel, or "
 "a filename/url pointing to a channel description in the same format used by "
@@ -2881,145 +2464,130 @@ msgstr ""
 "même format que celui utilisé par --show, ou le chemin d'un répertoire où "
 "l'auto-détection sera tentée"
 
-#: smart/commands/channel.py:107
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:107
+#: smart/commands/channel.py:108
 msgid ""
 "argument is an alias, and one or more key=value pairs modifying a channel"
 msgstr ""
 "l'argument est un alias et un ou plusieurs couples clef=valeur modifiant le "
 "canal"
 
-#: smart/commands/channel.py:110
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:110
+#: smart/commands/channel.py:111
 msgid "arguments are channel aliases to be removed"
 msgstr "les arguments sont les alias des canaux à supprimer"
 
-#: smart/commands/channel.py:112
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:112
+#: smart/commands/channel.py:113
+msgid "remove all existent channels"
+msgstr ""
+
+#: smart/commands/channel.py:115
 msgid ""
 "show channels with given aliases, or all channels if no arguments were given"
 msgstr ""
 "affiche les canaux ayant les alias donnés, ou tous les canaux si aucun "
 "argument n'est donné"
 
-#: smart/commands/channel.py:115
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:115
+#: smart/commands/channel.py:118
 msgid "edit channels in editor set by $EDITOR"
 msgstr "éditer les canaux dans un éditeur définit par $EDITOR"
 
-#: smart/commands/channel.py:117
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:117
+#: smart/commands/channel.py:120
 msgid "enable channels with given aliases"
 msgstr "Active les canaux ayant ces alias"
 
-#: smart/commands/channel.py:119
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:119
+#: smart/commands/channel.py:122
 msgid "disable channels with given aliases"
 msgstr "désactive les canaux ayant ces alias"
 
-#: smart/commands/channel.py:121
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:121
+#: smart/commands/channel.py:124
 msgid "execute without asking"
 msgstr "exécuter sans poser de question"
 
-#: smart/commands/channel.py:123
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:123
+#: smart/commands/channel.py:126
 msgid "show further information about given type"
 msgstr "affiche d'autres informations à propos du type donné"
 
-#: smart/commands/channel.py:136
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:136
+#: smart/commands/channel.py:139
 msgid "Fields:"
 msgstr "Champs :"
 
-#: smart/commands/channel.py:139
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:139
+#: smart/commands/channel.py:142
 msgid "(*) These fields are necessary for this type."
 msgstr "(*) Ces champs sont nécessaires pour ce type."
 
-#: smart/commands/channel.py:184
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:176
+#: smart/commands/channel.py:187
 msgid "Channel has no alias"
 msgstr "Le canal n'a pas d'alias"
 
-#: smart/commands/channel.py:188 smart/commands/channel.py:248
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:180
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:240
+#: smart/commands/channel.py:191 smart/commands/channel.py:253
 #, python-format
 msgid "Argument '%s' has no '='"
 msgstr "Il manque '=' pour l'argument '%s'"
 
-#: smart/commands/channel.py:205
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:197
+#: smart/commands/channel.py:198
+#, fuzzy
+msgid "Channel information needed"
+msgstr "Choisir les paramètres du canal"
+
+#: smart/commands/channel.py:210
 msgid "Include this channel?"
 msgstr "Inclure ce canal ?"
 
-#: smart/commands/channel.py:215
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:207
+#: smart/commands/channel.py:220
 #, python-format
 msgid "Channel alias '%s' is already in use."
 msgstr "Alias de canal '%s' déjà utilisé."
 
-#: smart/commands/channel.py:217
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:209
+#: smart/commands/channel.py:222
 msgid "Channel alias: "
 msgstr "Alias du canal :"
 
-#: smart/commands/channel.py:228
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:220
+#: smart/commands/channel.py:233
 msgid "Updating removable channels..."
 msgstr "Mise à jour des canaux amovibles..."
 
-#: smart/commands/channel.py:240
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:232
+#: smart/commands/channel.py:245
 msgid "First argument must be the channel alias"
 msgstr "Le premier argument doit être l'alias du canal"
 
-#: smart/commands/channel.py:244
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:236
+#: smart/commands/channel.py:249
 #, python-format
 msgid "Channel with alias '%s' not found"
 msgstr "Canal avec l'alias '%s' introuvable"
 
-#: smart/commands/channel.py:252
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:244
+#: smart/commands/channel.py:257
 msgid "Can't change the channel type"
 msgstr "Ne peut changer le type du canal"
 
-#: smart/commands/channel.py:254
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:246
+#: smart/commands/channel.py:259
 msgid "Can't change the channel alias"
 msgstr "Ne peut changer l'alias du canal"
 
-#: smart/commands/channel.py:268
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:260
+#: smart/commands/channel.py:273
 #, python-format
 msgid "Remove channel '%s'?"
 msgstr "Supprimer le canal '%s' ?"
 
-#: smart/commands/channel.py:270 smart/commands/channel.py:275
-#: smart/commands/channel.py:282 smart/commands/channel.py:290
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:262
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:267
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:274
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:282
+#: smart/commands/channel.py:275 smart/commands/channel.py:285
+#: smart/commands/channel.py:292 smart/commands/channel.py:300
 #, python-format
 msgid "Channel '%s' not found."
 msgstr "Canal '%s' introuvable."
 
-#: smart/commands/channel.py:335
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:323
+#: smart/commands/channel.py:279
+#, fuzzy
+msgid "Remove ALL channels?"
+msgstr "Supprimer le canal '%s' ?"
+
+#: smart/commands/channel.py:345
 #, python-format
 msgid "Error in '%s' channel: %s"
 msgstr "Erreur dans '%s' canal : %s"
 
 #: smart/commands/remove.py:29
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:29
 msgid "smart remove [options] package ..."
 msgstr "smart remove [options] paquetage ..."
 
 #: smart/commands/remove.py:31
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:31
 msgid ""
 "\n"
 "This command will remove one or more packages which\n"
@@ -3030,7 +2598,6 @@ msgstr ""
 "qui sont actuellement installés sur le système.\n"
 
 #: smart/commands/remove.py:36
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:36
 msgid ""
 "\n"
 "smart remove pkgname\n"
@@ -3049,33 +2616,18 @@ msgstr ""
 #: smart/commands/remove.py:49 smart/commands/fix.py:52
 #: smart/commands/reinstall.py:50 smart/commands/install.py:54
 #: smart/commands/upgrade.py:53
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:49
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:51
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:50
-#: build/lib.linux-i686-2.4/smart/commands/install.py:54
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:53
 msgid "split operation in steps"
 msgstr "Séparer l'opération en étapes"
 
 #: smart/commands/remove.py:51 smart/commands/fix.py:54
 #: smart/commands/reinstall.py:52 smart/commands/install.py:56
 #: smart/commands/upgrade.py:55
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:51
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:53
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:52
-#: build/lib.linux-i686-2.4/smart/commands/install.py:56
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:55
 msgid "dump needed urls and don't commit operation"
 msgstr "récupère les URLs nécessaires et n'effectue pas la transaction"
 
 #: smart/commands/remove.py:53 smart/commands/fix.py:56
 #: smart/commands/reinstall.py:54 smart/commands/install.py:58
 #: smart/commands/upgrade.py:57
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:53
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:55
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:54
-#: build/lib.linux-i686-2.4/smart/commands/install.py:58
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:57
 msgid "download packages and don't commit operation"
 msgstr "télécharge les paquetages mais n'effectue pas la transaction"
 
@@ -3088,30 +2640,20 @@ msgstr ""
 #: smart/commands/remove.py:58 smart/commands/fix.py:61
 #: smart/commands/reinstall.py:59 smart/commands/install.py:63
 #: smart/commands/upgrade.py:70
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:55
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:57
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:56
-#: build/lib.linux-i686-2.4/smart/commands/install.py:60
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:64
 msgid "do not ask for confirmation"
 msgstr "ne pas demander de confirmation"
 
 #: smart/commands/remove.py:117 smart/commands/fix.py:105
 #: smart/commands/reinstall.py:121 smart/commands/install.py:161
 #: smart/commands/upgrade.py:139
-#: build/lib.linux-i686-2.4/smart/commands/remove.py:111
-#: build/lib.linux-i686-2.4/smart/commands/fix.py:98
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:115
-#: build/lib.linux-i686-2.4/smart/commands/install.py:155
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:124
 msgid "Computing transaction..."
 msgstr "Calcul de la transaction..."
 
-#: smart/commands/fix.py:29 build/lib.linux-i686-2.4/smart/commands/fix.py:28
+#: smart/commands/fix.py:29
 msgid "smart fix [options] [package] ..."
 msgstr "smart fix [options] [paquetage] ..."
 
-#: smart/commands/fix.py:31 build/lib.linux-i686-2.4/smart/commands/fix.py:30
+#: smart/commands/fix.py:31
 msgid ""
 "\n"
 "This command will try to fix dependencies of installed packages\n"
@@ -3126,7 +2668,7 @@ msgstr ""
 "actuellement installé ou pas. Si aucun paquetage n'est donné,\n"
 "tous les paquetages installés seront vérifiés.\n"
 
-#: smart/commands/fix.py:38 build/lib.linux-i686-2.4/smart/commands/fix.py:37
+#: smart/commands/fix.py:38
 msgid ""
 "\n"
 "smart fix\n"
@@ -3145,12 +2687,10 @@ msgstr ""
 "smart fix NomDuPaquetage1 NomDuPaquetage2\n"
 
 #: smart/commands/config.py:28
-#: build/lib.linux-i686-2.4/smart/commands/config.py:28
 msgid "smart config [options]"
 msgstr "smart config [options]"
 
 #: smart/commands/config.py:30
-#: build/lib.linux-i686-2.4/smart/commands/config.py:30
 msgid ""
 "\n"
 "This command allows changing the internal configuration\n"
@@ -3164,7 +2704,6 @@ msgstr ""
 "généralement pas nécessaire.\n"
 
 #: smart/commands/config.py:36
-#: build/lib.linux-i686-2.4/smart/commands/config.py:36
 msgid ""
 "\n"
 "smart config --set someoption.suboption=10\n"
@@ -3179,54 +2718,42 @@ msgstr ""
 "smart config --show\n"
 
 #: smart/commands/config.py:51
-#: build/lib.linux-i686-2.4/smart/commands/config.py:51
 msgid "set given key=value options"
 msgstr "définit les options clef=valeur données"
 
 #: smart/commands/config.py:53
-#: build/lib.linux-i686-2.4/smart/commands/config.py:53
 msgid "show given options"
 msgstr "affiche les options données"
 
 #: smart/commands/config.py:55
-#: build/lib.linux-i686-2.4/smart/commands/config.py:55
 msgid "remove given options"
 msgstr "supprime les options données"
 
 #: smart/commands/config.py:57 smart/commands/priority.py:65
 #: smart/commands/flag.py:78
-#: build/lib.linux-i686-2.4/smart/commands/config.py:57
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:65
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:78
 msgid "ignore problems"
 msgstr "ignorer les problèmes"
 
 #: smart/commands/config.py:80
-#: build/lib.linux-i686-2.4/smart/commands/config.py:80
 #, python-format
 msgid "Invalid --set argument: %s"
 msgstr "Argument --set invalide : %s"
 
 #: smart/commands/config.py:98
-#: build/lib.linux-i686-2.4/smart/commands/config.py:98
 #, python-format
 msgid "Invalid --remove argument: %s"
 msgstr "Argument --remove invalide : %s"
 
 #: smart/commands/config.py:112 smart/commands/config.py:120
-#: build/lib.linux-i686-2.4/smart/commands/config.py:112
-#: build/lib.linux-i686-2.4/smart/commands/config.py:120
 #, python-format
 msgid "Option '%s' not found."
 msgstr "Option '%s' introuvable."
 
 #: smart/commands/reinstall.py:30
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:30
 msgid "smart reinstall [options] package ..."
 msgstr "smart reinstall [options] paquetage ..."
 
 #: smart/commands/reinstall.py:32
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:32
 msgid ""
 "\n"
 "This command will reinstall one or more packages which\n"
@@ -3237,7 +2764,6 @@ msgstr ""
 "qui sont déjà installé sur le système.\n"
 
 #: smart/commands/reinstall.py:37
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:37
 msgid ""
 "\n"
 "smart reinstall pkgname\n"
@@ -3254,18 +2780,15 @@ msgstr ""
 "smart reinstall NomDuPaquetage1 NomDuPaquetage2\n"
 
 #: smart/commands/reinstall.py:116
-#: build/lib.linux-i686-2.4/smart/commands/reinstall.py:110
 #, python-format
 msgid "'%s' is not available for reinstallation"
 msgstr "'%s' n'est pas disponible pour une réinstallation"
 
 #: smart/commands/stats.py:27
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:27
 msgid "smart stats"
 msgstr "smart stats"
 
 #: smart/commands/stats.py:29
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:29
 msgid ""
 "\n"
 "This command will show some statistics.\n"
@@ -3274,7 +2797,6 @@ msgstr ""
 "Cette commande affichera des statistiques.\n"
 
 #: smart/commands/stats.py:33
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:33
 msgid ""
 "\n"
 "smart stats \n"
@@ -3283,42 +2805,34 @@ msgstr ""
 "smart stats \n"
 
 #: smart/commands/stats.py:52
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:52
 msgid "Installed Packages:"
 msgstr "Paquetages installés :"
 
 #: smart/commands/stats.py:54
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:54
 msgid "Total Packages:"
 msgstr "Total des paquetages :"
 
 #: smart/commands/stats.py:55
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:55
 msgid "Total Provides:"
 msgstr "Total fourni :"
 
 #: smart/commands/stats.py:56
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:56
 msgid "Total Requires:"
 msgstr "Total requis :"
 
 #: smart/commands/stats.py:57
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:57
 msgid "Total Upgrades:"
 msgstr "Total des mises à jours :"
 
 #: smart/commands/stats.py:58
-#: build/lib.linux-i686-2.4/smart/commands/stats.py:58
 msgid "Total Conflicts:"
 msgstr "Total des conflits :"
 
 #: smart/commands/install.py:31
-#: build/lib.linux-i686-2.4/smart/commands/install.py:31
 msgid "smart install [options] package ..."
 msgstr "smart install [options] paquetage ..."
 
 #: smart/commands/install.py:33
-#: build/lib.linux-i686-2.4/smart/commands/install.py:33
 msgid ""
 "\n"
 "This command will install one or more packages in the\n"
@@ -3331,7 +2845,6 @@ msgstr ""
 "est disponible, elle sera sélectionnée pour l'installation.\n"
 
 #: smart/commands/install.py:39
-#: build/lib.linux-i686-2.4/smart/commands/install.py:39
 msgid ""
 "\n"
 "smart install pkgname\n"
@@ -3352,15 +2865,11 @@ msgstr ""
 "smart install http://une.url/un/chemin/UnPaquetage.fichier\n"
 
 #: smart/commands/install.py:132 smart/commands/download.py:104
-#: build/lib.linux-i686-2.4/smart/commands/install.py:126
-#: build/lib.linux-i686-2.4/smart/commands/download.py:104
 #, fuzzy, python-format
 msgid "%s (for %s) is already installed"
 msgstr "%s est déjà installé"
 
 #: smart/commands/install.py:145 smart/commands/download.py:117
-#: build/lib.linux-i686-2.4/smart/commands/install.py:139
-#: build/lib.linux-i686-2.4/smart/commands/download.py:117
 #, python-format
 msgid ""
 "There are multiple matches for '%s':\n"
@@ -3370,12 +2879,10 @@ msgstr ""
 "%s"
 
 #: smart/commands/query.py:33
-#: build/lib.linux-i686-2.4/smart/commands/query.py:33
 msgid "smart query [options] [package] ..."
 msgstr "smart query [options] [paquetage] ..."
 
 #: smart/commands/query.py:35
-#: build/lib.linux-i686-2.4/smart/commands/query.py:35
 msgid ""
 "\n"
 "This command allows querying the known packages in many\n"
@@ -3387,7 +2894,6 @@ msgstr ""
 "commande 'search'.\n"
 
 #: smart/commands/query.py:40
-#: build/lib.linux-i686-2.4/smart/commands/query.py:40
 msgid ""
 "\n"
 "smart query pkgname\n"
@@ -3408,48 +2914,39 @@ msgstr ""
 "smart query --summary ldap\n"
 
 #: smart/commands/query.py:58
-#: build/lib.linux-i686-2.4/smart/commands/query.py:58
 msgid "consider only installed packages"
 msgstr "Ne considérer que les paquetages installés"
 
 #: smart/commands/query.py:60
-#: build/lib.linux-i686-2.4/smart/commands/query.py:60
 msgid "show only packages providing the given dependency"
 msgstr "affiche uniquement les paquetages fournissant le dépendance donnée"
 
 #: smart/commands/query.py:63
-#: build/lib.linux-i686-2.4/smart/commands/query.py:63
 msgid "show only packages requiring the given dependency"
 msgstr "affiche uniquement les paquetages nécessitant la dépendance donnée"
 
 #: smart/commands/query.py:66
-#: build/lib.linux-i686-2.4/smart/commands/query.py:66
 msgid "show only packages conflicting with the given dependency"
 msgstr "affiche uniquement les paquetages en conflit avec la dépendance donnée"
 
 #: smart/commands/query.py:69
-#: build/lib.linux-i686-2.4/smart/commands/query.py:69
 msgid "show only packages upgrading the given dependency"
 msgstr "affiche uniquement les paquetages mettant à jour la dépendance donnée"
 
 #: smart/commands/query.py:72
-#: build/lib.linux-i686-2.4/smart/commands/query.py:72
 msgid "show only packages which match given name"
 msgstr "affiche uniquement les paquetages qui correspondent au nom donné"
 
 #: smart/commands/query.py:74
-#: build/lib.linux-i686-2.4/smart/commands/query.py:74
 msgid "show only packages which match given summary"
 msgstr "affiche uniquement les paquetages qui correspondent au résumé donné"
 
 #: smart/commands/query.py:76
-#: build/lib.linux-i686-2.4/smart/commands/query.py:76
 msgid "show only packages which match given description"
 msgstr ""
 "affiche uniquement les paquetages qui correspondent à la description donnée"
 
 #: smart/commands/query.py:79
-#: build/lib.linux-i686-2.4/smart/commands/query.py:79
 msgid ""
 "show only packages which include the given path in the available meta "
 "information"
@@ -3458,7 +2955,6 @@ msgstr ""
 "informations disponibles"
 
 #: smart/commands/query.py:82
-#: build/lib.linux-i686-2.4/smart/commands/query.py:82
 msgid ""
 "show only packages which include the given reference url in the available "
 "meta information"
@@ -3467,63 +2963,51 @@ msgstr ""
 "dans les meta-informations disponibles"
 
 #: smart/commands/query.py:86
-#: build/lib.linux-i686-2.4/smart/commands/query.py:86
 msgid "hide package version"
 msgstr "cacher les versions des paquetages"
 
 #: smart/commands/query.py:88
-#: build/lib.linux-i686-2.4/smart/commands/query.py:88
 msgid "show package summaries"
 msgstr "afficher les résumés des paquetages"
 
 #: smart/commands/query.py:90
-#: build/lib.linux-i686-2.4/smart/commands/query.py:90
 msgid "show provides for the given packages"
 msgstr "affiche ce qui est fournit par les paquetages donnés"
 
 #: smart/commands/query.py:92
-#: build/lib.linux-i686-2.4/smart/commands/query.py:92
 msgid "show requires for the given packages"
 msgstr "affiche ce qui est requis par les paquetages donnés"
 
 #: smart/commands/query.py:94
-#: build/lib.linux-i686-2.4/smart/commands/query.py:94
 msgid "show requires selecting only pre-dependencies"
 msgstr ""
 "affiche ce qui est requis en ne sélectionnant seulement les pré-dépendances"
 
 #: smart/commands/query.py:96
-#: build/lib.linux-i686-2.4/smart/commands/query.py:96
 msgid "show upgrades for the given packages"
 msgstr "affiche ce qui est mis à jour par les paquetages donnés"
 
 #: smart/commands/query.py:98
-#: build/lib.linux-i686-2.4/smart/commands/query.py:98
 msgid "show conflicts for the given packages"
 msgstr "affiche ce qui est en conflit avec les paquetages donnés"
 
 #: smart/commands/query.py:100
-#: build/lib.linux-i686-2.4/smart/commands/query.py:100
 msgid "show packages providing dependencies"
 msgstr "affiche les paquetages fournissant les dépendances"
 
 #: smart/commands/query.py:102
-#: build/lib.linux-i686-2.4/smart/commands/query.py:102
 msgid "show packages requiring provided information"
 msgstr "affiche les paquetages nécessitant l'information fournie"
 
 #: smart/commands/query.py:104
-#: build/lib.linux-i686-2.4/smart/commands/query.py:104
 msgid "show packages upgrading provided information"
 msgstr "affiche les paquetages mettant à jour l'information fournie"
 
 #: smart/commands/query.py:106
-#: build/lib.linux-i686-2.4/smart/commands/query.py:106
 msgid "show packages conflicting with provided information"
 msgstr "affiche les paquetages en conflit avec l'information fournie"
 
 #: smart/commands/query.py:109
-#: build/lib.linux-i686-2.4/smart/commands/query.py:109
 msgid "show package priority"
 msgstr "affiche la priorité du paquetage"
 
@@ -3533,61 +3017,43 @@ msgid "show channels that include this package"
 msgstr "Aucun canal disponible pour le paquetage %s"
 
 #: smart/commands/query.py:113
-#: build/lib.linux-i686-2.4/smart/commands/query.py:111
 msgid "enable all --show-* options"
 msgstr "active toutes les options --show-*"
 
 #: smart/commands/query.py:115
-#: build/lib.linux-i686-2.4/smart/commands/query.py:113
 msgid "change output format"
 msgstr "change le format de sortie"
 
 #: smart/commands/query.py:117
-#: build/lib.linux-i686-2.4/smart/commands/query.py:115
 msgid "redirect output to given filename"
 msgstr "redirige la sortie vers le fichier donné"
 
 #: smart/commands/query.py:524
-#: build/lib.linux-i686-2.4/smart/commands/query.py:512
 msgid "Provides:"
 msgstr "Fournit :"
 
 #: smart/commands/query.py:533 smart/commands/query.py:566
-#: build/lib.linux-i686-2.4/smart/commands/query.py:521
-#: build/lib.linux-i686-2.4/smart/commands/query.py:554
 msgid "pre"
 msgstr "pre"
 
 #: smart/commands/query.py:544
-#: build/lib.linux-i686-2.4/smart/commands/query.py:532
 msgid "Upgraded By:"
 msgstr "Mis à jour par :"
 
 #: smart/commands/query.py:554
-#: build/lib.linux-i686-2.4/smart/commands/query.py:542
 msgid "Conflicted By:"
 msgstr "En conflit par :"
 
 #: smart/commands/query.py:573 smart/commands/query.py:589
 #: smart/commands/query.py:605
-#: build/lib.linux-i686-2.4/smart/commands/query.py:561
-#: build/lib.linux-i686-2.4/smart/commands/query.py:577
-#: build/lib.linux-i686-2.4/smart/commands/query.py:593
 msgid "Provided By:"
 msgstr "Fournit par :"
 
-#: smart/commands/test.py:26
-#: build/lib.linux-i686-2.4/smart/commands/test.py:26
-msgid "smart test [options]"
-msgstr "smart test [options]"
-
 #: smart/commands/mirror.py:30
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:28
 msgid "smart mirror [options]"
 msgstr "smart mirror [options]"
 
 #: smart/commands/mirror.py:32
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:30
 msgid ""
 "\n"
 "This command allows one to manipulate mirrors. Mirrors are URLs\n"
@@ -3638,7 +3104,6 @@ msgstr ""
 "répertoires.\n"
 
 #: smart/commands/mirror.py:56
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:54
 msgid ""
 "\n"
 "smart mirror --show\n"
@@ -3676,12 +3141,10 @@ msgid ""
 msgstr ""
 
 #: smart/commands/mirror.py:89
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:74
 msgid "show current mirrors"
 msgstr "affiches les miroirs actuels"
 
 #: smart/commands/mirror.py:91
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:76
 msgid ""
 "add to the given origin URL the given mirror URL, provided either in pairs, "
 "or in a given file/url in the format used by --show"
@@ -3690,7 +3153,6 @@ msgstr ""
 "couple soit par un fichier/URL donné au format utilisé par --show"
 
 #: smart/commands/mirror.py:95
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:80
 msgid ""
 "remove from the given origin URL the given mirror URL, provided either in "
 "pairs, or in a given file/url in the format used by --show"
@@ -3699,12 +3161,10 @@ msgstr ""
 "couples soit par un fichier/URL donné au format utilisé par --show"
 
 #: smart/commands/mirror.py:99
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:84
 msgid "remove all mirrors for the given origin URLs"
 msgstr "supprime tous les miroirs des URLs d'origine donnés"
 
 #: smart/commands/mirror.py:101
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:86
 msgid ""
 "synchronize mirrors from the given file/url, so that origins in the given "
 "file will have exactly the specified mirrors"
@@ -3718,13 +3178,11 @@ msgid "edit mirrors in editor set by $EDITOR"
 msgstr "éditer les canaux dans un éditeur définit par $EDITOR"
 
 #: smart/commands/mirror.py:107
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:90
 msgid "clear history for the given origins/mirrors, or for all mirrors"
 msgstr ""
 "efface l'historique pour l'origine/miroirs donnés, ou pour tous les miroirs"
 
 #: smart/commands/mirror.py:110
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:93
 msgid ""
 "show current penalities for origins/mirrors, based on the history information"
 msgstr ""
@@ -3732,50 +3190,40 @@ msgstr ""
 "informations de l'historique"
 
 #: smart/commands/mirror.py:120
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:103
 msgid "mirror descriptions"
 msgstr "descriptions des miroirs"
 
 #: smart/commands/mirror.py:122
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:105
 msgid "Failed to download mirror descriptions:\n"
 msgstr "Échec du téléchargement des descriptions de miroir :\n"
 
 #: smart/commands/mirror.py:147
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:130
 msgid "Invalid mirrors file"
 msgstr "Fichier de miroirs invalide"
 
 #: smart/commands/mirror.py:164
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:147
 msgid "Invalid arguments for --add"
 msgstr "Arguments invalides pour --add"
 
 #: smart/commands/mirror.py:174
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:157
 msgid "Invalid arguments for --remove"
 msgstr "Arguments invalides pour --remove"
 
 #: smart/commands/mirror.py:178 smart/commands/mirror.py:185
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:161
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:168
 #, python-format
 msgid "Origin not found: %s"
 msgstr "Origine introuvable : %s"
 
 #: smart/commands/mirror.py:180
-#: build/lib.linux-i686-2.4/smart/commands/mirror.py:163
 #, python-format
 msgid "Mirror not found: %s"
 msgstr "Miroir introuvable : %s"
 
 #: smart/commands/priority.py:27
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:27
 msgid "smart priority [options]"
 msgstr "smart priority [options]"
 
 #: smart/commands/priority.py:29
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:29
 msgid ""
 "\n"
 "This command allows changing the priority of given packages.\n"
@@ -3810,7 +3258,6 @@ msgstr ""
 "options de ligne de commande.\n"
 
 #: smart/commands/priority.py:45
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:45
 msgid ""
 "\n"
 "smart priority --set pkgname 100\n"
@@ -3829,37 +3276,30 @@ msgstr ""
 "smart priority --show NomDuPaquetage\n"
 
 #: smart/commands/priority.py:59
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:59
 msgid "set priority"
 msgstr "défini une priorité"
 
 #: smart/commands/priority.py:61
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:61
 msgid "unset priority"
 msgstr "retire la priorité"
 
 #: smart/commands/priority.py:63
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:63
 msgid "show priorities"
 msgstr "affiche les priorités"
 
 #: smart/commands/priority.py:83
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:83
 msgid "Invalid priority"
 msgstr "Priorité invalide"
 
 #: smart/commands/priority.py:95
-#: build/lib.linux-i686-2.4/smart/commands/priority.py:95
 msgid "Priority not found"
 msgstr "Priorité introuvable"
 
 #: smart/commands/update.py:29
-#: build/lib.linux-i686-2.4/smart/commands/update.py:29
 msgid "smart update [options] [channelalias] ..."
 msgstr "smart update [options] [alias du canal] ..."
 
 #: smart/commands/update.py:31
-#: build/lib.linux-i686-2.4/smart/commands/update.py:31
 msgid ""
 "\n"
 "This command will update the known information about the\n"
@@ -3874,7 +3314,6 @@ msgstr ""
 "manuelle seront mis à jour.\n"
 
 #: smart/commands/update.py:38
-#: build/lib.linux-i686-2.4/smart/commands/update.py:38
 msgid ""
 "\n"
 "smart update\n"
@@ -3887,7 +3326,6 @@ msgstr ""
 "smart update MonCanal1 MonCanal2\n"
 
 #: smart/commands/update.py:49
-#: build/lib.linux-i686-2.4/smart/commands/update.py:49
 msgid ""
 "only update if the last successful update happened before the given delay"
 msgstr ""
@@ -3895,18 +3333,15 @@ msgstr ""
 "le délai donné"
 
 #: smart/commands/update.py:73
-#: build/lib.linux-i686-2.4/smart/commands/update.py:73
 #, python-format
 msgid "Argument '%s' is not a channel alias."
 msgstr "L'argument '%s' n'est pas un alias de canal."
 
 #: smart/commands/download.py:31
-#: build/lib.linux-i686-2.4/smart/commands/download.py:31
 msgid "smart download [options] package ..."
 msgstr "smart download [options] paquetage ..."
 
 #: smart/commands/download.py:33
-#: build/lib.linux-i686-2.4/smart/commands/download.py:33
 msgid ""
 "\n"
 "This command allows downloading one or more given packages.\n"
@@ -3915,7 +3350,6 @@ msgstr ""
 "Cette commande permet de télécharger le ou les paquetages donnés.\n"
 
 #: smart/commands/download.py:37
-#: build/lib.linux-i686-2.4/smart/commands/download.py:37
 msgid ""
 "\n"
 "smart download pkgname\n"
@@ -3938,17 +3372,14 @@ msgstr ""
 "smart download --from-urls http://une.url/un/chemin/unfichier\n"
 
 #: smart/commands/download.py:55
-#: build/lib.linux-i686-2.4/smart/commands/download.py:55
 msgid "packages will be saved in given directory"
 msgstr "les paquetages seront enregistrés dans le répertoire donné"
 
 #: smart/commands/download.py:57
-#: build/lib.linux-i686-2.4/smart/commands/download.py:57
 msgid "dump needed urls and don't download packages"
 msgstr "récupérer les URLs nécessaires et ne pas télécharger les paquetages"
 
 #: smart/commands/download.py:59
-#: build/lib.linux-i686-2.4/smart/commands/download.py:59
 msgid ""
 "download files from the given urls and/or from the given files with lists of "
 "urls"
@@ -3957,18 +3388,15 @@ msgstr ""
 "du fichier donné"
 
 #: smart/commands/download.py:64
-#: build/lib.linux-i686-2.4/smart/commands/download.py:64
 msgid "Directory not found:"
 msgstr "Répertoire introuvable :"
 
 #: smart/commands/download.py:143
-#: build/lib.linux-i686-2.4/smart/commands/download.py:143
 #, python-format
 msgid "Argument is not a file nor url: %s"
 msgstr "L'argument n'est ni un fichier ni une URL : %s"
 
 #: smart/commands/check.py:29
-#: build/lib.linux-i686-2.4/smart/commands/check.py:29
 msgid "smart check [options] [package] ..."
 msgstr "smart check [options] [paquetage] ..."
 
@@ -3991,7 +3419,6 @@ msgstr ""
 "Utilisez la commande 'fix' pour corriger les relations cassées.\n"
 
 #: smart/commands/check.py:41
-#: build/lib.linux-i686-2.4/smart/commands/check.py:38
 msgid ""
 "\n"
 "smart check\n"
@@ -4015,7 +3442,8 @@ msgstr "vérifie les paquetages dans tous les canaux"
 
 #: smart/commands/check.py:57
 msgid "check packages which are in at least one installed channel (default)"
-msgstr "vérifie les paquetages qui sont dans au moins un canal installé (défaut)"
+msgstr ""
+"vérifie les paquetages qui sont dans au moins un canal installé (défaut)"
 
 #: smart/commands/check.py:60
 msgid "check packages which are in at least one non-installed channel"
@@ -4024,8 +3452,7 @@ msgstr "vérifie les paquetages qui sont dans au moins un canal non installé"
 #: smart/commands/check.py:63
 msgid ""
 "check packages which are inside the given channels (comma separated aliases)"
-msgstr ""
-"vérifie les paquetages qui sont dans les canaux donnés (liste d'alias)"
+msgstr "vérifie les paquetages qui sont dans les canaux donnés (liste d'alias)"
 
 #: smart/commands/check.py:101
 #, fuzzy, python-format
@@ -4038,12 +3465,10 @@ msgid "Channels are disabled: %s"
 msgstr "Alias du canal :"
 
 #: smart/commands/flag.py:27
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:27
 msgid "smart flag [options]"
 msgstr "smart flag [options]"
 
 #: smart/commands/flag.py:29
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:29
 msgid ""
 "\n"
 "This command allows one to set, remove, and show package flags.\n"
@@ -4085,7 +3510,6 @@ msgstr ""
 "                  (dépend du moteur).\n"
 
 #: smart/commands/flag.py:48
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:48
 msgid ""
 "\n"
 "smart flag --show\n"
@@ -4104,7 +3528,6 @@ msgstr ""
 "smart flag --remove lock 'NomDuPaquetage >= 1.0'\n"
 
 #: smart/commands/flag.py:65
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:65
 msgid ""
 "set flags given in pairs of flag name/target, where targets may use just the "
 "package name, or the package name, relation, and version, such as: lock "
@@ -4115,7 +3538,6 @@ msgstr ""
 "la version, comme : lock 'python > 1.0'"
 
 #: smart/commands/flag.py:70
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:70
 msgid ""
 "remove flags given in pairs of flag name/target, where targets may use just "
 "the package name, or the package name, relation, and version, such as: lock "
@@ -4126,7 +3548,6 @@ msgstr ""
 "la version, comme : lock 'python > 1.0'"
 
 #: smart/commands/flag.py:75
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:75
 msgid ""
 "show packages with the flags given as arguments or all flags if no argument "
 "was given"
@@ -4135,18 +3556,15 @@ msgstr ""
 "les étiquettes si aucun argument n'est donné"
 
 #: smart/commands/flag.py:96
-#: build/lib.linux-i686-2.4/smart/commands/flag.py:96
 #, python-format
 msgid "Invalid target: %s"
 msgstr "Cible invalide : %s"
 
-#: smart/commands/info.py:28
-#: build/lib.linux-i686-2.4/smart/commands/info.py:28
+#: smart/commands/info.py:29
 msgid "smart info [options] [package] ..."
 msgstr "smart info [options] [paquetage] ..."
 
-#: smart/commands/info.py:30
-#: build/lib.linux-i686-2.4/smart/commands/info.py:30
+#: smart/commands/info.py:31
 msgid ""
 "\n"
 "This command will show information about the given packages.\n"
@@ -4154,8 +3572,7 @@ msgstr ""
 "\n"
 "Cette commande affichera les informations des paquetages donnés.\n"
 
-#: smart/commands/info.py:34
-#: build/lib.linux-i686-2.4/smart/commands/info.py:34
+#: smart/commands/info.py:35
 msgid ""
 "\n"
 "smart info pkgname\n"
@@ -4167,58 +3584,47 @@ msgstr ""
 "smart info NomDuPaquetage-1.0\n"
 "smart info NomDuPaquetage --urls --paths\n"
 
-#: smart/commands/info.py:45
-#: build/lib.linux-i686-2.4/smart/commands/info.py:45
+#: smart/commands/info.py:46
 msgid "show URLs"
 msgstr "Affiche les URLs"
 
-#: smart/commands/info.py:47
-#: build/lib.linux-i686-2.4/smart/commands/info.py:47
+#: smart/commands/info.py:48
 msgid "show path list"
 msgstr "affiche la liste des chemins"
 
-#: smart/commands/info.py:105
-#: build/lib.linux-i686-2.4/smart/commands/info.py:105
+#: smart/commands/info.py:106
 msgid "Version:"
 msgstr "Version :"
 
-#: smart/commands/info.py:109
-#: build/lib.linux-i686-2.4/smart/commands/info.py:109
+#: smart/commands/info.py:110
 msgid "Reference URLs:"
 msgstr "URLs de référence :"
 
-#: smart/commands/info.py:118
-#: build/lib.linux-i686-2.4/smart/commands/info.py:118
+#: smart/commands/info.py:119
 msgid "Flags:"
 msgstr "Étiquettes :"
 
-#: smart/commands/info.py:125
-#: build/lib.linux-i686-2.4/smart/commands/info.py:125
+#: smart/commands/info.py:126
 msgid "Summary:"
 msgstr "Résumé :"
 
-#: smart/commands/info.py:126
-#: build/lib.linux-i686-2.4/smart/commands/info.py:126
+#: smart/commands/info.py:127
 msgid "Description:"
 msgstr "Description :"
 
-#: smart/commands/info.py:134
-#: build/lib.linux-i686-2.4/smart/commands/info.py:134
+#: smart/commands/info.py:135
 msgid "URLs:"
 msgstr "URLs :"
 
-#: smart/commands/info.py:152
-#: build/lib.linux-i686-2.4/smart/commands/info.py:152
+#: smart/commands/info.py:153
 msgid "Paths:"
 msgstr "Chemins :"
 
 #: smart/commands/upgrade.py:31
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:31
 msgid "smart upgrade [options] [package] ..."
 msgstr "smart upgrade [options] [paquetage] ..."
 
 #: smart/commands/upgrade.py:33
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:33
 msgid ""
 "\n"
 "This command will upgrade one or more packages which\n"
@@ -4232,7 +3638,6 @@ msgstr ""
 "seront vérifiés.\n"
 
 #: smart/commands/upgrade.py:39
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:39
 msgid ""
 "\n"
 "smart upgrade\n"
@@ -4256,35 +3661,28 @@ msgid "update channel information before trying to upgrade"
 msgstr "L'information de canal est verrouillée en écriture."
 
 #: smart/commands/upgrade.py:62
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:59
 msgid "just check if there are upgrades to be done"
 msgstr "Simplement vérifier s'il y a des mises à jour à faire"
 
 #: smart/commands/upgrade.py:64
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:61
 msgid "check if there are upgrades to be done, and update the known upgrades"
 msgstr ""
 "vérifie s'il y a des mises à jour à faire, et actualise les mises à jour "
 "connues"
 
 #: smart/commands/upgrade.py:160 smart/commands/upgrade.py:171
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:145
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:156
 msgid "No interesting upgrades available."
 msgstr "Aucune mise à jour intéressante disponible."
 
 #: smart/commands/upgrade.py:167
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:152
 msgid "There are pending upgrades!"
 msgstr "Il y a des mises à jour en instance !"
 
 #: smart/commands/upgrade.py:169
-#: build/lib.linux-i686-2.4/smart/commands/upgrade.py:154
 msgid "There are new upgrades available!"
 msgstr "Il y a de nouvelles mises à jour disponibles !"
 
 #: smart/commands/search.py:25
-#: build/lib.linux-i686-2.4/smart/commands/search.py:25
 msgid ""
 "\n"
 "Usage: smart search expression ...\n"
@@ -4318,51 +3716,78 @@ msgstr ""
 "  smart search NomDuPaquetage\n"
 "  smart search 'NomDuPaqu*e'\n"
 
-#: smart/sorter.py:442 build/lib.linux-i686-2.4/smart/sorter.py:442
+#: smart/commands/clean.py:27
+#, fuzzy
+msgid "smart clean [options]"
+msgstr "smart flag [options]"
+
+#: smart/commands/clean.py:29
+msgid ""
+"\n"
+"This command cleans the package cache. You can use it to\n"
+"delete old unused files that were left behind because of\n"
+"an incomplete transaction.\n"
+msgstr ""
+
+#: smart/commands/clean.py:49
+msgid "Removing cached package files..."
+msgstr ""
+
+#: smart/commands/clean.py:55
+#, fuzzy, python-format
+msgid "Removed %s"
+msgstr "Désinstalle (%d)"
+
+#: smart/commands/clean.py:57
+#, fuzzy, python-format
+msgid "Can't remove cached package %s: %s"
+msgstr "Ne peut supprimer %s : paquetage requis %s est verrouillé"
+
+#: smart/commands/nothing.py:26
+msgid "smart test [options]"
+msgstr "smart test [options]"
+
+#: smart/sorter.py:442
 msgid "Unbreakable loops found while sorting"
 msgstr "Boucle infinie rencontrée lors du tri"
 
-#: smart/sorter.py:467 build/lib.linux-i686-2.4/smart/sorter.py:467
+#: smart/sorter.py:467
 #, python-format
 msgid "Internal error: there are still loops (%d != %d)!"
 msgstr "Erreur interne : il y a encore des boucles (%d != %d) !"
 
-#: smart/transaction.py:463 build/lib.linux-i686-2.4/smart/transaction.py:443
+#: smart/transaction.py:497
 #, python-format
 msgid "Can't install %s: conflicted package %s is locked"
 msgstr "Ne peut installer %s : le paquetage en conflit %s est verrouillé"
 
-#: smart/transaction.py:478 build/lib.linux-i686-2.4/smart/transaction.py:458
+#: smart/transaction.py:512
 #, python-format
 msgid "Can't install %s: it's conflicted by the locked package %s"
 msgstr ""
 "Ne peut installer %s : il est en conflit avec le paquetage verrouillé %s"
 
-#: smart/transaction.py:493 build/lib.linux-i686-2.4/smart/transaction.py:473
+#: smart/transaction.py:527
 #, python-format
 msgid "Can't install %s: it can't coexist with %s"
 msgstr "Ne peut installer %s : il ne peut cohabiter avec %s"
 
-#: smart/transaction.py:521 smart/transaction.py:722
-#: build/lib.linux-i686-2.4/smart/transaction.py:501
-#: build/lib.linux-i686-2.4/smart/transaction.py:702
+#: smart/transaction.py:555 smart/transaction.py:756
 #, python-format
 msgid "Can't install %s: no package provides %s"
 msgstr "Ne peut installer %s : aucun paquetage ne fournis %s"
 
-#: smart/transaction.py:539 build/lib.linux-i686-2.4/smart/transaction.py:519
+#: smart/transaction.py:573
 #, python-format
 msgid "Can't remove %s: it's an essential package"
 msgstr "Ne peut supprimer %s : C'est un paquetage essentiel"
 
-#: smart/transaction.py:590 build/lib.linux-i686-2.4/smart/transaction.py:570
+#: smart/transaction.py:624
 #, python-format
 msgid "Can't remove %s: %s is locked"
 msgstr "Ne peut supprimer %s : %s est verrouillé"
 
-#: smart/transaction.py:749 smart/transaction.py:852
-#: build/lib.linux-i686-2.4/smart/transaction.py:729
-#: build/lib.linux-i686-2.4/smart/transaction.py:832
+#: smart/transaction.py:783 smart/transaction.py:886
 #, python-format
 msgid ""
 "Can't install %s: all packages providing %s failed to install:\n"
@@ -4372,44 +3797,33 @@ msgstr ""
 "installé :\n"
 "%s"
 
-#: smart/transaction.py:812 smart/transaction.py:821
-#: build/lib.linux-i686-2.4/smart/transaction.py:792
-#: build/lib.linux-i686-2.4/smart/transaction.py:801
+#: smart/transaction.py:846 smart/transaction.py:855
 #, python-format
 msgid "Can't remove %s: requiring package %s is locked"
 msgstr "Ne peut supprimer %s : paquetage requis %s est verrouillé"
 
-#: smart/transaction.py:836 smart/transaction.py:841
-#: build/lib.linux-i686-2.4/smart/transaction.py:816
-#: build/lib.linux-i686-2.4/smart/transaction.py:821
+#: smart/transaction.py:870 smart/transaction.py:875
 #, python-format
 msgid "%s is locked"
 msgstr "%s est verrouillé"
 
-#: smart/transaction.py:954 smart/transaction.py:1729
-#: build/lib.linux-i686-2.4/smart/transaction.py:934
-#: build/lib.linux-i686-2.4/smart/transaction.py:1697
+#: smart/transaction.py:990 smart/transaction.py:1767
 #, python-format
 msgid "Unsatisfied dependency: %s requires %s"
 msgstr "Dépendance insatisfaite : %s requière %s"
 
-#: smart/transaction.py:963 smart/transaction.py:973 smart/transaction.py:1744
-#: build/lib.linux-i686-2.4/smart/transaction.py:943
-#: build/lib.linux-i686-2.4/smart/transaction.py:953
-#: build/lib.linux-i686-2.4/smart/transaction.py:1711
+#: smart/transaction.py:999 smart/transaction.py:1009
+#: smart/transaction.py:1782
 #, python-format
 msgid "Unsatisfied dependency: %s conflicts with %s"
 msgstr "Dépendance insatisfaite : %s est en conflit avec %s"
 
-#: smart/transaction.py:983 smart/transaction.py:1758
-#: build/lib.linux-i686-2.4/smart/transaction.py:963
-#: build/lib.linux-i686-2.4/smart/transaction.py:1724
+#: smart/transaction.py:1019 smart/transaction.py:1796
 #, python-format
 msgid "Package %s can't coexist with %s"
 msgstr "Le paquetage %s ne peut cohabiter avec %s"
 
-#: smart/transaction.py:1025
-#: build/lib.linux-i686-2.4/smart/transaction.py:1005
+#: smart/transaction.py:1061
 #, python-format
 msgid ""
 "Can't fix %s:\n"
@@ -4418,74 +3832,60 @@ msgstr ""
 "Ne peut corriger %s :\n"
 "%s"
 
-#: smart/transaction.py:1079
-#: build/lib.linux-i686-2.4/smart/transaction.py:1058
+#: smart/transaction.py:1115
 #, python-format
 msgid "Can't install %s: it's locked"
 msgstr "Ne peut installer %s : il est verrouillé"
 
-#: smart/transaction.py:1084
-#: build/lib.linux-i686-2.4/smart/transaction.py:1062
+#: smart/transaction.py:1120
 #, python-format
 msgid "Can't remove %s: it's locked"
 msgstr "Ne peut supprimer %s : il est verrouillé"
 
-#: smart/transaction.py:1089
-#: build/lib.linux-i686-2.4/smart/transaction.py:1066
+#: smart/transaction.py:1125
 #, python-format
 msgid "Can't reinstall %s: it's locked"
 msgstr "Ne peut réinstaller %s : il est verrouillé"
 
-#: smart/transaction.py:1264 smart/transaction.py:1364
-#: build/lib.linux-i686-2.4/smart/transaction.py:1238
-#: build/lib.linux-i686-2.4/smart/transaction.py:1338
+#: smart/transaction.py:1302 smart/transaction.py:1402
 #, python-format
 msgid "No providers for '%s', required by '%s'"
 msgstr "Aucun fournisseur pour '%s', requis par '%s'"
 
-#: smart/transaction.py:1281 smart/transaction.py:1290
-#: smart/transaction.py:1401 smart/transaction.py:1410
-#: smart/transaction.py:1428 smart/transaction.py:1459
-#: build/lib.linux-i686-2.4/smart/transaction.py:1255
-#: build/lib.linux-i686-2.4/smart/transaction.py:1264
-#: build/lib.linux-i686-2.4/smart/transaction.py:1375
-#: build/lib.linux-i686-2.4/smart/transaction.py:1384
-#: build/lib.linux-i686-2.4/smart/transaction.py:1402
-#: build/lib.linux-i686-2.4/smart/transaction.py:1433
+#: smart/transaction.py:1319 smart/transaction.py:1328
+#: smart/transaction.py:1439 smart/transaction.py:1448
+#: smart/transaction.py:1466 smart/transaction.py:1497
 #, python-format
 msgid "Package '%s' is locked"
 msgstr "Paquetage '%s' est verrouillé"
 
-#: smart/transaction.py:1380
-#: build/lib.linux-i686-2.4/smart/transaction.py:1354
+#: smart/transaction.py:1418
 #, python-format
 msgid "Can't remove %s, which conflicts with %s"
 msgstr "Ne peut supprimer %s, qui est en conflit avec %s"
 
-#: smart/transaction.py:1426 smart/transaction.py:1457
-#: build/lib.linux-i686-2.4/smart/transaction.py:1400
-#: build/lib.linux-i686-2.4/smart/transaction.py:1431
+#: smart/transaction.py:1464 smart/transaction.py:1495
 #, python-format
 msgid "Package '%s' is not in changeset"
 msgstr "Le paquetage '%s' n'est pas dans la liste de changements"
 
-#: smart/__init__.py:33 build/lib.linux-i686-2.4/smart/__init__.py:33
+#: smart/__init__.py:34
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
-#: smart/__init__.py:105 build/lib.linux-i686-2.4/smart/__init__.py:95
+#: smart/__init__.py:110
 msgid "Unknown log level"
 msgstr "Niveau de verbosité du journal inconnu"
 
-#: smart/__init__.py:116 build/lib.linux-i686-2.4/smart/__init__.py:106
+#: smart/__init__.py:121
 msgid "Can't use commands with shell interfaces"
 msgstr "Ne peut utiliser de commandes avec les interfaces texte"
 
-#: smart/cache.py:631 build/lib.linux-i686-2.4/smart/cache.py:689
+#: smart/cache.py:631
 msgid "Updating cache..."
 msgstr "Mise à jour du cache..."
 
-#: smart/sysconfig.py:73 build/lib.linux-i686-2.4/smart/sysconfig.py:73
+#: smart/sysconfig.py:73
 msgid "Configuration is in readonly mode."
 msgstr "La configuration est en lecture seule"
 
@@ -4499,223 +3899,105 @@ msgstr "Fichier de configuration introuvable : %s"
 msgid "Trying backup at %s"
 msgstr ""
 
-#: smart/searcher.py:172 build/lib.linux-i686-2.4/smart/searcher.py:153
+#: smart/searcher.py:172
 #, fuzzy
 msgid "Invalid string"
 msgstr "Cible invalide !"
 
-#: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:33
-msgid "Base URL where packages are found under."
-msgstr "URL de base où se trouvent les paquetages."
+#: test.py:34
+#, fuzzy
+msgid "test.py [options] [<test filename>, ...]"
+msgstr "Utilisation : ls [options] [<chaîne de caractères>] ..."
 
-#: build/lib.linux-i686-2.4/smart/channels/urpmi_info.py:35
-msgid ""
-"URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
-"given base URL, may be left empty."
-msgstr ""
-"URL pour la liste d'en-têtes (hdlist ou synthesis). Peut être laissé vide "
-"s'il s'agit de hdlist.cz contenu dans l'URL de base donnée."
+#, fuzzy
+#~ msgid "show cleaned packages"
+#~ msgstr "Rechercher des paquetages"
 
-#: build/lib.linux-i686-2.4/smart/control.py:150
-msgid "No configuration found!"
-msgstr "Aucune configuration trouvée !"
+#, fuzzy
+#~ msgid "Cache directory %s not found."
+#~ msgstr "Répertoire introuvable :"
 
-#: build/lib.linux-i686-2.4/smart/plugins/channelsync.py:104
-#, python-format
-msgid ""
-"Change in channel '%s' detected.\n"
-"Do you want to replace it?"
-msgstr ""
-"Un changement a été détecté dans le canal '%s'.\n"
-"Voulez-vous le remplacer ?"
+#, fuzzy
+#~ msgid "Cleaning package cache..."
+#~ msgstr "Enregistrement du cache..."
 
-#: build/lib.linux-i686-2.4/smart/commands/channel.py:47
-msgid ""
-"\n"
-"smart channel --help-type apt-rpm\n"
-"smart channel --add mydb type=rpm-db name=\"RPM Database\"\n"
-"smart channel --add mychannel type=apt-rpm name=\"Some repository\" \\\n"
-"                  baseurl=http://somewhere.com/pub/repos components=extra\n"
-"smart channel --set mychannel priority=-100\n"
-"smart channel --disable mychannel\n"
-"smart channel --remove mychannel\n"
-"smart channel --show\n"
-"smart channel --show mychannel > mychannel.txt\n"
-"smart channel --add ./mychannel.txt\n"
-"smart channel --add http://some.url/mychannel.txt\n"
-"smart channel --add /mnt/cdrom\n"
-msgstr ""
-"\n"
-"smart channel --help-type apt-rpm\n"
-"smart channel --add MaBDD type=rpm-db name=\"Base De Données RPM\"\n"
-"smart channel --add MonCanal type=apt-rpm name=\"Un dépôt\" \\\n"
-"                  baseurl=http://quelquepart.com/pub/depot components=extra\n"
-"smart channel --set MonCanal priority=-100\n"
-"smart channel --disable MonCanal\n"
-"smart channel --remove MonCanal\n"
-"smart channel --show\n"
-"smart channel --show MonCanal > MonCanal.txt\n"
-"smart channel --add ./MonCanal.txt\n"
-"smart channel --add http://some.url/mychannel.txt\n"
-"smart channel --add /mnt/cdrom\n"
+#, fuzzy
+#~ msgid "Clean %s?"
+#~ msgstr "Nettoyage de %s"
 
-#: build/lib.linux-i686-2.4/smart/commands/check.py:31
-msgid ""
-"\n"
-"This command will check relations of the given installed\n"
-"packages. If no packages are given, all installed packages\n"
-"will be checked. Use the 'fix' command to fix broken\n"
-"relations.\n"
-msgstr ""
-"\n"
-"Cette commande vérifiera les relations de paquetages\n"
-"installés donnés. Si aucun paquetage n'est donné, tous\n"
-"les paquetages installés seront vérifiés.\n"
-"Utilisez la commande 'fix' pour corriger les relations cassées.\n"
+#, fuzzy
+#~ msgid "Cleaned %s..."
+#~ msgstr "Nettoyage de %s"
 
-#: build/lib.linux-i686-2.4/smart/commands/check.py:52
-msgid "check uninstalled packages as well"
-msgstr "vérifie également les paquetages disponibles"
+#~ msgid "Base URL where packages are found under."
+#~ msgstr "URL de base où se trouvent les paquetages."
 
-#: build/lib.linux-i686-2.4/smart/commands/check.py:54
-msgid "check only uninstalled packages"
-msgstr "vérifie seulement les paquetages disponibles"
+#~ msgid ""
+#~ "URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
+#~ "given base URL, may be left empty."
+#~ msgstr ""
+#~ "URL pour la liste d'en-têtes (hdlist ou synthesis). Peut être laissé vide "
+#~ "s'il s'agit de hdlist.cz contenu dans l'URL de base donnée."
 
-#: build/scripts-2.4/smart.py:25
-msgid "error: Python 2.3 or later required"
-msgstr "erreur : Python 2.3 ou supérieur requis"
+#~ msgid "No configuration found!"
+#~ msgstr "Aucune configuration trouvée !"
 
-#: build/scripts-2.4/smart.py:37 smart.py:37
-msgid "smart command [options] [arguments]"
-msgstr "smart commande [options] [arguments]"
+#~ msgid ""
+#~ "Change in channel '%s' detected.\n"
+#~ "Do you want to replace it?"
+#~ msgstr ""
+#~ "Un changement a été détecté dans le canal '%s'.\n"
+#~ "Voulez-vous le remplacer ?"
 
-#: build/scripts-2.4/smart.py:39 smart.py:39
-msgid ""
-"\n"
-"Action commands:\n"
-"    update\n"
-"    install\n"
-"    reinstall\n"
-"    upgrade\n"
-"    remove\n"
-"    check\n"
-"    fix\n"
-"    download\n"
-"\n"
-"Query commands:\n"
-"    search\n"
-"    query\n"
-"    info\n"
-"    stats\n"
-"\n"
-"Setup commands:\n"
-"    channel\n"
-"    priority\n"
-"    mirror\n"
-"    flag\n"
-"\n"
-"Run \"smart command --help\" for more information.\n"
-msgstr ""
-"\n"
-"Commandes d'action :\n"
-"    update\n"
-"    install\n"
-"    reinstall\n"
-"    upgrade\n"
-"    remove\n"
-"    check\n"
-"    fix\n"
-"    download\n"
-"\n"
-"Commandes de requête :\n"
-"    search\n"
-"    query\n"
-"    info\n"
-"    stats\n"
-"\n"
-"Commandes de configuration :\n"
-"    channel\n"
-"    priority\n"
-"    mirror\n"
-"    flag\n"
-"\n"
-"Lancez \"smart command --help\" pour plus d'information.\n"
+#~ msgid ""
+#~ "\n"
+#~ "smart channel --help-type apt-rpm\n"
+#~ "smart channel --add mydb type=rpm-db name=\"RPM Database\"\n"
+#~ "smart channel --add mychannel type=apt-rpm name=\"Some repository\" \\\n"
+#~ "                  baseurl=http://somewhere.com/pub/repos "
+#~ "components=extra\n"
+#~ "smart channel --set mychannel priority=-100\n"
+#~ "smart channel --disable mychannel\n"
+#~ "smart channel --remove mychannel\n"
+#~ "smart channel --show\n"
+#~ "smart channel --show mychannel > mychannel.txt\n"
+#~ "smart channel --add ./mychannel.txt\n"
+#~ "smart channel --add http://some.url/mychannel.txt\n"
+#~ "smart channel --add /mnt/cdrom\n"
+#~ msgstr ""
+#~ "\n"
+#~ "smart channel --help-type apt-rpm\n"
+#~ "smart channel --add MaBDD type=rpm-db name=\"Base De Données RPM\"\n"
+#~ "smart channel --add MonCanal type=apt-rpm name=\"Un dépôt\" \\\n"
+#~ "                  baseurl=http://quelquepart.com/pub/depot "
+#~ "components=extra\n"
+#~ "smart channel --set MonCanal priority=-100\n"
+#~ "smart channel --disable MonCanal\n"
+#~ "smart channel --remove MonCanal\n"
+#~ "smart channel --show\n"
+#~ "smart channel --show MonCanal > MonCanal.txt\n"
+#~ "smart channel --add ./MonCanal.txt\n"
+#~ "smart channel --add http://some.url/mychannel.txt\n"
+#~ "smart channel --add /mnt/cdrom\n"
 
-#: build/scripts-2.4/smart.py:65 smart.py:65
-msgid ""
-"\n"
-"smart install --help\n"
-"smart install pkgname\n"
-"smart --gui\n"
-"smart --gui install pkgname\n"
-"smart --shell\n"
-msgstr ""
-"\n"
-"smart install --help\n"
-"smart install NomDuPaquetage\n"
-"smart --gui\n"
-"smart --gui install NomDuPaquetage\n"
-"smart --shell\n"
+#~ msgid ""
+#~ "\n"
+#~ "This command will check relations of the given installed\n"
+#~ "packages. If no packages are given, all installed packages\n"
+#~ "will be checked. Use the 'fix' command to fix broken\n"
+#~ "relations.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Cette commande vérifiera les relations de paquetages\n"
+#~ "installés donnés. Si aucun paquetage n'est donné, tous\n"
+#~ "les paquetages installés seront vérifiés.\n"
+#~ "Utilisez la commande 'fix' pour corriger les relations cassées.\n"
 
-#: build/scripts-2.4/smart.py:79 smart.py:80
-msgid "FILE"
-msgstr "FICHIER"
+#~ msgid "check uninstalled packages as well"
+#~ msgstr "vérifie également les paquetages disponibles"
 
-#: build/scripts-2.4/smart.py:80 smart.py:81
-msgid "configuration file (default is <data-dir>/config)"
-msgstr "fichier de configuration (par défaut <rep-données>/config)"
+#~ msgid "check only uninstalled packages"
+#~ msgstr "vérifie seulement les paquetages disponibles"
 
-#: build/scripts-2.4/smart.py:82 smart.py:83
-msgid "DIR"
-msgstr "REP"
-
-#: build/scripts-2.4/smart.py:83 smart.py:84
-#, python-format
-msgid "data directory (default is %s)"
-msgstr "répertoire de données (%s par défaut)"
-
-#: build/scripts-2.4/smart.py:84 smart.py:85
-msgid "LEVEL"
-msgstr "NIVEAU"
-
-#: build/scripts-2.4/smart.py:85 smart.py:86
-msgid "set the log level to LEVEL (debug, info, warning, error)"
-msgstr "définit le niveau de journalisation (debug, info, warning, error)"
-
-#: build/scripts-2.4/smart.py:88 smart.py:89
-msgid "use the default graphic interface"
-msgstr "utiliser l'interface graphique par défaut"
-
-#: build/scripts-2.4/smart.py:90 smart.py:91
-msgid "use the default shell interface"
-msgstr "utiliser l'interface texte par défaut"
-
-#: build/scripts-2.4/smart.py:91 smart.py:92
-msgid "NAME"
-msgstr "NOM"
-
-#: build/scripts-2.4/smart.py:92 smart.py:93
-msgid "use the given interface"
-msgstr "utiliser l'interface donnée"
-
-#: build/scripts-2.4/smart.py:94 smart.py:95
-msgid "don't respect locking"
-msgstr "ne pas respecter le verrouillage"
-
-#: build/scripts-2.4/smart.py:96 smart.py:97
-msgid "OPT"
-msgstr "OPT"
-
-#: build/scripts-2.4/smart.py:97 smart.py:98
-msgid "set the option given by a name=value pair"
-msgstr "définit l'option donnée par le couple nom=valeur"
-
-#: build/scripts-2.4/smart.py:127 smart.py:134
-#, python-format
-msgid "Invalid option: %s"
-msgstr "Option invalide : %s"
-
-#: build/scripts-2.4/smart.py:169 smart.py:178
-#, python-format
-msgid "error: %s\n"
-msgstr "erreur : %s\n"
+#~ msgid "error: Python 2.3 or later required"
+#~ msgstr "erreur : Python 2.3 ou supérieur requis"
