@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2005 Canonical
 # Copyright (c) 2004 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
@@ -53,4 +54,11 @@ def getPixbuf(name):
         else:
             raise Error, _("Image '%s' not found") % name
     return _pixbuf[name]
+
+import warnings
+MESSAGE = r"Class \w+ is already GObject-registered; " \
+          r"Please note that classes containing any of the attributes " \
+          r"__gtype_name__, __gproperties__, or __gsignals__ are now " \
+          r"automatically registered."
+warnings.filterwarnings("ignore", MESSAGE)
 

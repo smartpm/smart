@@ -376,6 +376,8 @@ class GtkPackageInfo(gtk.Alignment):
 
         self._relations.setPackages(relations, self._changeset)
 
+# XXX This is deprecated and must be removed in the future.
+#     No replacement is needed.
 gobject.type_register(GtkPackageInfo)
 
 # vim:ts=4:sw=4:et

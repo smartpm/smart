@@ -90,6 +90,8 @@ class PixbufCellRenderer(gtk.GenericCellRenderer):
             y_offset = 0
         return x_offset, y_offset, width, height
 
+# XXX This is deprecated and must be removed in the future.
+#     No replacement is needed.
 gobject.type_register(PixbufCellRenderer)
 
 class GtkPackageView(gtk.Alignment):
@@ -410,6 +412,8 @@ class GtkPackageView(gtk.Alignment):
         else:
             self.emit("package_selected", None)
 
+# XXX This is deprecated and must be removed in the future.
+#     No replacement is needed.
 gobject.type_register(GtkPackageView)
 
 # vim:ts=4:sw=4:et

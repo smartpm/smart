@@ -33,7 +33,6 @@ class GtkProgress(Progress, gtk.Window):
     def __init__(self, hassub):
         Progress.__init__(self)
         gtk.Window.__init__(self)
-        self.__gobject_init__()
 
         self.connect("delete-event", lambda x,y: True)
 
@@ -278,6 +277,8 @@ class ProgressCellRenderer(gtk.GenericCellRenderer):
             y_offset = 0
         return x_offset, y_offset, width, height
 
+# XXX This is deprecated and must be removed in the future.
+#     No replacement is needed.
 gobject.type_register(ProgressCellRenderer)
 
 def test():
