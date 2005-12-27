@@ -112,6 +112,15 @@ class RPMPackageManager(PackageManager):
         if level is not None:
             rpm.setVerbosity(level)
 
+        # Set rpm output log file
+        rpmlogfile = sysconf.get('rpm-log-file')
+        if rpmlogfile is not None:
+            try:
+                rpmlog = open(rpmlogfile, 'w')
+                rpm.setLogFile(rpmlog)
+            except (IOError, OSError), e:
+                error = unicode(e)
+
         # Let's help RPM, since it doesn't do a good
         # ordering job on erasures.
         try:
