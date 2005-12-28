@@ -119,7 +119,7 @@ class RPMPackageManager(PackageManager):
                 rpmlog = open(rpmlogfile, 'w')
                 rpm.setLogFile(rpmlog)
             except (IOError, OSError), e:
-                error = unicode(e)
+                raise Error, "%s: %s" % (rpmlogfile, unicode(e))
 
         # Let's help RPM, since it doesn't do a good
         # ordering job on erasures.
