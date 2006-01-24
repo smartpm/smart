@@ -22,7 +22,6 @@
 from smart.backends.rpm.header import RPMDBLoader
 from smart.backends.rpm.base import getTS
 from smart.channel import PackageChannel
-from smart.chrootguard import ChrootGuard
 from smart import *
 import os
 
@@ -33,13 +32,9 @@ class RPMSysChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         getTS() # Make sure the db exists.
-        chroot = ChrootGuard(getTS.root)
-        try:
-            digest = os.path.getmtime(getTS.dbpath)
-        finally:
-            chroot.unchroot()
-            del chroot
-            
+        path = os.path.join(sysconf.get("rpm-root", "/"),
+                            "var/lib/rpm/Packages")
+        digest = os.path.getmtime(path)
         if digest == self._digest:
             return True
         self.removeLoaders()
