@@ -23,7 +23,8 @@ from smart import *
 import os
 
 def detectRPMSystem():
-    dir = os.path.join(sysconf.get("rpm-root", "/"), "var/lib/rpm")
+    dir = os.path.join(sysconf.get("rpm-root", "/"),
+                       sysconf.get("rpm-dbpath", "/var/lib/rpm").lstrip("/"))
     if os.path.isdir(dir):
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "rpm-sys":

@@ -210,12 +210,12 @@ class TextInterface(Interface):
             print
         pkgs = report.installing.keys()
         if pkgs:
-            print _("Installed packages (%d):") % len(pkgs)
+            print _("Installing packages (%d):") % len(pkgs)
             showPackages(pkgs)
             print
         pkgs = report.removed.keys()
         if pkgs:
-            print _("Removed packages (%d):") % len(pkgs)
+            print _("Removing packages (%d):") % len(pkgs)
             showPackages(pkgs)
             print
 

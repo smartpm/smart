@@ -27,6 +27,7 @@ import zlib
 from rpmver import checkdep, vercmp, splitarch, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
+from smart.chrootguard import ChrootGuard
 from smart import *
 import fnmatch
 import string
@@ -45,27 +46,43 @@ __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
 
 def getTS(new=False):
     if not hasattr(getTS, "ts"):
-        getTS.root = sysconf.get("rpm-root", "/")
+        getTS.root   = sysconf.get("rpm-root", "/")
+        getTS.dbpath = sysconf.get("rpm-dbpath", None)
+        if getTS.dbpath:
+            rpm.addMacro("_dbpath", getTS.dbpath)
+        else:
+            # HACK: what is the proper way to extend '%_dbpath' in
+            # python-rpm?
+            getTS.dbpath = "/var/lib/rpm"
         getTS.ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
             getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
-        dbdir = os.path.join(getTS.root, "var/lib/rpm")
-        if not os.path.isfile(os.path.join(dbdir, "Packages")):
-            try:
-                os.makedirs(dbdir)
-                getTS.ts.initDB()
-            except (rpm.error, OSError):
-                raise Error, _("Couldn't initizalize rpm database at %s") \
-                             % getTS.root
-            else:
-                iface.warning(_("Initialized new rpm database at %s")
-                              % getTS.root)
-        tmpdir = os.path.join(getTS.root, "var/tmp")
-        if not os.path.isdir(tmpdir):
-            try:
-                os.makedirs(tmpdir)
-            except OSError:
-                pass
+        dbdir  = getTS.dbpath
+        chroot = ChrootGuard(getTS.root)
+
+        try:
+            tmpdir = "/var/tmp"
+            if not os.path.isdir(tmpdir):
+                try:
+                    os.makedirs(tmpdir)
+                except OSError:
+                    pass
+            
+            if not os.path.isfile(os.path.join(dbdir, "Packages")):
+                try:
+                    os.makedirs(dbdir)
+                    chroot.unchroot()
+                    getTS.ts.initDB()
+                except (rpm.error, OSError):
+                    raise Error, _("Couldn't initizalize rpm database at %s") \
+                          % getTS.root
+                else:
+                    iface.warning(_("Initialized new rpm database at %s")
+                                  % getTS.root)
+        finally:
+            chroot.unchroot()
+            del chroot
+                
     if new:
         ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
