@@ -178,10 +178,12 @@ class RPMMetaDataLoader(Loader):
                                   (elem.get("ver"), elem.get("rel"))
 
                 elif tag == SUMMARY:
-                    info["summary"] = elem.text
+                    if elem.text:
+                        info["summary"] = elem.text
 
                 elif tag == DESCRIPTION:
-                    info["description"] = elem.text
+                    if elem.text:
+                        info["description"] = elem.text
 
                 elif tag == SIZE:
                     info["size"] = int(elem.get("package"))
@@ -196,7 +198,8 @@ class RPMMetaDataLoader(Loader):
                     info["location"] = elem.get("href")
 
                 elif tag == GROUP:
-                    info["group"] = elem.text
+                    if elem.text:
+                        info["group"] = elem.text
 
                 elif tag == FILE:
                     filedict[elem.text] = True
