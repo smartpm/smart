@@ -50,9 +50,14 @@ def getTS(new=False):
         if not sysconf.get("rpm-check-signatures", False):
             getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
         dbdir = os.path.join(getTS.root, "var/lib/rpm")
-        if not os.path.isfile(os.path.join(dbdir, "Packages")):
+        if not os.path.isdir(dbdir):
             try:
                 os.makedirs(dbdir)
+            except (OSError), e:
+                raise Error, _("Could not create rpm-root at %s: %s") \
+                             % (dbdir, unicode(e))
+        if not os.path.isfile(os.path.join(dbdir, "Packages")):
+            try:
                 getTS.ts.initDB()
             except (rpm.error, OSError):
                 raise Error, _("Couldn't initizalize rpm database at %s") \
