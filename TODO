@@ -16,3 +16,5 @@
   immediately.
 - Implement flag --edit
 - Add rpm-* option for rpm.setVerbosity(rpm.RPMLOG_*)
+- Find a better way of making public patches between releases
+  (http://tracker.labix.org/msg451)
