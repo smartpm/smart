@@ -53,8 +53,8 @@ else:
     import codecs
     try:
         encoding = locale.getpreferredencoding()
-        sys.stdout = codecs.getwriter(encoding)(sys.stdout)
-        sys.stderr = codecs.getwriter(encoding)(sys.stderr)
+        sys.stdout = codecs.getwriter(encoding)(sys.stdout, errors="replace")
+        sys.stderr = codecs.getwriter(encoding)(sys.stderr, errors="replace")
         del encoding
     except LookupError:
         pass
