@@ -26,26 +26,27 @@ from smart.report import Report
 from smart import *
 import gobject, gtk
 
-class GtkChanges(object):
+class GtkChanges(gtk.Window):
 
     def __init__(self):
+        gtk.Window.__init__(self)
+        self.__gobject_init__()
 
-        self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title(_("Change Summary"))
-        self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        self._window.set_geometry_hints(min_width=600, min_height=400)
+        self.set_icon(getPixbuf("smart"))
+        self.set_title(_("Change Summary"))
+        self.set_modal(True)
+        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
             gtk.main_quit()
             return True
-        self._window.connect("delete-event", delete)
+        self.connect("delete-event", delete)
 
         self._vbox = gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
-        self._window.add(self._vbox)
+        self.add(self._vbox)
 
         self._label = gtk.Label()
         self._vbox.pack_start(self._label, expand=False)
@@ -218,9 +219,9 @@ class GtkChanges(object):
         self._pv.setExpanded([(x,) for x in packages])
 
         self._result = False
-        self._window.show()
+        self.show()
         gtk.main()
-        self._window.hide()
+        self.hide()
 
         return self._result
 

@@ -192,6 +192,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._log.set_transient_for(self._window)
         self._progress.set_transient_for(self._window)
         self._hassubprogress.set_transient_for(self._window)
+        self._changes.set_transient_for(self._window)
 
         self._watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
 
