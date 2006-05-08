@@ -64,7 +64,7 @@ class SlackPackageManager(PackageManager):
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
-                iface.warning(_("Got status %d installing %s:") % (status, pkg))
+                iface.warning(_("Got status %(status)d installing %(pkg)s:") % (status, pkg))
                 iface.warning(output)
             else:
                 iface.debug(_("Installing %s:") % pkg)
@@ -78,7 +78,7 @@ class SlackPackageManager(PackageManager):
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
-                iface.warning(_("Got status %d upgrading %s:") % (status, pkg))
+                iface.warning(_("Got status %(status)d upgrading %(pkg)s:") % (status, pkg))
                 iface.warning(output)
             else:
                 iface.debug(_("Upgrading %s:") % pkg)
@@ -92,7 +92,7 @@ class SlackPackageManager(PackageManager):
             prog.setSubDone(pkg)
             prog.show()
             if status != 0:
-                iface.warning(_("Got status %d removing %s:") % (status, pkg))
+                iface.warning(_("Got status %(status)d removing %(pkg)s:") % (status, pkg))
                 iface.warning(output)
             else:
                 iface.debug(_("Removing %s:") % pkg)

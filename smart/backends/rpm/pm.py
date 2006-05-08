@@ -283,7 +283,7 @@ class RPMCallback:
         if what == rpm.RPMCALLBACK_INST_OPEN_FILE:
             info, path = infopath
             pkgstr = str(info.getPackage())
-            iface.debug(_("Processing %s in %s") % (pkgstr, path))
+            iface.debug(_("Processing %(pkgstr)s in %(path)s") % (pkgstr, path))
             self.topic = _("Output from %s:") % pkgstr
             self.fd = os.open(path, os.O_RDONLY)
             setCloseOnExec(self.fd)
