@@ -954,7 +954,7 @@ class Transaction(object):
                         break
                     else:
                         iface.debug(_("Unsatisfied dependency: "
-                                      "%(pkg)s requires %(req)s") % (pkg, req))
+                                      "%s requires %s") % (pkg, req))
                         raise StopIteration
                 for cnf in pkg.conflicts:
                     for prv in cnf.providedby:
@@ -963,7 +963,7 @@ class Transaction(object):
                                 continue
                             if isinst(prvpkg):
                                 iface.debug(_("Unsatisfied dependency: "
-                                              "%(pkg)s conflicts with %(prvpkg)s")
+                                              "%s conflicts with %s")
                                             % (pkg, prvpkg))
                                 raise StopIteration
                 for prv in pkg.provides:
@@ -973,7 +973,7 @@ class Transaction(object):
                                 continue
                             if isinst(cnfpkg):
                                 iface.debug(_("Unsatisfied dependency: "
-                                              "%(cnfpkg)s conflicts with %(pkg)s")
+                                              "%s conflicts with %s")
                                             % (cnfpkg, pkg))
                                 raise StopIteration
                 # Check packages with the same name that can't
@@ -982,7 +982,7 @@ class Transaction(object):
                 for namepkg in namepkgs:
                     if (isinst(namepkg) and namepkg is not pkg
                         and not pkg.coexists(namepkg)):
-                        iface.debug(_("Package %(namepkg)s can't coexist with %(pkg)s") %
+                        iface.debug(_("Package %s can't coexist with %s") %
                                     (namepkg, pkg))
                         raise StopIteration
             except StopIteration:
@@ -1263,8 +1263,8 @@ class ChangeSetSplitter(object):
 
                     # Should we care about this?
                     if needed:
-                        raise Error, _("No providers for '%(req)s', "
-                                       "required by '%(reqpkg)s'") % (req, reqpkg)
+                        raise Error, _("No providers for '%s', "
+                                       "required by '%s'") % (req, reqpkg)
 
         # Check upgrading/downgrading packages.
         relpkgs = [upgpkg for prv in pkg.provides
@@ -1363,8 +1363,8 @@ class ChangeSetSplitter(object):
             # Should we really care about it?
             if (self._forcerequires or
                 isinstance(req, PreRequires)):
-                raise Error, _("No providers for '%(req)s', "
-                               "required by '%(pkg)s'") % (req, pkg)
+                raise Error, _("No providers for '%s', "
+                               "required by '%s'") % (req, pkg)
 
         cnfpkgs = [prvpkg for cnf in pkg.conflicts
                           for prv in cnf.providedby
@@ -1379,7 +1379,7 @@ class ChangeSetSplitter(object):
             if (subset.get(cnfpkg) is INSTALL or
                 cnfpkg.installed and subset.get(cnfpkg) is not REMOVE):
                 if cnfpkg not in set:
-                    raise Error, _("Can't remove %(cnfpkg)s, which conflicts with %(pkg)s")\
+                    raise Error, _("Can't remove %s, which conflicts with %s")\
                                  % (cnfpkg, pkg)
                 if set[cnfpkg] is INSTALL:
                     self.exclude(subset, cnfpkg, locked)
@@ -1728,7 +1728,7 @@ def checkPackages(cache, checkset, relateset, report=False):
                 if not report:
                     return False
                 problems = True
-                iface.info(_("Unsatisfied dependency: %(pkg)s requires %(req)s") %
+                iface.info(_("Unsatisfied dependency: %s requires %s") %
                            (pkg, req))
 
         if not pkg.installed:
@@ -1744,7 +1744,7 @@ def checkPackages(cache, checkset, relateset, report=False):
                             return False
                         problems = True
                         iface.info(_("Unsatisfied dependency: "
-                                     "%(pkg)s conflicts with %(prvpkg)s") % (pkg, prvpkg))
+                                     "%s conflicts with %s") % (pkg, prvpkg))
 
         namepkgs = cache.getPackages(pkg.name)
         for namepkg in namepkgs:
@@ -1757,7 +1757,7 @@ def checkPackages(cache, checkset, relateset, report=False):
                     if not report:
                         return False
                     problems = True
-                    iface.info(_("Package %(namepkg)s can't coexist with %(pkg)s") %
+                    iface.info(_("Package %s can't coexist with %s") %
                                (namepkg, pkg))
 
     return not problems
