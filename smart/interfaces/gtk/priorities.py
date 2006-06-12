@@ -265,17 +265,17 @@ class PriorityCreator(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
         button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
             self._result = True
             gtk.main_quit()
         button.connect("clicked", clicked)
-        bbox.pack_start(button)
-
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
         bbox.pack_start(button)
 
     def show(self):

@@ -372,6 +372,11 @@ class GtkChannelSelector(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
         button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
@@ -380,10 +385,6 @@ class GtkChannelSelector(object):
         button.connect("clicked", clicked)
         bbox.pack_start(button)
 
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
 
     def fill(self):
         self._treemodel.clear()
@@ -454,6 +455,11 @@ class ChannelEditor(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
         button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
@@ -462,10 +468,6 @@ class ChannelEditor(object):
         button.connect("clicked", clicked)
         bbox.pack_start(button)
 
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
 
     def addField(self, key, label, value, ftype,
                  editable=True, tip=None, needed=False):
@@ -638,6 +640,11 @@ class TypeSelector(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
         self._ok = button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
@@ -646,10 +653,6 @@ class TypeSelector(object):
         button.connect("clicked", clicked)
         bbox.pack_start(button)
 
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
 
     def show(self):
         self._typevbox.foreach(self._typevbox.remove)
@@ -733,17 +736,17 @@ class MethodSelector(object):
         bbox.show()
         vbox.pack_start(bbox, expand=False)
 
+        button = gtk.Button(stock="gtk-cancel")
+        button.show()
+        button.connect("clicked", lambda x: gtk.main_quit())
+        bbox.pack_start(button)
+
         ok = button = gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
             self._result = True
             gtk.main_quit()
         button.connect("clicked", clicked)
-        bbox.pack_start(button)
-
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
         bbox.pack_start(button)
 
         radio = None

@@ -65,6 +65,11 @@ class GtkChanges(gtk.Window):
         self._confirmbbox.set_layout(gtk.BUTTONBOX_END)
         self._vbox.pack_start(self._confirmbbox, expand=False)
 
+        self._cancelbutton = gtk.Button(stock="gtk-cancel")
+        self._cancelbutton.show()
+        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
+        self._confirmbbox.pack_start(self._cancelbutton)
+
         self._okbutton = gtk.Button(stock="gtk-ok")
         self._okbutton.show()
         def clicked(x):
@@ -72,11 +77,6 @@ class GtkChanges(gtk.Window):
             gtk.main_quit()
         self._okbutton.connect("clicked", clicked)
         self._confirmbbox.pack_start(self._okbutton)
-
-        self._cancelbutton = gtk.Button(stock="gtk-cancel")
-        self._cancelbutton.show()
-        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        self._confirmbbox.pack_start(self._cancelbutton)
 
         self._closebbox = gtk.HButtonBox()
         self._closebbox.set_spacing(10)
