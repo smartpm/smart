@@ -190,12 +190,15 @@ class GtkChannels(object):
         elif method in ("descriptionpath", "descriptionurl"):
 
             if method == "descriptionpath":
-                #dia = gtk.FileChooserDialog(
-                #             action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                #             buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
-                #                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-                dia = gtk.FileSelection(_("Select Channel Description"))
-                dia.hide_fileop_buttons()
+                if gtk.pygtk_version > (2,4,0):
+                    dia = gtk.FileChooserDialog(
+                        action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                                 gtk.STOCK_OK, gtk.RESPONSE_OK))
+                                 
+                else:
+                    dia = gtk.FileSelection(_("Select Channel Description"))
+                    dia.hide_fileop_buttons()
                 response = dia.run()
                 filename = dia.get_filename()
                 dia.destroy()
@@ -242,8 +245,15 @@ class GtkChannels(object):
                 if not path:
                     return
             elif method == "detectpath":
-                dia = gtk.FileSelection(_("Select Path"))
-                dia.hide_fileop_buttons()
+                if gtk.pygtk_version > (2,4,0):
+                    dia = gtk.FileChooserDialog(
+                        action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                                 gtk.STOCK_OK, gtk.RESPONSE_OK))
+                                 
+                else:
+                    dia = gtk.FileSelection(_("Select Path"))
+                    dia.hide_fileop_buttons()
                 response = dia.run()
                 path = dia.get_filename()
                 dia.destroy()
