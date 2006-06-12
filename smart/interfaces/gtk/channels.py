@@ -512,7 +512,9 @@ class ChannelEditor(object):
         self._fieldn += 1
 
     def show(self, alias, oldchannel, editalias=False):
+        # reset the dialog fields
         self._table.foreach(self._table.remove)
+        self._fieldn = 0
 
         if len(oldchannel) > 1:
             # This won't be needed once old format channels
