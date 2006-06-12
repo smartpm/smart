@@ -339,7 +339,7 @@ class Fetcher(object):
     def validate(self, item, localpath, withreason=False, uncomp=False):
         try:
             if not os.path.isfile(localpath):
-                raise Error, _("File not found")
+                raise Error, _("File not found for validation")
 
             if uncomp:
                 uncompprefix = "uncomp_"
@@ -1618,6 +1618,7 @@ class PyCurlHandler(FetcherHandler):
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
                         handle.setopt(pycurl.WRITEDATA, local)
 
+                        # check if we have a valid local file and use I-M-S
                         if fetcher.validate(item, localpath):
                             handle.setopt(pycurl.TIMECONDITION,
                                           pycurl.TIMECONDITION_IFMODSINCE)
@@ -1625,6 +1626,10 @@ class PyCurlHandler(FetcherHandler):
                             if url.scheme == "ftp":
                                 mtime += 1 # libcurl handles ftp mtime wrongly
                             handle.setopt(pycurl.TIMEVALUE, mtime)
+                        else:
+                            # reset the I-M-S option 
+                            handle.setopt(pycurl.TIMECONDITION,
+                                          pycurl.TIMECONDITION_IFUNMODSINCE)
 
                         self._lock.acquire()
                         multi.add_handle(handle)
