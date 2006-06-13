@@ -100,14 +100,17 @@ class RPMHeaderPackageInfo(PackageInfo):
 
     def getSummary(self):
         s = self._h[rpm.RPMTAG_SUMMARY]
-        for encoding in ENCODINGS:
-            try:
-                s = s.decode(encoding)
-            except UnicodeDecodeError:
-                continue
-            break
-        else:
+        if not s:
             s = ""
+        else:
+            for encoding in ENCODINGS:
+                try:
+                    s = s.decode(encoding)
+                except UnicodeDecodeError:
+                    continue
+                break
+            else:
+                s = ""
         return s
 
     def getGroup(self):
