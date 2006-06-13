@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from distutils.command.install_scripts import install_scripts
+from distutils.sysconfig import get_python_lib
 from distutils.core import setup, Extension
 from distutils import sysconfig
 import distutils.file_util
@@ -34,7 +35,8 @@ def copy_tree(*args, **kwargs):
 distutils.file_util.copy_file = copy_file
 distutils.dir_util.copy_tree = copy_tree
 
-PYTHONLIB = sysconfig.get_python_lib(1)
+PYTHONLIB = os.path.join(get_python_lib(standard_lib=1, prefix=""),
+                         "site-packages")
 
 I18NFILES = []
 for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
