@@ -69,10 +69,6 @@ else:
             return res
         __builtins__["raw_input"] = raw_input
 
-# Just install it
-from smart.util import protectedread
-del protectedread
-
 class Proxy:
     def __init__(self, object=None):
         self.object = object
