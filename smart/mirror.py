@@ -149,7 +149,7 @@ class MirrorItem(object):
         self._current = None
 
     def addInfo(self, **info):
-        if self._current:
+        if self._current and hasattr(self._current, 'mirror'):
             self._system.addInfo(self._current.mirror, **info)
 
     def getNext(self):
