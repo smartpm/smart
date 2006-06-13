@@ -35,7 +35,8 @@ def _readSourcesList(file):
     for line in file:
         # we can't handle deb-src yet
         line = line.strip()
-        if line.startswith("#") or line.startswith("deb-src") or line == "":
+        if (line == "" or line.startswith("#") or
+            line.startswith("deb-src") or line.startswith("rpm-src")):
             continue
         # strip away in-line comments
         if "#" in line:
