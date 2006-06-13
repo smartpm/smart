@@ -262,16 +262,14 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1053] # RPMTAG_CONFLICTFLAGS
                 v = h[1055] # RPMTAG_CONFLICTVERSION
+                if type(f) != list:
+                    f = [f]
                 cnfargs = []
                 for i in range(len(n)):
                     vi = v[i] or None
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    if i == 0 and type(f) != list:
-                        fi = f
-                    else:
-                        fi = f[i]
-                    cnfargs.append((Cnf, n[i], CM.get(fi&CF), vi))
+                    cnfargs.append((Cnf, n[i], CM.get(f[i]&CF), vi))
             else:
                 cnfargs = []
 
@@ -281,16 +279,14 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1114] # RPMTAG_OBSOLETEFLAGS
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
+                if type(f) != list:
+                    f = [f]
                 upgargs = []
                 for i in range(len(n)):
                     vi = v[i] or None
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    if i == 0 and type(f) != list:
-                        fi = f
-                    else:
-                        fi = f[i]
-                    upgargs.append((Obs, n[i], CM.get(fi&CF), vi))
+                    upgargs.append((Obs, n[i], CM.get(f[i]&CF), vi))
                 cnfargs.extend(upgargs)
                 upgargs.append(obstup)
             else:
