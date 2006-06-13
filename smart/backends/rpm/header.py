@@ -289,7 +289,11 @@ class RPMHeaderLoader(Loader):
                     f = [f]
                 upgargs = []
                 for i in range(len(n)):
-                    vi = v[i] or None
+                    try:
+                        vi = v[i] or None
+                    except TypeError:
+                        vi = None
+                        pass
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
                     upgargs.append((Obs, n[i], CM.get(f[i]&CF), vi))
