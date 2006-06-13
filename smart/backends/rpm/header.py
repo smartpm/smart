@@ -235,7 +235,9 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1048] # RPMTAG_REQUIREFLAGS
                 v = h[1050] # RPMTAG_REQUIREVERSION
-                if type(f) != list:
+                if f == None:
+                    f = [0]
+                elif type(f) != list:
                     f = [f]
                 reqdict = {}
                 for i in range(len(n)):
@@ -262,7 +264,9 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1053] # RPMTAG_CONFLICTFLAGS
                 v = h[1055] # RPMTAG_CONFLICTVERSION
-                if type(f) != list:
+                if f == None:
+                    f = [0]
+                elif type(f) != list:
                     f = [f]
                 cnfargs = []
                 for i in range(len(n)):
@@ -279,7 +283,9 @@ class RPMHeaderLoader(Loader):
             if n:
                 f = h[1114] # RPMTAG_OBSOLETEFLAGS
                 v = h[1115] # RPMTAG_OBSOLETEVERSION
-                if type(f) != list:
+                if f == None:
+                    f = [0]
+                elif type(f) != list:
                     f = [f]
                 upgargs = []
                 for i in range(len(n)):
