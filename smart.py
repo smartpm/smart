@@ -110,7 +110,7 @@ def parse_options(argv):
     else:
         opts.command = None
         opts.argv = []
-    if not (opts.command or opts.gui or opts.shell):
+    if not (opts.command or opts.gui or opts.shell or opts.interface):
         parser.print_help()
         sys.exit(1)
     return opts
