@@ -33,7 +33,10 @@ import locale
 import stat
 import os
 
-ENCODING = locale.getpreferredencoding()
+try:
+    ENCODING = locale.getpreferredencoding()
+except locale.Error:
+    ENCODING = "C"
 
 class DebPackageInfo(PackageInfo):
 

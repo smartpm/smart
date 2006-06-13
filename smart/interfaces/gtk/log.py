@@ -25,7 +25,10 @@ from smart import *
 import gtk, gobject
 import locale
 
-ENCODING = locale.getpreferredencoding()
+try:
+    ENCODING = locale.getpreferredencoding()
+except locale.Error:
+    ENCODING = "C"
 
 class GtkLog(gtk.Window):
 

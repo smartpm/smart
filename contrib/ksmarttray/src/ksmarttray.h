@@ -21,6 +21,10 @@
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+
+#ifndef __KSMARTTRAY_H_DEF
+#define __KSMARTTRAY_H_DEF
+
 #include <qtimer.h>
 #include <qobject.h>
 
@@ -106,5 +110,7 @@ class KSmartTray : public QObject
     
     KSmartTray();
 };
+
+#endif // __KSMARTTRAY_H_DEF
 
 // vim:ts=4:sw=4:et

@@ -1458,6 +1458,8 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
 
     CacheObject *cache;
 
+    int found;
+
     if (!self->_cache) {
         PyErr_SetString(PyExc_TypeError, "Cache not set");
         return NULL;
@@ -1699,7 +1701,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
     }
 
     /* found = False */
-    int found = 0;
+    found = 0;
     /* lst = cache._objmap.get(pkgargs) */
     lst = PyDict_GetItem(cache->_objmap, pkgargs);
     /* if lst is not None: */
@@ -2111,8 +2113,9 @@ Loader__getstate__(LoaderObject *self, PyObject *args)
     PyObject *state = PyDict_New();
     PyObject *self__stateversion__;
     PyMemberDef *members = Loader_Type.tp_members;
+    int i;
     if (!state) return NULL;
-    int i = 0;
+    i = 0;
     PyErr_Clear();
     while (members[i].name) {
         PyObject *obj = PyMember_GetOne((char *)self, &members[i]);
@@ -2139,6 +2142,7 @@ Loader__setstate__(LoaderObject *self, PyObject *state)
     PyMemberDef *members = Loader_Type.tp_members;
     PyObject *self__stateversion__;
     PyObject *__stateversion__;
+    PyObject *dict;
     if (!PyDict_Check(state)) {
         PyErr_SetString(StateVersionError, "");
         return NULL;
@@ -2153,7 +2157,7 @@ Loader__setstate__(LoaderObject *self, PyObject *state)
         return NULL;
     }
     Py_DECREF(self__stateversion__);
-    PyObject *dict = PyObject_GetAttrString((PyObject *)self, "__dict__");
+    dict = PyObject_GetAttrString((PyObject *)self, "__dict__");
     if (dict) {
         PyObject *keys = PyDict_Keys(state);
         int i, ilen;
@@ -2415,6 +2419,7 @@ Cache__reload(CacheObject *self, PyObject *args)
     /* for loader in loaders: */
     ilen = PyList_GET_SIZE(self->_loaders);
     for (i = 0; i != ilen; i++) {
+        int j, jlen;
         LoaderObject *loader =
                         (LoaderObject *)PyList_GET_ITEM(self->_loaders, i);
         if (!PyObject_IsInstance((PyObject *)loader,
@@ -2425,7 +2430,6 @@ Cache__reload(CacheObject *self, PyObject *args)
         }
 
         /* for pkg in loader._packages: */
-        int j, jlen;
         jlen = PyList_GET_SIZE(loader->_packages);
         for (j = 0; j != jlen; j++) {
             PackageObject *pkg = (PackageObject *)

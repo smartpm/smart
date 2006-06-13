@@ -35,7 +35,10 @@ import errno
 import fcntl
 import time
 
-ENCODING = locale.getpreferredencoding()
+try:
+    ENCODING = locale.getpreferredencoding()
+except locale.Error:
+    ENCODING = "C"
 
 class RPMPackageManager(PackageManager):
 
