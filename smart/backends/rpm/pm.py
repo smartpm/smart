@@ -240,8 +240,10 @@ class RPMCallback:
                 self.stderr = sys.stderr
                 writer = codecs.getwriter(ENCODING)
                 reader = codecs.getreader(ENCODING)
-                sys.stdout = writer(os.fdopen(os.dup(1), "w"))
-                sys.stderr = writer(os.fdopen(os.dup(2), "w"))
+                sys.stdout = writer(os.fdopen(os.dup(1), "w"),
+                                    errors="replace")
+                sys.stderr = writer(os.fdopen(os.dup(2), "w"),
+                                    errors="replace")
                 fd, rpmoutpath = tempfile.mkstemp("-smart-rpm-out.txt")
                 os.dup2(fd, 1)
                 os.dup2(fd, 2)
