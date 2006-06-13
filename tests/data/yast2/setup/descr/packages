@@ -1,0 +1,55 @@
+=Ver: 2.0
+##----------------------------------------
+=Pkg: name1 version1 release1 noarch
++Req:
+/bin/sh
+/bin/sh
+prerequirename1 = prerequireversion1
+requirename1 = requireversion1
+rpmlib(CompressedFileNames) <= 3.0.4-1
+rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+rpmlib(VersionedDependencies) <= 3.0.3-1
+-Req:
++Prv:
+providename1 = provideversion1
+name1 = version1-release1
+-Prv:
++Con:
+conflictsname1 = conflictsversion1
+-Con:
++Obs:
+obsoletesname1 = obsoletesversion1
+-Obs:
+=Grp: Group1
+=Lic: License1
+=Src: name1 version1 release1 src
+=Tim: 1135342886
+=Loc: 1 name1-version1-release1.noarch.rpm
+=Siz: 2160 0
+##----------------------------------------
+=Pkg: name2 version2 release2 noarch
++Req:
+/bin/sh
+/bin/sh
+prerequirename1 = prerequireversion2
+requirename2 = requireversion2
+rpmlib(CompressedFileNames) <= 3.0.4-1
+rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+rpmlib(VersionedDependencies) <= 3.0.3-1
+-Req:
++Prv:
+providename2 = provideversion2
+name2 = version2-release2
+-Prv:
++Con:
+conflictsname2 = conflictsversion2
+-Con:
++Obs:
+obsoletesname2 = obsoletesversion2
+-Obs:
+=Grp: Group2
+=Lic: License2
+=Src: name2 version2 release2 src
+=Tim: 1135342922
+=Loc: 1 name2-version2-release2.noarch.rpm
+=Siz: 2160 0

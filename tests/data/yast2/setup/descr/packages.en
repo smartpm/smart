@@ -1,0 +1,13 @@
+=Ver: 2.0
+##----------------------------------------
+=Pkg: name1 version1 release1 noarch
+=Sum: Summary1
++Des:
+Description1
+-Des:
+##----------------------------------------
+=Pkg: name2 version2 release2 noarch
+=Sum: Summary2
++Des:
+Description2
+-Des:

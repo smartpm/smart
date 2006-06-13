@@ -1,0 +1,9 @@
+PRODUCT tests
+VERSION 10.0-0
+LABEL tests (SMART)
+VENDOR Smart Package Manager
+ARCH.i686 i686 i586 i486 i386 noarch
+ARCH.i586 i586 i486 i386 noarch
+DEFAULTBASE i586
+DESCRDIR setup/descr
+DATADIR RPMS

@@ -1,0 +1,13 @@
+=Ver: 2.0
+##----------------------------------------
+=Pkg: name1 version1 release1 noarch
++Dir:
+/ 0 1 0 1
+tmp/ 1 0 1 0
+-Dir:
+##----------------------------------------
+=Pkg: name2 version2 release2 noarch
++Dir:
+/ 0 1 0 1
+tmp/ 1 0 1 0
+-Dir:
