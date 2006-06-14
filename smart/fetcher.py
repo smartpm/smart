@@ -1098,7 +1098,15 @@ class URLLIBHandler(FetcherHandler):
         class Opener(urllib.FancyURLopener):
             user = None
             passwd = None
-            def prompt_user_passwd(self, host, realm):
+            def __init__(self, *args, **kwargs):
+                self.retrycount = 3
+                urllib.FancyURLopener.__init__(self, *args, **kwargs)
+            def http_error_401(self, url, fp, errcode, errmsg, headers, data=None):
+                self.retrycount -= 1
+                if self.retrycount <= 0:
+                    return self.http_error_default(url, fp, errcode, errmsg, headers)
+                return urllib.FancyURLopener.http_error_401(self, url, fp, errcode, errmsg, headers, data)
+            def get_user_passwd(self, host, realm):
                 return self.user, self.passwd
             def http_error_default(self, url, fp, errcode, errmsg, headers):
                 if not fp:
