@@ -281,7 +281,7 @@ def main(ctrl, opts, reloadchannels=True):
                 if hasdescription:
                     for pattern in hasdescription:
                         d = info.getDescription()
-                        if d != None and len(d) > 0 and pattern.search(info.getDescription()):
+                        if d != None and len(d) > 0 and pattern.search(d):
                             newpackages[pkg] = True
                 if haspath:
                     for pattern in haspath:
