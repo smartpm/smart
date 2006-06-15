@@ -109,7 +109,7 @@ class YaST2Loader(Loader):
                 intag[0] = True
                 return False
             return True
-        return ''.join(c for c in s if chk(c))
+        return ''.join([c for c in s if chk(c)])
 
     def readPkgSummDesc(self, entryname):
         summary = description = ""
