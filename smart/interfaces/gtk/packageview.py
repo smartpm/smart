@@ -314,6 +314,8 @@ class GtkPackageView(gtk.Alignment):
                 cursor = self.getCursor()
             else:
                 keepstate = False
+        # clear the model until the new one is ready
+        treeview.set_model(None)
         if isinstance(packages, list):
             model = gtk.ListStore(gobject.TYPE_PYOBJECT)
         elif isinstance(packages, dict):
