@@ -1,6 +1,6 @@
 recursive-include smart *.py *.c *.h *.png
 include smart setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README Makefile
-include doc/README.html doc/default.css
+include doc/README.html doc/default.css doc/smart.8
 
 recursive-include tests *.py *.txt
 recursive-include tests/data *

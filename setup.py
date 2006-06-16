@@ -40,7 +40,7 @@ PYTHONLIB = os.path.join(get_python_lib(standard_lib=1, prefix=""),
 
 I18NFILES = []
 for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
-    targetpath = os.path.dirname(os.path.join(sys.prefix, "share", filepath))
+    targetpath = os.path.dirname(os.path.join("share", filepath))
     I18NFILES.append((targetpath, [filepath]))
 
 config_h = sysconfig.get_config_h_filename()
@@ -112,6 +112,8 @@ Smart Package Manager is a next generation package handling tool.
                     ],
       data_files = I18NFILES +
                    [(PYTHONLIB+"/smart/interfaces/images", 
-                     glob.glob("smart/interfaces/images/*.png"))],
+                     glob.glob("smart/interfaces/images/*.png")),
+                    ("share/man/man8/", glob.glob("doc/*.8"))
+                   ]
       )
 

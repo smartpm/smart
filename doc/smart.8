@@ -1,0 +1,80 @@
+.\" smart - The Smart Package Manager
+.TH "smart" "8" "2006 Jun 16" "Christoph Thiel" ""
+.SH "NAME"
+smart \- The Smart Package Manager
+.SH "SYNOPSIS"
+\fBsmart\fP command [options] [arguments]
+.SH "DESCRIPTION"
+The \fBSmart\fP Package Manager project has the ambitious objective of creating smart and portable algorithms for solving adequately the problem of managing software upgrading and installation. This tool works in all major distributions, and will bring notable advantages over native tools currently in use (APT, APT\-RPM, YUM, URPMI, etc).
+.SH "Action commands"
+.nf 
+update
+install
+reinstall
+upgrade
+remove
+check
+fix
+download
+clean
+.fi 
+.SH "Setup commands"
+.nf 
+channel
+priority
+mirror
+flag
+.fi 
+.SH "Query commands"
+.nf 
+search
+query
+info
+stats
+.fi 
+
+Run "smart command \-\-help" for more information.
+.SH "Options"
+.PP 
+.IP "\fB\-\-version\fP"
+Show program's version number and exit
+.IP "\fB\-\-config\-file=FILE\fP"
+Configuration file (default is <data\-dir>/config)
+.IP "\fB\-\-data\-dir=DIR\fP"
+Specifies the config file location \- can take http, ftp urls and local file
+Data directory (default is /var/lib/smart/)
+.IP "\fB\-\-log\-level=LEVEL\fP" 
+Set the log level to level (debug, info, warning, error)
+.IP "\fB\-\-gui\fP" 
+Use the default graphic interface
+.IP "\fB\-\-shell\fP" 
+Use the default shell interface
+.IP "\fB\-\-interface=NAME\fP" 
+Use the given interface
+.IP "\fB\-\-ignore\-locks\fP"
+Don't respect locking 
+.IP "\fB\-o OPT, \-\-option=OPT\fP" 
+Set the option given by a name=value pair
+.SH "Examples"
+.nf 
+smart install \-\-help
+smart install pkgname
+smart \-\-gui
+smart \-\-gui install pkgname
+smart \-\-shell
+.fi 
+.SH "FILES"
+.nf 
+/etc/smart/
+/var/lib/smart/
+/usr/lib/smart/
+/usr/lib/smart/plugins/
+.fi 
+.SH "SEE ALSO"
+.nf 
+http://labix.org/smart
+.fi 
+.SH "AUTHOR"
+.nf 
+Gustavo Niemeyer <gustavo@niemeyer.net>
+.fi 
