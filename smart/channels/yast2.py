@@ -62,7 +62,7 @@ class YaST2Channel(PackageChannel):
         # that says if the repository has changed
         fetchitem = posixpath.join(self._baseurl, "media.1/media")
         fetched = self.__fetchFile(fetchitem, fetcher, progress)
-        if not fetched: return False
+        if not fetched or fetched.getStatus() == FAILED: return False
 
         digest = getFileDigest(fetched.getTargetPath())
         #if digest == self._digest and getattr(self, "force-yast", False):
@@ -73,7 +73,7 @@ class YaST2Channel(PackageChannel):
         # Find location of description files
         fetchitem = posixpath.join(self._baseurl, "content")
         fetched = self.__fetchFile(fetchitem, fetcher, progress)
-        if not fetched: return False
+        if not fetched or fetched.getStatus() == FAILED: return False
         self.removeLoaders()
         descrdir = "suse/setup/descr"
         datadir = "RPMS"
@@ -85,14 +85,14 @@ class YaST2Channel(PackageChannel):
         fetchitem = posixpath.join(self._baseurl,
                                   (("%s/packages") % descrdir))
         fetched = self.__fetchFile(fetchitem, fetcher, progress)
-        if not fetched: return False
+        if not fetched or fetched.getStatus() == FAILED: return False
         self.removeLoaders()
         pkginfofile = fetched.getTargetPath()
         if open(pkginfofile).read(9) == "=Ver: 2.0":
             fetchitem = posixpath.join(self._baseurl,
                                       (("%s/packages.en") % descrdir))
             fetched = self.__fetchFile(fetchitem, fetcher, progress)
-            if not fetched or open(fetched.getTargetPath()).read(9) != "=Ver: 2.0":
+            if not fetched or fetched.getStatus() == FAILED or open(fetched.getTargetPath()).read(9) != "=Ver: 2.0":
                 raise Error, "YaST2 package descriptions not loaded."
                 loader = YaST2Loader(self._baseurl, datadir, pkginfofile)
             else:
