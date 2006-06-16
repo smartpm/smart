@@ -24,6 +24,11 @@ from smart import *
 import os
 import md5
 
+# be compatible with 2.3
+import sys
+if sys.version_info < (2, 4):
+    from sets import Set as set
+
 APT_SOURCES_DIR = "/etc/apt/sources.list.d/"
 APT_SOURCES = "/etc/apt/sources.list"
 
@@ -33,10 +38,9 @@ def _readSourcesList(file):
     seen = set()
     
     for line in file:
-        # we can't handle deb-src yet
         line = line.strip()
-        if (line == "" or line.startswith("#") or
-            line.startswith("deb-src") or line.startswith("rpm-src")):
+        # we only handle type "deb" or "rpm"
+        if not (line.startswith("deb ") or line.startswith("rpm ")):
             continue
         # strip away in-line comments
         if "#" in line:
