@@ -142,6 +142,10 @@ class DebPackageManager(PackageManager):
                         assert changeset.get(upgpkg) is REMOVE, \
                                "Installing %s while %s is kept?" % \
                                (pkg, upgpkg)
+                        assert upgpkg not in upgraded, \
+                               "Two packages (%s and %s) upgrading the " \
+                               "same installed package (%s)!?" % \
+                               (pkg, upgraded[upgpkg], upgpkg)
                         upgraded[upgpkg] = pkg
 
         try:
@@ -172,6 +176,14 @@ class DebPackageManager(PackageManager):
         if opt:
             baseargs.append("--instdir=%s" % opt)
 
+        PURGE = object()
+
+        if sysconf.get("deb-purge"):
+            for i in range(len(sorted)):
+                pkg, op = sorted[i]
+                if op is REMOVE and not upgraded.get(pkg):
+                    sorted[i] = pkg, PURGE
+
         done = {}
         while sorted:
 
@@ -183,8 +195,8 @@ class DebPackageManager(PackageManager):
                 if op is REMOVE and upgraded.get(pkg) in done:
                     continue
                 done[pkg] = True
-                opname = {REMOVE: "remove", CONFIG: "config", UNPACK: "unpack",
-                          INSTALL: "install"}
+                opname = {REMOVE: "remove", PURGE: "purge", CONFIG: "config",
+                          UNPACK: "unpack", INSTALL: "install"}
                 print "[%s] %s" % (opname[op], pkg)
                 pkgs.append(pkg)
 
@@ -197,6 +209,9 @@ class DebPackageManager(PackageManager):
                 args.append("--force-depends")
                 args.append("--force-remove-essential")
                 args.append("--remove")
+            elif op is PURGE:
+                args.append("--force-remove-essential")
+                args.append("--purge")
             elif op is UNPACK:
                 args.append("--unpack")
             elif op is CONFIG:
