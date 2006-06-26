@@ -280,8 +280,7 @@ def main(ctrl, opts, reloadchannels=True):
                             newpackages[pkg] = True
                 if hasdescription:
                     for pattern in hasdescription:
-                        d = info.getDescription()
-                        if d != None and len(d) > 0 and pattern.search(d):
+                        if pattern.search(info.getDescription()):
                             newpackages[pkg] = True
                 if haspath:
                     for pattern in haspath:
