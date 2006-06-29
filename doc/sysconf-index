@@ -1,0 +1,20 @@
+A index of the various sysconf variables and what they do:
+----------------------------------------------------------
+
+commit-log: a filename to write a logfile of commited changesets
+data-dir: the main datadir of smart 
+commit: do we actually want to commit the operation
+remove-packages: should downloaded packages removed after they where applied
+prefer-removable: should we prefer removable over the network
+dist-cache: do we use a cache
+mirrors: 
+mirrors-history:
+force-channels: 
+log-level:
+channels: the channels known to smart
+detectlocalchannels-maxdepth:
+socket-timeout: 
+max-active-downloads: 
+%s-proxy:
+default-localmedia:
+sorter-profile:

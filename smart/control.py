@@ -460,6 +460,22 @@ class Control(object):
                 break
         return True
 
+    def writeCommitLog(self, changeset):
+        """ writes the operations performed in the current changeset
+            to a log file specified with via the sysconf"commit-log"
+            variable
+        """
+        logfile = sysconf.get("commit-log",None)
+        if logfile == None:
+            return
+        logdir = os.path.join(sysconf.get("data-dir"), "logs/")
+        if not os.path.isdir(logdir):
+            os.makedirs(logdir)
+        log = open(logdir+logfile,"a")
+        for pkg in changeset:
+            log.write("%s %s: %s\n" % (time.ctime(), pkg, changeset[pkg]))
+        log.write("\n")
+
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
         return self.commitChangeSet(trans.getChangeSet(), caching, confirm)
 
@@ -515,6 +531,7 @@ class Control(object):
                         if pkg in cs:
                             pmcs[pkg] = cs[pkg]
                     if sysconf.get("commit", True):
+                        self.writeCommitLog(pmcs)
                         pmclass().commit(pmcs, pkgpaths)
 
                 if sysconf.get("remove-packages", True):
