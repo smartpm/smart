@@ -1625,6 +1625,8 @@ class PyCurlHandler(FetcherHandler):
                         handle.setopt(pycurl.NOPROGRESS, 0)
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
                         handle.setopt(pycurl.WRITEDATA, local)
+                        handle.setopt(pycurl.FOLLOWLOCATION, 1)
+                        handle.setopt(pycurl.MAXREDIRS, 5)
 
                         # check if we have a valid local file and use I-M-S
                         if fetcher.validate(item, localpath):
