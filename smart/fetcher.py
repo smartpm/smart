@@ -1639,7 +1639,7 @@ class PyCurlHandler(FetcherHandler):
                         else:
                             # reset the I-M-S option 
                             handle.setopt(pycurl.TIMECONDITION,
-                                          pycurl.TIMECONDITION_IFUNMODSINCE)
+                                          pycurl.TIMECONDITION_NONE)
 
                         self._lock.acquire()
                         multi.add_handle(handle)
