@@ -26,6 +26,8 @@ from smart import *
 import posixpath
 import locale
 import os
+from re import sub
+from textwrap import wrap
 
 class YaST2PackageInfo(PackageInfo):
     def __init__(self, package, loader, info):
@@ -112,17 +114,27 @@ class YaST2Loader(Loader):
         return ''.join([c for c in s if chk(c)])
 
     def readPkgSummDesc(self, entryname):
-        summary = description = ""
+        summary = description = reading_ins = ""
         if self._pkgdescfile and self._pkgoffsets.has_key(entryname):
             self._descfile.seek((self._pkgoffsets[entryname] + 1))
             summary = self._descfile.readline()[5:-1]
             description = ""
             while 1:
                 line = self._descfile.readline()
+                if line.startswith("-Ins"):
+                    reading_ins = False
+                    continue
+                if line.startswith("+Ins:") or reading_ins == True:
+                    reading_ins = True
+                    continue
                 if line.startswith("+Des:") or line.startswith("<!--"): continue
                 if not line or line[:-1] == "-Des:": break
-                description += self.stripTags(line[:-1])
-        return summary, description
+                for wline in wrap(line, 76):
+                    description = description + "\n" + wline
+        description = sub('<li>', '* ', description)
+        description = self.stripTags(description)
+        # Wrapping the text added an extra lf as the first char
+        return summary, description[1:]
 
 
     def parseEntry(self):
