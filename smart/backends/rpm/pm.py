@@ -178,7 +178,7 @@ class RPMPackageManager(PackageManager):
         del upgraded
         del upgrading
 
-        force = sysconf.get("rpm-force", True)
+        force = sysconf.get("rpm-force", False)
         if not force:
             probs = ts.check()
             if probs:
