@@ -94,7 +94,9 @@ class YaST2Loader(Loader):
                 parts = line.split(" ")
                 if len(parts) == 1:
                     data.append((line, None, None))
-                else:
+                if len(parts) == 2:
+                    print "Error parsing package '%s' (tag '%s'). Possibly corrupted channel file (%s)." % (self.curpkgname, tag, self._channel)
+                if len(parts) == 3:
                     data.append((parts[0], parts[1], parts[2]))
         return data
 
@@ -167,6 +169,7 @@ class YaST2Loader(Loader):
                 if rpm.archscore(arch) <= 0:
                     return
                 name = nameparts[0]
+                self.curpkgname = name
                 version = nameparts[1]
                 release = nameparts[2]
                 versionarch = "%s-%s@%s" % \
