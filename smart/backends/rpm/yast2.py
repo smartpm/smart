@@ -58,7 +58,7 @@ class YaST2PackageInfo(PackageInfo):
 
 class YaST2Loader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+1
+    __stateversion__ = Loader.__stateversion__+2
 
     def __init__(self, baseurl, datadir, pkginfofile, pkgdescfile=None):
         Loader.__init__(self)
@@ -123,13 +123,16 @@ class YaST2Loader(Loader):
             description = ""
             while 1:
                 line = self._descfile.readline()
+                if line.startswith("##--"):
+                    break
                 if line.startswith("-Ins"):
                     reading_ins = False
                     continue
                 if line.startswith("+Ins:") or reading_ins == True:
                     reading_ins = True
                     continue
-                if line.startswith("+Des:") or line.startswith("<!--"): continue
+                if line.startswith("+Des:") or line.startswith("<!--"):
+                   continue
                 if not line or line[:-1] == "-Des:": break
                 for wline in wrap(line, 76):
                     description = description + "\n" + wline
