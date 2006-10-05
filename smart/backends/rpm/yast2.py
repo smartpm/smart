@@ -116,7 +116,7 @@ class YaST2Loader(Loader):
         return ''.join([c for c in s if chk(c)])
 
     def readPkgSummDesc(self, entryname):
-        summary = description = reading_ins = ""
+        summary = description = reading_ins = reading_del = ""
         if self._pkgdescfile and self._pkgoffsets.has_key(entryname):
             self._descfile.seek((self._pkgoffsets[entryname] + 1))
             summary = self._descfile.readline()[5:-1]
@@ -130,6 +130,12 @@ class YaST2Loader(Loader):
                     continue
                 if line.startswith("+Ins:") or reading_ins == True:
                     reading_ins = True
+                    continue
+                if line.startswith("-Del"):
+                    reading_del = False
+                    continue
+                if line.startswith("+Del:") or reading_del == True:
+                    reading_del = True
                     continue
                 if line.startswith("+Des:") or line.startswith("<!--"):
                    continue
