@@ -26,6 +26,7 @@ from smart.progress import Progress
 import posixpath
 import time
 import sys
+import signal
 
 class TextProgress(Progress):
 
@@ -38,6 +39,7 @@ class TextProgress(Progress):
         self._seentopics = {}
         self._addline = False
         self.setScreenWidth(getScreenWidth())
+        signal.signal(signal.SIGWINCH, self.handleScreenWidth)
 
     def setScreenWidth(self, width):
         self._screenwidth = width
@@ -47,6 +49,9 @@ class TextProgress(Progress):
         self._topicmaskn = "%%4d:%%-%d.%ds" % (self._topicwidth-5,
                                                self._topicwidth-5)
         self._shorturl = ShortURL(width-4)
+
+    def handleScreenWidth(self, signum, frame):
+        self.setScreenWidth(getScreenWidth())
 
     def setFetcherMode(self, flag):
         self._fetchermode = flag
