@@ -1635,7 +1635,7 @@ class PyCurlHandler(FetcherHandler):
                             mtime = os.path.getmtime(localpath)
                             if url.scheme == "ftp":
                                 mtime += 1 # libcurl handles ftp mtime wrongly
-                            handle.setopt(pycurl.TIMEVALUE, mtime)
+                            handle.setopt(pycurl.TIMEVALUE, int(mtime))
                         else:
                             # reset the I-M-S option 
                             handle.setopt(pycurl.TIMECONDITION,
