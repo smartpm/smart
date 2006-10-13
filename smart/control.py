@@ -414,6 +414,31 @@ class Control(object):
         for url in urls:
             print >>output, url
 
+    def dumpTransactionPackages(self, trans, action="install", noversion=False, file=""):
+        print
+        from smart.report import Report
+        report = Report(trans.getChangeSet())
+        report.compute()
+        if action == "install":
+            pkgs = report.installing
+        elif action == "upgrade":
+            pkgs = report.upgrading
+        elif action == "remove":
+            pkgs = report.removed
+        items = pkgs.items()
+        items.sort()
+        pkgs = [key for key, value in items]
+        if file:
+            output = open(file, 'w')
+        else:
+            output = sys.stderr
+        for pkg in pkgs:
+            if noversion:
+                print >>output, pkg.name
+            else:
+                print >>output, pkg
+        if file:output.close()
+
     def downloadURLs(self, urllst, what=None, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
         fetcher.reset()
