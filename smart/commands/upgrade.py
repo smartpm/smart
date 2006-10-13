@@ -82,6 +82,10 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
+    if opts.dump_tofile and not (opts.dump or opts.dump_noversion):
+        raise Error, _("Option 'dump-tofile' must be used with 'dump'"
+                       "or 'dump-noversion'.")
+
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
 
