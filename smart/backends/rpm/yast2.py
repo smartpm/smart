@@ -58,7 +58,7 @@ class YaST2PackageInfo(PackageInfo):
 
 class YaST2Loader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+2
+    __stateversion__ = Loader.__stateversion__+3
 
     def __init__(self, baseurl, datadir, pkginfofile, pkgdescfile=None):
         Loader.__init__(self)
@@ -207,7 +207,8 @@ class YaST2Loader(Loader):
                 shares = line[6:].split()
                 for pkgshr in self._packages:
                     shrver, shrarch = splitarch(pkgshr.version)
-                    if shrver == (shares[1]+"-"+shares[2]) and shrarch == shares[3]:
+                    if (pkgshr.name == name and 
+                    (shrver == (shares[1]+"-"+shares[2]) and shrarch == shares[3])):
                         shrinfo = self.getInfo(pkgshr)
                         summary = shrinfo.getSummary()
                         description = shrinfo.getDescription()
