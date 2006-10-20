@@ -71,6 +71,23 @@ def speedToStr(speed):
     else:
         return "%.1fMB/s" % (speed/1024000.)
 
+def secondsToStr(time):
+    if not time:
+        return "Unknown"
+    elif time == 0:
+        return "0s"
+    elif time < 1:
+        return "1s"
+    else:
+        minutes, seconds = divmod(time, 60)
+        hours, minutes = divmod(minutes, 60)
+        if hours > 0:
+            return "%02ih%02im%02is" % (hours, minutes, seconds)
+        elif minutes > 0:
+            return "%02im%02is" % (minutes, seconds)
+        else:
+            return "%02is" % seconds
+
 _nulltrans = string.maketrans('', '')
 def isRegEx(s):
     return s.translate(_nulltrans, '^{[*') != s

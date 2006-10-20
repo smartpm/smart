@@ -80,6 +80,7 @@ class GtkProgress(Progress, gtk.Window):
                                             gobject.TYPE_STRING,
                                             gobject.TYPE_STRING,
                                             gobject.TYPE_STRING,
+                                            gobject.TYPE_STRING,
                                             gobject.TYPE_STRING)
             self._treeview = gtk.TreeView(self._treemodel)
             self._treeview.show()
@@ -107,6 +108,12 @@ class GtkProgress(Progress, gtk.Window):
             renderer.set_fixed_height_from_font(True)
             column = gtk.TreeViewColumn(_("Speed"), renderer, text=4)
             self._speedcolumn = column
+            self._treeview.append_column(column)
+
+            renderer = gtk.CellRendererText()
+            renderer.set_fixed_height_from_font(True)
+            column = gtk.TreeViewColumn(_("ETA"), renderer, text=5)
+            self._etacolumn = column
             self._treeview.append_column(column)
 
             renderer = gtk.CellRendererText()
@@ -160,6 +167,7 @@ class GtkProgress(Progress, gtk.Window):
             self._currentcolumn.set_visible(False)
             self._totalcolumn.set_visible(False)
             self._speedcolumn.set_visible(False)
+            self._etacolumn.set_visible(False)
 
         thread.start_new_thread(self.tick, ())
 
@@ -211,8 +219,11 @@ class GtkProgress(Progress, gtk.Window):
             speed = data.get("speed", "")
             if speed:
                 self._speedcolumn.set_visible(True)
-            if current or total or speed:
-                self._treemodel.set(iter, 2, current, 3, total, 4, speed)
+            eta = data.get("eta", "")
+            if eta:
+                self._etacolumn.set_visible(True)
+            if current or total or speed or eta:
+                self._treemodel.set(iter, 2, current, 3, total, 4, speed, 5, eta)
                 subtopic = self._shorturl.get(subtopic)
             self._treemodel.set(iter, 0, subpercent, 1, subtopic)
         else:

@@ -20,7 +20,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.util.strtools import sizeToStr, speedToStr
+from smart.util.strtools import sizeToStr, speedToStr, secondsToStr
 from smart.media import MediaSet, DeviceMedia
 from smart.uncompress import Uncompressor
 from smart.mirror import MirrorSystem
@@ -67,6 +67,7 @@ class Fetcher(object):
         self._activedownloadslock = thread.allocate_lock()
         self._maxactivedownloads = 0
         self.time = 0
+        self._eta = 0
 
     def reset(self):
         self._items.clear()
@@ -261,6 +262,7 @@ class Fetcher(object):
                       not item.getInfo("uncomp")):
                     if updatespeed:
                         item.updateSpeed()
+                        item.updateETA()
                     continue
                 localpath = item.getTargetPath()
                 if localpath in uncompchecked:
@@ -512,6 +514,7 @@ class FetchItem(object):
                 subdata["current"] = sizeToStr(current)
                 subdata["total"] = sizeToStr(total)
                 subdata["speed"] = speedToStr(self._speed)
+                subdata["eta"] = secondsToStr(self._eta)
                 self._progress.setSub(self._urlobj.original, current, total, 1,
                                       subdata)
                 self._progress.show()
@@ -531,6 +534,13 @@ class FetchItem(object):
                 self._speedtime = now
                 self._speedcurrent = self._current
                 self.progress(self._current, self._total)
+
+    def updateETA(self):
+        if self._status is RUNNING:
+            if (self._speed > 0) and (self._info.get("size") > 0):
+              self._eta = (self._info.get("size") - self._current) / self._speed
+            else:
+              self._eta = None
 
     def setSucceeded(self, targetpath, fetchedsize=0):
         if self._status is not FAILED:
