@@ -413,6 +413,7 @@ class FetchItem(object):
         self._current = 0
         self._total = 0
         self._speed = 0
+        self._eta = 0
         self._speedtime = 0
         self._speedcurrent = 0
 
