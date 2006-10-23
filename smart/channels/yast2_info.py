@@ -30,6 +30,6 @@ Repositories created for YaST2.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
-           _("Base URL of YaST2 repository, where directory.yast is located.")),
-           ("medias", _("Medias"), str, "",
-           _("Space separated list of medias. (NOT IN USE YET)"))]
+           _("Base URL of YaST2 repository, where the 'content' file is located."))]
+#           ("medias", _("Medias"), str, "",
+#           _("Space separated list of medias. (NOT IN USE YET)"))]
