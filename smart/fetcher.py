@@ -538,10 +538,10 @@ class FetchItem(object):
 
     def updateETA(self):
         if self._status is RUNNING:
-            if (self._speed > 0) and (self._info.get("size") > 0):
-              self._eta = (self._info.get("size") - self._current) / self._speed
+            if (self._speed > 0) and (self._total > 0):
+                self._eta = (self._total - self._current) / self._speed
             else:
-              self._eta = None
+                self._eta = None
 
     def setSucceeded(self, targetpath, fetchedsize=0):
         if self._status is not FAILED:

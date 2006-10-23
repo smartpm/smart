@@ -216,12 +216,16 @@ class GtkProgress(Progress, gtk.Window):
             total = data.get("total", "")
             if total:
                 self._totalcolumn.set_visible(True)
-            speed = data.get("speed", "")
-            if speed:
-                self._speedcolumn.set_visible(True)
-            eta = data.get("eta", "")
-            if eta:
-                self._etacolumn.set_visible(True)
+            if done:
+                speed = "Done"
+                eta = "Done"
+            else:
+                speed = data.get("speed", "")
+                if speed:
+                    self._speedcolumn.set_visible(True)
+                eta = data.get("eta", "")
+                if eta:
+                    self._etacolumn.set_visible(True)
             if current or total or speed or eta:
                 self._treemodel.set(iter, 2, current, 3, total, 4, speed, 5, eta)
                 subtopic = self._shorturl.get(subtopic)
