@@ -59,7 +59,7 @@ packages and relations are being considered, or even when just
 a few complex relations turn the most obvious choice into the
 unwanted one.
 
-While other softwares try to find a possible solution to satisfy
+While other applications try to find a possible solution to satisfy
 the relations involved in some user-requested operation, and
 sometimes even fail to do so [1]_, Smart goes beyond it. In the
 kernel of Smart Package Manager lives an algorithm that will
@@ -84,7 +84,7 @@ relations in installed packages. Only relations related to
 the operation being made are checked for correctness.
 
 .. [1] Check `Case Studies`_ for real cases where the algorithm
-       works better than what is implemented in other softwares.
+       works better than what is implemented in other applications.
 
 Multiple Interfaces
 -------------------
@@ -189,7 +189,7 @@ supports:
 
 and more.
 
-At that moment, the following schemes are nativelly supported:
+At the moment, the following schemes are nativelly supported:
 
 - file
 - ftp
@@ -215,7 +215,7 @@ following features are currently implemented:
 - Mountpoint autodetection
 - Support for multiple simultaneous media drives
 - Medias may be inserted in any order
-- Installed system is guaranted to maintain correct relations
+- Installed system is guaranteed to maintain correct relations
   between media changes
 - Remote removable media support using any of the supported schemes
   (ftp, http, scp, etc)
@@ -293,7 +293,7 @@ Case Studies
 In this section will be described real cases showing `Smart` behavior
 in comparison with other tools, or handling unusual situations.
 
-Notice that Smart was not tunned to work in any of these cases, and
+Notice that Smart was not tuned to work in any of these cases, and
 the reason it works is because handling unusual situations was the
 initial project goal.
 
@@ -327,7 +327,7 @@ The problem starts when an installation of `xscreensaver` is tried::
                   Depends: libxml2.so.2
   E: Broken packages
 
-The error shown makes the user belive that `libglade-2.0.so.0` and
+The error shown makes the user believe that `libglade-2.0.so.0` and
 `libxml2.so.2` are not available. That's not the case::
 
  [root@damien:/root] apt-get install libxml2
@@ -428,7 +428,7 @@ dependencies without `BCD`.
 
 The expected behavior for an operation asking to install `A` is obviously
 selecting `BCD` to satisfy `A`'s dependencies, on the other hand, `YUM` and
-APT fail to deliver that as a guaranted operation, as is shown
+APT fail to deliver that as a guaranteed operation, as is shown
 below.
 
 First, let's see how YUM deals with the problem::
@@ -670,7 +670,7 @@ have somehow contributed to the project are mentioned.
 	Conectiva has funded Smart development as the author's employer.
 
 :Wanderlei Cavassin:
-	Conectiva's research & development coordinator, who belived
+	Conectiva's research & development coordinator, who believed
 	the project was viable and encouraged the author to work on it.
 
 :Ednilson Miura & Herton Ronaldo Krzesinski:
@@ -703,7 +703,7 @@ have somehow contributed to the project are mentioned.
 	maintainer.
 
 :Jeff Johnson:
-	Maintainer of the `RPM` software, employed by RedHat, Inc.
+	Maintainer of the `RPM` software, employed by Red Hat, Inc.
 	contributed as being the RPM maintainer itself, and in
 	many discussions regarding packaging theory in general.
 
