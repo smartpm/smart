@@ -63,10 +63,10 @@ class GtkProgress(Progress, gtk.Window):
         self._topic.show()
         vbox.pack_start(self._topic, expand=False, fill=False)
 
-        self._progress = gtk.ProgressBar()
-        self._progress.set_size_request(-1, 25)
-        self._progress.show()
-        vbox.pack_start(self._progress, expand=False, fill=False)
+        self._progressbar = gtk.ProgressBar()
+        self._progressbar.set_size_request(-1, 25)
+        self._progressbar.show()
+        vbox.pack_start(self._progressbar, expand=False, fill=False)
 
         if hassub:
             self._scrollwin = gtk.ScrolledWindow()
@@ -232,8 +232,8 @@ class GtkProgress(Progress, gtk.Window):
             self._treemodel.set(iter, 0, subpercent, 1, subtopic)
         else:
             self._topic.set_text(topic)
-            self._progress.set_fraction(percent/100.)
-            self._progress.set_text("%d%%" % percent)
+            self._progressbar.set_fraction(percent/100.)
+            self._progressbar.set_text("%d%%" % percent)
             if self._hassub:
                 self._treeview.queue_draw()
 
