@@ -528,7 +528,7 @@ PENDING_REMOVE   = 1
 PENDING_INSTALL  = 2
 PENDING_UPDOWN   = 3
 
-WEIGHT_NONE   = 1e100   # float to make comparisons and "%f" work, but larger than any real weight
+WEIGHT_NONE   = 1e100   # float to make min() "%f" work, but larger than any real weight
 
 class Transaction(object):
     def __init__(self, cache, policy=None, changeset=None, queue=None):
@@ -613,9 +613,11 @@ class Transaction(object):
                         raise Failed, _("Can't install %s: conflicted package "
                                         "%s is locked") % (pkg, prvpkg)
                     if immediateUpdown:
-                        self._updown(prvpkg, changeset, locked, pruneweight, depth, force=1)
+                        task = self._updown(prvpkg, changeset, locked, pruneweight, depth, force=1)
+                        for res in task: yield res
                     else:
-                        self._remove(prvpkg, changeset, locked, pending, pruneweight, depth)
+                        task = self._remove(prvpkg, changeset, locked, pending, pruneweight, depth)
+                        for res in task: yield res
                         pending.append((PENDING_UPDOWN, prvpkg))
 
         # Remove packages conflicting with this one.
@@ -632,9 +634,11 @@ class Transaction(object):
                                         "the locked package %s") \
                                       % (pkg, cnfpkg)
                     if immediateUpdown:
-                        self._updown(cnfpkg, changeset, locked, pruneweight, depth, force=1)
+                        task = self._updown(cnfpkg, changeset, locked, pruneweight, depth, force=1)
+                        for res in task: yield res
                     else:
-                        self._remove(cnfpkg, changeset, locked, pending, pruneweight, depth)
+                        task = self._remove(cnfpkg, changeset, locked, pending, pruneweight, depth)
+                        for res in task: yield res
                         pending.append((PENDING_UPDOWN, cnfpkg))
 
         # Remove packages with the same name that can't
@@ -648,7 +652,8 @@ class Transaction(object):
                 if namepkg in locked:
                     raise Failed, _("Can't install %s: it can't coexist "
                                     "with %s") % (pkg, namepkg)
-                self._remove(namepkg, changeset, locked, pending, pruneweight, depth)
+                task = self._remove(namepkg, changeset, locked, pending, pruneweight, depth)
+                for res in task: yield res
 
         # Install packages required by this one.
         for req in pkg.requires:
@@ -680,15 +685,17 @@ class Transaction(object):
             if len(prvpkgs) == 1:
                 # Don't check locked here. prvpkgs was
                 # already filtered above.
-                self._install(prvpkgs.popitem()[0], changeset, locked,
-                              pending, pruneweight, depth)
+                task = self._install(prvpkgs.popitem()[0], changeset, locked,
+                                    pending, pruneweight, depth)
+                for res in task: yield res
             else:
                 # More than one package provide it. This package
                 # must be post-processed.
                 pending.append((PENDING_INSTALL, pkg, req, prvpkgs.keys()))
 
         if ownpending:
-            self._pending(changeset, locked, pending, pruneweight, depth)
+            task = self._pending(changeset, locked, pending, pruneweight, depth)
+            for res in task: yield res
 
     def _remove(self, pkg, changeset, locked, pending, pruneweight, depth=0):
         depth += 1
@@ -768,17 +775,21 @@ class Transaction(object):
                             raise Failed, _("Can't remove %s: %s is locked") \
                                           % (pkg, reqpkg)
                         if immediateUpdown:
-                            self._updown(reqpkg, changeset, locked, pruneweight, depth, force=1)
+                            task = self._updown(reqpkg, changeset, locked, pruneweight, depth, force=1)
+                            for res in task: yield res
                         else:
-                            self._remove(reqpkg, changeset, locked, pending, pruneweight, depth)
+                            task = self._remove(reqpkg, changeset, locked, pending, pruneweight, depth)
+                            for res in task: yield res
                             pending.append((PENDING_UPDOWN, reqpkg))
 
         if ownpending:
-            self._pending(changeset, locked, pending, pruneweight, depth)
+            task = self._pending(changeset, locked, pending, pruneweight, depth)
+            for res in task: yield res
 
-    # _updown - up/downgrade a package
-    # If force=1, insists on replacing or removing pkg.
     def _updown(self, pkg, changeset, locked, pruneweight, depth=0, force=0):
+        """
+        If force=1, insists on replacing or removing pkg.
+        """
         depth += 1
         trace(1, depth, "_updown(%s, pw=%f, f=%d)", (pkg, pruneweight, force))
 
@@ -833,7 +844,8 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                self._install(upgpkg, cs, lk, None, pruneweight, depth)
+                task = self._install(upgpkg, cs, lk, None, pruneweight, depth)
+                for res in task: yield res
             except Failed:
                 pass
             except Prune:
@@ -894,7 +906,8 @@ class Transaction(object):
                 try:
                     cs = changeset.copy()
                     lk = locked.copy()
-                    self._install(dwnpkg, cs, lk, None, pruneweight, depth)
+                    task = self._install(dwnpkg, cs, lk, None, pruneweight, depth)
+                    for res in task: yield res
                 except Failed:
                     pass
                 except Prune:
@@ -912,7 +925,8 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                self._remove(pkg, cs, lk, None, pruneweight, depth)
+                task = self._remove(pkg, cs, lk, None, pruneweight, depth)
+                for res in task: yield res
             except Failed:
                 if len(alternatives)==0:
                     raise Failed, _("Can't get rid of %s" % pkg)
@@ -990,7 +1004,8 @@ class Transaction(object):
                         try:
                             cs = changeset.copy()
                             lk = locked.copy()
-                            self._install(prvpkg, cs, lk, None, _pruneweight, depth)
+                            task = self._install(prvpkg, cs, lk, None, _pruneweight, depth)
+                            for res in task: yield res
                         except Failed, e:
                             failures.append(unicode(e))
                         except Prune, e:
@@ -1014,8 +1029,9 @@ class Transaction(object):
                         locked.update(alternatives[0][2])
                 else:
                     # This turned out to be the only way.
-                    self._install(prvpkgs[0], changeset, locked,
-                                  pending, pruneweight, depth)
+                    task = self._install(prvpkgs[0], changeset, locked,
+                                        pending, pruneweight, depth)
+                    for res in task: yield res
 
             elif kind == PENDING_REMOVE:
                 kind, pkg, prv, reqpkgs, prvpkgs = item
@@ -1060,7 +1076,8 @@ class Transaction(object):
                         try:
                             cs = changeset.copy()
                             lk = locked.copy()
-                            self._install(prvpkg, cs, lk, None, _pruneweight, depth)
+                            task = self._install(prvpkg, cs, lk, None, _pruneweight, depth)
+                            for res in task: yield res
                         except Failed, e:
                             failures.append(unicode(e))
                         except Prune, e:
@@ -1094,10 +1111,12 @@ class Transaction(object):
                                             "package %s is locked") % \
                                           (pkg, reqpkg)
                         if immediateUpdown:
-                            self._updown(reqpkg, changeset, locked, pruneweight, depth, 1)
+                            task = self._updown(reqpkg, changeset, locked, pruneweight, depth, 1)
+                            for res in task: yield res
                         else:
-                            self._remove(reqpkg, changeset, locked,
-                                         pending, pruneweight, depth)
+                            task = self._remove(reqpkg, changeset, locked,
+                                               pending, pruneweight, depth)
+                            for res in task: yield res
                     continue
 
                 # Also try to remove every requiring package, or
@@ -1116,9 +1135,11 @@ class Transaction(object):
                             if reqpkg in lk:
                                 raise Failed, _("%s is locked") % reqpkg
                             if immediateUpdown:
-                                self._updown(reqpkg, cs, lk, pruneweight, depth, force=1)
+                                task = self._updown(reqpkg, cs, lk, pruneweight, depth, force=1)
+                                for res in task: yield res
                             else:
-                                self._remove(reqpkg, cs, lk, None, pruneweight, depth)
+                                task = self._remove(reqpkg, cs, lk, None, pruneweight, depth)
+                                for res in task: yield res
                     except Failed, e:
                         failures.append(unicode(e))
                     except Prune, e:
@@ -1140,7 +1161,8 @@ class Transaction(object):
 
         for pkg in updown:
             trace(1, depth, "_pending.final updown: %s", (pkg) )
-            self._updown(pkg, changeset, locked, pruneweight, depth)
+            task = self._updown(pkg, changeset, locked, pruneweight, depth)
+            for res in task: yield res
 
         del pending[:]
 
@@ -1167,7 +1189,8 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                self._install(pkg, cs, lk, None, pruneweight, depth)
+                task = self._install(pkg, cs, lk, None, pruneweight, depth)
+                for res in task: pass
             except Failed, e:
                 pass
             except Prune:
@@ -1201,9 +1224,11 @@ class Transaction(object):
                     cs = changeset.copy()
                     lk = locked.copy()
                     if op is REMOVE:
-                        self._install(pkg, cs, lk, None, pruneweight, depth)
+                        task = self._install(pkg, cs, lk, None, pruneweight, depth)
+                        for res in task: yield res
                     elif op is INSTALL:
-                        self._remove(pkg, cs, lk, None, pruneweight, depth)
+                        task = self._remove(pkg, cs, lk, None, pruneweight, depth)
+                        for res in task: yield res
                 except Failed, e:
                     pass
                 except Prune:
@@ -1289,7 +1314,8 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                self._install(pkg, cs, lk, None, pruneweight, depth)
+                task = self._install(pkg, cs, lk, None, pruneweight, depth)
+                for res in task: yield res
             except Failed, e:
                 failures.append(unicode(e))
             except Prune, e:
@@ -1305,8 +1331,10 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                self._remove(pkg, cs, lk, None, pruneweight, depth)
-                self._updown(pkg, cs, lk, pruneweight, depth)
+                task = self._remove(pkg, cs, lk, None, pruneweight, depth)
+                for res in task: yield res
+                task = self._updown(pkg, cs, lk, pruneweight, depth)
+                for res in task: yield res
             except Failed, e:
                 failures.append(unicode(e))
             except Prune, e:
@@ -1398,22 +1426,27 @@ class Transaction(object):
                     else:
                         op = REMOVE
                 if op is INSTALL or op is REINSTALL:
-                    self._install(pkg, changeset, locked, pending, WEIGHT_NONE)
+                    task = self._install(pkg, changeset, locked, pending, WEIGHT_NONE)
+                    for res in task: pass
                 elif op is REMOVE:
-                    self._remove(pkg, changeset, locked, pending, WEIGHT_NONE)
+                    task = self._remove(pkg, changeset, locked, pending, WEIGHT_NONE)
+                    for res in task: pass
                 elif op is UPGRADE:
                     upgpkgs.append(pkg)
                 elif op is FIX:
                     fixpkgs.append(pkg)
 
             if pending:
-                self._pending(changeset, locked, pending, WEIGHT_NONE)
+                task = self._pending(changeset, locked, pending, WEIGHT_NONE)
+                for res in task: pass
 
             if upgpkgs:
-                self._upgrade(upgpkgs, changeset, locked, pending, WEIGHT_NONE)
+                task = self._upgrade(upgpkgs, changeset, locked, pending, WEIGHT_NONE)
+                for res in task: pass
 
             if fixpkgs:
-                self._fix(fixpkgs, changeset, locked, pending, WEIGHT_NONE)
+                task = self._fix(fixpkgs, changeset, locked, pending, WEIGHT_NONE)
+                for res in task: pass
 
             self._changeset.setState(changeset)
 
