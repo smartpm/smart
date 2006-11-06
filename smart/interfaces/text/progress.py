@@ -113,7 +113,7 @@ class TextProgress(Progress):
         if not done:
             speed = data.get("speed")
             if speed:
-                suffix = "(%s - %d%% - ETA %s)\r" % (speed, current, data.get("eta"))
+                suffix = "(%d%% %s %s)\r" % (current, speed, data.get("eta"))
             else:
                 suffix = "(%3d%%)\r" % current
         elif subpercent is None:
