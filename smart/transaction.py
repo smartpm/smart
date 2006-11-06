@@ -1471,24 +1471,24 @@ class Transaction(object):
         blues = {}
         bluequeue = []
 
-        def colorblue(bpkg):
-            if bpkg not in blues and bpkg not in reds:
-                blues[bpkg] = True
-                bluequeue.append(bpkg)
-
         # Direct conflicts of red packages:
         for redpkg in reds:
             for namepkg in self._cache.getPackages(redpkg.name):
-                if namepkg is not redpkg and namepkg not in blues and not redpkg.coexists(namepkg):
-                    colorblue(namepkg)
+                if namepkg not in reds and namepkg not in blues and not redpkg.coexists(namepkg):
+                    blues[namepkg] = True
+                    bluequeue.append(namepkg)
             for cnf in redpkg.conflicts:
                     for prv in cnf.providedby:
                         for prvpkg in prv.packages:
-                           colorblue(prvpkg)
+                            if prvpkg not in blues and prvpkg not in reds:
+                                blues[prvpkg] = True
+                                bluequeue.append(prvpkg)
             for prv in redpkg.provides:
                 for cnf in prv.conflictedby:
                     for cnfpkg in cnf.packages:
-                        colorblue(cnfpkg)
+                        if cnfpkg not in blues and cnfpkg not in reds:
+                            blues[cnfpkg] = True
+                            bluequeue.append(cnfpkg)
 
         # Indirect conflict due to necessary requirements of blue packages:
         while bluequeue:
@@ -1506,7 +1506,9 @@ class Transaction(object):
                        break
                     else: # all providing packages are blue
                         for reqpkg in req.packages:
-                            colorblue(reqpkg)
+                            if reqpkg not in blues and reqpkg not in reds:
+                                blues[reqpkg] = True
+                                bluequeue.append(reqpkg)
 
         self._prohibitspkgs[pkg] = blues;
         if traceVerbosity>=7: trace(7, 0, "getProhibits(%s) -> %s", (pkg, sorted(blues.keys())))
