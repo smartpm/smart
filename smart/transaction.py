@@ -606,9 +606,9 @@ class Transaction(object):
             of having the caller always evaluate its % operator.
             """
             if verbosity<=traceVerbosity and self._depth<=traceDepth:
-                print "%s>     %s" % (self._tracepath, str % args)
+                iface.debug("%s>     %s" % (self._tracepath, str % args))
                 if traceVerbosity>6 and cs is not None:
-                    print "--> changeset:\n%s" % (cs)
+                    iface.debug("--> changeset:\n%s" % (cs))
 
         def __iter__(self):
             return self;
@@ -1523,10 +1523,9 @@ class Transaction(object):
         finally:
             self._queue.clear()
             self._policy.runFinished()
-        if traceVerbosity>0:
-            print "\n# Tasks started: %d, completed: %d, pruned: %d, failed: %d." % \
-                  (self.numTaskStarted, self.numTaskCompleted,
-                   self.numTaskPruned, self.numTaskFailed)
+        iface.debug("\nTasks started: %d, completed: %d, pruned: %d, failed: %d." % \
+                    (self.numTaskStarted, self.numTaskCompleted,
+                     self.numTaskPruned, self.numTaskFailed))
 
     def getNecessary(self, pkg, ignorepkgs={}):
         """
@@ -1567,7 +1566,7 @@ class Transaction(object):
 
         if save:
             self._necessarypkgs[pkg] = necdct;
-            if traceVerbosity>=7: print "# getNecessary(%s) -> %s"  % (pkg, sorted(necdct.keys()))
+            if traceVerbosity>=7: iface.debug("getNecessary(%s) -> %s"  % (pkg, sorted(necdct.keys())))
         return necdct;
 
     def getNecessitates(self, pkg, ignorepkgs={}):
@@ -1608,7 +1607,7 @@ class Transaction(object):
 
         if save:
             self._necessitatespkgs[pkg] = necdct;
-            if traceVerbosity>=7: print "# getNecessitates(%s) -> %s" % (pkg, sorted(necdct.keys()))
+            if traceVerbosity>=7: iface.debug("# getNecessitates(%s) -> %s" % (pkg, sorted(necdct.keys())))
         return necdct;
 
     def getProhibits(self, pkg):
@@ -1668,7 +1667,7 @@ class Transaction(object):
                                 bluequeue.append(reqpkg)
 
         self._prohibitspkgs[pkg] = blues;
-        if traceVerbosity>=7: print "# getProhibits(%s) -> %s" % (pkg, sorted(blues.keys()))
+        if traceVerbosity>=7: iface.debug("# getProhibits(%s) -> %s" % (pkg, sorted(blues.keys())))
         return blues;
 
 
