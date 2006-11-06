@@ -23,6 +23,29 @@ from smart.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP
 from smart.cache import PreRequires, Package
 from smart import *
 
+#==========================================================
+# Algorithm tweaks
+
+earlyAbort = 1
+# If 1, we stop the evaluation of alternatives whenever we found a feasible
+# one and all remaining alternatives have a lower package priorities
+# (this is a local decision, before exploring the consequences).
+# If 0 (old behavior), we exhaust all possibilities.
+
+immediateUpdown = 1
+# If 1, when we have to remove a package due to dependencies we immediately
+# look for an up/downgrade replacement. In conjunction with earlyAbort=1,
+# this means broken dependencies will be removed only as a last resort
+# (i.e., if it's impossible to preserve them by up/downgrdading)
+# regardless of the changeset weights given by the policy.
+# This also tends to produce changesets with fewer Removes and more Upgrades.
+# If 0 (old behavior), we instead create a pending task and delay it for 
+# later; this tends to cause huge remove cascades and, consequentially,
+# slower running and larger changesets. However, it fully respects the
+# policy weights and explors more options.
+
+#==========================================================
+
 class ChangeSet(dict):
 
     def __init__(self, cache, state=None):
@@ -466,8 +489,11 @@ class Transaction(object):
                     if prvpkg in locked:
                         raise Failed, _("Can't install %s: conflicted package "
                                         "%s is locked") % (pkg, prvpkg)
-                    self._remove(prvpkg, changeset, locked, pending, depth)
-                    pending.append((PENDING_UPDOWN, prvpkg))
+                    if immediateUpdown:
+                        self._updown(prvpkg, changeset, locked, depth, force=1)
+                    else:
+                        self._remove(prvpkg, changeset, locked, pending, depth)
+                        pending.append((PENDING_UPDOWN, prvpkg))
 
         # Remove packages conflicting with this one.
         for prv in pkg.provides:
@@ -482,8 +508,11 @@ class Transaction(object):
                         raise Failed, _("Can't install %s: it's conflicted by "
                                         "the locked package %s") \
                                       % (pkg, cnfpkg)
-                    self._remove(cnfpkg, changeset, locked, pending, depth)
-                    pending.append((PENDING_UPDOWN, cnfpkg))
+                    if immediateUpdown:
+                        self._updown(cnfpkg, changeset, locked, depth, force=1)
+                    else:
+                        self._remove(cnfpkg, changeset, locked, pending, depth)
+                        pending.append((PENDING_UPDOWN, cnfpkg))
 
         # Remove packages with the same name that can't
         # coexist with this one.
@@ -600,13 +629,18 @@ class Transaction(object):
                         if reqpkg in locked:
                             raise Failed, _("Can't remove %s: %s is locked") \
                                           % (pkg, reqpkg)
-                        self._remove(reqpkg, changeset, locked, pending, depth)
-                        pending.append((PENDING_UPDOWN, reqpkg))
+                        if immediateUpdown:
+                            self._updown(reqpkg, changeset, locked, depth, force=1)
+                        else:
+                            self._remove(reqpkg, changeset, locked, pending, depth)
+                            pending.append((PENDING_UPDOWN, reqpkg))
 
         if ownpending:
             self._pending(changeset, locked, pending, depth)
 
-    def _updown(self, pkg, changeset, locked, depth=0):
+    # _updown - up/downgrade a package
+    # If force=1, insists on replacing or removing pkg.
+    def _updown(self, pkg, changeset, locked, depth=0, force=0):
         #print "[%03d] _updown(%s)" % (depth, pkg)
         #depth += 1
 
@@ -641,10 +675,21 @@ class Transaction(object):
 
         # No, let's try to upgrade it.
         getweight = self._policy.getWeight
-        alternatives = [(getweight(changeset), changeset)]
+        if force:
+            alternatives = []
+        else:
+            alternatives = [(getweight(changeset), changeset)]
 
         # Check if upgrading is possible.
+        if earlyAbort:
+            upgpkgs = upgpkgs.keys()
+            sortUpgrades(upgpkgs)
+            pw = self._policy.getPriorityWeights(upgpkgs)
+            _maxpw = None
         for upgpkg in upgpkgs:
+            if (earlyAbort and _maxpw is not None and
+                 pw[upgpkg] > _maxpw):
+                 continue # don't assume sort order
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
@@ -653,10 +698,14 @@ class Transaction(object):
                 pass
             else:
                 alternatives.append((getweight(cs), cs))
+                if earlyAbort:
+                    _maxpw = pw[upgpkg]
 
         # Is any downgrading version of this package installed?
         try:
             dwnpkgs = {}
+            if earlyAbort and _maxpw is not None:
+                raise StopIteration
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
@@ -681,7 +730,15 @@ class Transaction(object):
             pass
         else:
             # Check if downgrading is possible.
+            if earlyAbort:
+                dwnpkgs = dwnpkgs.keys()
+                sortUpgrades(dwnpkgs)
+                pw = self._policy.getPriorityWeights(dwnpkgs)
+                _maxpw = None
             for dwnpkg in dwnpkgs:
+                if (earlyAbort and _maxpw is not None and
+                     pw[dwnpkg] > _maxpw):
+                     continue # don't assume sort order
                 try:
                     cs = changeset.copy()
                     lk = locked.copy()
@@ -690,10 +747,25 @@ class Transaction(object):
                     pass
                 else:
                     alternatives.append((getweight(cs), cs))
+                    if earlyAbort:
+                        _maxpw = pw[dwnpkg]
 
-        # If there's only one alternative, it's the one currenlty in use.
+        # If forced, we can just remove the package. 
+        if force and (len(alternatives)==0 or not earlyAbort):
+            try:
+                cs = changeset.copy()
+                lk = locked.copy()
+                self._remove(pkg, cs, lk, None, depth)
+            except Failed:
+                if len(alternatives)==0:
+                    raise Failed, _("Can't get rid of %s" % pkg)
+            else:
+                alternatives.append((getweight(cs), cs))
+
         if len(alternatives) > 1:
             alternatives.sort()
+        # If !force and there's only one alternative, it's the one currenlty in use.
+        if force or len(alternatives) > 1:
             changeset.setState(alternatives[0][1])
 
     def _pending(self, changeset, locked, pending, depth=0):
@@ -739,7 +811,11 @@ class Transaction(object):
                     sortUpgrades(prvpkgs)
                     keeporder = 0.000001
                     pw = self._policy.getPriorityWeights(prvpkgs)
+                    _maxpw = None
                     for prvpkg in prvpkgs:
+                        if (earlyAbort and _maxpw is not None and
+                            pw[prvpkg] > _maxpw):
+                            continue # don't assume sort order
                         try:
                             cs = changeset.copy()
                             lk = locked.copy()
@@ -750,6 +826,8 @@ class Transaction(object):
                             alternatives.append((getweight(cs)+pw[prvpkg]+
                                                  keeporder, cs, lk))
                             keeporder += 0.000001
+                            if earlyAbort:
+                                _maxpw = pw[prvpkg]
                     if not alternatives:
                         raise Failed, _("Can't install %s: all packages "
                                         "providing %s failed to install:\n%s")\
@@ -792,8 +870,14 @@ class Transaction(object):
                     alternatives = []
                     failures = []
 
+                    if earlyAbort:
+                        sortUpgrades(prvpkgs)
+                        _maxpw = None
                     pw = self._policy.getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
+                        if (earlyAbort and _maxpw is not None and
+                            pw[prvpkg] > _maxpw):
+                            continue # don't assume sort order
                         try:
                             cs = changeset.copy()
                             lk = locked.copy()
@@ -803,6 +887,8 @@ class Transaction(object):
                         else:
                             alternatives.append((getweight(cs)+pw[prvpkg],
                                                 cs, lk))
+                            if earlyAbort:
+                                _maxpw = pw[prvpkg]
 
                 if not prvpkgs or not alternatives:
 
@@ -827,25 +913,29 @@ class Transaction(object):
                                      pending, depth)
                     continue
 
-                # Then, remove every requiring package, or
+                # Also try to remove every requiring package, or
                 # upgrade/downgrade them to something which
                 # does not require this dependency.
-                cs = changeset.copy()
-                lk = locked.copy()
-                try:
-                    for reqpkg in reqpkgs:
-                        if reqpkg in locked and isinst(reqpkg):
-                            raise Failed, _("%s is locked") % reqpkg
-                    for reqpkg in reqpkgs:
-                        if not cs.installed(reqpkg):
-                            continue
-                        if reqpkg in lk:
-                            raise Failed, _("%s is locked") % reqpkg
-                        self._remove(reqpkg, cs, lk, None, depth)
-                except Failed, e:
-                    failures.append(unicode(e))
-                else:
-                    alternatives.append((getweight(cs), cs, lk))
+                if not (earlyAbort and immediateUpdown):
+                    cs = changeset.copy()
+                    lk = locked.copy()
+                    try:
+                        for reqpkg in reqpkgs:
+                            if reqpkg in locked and isinst(reqpkg):
+                                raise Failed, _("%s is locked") % reqpkg
+                        for reqpkg in reqpkgs:
+                            if not cs.installed(reqpkg):
+                                continue
+                            if reqpkg in lk:
+                                raise Failed, _("%s is locked") % reqpkg
+                            if immediateUpdown:
+                                self._updown(reqpkg, cs, lk, depth, force=1)
+                            else:
+                                self._remove(reqpkg, cs, lk, None, depth)
+                    except Failed, e:
+                        failures.append(unicode(e))
+                    else:
+                        alternatives.append((getweight(cs), cs, lk))
 
                 if not alternatives:
                     raise Failed, _("Can't install %s: all packages providing "
