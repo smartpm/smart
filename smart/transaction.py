@@ -77,15 +77,6 @@ traceVerbosity = 0
 # (At large depths, running time is dominated by trace I/O.)
 traceDepth = 5
 
-# trace - pretty-print a trace line if it patches the current filter.
-# It accepts format arguments and evaluates them only if needed, instead
-# of having the caller always evaluate its % operator.
-def trace(verbosity, depth, str, args=[], cs=None):
-    if verbosity<=traceVerbosity and depth<=traceDepth:
-        print "[%*s%03d] %s" % (depth, '', depth, str % args)
-        if traceVerbosity>6 and cs is not None:
-            print "--> changeset:\n%s" % (cs)
-
 #==========================================================
 
 class ChangeSet(dict):
@@ -598,6 +589,7 @@ class Transaction(object):
             self._yieldweight = yieldweight # Weight at which to yield execution
             self._trans = parent._trans     # the Transaction object we belong to
             self._depth = parent._depth + 1 # Trace depth level
+            self._tracepath = "%s-%d" % (parent._tracepath, order)
 
         def setWeights(self, pruneweight, yieldweight):
             self._pruneweight = pruneweight
@@ -613,6 +605,17 @@ class Transaction(object):
             self._csweight = self._gen.next()
             return self._csweight
 
+        def trace(self, verbosity, str, args=[], cs=None):
+            """
+            pretty-print a trace line if it patches the current filter.
+            It accepts format arguments and evaluates them only if needed, instead
+            of having the caller always evaluate its % operator.
+            """
+            if verbosity<=traceVerbosity and self._depth<=traceDepth:
+                print "%s>     %s" % (self._tracepath, str % args)
+                if traceVerbosity>6 and cs is not None:
+                    print "--> changeset:\n%s" % (cs)
+
         def __iter__(self):
             return self;
 
@@ -624,6 +627,7 @@ class Transaction(object):
             self._trans = trans
             self._depth = 0
             self._order = 0
+            self._tracepath = '#'
 
     class TaskInstall(Task):
       def __init__(self, parent, pkg, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
@@ -635,7 +639,7 @@ class Transaction(object):
         changeset = self._changeset
         locked = self._locked
         depth = self._depth
-        trace(1, depth, "_install(%s, pw=%f, yw=%f)", (pkg, self._pruneweight, self._yieldweight))
+        self.trace(1,  "_install(%s, pw=%f, yw=%f)", (pkg, self._pruneweight, self._yieldweight))
 
         ownpending = pending is None
         if ownpending:
@@ -653,7 +657,7 @@ class Transaction(object):
                         optweight = trans.getPolicy().getWeight(changeset)
                     optweight += trans.getPolicy().getBestUpdownDeltaWeight(prhpkg)
             if optweight is not None and optweight > self._pruneweight:
-                trace(2, depth, "pruned _install")
+                self.trace(2, "pruned _install")
                 raise Prune, _("Pruned installation of %s") % (pkg)
 
         # Remove packages conflicted by this one.
@@ -763,7 +767,7 @@ class Transaction(object):
         locked = self._locked
         depth = self._depth
         pruneweight = self._pruneweight
-        trace(1, depth, "_remove(%s, pw=%f, yw=%f))", (pkg, self._pruneweight, self._yieldweight))
+        self.trace(1, "_remove(%s, pw=%f, yw=%f)", (pkg, self._pruneweight, self._yieldweight))
 
         if pkg.essential:
             raise Failed, _("Can't remove %s: it's an essential package")
@@ -788,7 +792,7 @@ class Transaction(object):
                 if isinst(necpkg):
                     optweight += trans.getPolicy().getBestUpdownDeltaWeight(necpkg)
             if optweight > pruneweight:
-                trace(2, depth, "pruned _remove")
+                self.trace(2, "pruned _remove (ow=%f > pw=%f)", (optweight, pruneweight))
                 raise Prune, _("Pruned removal of %s") % (pkg)
 
         # Check packages requiring this one.
@@ -864,7 +868,7 @@ class Transaction(object):
         locked = self._locked
         depth = self._depth
         pruneweight = self._pruneweight
-        trace(1, depth, "_updown(%s, pw=%f, yw=%f, f=%d)", (pkg, pruneweight, self._yieldweight, force))
+        self.trace(1, "_updown(%s, pw=%f, yw=%f, f=%d)", (pkg, pruneweight, self._yieldweight, force))
 
         isinst = changeset.installed
         getpriority = trans.getPolicy().getPriority
@@ -912,7 +916,7 @@ class Transaction(object):
         for upgpkg in upgpkgs:
             if (earlyAbort and _maxpw is not None and
                  pw[upgpkg] > _maxpw):
-                 trace(2, depth, "early abort of _updown.upg at %s", (upgpkg))
+                 self.trace(2, "early abort of _updown.upg at %s", (upgpkg))
                  continue # don't assume sort order
             try:
                 cs = changeset.copy()
@@ -925,7 +929,7 @@ class Transaction(object):
                 pass
             else:
                 csweight = getweight(cs)
-                trace(3, depth, "feasible upg alternative: %s (csw=%f)", (upgpkg, csweight), cs)
+                self.trace(3, "feasible upg alternative: %s (csw=%f)", (upgpkg, csweight), cs)
                 alternatives.append((csweight, cs))
                 pruneweight = min(pruneweight, csweight)
                 if earlyAbort:
@@ -963,7 +967,7 @@ class Transaction(object):
                 # We have to downgrade, so assume the weight cannot improve
                 # past this point, and prune.
                 if getweight(changeset) > pruneweight:
-                    trace(2, depth, "pruned downgrading _updown")
+                    self.trace(2, "pruned downgrading _updown")
                     raise Prune, _("Pruned downgrading of %s") % (pkg)
             # Check if downgrading is possible.
             if earlyAbort:
@@ -974,7 +978,7 @@ class Transaction(object):
             for dwnpkg in dwnpkgs:
                 if (earlyAbort and _maxpw is not None and
                      pw[dwnpkg] > _maxpw):
-                     trace(2, depth, "early abort of _updown.dwn at %s", (dwnpkg))
+                     self.trace(2, "early abort of _updown.dwn at %s", (dwnpkg))
                      continue # don't assume sort order
                 try:
                     cs = changeset.copy()
@@ -987,7 +991,7 @@ class Transaction(object):
                     pass
                 else:
                     csweight = getweight(cs)
-                    trace(3, depth, "feasible dwn alternative: %s (csw=%f)", (dwnpkg, csweight), cs)
+                    self.trace(3, "feasible dwn alternative: %s (csw=%f)", (dwnpkg, csweight), cs)
                     alternatives.append((csweight, cs))
                     pruneweight = min(pruneweight, csweight)
                     if earlyAbort:
@@ -1008,7 +1012,7 @@ class Transaction(object):
                     raise
             else:
                 csweight = getweight(cs)
-                trace(3, depth, "feasible delete alternative (csw=%f)", (csweight), cs)
+                self.trace(3, "feasible delete alternative (csw=%f)", (csweight), cs)
                 alternatives.append((csweight, cs))
                 pruneweight = min(pruneweight, csweight)
 
@@ -1029,9 +1033,9 @@ class Transaction(object):
         locked = self._locked
         depth = self._depth
         if traceVerbosity<4:
-            trace(1, depth, "_pending(pw=%f, yw=%f)", (self._pruneweight, self._yieldweight))
+            self.trace(1, "_pending(pw=%f, yw=%f)", (self._pruneweight, self._yieldweight))
         else:
-            trace(4, depth, "_pending(%s, pw=%f, yw=%f)", (pending, self._pruneweight, self._yieldweight))
+            self.trace(4, "_pending(%s, pw=%f, yw=%f)", (pending, self._pruneweight, self._yieldweight))
 
         isinst = changeset.installed
         getweight = trans.getPolicy().getWeight
@@ -1042,11 +1046,11 @@ class Transaction(object):
             kind = item[0]
             if kind == PENDING_UPDOWN:
                 kind, pkg = item
-                trace(1, depth, "_pending.PENDING_UPDOWN (%s)", (pkg) )
+                self.trace(1, "_pending.PENDING_UPDOWN (%s)", (pkg) )
                 updown.append(pkg)
             elif kind == PENDING_INSTALL:
                 kind, pkg, req, prvpkgs = item
-                trace(1, depth, "_pending.PENDING_INSTALL (%s, %s, %s)", (pkg,req,prvpkgs) )
+                self.trace(1, "_pending.PENDING_INSTALL (%s, %s, %s)", (pkg,req,prvpkgs) )
 
                 # Check if any prvpkg was already selected for installation
                 # due to some other change.
@@ -1080,7 +1084,7 @@ class Transaction(object):
                     for prvpkg in prvpkgs:
                         if (earlyAbort and _maxpw is not None and
                             pw[prvpkg] > _maxpw):
-                            trace(2, depth, "early abort of PENDING_INSTALL at %s", (prvpkg))
+                            self.trace(2, "early abort of PENDING_INSTALL at %s", (prvpkg))
                             continue # don't assume sort order
                         try:
                             cs = changeset.copy()
@@ -1093,7 +1097,7 @@ class Transaction(object):
                             failures.append(unicode(e))
                         else:
                             csweight = getweight(cs)
-                            trace(2, depth, "feasible PENDING_INSTALL alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
+                            self.trace(2, "feasible PENDING_INSTALL alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
                             _pruneweight = min(_pruneweight, csweight)
                             alternatives.append((csweight+pw[prvpkg]+
                                                  keeporder, cs, lk))
@@ -1115,7 +1119,7 @@ class Transaction(object):
 
             elif kind == PENDING_REMOVE:
                 kind, pkg, prv, reqpkgs, prvpkgs = item
-                trace(1, depth, "_pending.PENDING_REMOVE (%s, %s, %s, %s)", (pkg, prv, reqpkgs, prvpkgs) )
+                self.trace(1, "_pending.PENDING_REMOVE (%s, %s, %s, %s)", (pkg, prv, reqpkgs, prvpkgs) )
 
                 # Check if someone installed is still requiring it.
                 reqpkgs = [x for x in reqpkgs if isinst(x)]
@@ -1151,7 +1155,7 @@ class Transaction(object):
                     for prvpkg in prvpkgs:
                         if (earlyAbort and _maxpw is not None and
                             pw[prvpkg] > _maxpw):
-                            trace(2, depth, "early abort of PENDING_REMOVE at %s", (prvpkg))
+                            self.trace(2, "early abort of PENDING_REMOVE at %s", (prvpkg))
                             continue # don't assume sort order
                         try:
                             cs = changeset.copy()
@@ -1164,7 +1168,7 @@ class Transaction(object):
                             failures.append(unicode(e))
                         else:
                             csweight = getweight(cs)
-                            trace(3, depth, "feasible PENDING_REMOVE prv alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
+                            self.trace(3, "feasible PENDING_REMOVE prv alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
                             alternatives.append((csweight+pw[prvpkg],
                                                 cs, lk))
                             _pruneweight = min(_pruneweight, csweight)
@@ -1225,7 +1229,7 @@ class Transaction(object):
                         failures.append(unicode(e))
                     else:
                         csweight = getweight(cs)
-                        trace(3, depth, "feasible PENDING_REMOVE remove alternative (csw=%f)", (csweight), cs)
+                        self.trace(3, "feasible PENDING_REMOVE remove alternative (csw=%f)", (csweight), cs)
                         alternatives.append((csweight, cs, lk))
 
                 if not alternatives:
@@ -1239,7 +1243,7 @@ class Transaction(object):
                     locked.update(alternatives[0][2])
 
         for pkg in updown:
-            trace(1, depth, "_pending.final updown: %s", (pkg) )
+            self.trace(1, "_pending.final updown: %s", (pkg) )
             task = trans.TaskUpdown(self, pkg, changeset, locked, self._pruneweight, self._yieldweight, force=0)
             for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
 
@@ -1256,7 +1260,7 @@ class Transaction(object):
         locked = self._locked
         depth = self._depth
         pruneweight = self._pruneweight
-        trace(2, depth, "_upgrade(%s)", (pkgs))
+        self.trace(2, "_upgrade(%s)", (pkgs))
 
         isinst = changeset.installed
         getweight = trans.getPolicy().getWeight
@@ -1270,7 +1274,7 @@ class Transaction(object):
         weight = getweight(changeset)
         pruneweight = min(pruneweight, weight)
         for pkg in pkgs:
-            trace(1, depth, "_upgrade: add %s (pw=%f)", (pkg, pruneweight))
+            self.trace(1, "_upgrade: add %s (pw=%f)", (pkg, pruneweight))
             if pkg in locked and not isinst(pkg):
                 continue
 
@@ -1287,12 +1291,12 @@ class Transaction(object):
                 lockedstate[pkg] = lk
                 csweight = getweight(cs)
                 if csweight < weight:
-                    trace(2,depth,"_upgrade added %s (csw=%f < w=%f)", (pkg, csweight, weight), cs)
+                    self.trace(2, "_upgrade added %s (csw=%f < w=%f)", (pkg, csweight, weight), cs)
                     weight = csweight
                     pruneweight = min(pruneweight, csweight)
                     changeset.setState(cs)
                 else:
-                    trace(3,depth,"_upgrade not added %s (csw=%f >= w=%f)", (pkg, csweight, weight))
+                    self.trace(3, "_upgrade not added %s (csw=%f >= w=%f)", (pkg, csweight, weight))
 
         lockedstates = {}
         for pkg in pkgs:
@@ -1307,7 +1311,7 @@ class Transaction(object):
             op = changeset.get(pkg)
             if (op and op != origchangeset.get(pkg) and
                 pkg not in locked and pkg not in lockedstates):
-                trace(1, depth, "_upgrade: undo %s %s", (op,pkg))
+                self.trace(1, "_upgrade: undo %s %s", (op,pkg))
 
                 try:
                     cs = changeset.copy()
@@ -1325,12 +1329,12 @@ class Transaction(object):
                 else:
                     csweight = getweight(cs)
                     if csweight < weight:
-                        trace(2,depth,"_upgrade undid %s %s (csw=%f < w=%f)", (op, pkg, csweight, weight), cs)
+                        self.trace(2, "_upgrade undid %s %s (csw=%f < w=%f)", (op, pkg, csweight, weight), cs)
                         weight = csweight
                         pruneweight = min(pruneweight, csweight)
                         changeset.setState(cs)
                     else:
-                        trace(3,depth,"_upgrade kept %s %s (csw=%f => w=%f)", (op, pkg, csweight, weight))
+                        self.trace(3, "_upgrade kept %s %s (csw=%f => w=%f)", (op, pkg, csweight, weight))
 
     class TaskFix(Task):
       def __init__(self, parent, pkgs, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
@@ -1343,7 +1347,7 @@ class Transaction(object):
         locked = self._locked
         depth = self._depth
         pruneweight = self._pruneweight
-        trace(1, depth, "_fix()")
+        self.trace(1, "_fix()")
 
         getweight = trans.getPolicy().getWeight
         isinst = changeset.installed
@@ -1421,7 +1425,7 @@ class Transaction(object):
             else:
                 # If they weight the same, it's better to keep the package.
                 csweight = getweight(cs)
-                trace(3, depth, "feasible _fix install alternative (csw=%f)", (csweight), cs)
+                self.trace(3, "feasible _fix install alternative (csw=%f)", (csweight), cs)
                 alternatives.append((csweight-0.000001, cs))
                 pruneweight = min(pruneweight, csweight)
 
@@ -1439,7 +1443,7 @@ class Transaction(object):
                 failures.append(unicode(e))
             else:
                 csweight = getweight(cs)
-                trace(3, depth, "feasible _fix remove alternative (csw=%f)", (csweight), cs)
+                self.trace(3, "feasible _fix remove alternative (csw=%f)", (csweight), cs)
                 alternatives.append((csweight, cs))
                 pruneweight = min(pruneweight, csweight)
 
@@ -1592,7 +1596,7 @@ class Transaction(object):
 
         if save:
             self._necessarypkgs[pkg] = necdct;
-            if traceVerbosity>=7: trace(7, 0, "getNecessary(%s) -> %s", (pkg, sorted(necdct.keys())))
+            if traceVerbosity>=7: print "# getNecessary(%s) -> %s"  % (pkg, sorted(necdct.keys()))
         return necdct;
 
     def getNecessitates(self, pkg, ignorepkgs={}):
@@ -1633,7 +1637,7 @@ class Transaction(object):
 
         if save:
             self._necessitatespkgs[pkg] = necdct;
-            if traceVerbosity>=7: trace(7, 0, "getNecessitates(%s) -> %s", (pkg, sorted(necdct.keys())))
+            if traceVerbosity>=7: print "# getNecessitates(%s) -> %s" % (pkg, sorted(necdct.keys()))
         return necdct;
 
     def getProhibits(self, pkg):
@@ -1693,7 +1697,7 @@ class Transaction(object):
                                 bluequeue.append(reqpkg)
 
         self._prohibitspkgs[pkg] = blues;
-        if traceVerbosity>=7: trace(7, 0, "getProhibits(%s) -> %s", (pkg, sorted(blues.keys())))
+        if traceVerbosity>=7: print "# getProhibits(%s) -> %s" % (pkg, sorted(blues.keys()))
         return blues;
 
 
