@@ -23,6 +23,7 @@ from smart.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP
 from smart.cache import PreRequires, Package
 from smart import *
 from math import atan, pi
+from heapq import heappush, heappop
 
 #==========================================================
 # Algorithm tweaks
@@ -915,46 +916,28 @@ class Transaction(object):
                         upgpkgs[prvpkg] = True
 
         # No, let's try to upgrade it.
+        taskheap = []
+        doneheap = []
+        order = 1
         getweight = trans.getPolicy().getWeight
-        if force:
-            alternatives = []
-        else:
-            alternatives = [(getweight(changeset), changeset)]
-            pruneweight = min(pruneweight, alternatives[0][0])
+        csweight = getweight(changeset)
+        if not force:
+            pruneweight = min(pruneweight, csweight)
 
-        # Check if upgrading is possible.
-        if earlyAbort:
-            upgpkgs = upgpkgs.keys()
-            sortUpgrades(upgpkgs)
-            pw = trans.getPolicy().getPriorityWeights(upgpkgs)
-            _maxpw = None
+        # Create tasks for upgrading options
+        upgpkgs = upgpkgs.keys()
+        sortUpgrades(upgpkgs)
         for upgpkg in upgpkgs:
-            if (earlyAbort and _maxpw is not None and
-                 pw[upgpkg] > _maxpw):
-                 self.trace(2, "early abort of _updown.upg at %s", (upgpkg))
-                 continue # don't assume sort order
-            try:
-                cs = changeset.copy()
-                lk = locked.copy()
-                task = trans.TaskInstall(self, upgpkg, cs, lk, None, pruneweight, self._yieldweight)
-                for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
-            except Failed:
-                pass
-            except Prune:
-                pass
-            else:
-                csweight = getweight(cs)
-                self.trace(3, "feasible upg alternative: %s (csw=%f)", (upgpkg, csweight), cs)
-                alternatives.append((csweight, cs))
-                pruneweight = min(pruneweight, csweight)
-                if earlyAbort:
-                    _maxpw = pw[upgpkg]
+            cs = changeset.copy()
+            lk = locked.copy()
+            task = trans.TaskInstall(self, upgpkg, cs, lk, None, pruneweight, self._yieldweight,
+                                     csweight, 0, order, "upgrade to %s" % upgpkg)
+            heappush(taskheap, task) 
+            order += 1
 
         # Is any downgrading version of this package installed?
         try:
             dwnpkgs = {}
-            if earlyAbort and _maxpw is not None:
-                raise StopIteration
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
@@ -978,64 +961,59 @@ class Transaction(object):
         except StopIteration:
             pass
         else:
-            if pruneByWeight and len(alternatives)==0:
-                # We have to downgrade, so assume the weight cannot improve
-                # past this point, and prune.
-                if getweight(changeset) > pruneweight:
-                    self.trace(2, "pruned downgrading _updown")
-                    raise Prune, _("Pruned downgrading of %s") % (pkg)
-            # Check if downgrading is possible.
-            if earlyAbort:
-                dwnpkgs = dwnpkgs.keys()
-                sortUpgrades(dwnpkgs)
-                pw = trans.getPolicy().getPriorityWeights(dwnpkgs)
-                _maxpw = None
+            # Create tasks for downgrading options
+            # XXX We should have a prune/yield point when other options have been ruled out
+            dwnpkgs = dwnpkgs.keys()
+            sortUpgrades(dwnpkgs)
             for dwnpkg in dwnpkgs:
-                if (earlyAbort and _maxpw is not None and
-                     pw[dwnpkg] > _maxpw):
-                     self.trace(2, "early abort of _updown.dwn at %s", (dwnpkg))
-                     continue # don't assume sort order
-                try:
-                    cs = changeset.copy()
-                    lk = locked.copy()
-                    task = trans.TaskInstall(self, dwnpkg, cs, lk, None, pruneweight, self._yieldweight)
-                    for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
-                except Failed:
-                    pass
-                except Prune:
-                    pass
-                else:
-                    csweight = getweight(cs)
-                    self.trace(3, "feasible dwn alternative: %s (csw=%f)", (dwnpkg, csweight), cs)
-                    alternatives.append((csweight, cs))
-                    pruneweight = min(pruneweight, csweight)
-                    if earlyAbort:
-                        _maxpw = pw[dwnpkg]
-
-        # If forced, we can just remove the package. 
-        if force and (len(alternatives)==0 or not earlyAbort):
-            try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
-                for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
-            except Failed:
-                if len(alternatives)==0:
-                    raise Failed, _("Can't get rid of %s" % pkg)
-            except Prune:
-                if len(alternatives)==0:
-                    raise
-            else:
-                csweight = getweight(cs)
-                self.trace(3, "feasible delete alternative (csw=%f)", (csweight), cs)
-                alternatives.append((csweight, cs))
-                pruneweight = min(pruneweight, csweight)
+                task = trans.TaskInstall(self, dwnpkg, cs, lk, None, pruneweight, self._yieldweight,
+                                         csweight, 1, order, "downgrade to %s" % dwnpkg)
+                heappush(taskheap, task) 
+                order += 1
 
-        if len(alternatives) > 1:
-            alternatives.sort()
-        # If !force and there's only one alternative, it's the one currenlty in use.
-        if force or len(alternatives) > 1:
-            changeset.setState(alternatives[0][1])
+        # If forced, create a task for simply removing the package
+        if force:
+            cs = changeset.copy()
+            lk = locked.copy()
+            task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight,
+                                    csweight, 2, order, "remove")
+            heappush(taskheap, task)
+
+        # Execute the tasks to compute feasible alternatives
+        while len(taskheap)>0:
+            task = heappop(taskheap)
+            yw = min(self._yieldweight, pruneweight)
+            if len(taskheap)>1:
+                yw = min(yw, taskheap[1].getChangesetWeight())
+            try:
+                task.setWeights(pruneweight, yw)
+                res = task.next()
+            except Failed:
+                pass
+            except Prune:
+                pass
+            except StopIteration:  # the task has finished
+                cs = task._changeset
+                csw = task.getChangesetWeight()
+                self.trace(3, "feasible _updown alternative for %s: %s (csw=%f)", (pkg, task._desc, csw), cs)
+                heappush(doneheap, task)
+                pruneweight = min(pruneweight, csw)
+            else:
+                yield res
+                pruneweight = min(pruneweight, self._pruneweight)
+                heappush(taskheap, task)
+
+        if force:
+            if len(doneheap)==0:
+                raise Failed, _("Can't get rid of %s" % pkg)
+        else:
+            if doneheap[0].getChangesetWeight() >= csweight:
+                self._csweight = csweight
+                return
+        self._changeset.setState(doneheap[0]._changeset)
+        self._csweight = (doneheap[0].getChangesetWeight())
 
     class TaskPending(Task):
       def __init__(self, parent, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
