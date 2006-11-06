@@ -1314,8 +1314,7 @@ class Transaction(object):
         locked = self._locked
         depth = self._depth
         pruneweight = self._pruneweight
-        self.trace(1, "_fix()")
-
+        self.trace(1, "_fix(pw=%f, yw=%f)", (self._pruneweight, self._yieldweight))
         getweight = trans.getPolicy().getWeight
         isinst = changeset.installed
 
