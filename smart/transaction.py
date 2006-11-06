@@ -51,15 +51,6 @@ forkSearch = 1
 # pruneByWeight=1, finish the computation quickly.
 # If 0, we don't do that.
 
-prioritiesAffectWeight = 1
-# If 1, the magnitude of package priorities affect the magnitude changeset
-# weights, so (for example) a huge priority means "do whatever it takes to
-# get this package". This affects only the top-level packages of "upgrade"
-# commands; the rest are handled as below.
-# If 0 (old behavior), package priorities are used only to determine boolean
-# upgrade relations, and each such relation has a constant effect on
-# changeset weights.
-
 priorityScale = 5
 # Value of a typical "moderate" package priority, for scaling. If very different
 # from what the user uses, the importance of package priorities may be
@@ -202,18 +193,6 @@ class Policy(object):
         if priority is None:
             self._priorities[pkg] = priority = pkg.getPriority()
         return priority
-
-    def getPriorityWeights(self, pkgs):
-        set = {}
-        lower = None
-        for pkg in pkgs:
-            priority = self.getPriority(pkg)
-            if lower is None or priority < lower:
-                lower = priority
-            set[pkg] = priority
-        for pkg in set:
-            set[pkg] = -(set[pkg] - lower)*10
-        return set
 
 
 class PolicyWithPriorities(Policy):
@@ -434,8 +413,6 @@ class PolicyInstall(PolicyWithPriorities):
     _rewardInstallNotUpdown = 3
 
     def _deltaWeightByDeltaPri(self, deltapri):
-        if not prioritiesAffectWeight:
-            return deltapri>0 and 2 or 0
         # Bounded effect of priorities, so that num. affected packages maintains its importance.
         # The +/-0.5 is for up/downgrades with no priority difference.
         assert(abs(deltapri)>=0.5)
@@ -445,8 +422,6 @@ class PolicyInstall(PolicyWithPriorities):
             return 3 - 2*atan((deltapri+0.5)/priorityScale)/(pi/2) # [3,5)
 
     def _deltaWeightForRemove(self, pri):
-        if not prioritiesAffectWeight:
-            return 20
         # Bounded effect of priorities, so that num. affected packages maintains its importance.
         if pri>=0:
             return 20 + 10*atan(pri/priorityScale)/(pi/2) # [20,30)
@@ -473,8 +448,6 @@ class PolicyUpgrade(PolicyWithPriorities):
     _rewardInstallNotUpdown = 1
 
     def _deltaWeightByDeltaPri(self, deltapri):
-        if not prioritiesAffectWeight:
-            return deltapri>0 and -30 or 0
         # Unbounded so we can express "get me that version whatever it takes".
         # The +/-0.5 is for up/downgrades with no priority difference.
         assert(abs(deltapri)>=0.5)
@@ -484,8 +457,6 @@ class PolicyUpgrade(PolicyWithPriorities):
             return 1 - 10*(deltapri+0.5)/priorityScale # [1,infty)
 
     def _deltaWeightForRemove(self, pri):
-        if not prioritiesAffectWeight:
-            return 3
         # Penalty for removing high-priority packages is unbounded,
         # to let us express "get me that version whatever it takes".
         # For negative priorities we bound up from 0, so we're never happy
@@ -1021,6 +992,7 @@ class Transaction(object):
             self.trace(4, "_pending(%s, pw=%f, yw=%f)", (pending, self._pruneweight, self._yieldweight))
 
         isinst = changeset.installed
+        getpriority = trans.getPolicy().getPriority
         getweight = trans.getPolicy().getWeight
 
         updown = []
@@ -1063,7 +1035,6 @@ class Transaction(object):
                     doneheap = []
                     order = 1
                     csweight = getweight(changeset)
-                    pw = trans.getPolicy().getPriorityWeights(prvpkgs)
                     _pruneweight = self._pruneweight
 
                     # Prepare a task for each providing alternative
@@ -1071,7 +1042,7 @@ class Transaction(object):
                         cs = changeset.copy()
                         lk = locked.copy()
                         task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
-                                                 csweight, pw[prvpkg], order, "install %s" % prvpkg)
+                                                 csweight, -getpriority(prvpkg), order, "install %s" % prvpkg)
                         heappush(taskheap, task)
                         order += 1
 
@@ -1145,12 +1116,11 @@ class Transaction(object):
 
                 # Try to install other providing packages.
                 if prvpkgs:
-                    pw = trans.getPolicy().getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
                         cs = changeset.copy()
                         lk = locked.copy()
                         task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
-                                                 csweight, pw[prvpkg], order, "provide using %s" % prvpkg)
+                                                 csweight, -getpriority(prvpkg), order, "provide using %s" % prvpkg)
                         heappush(taskheap, task)
                         order += 1
 
