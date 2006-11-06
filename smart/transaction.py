@@ -330,11 +330,11 @@ class PolicyWithPriorities(Policy):
         del self._bestdeltapri
         del self._bestUpdownDeltaWeight
 
-    def _deltaWeightByDeltaPri(self, deltapri):
+    def _weightReplacement(self, deltapri):
         """Return weight delta for up/downgrading a pair of packages with the given priority delta"""
         return 0
 
-    def _deltaWeightForRemove(self, pri):
+    def _weighRemoval(self, pri):
         """Return the weight delta for removing (not up/downgrading) a package with the given priority"""
         return 0
 
@@ -356,15 +356,15 @@ class PolicyWithPriorities(Policy):
                 # stay in the system.
                 for upgpkg in upgraded.get(pkg, ()):
                     if changeset.get(upgpkg) is INSTALL:
-                        weight += self._rewardRemoveUpgraded # Upgraded
+                        weight += self._weighRemovedUpgraded # Upgraded
                         break
                 else:
                     for dwnpkg in downgraded.get(pkg, ()):
                         if changeset.get(dwnpkg) is INSTALL:
-                            weight += self._rewardRemovedDowngraded # Downgraded
+                            weight += self._weighRemovedDowngraded # Downgraded
                             break
                     else: # Removed and not replaced by up/downgrade
-                        weight += self._deltaWeightForRemove(self.getPriority(pkg))
+                        weight += self._weighRemoval(self.getPriority(pkg))
             else: # INSTALL
                 upgpkgs = upgrading.get(pkg)
                 if upgpkgs:
@@ -376,13 +376,13 @@ class PolicyWithPriorities(Policy):
                         else:
                              upgradedmap[upgpkg] = deltapri
                 else:
-                    weight += self._rewardInstallNotUpdown # Install not up/downgrading anything
+                    weight += self._weighInstallNotUpdown # Install not up/downgrading anything
 
         # Contribution from up/downgrading packages:
         for pkg in upgradedmap:
             weight += self._calcStableBonus(pkg, changeset)
             deltapri = upgradedmap[pkg]
-            weight += self._deltaWeightByDeltaPri(deltapri)
+            weight += self._weightReplacement(deltapri)
 
         return weight
 
@@ -397,10 +397,10 @@ class PolicyWithPriorities(Policy):
         # Best imaginable upgrade?
         if pkg in bestdeltapri:
             deltapri = bestdeltapri[pkg]
-            weight = self._deltaWeightByDeltaPri(deltapri)
-            weight += self._rewardRemoveUpgraded # for removing old
+            weight = self._weightReplacement(deltapri)
+            weight += self._weighRemovedUpgraded # for removing old
         # We could also just remove it
-        weight = min(weight, self._deltaWeightForRemove(self.getPriority(pkg)))
+        weight = min(weight, self._weighRemoval(self.getPriority(pkg)))
 
         self._bestUpdownDeltaWeight[pkg] = weight
         return weight
@@ -408,11 +408,11 @@ class PolicyWithPriorities(Policy):
 class PolicyInstall(PolicyWithPriorities):
     """Give precedence for keeping functionality in the system."""
 
-    _rewardRemoveUpgraded = -1
-    _rewardRemovedDowngraded = 15
-    _rewardInstallNotUpdown = 3
+    _weighRemovedUpgraded = -1
+    _weighRemovedDowngraded = 15
+    _weighInstallNotUpdown = 3
 
-    def _deltaWeightByDeltaPri(self, deltapri):
+    def _weightReplacement(self, deltapri):
         # Bounded effect of priorities, so that num. affected packages maintains its importance.
         # The +/-0.5 is for up/downgrades with no priority difference.
         assert(abs(deltapri)>=0.5)
@@ -421,7 +421,7 @@ class PolicyInstall(PolicyWithPriorities):
         else:
             return 3 - 2*atan((deltapri+0.5)/priorityScale)/(pi/2) # [3,5)
 
-    def _deltaWeightForRemove(self, pri):
+    def _weighRemoval(self, pri):
         # Bounded effect of priorities, so that num. affected packages maintains its importance.
         if pri>=0:
             return 20 + 10*atan(pri/priorityScale)/(pi/2) # [20,30)
@@ -443,11 +443,11 @@ class PolicyRemove(Policy):
 class PolicyUpgrade(PolicyWithPriorities):
     """Give precedence to the choice with more upgrades and smaller impact."""
 
-    _rewardRemoveUpgraded = -1
-    _rewardRemovedDowngraded = 0
-    _rewardInstallNotUpdown = 1
+    _weighRemovedUpgraded = -1
+    _weighRemovedDowngraded = 0
+    _weighInstallNotUpdown = 1
 
-    def _deltaWeightByDeltaPri(self, deltapri):
+    def _weightReplacement(self, deltapri):
         # Unbounded so we can express "get me that version whatever it takes".
         # The +/-0.5 is for up/downgrades with no priority difference.
         assert(abs(deltapri)>=0.5)
@@ -456,7 +456,7 @@ class PolicyUpgrade(PolicyWithPriorities):
         else:
             return 1 - 10*(deltapri+0.5)/priorityScale # [1,infty)
 
-    def _deltaWeightForRemove(self, pri):
+    def _weighRemoval(self, pri):
         # Penalty for removing high-priority packages is unbounded,
         # to let us express "get me that version whatever it takes".
         # For negative priorities we bound up from 0, so we're never happy
