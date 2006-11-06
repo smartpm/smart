@@ -634,19 +634,16 @@ class Transaction(object):
         isinst = changeset.installed
         if pruneByWeight:
             # Find an lower bound on the weight resulting from this install, and prune.
-            optweight = None
+            optweight = trans.getPolicy().getWeight(changeset)
             for prhpkg in trans.getProhibits(pkg):
                 if isinst(prhpkg):
-                    if optweight is None:
-                        optweight = trans.getPolicy().getWeight(changeset)
                     optweight += trans.getPolicy().getBestUpdownDeltaWeight(prhpkg)
-            if optweight is not None:
-                if optweight > self._pruneweight:
-                    self.trace(2, "pruned _install")
-                    raise Prune, _("Pruned installation of %s") % (pkg)
-                elif forkSearch and optweight>=self._yieldweight:
-                    self. trace(2, "yielding (ow=%f)", optweight)
-                    yield optweight
+            if optweight > self._pruneweight:
+                self.trace(2, "pruned _install")
+                raise Prune, _("Pruned installation of %s") % (pkg)
+            elif forkSearch and optweight>=self._yieldweight:
+                self. trace(2, "yielding (ow=%f)", optweight)
+                yield optweight
 
         # Remove packages conflicted by this one.
         for cnf in pkg.conflicts:
