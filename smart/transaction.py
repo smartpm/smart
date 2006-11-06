@@ -22,6 +22,7 @@
 from smart.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP
 from smart.cache import PreRequires, Package
 from smart import *
+from math import atan, pi
 
 #==========================================================
 # Algorithm tweaks
@@ -51,6 +52,20 @@ immediateUpdown = 1
 # later; this tends to cause huge remove cascades and, consequentially,
 # slower running and larger changesets. However, it fully respects the
 # policy weights and explors more options.
+
+prioritiesAffectWeight = 1
+# If 1, the magnitude of package priorities affect the magnitude changeset
+# weights, so (for example) a huge priority means "do whatever it takes to
+# get this package". This affects only the top-level packages of "upgrade"
+# commands; the rest are handled as below.
+# If 0 (old behavior), package priorities are used only to determine boolean
+# upgrade relations, and each such relation has a constant effect on
+# changeset weights.
+
+priorityScale = 5
+# Value of a typical "moderate" package priority, for scaling. If very different
+# from what the user uses, the importance of package priorities may be
+# overestimated or underestimated by some policies.
 
 #==========================================================
 # Debugging
@@ -301,6 +316,10 @@ class PolicyUpgrade(Policy):
     def runStarting(self):
         Policy.runStarting(self)
         self._upgrading = upgrading = {}
+            # upgrading[x][y] is the (possibly negative) priority advantage of
+            # x over y, or -/+0.5 if x and y have the same package priority but
+            # an upgrade relation exists between them.
+            # Positive means x upgrades y.
         self._upgraded = upgraded = {}
         self._sortbonus = sortbonus = {}
         self._stablebonus = stablebonus = {}
@@ -310,34 +329,40 @@ class PolicyUpgrade(Policy):
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
-                        if (prvpkg.installed and
-                            self.getPriority(pkg) >= self.getPriority(prvpkg)):
+                        if prvpkg.installed:
+                            deltapri = self.getPriority(pkg) - self.getPriority(prvpkg)
+                            if deltapri==0:
+                                deltapri = 0.5
                             dct = upgrading.get(pkg)
                             if dct:
-                                dct[prvpkg] = True
+                                dct[prvpkg] = deltapri
                             else:
-                                upgrading[pkg] = {prvpkg: True}
-                            lst = upgraded.get(prvpkg)
-                            if lst:
-                                lst.append(pkg)
-                            else:
-                                upgraded[prvpkg] = [pkg]
-            # Downgrades are upgrades if they have a higher priority.
+                                upgrading[pkg] = {prvpkg: deltapri}
+                            if deltapri>0:
+                                lst = upgraded.get(prvpkg)
+                                if lst:
+                                    lst.append(pkg)
+                                else:
+                                    upgraded[prvpkg] = [pkg]
+            # Downgrades are upgrades if they have a higher package priority.
             for prv in pkg.provides:
                 for upg in prv.upgradedby:
                     for upgpkg in upg.packages:
-                        if (upgpkg.installed and
-                            self.getPriority(pkg) > self.getPriority(upgpkg)):
+                        if upgpkg.installed:
+                            deltapri = self.getPriority(pkg) - self.getPriority(upgpkg)
+                            if deltapri==0:
+                                deltapri = -0.5
                             dct = upgrading.get(pkg)
                             if dct:
-                                dct[upgpkg] = True
+                                dct[upgpkg] = deltapri
                             else:
-                                upgrading[pkg] = {upgpkg: True}
-                            lst = upgraded.get(upgpkg)
-                            if lst:
-                                lst.append(pkg)
-                            else:
-                                upgraded[upgpkg] = [pkg]
+                                upgrading[pkg] = {upgpkg: deltapri}
+                            if deltapri>0:
+                                lst = upgraded.get(upgpkg)
+                                if lst:
+                                    lst.append(pkg)
+                                else:
+                                    upgraded[upgpkg] = [pkg]
 
         # If package A-2.0 upgrades package A-1.0, and package A-2.0 is
         # upgraded by A-3.0, give a bonus if A-1.0 is upgraded without
@@ -419,14 +444,20 @@ class PolicyUpgrade(Policy):
                         weight -= 1
                         break
                 else:
-                    weight += 3
+                    weight += self._deltaWeightForRemove(self.getPriority(pkg))
             else:
                 installedcount += 1
                 upgpkgs = upgrading.get(pkg)
                 if upgpkgs:
                     weight += sortbonus.get(pkg, 0)
-                    upgradedmap.update(upgpkgs)
+                    for upgpkg in upgpkgs:
+                        deltapri = upgpkgs[upgpkg]
+                        if upgradedmap.has_key(upgpkg):
+                             upgradedmap[upgpkg] = max(deltapri,upgradedmap[upgpkg])
+                        else:
+                             upgradedmap[upgpkg] = deltapri
 
+        # Contribution from up/downgrading packages:
         for pkg in upgradedmap:
             sb = stablebonus.get(pkg)
             if sb:
@@ -437,10 +468,35 @@ class PolicyUpgrade(Policy):
                     else:
                         weight += bonusvalue
                         break
+            deltapri = upgradedmap[pkg]
+            weight += self._deltaWeightByDeltaPri(deltapri)
 
         upgradedcount = len(upgradedmap)
-        weight += -30*upgradedcount+(installedcount-upgradedcount)
+        weight += installedcount-upgradedcount
         return weight
+
+    def _deltaWeightByDeltaPri(self, deltapri):
+        if not prioritiesAffectWeight:
+            return deltapri>0 and -30 or 0
+        # Unbounded so we can express "get me that version whatever it takes".
+        # The +/-0.5 is for up/downgrades with no priority difference.
+        assert(abs(deltapri)>=0.5)
+        if deltapri>=0:
+            return -30 - 10*(deltapri-0.5)/priorityScale # (-infty,-30]
+        else:
+            return 1 - 10*(deltapri+0.5)/priorityScale # (1,infty)
+
+    def _deltaWeightForRemove(self, pri):
+        if not prioritiesAffectWeight:
+            return 3
+        # Penalty for removing high-priority packages is unbounded,
+        # to let us express "get me that version whatever it takes".
+        # For negative priorities we bound up from 0, so we're never happy
+        # to remove a package (but still prioritize by weight).
+        if pri>=0:
+            return 10 + 10.0*pri/priorityScale # [10,infty)
+        else:
+            return 10 + 5*atan(1.0*pri/priorityScale)/(pi/2) # (5,10]
 
 class Failed(Error): pass
 class Prune(Error): pass
