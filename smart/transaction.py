@@ -696,6 +696,7 @@ class Transaction(object):
 
         if pkg.essential:
             raise Failed, _("Can't remove %s: it's an essential package")
+        isinst = changeset.installed
 
         ownpending = pending is None
         if ownpending:
@@ -703,15 +704,19 @@ class Transaction(object):
 
         locked[pkg] = True
         changeset.set(pkg, REMOVE)
-        isinst = changeset.installed
 
         if pruneByWeight and immediateUpdown:
-            # Assume a lower bound on the weight resulting from this remove, and prune.
+            # Find a lower bound on the weight resulting from this remove, and prune.
             # We're ignoring the possibility that pkg will be upgraded rather than
             # removed, because immediateUpdown doesn't remove if updown is possible.
-            # We're ignoring the possibility that required upgrades will *improve*
-            # the weight, because that's hard to handle and probably not very common.
-            if self._policy.getWeight(changeset) > pruneweight:
+            # We're ignoring the possibility that upgrades which are not *staticially*
+            # necessary will *improve* the weight, because that's hard to handle
+            # and probably not very common.
+            optweight = self._policy.getWeight(changeset)
+            for necpkg in self.getNecessary(pkg):
+                if isinst(necpkg):
+                    optweight += self._policy.getBestUpdownDeltaWeight(necpkg)
+            if optweight > pruneweight:
                 trace(2, depth, "pruned _remove")
                 raise Prune, _("Pruned removal of %s") % (pkg)
 
