@@ -1134,76 +1134,40 @@ class Transaction(object):
                 # No one is providing it anymore. We'll have to do
                 # something about it.
 
+                taskheap = []
+                doneheap = []
+                order = 1
+                alternatives = []
+                failures = []
+                csweight = getweight(changeset)
+                _pruneweight = self._pruneweight
+
                 # Try to install other providing packages.
                 if prvpkgs:
-
-                    alternatives = []
-                    failures = []
-
-                    if earlyAbort:
-                        sortUpgrades(prvpkgs)
-                        _maxpw = None
-                    _pruneweight = self._pruneweight
                     pw = trans.getPolicy().getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
-                        if (earlyAbort and _maxpw is not None and
-                            pw[prvpkg] > _maxpw):
-                            self.trace(2, "early abort of PENDING_REMOVE at %s", (prvpkg))
-                            continue # don't assume sort order
-                        try:
-                            cs = changeset.copy()
-                            lk = locked.copy()
-                            task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight)
-                            for res in task: yield res; _pruneweight=min(_pruneweight,self._pruneweight); task.setWeights(_pruneweight, self._yieldweight)
-                        except Failed, e:
-                            failures.append(unicode(e))
-                        except Prune, e:
-                            failures.append(unicode(e))
-                        else:
-                            csweight = getweight(cs)
-                            self.trace(3, "feasible PENDING_REMOVE prv alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
-                            alternatives.append((csweight+pw[prvpkg],
-                                                cs, lk))
-                            _pruneweight = min(_pruneweight, csweight)
-                            if earlyAbort:
-                                _maxpw = pw[prvpkg]
-
-                if not prvpkgs or not alternatives:
-
-                    # There's no alternatives. We must remove
-                    # every requiring package.
-
-                    for reqpkg in reqpkgs:
-                        if reqpkg in locked and isinst(reqpkg):
-                            raise Failed, _("Can't remove %s: requiring "
-                                            "package %s is locked") % \
-                                          (pkg, reqpkg)
-                    for reqpkg in reqpkgs:
-                        # We check again, since other actions may have
-                        # changed their state.
-                        if not isinst(reqpkg):
-                            continue
-                        if reqpkg in locked:
-                            raise Failed, _("Can't remove %s: requiring "
-                                            "package %s is locked") % \
-                                          (pkg, reqpkg)
-                        if immediateUpdown:
-                            task = trans.TaskUpdown(self, reqpkg, changeset, locked, self._pruneweight, self._yieldweight, force=1)
-                            for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
-                        else:
-                            task = trans.TaskRemove(self, reqpkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
-                            for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
-                    continue
+                        cs = changeset.copy()
+                        lk = locked.copy()
+                        task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
+                                                 csweight, pw[prvpkg], order, "provide using %s" % prvpkg)
+                        heappush(taskheap, task)
+                        order += 1
 
                 # Also try to remove every requiring package, or
                 # upgrade/downgrade them to something which
                 # does not require this dependency.
-                if not (earlyAbort and immediateUpdown):
-                    cs = changeset.copy()
-                    lk = locked.copy()
-                    try:
+                cs = changeset.copy()
+                lk = locked.copy()
+                class TaskEvacuate(trans.Task):
+                    def __init__(inself):
+                        trans.Task.__init__(inself, self, inself.evacuate(), cs, lk, _pruneweight, self._yieldweight,
+                                            csweight, 0.0001, order, "evacuate requiring")
+                    def evacuate(inself):
+                        cs = inself._changeset
+                        lk = inself._locked
+                        inself.trace(1, "_pending.evacuate (pw=%f, yw=%f)", (inself._pruneweight, inself._yieldweight))
                         for reqpkg in reqpkgs:
-                            if reqpkg in locked and isinst(reqpkg):
+                            if reqpkg in lk and cs.installed(reqpkg):
                                 raise Failed, _("%s is locked") % reqpkg
                         for reqpkg in reqpkgs:
                             if not cs.installed(reqpkg):
@@ -1211,29 +1175,46 @@ class Transaction(object):
                             if reqpkg in lk:
                                 raise Failed, _("%s is locked") % reqpkg
                             if immediateUpdown:
-                                task = trans.TaskUpdown(self, reqpkg, cs, lk, _pruneweight, self._yieldweight, force=1)
-                                for res in task: yield res; pruneweight=min(_pruneweight,self._pruneweight); task.setWeights(_pruneweight, self._yieldweight)
+                                task = trans.TaskUpdown(inself, reqpkg, cs, lk, inself._pruneweight, inself._yieldweight, force=1)
+                                for res in task: yield res; task.setWeights(inself._pruneweight, inself._yieldweight)
                             else:
-                                task = trans.TaskRemove(self, reqpkg, cs, lk, None, pruneweight, self._yieldweight)
-                                for res in task: yield res; pruneweight=min(_pruneweight,self._pruneweight); task.setWeights(_pruneweight, self._yieldweight)
+                                task = trans.TaskRemove(inself, reqpkg, cs, lk, None, inself._pruneweight, inself._yieldweight)
+                                for res in task: yield res; task.setWeights(inself._pruneweight, inself._yieldweight)
+                task = TaskEvacuate()
+                heappush(taskheap, task)
+
+                # Execute the tasks to compute feasible alternatives
+                while len(taskheap)>0:
+                    task = heappop(taskheap)
+                    yw = min(self._yieldweight, _pruneweight)
+                    if len(taskheap)>1:
+                        yw = min(yw, taskheap[1].getChangesetWeight())
+                    try:
+                        task.setWeights(_pruneweight, yw)
+                        res = task.next()
                     except Failed, e:
                         failures.append(unicode(e))
                     except Prune, e:
                         failures.append(unicode(e))
+                    except StopIteration:  # the task has finished
+                        cs = task._changeset
+                        csw = task.getChangesetWeight()
+                        self.trace(3, "feasible PENDING_REMOVE alternative to %s: %s (csw=%f)", (pkg, task._desc, csweight), cs)
+                        heappush(doneheap, task)
+                        _pruneweight = min(_pruneweight, csw)
                     else:
-                        csweight = getweight(cs)
-                        self.trace(3, "feasible PENDING_REMOVE remove alternative (csw=%f)", (csweight), cs)
-                        alternatives.append((csweight, cs, lk))
+                        yield res
+                        _pruneweight = min(_pruneweight, self._pruneweight)
+                        heappush(taskheap, task)
 
-                if not alternatives:
+                if len(doneheap)==0:
                     raise Failed, _("Can't install %s: all packages providing "
                                     "%s failed to install:\n%s") \
                                   % (pkg, prv,  "\n".join(failures))
 
-                alternatives.sort()
-                changeset.setState(alternatives[0][1])
-                if len(alternatives) == 1:
-                    locked.update(alternatives[0][2])
+                changeset.setState(doneheap[0]._changeset)
+                if len(doneheap) == 1:
+                    locked.update(doneheap[0]._locked)
 
         for pkg in updown:
             self.trace(1, "_pending.final updown: %s", (pkg) )
