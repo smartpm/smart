@@ -499,6 +499,10 @@ class Transaction(object):
         self._necessarypkgs = {} # A in _necessarypkgs[B] means it's impossible to install A without B
         self._necessitatespkgs = {} # A in _necessitatespkgs[B] means it's impossible to install B without A
         self._prohibitspkgs = {} # A in _prohibitpkgs[B] means it's impossible to install A and B
+        self.numTaskStarted = 0;
+        self.numTaskCompleted = 0;
+        self.numTaskPruned = 0;
+        self.numTaskFailed = 0;
 
     def clear(self):
         self._changeset.clear()
@@ -559,6 +563,7 @@ class Transaction(object):
             self._trans = parent._trans     # the Transaction object we belong to
             self._depth = parent._depth + 1 # Trace depth level
             self._tracepath = "%s-%d" % (parent._tracepath, order)
+            self._trans.numTaskStarted += 1
 
         def setWeights(self, pruneweight, yieldweight):
             self._pruneweight = pruneweight
@@ -571,7 +576,17 @@ class Transaction(object):
 
         def next(self):
             self._csweight = WEIGHT_NONE   # in case _gen raises StopIteration without recomputing
-            self._csweight = self._gen.next()
+            try:
+                self._csweight = self._gen.next()
+            except Prune:
+                self._trans.numTaskPruned += 1
+                raise
+            except Failed:
+                self._trans.numTaskFailed += 1
+                raise
+            except StopIteration:
+                self._trans.numTaskCompleted += 1
+                raise
             return self._csweight
 
         def trace(self, verbosity, str, args=[], cs=None):
@@ -1501,6 +1516,10 @@ class Transaction(object):
         finally:
             self._queue.clear()
             self._policy.runFinished()
+        if traceVerbosity>0:
+            print "\n# Tasks started: %d, completed: %d, pruned: %d, failed: %d." % \
+                  (self.numTaskStarted, self.numTaskCompleted,
+                   self.numTaskPruned, self.numTaskFailed)
 
     def getNecessary(self, pkg, ignorepkgs={}):
         """
