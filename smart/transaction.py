@@ -53,6 +53,13 @@ immediateUpdown = 1
 # slower running and larger changesets. However, it fully respects the
 # policy weights and explors more options.
 
+forkSearch = 1
+# If 1, whenever there are multiple alternatives to explore this will be
+# tries in parallel using the A* search algorithm; this allows us to
+# find a feasible alternative quickly and, in conjunction with
+# pruneByWeight=1, finish the computation quickly.
+# If 0, we don't do that.
+
 prioritiesAffectWeight = 1
 # If 1, the magnitude of package priorities affect the magnitude changeset
 # weights, so (for example) a huge priority means "do whatever it takes to
@@ -656,9 +663,13 @@ class Transaction(object):
                     if optweight is None:
                         optweight = trans.getPolicy().getWeight(changeset)
                     optweight += trans.getPolicy().getBestUpdownDeltaWeight(prhpkg)
-            if optweight is not None and optweight > self._pruneweight:
-                self.trace(2, "pruned _install")
-                raise Prune, _("Pruned installation of %s") % (pkg)
+            if optweight is not None:
+                if optweight > self._pruneweight:
+                    self.trace(2, "pruned _install")
+                    raise Prune, _("Pruned installation of %s") % (pkg)
+                elif forkSearch and optweight>=self._yieldweight:
+                    self. trace(2, "yielding (ow=%f)", optweight)
+                    yield optweight
 
         # Remove packages conflicted by this one.
         for cnf in pkg.conflicts:
@@ -794,6 +805,10 @@ class Transaction(object):
             if optweight > pruneweight:
                 self.trace(2, "pruned _remove (ow=%f > pw=%f)", (optweight, pruneweight))
                 raise Prune, _("Pruned removal of %s") % (pkg)
+            elif forkSearch and optweight>=self._yieldweight:
+                self.trace(2, "yielding (ow=%f)", optweight)
+                yield optweight
+                pruneweight=min(pruneweight,self._pruneweight)
 
         # Check packages requiring this one.
         for prv in pkg.provides:
