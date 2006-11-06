@@ -279,4 +279,21 @@ Parallel support
 
 http://www.happyassassin.net/2005/05/04/a-quick-guide-to-urpmi-parallel/
 
+
+Alternative logic for priorities?
+---------------------------------
+
+<Insount> You know, I think the most common use scenario is:
+<Insount> 1. By default, track the latest version from channel 'stable'.
+<Insount> 2. If don't find the package there, look for it in in 'unstable' or 'extra' or 'superextra', in this order. And track the latest version you find in the topmost amond these.
+<niemeyer> Insount: What if a relation can't be solved without a package from an auxilar channel?
+<Insount> 3. For packages foo and bar, track the version in 'unstable' (even if they're in 'stable'), and get the minimal dependencies from there too.
+<Insount> EOF
+<Insount> niemeyer: Bring in whatever packages you need, but always pick the first feasible combination, judging only by priority at the forking point rather than the whole combination.
+<Insount> niemeyer: That is, search the tree of combinations in depth-first order, ordering by priority and each node, and return the first feasible combination.
+<Insount> s/and/at/
+<niemeyer> Insount: What about the choices that follow from the possibility of bringin in a package from the alternative repository?
+<Insount> niemeyer: Bring them in, choosing the "best" version for each -- judging by the priorities for that package alone.
+<Insount> niemeyer: For each package, you try versions in decreasing priority order. For each of them, add all dependneices (recursion). Once you have a consistent set, stop.
+
 vim:ts=4:sw=4:et
