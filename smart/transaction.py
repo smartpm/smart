@@ -992,7 +992,7 @@ class Transaction(object):
             if len(doneheap)==0:
                 raise Failed, _("Can't get rid of %s" % pkg)
         else:
-            if doneheap[0].getChangesetWeight() >= csweight:
+            if len(doneheap)==0 or doneheap[0].getChangesetWeight() >= csweight:
                 self._csweight = csweight
                 return
         self._changeset.setState(doneheap[0]._changeset)
