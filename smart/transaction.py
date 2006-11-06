@@ -338,6 +338,10 @@ class PolicyWithPriorities(Policy):
         """Return the weight delta for removing (not up/downgrading) a package with the given priority"""
         return 0
 
+    def _weighInstallation(self, pri):
+        """Return the weight delta for installing (not up/downgrading) a package with the given priority"""
+        return 0
+
     def _calcStableBonus(self, pkg, changeset):
         return 0
 
@@ -375,8 +379,8 @@ class PolicyWithPriorities(Policy):
                              upgradedmap[upgpkg] = max(deltapri,upgradedmap[upgpkg])
                         else:
                              upgradedmap[upgpkg] = deltapri
-                else:
-                    weight += self._weighInstallNotUpdown # Install not up/downgrading anything
+                else: # Install not up/downgrading anything
+                    weight += self._weighInstallation(self.getPriority(pkg))
 
         # Contribution from up/downgrading packages:
         for pkg in upgradedmap:
@@ -410,7 +414,6 @@ class PolicyInstall(PolicyWithPriorities):
 
     _weighRemovedUpgraded = -1
     _weighRemovedDowngraded = 15
-    _weighInstallNotUpdown = 3
 
     def _weightReplacement(self, deltapri):
         # Bounded effect of priorities, so that num. affected packages maintains its importance.
@@ -420,6 +423,9 @@ class PolicyInstall(PolicyWithPriorities):
             return 2.5 - 1*atan((deltapri-0.5)/priorityScale)/(pi/2) # (1.5,2.5]
         else:
             return 3 - 2*atan((deltapri+0.5)/priorityScale)/(pi/2) # [3,5)
+
+    def _weighInstallation(self, pri):
+        return 3;
 
     def _weighRemoval(self, pri):
         # Bounded effect of priorities, so that num. affected packages maintains its importance.
@@ -445,7 +451,6 @@ class PolicyUpgrade(PolicyWithPriorities):
 
     _weighRemovedUpgraded = -1
     _weighRemovedDowngraded = 0
-    _weighInstallNotUpdown = 1
 
     def _weightReplacement(self, deltapri):
         # Unbounded so we can express "get me that version whatever it takes".
@@ -455,6 +460,9 @@ class PolicyUpgrade(PolicyWithPriorities):
             return -30 - 10*(deltapri-0.5)/priorityScale # (-infty,-30]
         else:
             return 1 - 10*(deltapri+0.5)/priorityScale # [1,infty)
+
+    def _weighInstallation(self, pri):
+        return 1;
 
     def _weighRemoval(self, pri):
         # Penalty for removing high-priority packages is unbounded,
