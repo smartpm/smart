@@ -880,7 +880,7 @@ class Transaction(object):
         for prv in pkg.provides:
             for upg in prv.upgradedby:
                 for upgpkg in upg.packages:
-                    if isinst(upgpkg):
+                    if not force and isinst(upgpkg):
                         return
                     if getpriority(upgpkg) < pkgpriority:
                         continue
@@ -893,7 +893,7 @@ class Transaction(object):
                 for prvpkg in prv.packages:
                     if getpriority(prvpkg) <= pkgpriority:
                         continue
-                    if isinst(prvpkg):
+                    if not force and isinst(prvpkg):
                         return
                     if prvpkg not in locked and prvpkg not in upgpkgs:
                         upgpkgs[prvpkg] = True
