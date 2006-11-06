@@ -458,7 +458,7 @@ class PolicyUpgrade(PolicyWithPriorities):
         if deltapri>=0:
             return -30 - 10*(deltapri-0.5)/priorityScale # (-infty,-30]
         else:
-            return 1 - 10*(deltapri+0.5)/priorityScale # (1,infty)
+            return 1 - 10*(deltapri+0.5)/priorityScale # [1,infty)
 
     def _deltaWeightForRemove(self, pri):
         if not prioritiesAffectWeight:
@@ -502,6 +502,9 @@ class Transaction(object):
         self._policy = policy and policy(self) or Policy(self)
         self._changeset = changeset or ChangeSet(cache)
         self._queue = queue or {}
+        self._necessarypkgs = {} # A in _necessarypkgs[B] means it's impossible to install A without B
+        self._necessitatespkgs = {} # A in _necessitatespkgs[B] means it's impossible to install B without A
+        self._prohibitspkgs = {} # A in _prohibitpkgs[B] means it's impossible to install A and B
 
     def clear(self):
         self._changeset.clear()
@@ -1368,6 +1371,147 @@ class Transaction(object):
             self._queue.clear()
             self._policy.runFinished()
 
+    def getNecessary(self, pkg, ignorepkgs={}):
+        """
+        Return the set of packages for which pkg is necessary (i.e., a chain of requires 
+        with no alternatives).
+        """
+
+        if pkg in self._necessarypkgs:
+            return self._necessarypkgs[pkg];
+        necdct = {}
+
+        # What requires pkg?
+        for prv in pkg.provides:
+            for req in prv.requiredby:
+                # Is any other package providing req?
+                for prv in req.providedby:
+                   for prvpkg in prv.packages:
+                       if prvpkg is not pkg:
+                           break
+                   else:
+                       continue
+                   break
+                else:
+                    # pkg is necessary for anyone requiring req:
+                    for reqpkg in req.packages:
+                        if reqpkg is not pkg and reqpkg not in necdct: 
+                            necdct[reqpkg] = True
+
+        # Recurse:
+        save = True
+        _ignorepkgs = ignorepkgs.copy()
+        _ignorepkgs[pkg] = True
+        for necpkg in necdct.keys():
+            if necpkg not in ignorepkgs:
+                necdct.update(self.getNecessary(necpkg, _ignorepkgs))
+            else:
+                save = False
+
+        if save:
+            self._necessarypkgs[pkg] = necdct;
+            if traceVerbosity>=7: trace(7, 0, "getNecessary(%s) -> %s", (pkg, sorted(necdct.keys())))
+        return necdct;
+
+    def getNecessitates(self, pkg, ignorepkgs={}):
+        """
+        Return a set of packages which are necessary for pkg because they are
+        the only way to satisfy requirements. The result is cached.
+        """
+
+        if pkg in self._necessitatespkgs:
+            return self._necessitatespkgs[pkg];
+        necdct = {}
+
+        # What does prv require?
+        for req in pkg.requires:
+            # Is there a single package providing it?
+            found = ()
+            if len(req.providedby) != 1:
+                break;
+            for prv in req.providedby:
+                if len(prv.packages) + len(found) > 1:
+                    break;
+                for prvpkg in prv.packages:
+                    found=(prvpkg,)
+            else:
+                if len(found)==1:
+                   # Yes, so pkg requires it.
+                   necdct[found[0]] = True
+
+        # Recurse:
+        save = True
+        _ignorepkgs = ignorepkgs.copy()
+        _ignorepkgs[pkg] = True
+        for necpkg in necdct.keys():
+            if necpkg not in ignorepkgs:
+                necdct.update(self.getNecessitates(necpkg, _ignorepkgs))
+            else:
+                save = False
+
+        if save:
+            self._necessitatespkgs[pkg] = necdct;
+            if traceVerbosity>=7: trace(7, 0, "getNecessitates(%s) -> %s", (pkg, sorted(necdct.keys())))
+        return necdct;
+
+    def getProhibits(self, pkg):
+        """
+        Return a set of packages which directly or indirectly conflict with pkg.
+        We first construct a set of "red" packages, which must be installed if pkg
+        is installed. We then identify all "blue" packages, which conflict with red
+        packages. Then we find the closure of the "blue" packages by considering
+        unsatisfiable requirements, and return this closure. The result is cached.
+        """
+
+        if pkg in self._prohibitspkgs:
+            return self._prohibitspkgs[pkg];
+
+        reds = self.getNecessitates(pkg)
+        reds[pkg] = True
+        blues = {}
+        bluequeue = []
+
+        def colorblue(bpkg):
+            if bpkg not in blues and bpkg not in reds:
+                blues[bpkg] = True
+                bluequeue.append(bpkg)
+
+        # Direct conflicts of red packages:
+        for redpkg in reds:
+            for namepkg in self._cache.getPackages(redpkg.name):
+                if namepkg is not redpkg and namepkg not in blues and not redpkg.coexists(namepkg):
+                    colorblue(namepkg)
+            for cnf in redpkg.conflicts:
+                    for prv in cnf.providedby:
+                        for prvpkg in prv.packages:
+                           colorblue(prvpkg)
+            for prv in redpkg.provides:
+                for cnf in prv.conflictedby:
+                    for cnfpkg in cnf.packages:
+                        colorblue(cnfpkg)
+
+        # Indirect conflict due to necessary requirements of blue packages:
+        while bluequeue:
+            bluepkg = bluequeue.pop()
+            # What requires bluepkg?
+            for prv in bluepkg.provides:
+                for req in prv.requiredby:
+                    # Does any non-blue package provide that?
+                    for prv in req.providedby:
+                       for prvpkg in prv.packages:
+                           if prvpkg not in blues:
+                               break # provided by non-blue package
+                       else:
+                           continue
+                       break
+                    else: # all providing packages are blue
+                        for reqpkg in req.packages:
+                            colorblue(reqpkg)
+
+        self._prohibitspkgs[pkg] = blues;
+        if traceVerbosity>=7: trace(7, 0, "getProhibits(%s) -> %s", (pkg, sorted(blues.keys())))
+        return blues;
+
 
 class ChangeSetSplitter(object):
     # This class operates on *sane* changesets.
@@ -2007,6 +2151,9 @@ def enablePsyco(psyco):
     psyco.bind(PolicyInstall.getWeight)
     psyco.bind(PolicyRemove.getWeight)
     psyco.bind(PolicyUpgrade.getWeight)
+    psyco.bind(Transaction.getNecessary)
+    psyco.bind(Transaction.getNecessitates)
+    psyco.bind(Transaction.getProhibits)
     psyco.bind(Transaction._install)
     psyco.bind(Transaction._remove)
     psyco.bind(Transaction._updown)
