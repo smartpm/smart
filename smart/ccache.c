@@ -543,6 +543,11 @@ Package_getPriority(PackageObject *self, PyObject *args)
         PyObject *loader = PyList_GET_ITEM(loaders, i);
         PyObject *channel = PyObject_CallMethod(loader, "getChannel", NULL);
         priority = PyObject_CallMethod(channel, "getPriority", NULL);
+        if (channel == NULL || priority == NULL) {
+            Py_DECREF(loaders);
+            Py_XDECREF(channel);
+            return NULL;
+        }
         if (i == 0 || PyInt_AS_LONG(priority) > lpriority)
             lpriority = PyInt_AS_LONG(priority);
         Py_DECREF(priority);
