@@ -410,13 +410,16 @@ class PolicyWithPriorities(Policy):
         return weight
 
 class PolicyInstall(PolicyWithPriorities):
-    """Give precedence for keeping functionality in the system."""
+    """
+    Give precedence for keeping functionality in the system.
+    We use a bounded effect of priorities, so that the number of affected
+    packages maintains its importance.
+    """
 
     _weighRemovedUpgraded = -1
     _weighRemovedDowngraded = 15
 
     def _weightReplacement(self, deltapri):
-        # Bounded effect of priorities, so that num. affected packages maintains its importance.
         # The +/-0.5 is for up/downgrades with no priority difference.
         assert(abs(deltapri)>=0.5)
         if deltapri>=0:
@@ -425,10 +428,9 @@ class PolicyInstall(PolicyWithPriorities):
             return 3 - 2*atan((deltapri+0.5)/priorityScale)/(pi/2) # [3,5)
 
     def _weighInstallation(self, pri):
-        return 3;
+        return 3 - 2*atan(pri/priorityScale)/(pi/2) # (1,3][3,5)
 
     def _weighRemoval(self, pri):
-        # Bounded effect of priorities, so that num. affected packages maintains its importance.
         if pri>=0:
             return 20 + 10*atan(pri/priorityScale)/(pi/2) # [20,30)
         else:
@@ -462,7 +464,7 @@ class PolicyUpgrade(PolicyWithPriorities):
             return 1 - 10*(deltapri+0.5)/priorityScale # [1,infty)
 
     def _weighInstallation(self, pri):
-        return 1;
+        return 1 - 0.5*atan(pri/priorityScale)/(pi/2) # (0.5,1][1,1.5)
 
     def _weighRemoval(self, pri):
         # Penalty for removing high-priority packages is unbounded,
