@@ -1313,7 +1313,6 @@ class Transaction(object):
         changeset = self._changeset
         locked = self._locked
         depth = self._depth
-        pruneweight = self._pruneweight
         self.trace(1, "_fix(pw=%f, yw=%f)", (self._pruneweight, self._yieldweight))
         getweight = trans.getPolicy().getWeight
         isinst = changeset.installed
@@ -1375,6 +1374,7 @@ class Transaction(object):
 
             # We have a broken package. Fix it.
 
+            pruneweight = self._pruneweight
             alternatives = []
             failures = []
 
