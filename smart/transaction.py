@@ -741,8 +741,8 @@ class Transaction(object):
             except Prune:
                 pass
             else:
-                trace(3, depth, "feasible upg alternative: %s", (upgpkg))
                 csweight = getweight(cs)
+                trace(3, depth, "feasible upg alternative: %s (csw=%f)", (upgpkg, csweight), cs)
                 alternatives.append((csweight, cs))
                 pruneweight = min(pruneweight, csweight)
                 if earlyAbort:
@@ -802,8 +802,8 @@ class Transaction(object):
                 except Prune:
                     pass
                 else:
-                    trace(3, depth, "feasible dwn alternative: %s", (dwnpkg))
                     csweight = getweight(cs)
+                    trace(3, depth, "feasible dwn alternative: %s (csw=%f)", (dwnpkg, csweight), cs)
                     alternatives.append((csweight, cs))
                     pruneweight = min(pruneweight, csweight)
                     if earlyAbort:
@@ -822,8 +822,8 @@ class Transaction(object):
                 if len(alternatives)==0:
                     raise
             else:
-                trace(3, depth, "feasible delete alternative")
                 csweight = getweight(cs)
+                trace(3, depth, "feasible delete alternative (csw=%f)", (csweight), cs)
                 alternatives.append((csweight, cs))
                 pruneweight = min(pruneweight, csweight)
 
@@ -898,8 +898,8 @@ class Transaction(object):
                         except Prune, e:
                             failures.append(unicode(e))
                         else:
-                            trace(2, depth, "feasible PENDING_INSTALL alternative: %s", (prvpkg))
                             csweight = getweight(cs)
+                            trace(2, depth, "feasible PENDING_INSTALL alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
                             _pruneweight = min(_pruneweight, csweight)
                             alternatives.append((csweight+pw[prvpkg]+
                                                  keeporder, cs, lk))
@@ -968,8 +968,8 @@ class Transaction(object):
                         except Prune, e:
                             failures.append(unicode(e))
                         else:
-                            trace(3, depth, "feasible PENDING_REMOVE prv alternative: %s", (prvpkg))
                             csweight = getweight(cs)
+                            trace(3, depth, "feasible PENDING_REMOVE prv alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
                             alternatives.append((csweight+pw[prvpkg],
                                                 cs, lk))
                             _pruneweight = min(_pruneweight, csweight)
@@ -1026,8 +1026,8 @@ class Transaction(object):
                     except Prune, e:
                         failures.append(unicode(e))
                     else:
-                        trace(3, depth, "feasible PENDING_REMOVE remove alternative")
                         csweight = getweight(cs)
+                        trace(3, depth, "feasible PENDING_REMOVE remove alternative (csw=%f)", (csweight), cs)
                         alternatives.append((csweight, cs, lk))
 
                 if not alternatives:
@@ -1198,8 +1198,8 @@ class Transaction(object):
                 failures.append(unicode(e))
             else:
                 # If they weight the same, it's better to keep the package.
-                trace(3, depth, "feasible _fix install alternative")
                 csweight = getweight(cs)
+                trace(3, depth, "feasible _fix install alternative (csw=%f)", (csweight), cs)
                 alternatives.append((csweight-0.000001, cs))
                 pruneweight = min(pruneweight, csweight)
 
@@ -1214,8 +1214,8 @@ class Transaction(object):
             except Prune, e:
                 failures.append(unicode(e))
             else:
-                trace(3, depth, "feasible _fix remove alternative")
                 csweight = getweight(cs)
+                trace(3, depth, "feasible _fix remove alternative (csw=%f)", (csweight), cs)
                 alternatives.append((csweight, cs))
                 pruneweight = min(pruneweight, csweight)
 
