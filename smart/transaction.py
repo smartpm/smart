@@ -28,12 +28,6 @@ from heapq import heappush, heappop
 #==========================================================
 # Algorithm tweaks
 
-earlyAbort = 1
-# If 1, we stop the evaluation of alternatives whenever we found a feasible
-# one and all remaining alternatives have a lower package priorities
-# (this is a local decision, before exploring the consequences).
-# If 0 (old behavior), we exhaust all possibilities.
-
 pruneByWeight = 1
 # If 1, we remember the best alternative found so far (in terms of changeset
 # weight) and prune the search tree when better alternatives are not possible.
@@ -44,15 +38,11 @@ pruneByWeight = 1
 
 immediateUpdown = 1
 # If 1, when we have to remove a package due to dependencies we immediately
-# look for an up/downgrade replacement. In conjunction with earlyAbort=1,
-# this means broken dependencies will be removed only as a last resort
-# (i.e., if it's impossible to preserve them by up/downgrdading)
-# regardless of the changeset weights given by the policy.
-# This also tends to produce changesets with fewer Removes and more Upgrades.
+# look for an up/downgrade replacement.
 # If 0 (old behavior), we instead create a pending task and delay it for 
 # later; this tends to cause huge remove cascades and, consequentially,
-# slower running and larger changesets. However, it fully respects the
-# policy weights and explors more options.
+# slower running and larger changesets. However, it may provide more accurate
+# intermediate changeset weights, thereby making pruning more accurate.
 
 forkSearch = 1
 # If 1, whenever there are multiple alternatives to explore this will be
