@@ -61,14 +61,15 @@ class GtkChannels(object):
         self._treemodel = gtk.ListStore(gobject.TYPE_INT,
                                         gobject.TYPE_STRING,
                                         gobject.TYPE_STRING,
-                                        gobject.TYPE_STRING)
+                                        gobject.TYPE_STRING,
+                                        gobject.TYPE_INT);
         self._treeview = gtk.TreeView(self._treemodel)
         self._treeview.set_rules_hint(True)
         self._treeview.show()
         sw.add(self._treeview)
 
         renderer = gtk.CellRendererToggle()
-        renderer.set_property("xpad", 3)
+        renderer.set_property("xpad", 4)
         renderer.set_active(False)
         def toggled(cell, path):
             model = self._treemodel
@@ -79,7 +80,9 @@ class GtkChannels(object):
                                                      active=0)
 
         renderer = gtk.CellRendererText()
-        renderer.set_property("xpad", 3)
+        renderer.set_property("xpad", 4)
+        self._treeview.insert_column_with_attributes(-1, _("Pri"), renderer,
+                                                     text=4)
         self._treeview.insert_column_with_attributes(-1, _("Alias"), renderer,
                                                      text=1)
         self._treeview.insert_column_with_attributes(-1, _("Type"), renderer,
@@ -137,7 +140,9 @@ class GtkChannels(object):
             self._treemodel.append((not strToBool(channel.get("disabled")),
                                     alias,
                                     channel.get("type", ""),
-                                    channel.get("name", "")))
+                                    channel.get("name", ""),
+                                    int(channel.get("priority", "") or 0),
+))
 
     def enableDisable(self):
         for row in self._treemodel:
