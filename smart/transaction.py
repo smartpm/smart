@@ -1067,44 +1067,55 @@ class Transaction(object):
                     # More than one package provide it. We use _pending here,
                     # since any option must consider the whole change for
                     # weighting.
-                    alternatives = []
                     failures = []
                     sortUpgrades(prvpkgs)
-                    keeporder = 0.000001
+                    taskheap = []
+                    doneheap = []
+                    order = 1
+                    csweight = getweight(changeset)
                     pw = trans.getPolicy().getPriorityWeights(prvpkgs)
-                    _maxpw = None
                     _pruneweight = self._pruneweight
+
+                    # Prepare a task for each providing alternative
                     for prvpkg in prvpkgs:
-                        if (earlyAbort and _maxpw is not None and
-                            pw[prvpkg] > _maxpw):
-                            self.trace(2, "early abort of PENDING_INSTALL at %s", (prvpkg))
-                            continue # don't assume sort order
+                        cs = changeset.copy()
+                        lk = locked.copy()
+                        task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
+                                                 csweight, pw[prvpkg], order, "install %s" % prvpkg)
+                        heappush(taskheap, task)
+                        order += 1
+
+                    # Execute the tasks to compute feasible alternatives
+                    while len(taskheap)>0:
+                        task = heappop(taskheap)
+                        yw = min(self._yieldweight, _pruneweight)
+                        if len(taskheap)>1:
+                            yw = min(yw, taskheap[1].getChangesetWeight())
                         try:
-                            cs = changeset.copy()
-                            lk = locked.copy()
-                            task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight)
-                            for res in task: yield res; _pruneweight=min(_pruneweight,self._pruneweight); task.setWeights(_pruneweight, self._yieldweight)
+                            task.setWeights(_pruneweight, yw)
+                            res = task.next()
                         except Failed, e:
                             failures.append(unicode(e))
                         except Prune, e:
                             failures.append(unicode(e))
+                        except StopIteration:  # the task has finished
+                            cs = task._changeset
+                            csw = task.getChangesetWeight()
+                            self.trace(3, "feasible PENDING_INSTALL alternative for %s: %s (csw=%f)", (pkg, task._desc, csweight), cs)
+                            heappush(doneheap, task)
+                            _pruneweight = min(_pruneweight, csw)
                         else:
-                            csweight = getweight(cs)
-                            self.trace(2, "feasible PENDING_INSTALL alternative: %s  (csw=%f)", (prvpkg, csweight), cs)
-                            _pruneweight = min(_pruneweight, csweight)
-                            alternatives.append((csweight+pw[prvpkg]+
-                                                 keeporder, cs, lk))
-                            keeporder += 0.000001
-                            if earlyAbort:
-                                _maxpw = pw[prvpkg]
-                    if not alternatives:
+                            yield res
+                            _pruneweight = min(_pruneweight, self._pruneweight)
+                            heappush(taskheap, task)
+
+                    if len(doneheap)==0:
                         raise Failed, _("Can't install %s: all packages "
                                         "providing %s failed to install:\n%s")\
                                       % (pkg, req,  "\n".join(failures))
-                    alternatives.sort()
-                    changeset.setState(alternatives[0][1])
-                    if len(alternatives) == 1:
-                        locked.update(alternatives[0][2])
+                    changeset.setState(doneheap[0]._changeset)
+                    if len(doneheap) == 1:
+                        locked.update(doneheap[0]._locked)
                 else:
                     # This turned out to be the only way.
                     task = trans.TaskInstall(self, prvpkgs[0], changeset, locked, pending, self._pruneweight, self._yieldweight)
