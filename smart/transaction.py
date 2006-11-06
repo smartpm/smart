@@ -446,6 +446,10 @@ class Transaction(object):
         #print "[%03d] _install(%s)" % (depth, pkg)
         #depth += 1
 
+        ownpending = pending is None
+        if ownpending:
+            pending = []
+
         locked[pkg] = True
         changeset.set(pkg, INSTALL)
         isinst = changeset.installed
@@ -531,12 +535,19 @@ class Transaction(object):
                 # must be post-processed.
                 pending.append((PENDING_INSTALL, pkg, req, prvpkgs.keys()))
 
+        if ownpending:
+            self._pending(changeset, locked, pending, depth)
+
     def _remove(self, pkg, changeset, locked, pending, depth=0):
         #print "[%03d] _remove(%s)" % (depth, pkg)
         #depth += 1
 
         if pkg.essential:
             raise Failed, _("Can't remove %s: it's an essential package")
+
+        ownpending = pending is None
+        if ownpending:
+            pending = []
 
         locked[pkg] = True
         changeset.set(pkg, REMOVE)
@@ -592,6 +603,9 @@ class Transaction(object):
                         self._remove(reqpkg, changeset, locked, pending, depth)
                         pending.append((PENDING_UPDOWN, reqpkg))
 
+        if ownpending:
+            self._pending(changeset, locked, pending, depth)
+
     def _updown(self, pkg, changeset, locked, depth=0):
         #print "[%03d] _updown(%s)" % (depth, pkg)
         #depth += 1
@@ -634,10 +648,7 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                _pending = []
-                self._install(upgpkg, cs, lk, _pending, depth)
-                if _pending:
-                    self._pending(cs, lk, _pending, depth)
+                self._install(upgpkg, cs, lk, None, depth)
             except Failed:
                 pass
             else:
@@ -674,10 +685,7 @@ class Transaction(object):
                 try:
                     cs = changeset.copy()
                     lk = locked.copy()
-                    _pending = []
-                    self._install(dwnpkg, cs, lk, _pending, depth)
-                    if _pending:
-                        self._pending(cs, lk, _pending, depth)
+                    self._install(dwnpkg, cs, lk, None, depth)
                 except Failed:
                     pass
                 else:
@@ -733,12 +741,9 @@ class Transaction(object):
                     pw = self._policy.getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
                         try:
-                            _pending = []
                             cs = changeset.copy()
                             lk = locked.copy()
-                            self._install(prvpkg, cs, lk, _pending, depth)
-                            if _pending:
-                                self._pending(cs, lk, _pending, depth)
+                            self._install(prvpkg, cs, lk, None, depth)
                         except Failed, e:
                             failures.append(unicode(e))
                         else:
@@ -790,12 +795,9 @@ class Transaction(object):
                     pw = self._policy.getPriorityWeights(prvpkgs)
                     for prvpkg in prvpkgs:
                         try:
-                            _pending = []
                             cs = changeset.copy()
                             lk = locked.copy()
-                            self._install(prvpkg, cs, lk, _pending, depth)
-                            if _pending:
-                                self._pending(cs, lk, _pending, depth)
+                            self._install(prvpkg, cs, lk, None, depth)
                         except Failed, e:
                             failures.append(unicode(e))
                         else:
@@ -839,10 +841,7 @@ class Transaction(object):
                             continue
                         if reqpkg in lk:
                             raise Failed, _("%s is locked") % reqpkg
-                        _pending = []
-                        self._remove(reqpkg, cs, lk, _pending, depth)
-                        if _pending:
-                            self._pending(cs, lk, _pending, depth)
+                        self._remove(reqpkg, cs, lk, None, depth)
                 except Failed, e:
                     failures.append(unicode(e))
                 else:
@@ -884,10 +883,7 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                _pending = []
-                self._install(pkg, cs, lk, _pending, depth)
-                if _pending:
-                    self._pending(cs, lk, _pending, depth)
+                self._install(pkg, cs, lk, None, depth)
             except Failed, e:
                 pass
             else:
@@ -913,13 +909,10 @@ class Transaction(object):
                 try:
                     cs = changeset.copy()
                     lk = locked.copy()
-                    _pending = []
                     if op is REMOVE:
-                        self._install(pkg, cs, lk, _pending, depth)
+                        self._install(pkg, cs, lk, None, depth)
                     elif op is INSTALL:
-                        self._remove(pkg, cs, lk, _pending, depth)
-                    if _pending:
-                        self._pending(cs, lk, _pending, depth)
+                        self._remove(pkg, cs, lk, None, depth)
                 except Failed, e:
                     pass
                 else:
@@ -999,10 +992,7 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                _pending = []
-                self._install(pkg, cs, lk, _pending, depth)
-                if _pending:
-                    self._pending(cs, lk, _pending, depth)
+                self._install(pkg, cs, lk, None, depth)
             except Failed, e:
                 failures.append(unicode(e))
             else:
@@ -1013,10 +1003,7 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                _pending = []
-                self._remove(pkg, cs, lk, _pending, depth)
-                if _pending:
-                    self._pending(cs, lk, _pending, depth)
+                self._remove(pkg, cs, lk, None, depth)
                 self._updown(pkg, cs, lk, depth)
             except Failed, e:
                 failures.append(unicode(e))
