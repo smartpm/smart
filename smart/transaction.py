@@ -220,99 +220,8 @@ class Policy(object):
             set[pkg] = -(set[pkg] - lower)*10
         return set
 
-class PolicyInstall(Policy):
-    """Give precedence for keeping functionality in the system."""
 
-    def runStarting(self):
-        Policy.runStarting(self)
-        self._upgrading = upgrading = {}
-        self._upgraded = upgraded = {}
-        self._downgraded = downgraded = {}
-        for pkg in self._trans.getCache().getPackages():
-            # Precompute upgrade relations.
-            for upg in pkg.upgrades:
-                for prv in upg.providedby:
-                    for prvpkg in prv.packages:
-                        if prvpkg.installed:
-                            if (self.getPriority(pkg) >=
-                                self.getPriority(prvpkg)):
-                                upgrading[pkg] = True
-                                if prvpkg in upgraded:
-                                    upgraded[prvpkg].append(pkg)
-                                else:
-                                    upgraded[prvpkg] = [pkg]
-                            else:
-                                if prvpkg in downgraded:
-                                    downgraded[prvpkg].append(pkg)
-                                else:
-                                    downgraded[prvpkg] = [pkg]
-            # Downgrades are upgrades if they have a higher priority.
-            for prv in pkg.provides:
-                for upg in prv.upgradedby:
-                    for upgpkg in upg.packages:
-                        if upgpkg.installed:
-                            if (self.getPriority(pkg) >
-                                self.getPriority(upgpkg)):
-                                upgrading[pkg] = True
-                                if upgpkg in upgraded:
-                                    upgraded[upgpkg].append(pkg)
-                                else:
-                                    upgraded[upgpkg] = [pkg]
-                            else:
-                                if upgpkg in downgraded:
-                                    downgraded[upgpkg].append(pkg)
-                                else:
-                                    downgraded[upgpkg] = [pkg]
-
-    def runFinished(self):
-        Policy.runFinished(self)
-        del self._upgrading
-        del self._upgraded
-        del self._downgraded
-
-    def getWeight(self, changeset):
-        weight = 0
-        upgrading = self._upgrading
-        upgraded = self._upgraded
-        downgraded = self._downgraded
-        for pkg in changeset:
-            if changeset[pkg] is REMOVE:
-                # Upgrading a package that will be removed
-                # is better than upgrading a package that will
-                # stay in the system.
-                for upgpkg in upgraded.get(pkg, ()):
-                    if changeset.get(upgpkg) is INSTALL:
-                        weight -= 1
-                        break
-                else:
-                    for dwnpkg in downgraded.get(pkg, ()):
-                        if changeset.get(dwnpkg) is INSTALL:
-                            weight += 15
-                            break
-                    else:
-                        weight += 20
-            else:
-                if pkg in upgrading:
-                    weight += 2
-                else:
-                    weight += 3
-        return weight
-
-class PolicyRemove(Policy):
-    """Give precedence to the choice with less changes."""
-
-    def getWeight(self, changeset):
-        weight = 0
-        for pkg in changeset:
-            if changeset[pkg] is REMOVE:
-                weight += 1
-            else:
-                weight += 5
-        return weight
-
-class PolicyUpgrade(Policy):
-    """Give precedence to the choice with more upgrades and smaller impact."""
-
+class PolicyWithPriorities(Policy):
     def runStarting(self):
         Policy.runStarting(self)
         self._upgrading = upgrading = {}
@@ -321,6 +230,7 @@ class PolicyUpgrade(Policy):
             # an upgrade relation exists between them.
             # Positive means x upgrades y.
         self._upgraded = upgraded = {}
+        self._downgraded = downgraded = {}
         self._sortbonus = sortbonus = {}
         self._stablebonus = stablebonus = {}
         queue = self._trans.getQueue()
@@ -344,6 +254,12 @@ class PolicyUpgrade(Policy):
                                     lst.append(pkg)
                                 else:
                                     upgraded[prvpkg] = [pkg]
+                            else:
+                                lst = downgraded.get(prvpkg)
+                                if lst:
+                                    lst.append(pkg)
+                                else:
+                                    downgraded[prvpkg] = [pkg]
             # Downgrades are upgrades if they have a higher package priority.
             for prv in pkg.provides:
                 for upg in prv.upgradedby:
@@ -363,6 +279,12 @@ class PolicyUpgrade(Policy):
                                     lst.append(pkg)
                                 else:
                                     upgraded[upgpkg] = [pkg]
+                            else:
+                                lst = downgraded.get(upgpkg)
+                                if lst:
+                                    lst.append(pkg)
+                                else:
+                                    downgraded[upgpkg] = [pkg]
 
         # If package A-2.0 upgrades package A-1.0, and package A-2.0 is
         # upgraded by A-3.0, give a bonus if A-1.0 is upgraded without
@@ -423,30 +345,44 @@ class PolicyUpgrade(Policy):
         Policy.runFinished(self)
         del self._upgrading
         del self._upgraded
+        del self._downgraded
+
+    def _deltaWeightByDeltaPri(self, deltapri):
+        """Return weight delta for up/downgrading a pair of packages with the given priority delta"""
+        return 0
+
+    def _deltaWeightForRemove(self, pri):
+        """Return the weight delta for removing (not up/downgrading) a package with the given priority"""
+        return 0
+
+    def _calcStableBonus(self, pkg, changeset):
+        return 0
 
     def getWeight(self, changeset):
         weight = 0
         upgrading = self._upgrading
         upgraded = self._upgraded
+        downgraded = self._downgraded
         sortbonus = self._sortbonus
-        stablebonus = self._stablebonus
 
-        installedcount = 0
         upgradedmap = {}
         for pkg in changeset:
             if changeset[pkg] is REMOVE:
-                # Upgrading a package that will be removed
+                # Up/downgrading a package that will be removed
                 # is better than upgrading a package that will
                 # stay in the system.
-                lst = upgraded.get(pkg, ())
-                for lstpkg in lst:
-                    if changeset.get(lstpkg) is INSTALL:
-                        weight -= 1
+                for upgpkg in upgraded.get(pkg, ()):
+                    if changeset.get(upgpkg) is INSTALL:
+                        weight += self._rewardRemoveUpgraded # Upgraded
                         break
                 else:
-                    weight += self._deltaWeightForRemove(self.getPriority(pkg))
-            else:
-                installedcount += 1
+                    for dwnpkg in downgraded.get(pkg, ()):
+                        if changeset.get(dwnpkg) is INSTALL:
+                            weight += self._rewardRemovedDowngraded # Downgraded
+                            break
+                    else: # Removed and not replaced by up/downgrade
+                        weight += self._deltaWeightForRemove(self.getPriority(pkg))
+            else: # INSTALL
                 upgpkgs = upgrading.get(pkg)
                 if upgpkgs:
                     weight += sortbonus.get(pkg, 0)
@@ -456,24 +392,62 @@ class PolicyUpgrade(Policy):
                              upgradedmap[upgpkg] = max(deltapri,upgradedmap[upgpkg])
                         else:
                              upgradedmap[upgpkg] = deltapri
+                else:
+                    weight += self._rewardInstallNotUpdown # Install not up/downgrading anything
 
         # Contribution from up/downgrading packages:
         for pkg in upgradedmap:
-            sb = stablebonus.get(pkg)
-            if sb:
-                for bonusvalue, bonusdeps in sb:
-                    for deppkg in bonusdeps:
-                        if deppkg in changeset:
-                            break
-                    else:
-                        weight += bonusvalue
-                        break
+            weight += self._calcStableBonus(pkg, changeset)
             deltapri = upgradedmap[pkg]
             weight += self._deltaWeightByDeltaPri(deltapri)
 
-        upgradedcount = len(upgradedmap)
-        weight += installedcount-upgradedcount
         return weight
+
+class PolicyInstall(PolicyWithPriorities):
+    """Give precedence for keeping functionality in the system."""
+
+    _rewardRemoveUpgraded = -1
+    _rewardRemovedDowngraded = 15
+    _rewardInstallNotUpdown = 3
+
+    def _deltaWeightByDeltaPri(self, deltapri):
+        if not prioritiesAffectWeight:
+            return deltapri>0 and 2 or 0
+        # Bounded effect of priorities, so that num. affected packages maintains its importance.
+        # The +/-0.5 is for up/downgrades with no priority difference.
+        assert(abs(deltapri)>=0.5)
+        if deltapri>=0:
+            return 2.5 - 1*atan((deltapri-0.5)/priorityScale)/(pi/2) # (1.5,2.5]
+        else:
+            return 3 - 2*atan((deltapri+0.5)/priorityScale)/(pi/2) # [3,5)
+
+    def _deltaWeightForRemove(self, pri):
+        if not prioritiesAffectWeight:
+            return 20
+        # Bounded effect of priorities, so that num. affected packages maintains its importance.
+        if pri>=0:
+            return 20 + 10*atan(pri/priorityScale)/(pi/2) # [20,30)
+        else:
+            return 20 + 4*atan(1.0*pri/priorityScale)/(pi/2) # (16,20]
+
+class PolicyRemove(Policy):
+    """Give precedence to the choice with less changes."""
+
+    def getWeight(self, changeset):
+        weight = 0
+        for pkg in changeset:
+            if changeset[pkg] is REMOVE:
+                weight += 1
+            else:
+                weight += 5
+        return weight
+
+class PolicyUpgrade(PolicyWithPriorities):
+    """Give precedence to the choice with more upgrades and smaller impact."""
+
+    _rewardRemoveUpgraded = -1
+    _rewardRemovedDowngraded = 0
+    _rewardInstallNotUpdown = 1
 
     def _deltaWeightByDeltaPri(self, deltapri):
         if not prioritiesAffectWeight:
@@ -497,6 +471,21 @@ class PolicyUpgrade(Policy):
             return 10 + 10.0*pri/priorityScale # [10,infty)
         else:
             return 10 + 5*atan(1.0*pri/priorityScale)/(pi/2) # (5,10]
+
+    def _calcStableBonus(self, pkg, changeset):
+        weight = 0
+        stablebonus = self._stablebonus
+        sb = stablebonus.get(pkg)
+        if sb:
+            for bonusvalue, bonusdeps in sb:
+                for deppkg in bonusdeps:
+                    if deppkg in changeset:
+                        break
+                else:
+                    weight += bonusvalue
+                    break
+        return weight
+
 
 class Failed(Error): pass
 class Prune(Error): pass
