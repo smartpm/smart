@@ -1399,10 +1399,14 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
-                for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
-                task = trans.TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=0)
-                for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
+                if immediateUpdown:
+                    task = trans.TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=1)
+                    for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
+                else:
+                    task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
+                    for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
+                    task = trans.TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=0)
+                    for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
             except Failed, e:
                 failures.append(unicode(e))
             except Prune, e:
