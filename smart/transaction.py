@@ -202,6 +202,12 @@ class Policy(object):
     def getWeight(self, changeset):
         return 0
 
+    def getBestUpdownDeltaWeight(self, pkg):
+        """
+        Return the best possible change in weight when pkg is up/downgraded or removed.
+        """
+        return 0
+
     def getPriority(self, pkg):
         priority = self._priorities.get(pkg)
         if priority is None:
@@ -231,8 +237,11 @@ class PolicyWithPriorities(Policy):
             # Positive means x upgrades y.
         self._upgraded = upgraded = {}
         self._downgraded = downgraded = {}
+        self._bestdeltapri = bestdeltapri = {}
+            # self._bestdeltapri[x] is max(pri(y)-pri(x)) over all y up/downgrading x
         self._sortbonus = sortbonus = {}
         self._stablebonus = stablebonus = {}
+        self._bestUpdownDeltaWeight = {}  # cache of getBestUpdownDeltaWeight()
         queue = self._trans.getQueue()
         for pkg in self._trans.getCache().getPackages():
             # Precompute upgrade relations.
@@ -260,6 +269,8 @@ class PolicyWithPriorities(Policy):
                                     lst.append(pkg)
                                 else:
                                     downgraded[prvpkg] = [pkg]
+                            if prvpkg not in bestdeltapri or bestdeltapri[prvpkg]<deltapri:
+                                 bestdeltapri[prvpkg] = deltapri
             # Downgrades are upgrades if they have a higher package priority.
             for prv in pkg.provides:
                 for upg in prv.upgradedby:
@@ -285,6 +296,8 @@ class PolicyWithPriorities(Policy):
                                     lst.append(pkg)
                                 else:
                                     downgraded[upgpkg] = [pkg]
+                            if upgpkg not in bestdeltapri or bestdeltapri[upgpkg]<deltapri:
+                                 bestdeltapri[upgpkg] = deltapri
 
         # If package A-2.0 upgrades package A-1.0, and package A-2.0 is
         # upgraded by A-3.0, give a bonus if A-1.0 is upgraded without
@@ -346,6 +359,8 @@ class PolicyWithPriorities(Policy):
         del self._upgrading
         del self._upgraded
         del self._downgraded
+        del self._bestdeltapri
+        del self._bestUpdownDeltaWeight
 
     def _deltaWeightByDeltaPri(self, deltapri):
         """Return weight delta for up/downgrading a pair of packages with the given priority delta"""
@@ -401,6 +416,25 @@ class PolicyWithPriorities(Policy):
             deltapri = upgradedmap[pkg]
             weight += self._deltaWeightByDeltaPri(deltapri)
 
+        return weight
+
+    def getBestUpdownDeltaWeight(self, pkg):
+        weight = self._bestUpdownDeltaWeight.get(pkg);
+        if weight is not None:
+            return weight
+
+        bestdeltapri = self._bestdeltapri
+        upgraded = self._upgraded
+        weight = 0
+        # Best imaginable upgrade?
+        if pkg in bestdeltapri:
+            deltapri = bestdeltapri[pkg]
+            weight = self._deltaWeightByDeltaPri(deltapri)
+            weight += self._rewardRemoveUpgraded # for removing old
+        # We could also just remove it
+        weight = min(weight, self._deltaWeightForRemove(self.getPriority(pkg)))
+
+        self._bestUpdownDeltaWeight[pkg] = weight
         return weight
 
 class PolicyInstall(PolicyWithPriorities):
@@ -554,6 +588,17 @@ class Transaction(object):
         locked[pkg] = True
         changeset.set(pkg, INSTALL)
         isinst = changeset.installed
+        if pruneByWeight:
+            # Find an lower bound on the weight resulting from this install, and prune.
+            optweight = None
+            for prhpkg in self.getProhibits(pkg):
+                if isinst(prhpkg):
+                    if optweight is None:
+                        optweight = self._policy.getWeight(changeset)
+                    optweight += self._policy.getBestUpdownDeltaWeight(prhpkg)
+            if optweight is not None and optweight > pruneweight:
+                trace(2, depth, "pruned _install")
+                raise Prune, _("Pruned installation of %s") % (pkg)
 
         # Remove packages conflicted by this one.
         for cnf in pkg.conflicts:
