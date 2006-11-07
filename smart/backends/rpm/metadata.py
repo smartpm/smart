@@ -268,7 +268,7 @@ class RPMMetaDataLoader(Loader):
                     reqargs = [x for x in reqdict
                                if not ((x[2] is None or "=" in x[2]) and
                                        (RPMProvides, x[1], x[3]) in prvdict or
-                                       system_provides.match(*x))]
+                                       system_provides.match(*x[:3]))]
                     prvargs = prvdict.keys()
                     cnfargs = cnfdict.keys()
                     upgargs = upgdict.keys()
