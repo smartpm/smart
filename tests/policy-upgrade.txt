@@ -1,0 +1,107 @@
+
+Import what we need.
+
+  >>> from smart.cache import *
+  >>> from smart.channel import *
+  >>> from smart.transaction import *
+
+
+Create a test environment.
+
+  >>> class TestPackage(Package): pass
+  >>> class TestProvides(Provides): pass
+  >>> class TestDepends(Depends):
+  ...   def matches(self, prv):
+  ...     return prv.name == self.name and prv.version == self.version
+  >>> class TestRequires(TestDepends, Requires): pass
+  >>> class TestUpgrades(TestDepends, Upgrades): pass
+  >>> class TestConflicts(TestDepends, Upgrades): pass
+
+  >>> class TestInstalledLoader(Loader):
+  ...
+  ...     def __init__(self):
+  ...         Loader.__init__(self)
+  ...         self._installed = True
+  ...
+  ...     def getChannel(self):
+  ...         return PackageChannel("dummy", "installed")
+  ...
+  ...     def load(self):
+  ...         pkgA = self.buildPackage(
+  ...             (TestPackage, "A", "1"),
+  ...             [(TestProvides, "A", "1")], [], [], [])
+  ...         pkgA.loaders[self] = "A"
+  ...         pkgB = self.buildPackage(
+  ...             (TestPackage, "B", "1"),
+  ...             [(TestProvides, "B", "1")], [], [], [])
+  ...         pkgB.loaders[self] = "B"
+
+  >>> class TestAvailableLoader(Loader):
+  ...
+  ...     def getChannel(self):
+  ...         return PackageChannel("dummy", "available")
+  ...
+  ...     def load(self):
+  ...         pkgA = self.buildPackage(
+  ...             (TestPackage, "A", "2"),
+  ...             [(TestProvides, "A", "2")], [],
+  ...             [(TestUpgrades, "A", "=", "1")],
+  ...             [(TestConflicts, "A", "=", "1")])
+  ...         pkgA.loaders[self] = "A"
+  ...         pkgB = self.buildPackage(
+  ...             (TestPackage, "B", "2"),
+  ...             [(TestProvides, "B", "2")], [],
+  ...             [(TestUpgrades, "B", "=", "1")],
+  ...             [(TestConflicts, "B", "=", "1")])
+  ...         pkgB.loaders[self] = "B"
+
+
+Then, we create instances of them.
+
+  >>> installed_loader = TestInstalledLoader()
+  >>> available_loader = TestAvailableLoader()
+
+
+We'll also create a cache, to include these loader into.
+
+  >>> cache = Cache()
+  >>> cache.addLoader(installed_loader)
+  >>> cache.addLoader(available_loader)
+
+
+Loading the cache should activate the loader.
+
+  >>> cache.load()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+
+
+Create a new transaction to perform the upgrade operation, using the
+cache just built, and the upgrade policy.
+
+  >>> transaction = Transaction(cache, PolicyUpgrade)
+
+
+Mark packages for upgrading.
+
+  >>> for pkg in cache.getPackages():
+  ...     if pkg.name in ["A", "B"] and pkg.version == "1":
+  ...         transaction.enqueue(pkg, UPGRADE)
+
+
+And run!
+
+  >>> transaction.run()
+
+
+Does it work!? Does it work!?
+
+  >>> for pkg, op in sorted(transaction.getChangeSet().items()):
+  ...     print pkg, op
+  A-1 REMOVE
+  A-2 INSTALL
+  B-1 REMOVE
+  B-2 INSTALL
+
+
+vim:ft=doctest
