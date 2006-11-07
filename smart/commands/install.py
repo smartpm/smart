@@ -61,23 +61,11 @@ def parse_options(argv):
                              "when possible"))
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
-    parser.add_option("--dump", action="store_true",
-                      help=_("dump package names and versions to stderr but "
-                             "don't commit operation"))
-    parser.add_option("--dump-noversion", action="store_true",
-                      help=_("dump package names without versions to stderr but "
-                             "don't commit operation"))
-    parser.add_option("--dump-tofile", metavar=_("FILE"),
-                      help=_("dump packages in transaction to a file"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
 
 def main(ctrl, opts):
- 
-    if opts.dump_tofile and not (opts.dump or opts.dump_noversion):
-        raise Error, _("Option 'dump-tofile' must be used with 'dump'"
-                       "or 'dump-noversion'.")
 
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
@@ -177,10 +165,6 @@ def main(ctrl, opts):
         confirm = not opts.yes
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
-        elif opts.dump:
-            ctrl.dumpTransactionPackages(trans, "install", noversion=False, file=opts.dump_tofile)
-        elif opts.dump_noversion:
-            ctrl.dumpTransactionPackages(trans, "install", noversion=True, file=opts.dump_tofile)
         elif opts.download:
             ctrl.downloadTransaction(trans, confirm=confirm)
         elif opts.stepped:
