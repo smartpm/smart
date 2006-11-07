@@ -500,135 +500,87 @@ PENDING_UPDOWN   = 3
 
 WEIGHT_NONE   = 1e100   # float to make min() "%f" work, but larger than any real weight
 
-class Transaction(object):
-    def __init__(self, cache, policy=None, changeset=None, queue=None):
-        self._cache = cache
-        self._policy = policy and policy(self) or Policy(self)
-        self._changeset = changeset or ChangeSet(cache)
-        self._queue = queue or {}
-        self._necessarypkgs = {} # A in _necessarypkgs[B] means it's impossible to install A without B
-        self._necessitatespkgs = {} # A in _necessitatespkgs[B] means it's impossible to install B without A
-        self._prohibitspkgs = {} # A in _prohibitpkgs[B] means it's impossible to install A and B
-        self.numTaskStarted = 0
-        self.numTaskCompleted = 0
-        self.numTaskPruned = 0
-        self.numTaskFailed = 0
 
-    def clear(self):
-        self._changeset.clear()
-        self._queue.clear()
+class Task(object):
+    """
+    This is the base class for tasks executed by transaction calculation.
+    It provides an iterator (to be implemented by a generator function) which advances
+    the computation at each call.
+    The calls to next() return a series of tentative changesets weights, which are
+    (hopefully, but not necessarily) monotonically increasing.
+    When the final changeset is ready, next() raises StopIteration, and _changeset
+    and _locked have their final value.
+    """ 
+    def __init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc):
+        self._parent =  parent          # Parent task (a Task or RootTask object)
+        self._changeset = changeset     # (Tentative) changeset
+        self._locked = locked           # (Tentative) locked
+        self._csweight = csweight       # (Tentative) changeset weight, primary sort key
+        self._pri = pri                 # Priority, secondary sort key
+        self._order = order             # Tertiary sort key for determinism (and trace output)
+        self._gen = gen                 # the generator function
+        self._desc = desc               # Description for trace output
+        self._pruneweight = pruneweight # Weight at which to raise Prune
+        self._yieldweight = yieldweight # Weight at which to yield execution
+        self._trans = parent._trans     # the Transaction object we belong to
+        self._depth = parent._depth + 1 # Trace depth level
+        self._tracepath = "%s-%d" % (parent._tracepath, order)
+        self._trans.numTaskStarted += 1
 
-    def getCache(self):
-        return self._cache
+    def setWeights(self, pruneweight, yieldweight):
+        self._pruneweight = pruneweight
+        self._yieldweight = yieldweight
 
-    def getQueue(self):
-        return self._queue
+    def getChangesetWeight(self):
+        if self._csweight == WEIGHT_NONE:
+            self._csweight = self._trans.getPolicy().getWeight(self._changeset)
+        return self._csweight
 
-    def getPolicy(self):
-        return self._policy
+    def next(self):
+        self._csweight = WEIGHT_NONE   # in case _gen raises StopIteration without recomputing
+        try:
+            self._csweight = self._gen.next()
+        except Prune:
+            self._trans.numTaskPruned += 1
+            raise
+        except Failed:
+            self._trans.numTaskFailed += 1
+            raise
+        except StopIteration:
+            self._trans.numTaskCompleted += 1
+            raise
+        return self._csweight
 
-    def setPolicy(self, policy):
-        self._policy = policy(self)
-
-    def getWeight(self):
-        return self._policy.getWeight(self._changeset)
-
-    def getChangeSet(self):
-        return self._changeset
-
-    def setChangeSet(self, changeset):
-        self._changeset = changeset
-
-    def getState(self):
-        return self._changeset.getState()
-
-    def setState(self, state):
-        self._changeset.setState(state)
-
-    def __nonzero__(self):
-        return bool(self._changeset)
-
-    def __str__(self):
-        return str(self._changeset)
-
-    class Task(object):
+    def trace(self, verbosity, str, args=[], cs=None):
         """
-        This class provides an iterator (to be implemented by a generator function).
-        The calls to next() return a series of tentative changesets weights, which are
-        (hopefully, but not necessarily) monotonically increasing.
-        When the final changeset is ready, next() raises StopIteration, and _changeset
-        and _locked have their final value.
-        """ 
-        def __init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc):
-            self._parent =  parent          # Parent task (a Task or RootTask object)
-            self._changeset = changeset     # (Tentative) changeset
-            self._locked = locked           # (Tentative) locked
-            self._csweight = csweight       # (Tentative) changeset weight, primary sort key
-            self._pri = pri                 # Priority, secondary sort key
-            self._order = order             # Tertiary sort key for determinism (and trace output)
-            self._gen = gen                 # the generator function
-            self._desc = desc               # Description for trace output
-            self._pruneweight = pruneweight # Weight at which to raise Prune
-            self._yieldweight = yieldweight # Weight at which to yield execution
-            self._trans = parent._trans     # the Transaction object we belong to
-            self._depth = parent._depth + 1 # Trace depth level
-            self._tracepath = "%s-%d" % (parent._tracepath, order)
-            self._trans.numTaskStarted += 1
+        pretty-print a trace line if it patches the current filter.
+        It accepts format arguments and evaluates them only if needed, instead
+        of having the caller always evaluate its % operator.
+        """
+        if verbosity<=traceVerbosity and self._depth<=traceDepth:
+            iface.debug("%s>     %s" % (self._tracepath, str % args))
+            if traceVerbosity>6 and cs is not None:
+                iface.debug("--> changeset:\n%s" % (cs))
 
-        def setWeights(self, pruneweight, yieldweight):
-            self._pruneweight = pruneweight
-            self._yieldweight = yieldweight
+    def __iter__(self):
+        return self
 
-        def getChangesetWeight(self):
-            if self._csweight == WEIGHT_NONE:
-                self._csweight = self._trans.getPolicy().getWeight(self._changeset)
-            return self._csweight
+    def __cmp__(self,other):
+        return cmp( (self._csweight, self._pri, self._order), (other._csweight, self._pri, other._order) )
 
-        def next(self):
-            self._csweight = WEIGHT_NONE   # in case _gen raises StopIteration without recomputing
-            try:
-                self._csweight = self._gen.next()
-            except Prune:
-                self._trans.numTaskPruned += 1
-                raise
-            except Failed:
-                self._trans.numTaskFailed += 1
-                raise
-            except StopIteration:
-                self._trans.numTaskCompleted += 1
-                raise
-            return self._csweight
+class RootTask(object):
+    def __init__(self, trans):
+        self._trans = trans
+        self._depth = 0
+        self._order = 0
+        self._tracepath = '#'
 
-        def trace(self, verbosity, str, args=[], cs=None):
-            """
-            pretty-print a trace line if it patches the current filter.
-            It accepts format arguments and evaluates them only if needed, instead
-            of having the caller always evaluate its % operator.
-            """
-            if verbosity<=traceVerbosity and self._depth<=traceDepth:
-                iface.debug("%s>     %s" % (self._tracepath, str % args))
-                if traceVerbosity>6 and cs is not None:
-                    iface.debug("--> changeset:\n%s" % (cs))
-
-        def __iter__(self):
-            return self
-
-        def __cmp__(self,other):
-            return cmp( (self._csweight, self._pri, self._order), (other._csweight, self._pri, other._order) )
-
-    class RootTask(object):
-        def __init__(self, trans):
-            self._trans = trans
-            self._depth = 0
-            self._order = 0
-            self._tracepath = '#'
-
-    class TaskInstall(Task):
-      def __init__(self, parent, pkg, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
+class TaskInstall(Task):
+    def __init__(self, parent, pkg, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
         gen = self._install(pkg, pending)
-        parent._trans.Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
+        Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
 
-      def _install(self, pkg, pending):
+    def _install(self, pkg, pending):
         trans = self._trans
         changeset = self._changeset
         locked = self._locked
@@ -668,10 +620,10 @@ class Transaction(object):
                         raise Failed, _("Can't install %s: conflicted package "
                                         "%s is locked") % (pkg, prvpkg)
                     if immediateUpdown:
-                        task = trans.TaskUpdown(self, prvpkg, changeset, locked, self._pruneweight, self._yieldweight, force=1)
+                        task = TaskUpdown(self, prvpkg, changeset, locked, self._pruneweight, self._yieldweight, force=1)
                         for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
                     else:
-                        task = trans.TaskRemove(self, prvpkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
+                        task = TaskRemove(self, prvpkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
                         for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
                         pending.append((PENDING_UPDOWN, prvpkg))
 
@@ -689,10 +641,10 @@ class Transaction(object):
                                         "the locked package %s") \
                                       % (pkg, cnfpkg)
                     if immediateUpdown:
-                        task = trans.TaskUpdown(self, cnfpkg, changeset, locked, self._pruneweight, self._yieldweight, force=1)
+                        task = TaskUpdown(self, cnfpkg, changeset, locked, self._pruneweight, self._yieldweight, force=1)
                         for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
                     else:
-                        task = trans.TaskRemove(self, cnfpkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
+                        task = TaskRemove(self, cnfpkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
                         for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
                         pending.append((PENDING_UPDOWN, cnfpkg))
 
@@ -707,7 +659,7 @@ class Transaction(object):
                 if namepkg in locked:
                     raise Failed, _("Can't install %s: it can't coexist "
                                     "with %s") % (pkg, namepkg)
-                task = trans.TaskRemove(self, namepkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
+                task = TaskRemove(self, namepkg, changeset, locked, pending, self._pruneweight, self._yieldweight)
                 for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
 
         # Install packages required by this one.
@@ -740,7 +692,7 @@ class Transaction(object):
             if len(prvpkgs) == 1:
                 # Don't check locked here. prvpkgs was
                 # already filtered above.
-                task = trans.TaskInstall(self, prvpkgs.popitem()[0], changeset, locked, pending, self._pruneweight, self._yieldweight)
+                task = TaskInstall(self, prvpkgs.popitem()[0], changeset, locked, pending, self._pruneweight, self._yieldweight)
                 for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
             else:
                 # More than one package provide it. This package
@@ -748,15 +700,15 @@ class Transaction(object):
                 pending.append((PENDING_INSTALL, pkg, req, prvpkgs.keys()))
 
         if ownpending:
-            task = trans.TaskPending(self, changeset, locked, pending, self._pruneweight, self._yieldweight)
+            task = TaskPending(self, changeset, locked, pending, self._pruneweight, self._yieldweight)
             for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
 
-    class TaskRemove(Task):
-      def __init__(self, parent, pkg, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
+class TaskRemove(Task):
+    def __init__(self, parent, pkg, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
         gen = self._remove(pkg, pending)
-        parent._trans.Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
+        Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
 
-      def _remove(self, pkg, pending):
+    def _remove(self, pkg, pending):
         trans = self._trans
         changeset = self._changeset
         locked = self._locked
@@ -842,26 +794,26 @@ class Transaction(object):
                             raise Failed, _("Can't remove %s: %s is locked") \
                                           % (pkg, reqpkg)
                         if immediateUpdown:
-                            task = trans.TaskUpdown(self, reqpkg, changeset, locked, pruneweight, self._yieldweight, force=1)
+                            task = TaskUpdown(self, reqpkg, changeset, locked, pruneweight, self._yieldweight, force=1)
                             for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
                         else:
-                            task = trans.TaskRemove(self, reqpkg, changeset, locked, pending, pruneweight, self._yieldweight)
+                            task = TaskRemove(self, reqpkg, changeset, locked, pending, pruneweight, self._yieldweight)
                             for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
                             pending.append((PENDING_UPDOWN, reqpkg))
 
         if ownpending:
-            task = trans.TaskPending(self, changeset, locked, pending, pruneweight, self._yieldweight)
+            task = TaskPending(self, changeset, locked, pending, pruneweight, self._yieldweight)
             for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
 
-    class TaskUpdown(Task):
-      def __init__(self, parent, pkg, changeset, locked, pruneweight, yieldweight, force, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
+class TaskUpdown(Task):
+    def __init__(self, parent, pkg, changeset, locked, pruneweight, yieldweight, force, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
         """
         If force=1, insists on replacing or removing pkg.
         """
         gen = self._updown(pkg, force)
-        parent._trans.Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
+        Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
 
-      def _updown(self, pkg, force):
+    def _updown(self, pkg, force):
         trans = self._trans
         changeset = self._changeset
         locked = self._locked
@@ -913,8 +865,8 @@ class Transaction(object):
         for upgpkg in upgpkgs:
             cs = changeset.copy()
             lk = locked.copy()
-            task = trans.TaskInstall(self, upgpkg, cs, lk, None, pruneweight, self._yieldweight,
-                                     csweight, 0, order, "upgrade to %s" % upgpkg)
+            task = TaskInstall(self, upgpkg, cs, lk, None, pruneweight, self._yieldweight,
+                                        csweight, 0, order, "upgrade to %s" % upgpkg)
             heappush(taskheap, task) 
             order += 1
 
@@ -951,7 +903,7 @@ class Transaction(object):
             for dwnpkg in dwnpkgs:
                 cs = changeset.copy()
                 lk = locked.copy()
-                task = trans.TaskInstall(self, dwnpkg, cs, lk, None, pruneweight, self._yieldweight,
+                task = TaskInstall(self, dwnpkg, cs, lk, None, pruneweight, self._yieldweight,
                                          csweight, 1, order, "downgrade to %s" % dwnpkg)
                 heappush(taskheap, task) 
                 order += 1
@@ -960,7 +912,7 @@ class Transaction(object):
         if force:
             cs = changeset.copy()
             lk = locked.copy()
-            task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight,
+            task = TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight,
                                     csweight, 2, order, "remove")
             heappush(taskheap, task)
 
@@ -998,12 +950,12 @@ class Transaction(object):
         self._changeset.setState(doneheap[0]._changeset)
         self._csweight = (doneheap[0].getChangesetWeight())
 
-    class TaskPending(Task):
-      def __init__(self, parent, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
+class TaskPending(Task):
+    def __init__(self, parent, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
         gen = self._pending(pending)
-        parent._trans.Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
+        Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
 
-      def _pending(self, pending):
+    def _pending(self, pending):
         trans = self._trans
         changeset = self._changeset
         locked = self._locked
@@ -1063,7 +1015,7 @@ class Transaction(object):
                     for prvpkg in prvpkgs:
                         cs = changeset.copy()
                         lk = locked.copy()
-                        task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
+                        task = TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
                                                  csweight, -getpriority(prvpkg), order, "install %s" % prvpkg)
                         heappush(taskheap, task)
                         order += 1
@@ -1101,7 +1053,7 @@ class Transaction(object):
                         locked.update(doneheap[0]._locked)
                 else:
                     # This turned out to be the only way.
-                    task = trans.TaskInstall(self, prvpkgs[0], changeset, locked, pending, self._pruneweight, self._yieldweight)
+                    task = TaskInstall(self, prvpkgs[0], changeset, locked, pending, self._pruneweight, self._yieldweight)
                     for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
 
             elif kind == PENDING_REMOVE:
@@ -1141,7 +1093,7 @@ class Transaction(object):
                     for prvpkg in prvpkgs:
                         cs = changeset.copy()
                         lk = locked.copy()
-                        task = trans.TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
+                        task = TaskInstall(self, prvpkg, cs, lk, None, _pruneweight, self._yieldweight,
                                                  csweight, -getpriority(prvpkg), order, "provide using %s" % prvpkg)
                         heappush(taskheap, task)
                         order += 1
@@ -1151,9 +1103,9 @@ class Transaction(object):
                 # does not require this dependency.
                 cs = changeset.copy()
                 lk = locked.copy()
-                class TaskEvacuate(trans.Task):
+                class TaskEvacuate(Task):
                     def __init__(inself):
-                        trans.Task.__init__(inself, self, inself.evacuate(), cs, lk, _pruneweight, self._yieldweight,
+                        Task.__init__(inself, self, inself.evacuate(), cs, lk, _pruneweight, self._yieldweight,
                                             csweight, 0.0001, order, "evacuate requiring")
                     def evacuate(inself):
                         cs = inself._changeset
@@ -1168,10 +1120,10 @@ class Transaction(object):
                             if reqpkg in lk:
                                 raise Failed, _("%s is locked") % reqpkg
                             if immediateUpdown:
-                                task = trans.TaskUpdown(inself, reqpkg, cs, lk, inself._pruneweight, inself._yieldweight, force=1)
+                                task = TaskUpdown(inself, reqpkg, cs, lk, inself._pruneweight, inself._yieldweight, force=1)
                                 for res in task: yield res; task.setWeights(inself._pruneweight, inself._yieldweight)
                             else:
-                                task = trans.TaskRemove(inself, reqpkg, cs, lk, None, inself._pruneweight, inself._yieldweight)
+                                task = TaskRemove(inself, reqpkg, cs, lk, None, inself._pruneweight, inself._yieldweight)
                                 for res in task: yield res; task.setWeights(inself._pruneweight, inself._yieldweight)
                 task = TaskEvacuate()
                 heappush(taskheap, task)
@@ -1211,17 +1163,17 @@ class Transaction(object):
 
         for pkg in updown:
             self.trace(1, "_pending.final updown: %s", (pkg) )
-            task = trans.TaskUpdown(self, pkg, changeset, locked, self._pruneweight, self._yieldweight, force=0)
+            task = TaskUpdown(self, pkg, changeset, locked, self._pruneweight, self._yieldweight, force=0)
             for res in task: yield res; task.setWeights(self._pruneweight, self._yieldweight)
 
         del pending[:]
 
-    class TaskUpgrade(Task):
-      def __init__(self, parent, pkgs, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
+class TaskUpgrade(Task):
+    def __init__(self, parent, pkgs, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
         gen = self._upgrade(pkgs, pending)
-        parent._trans.Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
+        Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
 
-      def _upgrade(self, pkgs, pending):
+    def _upgrade(self, pkgs, pending):
         trans = self._trans
         changeset = self._changeset
         locked = self._locked
@@ -1248,7 +1200,7 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                task = trans.TaskInstall(self, pkg, cs, lk, None, self._pruneweight, self._yieldweight)
+                task = TaskInstall(self, pkg, cs, lk, None, self._pruneweight, self._yieldweight)
                 for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
             except Failed, e:
                 pass
@@ -1284,10 +1236,10 @@ class Transaction(object):
                     cs = changeset.copy()
                     lk = locked.copy()
                     if op is REMOVE:
-                        task = trans.TaskInstall(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
+                        task = TaskInstall(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
                         for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
                     elif op is INSTALL:
-                        task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
+                        task = TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
                         for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
                 except Failed, e:
                     pass
@@ -1303,12 +1255,12 @@ class Transaction(object):
                     else:
                         self.trace(3, "_upgrade kept %s %s (csw=%f => w=%f)", (op, pkg, csweight, weight))
 
-    class TaskFix(Task):
-      def __init__(self, parent, pkgs, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
+class TaskFix(Task):
+    def __init__(self, parent, pkgs, changeset, locked, pending, pruneweight, yieldweight, csweight=WEIGHT_NONE, pri=0, order=0, desc=""):
         gen = self._fix(pkgs, pending)
-        parent._trans.Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
+        Task.__init__(self, parent, gen, changeset, locked, pruneweight, yieldweight, csweight, pri, order, desc)
 
-      def _fix(self, pkgs, pending):
+    def _fix(self, pkgs, pending):
         trans = self._trans
         changeset = self._changeset
         locked = self._locked
@@ -1382,7 +1334,7 @@ class Transaction(object):
             try:
                 cs = changeset.copy()
                 lk = locked.copy()
-                task = trans.TaskInstall(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
+                task = TaskInstall(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
                 for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
             except Failed, e:
                 failures.append(unicode(e))
@@ -1400,12 +1352,12 @@ class Transaction(object):
                 cs = changeset.copy()
                 lk = locked.copy()
                 if immediateUpdown:
-                    task = trans.TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=1)
+                    task = TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=1)
                     for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
                 else:
-                    task = trans.TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
+                    task = TaskRemove(self, pkg, cs, lk, None, pruneweight, self._yieldweight)
                     for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
-                    task = trans.TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=0)
+                    task = TaskUpdown(self, pkg, cs, lk, pruneweight, self._yieldweight, force=0)
                     for res in task: yield res; pruneweight=min(pruneweight,self._pruneweight); task.setWeights(pruneweight, self._yieldweight)
             except Failed, e:
                 failures.append(unicode(e))
@@ -1423,6 +1375,58 @@ class Transaction(object):
 
             alternatives.sort()
             changeset.setState(alternatives[0][1])
+
+
+class Transaction(object):
+    def __init__(self, cache, policy=None, changeset=None, queue=None):
+        self._cache = cache
+        self._policy = policy and policy(self) or Policy(self)
+        self._changeset = changeset or ChangeSet(cache)
+        self._queue = queue or {}
+        self._necessarypkgs = {} # A in _necessarypkgs[B] means it's impossible to install A without B
+        self._necessitatespkgs = {} # A in _necessitatespkgs[B] means it's impossible to install B without A
+        self._prohibitspkgs = {} # A in _prohibitpkgs[B] means it's impossible to install A and B
+        self.numTaskStarted = 0
+        self.numTaskCompleted = 0
+        self.numTaskPruned = 0
+        self.numTaskFailed = 0
+
+    def clear(self):
+        self._changeset.clear()
+        self._queue.clear()
+
+    def getCache(self):
+        return self._cache
+
+    def getQueue(self):
+        return self._queue
+
+    def getPolicy(self):
+        return self._policy
+
+    def setPolicy(self, policy):
+        self._policy = policy(self)
+
+    def getWeight(self):
+        return self._policy.getWeight(self._changeset)
+
+    def getChangeSet(self):
+        return self._changeset
+
+    def setChangeSet(self, changeset):
+        self._changeset = changeset
+
+    def getState(self):
+        return self._changeset.getState()
+
+    def setState(self, state):
+        self._changeset.setState(state)
+
+    def __nonzero__(self):
+        return bool(self._changeset)
+
+    def __str__(self):
+        return str(self._changeset)
 
     def enqueue(self, pkg, op):
         if op is UPGRADE:
@@ -1462,7 +1466,7 @@ class Transaction(object):
             changeset = self._changeset.copy()
             isinst = changeset.installed
             locked = self._policy.getLockedSet().copy()
-            roottask = self.RootTask(self)
+            roottask = RootTask(self)
             pending = []
 
             for pkg in self._queue:
@@ -1499,10 +1503,10 @@ class Transaction(object):
                     else:
                         op = REMOVE
                 if op is INSTALL or op is REINSTALL:
-                    task = self.TaskInstall(roottask, pkg, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
+                    task = TaskInstall(roottask, pkg, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
                     for res in task: pass
                 elif op is REMOVE:
-                    task = self.TaskRemove(roottask, pkg, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
+                    task = TaskRemove(roottask, pkg, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
                     for res in task: pass
                 elif op is UPGRADE:
                     upgpkgs.append(pkg)
@@ -1510,15 +1514,15 @@ class Transaction(object):
                     fixpkgs.append(pkg)
 
             if pending:
-                task = self.TaskPending(roottask, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
+                task = TaskPending(roottask, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
                 for res in task: pass
 
             if upgpkgs:
-                task = self.TaskUpgrade(roottask, upgpkgs, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
+                task = TaskUpgrade(roottask, upgpkgs, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
                 for res in task: pass
 
             if fixpkgs:
-                task = self.TaskFix(roottask, fixpkgs, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
+                task = TaskFix(roottask, fixpkgs, changeset, locked, pending, WEIGHT_NONE, WEIGHT_NONE)
                 for res in task: pass
 
             self._changeset.setState(changeset)
@@ -2315,12 +2319,12 @@ def enablePsyco(psyco):
     psyco.bind(Transaction.getNecessary)
     psyco.bind(Transaction.getNecessitates)
     psyco.bind(Transaction.getProhibits)
-    psyco.bind(Transaction.Task)
-    psyco.bind(Transaction.TaskInstall)
-    psyco.bind(Transaction.TaskRemove)
-    psyco.bind(Transaction.TaskUpdown)
-    psyco.bind(Transaction.TaskPending)
-    psyco.bind(Transaction.TaskUpgrade)
+    psyco.bind(Task)
+    psyco.bind(TaskInstall)
+    psyco.bind(TaskRemove)
+    psyco.bind(TaskUpdown)
+    psyco.bind(TaskPending)
+    psyco.bind(TaskUpgrade)
     psyco.bind(Transaction.enqueue)
     psyco.bind(sortUpgrades)
     psyco.bind(recursiveUpgrades)
