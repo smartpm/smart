@@ -391,7 +391,7 @@ class PolicyWithPriorities(Policy):
         return weight
 
     def getBestUpdownDeltaWeight(self, pkg):
-        weight = self._bestUpdownDeltaWeight.get(pkg);
+        weight = self._bestUpdownDeltaWeight.get(pkg)
         if weight is not None:
             return weight
 
@@ -509,10 +509,10 @@ class Transaction(object):
         self._necessarypkgs = {} # A in _necessarypkgs[B] means it's impossible to install A without B
         self._necessitatespkgs = {} # A in _necessitatespkgs[B] means it's impossible to install B without A
         self._prohibitspkgs = {} # A in _prohibitpkgs[B] means it's impossible to install A and B
-        self.numTaskStarted = 0;
-        self.numTaskCompleted = 0;
-        self.numTaskPruned = 0;
-        self.numTaskFailed = 0;
+        self.numTaskStarted = 0
+        self.numTaskCompleted = 0
+        self.numTaskPruned = 0
+        self.numTaskFailed = 0
 
     def clear(self):
         self._changeset.clear()
@@ -611,7 +611,7 @@ class Transaction(object):
                     iface.debug("--> changeset:\n%s" % (cs))
 
         def __iter__(self):
-            return self;
+            return self
 
         def __cmp__(self,other):
             return cmp( (self._csweight, self._pri, self._order), (other._csweight, self._pri, other._order) )
@@ -1537,7 +1537,7 @@ class Transaction(object):
         """
 
         if pkg in self._necessarypkgs:
-            return self._necessarypkgs[pkg];
+            return self._necessarypkgs[pkg]
         necdct = {}
 
         # What requires pkg?
@@ -1568,9 +1568,9 @@ class Transaction(object):
                 save = False
 
         if save:
-            self._necessarypkgs[pkg] = necdct;
+            self._necessarypkgs[pkg] = necdct
             if traceVerbosity>=7: iface.debug("getNecessary(%s) -> %s"  % (pkg, sorted(necdct.keys())))
-        return necdct;
+        return necdct
 
     def getNecessitates(self, pkg, ignorepkgs={}):
         """
@@ -1579,7 +1579,7 @@ class Transaction(object):
         """
 
         if pkg in self._necessitatespkgs:
-            return self._necessitatespkgs[pkg];
+            return self._necessitatespkgs[pkg]
         necdct = {}
 
         # What does prv require?
@@ -1587,10 +1587,10 @@ class Transaction(object):
             # Is there a single package providing it?
             found = ()
             if len(req.providedby) != 1:
-                break;
+                break
             for prv in req.providedby:
                 if len(prv.packages) + len(found) > 1:
-                    break;
+                    break
                 for prvpkg in prv.packages:
                     found=(prvpkg,)
             else:
@@ -1609,9 +1609,9 @@ class Transaction(object):
                 save = False
 
         if save:
-            self._necessitatespkgs[pkg] = necdct;
+            self._necessitatespkgs[pkg] = necdct
             if traceVerbosity>=7: iface.debug("# getNecessitates(%s) -> %s" % (pkg, sorted(necdct.keys())))
-        return necdct;
+        return necdct
 
     def getProhibits(self, pkg):
         """
@@ -1623,7 +1623,7 @@ class Transaction(object):
         """
 
         if pkg in self._prohibitspkgs:
-            return self._prohibitspkgs[pkg];
+            return self._prohibitspkgs[pkg]
 
         reds = self.getNecessitates(pkg)
         reds[pkg] = True
@@ -1669,9 +1669,9 @@ class Transaction(object):
                                 blues[reqpkg] = True
                                 bluequeue.append(reqpkg)
 
-        self._prohibitspkgs[pkg] = blues;
+        self._prohibitspkgs[pkg] = blues
         if traceVerbosity>=7: iface.debug("# getProhibits(%s) -> %s" % (pkg, sorted(blues.keys())))
-        return blues;
+        return blues
 
 
 class ChangeSetSplitter(object):
