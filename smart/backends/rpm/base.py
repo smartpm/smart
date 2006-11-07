@@ -35,13 +35,17 @@ import os, re
 try:
     import rpm
 except ImportError:
+    from smart.const import DEBUG
+    if sysconf.get("log-level") == DEBUG:
+        import traceback
+        traceback.print_exc()
     raise Error, _("'rpm' python module is not available")
 
 archscore = rpm.archscore
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes",
-           "rpm", "getTS"]
+           "rpm", "getTS", "system_provides"]
 
 def getTS(new=False):
     if not hasattr(getTS, "ts"):
@@ -232,6 +236,34 @@ class RPMObsoletes(Depends):
 _COLORMAP = {"x86_64": 2, "ppc64": 2, "s390x": 2, "sparc64": 2}
 def getArchColor(arch, _cm=_COLORMAP):
     return _cm.get(arch, 1)
+
+
+class SystemProvides(object):
+
+    def __init__(self):
+        self._provides = {}
+        for attr in ["Sysinfo", "Rpmlib", "Getconf", "Cpuinfo"]:
+            try:
+                ds = getattr(rpm.ds, attr)()
+            except (TypeError, SystemError, AttributeError):
+                pass
+            else:
+                for item in ds:
+                    self._provides.setdefault(ds.N(), []).append(ds.EVR())
+
+    def match(self, name, relation=None, version=None):
+        prvvers = self._provides.get(name)
+        if prvvers is not None:
+            if relation is None or version is None:
+                return True
+            for prvver in prvvers:
+                if checkdep(prvver, relation, version):
+                    return True
+        return False
+
+
+system_provides = SystemProvides()
+
 
 def enablePsyco(psyco):
     psyco.bind(RPMPackage.equals)

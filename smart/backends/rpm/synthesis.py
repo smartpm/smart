@@ -184,8 +184,9 @@ class URPMISynthesisLoader(Loader):
 
                 reqdict = {}
                 for n, r, v, f in requires:
-                    if ((r is not None and r != "=") or
-                        ((Prv, n, v) not in prvdict)):
+                    if not ((r is None or "=" in r) and
+                            (Prv, n, v) in prvdict or
+                            system_provides.match(n, r, v)):
                         if f:
                             reqdict[(PreReq, n, r, v)] = True
                         else:

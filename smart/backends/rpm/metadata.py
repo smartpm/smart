@@ -266,8 +266,9 @@ class RPMMetaDataLoader(Loader):
                              name, '<', versionarch)] = True
 
                     reqargs = [x for x in reqdict
-                               if x[2] not in ("=",">=","<=") or
-                                  (RPMProvides, x[1], x[3]) not in prvdict]
+                               if not ((x[2] is None or "=" in x[2]) and
+                                       (RPMProvides, x[1], x[3]) in prvdict or
+                                       system_provides.match(*x))]
                     prvargs = prvdict.keys()
                     cnfargs = cnfdict.keys()
                     upgargs = upgdict.keys()

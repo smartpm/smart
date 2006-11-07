@@ -260,7 +260,9 @@ class XMLParser(object):
         self._upgdict[(RPMObsoletes, name, '<', versionarch)] = True
 
         reqargs = [x for x in self._reqdict
-                   if (RPMProvides, x[1], x[3]) not in self._prvdict]
+                   if not ((x[2] is None or "=" in x[2]) and
+                           (RPMProvides, x[1], x[3]) in self._prvdict or
+                           system_provides.match(*x))]
         prvargs = self._prvdict.keys()
         cnfargs = self._cnfdict.keys()
         upgargs = self._upgdict.keys()

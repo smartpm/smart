@@ -247,8 +247,9 @@ class RPMHeaderLoader(Loader):
                         if vi and vi[:2] == "0:":
                             vi = vi[2:]
                         r = CM.get(f[i]&CF)
-                        if (r not in ("=",">=","<=") or
-                            ((Prv, ni, vi) not in prvdict)):
+                        if not ((r is None or "=" in r) and
+                                (Prv, ni, vi) in prvdict or
+                                system_provides.match(ni, r, vi)):
                             # RPMSENSE_PREREQ |
                             # RPMSENSE_SCRIPT_PRE |
                             # RPMSENSE_SCRIPT_PREUN |

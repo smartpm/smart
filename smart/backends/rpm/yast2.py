@@ -235,12 +235,12 @@ class YaST2Loader(Loader):
 
         reqdict = {}
         for n, r, v in requires:
-            if ((r is not None and r != "=") or
-                ((Prv, n, v) not in prvdict)):
+            if not ((r is None or "=" in r) and (Prv, n, v) in prvdict or
+                    system_provides.match(n, r, v)):
                     reqdict[(Req, n, r, v)] = True
         for n, r, v in prequire:
-            if ((r is not None and r != "=") or
-                ((Prq, n, v) not in prvdict)):
+            if not ((r is None or "=" in r) and (Prv, n, v) in prvdict or
+                    system_provides.match(n, r, v)):
                     reqdict[(Prq, n, r, v)] = True
 
         cnfdict = {}
