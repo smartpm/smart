@@ -119,8 +119,9 @@ class RPMMetaDataChannel(PackageChannel):
         elif (item.getStatus() == SUCCEEDED and
               flitem.getStatus() == FAILED and
               fetcher.getCaching() is ALWAYS):
-            iface.warning(_("You must fetch channel information to "
-                            "acquire needed filelists."))
+            file = item["info"].split("/")[-1:]
+            iface.warning(_("Failed to download '%s'. You must fetch channel"
+                            "information to acquire needed filelists.") % file)
             return False
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
