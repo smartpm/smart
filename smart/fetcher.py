@@ -1117,7 +1117,7 @@ class URLLIBHandler(FetcherHandler):
                 if self.retrycount <= 0:
                     return self.http_error_default(url, fp, errcode, errmsg, headers)
                 return urllib.FancyURLopener.http_error_401(self, url, fp, errcode, errmsg, headers, data)
-            def get_user_passwd(self, host, realm):
+            def get_user_passwd(self, host, realm, clear_cache = 0):
                 return self.user, self.passwd
             def http_error_default(self, url, fp, errcode, errmsg, headers):
                 if not fp:
