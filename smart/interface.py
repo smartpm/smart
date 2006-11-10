@@ -99,6 +99,9 @@ class Interface(object):
         else:
             self._passwdcache[location] = passwd
 
+    def showChangeSet(self, changeset, keep, confirm):
+        return True
+
     def confirmChangeSet(self, changeset):
         return True
 
