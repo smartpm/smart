@@ -482,9 +482,6 @@ class Control(object):
     def commitChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
         if confirm and not iface.confirmChangeSet(changeset):
             return False
-            
-        if not confirm:
-            iface.showChangeSet(changeset)
 
         setCloseOnExecAll()
 
