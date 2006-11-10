@@ -483,6 +483,9 @@ class Control(object):
         if confirm and not iface.confirmChangeSet(changeset):
             return False
 
+        if not confirm:
+            iface.showChangeSet(changeset)
+
         setCloseOnExecAll()
 
         pmpkgs = {}
