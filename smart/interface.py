@@ -100,7 +100,7 @@ class Interface(object):
             self._passwdcache[location] = passwd
 
     def showChangeSet(self, changeset, keep, confirm):
-        return True
+        pass
 
     def confirmChangeSet(self, changeset):
         return True
