@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from distutils.command.install_scripts import install_scripts
 from distutils.sysconfig import get_python_lib
 from distutils.core import setup, Extension
 from distutils import sysconfig
@@ -46,21 +45,68 @@ for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
 config_h = sysconfig.get_config_h_filename()
 config_h_vars = sysconfig.parse_config_h(open(config_h))
 
-# cElementTree needed defines
-CET_DEFINES = [
-    ("XML_STATIC", None),
-    ("XML_NS", "1"),
-    ("XML_DTD", "1"),
-    ("XML_CONTEXT_BYTES", "1024")
-    ]
-if "HAVE_MEMMOVE" in config_h_vars:
-    CET_DEFINES.append(("HAVE_MEMMOVE", "1"))
-if "HAVE_BCOPY" in config_h_vars:
-    CET_DEFINES.append(("HAVE_BCOPY", "1"))
-if sys.byteorder == "little":
-    CET_DEFINES.append(("BYTEORDER", "1234"))
-else:
-    CET_DEFINES.append(("BYTEORDER", "4321"))
+ext_modules = [
+               Extension("smart.ccache", ["smart/ccache.c"]),
+               Extension("smart.backends.rpm.crpmver",
+                         ["smart/backends/rpm/crpmver.c"]),
+               Extension("smart.backends.deb.cdebver",
+                         ["smart/backends/deb/cdebver.c"]),
+               Extension("smart.util.ctagfile",
+                         ["smart/util/ctagfile.c"]),
+               Extension("smart.util.cdistance",
+                         ["smart/util/cdistance.c"])
+              ]
+
+packages = [
+            "smart",
+            "smart.backends",
+            "smart.backends.rpm",
+            "smart.backends.deb",
+            "smart.backends.slack",
+            "smart.channels",
+            "smart.commands",
+            "smart.interfaces",
+            "smart.interfaces.gtk",
+            "smart.interfaces.text",
+            "smart.interfaces.images",
+            "smart.plugins",
+            "smart.util"
+           ]
+                    
+try:
+    import cElementTree
+except ImportError:
+    try:
+        from xml.etree import cElementTree
+    except ImportError:
+        # we need to build in-tree cElementTree
+        # cElementTree needed defines
+        CET_DEFINES = [
+            ("XML_STATIC", None),
+            ("XML_NS", "1"),
+            ("XML_DTD", "1"),
+            ("XML_CONTEXT_BYTES", "1024")
+            ]
+        
+        if "HAVE_MEMMOVE" in config_h_vars:
+            CET_DEFINES.append(("HAVE_MEMMOVE", "1"))
+        if "HAVE_BCOPY" in config_h_vars:
+            CET_DEFINES.append(("HAVE_BCOPY", "1"))
+        if sys.byteorder == "little":
+            CET_DEFINES.append(("BYTEORDER", "1234"))
+        else:
+            CET_DEFINES.append(("BYTEORDER", "4321"))
+
+        ext_modules.append(
+          Extension("smart.util.cElementTree",
+                    ["smart/util/celementtree/cElementTree.c",
+                     "smart/util/celementtree/expat/xmlparse.c",
+                     "smart/util/celementtree/expat/xmlrole.c",
+                     "smart/util/celementtree/expat/xmltok.c"],
+                    include_dirs=["smart/util/celementtree/expat"],
+                    define_macros=CET_DEFINES)
+                   )
+        packages.append("smart.util.elementtree")
 
 
 setup(name="smart",
@@ -75,41 +121,9 @@ setup(name="smart",
 """\
 Smart Package Manager is a next generation package handling tool.
 """,
-      packages = [
-                  "smart",
-                  "smart.backends",
-                  "smart.backends.rpm",
-                  "smart.backends.deb",
-                  "smart.backends.slack",
-                  "smart.channels",
-                  "smart.commands",
-                  "smart.interfaces",
-                  "smart.interfaces.gtk",
-                  "smart.interfaces.text",
-                  "smart.interfaces.images",
-                  "smart.plugins",
-                  "smart.util",
-                  "smart.util.elementtree",
-                 ],
+      packages = packages,
       scripts = ["smart.py"],
-      ext_modules = [
-                     Extension("smart.ccache", ["smart/ccache.c"]),
-                     Extension("smart.backends.rpm.crpmver",
-                               ["smart/backends/rpm/crpmver.c"]),
-                     Extension("smart.backends.deb.cdebver",
-                               ["smart/backends/deb/cdebver.c"]),
-                     Extension("smart.util.ctagfile",
-                               ["smart/util/ctagfile.c"]),
-                     Extension("smart.util.cdistance",
-                               ["smart/util/cdistance.c"]),
-                     Extension("smart.util.cElementTree",
-                               ["smart/util/celementtree/cElementTree.c",
-                                "smart/util/celementtree/expat/xmlparse.c",
-                                "smart/util/celementtree/expat/xmlrole.c",
-                                "smart/util/celementtree/expat/xmltok.c"],
-                                include_dirs=["smart/util/celementtree/expat"],
-                                define_macros=CET_DEFINES),
-                    ],
+      ext_modules = ext_modules,
       data_files = I18NFILES +
                    [(PYTHONLIB+"/smart/interfaces/images", 
                      glob.glob("smart/interfaces/images/*.png")),

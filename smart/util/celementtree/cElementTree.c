@@ -1,6 +1,6 @@
 /*
  * ElementTree
- * $Id: /work/modules/celementtree/cElementTree.c 1089 2005-12-14T21:22:30.257830Z Fredrik  $
+ * $Id: /work/modules/celementtree/cElementTree.c 1128 2005-12-16T21:57:13.668520Z Fredrik  $
  *
  * elementtree accelerator
  *
@@ -31,7 +31,8 @@
  * 2005-03-27 fl  event optimizations; complain about bogus events
  * 2005-08-08 fl  fixed read error handling in parse
  * 2005-08-11 fl  added runtime test for copy workaround (1.0.3)
- * 2005-12-13 fl  added expat_capi support (for xml.etree)
+ * 2005-12-13 fl  added expat_capi support (for xml.etree) (1.0.4)
+ * 2005-12-16 fl  added support for non-standard encodings
  *
  * Copyright (c) 1999-2005 by Secret Labs AB.  All rights reserved.
  * Copyright (c) 1999-2005 by Fredrik Lundh.
@@ -42,7 +43,7 @@
 
 #include "Python.h"
 
-#define VERSION "1.0.4"
+#define VERSION "1.0.5"
 
 /* -------------------------------------------------------------------- */
 /* configuration */
@@ -2124,6 +2125,45 @@ expat_pi_handler(XMLParserObject* self, const XML_Char* target_in,
     }
 }
 
+#if defined(Py_USING_UNICODE)
+static int
+expat_unknown_encoding_handler(XMLParserObject *self, const XML_Char *name,
+                               XML_Encoding *info)
+{
+    PyObject* u;
+    Py_UNICODE* p;
+    unsigned char s[256];
+    int i;
+
+    memset(info, 0, sizeof(XML_Encoding));
+
+    for (i = 0; i < 256; i++)
+        s[i] = i;
+    
+    u = PyUnicode_Decode(s, 256, name, "replace");
+    if (!u)
+        return XML_STATUS_ERROR;
+
+    if (PyUnicode_GET_SIZE(u) != 256) {
+        Py_DECREF(u);
+        return XML_STATUS_ERROR;
+    }
+
+    p = PyUnicode_AS_UNICODE(u);
+
+    for (i = 0; i < 256; i++) {
+	if (p[i] != Py_UNICODE_REPLACEMENT_CHARACTER)
+	    info->map[i] = p[i];
+        else
+	    info->map[i] = -1;
+    }
+
+    Py_DECREF(u);
+
+    return XML_STATUS_OK;
+}
+#endif
+
 /* -------------------------------------------------------------------- */
 /* constructor and destructor */
 
@@ -2221,6 +2261,12 @@ xmlparser(PyObject* _self, PyObject* args, PyObject* kw)
             self->parser,
             (XML_ProcessingInstructionHandler) expat_pi_handler
             );
+#if defined(Py_USING_UNICODE)
+    EXPAT(SetUnknownEncodingHandler)(
+        self->parser,
+        (XML_UnknownEncodingHandler) expat_unknown_encoding_handler, NULL
+        );
+#endif
 
     ALLOC(sizeof(XMLParserObject), "create expatparser");
 

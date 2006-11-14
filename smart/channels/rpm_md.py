@@ -21,7 +21,15 @@
 #
 from smart.backends.rpm.metadata import RPMMetaDataLoader
 from smart.util.filetools import getFileDigest
-from smart.util.elementtree import ElementTree
+
+try:
+    from xml.etree import ElementTree
+except ImportError:
+    try:
+        from elementtree import ElementTree
+    except ImportError:
+        from smart.util.elementtree import ElementTree
+
 from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel
 from smart import *

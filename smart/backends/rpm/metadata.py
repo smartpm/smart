@@ -22,7 +22,15 @@
 #
 from smart.cache import PackageInfo, Loader
 from smart.backends.rpm.base import *
-from smart.util import cElementTree
+
+try:
+    from xml.etree import cElementTree        
+except ImportError:
+    try:
+        import cElementTree
+    except ImportError:     
+        from smart.util import cElementTree
+
 from smart import *
 import posixpath
 import locale
