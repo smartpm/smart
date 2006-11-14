@@ -538,7 +538,7 @@ class FetchItem(object):
 
     def updateETA(self):
         if self._status is RUNNING:
-            if (self._speed > 0) and (self._total > 0):
+            if (self._speed > 1) and (self._total > 0):
                 self._eta = (self._total - self._current) / self._speed
             else:
                 self._eta = None
