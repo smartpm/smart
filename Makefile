@@ -28,8 +28,15 @@ smart.pot:
 
 update-po: smart.pot
 	for po in locale/*/LC_MESSAGES/smart.po; do \
-		msgmerge -U $$po locale/smart.pot; \
+		echo -e "Merge: $$po: \c"; \
+		msgmerge -v -U $$po locale/smart.pot; \
 	done
 
-.PHONY: smart.pot update-po
+check-po:
+	for po in locale/*/LC_MESSAGES/smart.po; do \
+		echo -e "Check: $$po: \c"; \
+		msgfmt -o /dev/null --statistics -v -c $$po; \
+	done
+
+.PHONY: smart.pot update-po check-po
 
