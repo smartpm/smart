@@ -1,0 +1,15 @@
+AUTHOR:
+Mauricio Teixeira (netmask) <netmask@webset.net>
+
+DATE:
+Sun November 19
+
+FILE:
+smart-completion.sh
+
+WHAT:
+BASH command line completion for Smart. It completes options, action commands,
+and options from action commands.
+
+HOW:
+Just copy smart-completion.sh to /etc/bash_completion
