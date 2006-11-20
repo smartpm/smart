@@ -1,12 +1,34 @@
 #!/usr/bin/env python
+from distutils.command.install_data import install_data
 from distutils.sysconfig import get_python_lib
 from distutils.core import setup, Extension
+from distutils.dep_util import newer
+from distutils.log import info
 from distutils import sysconfig
 import distutils.file_util
 import distutils.dir_util
 import sys, os
 import glob
 import re
+
+class InstallData(install_data):
+    def run(self):
+        self.data_files.extend(self._compile_po_files())
+        install_data.run(self)
+
+    def _compile_po_files(self):
+        i18nfiles = []
+        for directory in glob.glob("locale/*/LC_MESSAGES"):
+            po = os.path.join(directory, 'smart.po')
+            mo = os.path.join(directory, 'smart.mo')
+            if not os.path.exists(mo) or newer(po, mo):
+                cmd = 'msgfmt -o %s %s' % (mo, po)
+                info('compiling %s -> %s' % (po, mo))
+                if os.system(cmd) != 0:
+                    info('Error while running msgfmt on %s') % directory
+            dest = os.path.dirname(os.path.join('share', mo))
+            i18nfiles.append((dest, [mo]))
+        return i18nfiles
 
 if os.path.isfile("MANIFEST"):
     os.unlink("MANIFEST")
@@ -36,11 +58,6 @@ distutils.dir_util.copy_tree = copy_tree
 
 PYTHONLIB = os.path.join(get_python_lib(standard_lib=1, prefix=""),
                          "site-packages")
-
-I18NFILES = []
-for filepath in glob.glob("locale/*/LC_MESSAGES/*.mo"):
-    targetpath = os.path.dirname(os.path.join("share", filepath))
-    I18NFILES.append((targetpath, [filepath]))
 
 config_h = sysconfig.get_config_h_filename()
 config_h_vars = sysconfig.parse_config_h(open(config_h))
@@ -124,10 +141,10 @@ Smart Package Manager is a next generation package handling tool.
       packages = packages,
       scripts = ["smart.py"],
       ext_modules = ext_modules,
-      data_files = I18NFILES +
-                   [(PYTHONLIB+"/smart/interfaces/images", 
+      data_files = [(PYTHONLIB+"/smart/interfaces/images", 
                      glob.glob("smart/interfaces/images/*.png")),
                     ("share/man/man8/", glob.glob("doc/*.8"))
-                   ]
+                   ],
+      cmdclass={'install_data': InstallData}
       )
 

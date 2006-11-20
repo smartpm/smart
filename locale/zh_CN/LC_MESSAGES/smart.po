@@ -2667,7 +2667,7 @@ msgid ""
 msgstr ""
 "\n"
 "此命令允许更改随意更改内部配置。此功能只对高级用户有用，\n"
-"不推荐普通用户使用。"
+"不推荐普通用户使用。\n"
 
 #: smart/commands/config.py:36
 #: build/lib.linux-i686-2.4/smart/commands/config.py:36
