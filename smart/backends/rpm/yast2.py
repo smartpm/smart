@@ -34,6 +34,7 @@ class YaST2PackageInfo(PackageInfo):
         PackageInfo.__init__(self, package)
         self._loader = loader
         self._info = info
+        print self._info
 
     def getURLs(self):
         version, arch = splitarch(self._package.version)
@@ -173,8 +174,14 @@ class YaST2Loader(Loader):
             if kw == "=Pkg":
                 entryname = line[6:]
                 nameparts = entryname.split(" ")
-                # skip entry if arch is not compatible
-                arch = nameparts[3]
+
+                try:
+                    # skip entry if arch is not compatible
+                    arch = nameparts[3]
+                except IndexError:
+                    raise Error("Error loading YaST2 channel info. Possibly " \
+                                "corrupted file.\n%s" % self._pkginfofile)
+                
                 if rpm.archscore(arch) <= 0:
                     return
                 name = nameparts[0]
