@@ -34,7 +34,6 @@ class YaST2PackageInfo(PackageInfo):
         PackageInfo.__init__(self, package)
         self._loader = loader
         self._info = info
-        print self._info
 
     def getURLs(self):
         version, arch = splitarch(self._package.version)
