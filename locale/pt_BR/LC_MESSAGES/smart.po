@@ -1,4 +1,4 @@
-# translation of smart.po to 
+# translation of smart.po to
 # This file is distributed under the same license as the PACKAGE package.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER, 2004.
 #
@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: smart\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-11-20 13:03-0200\n"
-"PO-Revision-Date: 2004-12-07 16:07-0200\n"
+"PO-Revision-Date: 2006-11-20 17:04-0200\n"
 "Last-Translator: \n"
-"Language-Team:  <en@li.org>\n"
+"Language-Team:  <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.9.1\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: trunk/interfaces/gtk/priorities.py:33 smart/interfaces/gtk/priorities.py:33
 msgid "Priorities"
@@ -278,8 +278,7 @@ msgstr "Alvo:"
 
 #: trunk/interfaces/gtk/flags.py:405 smart/interfaces/gtk/flags.py:405
 msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
-msgstr ""
-"Exemplos: \"nomepacote\", \"nomepacote = 1.0\" or \"nome pacote <= 1.0\""
+msgstr "Exemplos: \"nomepacote\", \"nomepacote = 1.0\" or \"nome pacote <= 1.0\""
 
 #: trunk/interfaces/gtk/flags.py:445 smart/interfaces/gtk/flags.py:445
 msgid "No target provided!"
@@ -302,29 +301,24 @@ msgid "Mirror already exists!"
 msgstr "Espelho já existe!"
 
 #: trunk/interfaces/gtk/mirrors.py:164 smart/interfaces/gtk/mirrors.py:164
-#, fuzzy
 msgid "New Mirror"
-msgstr "Espelho"
+msgstr "Novo espelho"
 
 #: trunk/interfaces/gtk/mirrors.py:185 smart/interfaces/gtk/mirrors.py:185
-#, fuzzy
 msgid "Origin URL:"
-msgstr "URL da descrição"
+msgstr "URL de origem"
 
 #: trunk/interfaces/gtk/mirrors.py:195 smart/interfaces/gtk/mirrors.py:195
-#, fuzzy
 msgid "Mirror URL:"
-msgstr "URL do Arquivo"
+msgstr "URL do espelho"
 
 #: trunk/interfaces/gtk/mirrors.py:243 smart/interfaces/gtk/mirrors.py:243
-#, fuzzy
 msgid "No origin provided!"
-msgstr "Nenhum alvo fornecido!"
+msgstr "Nenhuma origem fornecida!"
 
 #: trunk/interfaces/gtk/mirrors.py:247 smart/interfaces/gtk/mirrors.py:247
-#, fuzzy
 msgid "No mirror provided!"
-msgstr "Nome não fornecido!"
+msgstr "Nenhum espelho fornecido!"
 
 #: trunk/interfaces/gtk/__init__.py:36 smart/interfaces/gtk/__init__.py:36
 msgid "System has no support for gtk python interface"
@@ -616,9 +610,8 @@ msgstr "_Atualiza Canais"
 
 #: trunk/interfaces/gtk/interactive.py:115
 #: smart/interfaces/qt/interactive.py:115
-#, fuzzy
 msgid "Update channels information"
-msgstr "Prover informação do canal"
+msgstr "Atualizar informações dos canais"
 
 #: trunk/interfaces/gtk/interactive.py:116
 #: smart/interfaces/gtk/interactive.py:116
@@ -936,7 +929,7 @@ msgstr "Procura:"
 #: smart/interfaces/gtk/interactive.py:315
 #: smart/interfaces/qt/interactive.py:315
 msgid "Automatic"
-msgstr ""
+msgstr "Automático"
 
 #: trunk/interfaces/gtk/interactive.py:373
 #: smart/interfaces/qt/interactive.py:373
@@ -946,6 +939,10 @@ msgid ""
 "Is recommended that the channels informations are updated.\n"
 "Do you want to update them automatically now?"
 msgstr ""
+"Você está usando o gerenciador de pacotes\n"
+"Essa ferramenta lhe permite instalar, atualizar e remover software.\n"
+"É recomendável que as informações de canais sejam atualizadas.\n"
+"Você deseja atualizá-las automaticamente agora?"
 
 #: trunk/interfaces/gtk/interactive.py:453
 #: smart/interfaces/qt/interactive.py:453
@@ -954,6 +951,9 @@ msgid ""
 "Is recommended that the channels informations are updated.\n"
 "Do you want to update automatically now?"
 msgstr ""
+"Você está atualizando o sistema por completo.\n"
+"É recomendável que as informações de canais sejam atualizadas.\n"
+"Você deseja atualizá-las automaticamente agora?"
 
 #: trunk/interfaces/gtk/interactive.py:472
 #: smart/interfaces/gtk/interactive.py:456
@@ -1007,9 +1007,8 @@ msgstr "Travar todas as versões"
 #: trunk/interfaces/gtk/interactive.py:673
 #: smart/interfaces/gtk/interactive.py:657
 #: smart/interfaces/qt/interactive.py:673
-#, fuzzy
 msgid "Checking relations..."
-msgstr "Buscando informações..."
+msgstr "Checando relações..."
 
 #: trunk/interfaces/gtk/interactive.py:676
 #: smart/interfaces/gtk/interactive.py:660
@@ -1057,7 +1056,6 @@ msgid "smart command [options] [arguments]"
 msgstr "smart comando [opções] [argumentos]"
 
 #: smart.py:39
-#, fuzzy
 msgid ""
 "\n"
 "Action commands:\n"
@@ -1094,7 +1092,8 @@ msgstr ""
 "    remove\n"
 "    check\n"
 "    fix\n"
-"    download\n"
+"    download\n\n"
+"    clean\n"
 "\n"
 "Comandos de pesquisa:\n"
 "    search\n"
@@ -1108,7 +1107,7 @@ msgstr ""
 "    mirror\n"
 "    flag\n"
 "\n"
-"Rode \"smart comando --help\" para maiores informações.\n"
+"Execute \"smart comando --help\" para maiores informações.\n"
 
 #: smart.py:66
 msgid ""
@@ -1181,9 +1180,9 @@ msgstr "usa a opção dada pelo par nome=valor"
 
 #: smart.py:109 smart/option.py:161 smart/util/optparse.py:1402
 #: smart/util/optparse.py:1556
-#, fuzzy, python-format
+#, python-format
 msgid "no such option: %s"
-msgstr "Opção inválida: %s"
+msgstr "opção inexistente: %s"
 
 #: smart.py:135
 #, python-format
@@ -1341,12 +1340,12 @@ msgstr "exemplos"
 #: smart/option.py:172 smart/util/optparse.py:1374 smart/util/optparse.py:1413
 #, python-format
 msgid "%s option requires an argument"
-msgstr ""
+msgstr "Opção %s requer um argumento"
 
 #: smart/option.py:174 smart/util/optparse.py:1376 smart/util/optparse.py:1415
-#, fuzzy, python-format
+#, python-format
 msgid "%s option requires %d arguments"
-msgstr "%s requer %s"
+msgstr "Opção %s requer argumentos %d"
 
 #: smart/channels/rpm_hdl.py:60 smart/channels/up2date_mirrors.py:61
 #: smart/channels/red_carpet.py:64 smart/channels/rpm_md.py:135
@@ -1381,29 +1380,28 @@ msgstr "URL Base"
 msgid ""
 "Base URL where packages or the 'list' file are found under. Using ' with "
 "<hdlurl>' pattern is also supported."
-msgstr ""
+msgstr "URL base onde os pacotes ou o arquivo 'list' são encontrados. Usando 'with <hdlurl>' padrões de pesquisa são também suportados."
 
 #: smart/channels/urpmi_info.py:35 smart/channels/rpm_hdl_info.py:34
 msgid "Header List URL"
 msgstr "URL do Header List"
 
 #: smart/channels/urpmi_info.py:36
-#, fuzzy
 msgid ""
 "URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
 "given base URL, may be left empty. URLs relative to the Base URL are "
 "supported"
 msgstr ""
-"URL para o header list (hdlist ou synthesis). Se for hdlist.cz dentro da URL "
+"URL para a header list (hdlist ou synthesis). Se for hdlist.cz dentro da URL "
 "base especificada, pode ser deixado em branco."
 
 #: smart/channels/urpmi_info.py:45
 msgid "Base URL has 'with', but Header List URL was provided"
-msgstr ""
+msgstr "URL base contém 'with', mas Header List URL foi informado"
 
 #: smart/channels/urpmi_info.py:49
 msgid "Base URL has invalid 'with' pattern"
-msgstr ""
+msgstr "URL base contém padrão de pesquisa 'with' inválido"
 
 #: smart/channels/slack_sys.py:48 smart/channels/deb_sys.py:49
 #: smart/channels/deb_dir.py:57 smart/channels/rpm_sys.py:49
@@ -1479,13 +1477,17 @@ msgid "Failed acquiring release file for '%s':"
 msgstr "Falha ao obter o arquivo release para '%s':"
 
 #: smart/channels/rpm_md.py:83
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Invalid XML file:\n"
 "  %s\n"
 "  %s\n"
 "  %s"
-msgstr "Valor inválido para o campo '%s' (%s): %s"
+msgstr ""
+"Arquivo XML inválido:\n"
+"  %s\n"
+"  %s\n"
+"  %s"
 
 #: smart/channels/rpm_md.py:102
 #, python-format
@@ -1493,13 +1495,11 @@ msgid "Primary information not found in repository metadata for '%s'"
 msgstr "Informação primária não encontrada nos metadados para '%s'"
 
 #: smart/channels/rpm_md.py:131
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Failed to download '%s'. You must fetch channelinformation to acquire needed "
 "filelists."
-msgstr ""
-"Você deve atualizar as informações dos canais para obter as listas de "
-"arquivos necessárias."
+msgstr "Falha ao transferir '%s'. Você deve atualizar as informações dos canais para obter as listas de arquivos necessários."
 
 #: smart/channels/mirrors_info.py:26
 msgid "Mirror Information"
@@ -1596,11 +1596,11 @@ msgstr "Caminho do diretório contendo pacotes DEB."
 
 #: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
 msgid "Recursive"
-msgstr ""
+msgstr "Recursivo"
 
 #: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
 msgid "Search for files recursively."
-msgstr ""
+msgstr "Procurar por arquivos recursivamente."
 
 #: smart/channels/rpm_hdl_info.py:26
 msgid "RPM Header List"
@@ -1730,7 +1730,7 @@ msgstr ""
 
 #: smart/channels/yast2.py:104
 msgid "Invalid package file format. Invalid header found."
-msgstr ""
+msgstr "Formato de pacote inválido. Cabeçalho inválido encontrado."
 
 #: smart/channels/yast2_info.py:26
 #, fuzzy
@@ -2656,13 +2656,12 @@ msgstr ""
 "comando."
 
 #: smart/interfaces/text/interactive.py:784
-#, fuzzy
 msgid "Usage: check [options] [<pkgname>] ..."
-msgstr "Uso: query [opções] [<nomepacote>] ..."
+msgstr "Uso: check [opções] [<nomepacote>] ..."
 
 #: smart/interfaces/gtk/channels.py:84
 msgid "Pri"
-msgstr ""
+msgstr "Pri"
 
 #: smart/interfaces/gtk/interactive.py:115
 msgid "Update channels"
@@ -2670,28 +2669,26 @@ msgstr "Atualiza os canais"
 
 #: smart/interfaces/gtk/progress.py:115
 msgid "ETA"
-msgstr ""
+msgstr "ETA"
 
 #: smart/interfaces/qt/interface.py:40
 msgid ""
 "You need PyQt installed in your system, please install with your package "
 "manager."
-msgstr ""
+msgstr "Você necessita do PyQT instalado em seu sistema, por favor instale-o com seu gerenciador de pacotes."
 
 #: smart/interfaces/qt/interface.py:84 smart/interfaces/qt/interface.py:99
 #: smart/interfaces/qt/interface.py:116
 msgid "Question..."
-msgstr ""
+msgstr "Questão..."
 
 #: smart/interfaces/qt/interface.py:101
-#, fuzzy
 msgid "Continue"
-msgstr "Continuar?"
+msgstr "Continuar"
 
 #: smart/interfaces/qt/interface.py:102
-#, fuzzy
 msgid "Cancel"
-msgstr "cancelar"
+msgstr "Cancelar"
 
 #: smart/media.py:183
 msgid "/proc/mounts not found"
@@ -2731,7 +2728,6 @@ msgstr ""
 "Use --help-type <tipo> para maiores informações.\n"
 
 #: smart/commands/channel.py:48
-#, fuzzy
 msgid ""
 "\n"
 "smart channel --help-type apt-rpm\n"
@@ -2749,7 +2745,7 @@ msgid ""
 msgstr ""
 "\n"
 "smart channel --help-type apt-rpm\n"
-"smart channel --add minhabase type=rpm-db name=\"Base RPM\"\n"
+"smart channel --add minhabase type=rpm-sys name=\"Base RPM\"\n"
 "smart channel --add meucanal type=apt-rpm name=\"Um Repositório\" \\\n"
 "                  baseurl=http://algumlugar.com/pub/repos components=extra\n"
 "smart channel --set meucanal priority=-100\n"
@@ -2773,10 +2769,8 @@ msgstr ""
 "será tentada."
 
 #: smart/commands/channel.py:108
-msgid ""
-"argument is an alias, and one or more key=value pairs modifying a channel"
-msgstr ""
-"o argumento é um apelido, e um ou mais pares chave=valor modificando um canal"
+msgid "argument is an alias, and one or more key=value pairs modifying a channel"
+msgstr "o argumento é um apelido, e um ou mais pares chave=valor modificando um canal"
 
 #: smart/commands/channel.py:111
 msgid "arguments are channel aliases to be removed"
@@ -2784,18 +2778,17 @@ msgstr "os argumentos são apelidos de canais a serem removidos"
 
 #: smart/commands/channel.py:113
 msgid "remove all existent channels"
-msgstr ""
+msgstr "remover todos os canais existentes"
 
 #: smart/commands/channel.py:115
-msgid ""
-"show channels with given aliases, or all channels if no arguments were given"
+msgid "show channels with given aliases, or all channels if no arguments were given"
 msgstr ""
 "mostra canais com os apelidos fornecidos, ou todos os canais se nenhum "
 "argumento foi passado"
 
 #: smart/commands/channel.py:118
 msgid "edit channels in editor set by $EDITOR"
-msgstr ""
+msgstr "editar canais no editor definido por $EDITOR"
 
 #: smart/commands/channel.py:120
 msgid "enable channels with given aliases"
@@ -2831,9 +2824,8 @@ msgid "Argument '%s' has no '='"
 msgstr "Argumento '%s' não possui '='"
 
 #: smart/commands/channel.py:198
-#, fuzzy
 msgid "Channel information needed"
-msgstr "Prover informação do canal"
+msgstr "Necessária informação do canal"
 
 #: smart/commands/channel.py:210
 msgid "Include this channel?"
@@ -2881,9 +2873,8 @@ msgid "Channel '%s' not found."
 msgstr "Canal '%s' não encontrado."
 
 #: smart/commands/channel.py:279
-#, fuzzy
 msgid "Remove ALL channels?"
-msgstr "Remover canal '%s'?"
+msgstr "Remover TODOS os canais?"
 
 #: smart/commands/channel.py:345
 #, python-format
@@ -2942,7 +2933,7 @@ msgstr "baixa os pacotes e não efetua a operação"
 #: smart/commands/reinstall.py:56 smart/commands/install.py:60
 #: smart/commands/upgrade.py:67
 msgid "include additional information about changes,when possible"
-msgstr ""
+msgstr "incluir informações adicionais sobre alterações, quando possível"
 
 #: smart/commands/remove.py:58 smart/commands/fix.py:61
 #: smart/commands/reinstall.py:59 smart/commands/install.py:63
@@ -3099,12 +3090,16 @@ msgid ""
 "\n"
 "This command will show some statistics.\n"
 msgstr ""
+"\n"
+"Este comando irá exibir algumas estatísticas.\n"
 
 #: smart/commands/stats.py:33
 msgid ""
 "\n"
 "smart stats \n"
 msgstr ""
+"\n"
+"smart stats\n"
 
 #: smart/commands/stats.py:52
 msgid "Installed Packages:"
@@ -3167,9 +3162,9 @@ msgstr ""
 "smart install http://alguma.url/algum/caminho/algumarquivo.pacote\n"
 
 #: smart/commands/install.py:132 smart/commands/download.py:104
-#, fuzzy, python-format
+#, python-format
 msgid "%s (for %s) is already installed"
-msgstr "%s já está instalado"
+msgstr "%s (para %s) já está instalado"
 
 #: smart/commands/install.py:145 smart/commands/download.py:117
 #, python-format
@@ -3177,6 +3172,8 @@ msgid ""
 "There are multiple matches for '%s':\n"
 "%s"
 msgstr ""
+"Existem várias ocorrências de '%s':\n"
+"%s"
 
 #: smart/commands/query.py:33
 msgid "smart query [options] [package] ..."
@@ -3309,21 +3306,20 @@ msgid "show package priority"
 msgstr "mostra a prioridade dos pacotes"
 
 #: smart/commands/query.py:111
-#, fuzzy
 msgid "show channels that include this package"
-msgstr "Nenhum canal disponível para o pacote %s"
+msgstr "exibir canais que incluem este pacote"
 
 #: smart/commands/query.py:113
 msgid "enable all --show-* options"
-msgstr ""
+msgstr "habilitar todas as opções --show-*"
 
 #: smart/commands/query.py:115
 msgid "change output format"
-msgstr ""
+msgstr "alterar formato de saída"
 
 #: smart/commands/query.py:117
 msgid "redirect output to given filename"
-msgstr ""
+msgstr "redirecionar saída para o arquivo informado"
 
 #: smart/commands/query.py:524
 msgid "Provides:"
@@ -3435,6 +3431,16 @@ msgid ""
 "#     http://another.mirror.url/yet/another/path/\n"
 "#\n"
 msgstr ""
+"#\n"
+"# Exemplo:\n"
+"#\n"
+"# http://url.origem/algum/caminho/\n"
+"#     http://url.espelho/algum/caminho/\n"
+"#     http://url.outro.espelho/para/o/mesmo/conteudo/\n"
+"#\n"
+"# http://outra.url.origem/outro/caminho/\n"
+"#     http://outra.url.espelho/algum/outro/caminho/\n"
+"#\n"
 
 #: smart/commands/mirror.py:89
 msgid "show current mirrors"
@@ -3470,16 +3476,14 @@ msgstr ""
 
 #: smart/commands/mirror.py:105
 msgid "edit mirrors in editor set by $EDITOR"
-msgstr ""
+msgstr "editar espelhos no editor definido por $EDITOR"
 
 #: smart/commands/mirror.py:107
 msgid "clear history for the given origins/mirrors, or for all mirrors"
-msgstr ""
-"limpa o histórico das origens/espelhos fornecidos, ou para todos os espelhos"
+msgstr "limpa o histórico das origens/espelhos fornecidos, ou para todos os espelhos"
 
 #: smart/commands/mirror.py:110
-msgid ""
-"show current penalities for origins/mirrors, based on the history information"
+msgid "show current penalities for origins/mirrors, based on the history information"
 msgstr ""
 "mostra as penalidades atuais para as origens/espelhos, baseando-se nas "
 "informações do histórico"
@@ -3621,8 +3625,7 @@ msgstr ""
 "smart update meucanal1 meucanal2\n"
 
 #: smart/commands/update.py:49
-msgid ""
-"only update if the last successful update happened before the given delay"
+msgid "only update if the last successful update happened before the given delay"
 msgstr ""
 "atualiza apenas se a última atualização com sucesso ocorreu antes do período "
 "especificado"
@@ -3696,7 +3699,6 @@ msgid "smart check [options] [package] ..."
 msgstr "smart check [opções] [pacote] ..."
 
 #: smart/commands/check.py:31
-#, fuzzy
 msgid ""
 "\n"
 "This command will check relations between packages. If no\n"
@@ -3710,8 +3712,11 @@ msgstr ""
 "\n"
 "Este comando irá verificar as relações dos pacotes instalados\n"
 "fornecidos. Se nenhum pacote é fornecido, todos os pacotes\n"
-"instalados serão verificados. Use o comando 'fix' para resolver\n"
-"os problemas de relações.\n"
+"instalados serão verificados. Relações dos pacotes checados\n"
+"irão coincidir somente com pacotes dentro dos canais \n"
+"selecionados.\n"
+"\n"
+"Use o comando 'fix' para resolver os problemas de relações.\n"
 
 #: smart/commands/check.py:41
 msgid ""
@@ -3733,30 +3738,29 @@ msgstr ""
 
 #: smart/commands/check.py:55
 msgid "check packages in all channels"
-msgstr ""
+msgstr "checar pacotes em todos os canais"
 
 #: smart/commands/check.py:57
 msgid "check packages which are in at least one installed channel (default)"
-msgstr ""
+msgstr "checar pacotes que estão em pelo menos um canal instalado (padrão)"
 
 #: smart/commands/check.py:60
 msgid "check packages which are in at least one non-installed channel"
-msgstr ""
+msgstr "checar pacotes que estão em pelo menos um canal não instalado"
 
 #: smart/commands/check.py:63
-msgid ""
-"check packages which are inside the given channels (comma separated aliases)"
-msgstr ""
+msgid "check packages which are inside the given channels (comma separated aliases)"
+msgstr "checar pacotes dentro dos canais informados (apelidos separados por vírgulas)"
 
 #: smart/commands/check.py:101
-#, fuzzy, python-format
+#, python-format
 msgid "Channels not found: %s"
-msgstr "Canal não encontrado para '%s'"
+msgstr "Canais não encontrados: %s"
 
 #: smart/commands/check.py:103
-#, fuzzy, python-format
+#, python-format
 msgid "Channels are disabled: %s"
-msgstr "Apelido de canal: "
+msgstr "Canais desabilitados: %s"
 
 #: smart/commands/flag.py:27
 msgid "smart flag [options]"
@@ -3947,9 +3951,8 @@ msgstr ""
 "smart upgrade nomepacote1 nomepacote2\n"
 
 #: smart/commands/upgrade.py:59
-#, fuzzy
 msgid "update channel information before trying to upgrade"
-msgstr "Informações de canais estão travadas para escrita."
+msgstr "atualize informações de canais antes de tentar atualizar pacotes"
 
 #: smart/commands/upgrade.py:62
 msgid "just check if there are upgrades to be done"
@@ -4008,9 +4011,8 @@ msgstr ""
 "  smart search 'nomepa*e'\n"
 
 #: smart/commands/clean.py:27
-#, fuzzy
 msgid "smart clean [options]"
-msgstr "smart flag [opções]"
+msgstr "smart clean [opções]"
 
 #: smart/commands/clean.py:29
 msgid ""
@@ -4019,20 +4021,24 @@ msgid ""
 "delete old unused files that were left behind because of\n"
 "an incomplete transaction.\n"
 msgstr ""
+"\n"
+"Esse limpa o cache de pacotes. Você pode utilizá-lo\n"
+"para remover pacotes antigos deixados para trás por causa\n"
+"de uma transação incompleta.\n"
 
 #: smart/commands/clean.py:49
 msgid "Removing cached package files..."
-msgstr ""
+msgstr "Removendo arquivos de pacotes do cache..."
 
 #: smart/commands/clean.py:55
-#, fuzzy, python-format
+#, python-format
 msgid "Removed %s"
-msgstr "Remover (%d)"
+msgstr "Removido %s"
 
 #: smart/commands/clean.py:57
-#, fuzzy, python-format
+#, python-format
 msgid "Can't remove cached package %s: %s"
-msgstr "Impossível remover %s: pacote %s o requer e está travado"
+msgstr "Impossível remover pacote %s do cache: %s"
 
 #: smart/commands/nothing.py:26
 msgid "smart test [options]"
@@ -4050,7 +4056,7 @@ msgstr "Erro interno: ainda existem cíclos (%d != %d)!"
 #: smart/transaction.py:645
 #, python-format
 msgid "Pruned installation of %s"
-msgstr ""
+msgstr "Instalação de %s descartada"
 
 #: smart/transaction.py:660
 #, python-format
@@ -4080,7 +4086,7 @@ msgstr "Impossível remover %s: é um pacote essencial"
 #: smart/transaction.py:823
 #, python-format
 msgid "Pruned removal of %s"
-msgstr ""
+msgstr "Remoção de %s descartada"
 
 #: smart/transaction.py:874
 #, python-format
@@ -4090,7 +4096,7 @@ msgstr "Impossível remover %s: %s está travado"
 #: smart/transaction.py:1052
 #, python-format
 msgid "Can't get rid of %s"
-msgstr ""
+msgstr "Não é possível descartar %s"
 
 #: smart/transaction.py:1166 smart/transaction.py:1302
 #, python-format
@@ -4194,129 +4200,20 @@ msgid "Configuration is in readonly mode."
 msgstr "Configuração em modo de leitura."
 
 #: smart/sysconfig.py:89 smart/sysconfig.py:96 smart/sysconfig.py:99
-#, fuzzy, python-format
+#, python-format
 msgid "Broken configuration file at %s"
-msgstr "Arquivo de configuração não encontrado: %s"
+msgstr "Arquivo de configuração corrompido em %s"
 
 #: smart/sysconfig.py:90
 #, python-format
 msgid "Trying backup at %s"
-msgstr ""
+msgstr "Tentando backup em %s"
 
 #: smart/searcher.py:172
-#, fuzzy
 msgid "Invalid string"
-msgstr "Alvo inválido!"
+msgstr "Texto inválido"
 
 #: test.py:34
-#, fuzzy
 msgid "test.py [options] [<test filename>, ...]"
-msgstr "Uso: ls [opções] [<string>] ..."
+msgstr "test.py [opções] [<arquivo de teste>, ...]"
 
-#~ msgid "Can't remove %s: requiring package %s is locked"
-#~ msgstr "Impossível remover %s: pacote %s o requer e está travado"
-
-#~ msgid "Installed packages (%d):"
-#~ msgstr "Pacotes instalados (%d):"
-
-#~ msgid "Removed packages (%d):"
-#~ msgstr "Pacotes removidos (%d):"
-
-#, fuzzy
-#~ msgid "show cleaned packages"
-#~ msgstr "Procura por pacotes"
-
-#, fuzzy
-#~ msgid "Cache directory %s not found."
-#~ msgstr "Diretório não encontrado:"
-
-#, fuzzy
-#~ msgid "Cleaning package cache..."
-#~ msgstr "Gravando o cache..."
-
-#, fuzzy
-#~ msgid "Clean %s?"
-#~ msgstr "Limpando %s"
-
-#, fuzzy
-#~ msgid "Cleaned %s..."
-#~ msgstr "Limpando %s"
-
-#~ msgid "Base URL where packages are found under."
-#~ msgstr "URL base onde os pacotes são encontrados."
-
-#~ msgid ""
-#~ "URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
-#~ "given base URL, may be left empty."
-#~ msgstr ""
-#~ "URL para o header list (hdlist ou synthesis). Se for hdlist.cz dentro da "
-#~ "URL base especificada, pode ser deixado em branco."
-
-#~ msgid "No configuration found!"
-#~ msgstr "Nenhuma configuração encontrada!"
-
-#~ msgid ""
-#~ "Change in channel '%s' detected.\n"
-#~ "Do you want to replace it?"
-#~ msgstr ""
-#~ "Mudança no canal '%s' detectada.\n"
-#~ "Você deseja substituí-lo?"
-
-#~ msgid ""
-#~ "\n"
-#~ "smart channel --help-type apt-rpm\n"
-#~ "smart channel --add mydb type=rpm-db name=\"RPM Database\"\n"
-#~ "smart channel --add mychannel type=apt-rpm name=\"Some repository\" \\\n"
-#~ "                  baseurl=http://somewhere.com/pub/repos "
-#~ "components=extra\n"
-#~ "smart channel --set mychannel priority=-100\n"
-#~ "smart channel --disable mychannel\n"
-#~ "smart channel --remove mychannel\n"
-#~ "smart channel --show\n"
-#~ "smart channel --show mychannel > mychannel.txt\n"
-#~ "smart channel --add ./mychannel.txt\n"
-#~ "smart channel --add http://some.url/mychannel.txt\n"
-#~ "smart channel --add /mnt/cdrom\n"
-#~ msgstr ""
-#~ "\n"
-#~ "smart channel --help-type apt-rpm\n"
-#~ "smart channel --add minhabase type=rpm-db name=\"Base RPM\"\n"
-#~ "smart channel --add meucanal type=apt-rpm name=\"Um Repositório\" \\\n"
-#~ "                  baseurl=http://algumlugar.com/pub/repos "
-#~ "components=extra\n"
-#~ "smart channel --set meucanal priority=-100\n"
-#~ "smart channel --disable meucanal\n"
-#~ "smart channel --remove meucanal\n"
-#~ "smart channel --show\n"
-#~ "smart channel --show meucanal > meucanal.txt\n"
-#~ "smart channel --add ./meucanal.txt\n"
-#~ "smart channel --add http://alguma.url/meucanal.txt\n"
-#~ "smart channel --add /mnt/cdrom\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "This command will check relations of the given installed\n"
-#~ "packages. If no packages are given, all installed packages\n"
-#~ "will be checked. Use the 'fix' command to fix broken\n"
-#~ "relations.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Este comando irá verificar as relações dos pacotes instalados\n"
-#~ "fornecidos. Se nenhum pacote é fornecido, todos os pacotes\n"
-#~ "instalados serão verificados. Use o comando 'fix' para resolver\n"
-#~ "os problemas de relações.\n"
-
-#~ msgid "check uninstalled packages as well"
-#~ msgstr "verifica pacotes não instalados também"
-
-#~ msgid "check only uninstalled packages"
-#~ msgstr "verifica somente pacotes não instalados"
-
-#~ msgid "error: Python 2.3 or later required"
-#~ msgstr "erro: Python 2.3 ou maior requerido"
-
-#~ msgid "Not a gzipped file"
-#~ msgstr "Arquivo não está gzipado"
-
-#~ msgid "Base URL where RPMS/ directory is found"
-#~ msgstr "URL base onde o diretório RPMS/ é encontrado"
