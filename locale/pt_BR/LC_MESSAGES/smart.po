@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: smart\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-11-20 13:03-0200\n"
-"PO-Revision-Date: 2006-11-20 17:04-0200\n"
+"PO-Revision-Date: 2006-11-21 09:19-0200\n"
 "Last-Translator: \n"
 "Language-Team:  <pt@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1733,23 +1733,20 @@ msgid "Invalid package file format. Invalid header found."
 msgstr "Formato de pacote inválido. Cabeçalho inválido encontrado."
 
 #: smart/channels/yast2_info.py:26
-#, fuzzy
 msgid "YaST2 Repository"
-msgstr "Repositório APT-DEB"
+msgstr "Repositório YaST2"
 
 #: smart/channels/yast2_info.py:28
-#, fuzzy
 msgid ""
 "\n"
 "Repositories created for YaST2.\n"
 msgstr ""
 "\n"
-"Repositórios criados para o APT-DEB.\n"
+"Repositórios criados para o YaST2.\n"
 
 #: smart/channels/yast2_info.py:33
-#, fuzzy
 msgid "Base URL of YaST2 repository, where the 'content' file is located."
-msgstr "URL base do repositório, onde dists/ está localizado."
+msgstr "URL base do repositório YaST2, onde o arquivo 'content' está localizado."
 
 #: smart/uncompress.py:44
 #, python-format
@@ -1802,7 +1799,7 @@ msgstr "Arquivo de configuração não encontrado: %s"
 #: smart/control.py:147
 #, python-format
 msgid "Can't create datadir at %s"
-msgstr ""
+msgstr "Não foi possível criar datadir em %s"
 
 #: smart/control.py:167
 msgid "Saving cache..."
@@ -1867,22 +1864,22 @@ msgstr "%s não está disponível para download"
 
 #: smart/backends/rpm/base.py:42
 msgid "'rpm' python module is not available"
-msgstr ""
+msgstr "módulo python 'rpm' não disponível"
 
 #: smart/backends/rpm/base.py:61
 #, python-format
 msgid "Could not create rpm-root at %s: %s"
-msgstr ""
+msgstr "Não foi possível criar raiz rpm em %s: %s"
 
 #: smart/backends/rpm/base.py:67
 #, python-format
 msgid "Couldn't initizalize rpm database at %s"
-msgstr ""
+msgstr "Não foi possível inicializar base rpm em %s"
 
 #: smart/backends/rpm/base.py:70
 #, python-format
 msgid "Initialized new rpm database at %s"
-msgstr ""
+msgstr "Nova base rpm inicializada em %s"
 
 #: smart/backends/rpm/redcarpet.py:309
 #, python-format
@@ -2033,9 +2030,8 @@ msgid "Unsupported scheme: %s"
 msgstr "Esquema não suportado: %s"
 
 #: smart/fetcher.py:344
-#, fuzzy
 msgid "File not found for validation"
-msgstr "Arquivo não encontrado"
+msgstr "Arquivo não encontrado para validação"
 
 #: smart/fetcher.py:365 smart/cache.py:191
 #, python-format
@@ -2066,55 +2062,53 @@ msgid "Server reports unexpected size"
 msgstr "Servidor reportou um tamanho inesperado"
 
 #: smart/util/optparse.py:329
-#, fuzzy, python-format
+#, python-format
 msgid "usage: %s\n"
-msgstr "Uso: %s\n"
+msgstr "uso: %s\n"
 
 #: smart/util/optparse.py:348
-#, fuzzy
 msgid "Usage"
-msgstr "Uso: %s\n"
+msgstr "Uso"
 
 #: smart/util/optparse.py:354
 msgid "integer"
-msgstr ""
+msgstr "inteiro"
 
 #: smart/util/optparse.py:355
 msgid "long integer"
-msgstr ""
+msgstr "inteiro longo"
 
 #: smart/util/optparse.py:356
 msgid "floating-point"
-msgstr ""
+msgstr "ponto-flutuante"
 
 #: smart/util/optparse.py:357
 msgid "complex"
-msgstr ""
+msgstr "complexo"
 
 #: smart/util/optparse.py:365
 #, python-format
 msgid "option %s: invalid %s value: %r"
-msgstr ""
+msgstr "opção %s: valor %s inválido: %r"
 
 #: smart/util/optparse.py:373
 #, python-format
 msgid "option %s: invalid choice: %r (choose from %s)"
-msgstr ""
+msgstr "opção %s: escolha inválida: %r (escolha de %s)"
 
 #: smart/util/optparse.py:1164
-#, fuzzy
 msgid "%prog [options]"
-msgstr "smart config [opções]"
+msgstr "%prog [opções]"
 
 #: smart/util/optparse.py:1385
 #, python-format
 msgid "%s option does not take a value"
-msgstr ""
+msgstr "opção %s não recebe um valor"
 
 #: smart/util/optparse.py:1559
 #, python-format
 msgid "ambiguous option: %s (%s?)"
-msgstr ""
+msgstr "opção ambígua: %s (%s?)"
 
 #: smart/util/strtools.py:66
 msgid "Stalled"
@@ -2154,7 +2148,7 @@ msgid "Channel in %s has no type."
 msgstr "Canal em %s não possui tipo"
 
 #: smart/plugins/channelsync.py:106
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Change in channel '%s' detected.\n"
 "Old channel:\n"
@@ -2168,6 +2162,14 @@ msgid ""
 "Do you want to replace it?"
 msgstr ""
 "Mudança no canal '%s' detectada.\n"
+"Antigo canal:\n"
+"\n"
+"%s\n"
+"\n"
+"Novo canal:\n"
+"\n"
+"%s\n"
+"\n"
 "Você deseja substituí-lo?"
 
 #: smart/plugins/channelsync.py:137
@@ -2253,33 +2255,28 @@ msgid "Continue?"
 msgstr "Continuar?"
 
 #: smart/interfaces/text/interface.py:161
-#, fuzzy
 msgid "(installed)"
-msgstr "Instalado"
+msgstr "(instalado)"
 
 #: smart/interfaces/text/interface.py:163
-#, fuzzy
 msgid "(upgraded)"
-msgstr "Atualizar (%d)"
+msgstr "(atualizado)"
 
 #: smart/interfaces/text/interface.py:165
-#, fuzzy
 msgid "(removed)"
-msgstr "Remover (%d)"
+msgstr "(removido)"
 
 #: smart/interfaces/text/interface.py:167
-#, fuzzy
 msgid "(downgraded)"
-msgstr "Desatualizar (%d)"
+msgstr "(revertido)"
 
 #: smart/interfaces/text/interface.py:176 smart/commands/query.py:583
 msgid "Upgrades:"
 msgstr "Atualiza:"
 
 #: smart/interfaces/text/interface.py:180
-#, fuzzy
 msgid "Downgrades:"
-msgstr "Desatualiza"
+msgstr "Reverte:"
 
 #: smart/interfaces/text/interface.py:184 smart/commands/query.py:564
 msgid "Requires:"
@@ -2309,14 +2306,14 @@ msgid "Downgrading packages (%d):"
 msgstr "Pacotes desatualizados (%d):"
 
 #: smart/interfaces/text/interface.py:213
-#, fuzzy, python-format
+#, python-format
 msgid "Installing packages (%d):"
-msgstr "Pacotes instalados (%d):"
+msgstr "Instalando pacotes (%d):"
 
 #: smart/interfaces/text/interface.py:218
-#, fuzzy, python-format
+#, python-format
 msgid "Removing packages (%d):"
-msgstr "Pacotes removidos (%d):"
+msgstr "Removendo pacotes (%d):"
 
 #: smart/interfaces/text/interface.py:235
 msgid "Confirm changes?"
@@ -2345,11 +2342,13 @@ msgstr "*** Sem ajuda sobre %s"
 #: smart/commands/install.py:114 smart/commands/query.py:146
 #: smart/commands/download.py:86 smart/commands/check.py:129
 #: smart/commands/info.py:73 smart/commands/upgrade.py:110
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'%s' matches no packages. Suggestions:\n"
 "%s"
-msgstr "'%s' não casa com nenhum pacote"
+msgstr ""
+"'%s' não casa com nenhum pacote. sugestões:\n"
+"%s"
 
 #: smart/interfaces/text/interactive.py:159
 #: smart/interfaces/text/interactive.py:591 smart/commands/remove.py:94
@@ -2423,6 +2422,8 @@ msgid ""
 "   --explain  Include additional information about\n"
 "              changes, when possible"
 msgstr ""
+"   --explain  inclui informações adicionais sobre\n"
+"              alterações, quando possível"
 
 #: smart/interfaces/text/interactive.py:259
 msgid "Usage: install <pkgname> ..."
@@ -2645,13 +2646,12 @@ msgid "Usage: stats"
 msgstr "Uso: status"
 
 #: smart/interfaces/text/interactive.py:780
-#, fuzzy
 msgid ""
 "The check command verifies relations between packages,\n"
 "and accepts the same options available in the command\n"
 "line interface."
 msgstr ""
-"O comando query permite verificar as informações dos pacotes,\n"
+"O comando chek verifica as relações entre os pacotes,\n"
 "e aceita as mesmas opções disponíveis na interface de linha de\n"
 "comando."
 
