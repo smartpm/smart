@@ -90,6 +90,9 @@ UI = """
         <menuitem action="summary-window"/>
         <menuitem action="log-window"/>
     </menu>
+    <menu action="help">
+        <menuitem action="about"/>
+    </menu>   
 </menubar>
 <toolbar>
     <toolitem action="update-channels"/>
@@ -158,6 +161,12 @@ ACTIONS = [
      _("Show summary window"), "self.showChanges()"),
     ("log-window", None, _("_Log Window"), None,
      _("Show log window"), "self._log.show()"),
+
+    ("help", None, _("_Help")),
+    ("about", None, _("_About"), None,
+     _("Show about window"), "self.showAbout()"),
+
+
 ]
 
 def compileActions(actions, globals):
@@ -861,5 +870,37 @@ class GtkInteractiveInterface(GtkInterface):
 
         self.setBusy(False)
 
+    def showAbout(widget):
+        license = """
+            This program is free software; you can redistribute it and/or modify
+            it under the terms of the GNU General Public License as published by
+            the Free Software Foundation; either version 2 of the License, or
+            (at your option) any later version.
+
+            This program is distributed in the hope that it will be useful,
+            but WITHOUT ANY WARRANTY; without even the implied warranty of
+            MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+            GNU General Public License for more details.
+
+            You should have received a copy of the GNU General Public License
+            along with this program; if not, write to the Free Software
+            Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+            """
+        credits=["""Gustavo Niemeyer - Original author and lead developer.""",
+            """Conectiva Inc. - Original project funder up to August 2005.""",
+            """Canonical Ltd. - Funding Smart development since September of 2005.""",
+            """And many others - Check our website for the complete list.""",
+            ]
+        website = "http://labix.org/smart"    
+
+        aboutdialog = gtk.AboutDialog()
+        aboutdialog.set_name("Smart Package Manager")
+        aboutdialog.set_version(VERSION)
+        aboutdialog.set_copyright("2006 Canonical, 2004 Conectiva, Inc.")
+        aboutdialog.set_authors(credits)
+        aboutdialog.set_license(license)
+        aboutdialog.set_website(website)
+        aboutdialog.run()
+        aboutdialog.destroy()
 
 # vim:ts=4:sw=4:et
