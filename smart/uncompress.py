@@ -74,6 +74,8 @@ class BZ2Handler(UncompressorHandler):
                 data = input.read(BLOCKSIZE)
         except (IOError, OSError), e:
             raise Error, "%s: %s" % (localpath, e)
+        except EOFError, e:
+            raise Error, ("%s\nPossibly corrupted channel file.") % e
 
 Uncompressor.addHandler(BZ2Handler)
 
@@ -97,6 +99,7 @@ class GZipHandler(UncompressorHandler):
                 data = input.read(BLOCKSIZE)
         except (IOError, OSError), e:
             raise Error, "%s: %s" % (localpath, e)
-
+        except EOFError, e:
+            raise Error, ("%s\nPossibly corrupted channel file.") % e
 
 Uncompressor.addHandler(GZipHandler)
