@@ -99,7 +99,7 @@ class Interface(object):
         else:
             self._passwdcache[location] = passwd
 
-    def showChangeSet(self, changeset, keep, confirm):
+    def showChangeSet(self, changeset, keep=None, confirm=False):
         pass
 
     def confirmChangeSet(self, changeset):
