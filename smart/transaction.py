@@ -1209,7 +1209,7 @@ class TaskPending(Task):
                 alternatives = []
                 failures = []
                 csweight = getweight(changeset)
-                _pruneweight = self._pruneweight
+                pruneweight = self._pruneweight
 
                 # Try to install other providing packages.
                 if prvpkgs:
@@ -1275,11 +1275,11 @@ class TaskPending(Task):
                 # Execute the tasks to compute feasible alternatives
                 while len(taskheap)>0:
                     task = heappop(taskheap)
-                    yw = min(self._yieldweight, _pruneweight)
+                    yw = min(self._yieldweight, pruneweight)
                     if len(taskheap)>1:
                         yw = min(yw, taskheap[1].getChangesetWeight())
                     try:
-                        task.setWeights(_pruneweight, yw)
+                        task.setWeights(pruneweight, yw)
                         res = task.next()
                     except Failed, e:
                         failures.append(unicode(e))
@@ -1292,10 +1292,10 @@ class TaskPending(Task):
                                       "%s: %s (csw=%f)",
                                    (pkg, task._desc, csweight), cs)
                         heappush(doneheap, task)
-                        _pruneweight = min(_pruneweight, csw)
+                        pruneweight = min(pruneweight, csw)
                     else:
                         yield res
-                        _pruneweight = min(_pruneweight, self._pruneweight)
+                        pruneweight = min(pruneweight, self._pruneweight)
                         heappush(taskheap, task)
 
                 if len(doneheap)==0:
