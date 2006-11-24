@@ -133,8 +133,13 @@ class RPMMetaDataChannel(PackageChannel):
                             flitem.getFailedReason()))
             return False
         elif fetcher.getCaching() is NEVER:
+            if item.getStatus() == FAILED:
+                faileditem = item
+            else:
+                faileditem = flitem
             lines = [_("Failed acquiring information for '%s':") % self,
-                       u"%s: %s" % (item.getURL(), item.getFailedReason())]
+                       u"%s: %s" % (faileditem.getURL(),
+                       faileditem.getFailedReason())]
             raise Error, "\n".join(lines)
         else:
             return False
