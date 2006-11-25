@@ -1230,12 +1230,13 @@ class TaskPending(Task):
                 lk = locked.copy()
 
                 parent = self
+                yieldweight = self._yieldweight
 
                 class TaskEvacuate(Task):
 
                     def __init__(self):
                         Task.__init__(self, parent, self.evacuate(), cs, lk,
-                                      pruneweight, self._yieldweight,
+                                      pruneweight, yieldweight,
                                       csweight, 0.0001, order,
                                       "evacuate requiring")
 

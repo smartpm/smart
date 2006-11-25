@@ -9,3 +9,8 @@ Code Conventions
 - Private methods where name clashing with subclasses is probable
   (e.g. Progress) are named __likethis.
 - Identation is 4 expanded spaces.
+- Lines must have at most 79 columns.
+- Follow PEP-8 whenever it doesn't conflict with the statements above.
+- Space comparisons >= like == this, but parameters like=this.
+- Methods/function calls have parameters(spaced, like, this), even
+  if they((have, additional, parenthesis)).
