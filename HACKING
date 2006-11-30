@@ -14,3 +14,10 @@ Code Conventions
 - Space comparisons >= like == this, but parameters like=this.
 - Methods/function calls have parameters(spaced, like, this), even
   if they((have, additional, parenthesis)).
+
+Testing
+-------
+
+- For every change, try to create a new test.
+- Run all tests: 'make test'.
+- Run specific test: 'TEST=test.txt make test'

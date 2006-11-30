@@ -1,5 +1,5 @@
 #
-# Simple wrapper for setup.py script
+# Make file for various operations on Smart source code
 #
 
 DESTDIR=/
@@ -38,5 +38,9 @@ check-po:
 		msgfmt -o /dev/null --statistics -v -c $$po; \
 	done
 
-.PHONY: smart.pot update-po check-po
+test:
+	./setup.py build_ext -i
+	LANG=C ./test.py $(TEST)
+
+.PHONY: smart.pot update-po check-po test
 
