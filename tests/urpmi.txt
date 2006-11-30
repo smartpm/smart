@@ -1,0 +1,95 @@
+
+Create the channel.
+
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "urpmi",
+  ...                          "baseurl": "file://%s/urpmi" % TESTDATADIR})
+  >>> channel
+  <smart.channels.urpmi.URPMIChannel object at ...>
+
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.rpm.synthesis.URPMISynthesisLoader object at ...>]
+
+
+Let's create a cache to put the loader in, so that we can test it.
+
+  >>> from smart.cache import Cache
+  >>> loader = channel.getLoaders()[0]
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+The setup is ready. Now we can load the data into the cache.
+
+  >>> cache.load()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+
+
+This should give us one package with the data we already know.
+
+  >>> cache.getPackages()
+  [name1-version1-release1@noarch, name2-version2-release2@noarch]
+
+  >>> pkg = cache.getPackages()[0]
+  >>> type(pkg)
+  <class 'smart.backends.rpm.base.RPMPackage'>
+
+
+Let's inspect the package data.
+
+  >>> pkg.name
+  'name1'
+  >>> pkg.version
+  'version1-release1@noarch'
+
+  >>> sorted(pkg.provides)
+  [name1 = version1-release1@noarch, providename1 = provideversion1]
+  >>> [type(x).__name__ for x in sorted(pkg.provides)]
+  ['RPMNameProvides', 'RPMProvides']
+
+  >>> sorted(pkg.requires)
+  [/bin/sh, prerequirename1 = prerequireversion1, requirename1 = requireversion1]
+  >>> # XXX pre-requires are broken in createrepo
+  >>> [type(x).__name__ for x in sorted(pkg.requires)]
+  ['RPMRequires', 'RPMRequires', 'RPMRequires']
+
+  >>> sorted(pkg.upgrades)
+  [name1 < version1-release1@noarch, obsoletesname1 = obsoletesversion1]
+  >>> [type(x).__name__ for x in sorted(pkg.upgrades)]
+  ['RPMObsoletes', 'RPMObsoletes']
+
+  >>> sorted(pkg.conflicts)
+  [conflictsname1 = conflictsversion1, obsoletesname1 = obsoletesversion1]
+  >>> [type(x).__name__ for x in sorted(pkg.conflicts)]
+  ['RPMConflicts', 'RPMObsoletes']
+
+
+Now let's ask the loader for a PackageInfo instance, and inspect it.
+
+  >>> info = loader.getInfo(pkg)
+  >>> info
+  <smart.backends.rpm.header.RPMHeaderPackageInfo object at ...>
+
+  >>> info.getGroup()
+  'Group1'
+  >>> info.getSummary()
+  'Summary1'
+  >>> info.getDescription()
+  'Description1'
+
+vim:ft=doctest
