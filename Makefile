@@ -23,6 +23,12 @@ dist:
 rpm:
 	$(PYTHON) setup.py bdist_rpm
 
+clean:
+	rm -rf build
+	find smart/ -name *.pyc -exec rm -f {} \;
+	find smart/ -name *.so -exec rm -f {} \;
+	find locale/ -name *.mo -exec rm -f {} \;
+
 smart.pot:
 	xgettext -o locale/smart.pot `find -name '*.c' -o -name '*.py'`
 
@@ -42,5 +48,5 @@ test:
 	./setup.py build_ext -i
 	LANG=C ./test.py $(TEST)
 
-.PHONY: smart.pot update-po check-po test
+.PHONY: clean smart.pot update-po check-po test
 
