@@ -4,7 +4,8 @@ Create the channel.
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "urpmi",
-  ...                          "baseurl": "file://%s/urpmi" % TESTDATADIR})
+  ...                          "baseurl": "file://%s/urpmi" % TESTDATADIR,
+  ...                          "hdlurl": "media_info/synthesis.hdlist.cz"})
   >>> channel
   <smart.channels.urpmi.URPMIChannel object at ...>
 
@@ -66,7 +67,7 @@ Let's inspect the package data.
   [/bin/sh, prerequirename1 = prerequireversion1, requirename1 = requireversion1]
   >>> # XXX pre-requires are broken in createrepo
   >>> [type(x).__name__ for x in sorted(pkg.requires)]
-  ['RPMRequires', 'RPMRequires', 'RPMRequires']
+  ['RPMPreRequires', 'RPMPreRequires', 'RPMRequires']
 
   >>> sorted(pkg.upgrades)
   [name1 < version1-release1@noarch, obsoletesname1 = obsoletesversion1]
@@ -83,13 +84,14 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
 
   >>> info = loader.getInfo(pkg)
   >>> info
-  <smart.backends.rpm.header.RPMHeaderPackageInfo object at ...>
+  <smart.backends.rpm.synthesis.URPMISynthesisPackageInfo object at ...>
 
   >>> info.getGroup()
   'Group1'
   >>> info.getSummary()
   'Summary1'
-  >>> info.getDescription()
-  'Description1'
+  >>> # There is no description with synthesis. Uncomment when using full hdlist.
+  >>> # info.getDescription()
+  >>> # 'Description1'
 
 vim:ft=doctest
