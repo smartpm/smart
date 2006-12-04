@@ -5,7 +5,7 @@ Create the channel.
   >>> channel = createChannel("alias",
   ...                         {"type": "urpmi",
   ...                          "baseurl": "file://%s/urpmi" % TESTDATADIR,
-  ...                          "hdlurl": "media_info/synthesis.hdlist.cz"})
+  ...                          "hdlurl": "synthesis.hdlist.cz"})
   >>> channel
   <smart.channels.urpmi.URPMIChannel object at ...>
 
@@ -20,6 +20,9 @@ We need a progress and a fetcher.
 
 Fetch channel data.
 
+  >>> # Force cache to NEVER so we fetch reconfig.urpmi
+  >>> from smart.const import NEVER
+  >>> fetcher.setCaching(NEVER)
   >>> channel.fetch(fetcher, progress)
   True
   >>> channel.getLoaders()

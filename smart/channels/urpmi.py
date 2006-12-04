@@ -57,6 +57,7 @@ class URPMIChannel(PackageChannel):
         self._compareurl = self._hdlurl
 
         hdlbaseurl, basename = os.path.split(self._hdlurl)
+
         md5url = posixpath.join(hdlbaseurl, "MD5SUM")
         item = fetcher.enqueue(md5url)
         fetcher.run(progress=progress)
@@ -93,11 +94,36 @@ class URPMIChannel(PackageChannel):
         fetcher.run(progress=progress)
 
         if hdlitem.getStatus() == FAILED:
-            failed = hdlitem.getFailedReason()
+            hdfailed = hdlitem.getFailedReason()
             if fetcher.getCaching() is NEVER:
-                lines = [_("Failed acquiring information for '%s':") % self,
-                         u"%s: %s" % (hdlitem.getURL(), failed)]
-                raise Error, "\n".join(lines)
+                # Try reading reconfig.urpmi (should give new path)
+                fetcher.reset()
+                reconfigurl = posixpath.join(hdlbaseurl, "reconfig.urpmi")
+                reconfigitem = fetcher.enqueue(reconfigurl)
+                fetcher.run(progress=progress)
+                if reconfigitem.getStatus() == FAILED:
+                    refailed = reconfigitem.getFailedReason()
+                    if fetcher.getCaching() is NEVER:
+                        lines = [_("Failed acquiring information for '%s':") % self,
+                            u"%s: %s" % (hdlitem.getURL(), hdfailed),
+                            u"%s: %s" % (reconfigitem.getURL(), refailed)]
+                        raise Error, "\n".join(lines)
+                    return False
+                else:
+                    # Need to inject "/" at the end to avoid buggy urls
+                    if not hdlbaseurl.endswith("/"): hdlbaseurl += "/"
+                    for line in open(reconfigitem.getTargetPath()):
+                        if line.startswith("#"): pass
+                        elif line:
+                            splitline = line.split()
+                            arch = os.uname()[4]
+                            if arch == "i686": arch = "i586"
+                            reconfarch = re.sub("\$ARCH", arch, splitline[1])
+                            reconfpath = re.sub(splitline[0] + "$", reconfarch, hdlbaseurl)
+                            sysconf.set(("channels", self.getAlias(), \
+                                        "baseurl"), reconfpath)
+                            self._hdlurl = os.path.join(reconfpath, basename)
+                    return self.fetch(fetcher, progress)
             return False
         else:
             localpath = hdlitem.getTargetPath()
