@@ -414,6 +414,28 @@ class Control(object):
         for url in urls:
             print >>output, url
 
+    def dumpTransactionPackages(self, trans, installing=False, upgrading=False,
+                                removing=False, output=None):
+        if output is None:
+            output = sys.stderr
+        from smart.report import Report
+        report = Report(trans.getChangeSet())
+        report.compute()
+        pkgs = {}
+        if installing:
+            pkgs.update(report.installing)
+        if upgrading:
+            pkgs.update(report.upgrading)
+        if removing:
+            pkgs.update(report.removed)
+        pkgs = pkgs.keys()
+        pkgs.sort()
+        for pkg in pkgs:
+            if sysconf.get("dump-versions", True):
+                print >> output, pkg
+            else:
+                print >> output, pkg.name
+
     def downloadURLs(self, urllst, what=None, caching=NEVER, targetdir=None):
         fetcher = self._fetcher
         fetcher.reset()

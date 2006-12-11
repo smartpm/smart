@@ -68,6 +68,9 @@ def parse_options(argv):
                              "when possible"))
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
+    parser.add_option("--dump", action="store_true",
+                      help=_("dump package names and versions to stderr but "
+                             "don't commit operation"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -174,6 +177,8 @@ def main(ctrl, opts):
         confirm = not opts.yes
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
+        elif opts.dump:
+            ctrl.dumpTransactionPackages(trans, upgrading=True)
         elif opts.download:
             ctrl.downloadTransaction(trans, confirm=confirm)
         elif opts.stepped:
