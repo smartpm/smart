@@ -1,0 +1,16 @@
+Source: name2
+Priority: optional
+Section: Group2
+Maintainer: Gustavo Niemeyer <gustavo@niemeyer.net>
+Standards-Version: 3.7.2
+
+Package: name2
+Architecture: all
+Provides: providesname2
+Depends: requirename2 (= requireversion2)
+Pre-Depends: prerequirename2 (= prerequireversion2)
+Conflicts: conflictsname2 (= conflictsversion2)
+Recommends: recommendsname2 (= recommendsversion2)
+Suggests: suggestsname2 (= suggestsversion2)
+Description: Summary2
+ Description2

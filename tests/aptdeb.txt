@@ -1,0 +1,106 @@
+
+Create the channel.
+
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "apt-deb",
+  ...                          "baseurl": "file://%s/deb" % TESTDATADIR,
+  ...                          "distribution": "./"})
+  >>> channel
+  <smart.channels.apt_deb.APTDEBChannel object at ...>
+
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.deb.loader.DebTagFileLoader object at ...>]
+
+
+Let's create a cache to put the loader in, so that we can test it.
+
+  >>> from smart.cache import Cache
+  >>> loader = channel.getLoaders()[0]
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+The setup is ready. Now we can load the data into the cache.
+
+  >>> cache.load()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+
+
+This should give us one package with the data we already know.
+
+  >>> cache.getPackages()
+  [name1_version1-release1, name2_version2-release2]
+
+  >>> pkg = cache.getPackages()[0]
+  >>> type(pkg)
+  <class 'smart.backends.deb.base.DebPackage'>
+
+
+Let's inspect the package data.
+
+  >>> pkg.name
+  'name1'
+  >>> pkg.version
+  'version1-release1'
+
+  >>> sorted(pkg.provides)
+  [name1 = version1-release1, providesname1]
+  >>> [type(x).__name__ for x in sorted(pkg.provides)]
+  ['DebNameProvides', 'DebProvides']
+
+  >>> sorted(pkg.requires)
+  [prerequirename1 = prerequireversion1, requirename1 = requireversion1]
+  >>> [type(x).__name__ for x in sorted(pkg.requires)]
+  ['DebPreRequires', 'DebRequires']
+
+  >>> sorted(pkg.upgrades)
+  [name1 < version1-release1]
+  >>> [type(x).__name__ for x in sorted(pkg.upgrades)]
+  ['DebUpgrades']
+
+
+  >>> sorted(pkg.conflicts)
+  [conflictsname1 = conflictsversion1]
+  >>> [type(x).__name__ for x in sorted(pkg.conflicts)]
+  ['DebConflicts']
+
+
+Now let's ask the loader for a PackageInfo instance, and inspect it.
+
+  >>> info = loader.getInfo(pkg)
+  >>> info
+  <smart.backends.deb.loader.DebPackageInfo object at ...>
+
+  >>> info.getGroup()
+  'Group1'
+  >>> info.getSummary()
+  'Summary1'
+
+  >>> info.getDescription()
+  'Description1'
+
+  >>> info.getURLs()
+  ['file:///.../tests/data/deb/./name1_version1-release1_all.deb']
+  >>> url = info.getURLs()[0]
+
+  >>> info.getSHA(url)
+  >>> info.getSize(url)
+  1038L
+
+
+vim:ft=doctest
