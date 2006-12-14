@@ -64,7 +64,7 @@ class Interface(object):
             self._progress = Progress()
         return self._progress
 
-    def getSubProgress(self):
+    def getSubProgress(self, obj):
         if not hasattr(self, "_progress"):
             self._progress = Progress()
         return self._progress
