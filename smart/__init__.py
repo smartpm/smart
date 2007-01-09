@@ -132,8 +132,12 @@ def init(command=None, argv=None,
     #   >>> os.system("yes | read any")
     #   >>>
     #
-    import signal
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    try:
+        import signal
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    except ValueError:
+        if signal.getsignal(signal.SIGPIPE) != signal.SIG_DFL:
+            iface.warning("SIGPIPE isn't SIG_DFL. Scriptlets may fail.")
 
     return ctrl
 

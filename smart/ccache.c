@@ -201,6 +201,28 @@ Package_init(PackageObject *self, PyObject *args)
     return 0;
 }
 
+static int
+Package_traverse(PackageObject *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->provides);
+    Py_VISIT(self->requires);
+    Py_VISIT(self->upgrades);
+    Py_VISIT(self->conflicts);
+    Py_VISIT(self->loaders);
+    return 0;
+}
+
+static int
+Package_clear(PackageObject *self)
+{
+    Py_CLEAR(self->provides);
+    Py_CLEAR(self->requires);
+    Py_CLEAR(self->upgrades);
+    Py_CLEAR(self->conflicts);
+    Py_CLEAR(self->loaders);
+    return 0;
+}
+
 static void
 Package_dealloc(PackageObject *self)
 {
@@ -546,6 +568,7 @@ Package_getPriority(PackageObject *self, PyObject *args)
         if (channel == NULL || priority == NULL) {
             Py_DECREF(loaders);
             Py_XDECREF(channel);
+            Py_XDECREF(priority);
             return NULL;
         }
         if (i == 0 || PyInt_AS_LONG(priority) > lpriority)
@@ -606,6 +629,7 @@ Package__setstate__(PackageObject *self, PyObject *state)
     self->essential = PyTuple_GET_ITEM(state, 7);
     self->priority = PyTuple_GET_ITEM(state, 8);
     self->loaders = PyTuple_GET_ITEM(state, 9);
+
 
     Py_INCREF(self->name);
     Py_INCREF(self->version);
@@ -671,10 +695,10 @@ statichere PyTypeObject Package_Type = {
     PyObject_GenericGetAttr,/*tp_getattro*/
     PyObject_GenericSetAttr,/*tp_setattro*/
     0,                      /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     0,                      /*tp_doc*/
-    0,                      /*tp_traverse*/
-    0,                      /*tp_clear*/
+    (traverseproc)Package_traverse,  /*tp_traverse*/
+    (inquiry)Package_clear,          /*tp_clear*/
     (richcmpfunc)Package_richcompare, /*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
@@ -690,7 +714,7 @@ statichere PyTypeObject Package_Type = {
     (initproc)Package_init, /*tp_init*/
     PyType_GenericAlloc,    /*tp_alloc*/
     PyType_GenericNew,      /*tp_new*/
-    _PyObject_Del,          /*tp_free*/
+    PyObject_GC_Del,        /*tp_free*/
     0,                      /*tp_is_gc*/
 };
 
@@ -706,6 +730,26 @@ Provides_init(ProvidesObject *self, PyObject *args)
     self->requiredby = PyTuple_New(0);
     self->upgradedby = PyTuple_New(0);
     self->conflictedby = PyTuple_New(0);
+    return 0;
+}
+
+static int
+Provides_traverse(ProvidesObject *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->packages);
+    Py_VISIT(self->requiredby);
+    Py_VISIT(self->upgradedby);
+    Py_VISIT(self->conflictedby);
+    return 0;
+}
+
+static int
+Provides_clear(ProvidesObject *self)
+{
+    Py_CLEAR(self->packages);
+    Py_CLEAR(self->requiredby);
+    Py_CLEAR(self->upgradedby);
+    Py_CLEAR(self->conflictedby);
     return 0;
 }
 
@@ -921,10 +965,10 @@ statichere PyTypeObject Provides_Type = {
     PyObject_GenericGetAttr,/*tp_getattro*/
     PyObject_GenericSetAttr,/*tp_setattro*/
     0,                      /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     0,                      /*tp_doc*/
-    0,                      /*tp_traverse*/
-    0,                      /*tp_clear*/
+    (traverseproc)Provides_traverse,  /*tp_traverse*/
+    (inquiry)Provides_clear,          /*tp_clear*/
     0,                      /*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
@@ -940,7 +984,7 @@ statichere PyTypeObject Provides_Type = {
     (initproc)Provides_init, /*tp_init*/
     PyType_GenericAlloc,    /*tp_alloc*/
     PyType_GenericNew,      /*tp_new*/
-    _PyObject_Del,          /*tp_free*/
+    PyObject_GC_Del,        /*tp_free*/
     0,                      /*tp_is_gc*/
 };
 
@@ -955,6 +999,22 @@ Depends_init(DependsObject *self, PyObject *args)
     Py_INCREF(self->version);
     self->packages = PyList_New(0);
     self->providedby = PyTuple_New(0);
+    return 0;
+}
+
+static int
+Depends_traverse(DependsObject *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->packages);
+    Py_VISIT(self->providedby);
+    return 0;
+}
+
+static int
+Depends_clear(DependsObject *self)
+{
+    Py_CLEAR(self->packages);
+    Py_CLEAR(self->providedby);
     return 0;
 }
 
@@ -1108,10 +1168,10 @@ statichere PyTypeObject Depends_Type = {
     PyObject_GenericGetAttr,/*tp_getattro*/
     PyObject_GenericSetAttr,/*tp_setattro*/
     0,                      /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     0,                      /*tp_doc*/
-    0,                      /*tp_traverse*/
-    0,                      /*tp_clear*/
+    (traverseproc)Depends_traverse,  /*tp_traverse*/
+    (inquiry)Depends_clear,          /*tp_clear*/
     0,                      /*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
@@ -1127,7 +1187,7 @@ statichere PyTypeObject Depends_Type = {
     (initproc)Depends_init, /*tp_init*/
     PyType_GenericAlloc,    /*tp_alloc*/
     PyType_GenericNew,      /*tp_new*/
-    _PyObject_Del,          /*tp_free*/
+    PyObject_GC_Del,        /*tp_free*/
     0,                      /*tp_is_gc*/
 };
 
@@ -1317,6 +1377,24 @@ Loader_init(LoaderObject *self, PyObject *args)
     self->_packages = PyList_New(0);
     Py_INCREF(Py_False);
     self->_installed = Py_False;
+    return 0;
+}
+
+static int
+Loader_traverse(LoaderObject *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->_packages);
+    Py_VISIT(self->_channel);
+    Py_VISIT(self->_cache);
+    return 0;
+}
+
+static int
+Loader_clear(LoaderObject *self)
+{
+    Py_CLEAR(self->_packages);
+    Py_CLEAR(self->_channel);
+    Py_CLEAR(self->_cache);
     return 0;
 }
 
@@ -2185,12 +2263,12 @@ Loader__setstate__(LoaderObject *self, PyObject *state)
                 PyDict_SetItem(dict, key, obj);
         }
         Py_DECREF(keys);
+        Py_DECREF(dict);
     } else {
         int i = 0;
         PyErr_Clear();
         while (members[i].name) {
-            PyObject *obj = PyDict_GetItemString(state,
-                                                 members[i].name);
+            PyObject *obj = PyDict_GetItemString(state, members[i].name);
             if (!obj) {
                 PyErr_SetString(StateVersionError, "");
                 return NULL;
@@ -2199,7 +2277,6 @@ Loader__setstate__(LoaderObject *self, PyObject *state)
             i += 1;
         }
     }
-    Py_DECREF(dict);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2258,10 +2335,10 @@ statichere PyTypeObject Loader_Type = {
     PyObject_GenericGetAttr,/*tp_getattro*/
     PyObject_GenericSetAttr,/*tp_setattro*/
     0,                      /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     0,                      /*tp_doc*/
-    0,                      /*tp_traverse*/
-    0,                      /*tp_clear*/
+    (traverseproc)Loader_traverse,  /*tp_traverse*/
+    (inquiry)Loader_clear,          /*tp_clear*/
     0,                      /*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
@@ -2277,7 +2354,7 @@ statichere PyTypeObject Loader_Type = {
     (initproc)Loader_init,  /*tp_init*/
     PyType_GenericAlloc,    /*tp_alloc*/
     PyType_GenericNew,      /*tp_new*/
-    _PyObject_Del,          /*tp_free*/
+    PyObject_GC_Del,          /*tp_free*/
     0,                      /*tp_is_gc*/
 };
 
@@ -2293,6 +2370,32 @@ Cache_init(CacheObject *self, PyObject *args)
     self->_upgrades = PyList_New(0);
     self->_conflicts = PyList_New(0);
     self->_objmap = PyDict_New();
+    return 0;
+}
+
+static int
+Cache_traverse(CacheObject *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->_loaders);
+    Py_VISIT(self->_packages);
+    Py_VISIT(self->_provides);
+    Py_VISIT(self->_requires);
+    Py_VISIT(self->_upgrades);
+    Py_VISIT(self->_conflicts);
+    Py_VISIT(self->_objmap);
+    return 0;
+}
+
+static int
+Cache_clear(CacheObject *self)
+{
+    Py_CLEAR(self->_loaders);
+    Py_CLEAR(self->_packages);
+    Py_CLEAR(self->_provides);
+    Py_CLEAR(self->_requires);
+    Py_CLEAR(self->_upgrades);
+    Py_CLEAR(self->_conflicts);
+    Py_CLEAR(self->_objmap);
     return 0;
 }
 
@@ -2501,6 +2604,7 @@ Cache__reload(CacheObject *self, PyObject *args)
                     if (l == llen)
                         PyDict_DelItem(pkg->loaders, pkgloader);
                 }
+                Py_DECREF(lst);
                 
                 /*
                    for prv in pkg.provides:
@@ -2639,7 +2743,13 @@ Cache_load(CacheObject *self, PyObject *args)
     int i, len;
     int total = 1;
     PyObject *prog;
-    Cache__reload(self, NULL);
+    PyObject *ret;
+
+    ret = Cache__reload(self, NULL);
+    if (ret == NULL)
+        return NULL;
+    Py_DECREF(ret);
+
     prog = PyObject_CallMethod(getIface(), "getProgress", "OO",
                                self, Py_False);
     CALLMETHOD(prog, "start", NULL);
@@ -3462,10 +3572,10 @@ statichere PyTypeObject Cache_Type = {
     PyObject_GenericGetAttr,/*tp_getattro*/
     PyObject_GenericSetAttr,/*tp_setattro*/
     0,                      /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     0,                      /*tp_doc*/
-    0,                      /*tp_traverse*/
-    0,                      /*tp_clear*/
+    (traverseproc)Cache_traverse,  /*tp_traverse*/
+    (inquiry)Cache_clear,          /*tp_clear*/
     0,                      /*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
@@ -3481,7 +3591,7 @@ statichere PyTypeObject Cache_Type = {
     (initproc)Cache_init,  /*tp_init*/
     PyType_GenericAlloc,    /*tp_alloc*/
     PyType_GenericNew,      /*tp_new*/
-    _PyObject_Del,          /*tp_free*/
+    PyObject_GC_Del,          /*tp_free*/
     0,                      /*tp_is_gc*/
 };
 
