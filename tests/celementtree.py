@@ -1,7 +1,11 @@
 from unittest import TestCase
+import os
 
 class TestImport(TestCase):
 
     def test_import(self):
         """Verify if cElementTree is hacked to work inside Smart."""
-        from smart.util.cElementTree import ElementTree
+        import smart.util
+        util_dir = os.path.dirname(smart.util.__file__)
+        if os.path.isfile(os.path.join(util_dir, "cElementTree.so")):
+            from smart.util.cElementTree import ElementTree
