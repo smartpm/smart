@@ -141,6 +141,11 @@ def init(command=None, argv=None,
 
     return ctrl
 
+def deinit():
+    iface.object = None
+    sysconf.object = None
+    pkgconf.object = None
+
 def initDistro(ctrl):
     # Run distribution script, if available.
     from smart.const import DISTROFILE
