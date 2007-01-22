@@ -44,6 +44,30 @@
 
 #define STR(obj) PyString_AS_STRING(obj)
 
+
+#ifndef Py_VISIT
+#define Py_VISIT(op)					\
+        do { 						\
+                if (op) {				\
+                        int vret = visit((op), arg);	\
+                        if (vret)			\
+                                return vret;		\
+                }					\
+        } while (0)
+#endif
+
+#ifndef Py_CLEAR
+#define Py_CLEAR(op)				\
+        do {                            	\
+                if (op) {			\
+                        PyObject *tmp = (PyObject *)(op);	\
+                        (op) = NULL;		\
+                        Py_DECREF(tmp);		\
+                }				\
+        } while (0)
+#endif
+
+
 staticforward PyTypeObject Package_Type;
 staticforward PyTypeObject Provides_Type;
 staticforward PyTypeObject Depends_Type;
@@ -171,10 +195,10 @@ _(const char *str)
         if (module) {
             _ = PyObject_GetAttrString(module, "_");
             Py_DECREF(module);
-            if (_ == NULL) {
-                Py_INCREF(Py_None);
-                return Py_None;
-            }
+        }
+        if (_ == NULL) {
+            Py_INCREF(Py_None);
+            return Py_None;
         }
     }
     return PyObject_CallFunction(_, "s", str);
@@ -2761,7 +2785,10 @@ Cache_load(CacheObject *self, PyObject *args)
         PyObject *loader = PyList_GET_ITEM(self->_loaders, i);
         if (PyList_GET_SIZE(((LoaderObject *)loader)->_packages) == 0) {
             PyObject *res = PyObject_CallMethod(loader, "getLoadSteps", NULL);
-            if (!res) return NULL;
+            if (!res) {
+                Py_DECREF(prog);
+                return NULL;
+            }
             total += PyInt_AsLong(res);
             Py_DECREF(res);
         }
@@ -2780,6 +2807,7 @@ Cache_load(CacheObject *self, PyObject *args)
     CALLMETHOD(prog, "setDone", NULL);
     CALLMETHOD(prog, "show", NULL);
     CALLMETHOD(prog, "stop", NULL);
+    Py_DECREF(prog);
     Py_RETURN_NONE;
 }
 
