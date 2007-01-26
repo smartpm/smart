@@ -33,10 +33,12 @@ import locale
 import stat
 import os
 
-try:
-    ENCODING = locale.getpreferredencoding()
-except locale.Error:
-    ENCODING = "C"
+
+def decode(s):
+    if isinstance(s, unicode):
+        return s
+    return unicode(s, "UTF-8", "replace")
+
 
 class DebPackageInfo(PackageInfo):
 
@@ -74,17 +76,18 @@ class DebPackageInfo(PackageInfo):
         if description:
             toks = description.split("\n", 1)
             if len(toks) == 2:
-                return toks[1]
-        return ""
+                return decode(toks[1])
+        return u""
 
     def getSummary(self):
         description = self._dict.get("description")
         if description:
-            return description.split("\n", 1)[0]
-        return ""
+            
+            return decode(description.split("\n", 1)[0])
+        return u""
 
     def getGroup(self):
-        return self._loader.getSection(self._package)
+        return decode(self._loader.getSection(self._package))
 
     def getPathList(self):
         self._paths = self._loader.getPaths(self)

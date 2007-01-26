@@ -87,12 +87,12 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   <smart.backends.deb.loader.DebPackageInfo object at ...>
 
   >>> info.getGroup()
-  'Group1'
+  u'Group1'
   >>> info.getSummary()
-  'Summary1'
+  u'Summary1'
 
   >>> info.getDescription()
-  'Description1'
+  u'Description1'
 
   >>> info.getURLs()
   ['file:///.../tests/data/deb/./name1_version1-release1_all.deb']
