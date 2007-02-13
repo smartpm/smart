@@ -319,14 +319,17 @@ def discoverFstabMedias():
 
 hooks.register("discover-medias", discoverFstabMedias)
 
-def discoverAutoMountMedias():
+def discoverAutoMountMedias(filename="/etc/auto.master"):
     result = []
-    if os.path.isfile("/etc/auto.master"):
-        for line in open("/etc/auto.master"):
+    if os.path.isfile(filename):
+        for line in open(filename):
             line = line.strip()
             if not line or line[0] == "#":
                 continue
-            prefix, mapfile = line.split()[:2]
+            tokens = line.split()
+            if len(tokens) < 2:
+                continue # +auto.master syntax, not yet supported
+            prefix, mapfile = tokens[:2]
             if os.path.isfile(mapfile):
                 firstline = False
                 for line in open(mapfile):

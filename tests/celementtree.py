@@ -1,7 +1,8 @@
-from unittest import TestCase
+import unittest
 import os
 
-class TestImport(TestCase):
+
+class TestImport(unittest.TestCase):
 
     def test_import(self):
         """Verify if cElementTree is hacked to work inside Smart."""
