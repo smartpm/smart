@@ -101,6 +101,6 @@ class DebPackageManagerTest(unittest.TestCase):
             sysconf.set("pm-iface-output", old_setting, soft=True)
 
         self.assertEquals(self.iface.output,
-            ["[unpack] name1_version1-release1\n"
+            ["\n[unpack] name1_version1-release1\n"
              "dpkg: requested operation requires superuser privilege\n",
              (1, "Sub-process dpkg returned an error code (2)")])

@@ -128,7 +128,6 @@ class DebPackageManager(PackageManager):
         prog.start()
         prog.setTopic(_("Committing transaction..."))
         prog.show()
-        print
 
         # Compute upgraded packages
         upgraded = {}
@@ -193,6 +192,8 @@ class DebPackageManager(PackageManager):
             output = tempfile.TemporaryFile()
         else:
             output = sys.stdout
+
+        print >>output
 
         done = {}
         error = None
