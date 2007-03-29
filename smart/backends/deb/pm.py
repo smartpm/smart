@@ -19,17 +19,21 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import tempfile
+import sys, os
+import signal
+
 from smart.const import INSTALL, REMOVE, OPTIONAL, ENFORCE
 from smart.pm import PackageManager
 from smart.sorter import *
 from smart import *
-import sys, os
-import signal
+
 
 # Part of the logic in this file was based on information found in APT.
 
 UNPACK = 10
 CONFIG = 11
+
 
 class DebSorter(ElementSorter):
 
@@ -113,6 +117,7 @@ class DebSorter(ElementSorter):
                     if changeset.get(cnfpkg) is REMOVE:
                         self.addSuccessor((cnfpkg, REMOVE), unpack, ENFORCE)
 
+
 class DebPackageManager(PackageManager):
 
     MAXPKGSPEROP = 50
@@ -184,7 +189,13 @@ class DebPackageManager(PackageManager):
                 if op is REMOVE and not upgraded.get(pkg):
                     sorted[i] = pkg, PURGE
 
+        if sysconf.get("pm-iface-output"):
+            output = tempfile.TemporaryFile()
+        else:
+            output = sys.stdout
+
         done = {}
+        error = None
         while sorted:
 
             pkgs = []
@@ -197,7 +208,7 @@ class DebPackageManager(PackageManager):
                 done[pkg] = True
                 opname = {REMOVE: "remove", PURGE: "purge", CONFIG: "config",
                           UNPACK: "unpack", INSTALL: "install"}
-                print "[%s] %s" % (opname[op], pkg)
+                print >>output, "[%s] %s" % (opname[op], pkg)
                 pkgs.append(pkg)
 
             if not pkgs:
@@ -229,11 +240,19 @@ class DebPackageManager(PackageManager):
             quithandler = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
             inthandler  = signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-            print " ".join(args)
+            output.flush()
+
             pid = os.fork()
             if not pid:
+                if output != sys.stdout:
+                    output_fd = output.fileno()
+                    os.dup2(output_fd, 1)
+                    os.dup2(output_fd, 2)
+                #print >>output, " ".join(args)
                 os.execvp(args[0], args)
                 os._exit(1)
+
+            output.flush()
 
             while True:
                 _pid, status = os.waitpid(pid, 0)
@@ -244,24 +263,32 @@ class DebPackageManager(PackageManager):
             signal.signal(signal.SIGINT,  inthandler)
 
             if not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0:
-
                 if os.WIFSIGNALED(status) and os.WTERMSIG(status):
-                    iface.error(_("Sub-process %s has received a "
-                                  "segmentation fault") % args[0])
+                    error = _("Sub-process %s has received a "
+                              "segmentation fault") % args[0]
                 elif os.WIFEXITED(status):
-                    iface.error(_("Sub-process %s returned an error code "
-                                  "(%d)") % (args[0], os.WEXITSTATUS(status)))
+                    error = _("Sub-process %s returned an error code "
+                              "(%d)") % (args[0], os.WEXITSTATUS(status))
                 else:
-                    iface.error(_("Sub-process %s exited unexpectedly")
-                                % args[0])
-                prog.setDone()
-                prog.stop()
-                return
+                    error = _("Sub-process %s exited unexpectedly") % args[0]
+                break
 
-            print
+            print >>output # Should avoid that somehow.
             prog.add(len(pkgs))
             prog.show()
-            print
+            print >>output # Should avoid that somehow.
+
+        if output != sys.stdout:
+            output.flush()
+            output.seek(0)
+            data = output.read(8192)
+            while data:
+                iface.showOutput(data)
+                data = output.read(8192)
+            output.close()
+
+        if error:
+            iface.error(error)
 
         prog.setDone()
         prog.stop()

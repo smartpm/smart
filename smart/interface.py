@@ -56,6 +56,9 @@ class Interface(object):
     def showStatus(self, msg):
         pass
 
+    def showOutput(self, output):
+        pass
+
     def hideStatus(self):
         pass
 

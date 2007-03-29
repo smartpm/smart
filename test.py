@@ -48,7 +48,7 @@ def main():
 
     try:
 
-        ctrl = init(datadir=datadir)
+        tests.ctrl = init(datadir=datadir)
         opts = parse_options(sys.argv[1:])
 
         runner = unittest.TextTestRunner()
