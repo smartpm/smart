@@ -385,7 +385,11 @@ def getControl(filename):
         if name == "control.tar.gz  ":
             data = file.read(int(size))
             sio = StringIO(data)
-            control = TarFile.gzopen("", fileobj=sio).extractfile("control")
+            tf = TarFile.gzopen("", fileobj=sio)
+            try:
+                control = tf.extractfile("./control")
+            except KeyError:
+                control = tf.extractfile("control")
             return control.read()
         else:
             file.seek(int(size), 1)
