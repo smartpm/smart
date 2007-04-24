@@ -19,6 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import threading
 import tempfile
 import sys, os
 import signal
@@ -238,8 +239,10 @@ class DebPackageManager(PackageManager):
                 for pkg in pkgs:
                     args.append(pkg.name)
 
-            quithandler = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
-            inthandler  = signal.signal(signal.SIGINT, signal.SIG_IGN)
+            thread_name = threading.currentThread().getName()
+            if thread_name == "MainThread":
+                quithandler = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+                inthandler  = signal.signal(signal.SIGINT, signal.SIG_IGN)
 
             output.flush()
 
@@ -260,8 +263,9 @@ class DebPackageManager(PackageManager):
                 if _pid == pid:
                     break
 
-            signal.signal(signal.SIGQUIT, quithandler)
-            signal.signal(signal.SIGINT,  inthandler)
+            if thread_name == "MainThread":
+                signal.signal(signal.SIGQUIT, quithandler)
+                signal.signal(signal.SIGINT,  inthandler)
 
             if not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0:
                 if os.WIFSIGNALED(status) and os.WTERMSIG(status):
