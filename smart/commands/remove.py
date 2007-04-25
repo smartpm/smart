@@ -125,7 +125,7 @@ def main(ctrl, opts):
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
         elif opts.dump:
-            ctrl.dumpTransactionPackages(trans, removing=True)
+            ctrl.dumpTransactionPackages(trans, remove=True)
         elif opts.download:
             ctrl.downloadTransaction(trans, confirm=confirm)
         elif opts.stepped:

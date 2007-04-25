@@ -28,6 +28,7 @@ from smart.searcher import Searcher
 from smart.media import MediaSet
 from smart.progress import Progress
 from smart.fetcher import Fetcher
+from smart.report import Report
 from smart.channel import *
 from smart.cache import *
 from smart.const import *
@@ -414,21 +415,16 @@ class Control(object):
         for url in urls:
             print >>output, url
 
-    def dumpTransactionPackages(self, trans, installing=False, upgrading=False,
-                                removing=False, output=None):
+    def dumpTransactionPackages(self, trans, install=False, remove=False,
+                                output=None):
         if output is None:
             output = sys.stderr
-        from smart.report import Report
-        report = Report(trans.getChangeSet())
-        report.compute()
-        pkgs = {}
-        if installing:
-            pkgs.update(report.installing)
-        if upgrading:
-            pkgs.update(report.upgrading)
-        if removing:
-            pkgs.update(report.removed)
-        pkgs = pkgs.keys()
+        ops = set()
+        if install:
+            ops.add(INSTALL)
+        if remove:
+            ops.add(REMOVE)
+        pkgs = [pkg for (pkg, op) in trans.getChangeSet().items() if op in ops]
         pkgs.sort()
         for pkg in pkgs:
             if sysconf.get("dump-versions", True):

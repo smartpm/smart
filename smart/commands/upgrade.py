@@ -178,7 +178,7 @@ def main(ctrl, opts):
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
         elif opts.dump:
-            ctrl.dumpTransactionPackages(trans, upgrading=True)
+            ctrl.dumpTransactionPackages(trans, install=True)
         elif opts.download:
             ctrl.downloadTransaction(trans, confirm=confirm)
         elif opts.stepped:
