@@ -119,7 +119,7 @@ def parse_options(argv, help=None):
     opts.args = args
     if opts.show_all:
         for attr in dir(opts):
-            if attr.startswith("show_"):
+            if attr.startswith("show_") and attr != "show_prerequires":
                 setattr(opts, attr, True)
     return opts
 
