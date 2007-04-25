@@ -321,7 +321,7 @@ hooks.register("discover-medias", discoverFstabMedias)
 
 def discoverAutoMountMedias(filename="/etc/auto.master"):
     result = []
-    if os.path.isfile(filename):
+    if os.access(filename, os.R_OK):
         for line in open(filename):
             line = line.strip()
             if not line or line[0] == "#":
@@ -330,7 +330,7 @@ def discoverAutoMountMedias(filename="/etc/auto.master"):
             if len(tokens) < 2:
                 continue # +auto.master syntax, not yet supported
             prefix, mapfile = tokens[:2]
-            if os.path.isfile(mapfile):
+            if os.access(mapfile, os.R_OK):
                 firstline = False
                 for line in open(mapfile):
                     if firstline and line.startswith("#!"):
