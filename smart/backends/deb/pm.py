@@ -23,6 +23,7 @@ import threading
 import tempfile
 import sys, os
 import signal
+import shlex
 
 from smart.const import INSTALL, REMOVE, OPTIONAL, ENFORCE
 from smart.pm import PackageManager
@@ -172,7 +173,7 @@ class DebPackageManager(PackageManager):
 
         prog.set(0, len(sorted))
 
-        baseargs = [sysconf.get("dpkg", "dpkg")]
+        baseargs = shlex.split(sysconf.get("dpkg", "dpkg"))
 
         opt = sysconf.get("deb-root")
         if opt:
@@ -255,22 +256,7 @@ class DebPackageManager(PackageManager):
 
             output.flush()
 
-            pid = os.fork()
-            if not pid:
-                if output != sys.stdout:
-                    output_fd = output.fileno()
-                    os.dup2(output_fd, 1)
-                    os.dup2(output_fd, 2)
-                #print >>output, " ".join(args)
-                os.execvp(args[0], args)
-                os._exit(1)
-
-            output.flush()
-
-            while True:
-                _pid, status = os.waitpid(pid, 0)
-                if _pid == pid:
-                    break
+            status = self.dpkg(args, output)
 
             if thread_name == "MainThread":
                 signal.signal(signal.SIGQUIT, quithandler)
@@ -316,5 +302,26 @@ class DebPackageManager(PackageManager):
 
         prog.setDone()
         prog.stop()
+
+    def dpkg(self, argv, output):
+        pid = os.fork()
+        if not pid:
+            if output != sys.stdout:
+                output_fd = output.fileno()
+                os.dup2(output_fd, 1)
+                os.dup2(output_fd, 2)
+            #print >>output, " ".join(argv)
+            os.execvp(argv[0], argv)
+            os._exit(1)
+
+        output.flush()
+
+        while True:
+            _pid, status = os.waitpid(pid, 0)
+            if _pid == pid:
+                break
+
+        return status
+
 
 # vim:ts=4:sw=4:et
