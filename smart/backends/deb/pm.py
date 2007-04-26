@@ -35,6 +35,9 @@ from smart import *
 UNPACK = 10
 CONFIG = 11
 
+DEBIAN_FRONTEND = "DEBIAN_FRONTEND"
+APT_LISTCHANGES_FRONTEND = "APT_LISTCHANGES_FRONTEND"
+
 
 class DebSorter(ElementSorter):
 
@@ -189,6 +192,12 @@ class DebPackageManager(PackageManager):
                 if op is REMOVE and not upgraded.get(pkg):
                     sorted[i] = pkg, PURGE
 
+        if sysconf.get("deb-non-interactive"):
+            old_debian_frontend = os.environ.get(DEBIAN_FRONTEND)
+            old_apt_lc_frontend = os.environ.get(APT_LISTCHANGES_FRONTEND)
+            os.environ[DEBIAN_FRONTEND] = "noninteractive"
+            os.environ[APT_LISTCHANGES_FRONTEND] = "none"
+
         if sysconf.get("pm-iface-output"):
             output = tempfile.TemporaryFile()
         else:
@@ -291,6 +300,16 @@ class DebPackageManager(PackageManager):
                 iface.showOutput(data)
                 data = output.read(8192)
             output.close()
+
+        if sysconf.get("deb-non-interactive"):
+            if old_debian_frontend is None:
+                del os.environ[DEBIAN_FRONTEND]
+            else:
+                os.environ[DEBIAN_FRONTEND] = old_debian_frontend
+            if old_apt_lc_frontend is None:
+                del os.environ[APT_LISTCHANGES_FRONTEND]
+            else:
+                os.environ[APT_LISTCHANGES_FRONTEND] = old_apt_lc_frontend
 
         if error:
             iface.error(error)
