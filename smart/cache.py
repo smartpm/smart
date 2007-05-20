@@ -641,11 +641,13 @@ class Cache(object):
             if not loader._packages:
                 loader.load()
         self.loadFileProvides()
+        hooks.call("cache-loaded-pre-link", self)
         self._objmap.clear()
         self.linkDeps()
         prog.setDone()
         prog.show()
         prog.stop()
+        hooks.call("cache-loaded", self)
 
     def unload(self):
         self.reset()

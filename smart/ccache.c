@@ -128,21 +128,19 @@ typedef struct {
     PyObject *_objmap;
 } CacheObject;
 
-/*
 static PyObject *
-getSysConf(void)
+getHooks(void)
 {
-    static PyObject *sysconf = NULL;
-    if (sysconf == NULL) {
+    static PyObject *hooks = NULL;
+    if (hooks == NULL) {
         PyObject *module = PyImport_ImportModule("smart");
         if (module) {
-            sysconf = PyObject_GetAttrString(module, "sysconf");
+            hooks = PyObject_GetAttrString(module, "hooks");
             Py_DECREF(module);
         }
     }
-    return sysconf;
+    return hooks;
 }
-*/
 
 static PyObject *
 getPkgConf(void)
@@ -2766,6 +2764,7 @@ Cache_load(CacheObject *self, PyObject *args)
 {
     int i, len;
     int total = 1;
+    PyObject *hooks;
     PyObject *prog;
     PyObject *ret;
 
@@ -2802,12 +2801,15 @@ Cache_load(CacheObject *self, PyObject *args)
             CALLMETHOD(loader, "load", NULL);
     }
     CALLMETHOD(self, "loadFileProvides", NULL);
+    hooks = getHooks();
+    CALLMETHOD(hooks, "call", "sO", "cache-loaded-pre-link", self);
     PyDict_Clear(self->_objmap);
     CALLMETHOD(self, "linkDeps", NULL);
     CALLMETHOD(prog, "setDone", NULL);
     CALLMETHOD(prog, "show", NULL);
     CALLMETHOD(prog, "stop", NULL);
     Py_DECREF(prog);
+    CALLMETHOD(hooks, "call", "sO", "cache-loaded", self);
     Py_RETURN_NONE;
 }
 

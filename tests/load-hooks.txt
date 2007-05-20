@@ -1,0 +1,85 @@
+
+In that test we'll add a couple of hooks that should be called by the
+cache when loading packages.
+
+We want everything from the cache.
+
+  >>> from smart.cache import *
+
+  >>> class TestPackage(Package): pass
+  >>> class TestProvides(Provides): pass
+  >>> class TestDepends(Depends):
+  ...   def matches(self, prv):
+  ...     return prv.name == self.name and prv.version == self.version
+  >>> class TestUpgrades(Requires, TestDepends): pass
+
+  >>> class TestLoader(Loader):
+  ...     def load(self):
+  ...         pkg1 = self.buildPackage(
+  ...             (TestPackage, "name1", "version1"),
+  ...             [(TestProvides, "name1", "version1")], [], [], [])
+  ...         pkg1.loaders[self] = 1
+  ...         pkg2 = self.buildPackage(
+  ...             (TestPackage, "name2", "version2"),
+  ...             [], [], [], [])
+  ...         pkg2.loaders[self] = 2
+
+
+Then, we create an instance of it.
+
+  >>> loader = TestLoader()
+
+
+We'll also create a cache, to include the loader into.
+
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+Now we create our hooks, and plug them into the specific places.
+
+The first hook will add an artificial upgrades relation between
+package name2 and name1.
+
+  >>> verify_data = []
+
+  >>> def add_upgrade(cache):
+  ...     # First, check the current state.
+  ...     pkg1 = cache.getPackages("name1")[0]
+  ...     verify_data.append(pkg1.provides[0].upgradedby)
+  ...
+  ...     # Then, stick an artificial upgrades relation.
+  ...     upg = TestUpgrades("name1", "=", "version1")
+  ...     cache._upgrades.append(upg)
+  ...     pkg2 = cache.getPackages("name2")[0]
+  ...     pkg2.upgrades += (upg,)
+
+
+Our second hook will just verify that the relation has been linked.
+
+  >>> def check_upgrade(cache):
+  ...     pkg1 = cache.getPackages("name1")[0]
+  ...     verify_data.append(pkg1.provides[0].upgradedby)
+
+
+Let's link them effectively.
+
+  >>> hooks.register("cache-loaded-pre-link", add_upgrade)
+  >>> hooks.register("cache-loaded", check_upgrade)
+
+
+Loading the cache should run these hooks.
+
+  >>> cache.load()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+
+
+Let's see if our hooks got called correctly.
+
+  >>> import pprint
+  >>> pprint.pprint(verify_data)
+  [(), [name1 = version1]]
+
+
+vim:ft=doctest
