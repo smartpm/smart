@@ -38,7 +38,7 @@ import time
 try:
     ENCODING = locale.getpreferredencoding()
 except locale.Error:
-    ENCODING = "C"
+    ENCODING = "ascii"
 
 class RPMPackageManager(PackageManager):
 
