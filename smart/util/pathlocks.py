@@ -35,7 +35,7 @@ class PathLocks(object):
         self._force = flag
 
     def __del__(self):
-        # fcntl module may be destructed before we do.
+        # fcntl module may be destructed before we are.
         if fcntl: self.unlockAll()
 
     def unlockAll(self):
@@ -75,4 +75,3 @@ class PathLocks(object):
         except IOError, e:
             pass
         return result
-
