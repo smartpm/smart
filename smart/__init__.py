@@ -160,6 +160,9 @@ def deinit():
 
     _smart_run_lock.release()
 
+def initialized():
+    return _smart_run_lock.locked()
+
 
 def initDistro(ctrl):
     # Run distribution script, if available.
