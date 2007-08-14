@@ -21,12 +21,16 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gettext import translation
-from smart.hook import Hooks
+import thread
 import locale
 import sys
 import os
 
+from smart.hook import Hooks
+
+
 __all__ = ["sysconf", "pkgconf", "iface", "hooks", "Error", "_"]
+
 
 class Error(Exception):
     def __init__(self, msg=None):
@@ -82,6 +86,12 @@ pkgconf = Proxy()
 iface = Proxy()
 hooks = Hooks()
 
+
+# For now, the Smart library only allows one instance of the system
+# to be run at a time per-process.
+_smart_run_lock = thread.allocate_lock()
+
+
 def init(command=None, argv=None,
          datadir=None, configfile=None,
          gui=False, shell=False, interface=None,
@@ -93,6 +103,8 @@ def init(command=None, argv=None,
     from smart.pkgconfig import PkgConfig
     from smart.interface import Interface
     from smart.control import Control
+
+    _smart_run_lock.acquire()
 
     iface.object = Interface(None)
     sysconf.object = SysConfig()
@@ -145,6 +157,9 @@ def deinit():
     iface.object = None
     sysconf.object = None
     pkgconf.object = None
+
+    _smart_run_lock.release()
+
 
 def initDistro(ctrl):
     # Run distribution script, if available.
