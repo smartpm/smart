@@ -301,6 +301,8 @@ class Control(object):
                 raise Error, _("Unable to create channel directory.")
         if caching is ALWAYS:
             if sysconf.getReadOnly() and os.access(channelsdir, os.W_OK):
+                iface.warning(_("The Smart library is already in use by "
+                                "another process."))
                 iface.warning(_("Configuration is in readonly mode!"))
             if not self._pathlocks.lock(channelsdir):
                 raise Error, _("Channel information is locked for writing.")
