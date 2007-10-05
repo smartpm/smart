@@ -23,6 +23,7 @@ import threading
 import tempfile
 import sys, os
 import signal
+import errno
 import shlex
 
 from smart.const import INSTALL, REMOVE, OPTIONAL, ENFORCE
@@ -317,9 +318,14 @@ class DebPackageManager(PackageManager):
         output.flush()
 
         while True:
-            _pid, status = os.waitpid(pid, 0)
-            if _pid == pid:
-                break
+            try:
+                _pid, status = os.waitpid(pid, 0)
+            except OSError, e:
+                if e.errno != errno.EINTR:
+                    raise
+            else:
+                if _pid == pid:
+                    break
 
         return status
 
