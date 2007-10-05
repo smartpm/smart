@@ -30,7 +30,7 @@ import os, re
 
 __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebRequires", "DebUpgrades", "DebConflicts", "DebOrRequires",
-           "DebOrPreRequires"]
+           "DebOrPreRequires", "DEBARCH"]
 
 def getArchitecture():
     arch = os.uname()[-1]

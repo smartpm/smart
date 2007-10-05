@@ -101,6 +101,8 @@ class DebPackageInfo(PackageInfo):
 
 class DebTagLoader(Loader):
 
+    __stateversion__ = Loader.__stateversion__+1
+
     def __init__(self, baseurl=None):
         Loader.__init__(self)
         self._baseurl = baseurl
@@ -130,7 +132,12 @@ class DebTagLoader(Loader):
         Cnf = DebConflicts
         prog = iface.getProgress(self._cache)
         inst = self.getInstalled()
+        sysarch = DEBARCH
         for section, offset in self.getSections(prog):
+            arch = section.get("architecture")
+            if arch and arch != sysarch and arch != "all":
+                continue
+
             if inst:
                 try:
                     want, flag, status = section.get("status", "").split()
