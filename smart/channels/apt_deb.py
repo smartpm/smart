@@ -176,7 +176,7 @@ class APTDEBChannel(PackageChannel):
                     upackages = None
                 info = {"component": comp, "uncomp": True}
                 info["md5"], info["size"] = md5sum[packages]
-                if upackages:
+                if upackages and upackages in md5sum:
                     info["uncomp_md5"], info["uncomp_size"] = md5sum[upackages]
                 pkgitems.append(fetcher.enqueue(url, **info))
 
