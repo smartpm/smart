@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: smart package manager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-24 14:01-0300\n"
+"POT-Creation-Date: 2007-10-05 13:36-0300\n"
 "PO-Revision-Date: 2007-01-07 22:27+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -15,9 +15,1036 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: test.py:34
-msgid "test.py [options] [<test filename>, ...]"
-msgstr "test.py [flaggor] [<testfilnamn>, ...]"
+#: trunk/interfaces/gtk/priorities.py:33 smart/interfaces/gtk/priorities.py:33
+msgid "Priorities"
+msgstr "Prioriteter"
+
+#: trunk/interfaces/gtk/priorities.py:67 smart/interfaces/gtk/priorities.py:67
+msgid "Package Name"
+msgstr "Paketnamn"
+
+#: trunk/interfaces/gtk/priorities.py:75 smart/interfaces/gtk/priorities.py:75
+msgid "Channel Alias"
+msgstr "Kanalalias"
+
+#: trunk/interfaces/gtk/priorities.py:83
+#: trunk/interfaces/gtk/interactive.py:658 smart/channel.py:150
+#: smart/interfaces/gtk/priorities.py:83
+#: smart/interfaces/gtk/interactive.py:651
+#: smart/interfaces/qt/interactive.py:658 smart/commands/priority.py:98
+msgid "Priority"
+msgstr "Prioritet"
+
+#: trunk/interfaces/gtk/priorities.py:129
+#: trunk/interfaces/gtk/priorities.py:167
+#: trunk/interfaces/gtk/priorities.py:177
+#: smart/interfaces/gtk/priorities.py:129
+#: smart/interfaces/gtk/priorities.py:167
+#: smart/interfaces/gtk/priorities.py:177
+msgid "Name/alias pair already exists!"
+msgstr "Namn/alias finns redan!"
+
+#: trunk/interfaces/gtk/priorities.py:192
+#: smart/interfaces/gtk/priorities.py:192
+msgid "Invalid priority!"
+msgstr "Ogiltig prioritet!"
+
+#: trunk/interfaces/gtk/priorities.py:202
+#: smart/interfaces/gtk/priorities.py:202
+msgid "New Package Priority"
+msgstr "Ny paketprioritet"
+
+#: trunk/interfaces/gtk/priorities.py:223
+#: smart/interfaces/gtk/priorities.py:223
+msgid "Package Name:"
+msgstr "Paketnamn:"
+
+#: trunk/interfaces/gtk/priorities.py:232
+#: smart/interfaces/gtk/priorities.py:232
+msgid "Channel Alias:"
+msgstr "Kanalalias:"
+
+#: trunk/interfaces/gtk/priorities.py:242
+#: trunk/interfaces/gtk/packageinfo.py:66
+#: smart/interfaces/gtk/priorities.py:242
+#: smart/interfaces/gtk/packageinfo.py:66 smart/commands/info.py:107
+msgid "Priority:"
+msgstr "Prioritet:"
+
+#: trunk/interfaces/gtk/priorities.py:292
+#: smart/interfaces/gtk/priorities.py:292
+msgid "No name provided!"
+msgstr "Inget namn angavs!"
+
+#: trunk/interfaces/gtk/priorities.py:312
+#: smart/interfaces/gtk/priorities.py:312
+msgid "Package Priority"
+msgstr "Paketprioritet"
+
+#: trunk/interfaces/gtk/priorities.py:352
+#: smart/interfaces/gtk/priorities.py:352
+msgid "Package:"
+msgstr "Paket:"
+
+#: trunk/interfaces/gtk/priorities.py:375
+#: smart/interfaces/gtk/priorities.py:375
+msgid "Default priority:"
+msgstr "Standardprioritet"
+
+#: trunk/interfaces/gtk/priorities.py:385
+#: smart/interfaces/gtk/priorities.py:385
+msgid "Channel default"
+msgstr "Kanalstandard"
+
+#: trunk/interfaces/gtk/priorities.py:390
+#: smart/interfaces/gtk/priorities.py:390
+msgid "Set to"
+msgstr "Ställ in till"
+
+#: trunk/interfaces/gtk/priorities.py:406
+#: smart/interfaces/gtk/priorities.py:406
+msgid "Channel priority:"
+msgstr "Kanalprioritet:"
+
+#: trunk/interfaces/gtk/channels.py:39 trunk/interfaces/gtk/interactive.py:223
+#: smart/interfaces/gtk/channels.py:39 smart/interfaces/gtk/interactive.py:232
+#: smart/interfaces/qt/interactive.py:223
+msgid "Channels"
+msgstr "Kanaler"
+
+#: trunk/interfaces/gtk/channels.py:83 trunk/interfaces/gtk/channels.py:362
+#: smart/channel.py:132 smart/interfaces/gtk/channels.py:86
+#: smart/interfaces/gtk/channels.py:367
+msgid "Alias"
+msgstr "Alias"
+
+#: trunk/interfaces/gtk/channels.py:85 trunk/interfaces/gtk/channels.py:364
+#: smart/channel.py:134 smart/interfaces/gtk/channels.py:88
+#: smart/interfaces/gtk/channels.py:369
+msgid "Type"
+msgstr "Typ"
+
+#: trunk/interfaces/gtk/channels.py:87 trunk/interfaces/gtk/channels.py:366
+#: smart/channel.py:136 smart/interfaces/gtk/channels.py:90
+#: smart/interfaces/gtk/channels.py:371
+msgid "Name"
+msgstr "Namn"
+
+#: trunk/interfaces/gtk/channels.py:200 smart/interfaces/gtk/channels.py:205
+msgid "Select Channel Description"
+msgstr "Välj kanalbeskrivning"
+
+#: trunk/interfaces/gtk/channels.py:208 smart/channel.py:114
+#: smart/interfaces/gtk/channels.py:213 smart/commands/channel.py:183
+#: smart/commands/mirror.py:128 smart/sysconfig.py:78
+#, python-format
+msgid "File not found: %s"
+msgstr "Filen hittades inte: %s"
+
+#: trunk/interfaces/gtk/channels.py:214 smart/interfaces/gtk/channels.py:219
+msgid "Description URL"
+msgstr "URL till beskrivning"
+
+#: trunk/interfaces/gtk/channels.py:218 smart/interfaces/gtk/channels.py:223
+msgid "channel description"
+msgstr "kanalbeskrivning"
+
+#: trunk/interfaces/gtk/channels.py:220 smart/interfaces/gtk/channels.py:225
+#: smart/commands/channel.py:171
+#, python-format
+msgid "Unable to fetch channel description: %s"
+msgstr "Kunde inte hämta kanalbeskrivning: %s"
+
+#: trunk/interfaces/gtk/channels.py:255 smart/interfaces/gtk/channels.py:260
+msgid "Select Path"
+msgstr "Välj sökväg"
+
+#: trunk/interfaces/gtk/channels.py:263 smart/interfaces/gtk/channels.py:268
+#: smart/commands/clean.py:47
+#, python-format
+msgid "Directory not found: %s"
+msgstr "Katalogen hittades inte: %s"
+
+#: trunk/interfaces/gtk/channels.py:282 smart/interfaces/gtk/channels.py:287
+msgid "No channels detected!"
+msgstr "Inga kanaler detekterades!"
+
+#: trunk/interfaces/gtk/channels.py:319 smart/interfaces/gtk/channels.py:324
+msgid "Select Channels"
+msgstr "Välj kanaler"
+
+#: trunk/interfaces/gtk/channels.py:427 smart/interfaces/gtk/channels.py:432
+msgid "Edit Channel"
+msgstr "Redigera kanal"
+
+#: trunk/interfaces/gtk/channels.py:513 trunk/interfaces/gtk/channels.py:570
+#: smart/interfaces/gtk/channels.py:518 smart/interfaces/gtk/channels.py:575
+#, python-format
+msgid "Don't know how to handle %s fields"
+msgstr "Vet inte hur %s-fält ska hanteras"
+
+#: trunk/interfaces/gtk/channels.py:576 smart/interfaces/gtk/channels.py:581
+msgid "Invalid alias!"
+msgstr "Ogiltigt alias!"
+
+#: trunk/interfaces/gtk/channels.py:579 smart/interfaces/gtk/channels.py:584
+msgid "Alias already in use!"
+msgstr "Aliaset används redan!"
+
+#: trunk/interfaces/gtk/channels.py:602 trunk/interfaces/gtk/channels.py:699
+#: trunk/interfaces/gtk/channels.py:800 smart/interfaces/gtk/channels.py:607
+#: smart/interfaces/gtk/channels.py:704 smart/interfaces/gtk/channels.py:805
+msgid "New Channel"
+msgstr "Ny kanal"
+
+#: trunk/interfaces/gtk/channels.py:623 smart/interfaces/gtk/channels.py:628
+#: smart/commands/channel.py:135
+msgid "Type:"
+msgstr "Typ:"
+
+#: trunk/interfaces/gtk/channels.py:719 smart/interfaces/gtk/channels.py:724
+msgid "Method:"
+msgstr "Metod:"
+
+#: trunk/interfaces/gtk/channels.py:758 smart/interfaces/gtk/channels.py:763
+msgid "Provide channel information"
+msgstr "Ange kanalinformation"
+
+#: trunk/interfaces/gtk/channels.py:760 smart/interfaces/gtk/channels.py:765
+msgid "Read channel description from local path"
+msgstr "Läs kanalbeskrivning från lokal sökväg"
+
+#: trunk/interfaces/gtk/channels.py:762 smart/interfaces/gtk/channels.py:767
+msgid "Read channel description from URL"
+msgstr "Läs kanalbeskrivning från url"
+
+#: trunk/interfaces/gtk/channels.py:764 smart/interfaces/gtk/channels.py:769
+msgid "Detect channel in media (CDROM, DVD, etc)"
+msgstr "Detektera kanal på media (cd-rom, dvd, etc)"
+
+#: trunk/interfaces/gtk/channels.py:766 smart/interfaces/gtk/channels.py:771
+msgid "Detect channel in local path"
+msgstr "Detektera kanal i lokal sökväg"
+
+#: trunk/interfaces/gtk/channels.py:821 smart/interfaces/gtk/channels.py:826
+msgid "Media path:"
+msgstr "Mediasökväg:"
+
+#: trunk/interfaces/gtk/channels.py:875 smart/interfaces/gtk/channels.py:880
+msgid "No local media found!"
+msgstr "Inget lokalt media hittades!"
+
+#: trunk/interfaces/gtk/flags.py:35 trunk/interfaces/gtk/flags.py:81
+#: smart/interfaces/gtk/flags.py:35 smart/interfaces/gtk/flags.py:81
+msgid "Flags"
+msgstr "Flaggor"
+
+#: trunk/interfaces/gtk/flags.py:127 smart/interfaces/gtk/flags.py:127
+msgid "Targets"
+msgstr "Mål"
+
+#: trunk/interfaces/gtk/flags.py:199 trunk/interfaces/gtk/flags.py:243
+#: smart/interfaces/gtk/flags.py:199 smart/interfaces/gtk/flags.py:243
+msgid "Flag already exists!"
+msgstr "Flaggan finns redan!"
+
+#: trunk/interfaces/gtk/flags.py:228 trunk/interfaces/gtk/flags.py:255
+#: trunk/interfaces/gtk/flags.py:260 trunk/interfaces/gtk/flags.py:449
+#: smart/interfaces/gtk/flags.py:228 smart/interfaces/gtk/flags.py:255
+#: smart/interfaces/gtk/flags.py:260 smart/interfaces/gtk/flags.py:449
+msgid "Invalid target!"
+msgstr "Ogiltigt mål!"
+
+#: trunk/interfaces/gtk/flags.py:293 smart/interfaces/gtk/flags.py:293
+msgid "New Flag"
+msgstr "Ny flagga"
+
+#: trunk/interfaces/gtk/flags.py:314 smart/interfaces/gtk/flags.py:314
+#: smart/commands/info.py:105
+msgid "Name:"
+msgstr "Namn:"
+
+#: trunk/interfaces/gtk/flags.py:358 smart/interfaces/gtk/flags.py:358
+msgid "No flag name provided!"
+msgstr "Inget flaggnamn angivet!"
+
+#: trunk/interfaces/gtk/flags.py:374 smart/interfaces/gtk/flags.py:374
+msgid "New Target"
+msgstr "Nytt mål"
+
+#: trunk/interfaces/gtk/flags.py:395 smart/interfaces/gtk/flags.py:395
+msgid "Target:"
+msgstr "Mål:"
+
+#: trunk/interfaces/gtk/flags.py:405 smart/interfaces/gtk/flags.py:405
+msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
+msgstr "Exempel: \"paketnamn\", \"paketnamn = 1.0\" eller \"paketnamn <= 1.0\""
+
+#: trunk/interfaces/gtk/flags.py:445 smart/interfaces/gtk/flags.py:445
+msgid "No target provided!"
+msgstr "Inget mål angivet!"
+
+#: trunk/interfaces/gtk/mirrors.py:32 smart/interfaces/gtk/mirrors.py:32
+msgid "Mirrors"
+msgstr "Speglar"
+
+#: trunk/interfaces/gtk/mirrors.py:65 smart/interfaces/gtk/mirrors.py:65
+msgid "Mirror"
+msgstr "Spegel"
+
+# Ursprung?
+#: trunk/interfaces/gtk/mirrors.py:145 smart/interfaces/gtk/mirrors.py:145
+msgid "Origin already exists!"
+msgstr "Ursprunget finns redan!"
+
+#: trunk/interfaces/gtk/mirrors.py:152 smart/interfaces/gtk/mirrors.py:152
+msgid "Mirror already exists!"
+msgstr "Spegeln finns redan!"
+
+#: trunk/interfaces/gtk/mirrors.py:164 smart/interfaces/gtk/mirrors.py:164
+msgid "New Mirror"
+msgstr "Ny spegel"
+
+#: trunk/interfaces/gtk/mirrors.py:185 smart/interfaces/gtk/mirrors.py:185
+msgid "Origin URL:"
+msgstr "Ursprungs-URL:"
+
+#: trunk/interfaces/gtk/mirrors.py:195 smart/interfaces/gtk/mirrors.py:195
+msgid "Mirror URL:"
+msgstr "Spegel-URL:"
+
+#: trunk/interfaces/gtk/mirrors.py:243 smart/interfaces/gtk/mirrors.py:243
+msgid "No origin provided!"
+msgstr "Inget ursprung angavs!"
+
+#: trunk/interfaces/gtk/mirrors.py:247 smart/interfaces/gtk/mirrors.py:247
+msgid "No mirror provided!"
+msgstr "Ingen spegel angiven!"
+
+#: trunk/interfaces/gtk/__init__.py:36 smart/interfaces/gtk/__init__.py:36
+msgid "System has no support for gtk python interface"
+msgstr "Systemet har inget stöd för gtk python-gränssnittet"
+
+#: trunk/interfaces/gtk/__init__.py:55 smart/interfaces/gtk/__init__.py:55
+#: smart/interfaces/qt/__init__.py:45
+#, python-format
+msgid "Image '%s' not found"
+msgstr "Bilden \"%s\" hittades inte"
+
+#: trunk/interfaces/gtk/interface.py:83 smart/interfaces/gtk/interface.py:83
+msgid " Continue?"
+msgstr " Fortsätt?"
+
+#: trunk/interfaces/gtk/interface.py:104 smart/interfaces/gtk/interface.py:104
+#: smart/interfaces/qt/interface.py:148
+msgid "Input"
+msgstr "Inmatning"
+
+#: trunk/interfaces/gtk/interface.py:144 smart/interfaces/gtk/interface.py:144
+#: smart/interfaces/qt/interface.py:161
+msgid "Insert one or more of the following removable channels:\n"
+msgstr "Lägg till en eller flera av följande flyttbara kanaler:\n"
+
+#: trunk/interfaces/gtk/progress.py:51 smart/interfaces/gtk/progress.py:51
+msgid "Operation Progress"
+msgstr "Åtgärdsförlopp"
+
+#: trunk/interfaces/gtk/progress.py:89 smart/interfaces/gtk/progress.py:90
+msgid "Progress"
+msgstr "Förlopp"
+
+#: trunk/interfaces/gtk/progress.py:96 smart/interfaces/gtk/progress.py:97
+msgid "Current"
+msgstr "Aktuellt"
+
+#: trunk/interfaces/gtk/progress.py:102 smart/interfaces/gtk/progress.py:103
+msgid "Total"
+msgstr "Totalt"
+
+#: trunk/interfaces/gtk/progress.py:108 smart/interfaces/gtk/progress.py:109
+msgid "Speed"
+msgstr "Hastighet"
+
+#: trunk/interfaces/gtk/progress.py:114
+#: trunk/interfaces/gtk/packageinfo.py:108
+#: trunk/interfaces/gtk/interactive.py:320
+#: smart/interfaces/gtk/packageinfo.py:108
+#: smart/interfaces/gtk/interactive.py:329
+#: smart/interfaces/gtk/progress.py:121 smart/interfaces/qt/interactive.py:320
+msgid "Description"
+msgstr "Beskrivning"
+
+#: trunk/interfaces/gtk/packageinfo.py:65
+#: smart/interfaces/gtk/packageinfo.py:65
+msgid "Status:"
+msgstr "Status:"
+
+#: trunk/interfaces/gtk/packageinfo.py:67
+#: smart/interfaces/gtk/packageinfo.py:67 smart/commands/info.py:108
+msgid "Group:"
+msgstr "Grupp:"
+
+#: trunk/interfaces/gtk/packageinfo.py:68
+#: smart/interfaces/gtk/packageinfo.py:68 smart/commands/info.py:109
+msgid "Installed Size:"
+msgstr "Installerad storlek:"
+
+#: trunk/interfaces/gtk/packageinfo.py:69
+#: smart/interfaces/gtk/packageinfo.py:69 smart/commands/info.py:121
+msgid "Channels:"
+msgstr "Kanaler:"
+
+#: trunk/interfaces/gtk/packageinfo.py:87
+#: smart/interfaces/gtk/packageinfo.py:87
+msgid "General"
+msgstr "Allmänt"
+
+#: trunk/interfaces/gtk/packageinfo.py:128
+#: smart/interfaces/gtk/packageinfo.py:128
+msgid "Content"
+msgstr "Innehåll"
+
+#: trunk/interfaces/gtk/packageinfo.py:137
+#: smart/interfaces/gtk/packageinfo.py:137
+msgid "Relations"
+msgstr "Relationer"
+
+#: trunk/interfaces/gtk/packageinfo.py:155
+#: smart/interfaces/gtk/packageinfo.py:155 smart/commands/priority.py:98
+msgid "Channel"
+msgstr "Kanal"
+
+#: trunk/interfaces/gtk/packageinfo.py:157
+#: smart/interfaces/gtk/packageinfo.py:157
+msgid "Size"
+msgstr "Storlek"
+
+#: trunk/interfaces/gtk/packageinfo.py:159
+#: smart/interfaces/gtk/packageinfo.py:159
+msgid "URL"
+msgstr "URL"
+
+#: trunk/interfaces/gtk/packageinfo.py:163
+#: smart/interfaces/gtk/packageinfo.py:163 smart/commands/download.py:144
+msgid "URLs"
+msgstr "URL:er"
+
+#: trunk/interfaces/gtk/packageinfo.py:217
+#: smart/interfaces/gtk/packageinfo.py:217
+msgid "Installed"
+msgstr "Installerat"
+
+#: trunk/interfaces/gtk/packageinfo.py:217
+#: smart/interfaces/gtk/packageinfo.py:217
+msgid "Available"
+msgstr "Tillgängligt"
+
+#: trunk/interfaces/gtk/packageinfo.py:219 smart/util/strtools.py:56
+#: smart/interfaces/gtk/packageinfo.py:219
+msgid "Unknown"
+msgstr "Okänt"
+
+#: trunk/interfaces/gtk/packageinfo.py:314
+#: trunk/interfaces/gtk/packageinfo.py:347
+#: smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:347
+msgid "Provides"
+msgstr "Tillhandahåller"
+
+#: trunk/interfaces/gtk/packageinfo.py:314
+#: trunk/interfaces/gtk/packageinfo.py:366 trunk/interfaces/gtk/changes.py:125
+#: smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:366 smart/interfaces/gtk/changes.py:125
+#: smart/interfaces/qt/changes.py:118
+msgid "Upgrades"
+msgstr "Uppgraderingar"
+
+#: trunk/interfaces/gtk/packageinfo.py:315
+#: trunk/interfaces/gtk/packageinfo.py:357 trunk/interfaces/gtk/changes.py:133
+#: trunk/interfaces/gtk/changes.py:170 smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:357 smart/interfaces/gtk/changes.py:133
+#: smart/interfaces/gtk/changes.py:170 smart/interfaces/qt/changes.py:126
+#: smart/interfaces/qt/changes.py:163
+msgid "Requires"
+msgstr "Kräver"
+
+#: trunk/interfaces/gtk/packageinfo.py:315
+#: trunk/interfaces/gtk/packageinfo.py:375 trunk/interfaces/gtk/changes.py:141
+#: trunk/interfaces/gtk/changes.py:178 smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:375 smart/interfaces/gtk/changes.py:141
+#: smart/interfaces/gtk/changes.py:178 smart/interfaces/qt/changes.py:134
+#: smart/interfaces/qt/changes.py:171
+msgid "Conflicts"
+msgstr "Konflikter"
+
+#: trunk/interfaces/gtk/packageinfo.py:332 trunk/interfaces/gtk/changes.py:136
+#: trunk/interfaces/gtk/changes.py:173 smart/interfaces/gtk/packageinfo.py:332
+#: smart/interfaces/gtk/changes.py:136 smart/interfaces/gtk/changes.py:173
+#: smart/interfaces/qt/changes.py:129 smart/interfaces/qt/changes.py:166
+msgid "Required By"
+msgstr "Krävs av"
+
+#: trunk/interfaces/gtk/packageinfo.py:338
+#: smart/interfaces/gtk/packageinfo.py:338
+msgid "Upgraded By"
+msgstr "Uppgraderad av"
+
+#: trunk/interfaces/gtk/packageinfo.py:344
+#: smart/interfaces/gtk/packageinfo.py:344
+msgid "Conflicted By"
+msgstr "Satt i konflikt av"
+
+#: trunk/interfaces/gtk/changes.py:36 smart/interfaces/gtk/changes.py:36
+msgid "Change Summary"
+msgstr "Ändringssammandrag"
+
+#: trunk/interfaces/gtk/changes.py:97 trunk/interfaces/gtk/interactive.py:548
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:541
+#: smart/interfaces/qt/changes.py:90 smart/interfaces/qt/interactive.py:548
+msgid "Remove"
+msgstr "Ta bort"
+
+#: trunk/interfaces/gtk/changes.py:97 smart/interfaces/gtk/changes.py:97
+#: smart/interfaces/qt/changes.py:90
+msgid "Downgrade"
+msgstr "Nedgradera"
+
+#: trunk/interfaces/gtk/changes.py:97 trunk/interfaces/gtk/interactive.py:538
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:531
+#: smart/interfaces/qt/changes.py:90 smart/interfaces/qt/interactive.py:538
+msgid "Reinstall"
+msgstr "Installera om"
+
+#: trunk/interfaces/gtk/changes.py:98 trunk/interfaces/gtk/interactive.py:529
+#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:522
+#: smart/interfaces/qt/changes.py:91 smart/interfaces/qt/interactive.py:529
+msgid "Install"
+msgstr "Installera"
+
+#: trunk/interfaces/gtk/changes.py:98 smart/interfaces/gtk/changes.py:98
+#: smart/interfaces/qt/changes.py:91
+msgid "Upgrade"
+msgstr "Uppgradera"
+
+#: trunk/interfaces/gtk/changes.py:129 smart/interfaces/gtk/changes.py:129
+#: smart/interfaces/qt/changes.py:122
+msgid "Downgrades"
+msgstr "Nedgraderingar"
+
+#: trunk/interfaces/gtk/changes.py:151 smart/interfaces/gtk/changes.py:151
+#: smart/interfaces/qt/changes.py:144
+#, python-format
+msgid "Reinstall (%d)"
+msgstr "Installera om (%d)"
+
+#: trunk/interfaces/gtk/changes.py:154 smart/interfaces/gtk/changes.py:154
+#: smart/interfaces/qt/changes.py:147
+#, python-format
+msgid "Install (%d)"
+msgstr "Installera (%d)"
+
+#: trunk/interfaces/gtk/changes.py:156 smart/interfaces/gtk/changes.py:156
+#: smart/interfaces/qt/changes.py:149
+#, python-format
+msgid "Upgrade (%d)"
+msgstr "Uppgradera (%d)"
+
+#: trunk/interfaces/gtk/changes.py:158 smart/interfaces/gtk/changes.py:158
+#: smart/interfaces/qt/changes.py:151
+#, python-format
+msgid "Downgrade (%d)"
+msgstr "Nedgradera (%d)"
+
+#: trunk/interfaces/gtk/changes.py:181 smart/interfaces/gtk/changes.py:181
+#: smart/interfaces/qt/changes.py:174
+#, python-format
+msgid "Remove (%d)"
+msgstr "Ta bort (%d)"
+
+#: trunk/interfaces/gtk/changes.py:185 smart/interfaces/gtk/changes.py:185
+#: smart/interfaces/qt/changes.py:178
+#, python-format
+msgid "Keep (%d)"
+msgstr "Behåll (%d)"
+
+#: trunk/interfaces/gtk/changes.py:191 smart/interfaces/text/interface.py:225
+#: smart/interfaces/gtk/changes.py:191 smart/interfaces/qt/changes.py:184
+#, python-format
+msgid "%s of package files are needed. "
+msgstr "%s av paketfiler behövs. "
+
+#: trunk/interfaces/gtk/changes.py:193 smart/interfaces/text/interface.py:228
+#: smart/interfaces/gtk/changes.py:193 smart/interfaces/qt/changes.py:186
+#, python-format
+msgid "%s will be used."
+msgstr "%s kommer att användas."
+
+#: trunk/interfaces/gtk/changes.py:196 smart/interfaces/text/interface.py:231
+#: smart/interfaces/gtk/changes.py:196 smart/interfaces/qt/changes.py:189
+#, python-format
+msgid "%s will be freed."
+msgstr "%s kommer att frigöras."
+
+#: trunk/interfaces/gtk/interactive.py:111
+#: smart/interfaces/gtk/interactive.py:114
+#: smart/interfaces/qt/interactive.py:111
+msgid "_File"
+msgstr "_Arkiv"
+
+#: trunk/interfaces/gtk/interactive.py:112
+#: smart/interfaces/gtk/interactive.py:115
+#: smart/interfaces/qt/interactive.py:112
+msgid "Update _Selected Channels..."
+msgstr "Uppdatera _markerade kanaler..."
+
+#: trunk/interfaces/gtk/interactive.py:113
+#: smart/interfaces/gtk/interactive.py:116
+#: smart/interfaces/qt/interactive.py:113
+msgid "Update given channels"
+msgstr "Uppdatera angivna kanaler"
+
+#: trunk/interfaces/gtk/interactive.py:114
+#: smart/interfaces/gtk/interactive.py:117
+#: smart/interfaces/qt/interactive.py:114
+msgid "_Update Channels"
+msgstr "_Uppdatera kanaler"
+
+#: trunk/interfaces/gtk/interactive.py:115
+#: smart/interfaces/qt/interactive.py:115
+#, fuzzy
+msgid "Update channels information"
+msgstr "Ange kanalinformation"
+
+#: trunk/interfaces/gtk/interactive.py:116
+#: smart/interfaces/gtk/interactive.py:119
+#: smart/interfaces/qt/interactive.py:116
+msgid "_Rebuild Cache"
+msgstr "_Bygg om cache"
+
+#: trunk/interfaces/gtk/interactive.py:117
+#: smart/interfaces/gtk/interactive.py:120
+#: smart/interfaces/qt/interactive.py:117
+msgid "Reload package information"
+msgstr "Läs om paketinformation"
+
+#: trunk/interfaces/gtk/interactive.py:118
+#: smart/interfaces/gtk/interactive.py:121
+#: smart/interfaces/qt/interactive.py:118
+msgid "_Execute Changes..."
+msgstr "_Verkställ ändringar..."
+
+#: trunk/interfaces/gtk/interactive.py:119
+#: smart/interfaces/gtk/interactive.py:122
+#: smart/interfaces/qt/interactive.py:119
+msgid "Apply marked changes"
+msgstr "Verkställ markerade ändringar"
+
+#: trunk/interfaces/gtk/interactive.py:120
+#: smart/interfaces/gtk/interactive.py:123
+#: smart/interfaces/qt/interactive.py:120
+msgid "_Quit"
+msgstr "A_vsluta"
+
+#: trunk/interfaces/gtk/interactive.py:121
+#: smart/interfaces/gtk/interactive.py:124
+#: smart/interfaces/qt/interactive.py:121
+msgid "Quit application"
+msgstr "Avsluta programmet"
+
+#: trunk/interfaces/gtk/interactive.py:123
+#: smart/interfaces/gtk/interactive.py:126
+#: smart/interfaces/qt/interactive.py:123
+msgid "_Edit"
+msgstr "R_edigera"
+
+#: trunk/interfaces/gtk/interactive.py:124
+#: smart/interfaces/gtk/interactive.py:127
+#: smart/interfaces/qt/interactive.py:124
+msgid "_Undo"
+msgstr "_Ångra"
+
+#: trunk/interfaces/gtk/interactive.py:125
+#: smart/interfaces/gtk/interactive.py:128
+#: smart/interfaces/qt/interactive.py:125
+msgid "Undo last change"
+msgstr "Ångra senaste ändring"
+
+#: trunk/interfaces/gtk/interactive.py:126
+#: smart/interfaces/gtk/interactive.py:129
+#: smart/interfaces/qt/interactive.py:126
+msgid "_Redo"
+msgstr "_Gör om"
+
+#: trunk/interfaces/gtk/interactive.py:127
+#: smart/interfaces/gtk/interactive.py:130
+#: smart/interfaces/qt/interactive.py:127
+msgid "Redo last undone change"
+msgstr "Gör om senaste ångrade ändring"
+
+#: trunk/interfaces/gtk/interactive.py:128
+#: smart/interfaces/gtk/interactive.py:131
+#: smart/interfaces/qt/interactive.py:128
+msgid "Clear Marked Changes"
+msgstr "Rensa markerade ändringar"
+
+#: trunk/interfaces/gtk/interactive.py:129
+#: smart/interfaces/gtk/interactive.py:132
+#: smart/interfaces/qt/interactive.py:129
+msgid "Clear all changes"
+msgstr "Rensa alla ändringar"
+
+#: trunk/interfaces/gtk/interactive.py:130
+#: smart/interfaces/gtk/interactive.py:133
+#: smart/interfaces/qt/interactive.py:130
+msgid "Check Installed Packages..."
+msgstr "Kontrollera installerade paket..."
+
+#: trunk/interfaces/gtk/interactive.py:131
+#: smart/interfaces/gtk/interactive.py:134
+#: smart/interfaces/qt/interactive.py:131
+msgid "Check installed packages"
+msgstr "Kontrollera installerade paket"
+
+#: trunk/interfaces/gtk/interactive.py:132
+#: smart/interfaces/gtk/interactive.py:135
+#: smart/interfaces/qt/interactive.py:132
+msgid "Check Uninstalled Packages..."
+msgstr "Kontrollera oinstallerade paket..."
+
+#: trunk/interfaces/gtk/interactive.py:133
+#: smart/interfaces/gtk/interactive.py:136
+#: smart/interfaces/qt/interactive.py:133
+msgid "Check uninstalled packages"
+msgstr "Kontrollera oinstallerade paket"
+
+#: trunk/interfaces/gtk/interactive.py:134
+#: smart/interfaces/gtk/interactive.py:137
+#: smart/interfaces/qt/interactive.py:134
+msgid "Check All Packages..."
+msgstr "Kontrollera alla paket..."
+
+#: trunk/interfaces/gtk/interactive.py:135
+#: smart/interfaces/gtk/interactive.py:138
+#: smart/interfaces/qt/interactive.py:135
+msgid "Check all packages"
+msgstr "Kontrollera alla paket"
+
+#: trunk/interfaces/gtk/interactive.py:136
+#: smart/interfaces/gtk/interactive.py:139
+#: smart/interfaces/qt/interactive.py:136
+msgid "Upgrade _All..."
+msgstr "Uppgradera _alla..."
+
+#: trunk/interfaces/gtk/interactive.py:137
+#: smart/interfaces/gtk/interactive.py:140
+#: smart/interfaces/qt/interactive.py:137
+msgid "Upgrade all packages"
+msgstr "Uppgradera alla paket"
+
+#: trunk/interfaces/gtk/interactive.py:138
+#: smart/interfaces/gtk/interactive.py:141
+#: smart/interfaces/qt/interactive.py:138
+msgid "Fix All _Problems..."
+msgstr "Rätta till alla _problem..."
+
+#: trunk/interfaces/gtk/interactive.py:139
+#: smart/interfaces/gtk/interactive.py:142
+#: smart/interfaces/qt/interactive.py:139
+msgid "Fix all problems"
+msgstr "Rätta till alla problem"
+
+#: trunk/interfaces/gtk/interactive.py:140
+#: smart/interfaces/gtk/interactive.py:143
+#: smart/interfaces/qt/interactive.py:140
+msgid "_Find..."
+msgstr "_Sök..."
+
+#: trunk/interfaces/gtk/interactive.py:141
+#: smart/interfaces/gtk/interactive.py:144
+#: smart/interfaces/qt/interactive.py:141
+msgid "Find packages"
+msgstr "Sök paket"
+
+#: trunk/interfaces/gtk/interactive.py:142
+#: smart/interfaces/gtk/interactive.py:145
+#: smart/interfaces/qt/interactive.py:142
+msgid "_Channels"
+msgstr "_Kanaler"
+
+#: trunk/interfaces/gtk/interactive.py:143
+#: smart/interfaces/gtk/interactive.py:146
+#: smart/interfaces/qt/interactive.py:143
+msgid "Edit channels"
+msgstr "Redigera kanaler"
+
+#: trunk/interfaces/gtk/interactive.py:144
+#: smart/interfaces/gtk/interactive.py:147
+#: smart/interfaces/qt/interactive.py:144
+msgid "_Mirrors"
+msgstr "_Speglar"
+
+#: trunk/interfaces/gtk/interactive.py:145
+#: smart/interfaces/gtk/interactive.py:148
+#: smart/interfaces/qt/interactive.py:145
+msgid "Edit mirrors"
+msgstr "Redigera speglar"
+
+#: trunk/interfaces/gtk/interactive.py:146
+#: smart/interfaces/gtk/interactive.py:149
+#: smart/interfaces/qt/interactive.py:146
+msgid "_Flags"
+msgstr "_Flaggor"
+
+#: trunk/interfaces/gtk/interactive.py:147
+#: smart/interfaces/gtk/interactive.py:150
+#: smart/interfaces/qt/interactive.py:147
+msgid "Edit package flags"
+msgstr "Redigera paketflaggor"
+
+#: trunk/interfaces/gtk/interactive.py:148
+#: smart/interfaces/gtk/interactive.py:151
+#: smart/interfaces/qt/interactive.py:148
+msgid "_Priorities"
+msgstr "_Prioriteter"
+
+#: trunk/interfaces/gtk/interactive.py:149
+#: smart/interfaces/gtk/interactive.py:152
+#: smart/interfaces/qt/interactive.py:149
+msgid "Edit package priorities"
+msgstr "Redigera paketprioriteter"
+
+#: trunk/interfaces/gtk/interactive.py:151
+#: smart/interfaces/gtk/interactive.py:154
+#: smart/interfaces/qt/interactive.py:151
+msgid "_View"
+msgstr "_Visa"
+
+#: trunk/interfaces/gtk/interactive.py:152
+#: smart/interfaces/gtk/interactive.py:155
+#: smart/interfaces/qt/interactive.py:152
+msgid "_Tree Style"
+msgstr "_Trädstil"
+
+#: trunk/interfaces/gtk/interactive.py:153
+#: smart/interfaces/gtk/interactive.py:156
+#: smart/interfaces/qt/interactive.py:153
+msgid "_Expand All"
+msgstr "_Fäll ut allt"
+
+#: trunk/interfaces/gtk/interactive.py:154
+#: smart/interfaces/gtk/interactive.py:157
+#: smart/interfaces/qt/interactive.py:154
+msgid "Expand all items in the tree"
+msgstr "Fäll ut alla poster i trädet"
+
+#: trunk/interfaces/gtk/interactive.py:155
+#: smart/interfaces/gtk/interactive.py:158
+#: smart/interfaces/qt/interactive.py:155
+msgid "_Collapse All"
+msgstr "Fäll _in allt"
+
+#: trunk/interfaces/gtk/interactive.py:156
+#: smart/interfaces/gtk/interactive.py:159
+#: smart/interfaces/qt/interactive.py:156
+msgid "Collapse all items in the tree"
+msgstr "Fäll in alla poster i trädet"
+
+#: trunk/interfaces/gtk/interactive.py:157
+#: smart/interfaces/gtk/interactive.py:160
+#: smart/interfaces/qt/interactive.py:157
+msgid "_Summary Window"
+msgstr "_Sammandragsfönster"
+
+#: trunk/interfaces/gtk/interactive.py:158
+#: smart/interfaces/gtk/interactive.py:161
+#: smart/interfaces/qt/interactive.py:158
+msgid "Show summary window"
+msgstr "Visa sammandragsfönster"
+
+#: trunk/interfaces/gtk/interactive.py:159
+#: smart/interfaces/gtk/interactive.py:162
+#: smart/interfaces/qt/interactive.py:159
+msgid "_Log Window"
+msgstr "_Loggfönster"
+
+#: trunk/interfaces/gtk/interactive.py:160
+#: smart/interfaces/gtk/interactive.py:163
+#: smart/interfaces/qt/interactive.py:160
+msgid "Show log window"
+msgstr "Visa loggfönstret"
+
+#: trunk/interfaces/gtk/interactive.py:211
+#: smart/interfaces/gtk/interactive.py:220
+#: smart/interfaces/qt/interactive.py:211
+msgid "Hide Non-upgrades"
+msgstr "Dölj icke-uppgraderingsbara"
+
+#: trunk/interfaces/gtk/interactive.py:212
+#: smart/interfaces/gtk/interactive.py:221
+#: smart/interfaces/qt/interactive.py:212
+msgid "Hide Installed"
+msgstr "Dölj installerade"
+
+#: trunk/interfaces/gtk/interactive.py:213
+#: smart/interfaces/gtk/interactive.py:222
+#: smart/interfaces/qt/interactive.py:213
+msgid "Hide Uninstalled"
+msgstr "Dölj oinstallerade"
+
+#: trunk/interfaces/gtk/interactive.py:214
+#: smart/interfaces/gtk/interactive.py:223
+#: smart/interfaces/qt/interactive.py:214
+msgid "Hide Unmarked"
+msgstr "Dölj omarkerade"
+
+#: trunk/interfaces/gtk/interactive.py:215
+#: smart/interfaces/gtk/interactive.py:224
+#: smart/interfaces/qt/interactive.py:215
+msgid "Hide Old"
+msgstr "Dölj gamla"
+
+#: trunk/interfaces/gtk/interactive.py:222
+#: smart/interfaces/gtk/interactive.py:231
+#: smart/interfaces/qt/interactive.py:222
+msgid "Groups"
+msgstr "Grupper"
+
+#: trunk/interfaces/gtk/interactive.py:224
+#: smart/interfaces/gtk/interactive.py:233
+#: smart/interfaces/qt/interactive.py:224
+msgid "Channels & Groups"
+msgstr "Kanaler och grupper"
+
+#: trunk/interfaces/gtk/interactive.py:225 smart/plugins/channelsync.py:139
+#: smart/interfaces/gtk/interactive.py:234
+#: smart/interfaces/qt/interactive.py:225
+msgid "None"
+msgstr "Ingen"
+
+#: trunk/interfaces/gtk/interactive.py:275
+#: smart/interfaces/gtk/interactive.py:284
+#: smart/interfaces/qt/interactive.py:275
+msgid "Search:"
+msgstr "Sök:"
+
+#: trunk/interfaces/gtk/interactive.py:315
+#: smart/interfaces/gtk/interactive.py:324
+#: smart/interfaces/qt/interactive.py:315
+msgid "Automatic"
+msgstr "Automatisk"
+
+#: trunk/interfaces/gtk/interactive.py:373
+#: smart/interfaces/qt/interactive.py:373
+msgid ""
+"You are using the package manager.\n"
+"This tool allow you to install, update and remove the software.\n"
+"Is recommended that the channels informations are updated.\n"
+"Do you want to update them automatically now?"
+msgstr ""
+
+#: trunk/interfaces/gtk/interactive.py:453
+#: smart/interfaces/qt/interactive.py:453
+msgid ""
+"You are updating the entire system.\n"
+"Is recommended that the channels informations are updated.\n"
+"Do you want to update automatically now?"
+msgstr ""
+
+#: trunk/interfaces/gtk/interactive.py:472
+#: smart/interfaces/gtk/interactive.py:465
+#: smart/interfaces/qt/interactive.py:472
+msgid "Apply marked changes now?"
+msgstr "Verkställ markerade ändringar nu?"
+
+#: trunk/interfaces/gtk/interactive.py:475
+#: smart/interfaces/text/interactive.py:370
+#: smart/interfaces/gtk/interactive.py:468
+#: smart/interfaces/qt/interactive.py:475
+msgid "No interesting upgrades available!"
+msgstr "Inga intressanta uppgraderingar tillgängliga!"
+
+#: trunk/interfaces/gtk/interactive.py:560
+#: smart/interfaces/gtk/interactive.py:553
+#: smart/interfaces/qt/interactive.py:560
+msgid "Keep"
+msgstr "Behåll"
+
+#: trunk/interfaces/gtk/interactive.py:569
+#: smart/interfaces/gtk/interactive.py:562
+#: smart/interfaces/qt/interactive.py:569
+msgid "Fix problems"
+msgstr "Rätta till problem"
+
+#: trunk/interfaces/gtk/interactive.py:600
+#: smart/interfaces/gtk/interactive.py:593
+#: smart/interfaces/qt/interactive.py:600
+msgid "Unlock this version"
+msgstr "Lås upp den här versionen"
+
+#: trunk/interfaces/gtk/interactive.py:612
+#: smart/interfaces/gtk/interactive.py:605
+#: smart/interfaces/qt/interactive.py:612
+msgid "Lock this version"
+msgstr "Lås den här versionen"
+
+#: trunk/interfaces/gtk/interactive.py:630
+#: smart/interfaces/gtk/interactive.py:623
+#: smart/interfaces/qt/interactive.py:630
+msgid "Unlock all versions"
+msgstr "Lås upp alla versioner"
+
+#: trunk/interfaces/gtk/interactive.py:642
+#: smart/interfaces/gtk/interactive.py:635
+#: smart/interfaces/qt/interactive.py:642
+msgid "Lock all versions"
+msgstr "Lås alla versioner"
+
+#: trunk/interfaces/gtk/interactive.py:673
+#: smart/interfaces/gtk/interactive.py:666
+#: smart/interfaces/qt/interactive.py:673
+msgid "Checking relations..."
+msgstr "Kontrollerar relationer..."
+
+#: trunk/interfaces/gtk/interactive.py:676
+#: smart/interfaces/gtk/interactive.py:669
+#: smart/interfaces/qt/interactive.py:676
+msgid "All checked packages have correct relations."
+msgstr "Alla kontrollerade paket har korrekta relationer."
+
+#: trunk/interfaces/gtk/command.py:58 smart/interfaces/gtk/command.py:58
+msgid "Status"
+msgstr "Status"
+
+#: trunk/interfaces/gtk/log.py:40 smart/interfaces/gtk/log.py:40
+msgid "Log"
+msgstr "Logg"
+
+#: trunk/interfaces/gtk/log.py:83 smart/interface.py:134
+#: smart/interfaces/gtk/log.py:83
+msgid "error"
+msgstr "fel"
+
+#: trunk/interfaces/gtk/log.py:83 smart/interface.py:134
+#: smart/interfaces/gtk/log.py:83
+msgid "warning"
+msgstr "varning"
+
+#: trunk/interfaces/gtk/log.py:84 smart/interface.py:135
+#: smart/interfaces/gtk/log.py:84
+msgid "debug"
+msgstr "felsökning"
+
+#: trunk/interfaces/gtk/packageview.py:132
+#: smart/interfaces/gtk/packageview.py:132
+#: smart/interfaces/qt/packageview.py:58 smart/commands/priority.py:98
+msgid "Package"
+msgstr "Paket"
+
+#: trunk/interfaces/gtk/packageview.py:145
+#: smart/interfaces/gtk/packageview.py:145
+#: smart/interfaces/qt/packageview.py:72
+msgid "Version"
+msgstr "Version"
 
 #: smart.py:37
 msgid "smart command [options] [arguments]"
@@ -149,10 +1176,8 @@ msgstr "FLA"
 msgid "set the option given by a name=value pair"
 msgstr "ställ in flaggan som angivits med namn=värde"
 
-#: smart.py:109
-#: smart/util/optparse.py:1402
+#: smart.py:109 smart/option.py:161 smart/util/optparse.py:1402
 #: smart/util/optparse.py:1556
-#: smart/option.py:161
 #, python-format
 msgid "no such option: %s"
 msgstr "ingen sådan flagga: %s"
@@ -167,8 +1192,7 @@ msgstr "Ogiltig flagga: %s"
 msgid "error: %s\n"
 msgstr "fel: %s\n"
 
-#: smart.py:188
-#: smart/interfaces/text/interactive.py:200
+#: smart.py:188 smart/interfaces/text/interactive.py:200
 msgid ""
 "\n"
 "Interrupted\n"
@@ -176,22 +1200,946 @@ msgstr ""
 "\n"
 "Avbröts\n"
 
-#: smart/plugins/debdir.py:33
-msgid "Dynamic DEB Directory"
-msgstr "Dynamisk DEB-katalog"
+#: smart/channel.py:133
+msgid "Unique identification for the channel."
+msgstr "Unik identifiering av kanalen."
 
-#: smart/plugins/aptchannelsync.py:72
-#: smart/plugins/channelsync.py:52
-#: smart/plugins/channelsync.py:88
-#: smart/plugins/channelsync.py:119
-#: smart/plugins/channelsync.py:145
+#: smart/channel.py:135
+msgid "Channel type"
+msgstr "Kanaltyp"
+
+#: smart/channel.py:137
+msgid "Channel name"
+msgstr "Kanalnamn"
+
+#: smart/channel.py:138
+msgid "Manual updates"
+msgstr "Manuella uppdateringar"
+
+#: smart/channel.py:139
+msgid ""
+"If set to a true value, the given channel will only be updated when manually "
+"selected."
+msgstr ""
+"Om inställd till ett sant värde, kommer angiven kanal att endast uppdateras "
+"när den väljs manuellt."
+
+#: smart/channel.py:141
+msgid "Disabled"
+msgstr "Inaktiverad"
+
+#: smart/channel.py:142
+msgid "If set to a true value, the given channel won't be used."
+msgstr ""
+"Om inställd till ett sant värde, kommer angiven kanal inte att användas."
+
+#: smart/channel.py:144
+msgid "Removable"
+msgstr "Flyttbar"
+
+#: smart/channel.py:145
+msgid ""
+"If set to a true value, the given channel will be considered as being "
+"available in a removable media (cdrom, etc)."
+msgstr ""
+"Om inställd till ett sant värde, kommer angiven kanal att anses vara "
+"tillgänglig på ett flyttbart media (cdrom, etc)."
+
+#: smart/channel.py:151
+msgid ""
+"Default priority assigned to all packages available in this channel (0 if "
+"not set). If the exact same package is available in more than one channel, "
+"the highest priority is used."
+msgstr ""
+"Standardprioritet som tilldelas alla paket som är tillgängliga i den här "
+"kanalen (0 om inte inställd). Om exakt samma paket finns tillgängligt i fler "
+"än en kanal, kommer den med högst prioritet att användas."
+
+#: smart/channel.py:168
 #, python-format
-msgid "While using %s: %s"
-msgstr "Vid användning av %s: %s"
+msgid "Unable to create channel of type '%s'"
+msgstr "Kunde inte skapa kanal av typen \"%s\""
+
+#: smart/channel.py:181 smart/channel.py:207
+msgid "Channel has no type"
+msgstr "Kanalen har ingen typ"
+
+#: smart/channel.py:184 smart/channel.py:210
+#, python-format
+msgid "Unknown channel type: %s"
+msgstr "Okänd kanaltyp: %s"
+
+#: smart/channel.py:194 smart/channel.py:222
+#, python-format
+msgid "%s (%s) is a needed field for '%s' channels"
+msgstr "%s (%s) är ett nödvändigt fält \"%s\"-kanaler"
+
+#: smart/channel.py:229 smart/util/strtools.py:104
+msgid "y"
+msgstr "j"
+
+#: smart/channel.py:229 smart/util/strtools.py:104
+#: smart/interfaces/text/interface.py:71
+msgid "yes"
+msgstr "ja"
+
+#: smart/channel.py:229 smart/util/strtools.py:104
+msgid "true"
+msgstr "sant"
+
+#: smart/channel.py:232 smart/util/strtools.py:106
+msgid "n"
+msgstr "n"
+
+#: smart/channel.py:232 smart/util/strtools.py:106
+#: smart/interfaces/text/interface.py:72
+msgid "no"
+msgstr "nej"
+
+#: smart/channel.py:232 smart/util/strtools.py:106
+msgid "false"
+msgstr "falskt"
+
+#: smart/channel.py:235 smart/channel.py:241 smart/channel.py:244
+#, python-format
+msgid "Invalid value for '%s' (%s) field: %s"
+msgstr "Ogiltigt värde för \"%s\" (%s) fält: %s"
+
+#: smart/channel.py:261
+#, python-format
+msgid "Channel '%s' has no type"
+msgstr "Kanalen \"%s\" har ingen typ"
+
+#: smart/channel.py:283
+#, python-format
+msgid "Invalid channel type '%s'"
+msgstr "Ogiltig kanaltyp \"%s\""
+
+#: smart/option.py:35 smart/util/optparse.py:1136
+msgid "show this help message and exit"
+msgstr "visa det här hjälpmeddelandet och avsluta"
+
+#: smart/option.py:37 smart/util/optparse.py:1141
+msgid "show program's version number and exit"
+msgstr "visa programmet versionsnummer och avsluta"
+
+#: smart/option.py:49
+#, python-format
+msgid "Usage: %s\n"
+msgstr "Användning: %s\n"
+
+#: smart/option.py:54 smart/util/optparse.py:1502
+msgid "options"
+msgstr "flaggor"
+
+#: smart/option.py:89
+msgid "examples"
+msgstr "exempel"
+
+#: smart/option.py:172 smart/util/optparse.py:1374 smart/util/optparse.py:1413
+#, python-format
+msgid "%s option requires an argument"
+msgstr "Flaggan %s kräver ett argument"
+
+#: smart/option.py:174 smart/util/optparse.py:1376 smart/util/optparse.py:1415
+#, python-format
+msgid "%s option requires %d arguments"
+msgstr "Flaggan %s kräver %d argument"
+
+#: smart/channels/rpm_hdl.py:60 smart/channels/up2date_mirrors.py:61
+#: smart/channels/red_carpet.py:64 smart/channels/rpm_md.py:140
+#: smart/channels/apt_deb.py:89 smart/channels/apt_deb.py:203
+#: smart/channels/apt_deb.py:238 smart/channels/urpmi.py:107
+#: smart/channels/slack_site.py:59 smart/channels/apt_rpm.py:62
+#: smart/channels/apt_rpm.py:212 smart/channels/mirrors.py:58
+#: smart/channels/yast2.py:52
+#, python-format
+msgid "Failed acquiring information for '%s':"
+msgstr "Misslyckades att få tag på information för \"%s\":"
+
+#: smart/channels/urpmi_info.py:26
+msgid "URPMI Repository"
+msgstr "URPMI-förråd"
+
+#: smart/channels/urpmi_info.py:28
+msgid ""
+"\n"
+"Repository created for Mandriva's URPMI package manager.\n"
+msgstr ""
+"\n"
+"Förråd skapade för Mandrivas pakethanterare URPMI.\n"
+
+#: smart/channels/urpmi_info.py:32 smart/channels/apt_rpm_info.py:32
+#: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32
+#: smart/channels/apt_deb_info.py:32 smart/channels/yast2_info.py:32
+msgid "Base URL"
+msgstr "Bas-URL"
+
+#: smart/channels/urpmi_info.py:33
+msgid ""
+"Base URL where packages or the 'list' file are found under. Using ' with "
+"<hdlurl>' pattern is also supported."
+msgstr ""
+"Bas-URL där paket eller filen \"list\" kan hittas. Använd mönstret ' with "
+"<hdlurl>' stöds också."
+
+#: smart/channels/urpmi_info.py:35 smart/channels/rpm_hdl_info.py:34
+msgid "Header List URL"
+msgstr "Header-list-URL"
+
+#: smart/channels/urpmi_info.py:36
+msgid ""
+"URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
+"given base URL, may be left empty. URLs relative to the Base URL are "
+"supported"
+msgstr ""
+"URL för header-listan (hdlist eller synthesis). Om det finns en hdlist.cz i "
+"angiven bas-URL, kan den utelämnas. URL:er relativa till Bas-URL:en stöds"
+
+#: smart/channels/urpmi_info.py:45
+msgid "Base URL has 'with', but Header List URL was provided"
+msgstr "Bas-URL innehåller \"with\", men Header List-URL:en angavs"
+
+#: smart/channels/urpmi_info.py:49
+msgid "Base URL has invalid 'with' pattern"
+msgstr "Bas-URL innehåller ett ogiltigt \"with\"-mönster"
+
+#: smart/channels/slack_sys.py:48 smart/channels/deb_sys.py:49
+#: smart/channels/deb_dir.py:57 smart/channels/rpm_sys.py:49
+#: smart/channels/rpm_dir.py:57
+#, python-format
+msgid "%s channels cannot be removable"
+msgstr "%s-kanaler kan inte vara flyttbara"
+
+#: smart/channels/apt_rpm_info.py:26
+msgid "APT-RPM Repository"
+msgstr "APT-RPM-förråd"
+
+#: smart/channels/apt_rpm_info.py:28
+msgid ""
+"\n"
+"Repositories created for APT-RPM.\n"
+msgstr ""
+"\n"
+"Förråd skapade för APT-RPM.\n"
+
+#: smart/channels/apt_rpm_info.py:33
+msgid "Base URL of APT-RPM repository, where base/ is located."
+msgstr "Bas-URL för APT-RPM-förrådet, där base/ finns."
+
+#: smart/channels/apt_rpm_info.py:34 smart/channels/apt_deb_info.py:36
+msgid "Components"
+msgstr "Komponenter"
+
+#: smart/channels/apt_rpm_info.py:35 smart/channels/apt_deb_info.py:37
+msgid "Space separated list of components."
+msgstr "Blankstegsseparerad lista över komponenter."
+
+#: smart/channels/apt_rpm_info.py:36 smart/channels/apt_deb_info.py:38
+msgid "Fingerprint"
+msgstr "Fingeravtryck"
+
+#: smart/channels/apt_rpm_info.py:37 smart/channels/apt_deb_info.py:39
+msgid "GPG fingerprint of key signing the channel."
+msgstr "GPG-fingeravtryck för nyckelsignering av kanalen."
+
+#: smart/channels/deb_dir.py:37 smart/channels/rpm_dir.py:37
+#, python-format
+msgid "Channel '%s' has invalid directory: %s"
+msgstr "Kanalen \"%s\" innehåller en ogiltig katalog: %s"
+
+#: smart/channels/slack_sys_info.py:26
+msgid "Slackware Installed Packages"
+msgstr "Installerade Slackware-paket"
+
+#: smart/channels/slack_sys_info.py:28
+msgid ""
+"\n"
+"Installed packages in a slackware system.\n"
+msgstr ""
+"\n"
+"Installerade paket på ett Slackware-system.\n"
+
+#: smart/channels/rpm_sys_info.py:26
+msgid "RPM Installed Packages"
+msgstr "\"Installerade RPM-paket"
+
+#: smart/channels/rpm_sys_info.py:28
+msgid ""
+"\n"
+"Installed packages from the local RPM database.\n"
+msgstr ""
+"\n"
+"Installerade paket från den lokala RPM-databasen.\n"
+
+#: smart/channels/rpm_md.py:68
+#, python-format
+msgid "Failed acquiring release file for '%s':"
+msgstr "Misslyckades med att få tag på Release-filen för \"%s\":"
+
+#: smart/channels/rpm_md.py:83
+#, python-format
+msgid ""
+"Invalid XML file:\n"
+"  %s\n"
+"  %s\n"
+"  %s"
+msgstr ""
+"Ogiltig XML-fil:\n"
+"  %s\n"
+"  %s\n"
+"  %s"
+
+#: smart/channels/rpm_md.py:102
+#, python-format
+msgid "Primary information not found in repository metadata for '%s'"
+msgstr "Primärinformation hittades inte i förrådets metadata för \"%s\""
+
+#: smart/channels/rpm_md.py:130
+#, python-format
+msgid ""
+"Failed to download. You must fetch channel information to acquire needed "
+"filelists.\n"
+"%s: %s"
+msgstr ""
+"Misslyckades med att hämta. Du måste hämta kanalinformationen för att få tag "
+"på\n"
+"de nödvändiga fillistorna.\n"
+"%s: %s"
+
+#: smart/channels/mirrors_info.py:26
+msgid "Mirror Information"
+msgstr "Spegelinformation"
+
+#: smart/channels/mirrors_info.py:28
+msgid ""
+"\n"
+"Mirror information file.\n"
+msgstr ""
+"\n"
+"Spegelinformationsfil.\n"
+
+#: smart/channels/mirrors_info.py:32 smart/channels/up2date_mirrors_info.py:32
+msgid "Mirror File URL"
+msgstr "URL till spegelfil"
+
+#: smart/channels/mirrors_info.py:33 smart/channels/up2date_mirrors_info.py:33
+msgid "URL for the mirror information file"
+msgstr "URL för spegelinformationsfilen"
+
+#: smart/channels/apt_deb.py:122
+#, python-format
+msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
+msgstr ""
+"Kanalen \"%s\" har ett fingeravtryck men hämtning av Release.gpg "
+"misslyckades: %s"
+
+#: smart/channels/apt_deb.py:144 smart/channels/apt_rpm.py:131
+#, python-format
+msgid "Channel '%s' has bad signature"
+msgstr "Kanalen \"%s\" har en felaktig signatur"
+
+#: smart/channels/apt_deb.py:146 smart/channels/apt_rpm.py:133
+#, python-format
+msgid "Channel '%s' signed with unknown key"
+msgstr "Kanalen \"%s\" är signerad med en okänd nyckel"
+
+#: smart/channels/apt_deb.py:172
+#, python-format
+msgid "Component '%s' is not in Release file for channel '%s'"
+msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
+
+#: smart/channels/red_carpet_info.py:26
+msgid "Red Carpet Channel"
+msgstr "Red Carpet-kanal"
+
+#: smart/channels/red_carpet_info.py:28
+msgid ""
+"\n"
+"Channel for the Red Carpet package tool.\n"
+msgstr ""
+"\n"
+"Kanal för paketverktyget Red Carpet.\n"
+
+#: smart/channels/red_carpet_info.py:32 smart/channels/rpm_hdl_info.py:32
+msgid "Base URL for packages"
+msgstr "Bas-URL för paket"
+
+#: smart/channels/red_carpet_info.py:33
+msgid "URL where packages are found"
+msgstr "URL där paket kan hittas"
+
+#: smart/channels/red_carpet_info.py:34
+msgid "URL for packageinfo XML"
+msgstr "URL för packageinfo.xml"
+
+#: smart/channels/red_carpet_info.py:35
+msgid ""
+"URL for packageinfo.xml.gz including filename (option may be ommitted if "
+"file is named packageinfo.xml.gz and is inside the base url)"
+msgstr ""
+"URL för packageinfo.xml.gz, inklusive filnamn (flaggan kan uteslutas om "
+"filen har namnet packageinfo.xml.gz och finns i bas-url:en)"
+
+#: smart/channels/deb_dir_info.py:26
+msgid "DEB Directory"
+msgstr "DEB-katalog"
+
+#: smart/channels/deb_dir_info.py:28
+msgid ""
+"\n"
+"Local directory with DEB packages.\n"
+msgstr ""
+"\n"
+"Lokal katalog med DEB-paket.\n"
+
+#: smart/channels/deb_dir_info.py:32 smart/channels/rpm_dir_info.py:32
+msgid "Directory Path"
+msgstr "Katalogsökväg"
+
+#: smart/channels/deb_dir_info.py:33
+msgid "Path of directory containing DEB packages."
+msgstr "Sökväg till katalog som innehåller DEB-paket."
+
+#: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
+msgid "Recursive"
+msgstr "Rekursivt"
+
+#: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
+msgid "Search for files recursively."
+msgstr "Sök efter filer rekursivt."
+
+#: smart/channels/rpm_hdl_info.py:26
+msgid "RPM Header List"
+msgstr "RPM Header-lista"
+
+#: smart/channels/rpm_hdl_info.py:28
+msgid ""
+"\n"
+"Packages from an RPM Header List.\n"
+msgstr ""
+"\n"
+"Paket från en RPM Header-lista.\n"
+
+#: smart/channels/rpm_hdl_info.py:33
+msgid "Base URL where package files are found"
+msgstr "Bas-URL där paketfiler kan hittas"
+
+#: smart/channels/rpm_hdl_info.py:35
+msgid "URL for the header list"
+msgstr "URL för header-listan"
+
+#: smart/channels/deb_sys_info.py:26
+msgid "DPKG Installed Packages"
+msgstr "Installerade DPKG-paket"
+
+#: smart/channels/deb_sys_info.py:28
+msgid ""
+"\n"
+"Installed packages from dpkg status.\n"
+msgstr ""
+"\n"
+"Installerade  paket från dpkg-status.\n"
+
+#: smart/channels/rpm_md_info.py:26
+msgid "RPM MetaData"
+msgstr "RPM MetaData"
+
+#: smart/channels/rpm_md_info.py:28
+msgid ""
+"\n"
+"Repository created with the rpm-metadata project.\n"
+msgstr ""
+"\n"
+"Förråd skapat med rpm-metadata-projektet.\n"
+
+#: smart/channels/rpm_md_info.py:33
+msgid "URL where repodata/ subdirectory is found"
+msgstr "URL där underkatalogen repodata/ kan hittas"
+
+#: smart/channels/slack_site_info.py:26
+msgid "Slackware Repository"
+msgstr "Slackware-förråd"
+
+#: smart/channels/slack_site_info.py:28
+msgid ""
+"\n"
+"Remote repository with slackware packages.\n"
+msgstr ""
+"\n"
+"Fjärrförråd med Slackware-paket.\n"
+
+#: smart/channels/slack_site_info.py:33
+msgid "Base URL where PACKAGES.TXT is located"
+msgstr "Bas-URL där PACKAGES.TXT finns"
+
+#: smart/channels/rpm_dir_info.py:26
+msgid "RPM Directory"
+msgstr "RPM-katalog"
+
+#: smart/channels/rpm_dir_info.py:28
+msgid ""
+"\n"
+"Local directory with RPM packages.\n"
+msgstr ""
+"\n"
+"Lokal katalog med RPM-paket.\n"
+
+#: smart/channels/rpm_dir_info.py:33
+msgid "Path of directory containing RPM packages."
+msgstr "Sökväg till katalog som innehåller RPM-paket."
+
+#: smart/channels/apt_rpm.py:102
+#, python-format
+msgid "Channel '%s' has fingerprint but is not signed"
+msgstr "Kanalen \"%s\" har ett fingeravtryck men är inte signerad"
+
+#: smart/channels/apt_rpm.py:165
+#, python-format
+msgid "Component '%s' is not in release file for channel '%s'"
+msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
+
+#: smart/channels/apt_deb_info.py:26
+msgid "APT-DEB Repository"
+msgstr "APT-DEB-förråd"
+
+#: smart/channels/apt_deb_info.py:28
+msgid ""
+"\n"
+"Repositories created for APT-DEB.\n"
+msgstr ""
+"\n"
+"Förråd skapade för APT-DEB.\n"
+
+#: smart/channels/apt_deb_info.py:33
+msgid "Base URL of repository, where dists/ is located."
+msgstr "Bas-URL för förråd, där dists/ finns."
+
+#: smart/channels/apt_deb_info.py:34
+msgid "Distribution"
+msgstr "Utgåva"
+
+#: smart/channels/apt_deb_info.py:35
+msgid "Distribution to use."
+msgstr "Utgåva att använda."
+
+#: smart/channels/up2date_mirrors_info.py:26
+msgid "Mirror Information (up2date format)"
+msgstr "Spegelinformation (up2date-format)"
+
+#: smart/channels/up2date_mirrors_info.py:28
+msgid ""
+"\n"
+"Mirror information file, in up2date format.\n"
+msgstr ""
+"\n"
+"Spegelinformationsfil, i up2date-format.\n"
+
+#: smart/channels/yast2.py:104
+msgid "Invalid package file format. Invalid header found."
+msgstr "Ogiltigt paketfilformat. Ogiltigt filhuvud hittades."
+
+#: smart/channels/yast2_info.py:26
+msgid "YaST2 Repository"
+msgstr "YaST2-förråd"
+
+#: smart/channels/yast2_info.py:28
+msgid ""
+"\n"
+"Repositories created for YaST2.\n"
+msgstr ""
+"\n"
+"Förråd skapade för YaST2.\n"
+
+#: smart/channels/yast2_info.py:33
+msgid "Base URL of YaST2 repository, where the 'content' file is located."
+msgstr "Bas-URL för YaST2-förrådet, där filen \"content\" finns."
+
+#: smart/uncompress.py:44
+#, python-format
+msgid "Unknown compressed file: %s"
+msgstr "Okänd komprimerad fil: %s"
+
+#: smart/uncompress.py:55
+msgid "Unsupported file type"
+msgstr "Filtypen stöds inte"
+
+#: smart/interface.py:51
+#, python-format
+msgid "Invalid command '%s'"
+msgstr "Ogiltigt kommando \"%s\""
+
+#: smart/interface.py:92
+msgid "Password"
+msgstr "Lösenord"
+
+#: smart/interface.py:93
+#, python-format
+msgid "A password is needed for '%s'."
+msgstr "Ett lösenord behövs för \"%s\"."
+
+#: smart/interface.py:163
+#, python-format
+msgid "Interface '%s' not available"
+msgstr "Gränssnittet \"%s\" är inte tillgängligt"
+
+#: smart/control.py:85 smart/control.py:276
+#, python-format
+msgid "There's another channel with alias '%s'"
+msgstr "Det finns en annan kanal med aliaset \"%s\""
+
+#: smart/control.py:90
+#, python-format
+msgid "Unable to create channel for file: %s"
+msgstr "Kan inte skapa kanal för fil: %s"
+
+#: smart/control.py:100
+#, python-format
+msgid "Channel not found for '%s'"
+msgstr "Kanal hittades inte för \"%s\""
+
+#: smart/control.py:133
+#, python-format
+msgid "Configuration file not found: %s"
+msgstr "Konfigurationsfilen hittades inte: %s"
+
+#: smart/control.py:148
+#, python-format
+msgid "Can't create datadir at %s"
+msgstr "Kan inta skapa datakatalog på %s"
+
+#: smart/control.py:168
+msgid "Saving cache..."
+msgstr "Sparar cache..."
+
+#: smart/control.py:220
+msgid "Loading cache..."
+msgstr "Läser in cache..."
+
+#: smart/control.py:301
+msgid "Unable to create channel directory."
+msgstr "Kunde inte skapa kanalkatalog."
+
+#: smart/control.py:304
+msgid "Configuration is in readonly mode!"
+msgstr "Konfigurationen är i skrivskyddat läge!"
+
+#: smart/control.py:306
+msgid "Channel information is locked for writing."
+msgstr "Kanalinformationen är låst för skrivning."
+
+#: smart/control.py:308
+msgid "Can't update channels in readonly mode."
+msgstr "Kan inte uppdatera kanaler i skrivskyddat läge."
+
+#: smart/control.py:310
+msgid "Can't update channels with active readers."
+msgstr "Kan inte uppdatera kanaler med aktiva läsare."
+
+#: smart/control.py:346
+#, python-format
+msgid "Fetching information for '%s'..."
+msgstr "Hämtar information för \"%s\"..."
+
+#: smart/control.py:353 smart/control.py:357
+#, python-format
+msgid "Failed fetching channel '%s'"
+msgstr "Misslyckades med att hämta kanalen \"%s\""
+
+#: smart/control.py:411
+#, python-format
+msgid "Package %s is not available for downloading"
+msgstr "Paketet %s är inte tillgängligt för hämtning"
+
+#: smart/control.py:643
+#, python-format
+msgid "No channel available for package %s"
+msgstr "Ingen kanal tillgänglig för paketet %s"
+
+#: smart/control.py:656 smart/commands/install.py:85
+msgid "packages"
+msgstr "paket"
+
+#: smart/control.py:660 smart/commands/install.py:88
+msgid "Failed to download packages:\n"
+msgstr "Misslyckades med att hämta paket:\n"
+
+#: smart/control.py:837
+#, python-format
+msgid "%s is not available for downloading"
+msgstr "%s är inte tillgänglig för hämtning"
+
+#: smart/backends/rpm/base.py:42
+msgid "'rpm' python module is not available"
+msgstr "Python-modulen \"rpm\" finns inte tillgänglig"
+
+#: smart/backends/rpm/base.py:61
+#, python-format
+msgid "Could not create rpm-root at %s: %s"
+msgstr "Kunde inte skapa rpm-root på %s: %s"
+
+#: smart/backends/rpm/base.py:67
+#, python-format
+msgid "Couldn't initizalize rpm database at %s"
+msgstr "Kunde inte initiera rpm-databas på %s"
+
+#: smart/backends/rpm/base.py:70
+#, python-format
+msgid "Initialized new rpm database at %s"
+msgstr "Initierade ny rpm-databas på %s"
+
+#: smart/backends/rpm/redcarpet.py:309
+#, python-format
+msgid "Error parsing %s: %s"
+msgstr "Fel vid tolkning av %s: %s"
+
+#: smart/backends/rpm/pm.py:49 smart/backends/deb/pm.py:135
+#: smart/backends/slack/pm.py:33
+msgid "Committing transaction..."
+msgstr "Verkställer transaktion..."
+
+#: smart/backends/rpm/pm.py:134 smart/backends/deb/pm.py:165
+msgid "Found unbreakable loops:"
+msgstr "Hittade obrytbara slingor:"
+
+# Osäker
+#: smart/backends/rpm/pm.py:139
+msgid "Will ask RPM to order it."
+msgstr "Kommer att fråga RPM att beställa den."
+
+#: smart/backends/rpm/pm.py:201
+#, python-format
+msgid "%s requires %s"
+msgstr "%s kräver %s"
+
+#: smart/backends/rpm/pm.py:203
+#, python-format
+msgid "%s conflicts with %s"
+msgstr "%s är i konflikt med %s"
+
+#: smart/backends/rpm/pm.py:291
+#, python-format
+msgid "Processing %s in %s"
+msgstr "Behandlar %s i %s"
+
+#: smart/backends/rpm/pm.py:292 smart/backends/rpm/pm.py:327
+#, python-format
+msgid "Output from %s:"
+msgstr "Utdata från %s:"
+
+#: smart/backends/rpm/pm.py:307 smart/backends/slack/pm.py:59
+#, python-format
+msgid "Installing %s"
+msgstr "Installerar %s"
+
+#: smart/backends/rpm/pm.py:318
+msgid "Preparing..."
+msgstr "Förbereder..."
+
+#: smart/backends/rpm/pm.py:332 smart/backends/rpm/pm.py:346
+#, python-format
+msgid "Cleaning %s"
+msgstr "Rensar %s"
+
+#: smart/backends/rpm/pm.py:334 smart/backends/rpm/pm.py:348
+#: smart/backends/slack/pm.py:87
+#, python-format
+msgid "Removing %s"
+msgstr "Tar bort %s"
+
+#: smart/backends/rpm/header.py:406
+msgid ""
+"Your rpm module has no support for readHeaderFromFD()!\n"
+"As a consequence, Smart will consume extra memory."
+msgstr ""
+"Din rpm-modul saknar stöd för readHeaderFromFD()!\n"
+"Smart kommer att konsumera extra minne på grund av det."
+
+#: smart/backends/rpm/header.py:511 smart/backends/rpm/header.py:539
+msgid "Package list with no CRPMTAG_FILENAME tag"
+msgstr "Paketlista utan CRPMTAG_FILENAME-tagg"
+
+#: smart/backends/deb/pm.py:268
+#, python-format
+msgid "Sub-process %s has received a segmentation fault"
+msgstr "Underprocessen %s tog emot ett segmenteringsfel"
+
+#: smart/backends/deb/pm.py:271
+#, python-format
+msgid "Sub-process %s returned an error code (%d)"
+msgstr "Underprocessen %s returnerade en felkod (%d)"
+
+#: smart/backends/deb/pm.py:274
+#, python-format
+msgid "Sub-process %s exited unexpectedly"
+msgstr "Underprocessen %s avslutades oväntat"
+
+#: smart/backends/slack/pm.py:67
+#, python-format
+msgid "Got status %d installing %s:"
+msgstr "Fick status %d installerar %s:"
+
+#: smart/backends/slack/pm.py:70
+#, python-format
+msgid "Installing %s:"
+msgstr "Installerar %s:"
+
+#: smart/backends/slack/pm.py:73
+#, python-format
+msgid "Upgrading %s"
+msgstr "Uppgraderar %s"
+
+#: smart/backends/slack/pm.py:81
+#, python-format
+msgid "Got status %d upgrading %s:"
+msgstr "Fick status %d uppgraderar %s:"
+
+#: smart/backends/slack/pm.py:84
+#, python-format
+msgid "Upgrading %s:"
+msgstr "Uppgraderar %s:"
+
+#: smart/backends/slack/pm.py:95
+#, python-format
+msgid "Got status %d removing %s:"
+msgstr "Fick status %d tar bort %s:"
+
+#: smart/backends/slack/pm.py:98
+#, python-format
+msgid "Removing %s:"
+msgstr "Tar bort %s:"
+
+#: smart/backends/slack/loader.py:68
+#, python-format
+msgid "Invalid package name: %s"
+msgstr "Ogiltigt paketnamn: %s"
+
+#: smart/fetcher.py:168
+#, python-format
+msgid "%s is already in the queue"
+msgstr "%s är redan i kön"
+
+#: smart/fetcher.py:202 smart/fetcher.py:209
+#, python-format
+msgid "Fetching %s..."
+msgstr "Hämtar %s..."
+
+#: smart/fetcher.py:211
+msgid "Fetching information..."
+msgstr "Hämtar information..."
+
+#: smart/fetcher.py:289 smart/fetcher.py:570
+msgid "Cancelled"
+msgstr "Avbruten"
+
+#: smart/fetcher.py:329
+#, python-format
+msgid "Unsupported scheme: %s"
+msgstr "Schemat stöds inte: %s"
+
+#: smart/fetcher.py:344
+msgid "File not found for validation"
+msgstr "Filen hittades inte för validering"
+
+#: smart/fetcher.py:365 smart/cache.py:191
+#, python-format
+msgid "Unexpected size (expected %d, got %d)"
+msgstr "Oväntad storlek (förväntade %d, fick %d)"
+
+#: smart/fetcher.py:379 smart/cache.py:205
+#, python-format
+msgid "Invalid MD5 (expected %s, got %s)"
+msgstr "Ogiltig MD5 (förväntade %s, fick %s)"
+
+#: smart/fetcher.py:393 smart/cache.py:219
+#, python-format
+msgid "Invalid SHA (expected %s, got %s)"
+msgstr "Ogiltig SHA (förväntade %s, fick %s)"
+
+#: smart/fetcher.py:595
+#, python-format
+msgid "Invalid URL: %s"
+msgstr "Ogiltig URL: %s"
+
+#: smart/fetcher.py:874
+msgid "Media not found"
+msgstr "Media hittades inte"
+
+#: smart/fetcher.py:1002 smart/fetcher.py:1203 smart/fetcher.py:1770
+msgid "Server reports unexpected size"
+msgstr "Servern rapporterar oväntad storlek"
+
+#: smart/util/optparse.py:329
+#, python-format
+msgid "usage: %s\n"
+msgstr "användning: %s\n"
+
+#: smart/util/optparse.py:348
+msgid "Usage"
+msgstr "Användning"
+
+#: smart/util/optparse.py:354
+msgid "integer"
+msgstr "heltal"
+
+#: smart/util/optparse.py:355
+msgid "long integer"
+msgstr "långt heltal"
+
+#: smart/util/optparse.py:356
+msgid "floating-point"
+msgstr "flyttal"
+
+#: smart/util/optparse.py:357
+msgid "complex"
+msgstr "komplex"
+
+#: smart/util/optparse.py:365
+#, python-format
+msgid "option %s: invalid %s value: %r"
+msgstr "flaggan %s: ogiltig %s värde: %r"
+
+#: smart/util/optparse.py:373
+#, python-format
+msgid "option %s: invalid choice: %r (choose from %s)"
+msgstr "flaggan %s: ogiltigt val: %r (välj från %s)"
+
+#: smart/util/optparse.py:1164
+msgid "%prog [options]"
+msgstr "%prog [flaggor]"
+
+#: smart/util/optparse.py:1385
+#, python-format
+msgid "%s option does not take a value"
+msgstr "Flaggan %s tar inte emot ett värde"
+
+#: smart/util/optparse.py:1559
+#, python-format
+msgid "ambiguous option: %s (%s?)"
+msgstr "tvetydlig flagga: %s (%s?)"
+
+#: smart/util/strtools.py:66
+msgid "Stalled"
+msgstr "Avstannad"
+
+#: smart/util/ssh.py:53
+msgid "SSH asked for password, but no password is available"
+msgstr "SSH frågade efter ett lösenord, men inget lösenord finns tillgängligt"
 
 #: smart/plugins/rpmdir.py:33
 msgid "Dynamic RPM Directory"
 msgstr "Dynamisk RPM-katalog"
+
+#: smart/plugins/debdir.py:33
+msgid "Dynamic DEB Directory"
+msgstr "Dynamisk DEB-katalog"
+
+#: smart/plugins/channelsync.py:52 smart/plugins/channelsync.py:88
+#: smart/plugins/channelsync.py:119 smart/plugins/channelsync.py:145
+#: smart/plugins/aptchannelsync.py:72
+#, python-format
+msgid "While using %s: %s"
+msgstr "Vid användning av %s: %s"
 
 #: smart/plugins/channelsync.py:83
 #, python-format
@@ -240,11 +2188,6 @@ msgstr "Ja"
 msgid "No"
 msgstr "Nej"
 
-#: smart/plugins/channelsync.py:139
-#: smart/interfaces/gtk/interactive.py:234
-msgid "None"
-msgstr "Ingen"
-
 #: smart/plugins/channelsync.py:157
 #, python-format
 msgid ""
@@ -267,6 +2210,123 @@ msgstr ""
 "Borttagning av kanalen \"%s\" föreslogs.\n"
 "Vill du ta bort den?"
 
+#: smart/interfaces/text/interface.py:63
+#, python-format
+msgid "%s (Y/n): "
+msgstr "%s (J/n): "
+
+#: smart/interfaces/text/interface.py:63
+#, python-format
+msgid "%s (y/N): "
+msgstr "%s (j/N): "
+
+#: smart/interfaces/text/interface.py:78
+#, python-format
+msgid "%s (Continue/cancel): "
+msgstr "%s (Fortsätt/avbryt): "
+
+#: smart/interfaces/text/interface.py:80
+#, python-format
+msgid "%s (continue/Cancel): "
+msgstr "%s (fortsätt/Avbryt): "
+
+#: smart/interfaces/text/interface.py:88
+msgid "continue"
+msgstr "fortsätt"
+
+#: smart/interfaces/text/interface.py:89
+#: smart/interfaces/text/interface.py:103
+msgid "cancel"
+msgstr "avbryt"
+
+#: smart/interfaces/text/interface.py:94
+#, python-format
+msgid "%s (Ok/cancel): "
+msgstr "%s (Ok/avbryt): "
+
+#: smart/interfaces/text/interface.py:94
+#, python-format
+msgid "%s (ok/Cancel): "
+msgstr "%s (ok/Avbryt): "
+
+#: smart/interfaces/text/interface.py:102
+msgid "ok"
+msgstr "ok"
+
+#: smart/interfaces/text/interface.py:133
+msgid "Insert one or more of the following removable channels:"
+msgstr "Lägg till en eller flera av följande borttagna kanaler:"
+
+#: smart/interfaces/text/interface.py:138 smart/commands/channel.py:335
+#: smart/commands/channel.py:348 smart/commands/mirror.py:240
+msgid "Continue?"
+msgstr "Fortsätt?"
+
+#: smart/interfaces/text/interface.py:161
+msgid "(installed)"
+msgstr "(installerat)"
+
+#: smart/interfaces/text/interface.py:163
+msgid "(upgraded)"
+msgstr "(uppgraderat)"
+
+#: smart/interfaces/text/interface.py:165
+msgid "(removed)"
+msgstr "(borttaget)"
+
+#: smart/interfaces/text/interface.py:167
+msgid "(downgraded)"
+msgstr "(nedgraderat)"
+
+#: smart/interfaces/text/interface.py:176 smart/commands/query.py:583
+msgid "Upgrades:"
+msgstr "Uppgraderar:"
+
+#: smart/interfaces/text/interface.py:180
+msgid "Downgrades:"
+msgstr "Nedgraderar:"
+
+#: smart/interfaces/text/interface.py:184 smart/commands/query.py:564
+msgid "Requires:"
+msgstr "Kräver:"
+
+#: smart/interfaces/text/interface.py:188 smart/commands/query.py:530
+msgid "Required By:"
+msgstr "Krävs av:"
+
+#: smart/interfaces/text/interface.py:192 smart/commands/query.py:599
+msgid "Conflicts:"
+msgstr "Konflikter:"
+
+#: smart/interfaces/text/interface.py:198
+#, python-format
+msgid "Kept packages (%d):"
+msgstr "Behållna paket (%d):"
+
+#: smart/interfaces/text/interface.py:203
+#, python-format
+msgid "Upgrading packages (%d):"
+msgstr "Uppgraderar paket (%d):"
+
+#: smart/interfaces/text/interface.py:208
+#, python-format
+msgid "Downgrading packages (%d):"
+msgstr "Nedgraderar paket (%d):"
+
+#: smart/interfaces/text/interface.py:213
+#, python-format
+msgid "Installing packages (%d):"
+msgstr "Installerar paket (%d):"
+
+#: smart/interfaces/text/interface.py:218
+#, python-format
+msgid "Removing packages (%d):"
+msgstr "Tar bort paket (%d):"
+
+#: smart/interfaces/text/interface.py:235
+msgid "Confirm changes?"
+msgstr "Bekräfta ändringar?"
+
 #: smart/interfaces/text/interactive.py:72
 msgid "Documented commands (type help <topic>):"
 msgstr "Dokumenterade kommandon (skriv help <ämne>):"
@@ -285,16 +2345,11 @@ msgid "*** No help on %s"
 msgstr "*** Ingen hjälp för %s"
 
 #: smart/interfaces/text/interactive.py:155
-#: smart/interfaces/text/interactive.py:586
-#: smart/commands/remove.py:93
-#: smart/commands/reinstall.py:90
-#: smart/commands/install.py:117
-#: smart/commands/download.py:86
-#: smart/commands/check.py:129
-#: smart/commands/fix.py:87
-#: smart/commands/upgrade.py:113
-#: smart/commands/query.py:146
-#: smart/commands/info.py:73
+#: smart/interfaces/text/interactive.py:586 smart/commands/remove.py:93
+#: smart/commands/fix.py:87 smart/commands/reinstall.py:90
+#: smart/commands/install.py:117 smart/commands/query.py:146
+#: smart/commands/download.py:86 smart/commands/check.py:129
+#: smart/commands/info.py:73 smart/commands/upgrade.py:113
 #, python-format
 msgid ""
 "'%s' matches no packages. Suggestions:\n"
@@ -304,16 +2359,11 @@ msgstr ""
 "%s"
 
 #: smart/interfaces/text/interactive.py:159
-#: smart/interfaces/text/interactive.py:591
-#: smart/commands/remove.py:97
-#: smart/commands/reinstall.py:94
-#: smart/commands/install.py:121
-#: smart/commands/download.py:90
-#: smart/commands/check.py:133
-#: smart/commands/fix.py:91
-#: smart/commands/upgrade.py:117
-#: smart/commands/query.py:150
-#: smart/commands/info.py:77
+#: smart/interfaces/text/interactive.py:591 smart/commands/remove.py:97
+#: smart/commands/fix.py:91 smart/commands/reinstall.py:94
+#: smart/commands/install.py:121 smart/commands/query.py:150
+#: smart/commands/download.py:90 smart/commands/check.py:133
+#: smart/commands/info.py:77 smart/commands/upgrade.py:117
 #, python-format
 msgid "'%s' matches no packages"
 msgstr "\"%s\" matchar inga paket"
@@ -346,11 +2396,9 @@ msgstr "Kommandot status visar för närvarande markerade ändringar."
 msgid "Usage: status"
 msgstr "Användning: status"
 
-#: smart/interfaces/text/interactive.py:246
-#: smart/commands/channel.py:241
+#: smart/interfaces/text/interactive.py:246 smart/commands/channel.py:241
+#: smart/commands/priority.py:79 smart/commands/priority.py:93
 #: smart/commands/flag.py:91
-#: smart/commands/priority.py:79
-#: smart/commands/priority.py:93
 msgid "Invalid arguments"
 msgstr "Ogiltiga argument"
 
@@ -389,8 +2437,7 @@ msgstr ""
 msgid "Usage: install <pkgname> ..."
 msgstr "Användning: install <paketnamn> ..."
 
-#: smart/interfaces/text/interactive.py:281
-#: smart/commands/install.py:101
+#: smart/interfaces/text/interactive.py:281 smart/commands/install.py:101
 #: smart/commands/install.py:160
 #, python-format
 msgid "%s is already installed"
@@ -411,10 +2458,8 @@ msgstr "Användning: reinstall <paketnamn> ..."
 
 #: smart/interfaces/text/interactive.py:319
 #: smart/interfaces/text/interactive.py:365
-#: smart/interfaces/text/interactive.py:409
-#: smart/commands/remove.py:118
-#: smart/commands/reinstall.py:119
-#: smart/commands/upgrade.py:136
+#: smart/interfaces/text/interactive.py:409 smart/commands/remove.py:118
+#: smart/commands/reinstall.py:119 smart/commands/upgrade.py:136
 #, python-format
 msgid "'%s' matches no installed packages"
 msgstr "\"%s\" matchar inga installerade paket"
@@ -431,11 +2476,6 @@ msgstr "Kommandot upgrade markerar paket för uppgradering."
 #: smart/interfaces/text/interactive.py:339
 msgid "Usage: upgrade <pkgname> ..."
 msgstr "Användning: upgrade <paketnamn> ..."
-
-#: smart/interfaces/text/interactive.py:370
-#: smart/interfaces/gtk/interactive.py:468
-msgid "No interesting upgrades available!"
-msgstr "Inga intressanta uppgraderingar tillgängliga!"
 
 #: smart/interfaces/text/interactive.py:378
 msgid "The remove command marks packages for being removed."
@@ -471,8 +2511,7 @@ msgstr ""
 msgid "Usage: fix <pkgname> ..."
 msgstr "Användning: fix <paketnamn> ..."
 
-#: smart/interfaces/text/interactive.py:484
-#: smart/commands/fix.py:108
+#: smart/interfaces/text/interactive.py:484 smart/commands/fix.py:108
 msgid "No problems to resolve!"
 msgstr "Inga problem att lösa!"
 
@@ -553,13 +2592,11 @@ msgstr "Kommandot update uppdaterar kanalinformationen."
 msgid "Usage: update [<alias>] ..."
 msgstr "Användning: update [<alias>] ..."
 
-#: smart/interfaces/text/interactive.py:678
-#: smart/commands/update.py:82
+#: smart/interfaces/text/interactive.py:678 smart/commands/update.py:82
 msgid "Channels have no new packages."
 msgstr "Kanalerna innehåller inga nya paket."
 
-#: smart/interfaces/text/interactive.py:687
-#: smart/commands/update.py:91
+#: smart/interfaces/text/interactive.py:687 smart/commands/update.py:91
 #, python-format
 msgid "Channels have %d new packages%s"
 msgstr "Kanalerna innehåller %d nya paket%s"
@@ -630,695 +2667,13 @@ msgstr ""
 msgid "Usage: check [options] [<pkgname>] ..."
 msgstr "Användning: check [flaggor] [<paketnamn>] ..."
 
-#: smart/interfaces/text/interface.py:63
-#, python-format
-msgid "%s (Y/n): "
-msgstr "%s (J/n): "
-
-#: smart/interfaces/text/interface.py:63
-#, python-format
-msgid "%s (y/N): "
-msgstr "%s (j/N): "
-
-#: smart/interfaces/text/interface.py:71
-#: smart/util/strtools.py:104
-#: smart/channel.py:229
-msgid "yes"
-msgstr "ja"
-
-#: smart/interfaces/text/interface.py:72
-#: smart/util/strtools.py:106
-#: smart/channel.py:232
-msgid "no"
-msgstr "nej"
-
-#: smart/interfaces/text/interface.py:78
-#, python-format
-msgid "%s (Continue/cancel): "
-msgstr "%s (Fortsätt/avbryt): "
-
-#: smart/interfaces/text/interface.py:80
-#, python-format
-msgid "%s (continue/Cancel): "
-msgstr "%s (fortsätt/Avbryt): "
-
-#: smart/interfaces/text/interface.py:88
-msgid "continue"
-msgstr "fortsätt"
-
-#: smart/interfaces/text/interface.py:89
-#: smart/interfaces/text/interface.py:103
-msgid "cancel"
-msgstr "avbryt"
-
-#: smart/interfaces/text/interface.py:94
-#, python-format
-msgid "%s (Ok/cancel): "
-msgstr "%s (Ok/avbryt): "
-
-#: smart/interfaces/text/interface.py:94
-#, python-format
-msgid "%s (ok/Cancel): "
-msgstr "%s (ok/Avbryt): "
-
-#: smart/interfaces/text/interface.py:102
-msgid "ok"
-msgstr "ok"
-
-#: smart/interfaces/text/interface.py:133
-msgid "Insert one or more of the following removable channels:"
-msgstr "Lägg till en eller flera av följande borttagna kanaler:"
-
-#: smart/interfaces/text/interface.py:138
-#: smart/commands/channel.py:335
-#: smart/commands/channel.py:348
-#: smart/commands/mirror.py:240
-msgid "Continue?"
-msgstr "Fortsätt?"
-
-#: smart/interfaces/text/interface.py:161
-msgid "(installed)"
-msgstr "(installerat)"
-
-#: smart/interfaces/text/interface.py:163
-msgid "(upgraded)"
-msgstr "(uppgraderat)"
-
-#: smart/interfaces/text/interface.py:165
-msgid "(removed)"
-msgstr "(borttaget)"
-
-#: smart/interfaces/text/interface.py:167
-msgid "(downgraded)"
-msgstr "(nedgraderat)"
-
-#: smart/interfaces/text/interface.py:176
-#: smart/commands/query.py:583
-msgid "Upgrades:"
-msgstr "Uppgraderar:"
-
-#: smart/interfaces/text/interface.py:180
-msgid "Downgrades:"
-msgstr "Nedgraderar:"
-
-#: smart/interfaces/text/interface.py:184
-#: smart/commands/query.py:564
-msgid "Requires:"
-msgstr "Kräver:"
-
-#: smart/interfaces/text/interface.py:188
-#: smart/commands/query.py:530
-msgid "Required By:"
-msgstr "Krävs av:"
-
-#: smart/interfaces/text/interface.py:192
-#: smart/commands/query.py:599
-msgid "Conflicts:"
-msgstr "Konflikter:"
-
-#: smart/interfaces/text/interface.py:198
-#, python-format
-msgid "Kept packages (%d):"
-msgstr "Behållna paket (%d):"
-
-#: smart/interfaces/text/interface.py:203
-#, python-format
-msgid "Upgrading packages (%d):"
-msgstr "Uppgraderar paket (%d):"
-
-#: smart/interfaces/text/interface.py:208
-#, python-format
-msgid "Downgrading packages (%d):"
-msgstr "Nedgraderar paket (%d):"
-
-#: smart/interfaces/text/interface.py:213
-#, python-format
-msgid "Installing packages (%d):"
-msgstr "Installerar paket (%d):"
-
-#: smart/interfaces/text/interface.py:218
-#, python-format
-msgid "Removing packages (%d):"
-msgstr "Tar bort paket (%d):"
-
-#: smart/interfaces/text/interface.py:225
-#: smart/interfaces/gtk/changes.py:191
-#, python-format
-msgid "%s of package files are needed. "
-msgstr "%s av paketfiler behövs. "
-
-#: smart/interfaces/text/interface.py:228
-#: smart/interfaces/gtk/changes.py:193
-#, python-format
-msgid "%s will be used."
-msgstr "%s kommer att användas."
-
-#: smart/interfaces/text/interface.py:231
-#: smart/interfaces/gtk/changes.py:196
-#, python-format
-msgid "%s will be freed."
-msgstr "%s kommer att frigöras."
-
-#: smart/interfaces/text/interface.py:235
-msgid "Confirm changes?"
-msgstr "Bekräfta ändringar?"
-
-#: smart/interfaces/gtk/changes.py:36
-msgid "Change Summary"
-msgstr "Ändringssammandrag"
-
-#: smart/interfaces/gtk/changes.py:97
-#: smart/interfaces/gtk/interactive.py:541
-msgid "Remove"
-msgstr "Ta bort"
-
-#: smart/interfaces/gtk/changes.py:97
-msgid "Downgrade"
-msgstr "Nedgradera"
-
-#: smart/interfaces/gtk/changes.py:97
-#: smart/interfaces/gtk/interactive.py:531
-msgid "Reinstall"
-msgstr "Installera om"
-
-#: smart/interfaces/gtk/changes.py:98
-#: smart/interfaces/gtk/interactive.py:522
-msgid "Install"
-msgstr "Installera"
-
-#: smart/interfaces/gtk/changes.py:98
-msgid "Upgrade"
-msgstr "Uppgradera"
-
-#: smart/interfaces/gtk/changes.py:125
-#: smart/interfaces/gtk/packageinfo.py:314
-#: smart/interfaces/gtk/packageinfo.py:366
-msgid "Upgrades"
-msgstr "Uppgraderingar"
-
-#: smart/interfaces/gtk/changes.py:129
-msgid "Downgrades"
-msgstr "Nedgraderingar"
-
-#: smart/interfaces/gtk/changes.py:133
-#: smart/interfaces/gtk/changes.py:170
-#: smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:357
-msgid "Requires"
-msgstr "Kräver"
-
-#: smart/interfaces/gtk/changes.py:136
-#: smart/interfaces/gtk/changes.py:173
-#: smart/interfaces/gtk/packageinfo.py:332
-msgid "Required By"
-msgstr "Krävs av"
-
-#: smart/interfaces/gtk/changes.py:141
-#: smart/interfaces/gtk/changes.py:178
-#: smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:375
-msgid "Conflicts"
-msgstr "Konflikter"
-
-#: smart/interfaces/gtk/changes.py:151
-#, python-format
-msgid "Reinstall (%d)"
-msgstr "Installera om (%d)"
-
-#: smart/interfaces/gtk/changes.py:154
-#, python-format
-msgid "Install (%d)"
-msgstr "Installera (%d)"
-
-#: smart/interfaces/gtk/changes.py:156
-#, python-format
-msgid "Upgrade (%d)"
-msgstr "Uppgradera (%d)"
-
-#: smart/interfaces/gtk/changes.py:158
-#, python-format
-msgid "Downgrade (%d)"
-msgstr "Nedgradera (%d)"
-
-#: smart/interfaces/gtk/changes.py:181
-#, python-format
-msgid "Remove (%d)"
-msgstr "Ta bort (%d)"
-
-#: smart/interfaces/gtk/changes.py:185
-#, python-format
-msgid "Keep (%d)"
-msgstr "Behåll (%d)"
-
-#: smart/interfaces/gtk/priorities.py:33
-msgid "Priorities"
-msgstr "Prioriteter"
-
-#: smart/interfaces/gtk/priorities.py:67
-msgid "Package Name"
-msgstr "Paketnamn"
-
-#: smart/interfaces/gtk/priorities.py:75
-msgid "Channel Alias"
-msgstr "Kanalalias"
-
-#: smart/interfaces/gtk/priorities.py:83
-#: smart/interfaces/gtk/interactive.py:651
-#: smart/commands/priority.py:98
-#: smart/channel.py:150
-msgid "Priority"
-msgstr "Prioritet"
-
-#: smart/interfaces/gtk/priorities.py:129
-#: smart/interfaces/gtk/priorities.py:167
-#: smart/interfaces/gtk/priorities.py:177
-msgid "Name/alias pair already exists!"
-msgstr "Namn/alias finns redan!"
-
-#: smart/interfaces/gtk/priorities.py:192
-msgid "Invalid priority!"
-msgstr "Ogiltig prioritet!"
-
-#: smart/interfaces/gtk/priorities.py:202
-msgid "New Package Priority"
-msgstr "Ny paketprioritet"
-
-#: smart/interfaces/gtk/priorities.py:223
-msgid "Package Name:"
-msgstr "Paketnamn:"
-
-#: smart/interfaces/gtk/priorities.py:232
-msgid "Channel Alias:"
-msgstr "Kanalalias:"
-
-#: smart/interfaces/gtk/priorities.py:242
-#: smart/interfaces/gtk/packageinfo.py:66
-#: smart/commands/info.py:107
-msgid "Priority:"
-msgstr "Prioritet:"
-
-#: smart/interfaces/gtk/priorities.py:292
-msgid "No name provided!"
-msgstr "Inget namn angavs!"
-
-#: smart/interfaces/gtk/priorities.py:312
-msgid "Package Priority"
-msgstr "Paketprioritet"
-
-#: smart/interfaces/gtk/priorities.py:352
-msgid "Package:"
-msgstr "Paket:"
-
-#: smart/interfaces/gtk/priorities.py:375
-msgid "Default priority:"
-msgstr "Standardprioritet"
-
-#: smart/interfaces/gtk/priorities.py:385
-msgid "Channel default"
-msgstr "Kanalstandard"
-
-#: smart/interfaces/gtk/priorities.py:390
-msgid "Set to"
-msgstr "Ställ in till"
-
-#: smart/interfaces/gtk/priorities.py:406
-msgid "Channel priority:"
-msgstr "Kanalprioritet:"
-
-#: smart/interfaces/gtk/channels.py:39
-#: smart/interfaces/gtk/interactive.py:232
-msgid "Channels"
-msgstr "Kanaler"
-
 #: smart/interfaces/gtk/channels.py:84
 msgid "Pri"
 msgstr "Pri"
 
-#: smart/interfaces/gtk/channels.py:86
-#: smart/interfaces/gtk/channels.py:367
-#: smart/channel.py:132
-msgid "Alias"
-msgstr "Alias"
-
-#: smart/interfaces/gtk/channels.py:88
-#: smart/interfaces/gtk/channels.py:369
-#: smart/channel.py:134
-msgid "Type"
-msgstr "Typ"
-
-#: smart/interfaces/gtk/channels.py:90
-#: smart/interfaces/gtk/channels.py:371
-#: smart/channel.py:136
-msgid "Name"
-msgstr "Namn"
-
-#: smart/interfaces/gtk/channels.py:205
-msgid "Select Channel Description"
-msgstr "Välj kanalbeskrivning"
-
-#: smart/interfaces/gtk/channels.py:213
-#: smart/commands/channel.py:183
-#: smart/commands/mirror.py:128
-#: smart/sysconfig.py:78
-#: smart/channel.py:114
-#, python-format
-msgid "File not found: %s"
-msgstr "Filen hittades inte: %s"
-
-#: smart/interfaces/gtk/channels.py:219
-msgid "Description URL"
-msgstr "URL till beskrivning"
-
-#: smart/interfaces/gtk/channels.py:223
-msgid "channel description"
-msgstr "kanalbeskrivning"
-
-#: smart/interfaces/gtk/channels.py:225
-#: smart/commands/channel.py:171
-#, python-format
-msgid "Unable to fetch channel description: %s"
-msgstr "Kunde inte hämta kanalbeskrivning: %s"
-
-#: smart/interfaces/gtk/channels.py:260
-msgid "Select Path"
-msgstr "Välj sökväg"
-
-#: smart/interfaces/gtk/channels.py:268
-#: smart/commands/clean.py:47
-#, python-format
-msgid "Directory not found: %s"
-msgstr "Katalogen hittades inte: %s"
-
-#: smart/interfaces/gtk/channels.py:287
-msgid "No channels detected!"
-msgstr "Inga kanaler detekterades!"
-
-#: smart/interfaces/gtk/channels.py:324
-msgid "Select Channels"
-msgstr "Välj kanaler"
-
-#: smart/interfaces/gtk/channels.py:432
-msgid "Edit Channel"
-msgstr "Redigera kanal"
-
-#: smart/interfaces/gtk/channels.py:518
-#: smart/interfaces/gtk/channels.py:575
-#, python-format
-msgid "Don't know how to handle %s fields"
-msgstr "Vet inte hur %s-fält ska hanteras"
-
-#: smart/interfaces/gtk/channels.py:581
-msgid "Invalid alias!"
-msgstr "Ogiltigt alias!"
-
-#: smart/interfaces/gtk/channels.py:584
-msgid "Alias already in use!"
-msgstr "Aliaset används redan!"
-
-#: smart/interfaces/gtk/channels.py:607
-#: smart/interfaces/gtk/channels.py:704
-#: smart/interfaces/gtk/channels.py:805
-msgid "New Channel"
-msgstr "Ny kanal"
-
-#: smart/interfaces/gtk/channels.py:628
-#: smart/commands/channel.py:135
-msgid "Type:"
-msgstr "Typ:"
-
-#: smart/interfaces/gtk/channels.py:724
-msgid "Method:"
-msgstr "Metod:"
-
-#: smart/interfaces/gtk/channels.py:763
-msgid "Provide channel information"
-msgstr "Ange kanalinformation"
-
-#: smart/interfaces/gtk/channels.py:765
-msgid "Read channel description from local path"
-msgstr "Läs kanalbeskrivning från lokal sökväg"
-
-#: smart/interfaces/gtk/channels.py:767
-msgid "Read channel description from URL"
-msgstr "Läs kanalbeskrivning från url"
-
-#: smart/interfaces/gtk/channels.py:769
-msgid "Detect channel in media (CDROM, DVD, etc)"
-msgstr "Detektera kanal på media (cd-rom, dvd, etc)"
-
-#: smart/interfaces/gtk/channels.py:771
-msgid "Detect channel in local path"
-msgstr "Detektera kanal i lokal sökväg"
-
-#: smart/interfaces/gtk/channels.py:826
-msgid "Media path:"
-msgstr "Mediasökväg:"
-
-#: smart/interfaces/gtk/channels.py:880
-msgid "No local media found!"
-msgstr "Inget lokalt media hittades!"
-
-#: smart/interfaces/gtk/flags.py:35
-#: smart/interfaces/gtk/flags.py:81
-msgid "Flags"
-msgstr "Flaggor"
-
-#: smart/interfaces/gtk/flags.py:127
-msgid "Targets"
-msgstr "Mål"
-
-#: smart/interfaces/gtk/flags.py:199
-#: smart/interfaces/gtk/flags.py:243
-msgid "Flag already exists!"
-msgstr "Flaggan finns redan!"
-
-#: smart/interfaces/gtk/flags.py:228
-#: smart/interfaces/gtk/flags.py:255
-#: smart/interfaces/gtk/flags.py:260
-#: smart/interfaces/gtk/flags.py:449
-msgid "Invalid target!"
-msgstr "Ogiltigt mål!"
-
-#: smart/interfaces/gtk/flags.py:293
-msgid "New Flag"
-msgstr "Ny flagga"
-
-#: smart/interfaces/gtk/flags.py:314
-#: smart/commands/info.py:105
-msgid "Name:"
-msgstr "Namn:"
-
-#: smart/interfaces/gtk/flags.py:358
-msgid "No flag name provided!"
-msgstr "Inget flaggnamn angivet!"
-
-#: smart/interfaces/gtk/flags.py:374
-msgid "New Target"
-msgstr "Nytt mål"
-
-#: smart/interfaces/gtk/flags.py:395
-msgid "Target:"
-msgstr "Mål:"
-
-#: smart/interfaces/gtk/flags.py:405
-msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
-msgstr "Exempel: \"paketnamn\", \"paketnamn = 1.0\" eller \"paketnamn <= 1.0\""
-
-#: smart/interfaces/gtk/flags.py:445
-msgid "No target provided!"
-msgstr "Inget mål angivet!"
-
-#: smart/interfaces/gtk/interactive.py:114
-msgid "_File"
-msgstr "_Arkiv"
-
-#: smart/interfaces/gtk/interactive.py:115
-msgid "Update _Selected Channels..."
-msgstr "Uppdatera _markerade kanaler..."
-
-#: smart/interfaces/gtk/interactive.py:116
-msgid "Update given channels"
-msgstr "Uppdatera angivna kanaler"
-
-#: smart/interfaces/gtk/interactive.py:117
-msgid "_Update Channels"
-msgstr "_Uppdatera kanaler"
-
 #: smart/interfaces/gtk/interactive.py:118
 msgid "Update channels"
 msgstr "Uppdatera kanaler"
-
-#: smart/interfaces/gtk/interactive.py:119
-msgid "_Rebuild Cache"
-msgstr "_Bygg om cache"
-
-#: smart/interfaces/gtk/interactive.py:120
-msgid "Reload package information"
-msgstr "Läs om paketinformation"
-
-#: smart/interfaces/gtk/interactive.py:121
-msgid "_Execute Changes..."
-msgstr "_Verkställ ändringar..."
-
-#: smart/interfaces/gtk/interactive.py:122
-msgid "Apply marked changes"
-msgstr "Verkställ markerade ändringar"
-
-#: smart/interfaces/gtk/interactive.py:123
-msgid "_Quit"
-msgstr "A_vsluta"
-
-#: smart/interfaces/gtk/interactive.py:124
-msgid "Quit application"
-msgstr "Avsluta programmet"
-
-#: smart/interfaces/gtk/interactive.py:126
-msgid "_Edit"
-msgstr "R_edigera"
-
-#: smart/interfaces/gtk/interactive.py:127
-msgid "_Undo"
-msgstr "_Ångra"
-
-#: smart/interfaces/gtk/interactive.py:128
-msgid "Undo last change"
-msgstr "Ångra senaste ändring"
-
-#: smart/interfaces/gtk/interactive.py:129
-msgid "_Redo"
-msgstr "_Gör om"
-
-#: smart/interfaces/gtk/interactive.py:130
-msgid "Redo last undone change"
-msgstr "Gör om senaste ångrade ändring"
-
-#: smart/interfaces/gtk/interactive.py:131
-msgid "Clear Marked Changes"
-msgstr "Rensa markerade ändringar"
-
-#: smart/interfaces/gtk/interactive.py:132
-msgid "Clear all changes"
-msgstr "Rensa alla ändringar"
-
-#: smart/interfaces/gtk/interactive.py:133
-msgid "Check Installed Packages..."
-msgstr "Kontrollera installerade paket..."
-
-#: smart/interfaces/gtk/interactive.py:134
-msgid "Check installed packages"
-msgstr "Kontrollera installerade paket"
-
-#: smart/interfaces/gtk/interactive.py:135
-msgid "Check Uninstalled Packages..."
-msgstr "Kontrollera oinstallerade paket..."
-
-#: smart/interfaces/gtk/interactive.py:136
-msgid "Check uninstalled packages"
-msgstr "Kontrollera oinstallerade paket"
-
-#: smart/interfaces/gtk/interactive.py:137
-msgid "Check All Packages..."
-msgstr "Kontrollera alla paket..."
-
-#: smart/interfaces/gtk/interactive.py:138
-msgid "Check all packages"
-msgstr "Kontrollera alla paket"
-
-#: smart/interfaces/gtk/interactive.py:139
-msgid "Upgrade _All..."
-msgstr "Uppgradera _alla..."
-
-#: smart/interfaces/gtk/interactive.py:140
-msgid "Upgrade all packages"
-msgstr "Uppgradera alla paket"
-
-#: smart/interfaces/gtk/interactive.py:141
-msgid "Fix All _Problems..."
-msgstr "Rätta till alla _problem..."
-
-#: smart/interfaces/gtk/interactive.py:142
-msgid "Fix all problems"
-msgstr "Rätta till alla problem"
-
-#: smart/interfaces/gtk/interactive.py:143
-msgid "_Find..."
-msgstr "_Sök..."
-
-#: smart/interfaces/gtk/interactive.py:144
-msgid "Find packages"
-msgstr "Sök paket"
-
-#: smart/interfaces/gtk/interactive.py:145
-msgid "_Channels"
-msgstr "_Kanaler"
-
-#: smart/interfaces/gtk/interactive.py:146
-msgid "Edit channels"
-msgstr "Redigera kanaler"
-
-#: smart/interfaces/gtk/interactive.py:147
-msgid "_Mirrors"
-msgstr "_Speglar"
-
-#: smart/interfaces/gtk/interactive.py:148
-msgid "Edit mirrors"
-msgstr "Redigera speglar"
-
-#: smart/interfaces/gtk/interactive.py:149
-msgid "_Flags"
-msgstr "_Flaggor"
-
-#: smart/interfaces/gtk/interactive.py:150
-msgid "Edit package flags"
-msgstr "Redigera paketflaggor"
-
-#: smart/interfaces/gtk/interactive.py:151
-msgid "_Priorities"
-msgstr "_Prioriteter"
-
-#: smart/interfaces/gtk/interactive.py:152
-msgid "Edit package priorities"
-msgstr "Redigera paketprioriteter"
-
-#: smart/interfaces/gtk/interactive.py:154
-msgid "_View"
-msgstr "_Visa"
-
-#: smart/interfaces/gtk/interactive.py:155
-msgid "_Tree Style"
-msgstr "_Trädstil"
-
-#: smart/interfaces/gtk/interactive.py:156
-msgid "_Expand All"
-msgstr "_Fäll ut allt"
-
-#: smart/interfaces/gtk/interactive.py:157
-msgid "Expand all items in the tree"
-msgstr "Fäll ut alla poster i trädet"
-
-#: smart/interfaces/gtk/interactive.py:158
-msgid "_Collapse All"
-msgstr "Fäll _in allt"
-
-#: smart/interfaces/gtk/interactive.py:159
-msgid "Collapse all items in the tree"
-msgstr "Fäll in alla poster i trädet"
-
-#: smart/interfaces/gtk/interactive.py:160
-msgid "_Summary Window"
-msgstr "_Sammandragsfönster"
-
-#: smart/interfaces/gtk/interactive.py:161
-msgid "Show summary window"
-msgstr "Visa sammandragsfönster"
-
-#: smart/interfaces/gtk/interactive.py:162
-msgid "_Log Window"
-msgstr "_Loggfönster"
-
-#: smart/interfaces/gtk/interactive.py:163
-msgid "Show log window"
-msgstr "Visa loggfönstret"
 
 #: smart/interfaces/gtk/interactive.py:165
 msgid "_Help"
@@ -1332,689 +2687,223 @@ msgstr "_Om"
 msgid "Show about window"
 msgstr "Visa Om-fönstret"
 
-#: smart/interfaces/gtk/interactive.py:220
-msgid "Hide Non-upgrades"
-msgstr "Dölj icke-uppgraderingsbara"
-
-#: smart/interfaces/gtk/interactive.py:221
-msgid "Hide Installed"
-msgstr "Dölj installerade"
-
-#: smart/interfaces/gtk/interactive.py:222
-msgid "Hide Uninstalled"
-msgstr "Dölj oinstallerade"
-
-#: smart/interfaces/gtk/interactive.py:223
-msgid "Hide Unmarked"
-msgstr "Dölj omarkerade"
-
-#: smart/interfaces/gtk/interactive.py:224
-msgid "Hide Old"
-msgstr "Dölj gamla"
-
-#: smart/interfaces/gtk/interactive.py:231
-msgid "Groups"
-msgstr "Grupper"
-
-#: smart/interfaces/gtk/interactive.py:233
-msgid "Channels & Groups"
-msgstr "Kanaler och grupper"
-
-#: smart/interfaces/gtk/interactive.py:284
-msgid "Search:"
-msgstr "Sök:"
-
-#: smart/interfaces/gtk/interactive.py:324
-msgid "Automatic"
-msgstr "Automatisk"
-
-#: smart/interfaces/gtk/interactive.py:329
-#: smart/interfaces/gtk/progress.py:121
-#: smart/interfaces/gtk/packageinfo.py:108
-msgid "Description"
-msgstr "Beskrivning"
-
-#: smart/interfaces/gtk/interactive.py:465
-msgid "Apply marked changes now?"
-msgstr "Verkställ markerade ändringar nu?"
-
-#: smart/interfaces/gtk/interactive.py:553
-msgid "Keep"
-msgstr "Behåll"
-
-#: smart/interfaces/gtk/interactive.py:562
-msgid "Fix problems"
-msgstr "Rätta till problem"
-
-#: smart/interfaces/gtk/interactive.py:593
-msgid "Unlock this version"
-msgstr "Lås upp den här versionen"
-
-#: smart/interfaces/gtk/interactive.py:605
-msgid "Lock this version"
-msgstr "Lås den här versionen"
-
-#: smart/interfaces/gtk/interactive.py:623
-msgid "Unlock all versions"
-msgstr "Lås upp alla versioner"
-
-#: smart/interfaces/gtk/interactive.py:635
-msgid "Lock all versions"
-msgstr "Lås alla versioner"
-
-#: smart/interfaces/gtk/interactive.py:666
-msgid "Checking relations..."
-msgstr "Kontrollerar relationer..."
-
-#: smart/interfaces/gtk/interactive.py:669
-msgid "All checked packages have correct relations."
-msgstr "Alla kontrollerade paket har korrekta relationer."
-
-#: smart/interfaces/gtk/mirrors.py:32
-msgid "Mirrors"
-msgstr "Speglar"
-
-#: smart/interfaces/gtk/mirrors.py:65
-msgid "Mirror"
-msgstr "Spegel"
-
-# Ursprung?
-#: smart/interfaces/gtk/mirrors.py:145
-msgid "Origin already exists!"
-msgstr "Ursprunget finns redan!"
-
-#: smart/interfaces/gtk/mirrors.py:152
-msgid "Mirror already exists!"
-msgstr "Spegeln finns redan!"
-
-#: smart/interfaces/gtk/mirrors.py:164
-msgid "New Mirror"
-msgstr "Ny spegel"
-
-#: smart/interfaces/gtk/mirrors.py:185
-msgid "Origin URL:"
-msgstr "Ursprungs-URL:"
-
-#: smart/interfaces/gtk/mirrors.py:195
-msgid "Mirror URL:"
-msgstr "Spegel-URL:"
-
-#: smart/interfaces/gtk/mirrors.py:243
-msgid "No origin provided!"
-msgstr "Inget ursprung angavs!"
-
-#: smart/interfaces/gtk/mirrors.py:247
-msgid "No mirror provided!"
-msgstr "Ingen spegel angiven!"
-
-#: smart/interfaces/gtk/command.py:58
-msgid "Status"
-msgstr "Status"
-
-#: smart/interfaces/gtk/__init__.py:36
-msgid "System has no support for gtk python interface"
-msgstr "Systemet har inget stöd för gtk python-gränssnittet"
-
-#: smart/interfaces/gtk/__init__.py:55
-#, python-format
-msgid "Image '%s' not found"
-msgstr "Bilden \"%s\" hittades inte"
-
-#: smart/interfaces/gtk/interface.py:83
-msgid " Continue?"
-msgstr " Fortsätt?"
-
-#: smart/interfaces/gtk/interface.py:104
-msgid "Input"
-msgstr "Inmatning"
-
-#: smart/interfaces/gtk/interface.py:144
-msgid "Insert one or more of the following removable channels:\n"
-msgstr "Lägg till en eller flera av följande flyttbara kanaler:\n"
-
-#: smart/interfaces/gtk/log.py:40
-msgid "Log"
-msgstr "Logg"
-
-#: smart/interfaces/gtk/log.py:83
-#: smart/interface.py:131
-msgid "error"
-msgstr "fel"
-
-#: smart/interfaces/gtk/log.py:83
-#: smart/interface.py:131
-msgid "warning"
-msgstr "varning"
-
-#: smart/interfaces/gtk/log.py:84
-#: smart/interface.py:132
-msgid "debug"
-msgstr "felsökning"
-
-#: smart/interfaces/gtk/progress.py:51
-msgid "Operation Progress"
-msgstr "Åtgärdsförlopp"
-
-#: smart/interfaces/gtk/progress.py:90
-msgid "Progress"
-msgstr "Förlopp"
-
-#: smart/interfaces/gtk/progress.py:97
-msgid "Current"
-msgstr "Aktuellt"
-
-#: smart/interfaces/gtk/progress.py:103
-msgid "Total"
-msgstr "Totalt"
-
-#: smart/interfaces/gtk/progress.py:109
-msgid "Speed"
-msgstr "Hastighet"
-
 #: smart/interfaces/gtk/progress.py:115
 msgid "ETA"
 msgstr "Klar om"
 
-#: smart/interfaces/gtk/packageview.py:132
-#: smart/commands/priority.py:98
-msgid "Package"
-msgstr "Paket"
-
-#: smart/interfaces/gtk/packageview.py:145
-msgid "Version"
-msgstr "Version"
-
-#: smart/interfaces/gtk/packageinfo.py:65
-msgid "Status:"
-msgstr "Status:"
-
-#: smart/interfaces/gtk/packageinfo.py:67
-#: smart/commands/info.py:108
-msgid "Group:"
-msgstr "Grupp:"
-
-#: smart/interfaces/gtk/packageinfo.py:68
-#: smart/commands/info.py:109
-msgid "Installed Size:"
-msgstr "Installerad storlek:"
-
-#: smart/interfaces/gtk/packageinfo.py:69
-#: smart/commands/info.py:121
-msgid "Channels:"
-msgstr "Kanaler:"
-
-#: smart/interfaces/gtk/packageinfo.py:87
-msgid "General"
-msgstr "Allmänt"
-
-#: smart/interfaces/gtk/packageinfo.py:128
-msgid "Content"
-msgstr "Innehåll"
-
-#: smart/interfaces/gtk/packageinfo.py:137
-msgid "Relations"
-msgstr "Relationer"
-
-#: smart/interfaces/gtk/packageinfo.py:155
-#: smart/commands/priority.py:98
-msgid "Channel"
-msgstr "Kanal"
-
-#: smart/interfaces/gtk/packageinfo.py:157
-msgid "Size"
-msgstr "Storlek"
-
-#: smart/interfaces/gtk/packageinfo.py:159
-msgid "URL"
-msgstr "URL"
-
-#: smart/interfaces/gtk/packageinfo.py:163
-#: smart/commands/download.py:144
-msgid "URLs"
-msgstr "URL:er"
-
-#: smart/interfaces/gtk/packageinfo.py:217
-msgid "Installed"
-msgstr "Installerat"
-
-#: smart/interfaces/gtk/packageinfo.py:217
-msgid "Available"
-msgstr "Tillgängligt"
-
-#: smart/interfaces/gtk/packageinfo.py:219
-#: smart/util/strtools.py:56
-msgid "Unknown"
-msgstr "Okänt"
-
-#: smart/interfaces/gtk/packageinfo.py:314
-#: smart/interfaces/gtk/packageinfo.py:347
-msgid "Provides"
-msgstr "Tillhandahåller"
-
-#: smart/interfaces/gtk/packageinfo.py:338
-msgid "Upgraded By"
-msgstr "Uppgraderad av"
-
-#: smart/interfaces/gtk/packageinfo.py:344
-msgid "Conflicted By"
-msgstr "Satt i konflikt av"
-
-#: smart/channels/deb_sys.py:49
-#: smart/channels/deb_dir.py:57
-#: smart/channels/slack_sys.py:48
-#: smart/channels/rpm_dir.py:57
-#: smart/channels/rpm_sys.py:49
-#, python-format
-msgid "%s channels cannot be removable"
-msgstr "%s-kanaler kan inte vara flyttbara"
-
-#: smart/channels/deb_dir.py:37
-#: smart/channels/rpm_dir.py:37
-#, python-format
-msgid "Channel '%s' has invalid directory: %s"
-msgstr "Kanalen \"%s\" innehåller en ogiltig katalog: %s"
-
-#: smart/channels/rpm_md_info.py:26
-msgid "RPM MetaData"
-msgstr "RPM MetaData"
-
-#: smart/channels/rpm_md_info.py:28
+#: smart/interfaces/qt/interface.py:40
 msgid ""
-"\n"
-"Repository created with the rpm-metadata project.\n"
+"You need PyQt installed in your system, please install with your package "
+"manager."
 msgstr ""
-"\n"
-"Förråd skapat med rpm-metadata-projektet.\n"
 
-#: smart/channels/rpm_md_info.py:32
-#: smart/channels/slack_site_info.py:32
-#: smart/channels/urpmi_info.py:32
-#: smart/channels/apt_deb_info.py:32
-#: smart/channels/apt_rpm_info.py:32
-#: smart/channels/yast2_info.py:32
-msgid "Base URL"
-msgstr "Bas-URL"
-
-#: smart/channels/rpm_md_info.py:33
-msgid "URL where repodata/ subdirectory is found"
-msgstr "URL där underkatalogen repodata/ kan hittas"
-
-#: smart/channels/slack_site_info.py:26
-msgid "Slackware Repository"
-msgstr "Slackware-förråd"
-
-#: smart/channels/slack_site_info.py:28
-msgid ""
-"\n"
-"Remote repository with slackware packages.\n"
+#: smart/interfaces/qt/interface.py:84 smart/interfaces/qt/interface.py:99
+#: smart/interfaces/qt/interface.py:116
+msgid "Question..."
 msgstr ""
-"\n"
-"Fjärrförråd med Slackware-paket.\n"
 
-#: smart/channels/slack_site_info.py:33
-msgid "Base URL where PACKAGES.TXT is located"
-msgstr "Bas-URL där PACKAGES.TXT finns"
+#: smart/interfaces/qt/interface.py:101
+#, fuzzy
+msgid "Continue"
+msgstr "Fortsätt?"
 
-#: smart/channels/up2date_mirrors_info.py:26
-msgid "Mirror Information (up2date format)"
-msgstr "Spegelinformation (up2date-format)"
+#: smart/interfaces/qt/interface.py:102
+#, fuzzy
+msgid "Cancel"
+msgstr "avbryt"
 
-#: smart/channels/up2date_mirrors_info.py:28
-msgid ""
-"\n"
-"Mirror information file, in up2date format.\n"
-msgstr ""
-"\n"
-"Spegelinformationsfil, i up2date-format.\n"
+#: smart/media.py:183
+msgid "/proc/mounts not found"
+msgstr "/proc/mounts hittades inte"
 
-#: smart/channels/up2date_mirrors_info.py:32
-#: smart/channels/mirrors_info.py:32
-msgid "Mirror File URL"
-msgstr "URL till spegelfil"
+#: smart/commands/channel.py:32
+msgid "smart channel [options]"
+msgstr "smart channel [flaggor]"
 
-#: smart/channels/up2date_mirrors_info.py:33
-#: smart/channels/mirrors_info.py:33
-msgid "URL for the mirror information file"
-msgstr "URL för spegelinformationsfilen"
-
-#: smart/channels/mirrors.py:58
-#: smart/channels/apt_deb.py:89
-#: smart/channels/apt_deb.py:203
-#: smart/channels/apt_deb.py:238
-#: smart/channels/apt_rpm.py:62
-#: smart/channels/apt_rpm.py:212
-#: smart/channels/yast2.py:52
-#: smart/channels/red_carpet.py:64
-#: smart/channels/rpm_md.py:140
-#: smart/channels/slack_site.py:59
-#: smart/channels/up2date_mirrors.py:61
-#: smart/channels/rpm_hdl.py:60
-#: smart/channels/urpmi.py:107
-#, python-format
-msgid "Failed acquiring information for '%s':"
-msgstr "Misslyckades att få tag på information för \"%s\":"
-
-#: smart/channels/apt_deb.py:122
-#, python-format
-msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
-msgstr "Kanalen \"%s\" har ett fingeravtryck men hämtning av Release.gpg misslyckades: %s"
-
-#: smart/channels/apt_deb.py:144
-#: smart/channels/apt_rpm.py:131
-#, python-format
-msgid "Channel '%s' has bad signature"
-msgstr "Kanalen \"%s\" har en felaktig signatur"
-
-#: smart/channels/apt_deb.py:146
-#: smart/channels/apt_rpm.py:133
-#, python-format
-msgid "Channel '%s' signed with unknown key"
-msgstr "Kanalen \"%s\" är signerad med en okänd nyckel"
-
-#: smart/channels/apt_deb.py:172
-#, python-format
-msgid "Component '%s' is not in Release file for channel '%s'"
-msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
-
-#: smart/channels/rpm_hdl_info.py:26
-msgid "RPM Header List"
-msgstr "RPM Header-lista"
-
-#: smart/channels/rpm_hdl_info.py:28
-msgid ""
-"\n"
-"Packages from an RPM Header List.\n"
-msgstr ""
-"\n"
-"Paket från en RPM Header-lista.\n"
-
-#: smart/channels/rpm_hdl_info.py:32
-#: smart/channels/red_carpet_info.py:32
-msgid "Base URL for packages"
-msgstr "Bas-URL för paket"
-
-#: smart/channels/rpm_hdl_info.py:33
-msgid "Base URL where package files are found"
-msgstr "Bas-URL där paketfiler kan hittas"
-
-#: smart/channels/rpm_hdl_info.py:34
-#: smart/channels/urpmi_info.py:35
-msgid "Header List URL"
-msgstr "Header-list-URL"
-
-#: smart/channels/rpm_hdl_info.py:35
-msgid "URL for the header list"
-msgstr "URL för header-listan"
-
-#: smart/channels/apt_rpm.py:102
-#, python-format
-msgid "Channel '%s' has fingerprint but is not signed"
-msgstr "Kanalen \"%s\" har ett fingeravtryck men är inte signerad"
-
-#: smart/channels/apt_rpm.py:165
-#, python-format
-msgid "Component '%s' is not in release file for channel '%s'"
-msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
-
-#: smart/channels/yast2.py:104
-msgid "Invalid package file format. Invalid header found."
-msgstr "Ogiltigt paketfilformat. Ogiltigt filhuvud hittades."
-
-#: smart/channels/deb_sys_info.py:26
-msgid "DPKG Installed Packages"
-msgstr "Installerade DPKG-paket"
-
-#: smart/channels/deb_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages from dpkg status.\n"
-msgstr ""
-"\n"
-"Installerade  paket från dpkg-status.\n"
-
-#: smart/channels/deb_dir_info.py:26
-msgid "DEB Directory"
-msgstr "DEB-katalog"
-
-#: smart/channels/deb_dir_info.py:28
-msgid ""
-"\n"
-"Local directory with DEB packages.\n"
-msgstr ""
-"\n"
-"Lokal katalog med DEB-paket.\n"
-
-#: smart/channels/deb_dir_info.py:32
-#: smart/channels/rpm_dir_info.py:32
-msgid "Directory Path"
-msgstr "Katalogsökväg"
-
-#: smart/channels/deb_dir_info.py:33
-msgid "Path of directory containing DEB packages."
-msgstr "Sökväg till katalog som innehåller DEB-paket."
-
-#: smart/channels/deb_dir_info.py:34
-#: smart/channels/rpm_dir_info.py:34
-msgid "Recursive"
-msgstr "Rekursivt"
-
-#: smart/channels/deb_dir_info.py:35
-#: smart/channels/rpm_dir_info.py:35
-msgid "Search for files recursively."
-msgstr "Sök efter filer rekursivt."
-
-#: smart/channels/slack_sys_info.py:26
-msgid "Slackware Installed Packages"
-msgstr "Installerade Slackware-paket"
-
-#: smart/channels/slack_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages in a slackware system.\n"
-msgstr ""
-"\n"
-"Installerade paket på ett Slackware-system.\n"
-
-#: smart/channels/rpm_dir_info.py:26
-msgid "RPM Directory"
-msgstr "RPM-katalog"
-
-#: smart/channels/rpm_dir_info.py:28
-msgid ""
-"\n"
-"Local directory with RPM packages.\n"
-msgstr ""
-"\n"
-"Lokal katalog med RPM-paket.\n"
-
-#: smart/channels/rpm_dir_info.py:33
-msgid "Path of directory containing RPM packages."
-msgstr "Sökväg till katalog som innehåller RPM-paket."
-
-#: smart/channels/rpm_sys_info.py:26
-msgid "RPM Installed Packages"
-msgstr "\"Installerade RPM-paket"
-
-#: smart/channels/rpm_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages from the local RPM database.\n"
-msgstr ""
-"\n"
-"Installerade paket från den lokala RPM-databasen.\n"
-
-#: smart/channels/urpmi_info.py:26
-msgid "URPMI Repository"
-msgstr "URPMI-förråd"
-
-#: smart/channels/urpmi_info.py:28
-msgid ""
-"\n"
-"Repository created for Mandriva's URPMI package manager.\n"
-msgstr ""
-"\n"
-"Förråd skapade för Mandrivas pakethanterare URPMI.\n"
-
-#: smart/channels/urpmi_info.py:33
-msgid "Base URL where packages or the 'list' file are found under. Using ' with <hdlurl>' pattern is also supported."
-msgstr "Bas-URL där paket eller filen \"list\" kan hittas. Använd mönstret ' with <hdlurl>' stöds också."
-
-#: smart/channels/urpmi_info.py:36
-msgid "URL for header list (hdlist or synthesis). If it's hdlist.cz inside the given base URL, may be left empty. URLs relative to the Base URL are supported"
-msgstr "URL för header-listan (hdlist eller synthesis). Om det finns en hdlist.cz i angiven bas-URL, kan den utelämnas. URL:er relativa till Bas-URL:en stöds"
-
-#: smart/channels/urpmi_info.py:45
-msgid "Base URL has 'with', but Header List URL was provided"
-msgstr "Bas-URL innehåller \"with\", men Header List-URL:en angavs"
-
-#: smart/channels/urpmi_info.py:49
-msgid "Base URL has invalid 'with' pattern"
-msgstr "Bas-URL innehåller ett ogiltigt \"with\"-mönster"
-
-#: smart/channels/mirrors_info.py:26
-msgid "Mirror Information"
-msgstr "Spegelinformation"
-
-#: smart/channels/mirrors_info.py:28
-msgid ""
-"\n"
-"Mirror information file.\n"
-msgstr ""
-"\n"
-"Spegelinformationsfil.\n"
-
-#: smart/channels/apt_deb_info.py:26
-msgid "APT-DEB Repository"
-msgstr "APT-DEB-förråd"
-
-#: smart/channels/apt_deb_info.py:28
-msgid ""
-"\n"
-"Repositories created for APT-DEB.\n"
-msgstr ""
-"\n"
-"Förråd skapade för APT-DEB.\n"
-
-#: smart/channels/apt_deb_info.py:33
-msgid "Base URL of repository, where dists/ is located."
-msgstr "Bas-URL för förråd, där dists/ finns."
-
-#: smart/channels/apt_deb_info.py:34
-msgid "Distribution"
-msgstr "Utgåva"
-
-#: smart/channels/apt_deb_info.py:35
-msgid "Distribution to use."
-msgstr "Utgåva att använda."
-
-#: smart/channels/apt_deb_info.py:36
-#: smart/channels/apt_rpm_info.py:34
-msgid "Components"
-msgstr "Komponenter"
-
-#: smart/channels/apt_deb_info.py:37
-#: smart/channels/apt_rpm_info.py:35
-msgid "Space separated list of components."
-msgstr "Blankstegsseparerad lista över komponenter."
-
-#: smart/channels/apt_deb_info.py:38
-#: smart/channels/apt_rpm_info.py:36
-msgid "Fingerprint"
-msgstr "Fingeravtryck"
-
-#: smart/channels/apt_deb_info.py:39
-#: smart/channels/apt_rpm_info.py:37
-msgid "GPG fingerprint of key signing the channel."
-msgstr "GPG-fingeravtryck för nyckelsignering av kanalen."
-
-#: smart/channels/apt_rpm_info.py:26
-msgid "APT-RPM Repository"
-msgstr "APT-RPM-förråd"
-
-#: smart/channels/apt_rpm_info.py:28
-msgid ""
-"\n"
-"Repositories created for APT-RPM.\n"
-msgstr ""
-"\n"
-"Förråd skapade för APT-RPM.\n"
-
-#: smart/channels/apt_rpm_info.py:33
-msgid "Base URL of APT-RPM repository, where base/ is located."
-msgstr "Bas-URL för APT-RPM-förrådet, där base/ finns."
-
-#: smart/channels/yast2_info.py:26
-msgid "YaST2 Repository"
-msgstr "YaST2-förråd"
-
-#: smart/channels/yast2_info.py:28
-msgid ""
-"\n"
-"Repositories created for YaST2.\n"
-msgstr ""
-"\n"
-"Förråd skapade för YaST2.\n"
-
-#: smart/channels/yast2_info.py:33
-msgid "Base URL of YaST2 repository, where the 'content' file is located."
-msgstr "Bas-URL för YaST2-förrådet, där filen \"content\" finns."
-
-#: smart/channels/rpm_md.py:68
-#, python-format
-msgid "Failed acquiring release file for '%s':"
-msgstr "Misslyckades med att få tag på Release-filen för \"%s\":"
-
-#: smart/channels/rpm_md.py:83
+#: smart/commands/channel.py:34
 #, python-format
 msgid ""
-"Invalid XML file:\n"
-"  %s\n"
-"  %s\n"
-"  %s"
-msgstr ""
-"Ogiltig XML-fil:\n"
-"  %s\n"
-"  %s\n"
-"  %s"
-
-#: smart/channels/rpm_md.py:102
-#, python-format
-msgid "Primary information not found in repository metadata for '%s'"
-msgstr "Primärinformation hittades inte i förrådets metadata för \"%s\""
-
-#: smart/channels/rpm_md.py:130
-#, python-format
-msgid ""
-"Failed to download. You must fetch channel information to acquire needed filelists.\n"
-"%s: %s"
-msgstr ""
-"Misslyckades med att hämta. Du måste hämta kanalinformationen för att få tag på\n"
-"de nödvändiga fillistorna.\n"
-"%s: %s"
-
-#: smart/channels/red_carpet_info.py:26
-msgid "Red Carpet Channel"
-msgstr "Red Carpet-kanal"
-
-#: smart/channels/red_carpet_info.py:28
-msgid ""
 "\n"
-"Channel for the Red Carpet package tool.\n"
+"This command allows one to manipulate channels. Channels are\n"
+"used as sources of information about installed and available\n"
+"packages. Depending on the channel type, a different backend\n"
+"is used to handle interactions with the operating system and\n"
+"extraction of information from the given channel.\n"
+"\n"
+"The following channel types are available:\n"
+"\n"
+"%(types)s\n"
+"\n"
+"Use --help-type <type> for more information.\n"
 msgstr ""
 "\n"
-"Kanal för paketverktyget Red Carpet.\n"
+"Det här kommandot tillåter att man ändrar kanaler. Kanaler\n"
+"används som informationskällor för installerade och tillgängliga\n"
+"paket. Beroende på kanaltypen, används en annan bakände\n"
+"för att hantera interaktioner med operativsystemet och\n"
+"extrahering av information från angiven kanal.\n"
+"\n"
+"Följande kanaltyper finns tillgängliga:\n"
+"\n"
+"%(types)s\n"
+"\n"
+"Använd --help-type <typ> för mer information.\n"
 
-#: smart/channels/red_carpet_info.py:33
-msgid "URL where packages are found"
-msgstr "URL där paket kan hittas"
+#: smart/commands/channel.py:48
+msgid ""
+"\n"
+"smart channel --help-type apt-rpm\n"
+"smart channel --add mydb type=rpm-sys name=\"RPM Database\"\n"
+"smart channel --add mychannel type=apt-rpm name=\"Some repository\" \\\n"
+"                  baseurl=http://somewhere.com/pub/repos components=extra\n"
+"smart channel --set mychannel priority=-100\n"
+"smart channel --disable mychannel\n"
+"smart channel --remove mychannel\n"
+"smart channel --show\n"
+"smart channel --show mychannel > mychannel.txt\n"
+"smart channel --add ./mychannel.txt\n"
+"smart channel --add http://some.url/mychannel.txt\n"
+"smart channel --add /mnt/cdrom\n"
+msgstr ""
+"\n"
+"smart channel --help-type apt-rpm\n"
+"smart channel --add mindatabas type=rpm-sys name=\"RPM-databas\"\n"
+"smart channel --add minkanal type=apt-rpm name=\"Något förråd\" \\\n"
+"                  baseurl=http://någonstans.se/pub/repos components=extra\n"
+"smart channel --set minkanal priority=-100\n"
+"smart channel --disable minkanal\n"
+"smart channel --remove minkanal\n"
+"smart channel --show\n"
+"smart channel --show minkanal > minkanal.txt\n"
+"smart channel --add ./minkanal.txt\n"
+"smart channel --add http://någon.url/minkanal.txt\n"
+"smart channel --add /mnt/cdrom\n"
 
-#: smart/channels/red_carpet_info.py:34
-msgid "URL for packageinfo XML"
-msgstr "URL för packageinfo.xml"
+#: smart/commands/channel.py:101
+msgid ""
+"argument is an alias and one or more key=value pairs defining a channel, or "
+"a filename/url pointing to a channel description in the same format used by "
+"--show, or a directory path where autodetection will be tried"
+msgstr ""
+"argument är ett alias och en eller flera nyckel=värde som definierar en "
+"kanal, eller ett filnamn/url som pekar på en kanalbeskrivning i samma format "
+"som används av --show, eller en katalogsökväg där automatisk detektering "
+"kommer att göras"
 
-#: smart/channels/red_carpet_info.py:35
-msgid "URL for packageinfo.xml.gz including filename (option may be ommitted if file is named packageinfo.xml.gz and is inside the base url)"
-msgstr "URL för packageinfo.xml.gz, inklusive filnamn (flaggan kan uteslutas om filen har namnet packageinfo.xml.gz och finns i bas-url:en)"
+#: smart/commands/channel.py:108
+msgid ""
+"argument is an alias, and one or more key=value pairs modifying a channel"
+msgstr ""
+"argument är ett alias, och en eller flera nyckel=värde som ändrar en kanal"
+
+#: smart/commands/channel.py:111
+msgid "arguments are channel aliases to be removed"
+msgstr "argument är kanalalias som ska tas bort"
+
+#: smart/commands/channel.py:113
+msgid "remove all existent channels"
+msgstr "ta bort alla befintliga kanaler"
+
+#: smart/commands/channel.py:115
+msgid ""
+"show channels with given aliases, or all channels if no arguments were given"
+msgstr ""
+"visa kanaler med angivna alias, eller alla kanaler om inga argument angavs"
+
+#: smart/commands/channel.py:118
+msgid "edit channels in editor set by $EDITOR"
+msgstr "redigera kanaler i redigeraren angiven av $EDITOR"
+
+#: smart/commands/channel.py:120
+msgid "enable channels with given aliases"
+msgstr "aktivera kanaler med angivna alias"
+
+#: smart/commands/channel.py:122
+msgid "disable channels with given aliases"
+msgstr "inaktivera kanaler med angivna alias"
+
+#: smart/commands/channel.py:124
+msgid "execute without asking"
+msgstr "kör utan att fråga"
+
+#: smart/commands/channel.py:126
+msgid "show further information about given type"
+msgstr "visa ytterligare information om angiven typ"
+
+#: smart/commands/channel.py:139
+msgid "Fields:"
+msgstr "Fält:"
+
+#: smart/commands/channel.py:142
+msgid "(*) These fields are necessary for this type."
+msgstr "(*) Dessa fält är nödvändiga för den här typen."
+
+#: smart/commands/channel.py:187
+msgid "Channel has no alias"
+msgstr "Kanalen har inget alias"
+
+#: smart/commands/channel.py:191 smart/commands/channel.py:253
+#, python-format
+msgid "Argument '%s' has no '='"
+msgstr "Argumentet \"%s\" har inget \"=\""
+
+#: smart/commands/channel.py:198
+msgid "Channel information needed"
+msgstr "Kanalinformation behövs"
+
+#: smart/commands/channel.py:210
+msgid "Include this channel?"
+msgstr "Inkludera den här kanalen?"
+
+#: smart/commands/channel.py:220
+#, python-format
+msgid "Channel alias '%s' is already in use."
+msgstr "Kanalaliaset \"%s\" används redan."
+
+#: smart/commands/channel.py:222
+msgid "Channel alias: "
+msgstr "Kanalalias: "
+
+#: smart/commands/channel.py:233
+msgid "Updating removable channels..."
+msgstr "Uppdaterar flyttbara kanaler..."
+
+#: smart/commands/channel.py:245
+msgid "First argument must be the channel alias"
+msgstr "Första argumentet måste vara kanalaliaset"
+
+#: smart/commands/channel.py:249
+#, python-format
+msgid "Channel with alias '%s' not found"
+msgstr "Kanalen med aliaset \"%s\" hittades inte"
+
+#: smart/commands/channel.py:257
+msgid "Can't change the channel type"
+msgstr "Kan inte ändra kanaltypen"
+
+#: smart/commands/channel.py:259
+msgid "Can't change the channel alias"
+msgstr "Kan inte ändra kanalaliaset"
+
+#: smart/commands/channel.py:273
+#, python-format
+msgid "Remove channel '%s'?"
+msgstr "Ta bort kanalen \"%s\"?"
+
+#: smart/commands/channel.py:275 smart/commands/channel.py:285
+#: smart/commands/channel.py:292 smart/commands/channel.py:300
+#, python-format
+msgid "Channel '%s' not found."
+msgstr "Kanalen \"%s\" hittades inte."
+
+#: smart/commands/channel.py:279
+msgid "Remove ALL channels?"
+msgstr "Ta bort ALLA kanaler?"
+
+#: smart/commands/channel.py:345
+#, python-format
+msgid "Error in '%s' channel: %s"
+msgstr "Fel i \"%s\" kanal: %s"
 
 #: smart/commands/remove.py:29
 msgid "smart remove [options] package ..."
@@ -2046,59 +2935,146 @@ msgstr ""
 "smart remove paketnamn-1.0-1\n"
 "smart remove paketnamn1 paketnamn2\n"
 
-#: smart/commands/remove.py:49
-#: smart/commands/reinstall.py:50
-#: smart/commands/install.py:54
-#: smart/commands/fix.py:52
+#: smart/commands/remove.py:49 smart/commands/fix.py:52
+#: smart/commands/reinstall.py:50 smart/commands/install.py:54
 #: smart/commands/upgrade.py:53
 msgid "split operation in steps"
 msgstr "dela upp åtgärd i steg"
 
-#: smart/commands/remove.py:51
-#: smart/commands/reinstall.py:52
-#: smart/commands/install.py:56
-#: smart/commands/fix.py:54
+#: smart/commands/remove.py:51 smart/commands/fix.py:54
+#: smart/commands/reinstall.py:52 smart/commands/install.py:56
 #: smart/commands/upgrade.py:55
 msgid "dump needed urls and don't commit operation"
 msgstr "skriv ut nödvändiga url:er och verkställ ingenting"
 
-#: smart/commands/remove.py:53
-#: smart/commands/reinstall.py:54
-#: smart/commands/install.py:58
-#: smart/commands/fix.py:56
+#: smart/commands/remove.py:53 smart/commands/fix.py:56
+#: smart/commands/reinstall.py:54 smart/commands/install.py:58
 #: smart/commands/upgrade.py:57
 msgid "download packages and don't commit operation"
 msgstr "hämta ner paket men installera dem inte"
 
-#: smart/commands/remove.py:55
-#: smart/commands/reinstall.py:56
-#: smart/commands/install.py:60
-#: smart/commands/fix.py:58
+#: smart/commands/remove.py:55 smart/commands/fix.py:58
+#: smart/commands/reinstall.py:56 smart/commands/install.py:60
 #: smart/commands/upgrade.py:67
 msgid "include additional information about changes,when possible"
 msgstr "inkludera ytterligare information om ändringar, när möjligt"
 
-#: smart/commands/remove.py:58
-#: smart/commands/reinstall.py:59
-#: smart/commands/install.py:63
-#: smart/commands/fix.py:61
+#: smart/commands/remove.py:58 smart/commands/fix.py:61
+#: smart/commands/reinstall.py:59 smart/commands/install.py:63
 #: smart/commands/upgrade.py:70
 msgid "do not ask for confirmation"
 msgstr "fråga inte efter bekräftelse"
 
-#: smart/commands/remove.py:60
-#: smart/commands/install.py:65
+#: smart/commands/remove.py:60 smart/commands/install.py:65
 #: smart/commands/upgrade.py:72
 msgid "dump package names and versions to stderr but don't commit operation"
-msgstr "skriv ut paketnamnen och versionerna till standard fel, men verkställ ingenting"
+msgstr ""
+"skriv ut paketnamnen och versionerna till standard fel, men verkställ "
+"ingenting"
 
-#: smart/commands/remove.py:120
-#: smart/commands/reinstall.py:121
-#: smart/commands/install.py:164
-#: smart/commands/fix.py:105
+#: smart/commands/remove.py:120 smart/commands/fix.py:105
+#: smart/commands/reinstall.py:121 smart/commands/install.py:164
 #: smart/commands/upgrade.py:142
 msgid "Computing transaction..."
 msgstr "Beräknar transaktion..."
+
+#: smart/commands/fix.py:29
+msgid "smart fix [options] [package] ..."
+msgstr "smart fix [flaggor] [paket] ..."
+
+#: smart/commands/fix.py:31
+msgid ""
+"\n"
+"This command will try to fix dependencies of installed packages\n"
+"which are related to the given packages. Notice that the given\n"
+"packages may be currently installed or not. If no packages are\n"
+"given, all installed packages will be checked.\n"
+msgstr ""
+"\n"
+"Det här kommandot kommer att försöka rätta till beroenden för\n"
+"installerade paket som är relaterade till angivna paket. Observera att\n"
+"de angivna paketen kan vara installerade eller inte. Om inga paket anges,\n"
+"kommer alla installerade paket att kontrolleras.\n"
+
+#: smart/commands/fix.py:38
+msgid ""
+"\n"
+"smart fix\n"
+"smart fix pkgname\n"
+"smart fix '*kgna*'\n"
+"smart fix pkgname-1.0\n"
+"smart fix pkgname-1.0-1\n"
+"smart fix pkgname1 pkgname2\n"
+msgstr ""
+"\n"
+"smart fix\n"
+"smart fix paketnamn\n"
+"smart fix '*ketna*'\n"
+"smart fix paketnamn-1.0\n"
+"smart fix paketnamn-1.0-1\n"
+"smart fix paketnamn1 paketnamn2\n"
+
+#: smart/commands/config.py:28
+msgid "smart config [options]"
+msgstr "smart config [flaggor]"
+
+#: smart/commands/config.py:30
+msgid ""
+"\n"
+"This command allows changing the internal configuration\n"
+"representation arbitrarily. This is supposed to be used\n"
+"by advanced users only, and is generally not needed.\n"
+msgstr ""
+"\n"
+"Det här kommandot tillåter ändring av den interna\n"
+"konfigurationen. Det här är tänkt att endast användas\n"
+"av erfarna användare, och behövs vanligtvis inte.\n"
+
+#: smart/commands/config.py:36
+msgid ""
+"\n"
+"smart config --set someoption.suboption=10\n"
+"smart config --remove someoption\n"
+"smart config --show someoption\n"
+"smart config --show\n"
+msgstr ""
+"\n"
+"smart config --set någonflagga.underflagga=10\n"
+"smart config --remove någonflagga\n"
+"smart config --show någonflagga\n"
+"smart config --show\n"
+
+#: smart/commands/config.py:51
+msgid "set given key=value options"
+msgstr "ställ in angiven nyckel=värde"
+
+#: smart/commands/config.py:53
+msgid "show given options"
+msgstr "visa angivna flaggor"
+
+#: smart/commands/config.py:55
+msgid "remove given options"
+msgstr "ta bort angivna flaggor"
+
+#: smart/commands/config.py:57 smart/commands/priority.py:65
+#: smart/commands/flag.py:78
+msgid "ignore problems"
+msgstr "ignorera problem"
+
+#: smart/commands/config.py:80
+#, python-format
+msgid "Invalid --set argument: %s"
+msgstr "Ogiltigt argument för --set: %s"
+
+#: smart/commands/config.py:98
+#, python-format
+msgid "Invalid --remove argument: %s"
+msgstr "Ogiltigt argument för --remove: %s"
+
+#: smart/commands/config.py:112 smart/commands/config.py:120
+#, python-format
+msgid "Option '%s' not found."
+msgstr "Flaggan \"%s\" hittades inte."
 
 #: smart/commands/reinstall.py:30
 msgid "smart reinstall [options] package ..."
@@ -2179,108 +3155,6 @@ msgstr "Totalt antal Uppgraderar:"
 msgid "Total Conflicts:"
 msgstr "Totalt antal Konflikter:"
 
-#: smart/commands/config.py:28
-msgid "smart config [options]"
-msgstr "smart config [flaggor]"
-
-#: smart/commands/config.py:30
-msgid ""
-"\n"
-"This command allows changing the internal configuration\n"
-"representation arbitrarily. This is supposed to be used\n"
-"by advanced users only, and is generally not needed.\n"
-msgstr ""
-"\n"
-"Det här kommandot tillåter ändring av den interna\n"
-"konfigurationen. Det här är tänkt att endast användas\n"
-"av erfarna användare, och behövs vanligtvis inte.\n"
-
-#: smart/commands/config.py:36
-msgid ""
-"\n"
-"smart config --set someoption.suboption=10\n"
-"smart config --remove someoption\n"
-"smart config --show someoption\n"
-"smart config --show\n"
-msgstr ""
-"\n"
-"smart config --set någonflagga.underflagga=10\n"
-"smart config --remove någonflagga\n"
-"smart config --show någonflagga\n"
-"smart config --show\n"
-
-#: smart/commands/config.py:51
-msgid "set given key=value options"
-msgstr "ställ in angiven nyckel=värde"
-
-#: smart/commands/config.py:53
-msgid "show given options"
-msgstr "visa angivna flaggor"
-
-#: smart/commands/config.py:55
-msgid "remove given options"
-msgstr "ta bort angivna flaggor"
-
-#: smart/commands/config.py:57
-#: smart/commands/flag.py:78
-#: smart/commands/priority.py:65
-msgid "ignore problems"
-msgstr "ignorera problem"
-
-#: smart/commands/config.py:80
-#, python-format
-msgid "Invalid --set argument: %s"
-msgstr "Ogiltigt argument för --set: %s"
-
-#: smart/commands/config.py:98
-#, python-format
-msgid "Invalid --remove argument: %s"
-msgstr "Ogiltigt argument för --remove: %s"
-
-#: smart/commands/config.py:112
-#: smart/commands/config.py:120
-#, python-format
-msgid "Option '%s' not found."
-msgstr "Flaggan \"%s\" hittades inte."
-
-#: smart/commands/search.py:25
-msgid ""
-"\n"
-"Usage: smart search expression ...\n"
-"\n"
-"This command allows searching for the given expressions\n"
-"in the name, summary, and description of known packages.\n"
-"\n"
-"Options:\n"
-"  -h, --help  Show this help message and exit\n"
-"\n"
-"Examples:\n"
-"  smart search ldap\n"
-"  smart search kernel module\n"
-"  smart search rpm 'package manager'\n"
-"  smart search pkgname\n"
-"  smart search 'pkgn*e'\n"
-msgstr ""
-"\n"
-"Användning: smart search uttryck ...\n"
-"\n"
-"Det här kommandot tillåter sökning efter angivna uttryck\n"
-"i namnet, sammandraget samt beskrivning av kända paket.\n"
-"\n"
-"Flaggor:\n"
-"  -h, --help  Visa det här hjälpmeddelandet och avsluta\n"
-"\n"
-"Exempel:\n"
-"  smart search ldap\n"
-"  smart search kernel module\n"
-"  smart search rpm 'pakethanterare'\n"
-"  smart search paketnamn\n"
-"  smart search 'paketn*n'\n"
-
-#: smart/commands/nothing.py:26
-msgid "smart test [options]"
-msgstr "smart test [flaggor]"
-
 #: smart/commands/install.py:31
 msgid "smart install [options] package ..."
 msgstr "smart install [flaggor] paket ..."
@@ -2317,24 +3191,12 @@ msgstr ""
 "smart install ./någotpaket.fil\n"
 "smart install http://någon.url/någon/sökväg/någotpaket.fil\n"
 
-#: smart/commands/install.py:85
-#: smart/control.py:660
-msgid "packages"
-msgstr "paket"
-
-#: smart/commands/install.py:88
-#: smart/control.py:664
-msgid "Failed to download packages:\n"
-msgstr "Misslyckades med att hämta paket:\n"
-
-#: smart/commands/install.py:135
-#: smart/commands/download.py:104
+#: smart/commands/install.py:135 smart/commands/download.py:104
 #, python-format
 msgid "%s (for %s) is already installed"
 msgstr "%s (för %s) är redan installerat"
 
-#: smart/commands/install.py:148
-#: smart/commands/download.py:117
+#: smart/commands/install.py:148 smart/commands/download.py:117
 #, python-format
 msgid ""
 "There are multiple matches for '%s':\n"
@@ -2343,317 +3205,172 @@ msgstr ""
 "Det finns flera sökträffar för \"%s\":\n"
 "%s"
 
-#: smart/commands/download.py:31
-msgid "smart download [options] package ..."
-msgstr "smart download [flaggor] paket ..."
+#: smart/commands/query.py:33
+msgid "smart query [options] [package] ..."
+msgstr "smart query [flaggor] [paket] ..."
 
-#: smart/commands/download.py:33
+#: smart/commands/query.py:35
 msgid ""
 "\n"
-"This command allows downloading one or more given packages.\n"
+"This command allows querying the known packages in many\n"
+"different ways. Check also the 'search' command.\n"
 msgstr ""
 "\n"
-"Det här kommandot tillåter hämtning av ett eller flera angivna paket.\n"
+"Det här kommandot tillåter uppslag mot kända paket på flera\n"
+"olika sätt. Se även kommandot \"search\".\n"
 
-#: smart/commands/download.py:37
+#: smart/commands/query.py:40
 msgid ""
 "\n"
-"smart download pkgname\n"
-"smart download '*kgna*'\n"
-"smart download pkgname-1.0\n"
-"smart download pkgname-1.0-1\n"
-"smart download pkgname1 pkgname2\n"
-"smart download pkgname --urls 2> pkgname-url.txt\n"
-"smart download --from-urls pkgname-url.txt\n"
-"smart download --from-urls http://some.url/some/path/somefile\n"
+"smart query pkgname\n"
+"smart query '*kgnam*'\n"
+"smart query pkgname-1.0\n"
+"smart query pkgname --show-requires\n"
+"smart query --requires libpkg.so --show-providedby\n"
+"smart query --installed\n"
+"smart query --summary ldap\n"
 msgstr ""
 "\n"
-"smart download paketnamn\n"
-"smart download '*ketna*'\n"
-"smart download paketnamn-1.0\n"
-"smart download paketnamn-1.0-1\n"
-"smart download paketnamn1 paketnamn2\n"
-"smart download paketnamn --urls 2> paketnamn-url.txt\n"
-"smart download --from-urls paketnamn-url.txt\n"
-"smart download --from-urls http://någon.url/någon/sökväg/någonfil\n"
+"smart query paketnamn\n"
+"smart query '*ketnam*'\n"
+"smart query paketnamn-1.0\n"
+"smart query paketnamn --show-requires\n"
+"smart query --requires libpkg.so --show-providedby\n"
+"smart query --installed\n"
+"smart query --summary ldap\n"
 
-#: smart/commands/download.py:55
-msgid "packages will be saved in given directory"
-msgstr "paket kommer att sparas i angiven katalog"
+#: smart/commands/query.py:58
+msgid "consider only installed packages"
+msgstr "endast installerade paket"
 
-#: smart/commands/download.py:57
-msgid "dump needed urls and don't download packages"
-msgstr "skriv ut nödvändiga url:er och hämta inga paket"
+#: smart/commands/query.py:60
+msgid "show only packages providing the given dependency"
+msgstr "visa endas paket som tillhandahåller angivet beroende"
 
-#: smart/commands/download.py:59
-msgid "download files from the given urls and/or from the given files with lists of urls"
-msgstr "hämta ner filer från angivna url:er och/eller från de angivna filerna med listor av url:er"
+#: smart/commands/query.py:63
+msgid "show only packages requiring the given dependency"
+msgstr "visa endast paket som kräver det angivna beroendet"
 
-#: smart/commands/download.py:64
-msgid "Directory not found:"
-msgstr "Katalogen hittades inte:"
+#: smart/commands/query.py:66
+msgid "show only packages conflicting with the given dependency"
+msgstr "visa endast paket som är i konflikt med angivet beroende"
 
-#: smart/commands/download.py:143
-#, python-format
-msgid "Argument is not a file nor url: %s"
-msgstr "Argumentet är varken en fil eller url: %s"
+#: smart/commands/query.py:69
+msgid "show only packages upgrading the given dependency"
+msgstr "visa endast paket som uppgraderar det angivna beroendet"
 
-#: smart/commands/channel.py:32
-msgid "smart channel [options]"
-msgstr "smart channel [flaggor]"
+#: smart/commands/query.py:72
+msgid "show only packages which match given name"
+msgstr "visa endast paket som matchar angivet namn"
 
-#: smart/commands/channel.py:34
-#, python-format
+#: smart/commands/query.py:74
+msgid "show only packages which match given summary"
+msgstr "visa endast paket som matchar angivet sammandrag"
+
+#: smart/commands/query.py:76
+msgid "show only packages which match given description"
+msgstr "visa endast paket som matchar angiven beskrivning"
+
+#: smart/commands/query.py:79
 msgid ""
-"\n"
-"This command allows one to manipulate channels. Channels are\n"
-"used as sources of information about installed and available\n"
-"packages. Depending on the channel type, a different backend\n"
-"is used to handle interactions with the operating system and\n"
-"extraction of information from the given channel.\n"
-"\n"
-"The following channel types are available:\n"
-"\n"
-"%(types)s\n"
-"\n"
-"Use --help-type <type> for more information.\n"
+"show only packages which include the given path in the available meta "
+"information"
 msgstr ""
-"\n"
-"Det här kommandot tillåter att man ändrar kanaler. Kanaler\n"
-"används som informationskällor för installerade och tillgängliga\n"
-"paket. Beroende på kanaltypen, används en annan bakände\n"
-"för att hantera interaktioner med operativsystemet och\n"
-"extrahering av information från angiven kanal.\n"
-"\n"
-"Följande kanaltyper finns tillgängliga:\n"
-"\n"
-"%(types)s\n"
-"\n"
-"Använd --help-type <typ> för mer information.\n"
+"visa endast paket som inkluderar den angivna sökvägen i den tillgängliga "
+"metainformationen"
 
-#: smart/commands/channel.py:48
+#: smart/commands/query.py:82
 msgid ""
-"\n"
-"smart channel --help-type apt-rpm\n"
-"smart channel --add mydb type=rpm-sys name=\"RPM Database\"\n"
-"smart channel --add mychannel type=apt-rpm name=\"Some repository\" \\\n"
-"                  baseurl=http://somewhere.com/pub/repos components=extra\n"
-"smart channel --set mychannel priority=-100\n"
-"smart channel --disable mychannel\n"
-"smart channel --remove mychannel\n"
-"smart channel --show\n"
-"smart channel --show mychannel > mychannel.txt\n"
-"smart channel --add ./mychannel.txt\n"
-"smart channel --add http://some.url/mychannel.txt\n"
-"smart channel --add /mnt/cdrom\n"
+"show only packages which include the given reference url in the available "
+"meta information"
 msgstr ""
-"\n"
-"smart channel --help-type apt-rpm\n"
-"smart channel --add mindatabas type=rpm-sys name=\"RPM-databas\"\n"
-"smart channel --add minkanal type=apt-rpm name=\"Något förråd\" \\\n"
-"                  baseurl=http://någonstans.se/pub/repos components=extra\n"
-"smart channel --set minkanal priority=-100\n"
-"smart channel --disable minkanal\n"
-"smart channel --remove minkanal\n"
-"smart channel --show\n"
-"smart channel --show minkanal > minkanal.txt\n"
-"smart channel --add ./minkanal.txt\n"
-"smart channel --add http://någon.url/minkanal.txt\n"
-"smart channel --add /mnt/cdrom\n"
+"visa endast paket som inkluderar angiven referens-url i den tillgängliga "
+"metainformationen"
 
-#: smart/commands/channel.py:101
-msgid "argument is an alias and one or more key=value pairs defining a channel, or a filename/url pointing to a channel description in the same format used by --show, or a directory path where autodetection will be tried"
-msgstr "argument är ett alias och en eller flera nyckel=värde som definierar en kanal, eller ett filnamn/url som pekar på en kanalbeskrivning i samma format som används av --show, eller en katalogsökväg där automatisk detektering kommer att göras"
+#: smart/commands/query.py:86
+msgid "hide package version"
+msgstr "dölj paketversion"
 
-#: smart/commands/channel.py:108
-msgid "argument is an alias, and one or more key=value pairs modifying a channel"
-msgstr "argument är ett alias, och en eller flera nyckel=värde som ändrar en kanal"
+#: smart/commands/query.py:88
+msgid "show package summaries"
+msgstr "visa paketsammandrag"
 
-#: smart/commands/channel.py:111
-msgid "arguments are channel aliases to be removed"
-msgstr "argument är kanalalias som ska tas bort"
+#: smart/commands/query.py:90
+msgid "show provides for the given packages"
+msgstr "visa tillhandahållningar för angivna paket"
 
-#: smart/commands/channel.py:113
-msgid "remove all existent channels"
-msgstr "ta bort alla befintliga kanaler"
+#: smart/commands/query.py:92
+msgid "show requires for the given packages"
+msgstr "visa krav för de angivna paketen"
 
-#: smart/commands/channel.py:115
-msgid "show channels with given aliases, or all channels if no arguments were given"
-msgstr "visa kanaler med angivna alias, eller alla kanaler om inga argument angavs"
+#: smart/commands/query.py:94
+msgid "show requires selecting only pre-dependencies"
+msgstr "visa krav för val av endast förberoenden"
 
-#: smart/commands/channel.py:118
-msgid "edit channels in editor set by $EDITOR"
-msgstr "redigera kanaler i redigeraren angiven av $EDITOR"
+#: smart/commands/query.py:96
+msgid "show upgrades for the given packages"
+msgstr "visa uppgraderingar för angivna paket"
 
-#: smart/commands/channel.py:120
-msgid "enable channels with given aliases"
-msgstr "aktivera kanaler med angivna alias"
+#: smart/commands/query.py:98
+msgid "show conflicts for the given packages"
+msgstr "visa konflikter för de angivna paketen"
 
-#: smart/commands/channel.py:122
-msgid "disable channels with given aliases"
-msgstr "inaktivera kanaler med angivna alias"
+#: smart/commands/query.py:100
+msgid "show packages providing dependencies"
+msgstr "visa paket som tillhandahåller beroenden"
 
-#: smart/commands/channel.py:124
-msgid "execute without asking"
-msgstr "kör utan att fråga"
+#: smart/commands/query.py:102
+msgid "show packages requiring provided information"
+msgstr "visa paket som kräver tillhandahållen information"
 
-#: smart/commands/channel.py:126
-msgid "show further information about given type"
-msgstr "visa ytterligare information om angiven typ"
+#: smart/commands/query.py:104
+msgid "show packages upgrading provided information"
+msgstr "visa paket som uppgraderar tillhandahållen information"
 
-#: smart/commands/channel.py:139
-msgid "Fields:"
-msgstr "Fält:"
+#: smart/commands/query.py:106
+msgid "show packages conflicting with provided information"
+msgstr "visa paket som är i konflikt med tillhandahållen information"
 
-#: smart/commands/channel.py:142
-msgid "(*) These fields are necessary for this type."
-msgstr "(*) Dessa fält är nödvändiga för den här typen."
+#: smart/commands/query.py:109
+msgid "show package priority"
+msgstr "visa paketprioritet"
 
-#: smart/commands/channel.py:187
-msgid "Channel has no alias"
-msgstr "Kanalen har inget alias"
+#: smart/commands/query.py:111
+msgid "show channels that include this package"
+msgstr "visa kanaler som inkluderar det här paketet"
 
-#: smart/commands/channel.py:191
-#: smart/commands/channel.py:253
-#, python-format
-msgid "Argument '%s' has no '='"
-msgstr "Argumentet \"%s\" har inget \"=\""
+#: smart/commands/query.py:113
+msgid "enable all --show-* options"
+msgstr "aktivera alla --show-*-flaggor"
 
-#: smart/commands/channel.py:198
-msgid "Channel information needed"
-msgstr "Kanalinformation behövs"
+#: smart/commands/query.py:115
+msgid "change output format"
+msgstr "ändra utdataformat"
 
-#: smart/commands/channel.py:210
-msgid "Include this channel?"
-msgstr "Inkludera den här kanalen?"
+#: smart/commands/query.py:117
+msgid "redirect output to given filename"
+msgstr "omdirigera utdata till angivet filnamn"
 
-#: smart/commands/channel.py:220
-#, python-format
-msgid "Channel alias '%s' is already in use."
-msgstr "Kanalaliaset \"%s\" används redan."
+#: smart/commands/query.py:524
+msgid "Provides:"
+msgstr "Tillhandahåller:"
 
-#: smart/commands/channel.py:222
-msgid "Channel alias: "
-msgstr "Kanalalias: "
+#: smart/commands/query.py:533 smart/commands/query.py:566
+msgid "pre"
+msgstr "för"
 
-#: smart/commands/channel.py:233
-msgid "Updating removable channels..."
-msgstr "Uppdaterar flyttbara kanaler..."
+#: smart/commands/query.py:544
+msgid "Upgraded By:"
+msgstr "Uppgraderad av:"
 
-#: smart/commands/channel.py:245
-msgid "First argument must be the channel alias"
-msgstr "Första argumentet måste vara kanalaliaset"
+#: smart/commands/query.py:554
+msgid "Conflicted By:"
+msgstr "Satt i konflikt av:"
 
-#: smart/commands/channel.py:249
-#, python-format
-msgid "Channel with alias '%s' not found"
-msgstr "Kanalen med aliaset \"%s\" hittades inte"
-
-#: smart/commands/channel.py:257
-msgid "Can't change the channel type"
-msgstr "Kan inte ändra kanaltypen"
-
-#: smart/commands/channel.py:259
-msgid "Can't change the channel alias"
-msgstr "Kan inte ändra kanalaliaset"
-
-#: smart/commands/channel.py:273
-#, python-format
-msgid "Remove channel '%s'?"
-msgstr "Ta bort kanalen \"%s\"?"
-
-#: smart/commands/channel.py:275
-#: smart/commands/channel.py:285
-#: smart/commands/channel.py:292
-#: smart/commands/channel.py:300
-#, python-format
-msgid "Channel '%s' not found."
-msgstr "Kanalen \"%s\" hittades inte."
-
-#: smart/commands/channel.py:279
-msgid "Remove ALL channels?"
-msgstr "Ta bort ALLA kanaler?"
-
-#: smart/commands/channel.py:345
-#, python-format
-msgid "Error in '%s' channel: %s"
-msgstr "Fel i \"%s\" kanal: %s"
-
-#: smart/commands/flag.py:27
-msgid "smart flag [options]"
-msgstr "smart flag [flaggor]"
-
-#: smart/commands/flag.py:29
-msgid ""
-"\n"
-"This command allows one to set, remove, and show package flags.\n"
-"Package flags are used to tune the behavior of some algorithms\n"
-"when dealing with the given packages.\n"
-"\n"
-"Currently known flags are:\n"
-"\n"
-"  lock          - Flagged packages will not be removed, if they\n"
-"                  are currently installed, nor installed, if they\n"
-"                  are currently available.\n"
-"  new           - Flagged packages were considered new packages\n"
-"                  in the repository when the last update was done.\n"
-"                  This flag is automatically manipulated by the\n"
-"                  system.\n"
-"  multi-version - Flagged packages may have more than one version\n"
-"                  installed in the system at the same time\n"
-"                  (backend dependent).\n"
-msgstr ""
-"\n"
-"Det här kommandot tillåter att man ställer in, tar bort och visar\n"
-"paketflaggor. Paketflaggor används för att justera beteendet för vissa\n"
-"algoritmer när angivna paket hanteras.\n"
-"\n"
-"För närvarande kända flaggor:\n"
-"\n"
-"  lock          - Flaggade paket kommer inte att tas bort, om de\n"
-"                  för närvarande är installerade, inte installerade, om de\n"
-"                  för närvarande finns tillgängliga.\n"
-"  new           - Flaggade paket ansågs som nya paket i\n"
-"                  förrådet när senaste uppdateringen gjordes.\n"
-"                  Den här flaggan ändras automatiskt av systemet.\n"
-"  multi-version - Flaggade paket kan ha fler än en version\n"
-"                  installerade i systemet samtidigt\n"
-"                  (beroende på bakände).\n"
-
-#: smart/commands/flag.py:48
-msgid ""
-"\n"
-"smart flag --show\n"
-"smart flag --show new\n"
-"smart flag --set lock pkgname\n"
-"smart flag --remove lock pkgname\n"
-"smart flag --set lock 'pkgname >= 1.0'\n"
-"smart flag --remove lock 'pkgname >= 1.0'\n"
-msgstr ""
-"\n"
-"smart flag --show\n"
-"smart flag --show new\n"
-"smart flag --set lock paketnamn\n"
-"smart flag --remove lock paketnamn\n"
-"smart flag --set lock 'paketnamn >= 1.0'\n"
-"smart flag --remove lock 'paketnamn >= 1.0'\n"
-
-#: smart/commands/flag.py:65
-msgid "set flags given in pairs of flag name/target, where targets may use just the package name, or the package name, relation, and version, such as: lock 'python > 1.0'"
-msgstr "ställ in flaggor angivna i par för flaggnamn/mål, där mål kan använda bara paketnamnet, eller paketnamnet, relation, och version, såsom: lock 'python > 1.0'"
-
-#: smart/commands/flag.py:70
-msgid "remove flags given in pairs of flag name/target, where targets may use just the package name, or the package name, relation, and version, such as: lock 'python > 1.0'"
-msgstr "ta bort flaggor angivna i par för flaggnamn/mål, där mål kan använda bara paketnamnet, eller paketnamnet, relation, och version, såsom: lock 'python > 1.0'"
-
-#: smart/commands/flag.py:75
-msgid "show packages with the flags given as arguments or all flags if no argument was given"
-msgstr "visa paket med flaggorna angivna som argument eller alla flaggor om inget argument angavs"
-
-#: smart/commands/flag.py:96
-#, python-format
-msgid "Invalid target: %s"
-msgstr "Ogiltigt mål: %s"
+#: smart/commands/query.py:573 smart/commands/query.py:589
+#: smart/commands/query.py:605
+msgid "Provided By:"
+msgstr "Tillhandahålls av:"
 
 #: smart/commands/mirror.py:30
 msgid "smart mirror [options]"
@@ -2721,8 +3438,10 @@ msgid ""
 msgstr ""
 "\n"
 "smart mirror --show\n"
-"smart mirror --add ftp://ursprunglig.url/någon/sökväg/ http://spegel.url/sökväg/\n"
-"smart mirror --remove ftp://ursprunglig.url/någon/sökväg/ http://spegel.url/sökväg/\n"
+"smart mirror --add ftp://ursprunglig.url/någon/sökväg/ http://spegel.url/"
+"sökväg/\n"
+"smart mirror --remove ftp://ursprunglig.url/någon/sökväg/ http://spegel.url/"
+"sökväg/\n"
 "smart mirror --add http://någon.url/sökväg/till/mirrors.txt\n"
 "smart mirror --sync http://någon.url/sökväg/till/mirrors.txt\n"
 "smart mirror --clear-history ftp://ursprunglig.url/någon/sökväg/\n"
@@ -2758,20 +3477,32 @@ msgid "show current mirrors"
 msgstr "visa aktuella speglar"
 
 #: smart/commands/mirror.py:91
-msgid "add to the given origin URL the given mirror URL, provided either in pairs, or in a given file/url in the format used by --show"
-msgstr "lägg till angiven spegel-URL i angiven ursprungs-URL, angivet i antingen par, eller i en angiven fil/url i formatet som används av --show"
+msgid ""
+"add to the given origin URL the given mirror URL, provided either in pairs, "
+"or in a given file/url in the format used by --show"
+msgstr ""
+"lägg till angiven spegel-URL i angiven ursprungs-URL, angivet i antingen "
+"par, eller i en angiven fil/url i formatet som används av --show"
 
 #: smart/commands/mirror.py:95
-msgid "remove from the given origin URL the given mirror URL, provided either in pairs, or in a given file/url in the format used by --show"
-msgstr "ta bort från angiven ursprungs-URL den angivna spegel-URL:en, angivet i antingen par, eller i en angiven fil/url i formatet som används av --show"
+msgid ""
+"remove from the given origin URL the given mirror URL, provided either in "
+"pairs, or in a given file/url in the format used by --show"
+msgstr ""
+"ta bort från angiven ursprungs-URL den angivna spegel-URL:en, angivet i "
+"antingen par, eller i en angiven fil/url i formatet som används av --show"
 
 #: smart/commands/mirror.py:99
 msgid "remove all mirrors for the given origin URLs"
 msgstr "ta bort alla speglar från angivna ursprungs-URL:er"
 
 #: smart/commands/mirror.py:101
-msgid "synchronize mirrors from the given file/url, so that origins in the given file will have exactly the specified mirrors"
-msgstr "synkronisera speglar från angiven fil/url, så att ursprunget i angiven fil kommer att innehålla exakt de angivna speglarna"
+msgid ""
+"synchronize mirrors from the given file/url, so that origins in the given "
+"file will have exactly the specified mirrors"
+msgstr ""
+"synkronisera speglar från angiven fil/url, så att ursprunget i angiven fil "
+"kommer att innehålla exakt de angivna speglarna"
 
 #: smart/commands/mirror.py:105
 msgid "edit mirrors in editor set by $EDITOR"
@@ -2782,8 +3513,10 @@ msgid "clear history for the given origins/mirrors, or for all mirrors"
 msgstr "rensa historiken för angivna ursprung/speglar, eller för alla speglar"
 
 #: smart/commands/mirror.py:110
-msgid "show current penalities for origins/mirrors, based on the history information"
-msgstr "visa aktulla straff för ursprung/speglar, baserat på historikinformationen"
+msgid ""
+"show current penalities for origins/mirrors, based on the history information"
+msgstr ""
+"visa aktulla straff för ursprung/speglar, baserat på historikinformationen"
 
 #: smart/commands/mirror.py:120
 msgid "mirror descriptions"
@@ -2806,8 +3539,7 @@ msgid "Invalid arguments for --remove"
 msgstr "Ogiltiga argument för --remove"
 
 # Hmm?
-#: smart/commands/mirror.py:178
-#: smart/commands/mirror.py:185
+#: smart/commands/mirror.py:178 smart/commands/mirror.py:185
 #, python-format
 msgid "Origin not found: %s"
 msgstr "Ursprunget hittades inte: %s"
@@ -2816,74 +3548,6 @@ msgstr "Ursprunget hittades inte: %s"
 #, python-format
 msgid "Mirror not found: %s"
 msgstr "Spegeln hittades inte: %s"
-
-#: smart/commands/check.py:29
-msgid "smart check [options] [package] ..."
-msgstr "smart check [flaggor] [paket] ..."
-
-#: smart/commands/check.py:31
-msgid ""
-"\n"
-"This command will check relations between packages. If no\n"
-"packages are explicitly given, all packages in the selected\n"
-"channels will be checked. Relations of the checked packages\n"
-"will only match packages inside the selected channels.\n"
-"\n"
-"Use the 'fix' command to fix broken relations of\n"
-"installed packages.\n"
-msgstr ""
-"\n"
-"Det här kommandot kontrollerar relationer mellan paket. Om\n"
-"inget paket har uttryckligen angivits, kommer alla paket i de\n"
-"valda kanalerna att kontrolleras. Relationer för de kontrollerade\n"
-"paketen kommer endast matcha paket i de valda kanalerna.\n"
-"\n"
-"Använd kommandot \"fix\" för att rätta till trasiga relationer för\n"
-"installerade paket.\n"
-
-#: smart/commands/check.py:41
-msgid ""
-"\n"
-"smart check\n"
-"smart check pkgname\n"
-"smart check '*kgna*'\n"
-"smart check pkgname-1.0\n"
-"smart check pkgname-1.0-1\n"
-"smart check pkgname1 pkgname2\n"
-msgstr ""
-"\n"
-"smart check\n"
-"smart check paketnamn\n"
-"smart check '*ketna*'\n"
-"smart check paketnamn-1.0\n"
-"smart check paketnamn-1.0-1\n"
-"smart check paketnamn1 paketnamn2\n"
-
-#: smart/commands/check.py:55
-msgid "check packages in all channels"
-msgstr "kontrollera paket i alla kanaler"
-
-#: smart/commands/check.py:57
-msgid "check packages which are in at least one installed channel (default)"
-msgstr "kontrollera paket som finns i åtminstone en installerad kanal (standard)"
-
-#: smart/commands/check.py:60
-msgid "check packages which are in at least one non-installed channel"
-msgstr "kontrollera paket som finns i åtminstone en icke-installerad kanal"
-
-#: smart/commands/check.py:63
-msgid "check packages which are inside the given channels (comma separated aliases)"
-msgstr "kontrollera paket som finns i de angivna kanalerna (kommaseparerade alias)"
-
-#: smart/commands/check.py:101
-#, python-format
-msgid "Channels not found: %s"
-msgstr "Kanalerna hittades inte: %s"
-
-#: smart/commands/check.py:103
-#, python-format
-msgid "Channels are disabled: %s"
-msgstr "Kanalerna är inaktiverade: %s"
 
 #: smart/commands/priority.py:27
 msgid "smart priority [options]"
@@ -2959,36 +3623,6 @@ msgstr "Ogiltig prioritet"
 msgid "Priority not found"
 msgstr "Prioriteten hittades inte"
 
-#: smart/commands/clean.py:27
-msgid "smart clean [options]"
-msgstr "smart clean [flaggor]"
-
-#: smart/commands/clean.py:29
-msgid ""
-"\n"
-"This command cleans the package cache. You can use it to\n"
-"delete old unused files that were left behind because of\n"
-"an incomplete transaction.\n"
-msgstr ""
-"\n"
-"Det här kommandot rensar paketcachen. Du kan använda det\n"
-"för att ta bort gamla oanvända filer som lämnades kvar på\n"
-"grund av en ofullständig transaktion.\n"
-
-#: smart/commands/clean.py:49
-msgid "Removing cached package files..."
-msgstr "Tar bort cachade paketfiler..."
-
-#: smart/commands/clean.py:55
-#, python-format
-msgid "Removed %s"
-msgstr "Tog bort %s"
-
-#: smart/commands/clean.py:57
-#, python-format
-msgid "Can't remove cached package %s: %s"
-msgstr "Kan inte ta bort det cachade paketet %s: %s"
-
 #: smart/commands/update.py:29
 msgid "smart update [options] [channelalias] ..."
 msgstr "smart update [flaggor] [kanalalias] ..."
@@ -3020,269 +3654,238 @@ msgstr ""
 "smart update minkanal1 minkanal2\n"
 
 #: smart/commands/update.py:49
-msgid "only update if the last successful update happened before the given delay"
-msgstr "uppdatera endast om senaste lyckade uppdateringen hände innan angiven tidsperiod"
+msgid ""
+"only update if the last successful update happened before the given delay"
+msgstr ""
+"uppdatera endast om senaste lyckade uppdateringen hände innan angiven "
+"tidsperiod"
 
 #: smart/commands/update.py:73
 #, python-format
 msgid "Argument '%s' is not a channel alias."
 msgstr "Argumentet \"%s\" är inte ett kanalalias."
 
-#: smart/commands/fix.py:29
-msgid "smart fix [options] [package] ..."
-msgstr "smart fix [flaggor] [paket] ..."
+#: smart/commands/download.py:31
+msgid "smart download [options] package ..."
+msgstr "smart download [flaggor] paket ..."
 
-#: smart/commands/fix.py:31
+#: smart/commands/download.py:33
 msgid ""
 "\n"
-"This command will try to fix dependencies of installed packages\n"
-"which are related to the given packages. Notice that the given\n"
-"packages may be currently installed or not. If no packages are\n"
-"given, all installed packages will be checked.\n"
+"This command allows downloading one or more given packages.\n"
 msgstr ""
 "\n"
-"Det här kommandot kommer att försöka rätta till beroenden för\n"
-"installerade paket som är relaterade till angivna paket. Observera att\n"
-"de angivna paketen kan vara installerade eller inte. Om inga paket anges,\n"
-"kommer alla installerade paket att kontrolleras.\n"
+"Det här kommandot tillåter hämtning av ett eller flera angivna paket.\n"
 
-#: smart/commands/fix.py:38
+#: smart/commands/download.py:37
 msgid ""
 "\n"
-"smart fix\n"
-"smart fix pkgname\n"
-"smart fix '*kgna*'\n"
-"smart fix pkgname-1.0\n"
-"smart fix pkgname-1.0-1\n"
-"smart fix pkgname1 pkgname2\n"
+"smart download pkgname\n"
+"smart download '*kgna*'\n"
+"smart download pkgname-1.0\n"
+"smart download pkgname-1.0-1\n"
+"smart download pkgname1 pkgname2\n"
+"smart download pkgname --urls 2> pkgname-url.txt\n"
+"smart download --from-urls pkgname-url.txt\n"
+"smart download --from-urls http://some.url/some/path/somefile\n"
 msgstr ""
 "\n"
-"smart fix\n"
-"smart fix paketnamn\n"
-"smart fix '*ketna*'\n"
-"smart fix paketnamn-1.0\n"
-"smart fix paketnamn-1.0-1\n"
-"smart fix paketnamn1 paketnamn2\n"
+"smart download paketnamn\n"
+"smart download '*ketna*'\n"
+"smart download paketnamn-1.0\n"
+"smart download paketnamn-1.0-1\n"
+"smart download paketnamn1 paketnamn2\n"
+"smart download paketnamn --urls 2> paketnamn-url.txt\n"
+"smart download --from-urls paketnamn-url.txt\n"
+"smart download --from-urls http://någon.url/någon/sökväg/någonfil\n"
 
-#: smart/commands/upgrade.py:31
-msgid "smart upgrade [options] [package] ..."
-msgstr "smart upgrade [flaggor] [paket] ..."
+#: smart/commands/download.py:55
+msgid "packages will be saved in given directory"
+msgstr "paket kommer att sparas i angiven katalog"
 
-#: smart/commands/upgrade.py:33
+#: smart/commands/download.py:57
+msgid "dump needed urls and don't download packages"
+msgstr "skriv ut nödvändiga url:er och hämta inga paket"
+
+#: smart/commands/download.py:59
+msgid ""
+"download files from the given urls and/or from the given files with lists of "
+"urls"
+msgstr ""
+"hämta ner filer från angivna url:er och/eller från de angivna filerna med "
+"listor av url:er"
+
+#: smart/commands/download.py:64
+msgid "Directory not found:"
+msgstr "Katalogen hittades inte:"
+
+#: smart/commands/download.py:143
+#, python-format
+msgid "Argument is not a file nor url: %s"
+msgstr "Argumentet är varken en fil eller url: %s"
+
+#: smart/commands/check.py:29
+msgid "smart check [options] [package] ..."
+msgstr "smart check [flaggor] [paket] ..."
+
+#: smart/commands/check.py:31
 msgid ""
 "\n"
-"This command will upgrade one or more packages which\n"
-"are currently installed in the system. If no packages\n"
-"are given, all installed packages will be checked.\n"
+"This command will check relations between packages. If no\n"
+"packages are explicitly given, all packages in the selected\n"
+"channels will be checked. Relations of the checked packages\n"
+"will only match packages inside the selected channels.\n"
+"\n"
+"Use the 'fix' command to fix broken relations of\n"
+"installed packages.\n"
 msgstr ""
 "\n"
-"Det här kommandot kommer att uppgradera ett eller flera\n"
-"paket som för närvarande är installerade på systemet. Om inga\n"
-"paket anges, kommer alla installerade paket att kontrolleras.\n"
+"Det här kommandot kontrollerar relationer mellan paket. Om\n"
+"inget paket har uttryckligen angivits, kommer alla paket i de\n"
+"valda kanalerna att kontrolleras. Relationer för de kontrollerade\n"
+"paketen kommer endast matcha paket i de valda kanalerna.\n"
+"\n"
+"Använd kommandot \"fix\" för att rätta till trasiga relationer för\n"
+"installerade paket.\n"
 
-#: smart/commands/upgrade.py:39
+#: smart/commands/check.py:41
 msgid ""
 "\n"
-"smart upgrade\n"
-"smart upgrade pkgname\n"
-"smart upgrade '*kgnam*'\n"
-"smart upgrade pkgname-1.0\n"
-"smart upgrade pkgname-1.0-1\n"
-"smart upgrade pkgname1 pkgname2\n"
+"smart check\n"
+"smart check pkgname\n"
+"smart check '*kgna*'\n"
+"smart check pkgname-1.0\n"
+"smart check pkgname-1.0-1\n"
+"smart check pkgname1 pkgname2\n"
 msgstr ""
 "\n"
-"smart upgrade\n"
-"smart upgrade paketnamn\n"
-"smart upgrade '*ketnam*'\n"
-"smart upgrade paketnamn-1.0\n"
-"smart upgrade paketnamn-1.0-1\n"
-"smart upgrade paketnamn1 paketnamn2\n"
+"smart check\n"
+"smart check paketnamn\n"
+"smart check '*ketna*'\n"
+"smart check paketnamn-1.0\n"
+"smart check paketnamn-1.0-1\n"
+"smart check paketnamn1 paketnamn2\n"
 
-#: smart/commands/upgrade.py:59
-msgid "update channel information before trying to upgrade"
-msgstr "uppdatera kanalinformationen innan uppgradering görs"
+#: smart/commands/check.py:55
+msgid "check packages in all channels"
+msgstr "kontrollera paket i alla kanaler"
 
-#: smart/commands/upgrade.py:62
-msgid "just check if there are upgrades to be done"
-msgstr "kontrollera bara om det finns uppgraderingar att göra"
+#: smart/commands/check.py:57
+msgid "check packages which are in at least one installed channel (default)"
+msgstr ""
+"kontrollera paket som finns i åtminstone en installerad kanal (standard)"
 
-#: smart/commands/upgrade.py:64
-msgid "check if there are upgrades to be done, and update the known upgrades"
-msgstr "kontrollera om det finns uppgraderingar som kan göras, och uppdatera de kända uppgraderingarna"
+#: smart/commands/check.py:60
+msgid "check packages which are in at least one non-installed channel"
+msgstr "kontrollera paket som finns i åtminstone en icke-installerad kanal"
 
-#: smart/commands/upgrade.py:163
-#: smart/commands/upgrade.py:174
-msgid "No interesting upgrades available."
-msgstr "Inga intressanta uppgraderingar tillgängliga."
+#: smart/commands/check.py:63
+msgid ""
+"check packages which are inside the given channels (comma separated aliases)"
+msgstr ""
+"kontrollera paket som finns i de angivna kanalerna (kommaseparerade alias)"
 
-#: smart/commands/upgrade.py:170
-msgid "There are pending upgrades!"
-msgstr "Det finns väntande uppgraderingar!"
+#: smart/commands/check.py:101
+#, python-format
+msgid "Channels not found: %s"
+msgstr "Kanalerna hittades inte: %s"
 
-#: smart/commands/upgrade.py:172
-msgid "There are new upgrades available!"
-msgstr "Det finns nya uppgraderingar tillgängliga!"
+#: smart/commands/check.py:103
+#, python-format
+msgid "Channels are disabled: %s"
+msgstr "Kanalerna är inaktiverade: %s"
 
-#: smart/commands/query.py:33
-msgid "smart query [options] [package] ..."
-msgstr "smart query [flaggor] [paket] ..."
+#: smart/commands/flag.py:27
+msgid "smart flag [options]"
+msgstr "smart flag [flaggor]"
 
-#: smart/commands/query.py:35
+#: smart/commands/flag.py:29
 msgid ""
 "\n"
-"This command allows querying the known packages in many\n"
-"different ways. Check also the 'search' command.\n"
+"This command allows one to set, remove, and show package flags.\n"
+"Package flags are used to tune the behavior of some algorithms\n"
+"when dealing with the given packages.\n"
+"\n"
+"Currently known flags are:\n"
+"\n"
+"  lock          - Flagged packages will not be removed, if they\n"
+"                  are currently installed, nor installed, if they\n"
+"                  are currently available.\n"
+"  new           - Flagged packages were considered new packages\n"
+"                  in the repository when the last update was done.\n"
+"                  This flag is automatically manipulated by the\n"
+"                  system.\n"
+"  multi-version - Flagged packages may have more than one version\n"
+"                  installed in the system at the same time\n"
+"                  (backend dependent).\n"
 msgstr ""
 "\n"
-"Det här kommandot tillåter uppslag mot kända paket på flera\n"
-"olika sätt. Se även kommandot \"search\".\n"
+"Det här kommandot tillåter att man ställer in, tar bort och visar\n"
+"paketflaggor. Paketflaggor används för att justera beteendet för vissa\n"
+"algoritmer när angivna paket hanteras.\n"
+"\n"
+"För närvarande kända flaggor:\n"
+"\n"
+"  lock          - Flaggade paket kommer inte att tas bort, om de\n"
+"                  för närvarande är installerade, inte installerade, om de\n"
+"                  för närvarande finns tillgängliga.\n"
+"  new           - Flaggade paket ansågs som nya paket i\n"
+"                  förrådet när senaste uppdateringen gjordes.\n"
+"                  Den här flaggan ändras automatiskt av systemet.\n"
+"  multi-version - Flaggade paket kan ha fler än en version\n"
+"                  installerade i systemet samtidigt\n"
+"                  (beroende på bakände).\n"
 
-#: smart/commands/query.py:40
+#: smart/commands/flag.py:48
 msgid ""
 "\n"
-"smart query pkgname\n"
-"smart query '*kgnam*'\n"
-"smart query pkgname-1.0\n"
-"smart query pkgname --show-requires\n"
-"smart query --requires libpkg.so --show-providedby\n"
-"smart query --installed\n"
-"smart query --summary ldap\n"
+"smart flag --show\n"
+"smart flag --show new\n"
+"smart flag --set lock pkgname\n"
+"smart flag --remove lock pkgname\n"
+"smart flag --set lock 'pkgname >= 1.0'\n"
+"smart flag --remove lock 'pkgname >= 1.0'\n"
 msgstr ""
 "\n"
-"smart query paketnamn\n"
-"smart query '*ketnam*'\n"
-"smart query paketnamn-1.0\n"
-"smart query paketnamn --show-requires\n"
-"smart query --requires libpkg.so --show-providedby\n"
-"smart query --installed\n"
-"smart query --summary ldap\n"
+"smart flag --show\n"
+"smart flag --show new\n"
+"smart flag --set lock paketnamn\n"
+"smart flag --remove lock paketnamn\n"
+"smart flag --set lock 'paketnamn >= 1.0'\n"
+"smart flag --remove lock 'paketnamn >= 1.0'\n"
 
-#: smart/commands/query.py:58
-msgid "consider only installed packages"
-msgstr "endast installerade paket"
+#: smart/commands/flag.py:65
+msgid ""
+"set flags given in pairs of flag name/target, where targets may use just the "
+"package name, or the package name, relation, and version, such as: lock "
+"'python > 1.0'"
+msgstr ""
+"ställ in flaggor angivna i par för flaggnamn/mål, där mål kan använda bara "
+"paketnamnet, eller paketnamnet, relation, och version, såsom: lock 'python > "
+"1.0'"
 
-#: smart/commands/query.py:60
-msgid "show only packages providing the given dependency"
-msgstr "visa endas paket som tillhandahåller angivet beroende"
+#: smart/commands/flag.py:70
+msgid ""
+"remove flags given in pairs of flag name/target, where targets may use just "
+"the package name, or the package name, relation, and version, such as: lock "
+"'python > 1.0'"
+msgstr ""
+"ta bort flaggor angivna i par för flaggnamn/mål, där mål kan använda bara "
+"paketnamnet, eller paketnamnet, relation, och version, såsom: lock 'python > "
+"1.0'"
 
-#: smart/commands/query.py:63
-msgid "show only packages requiring the given dependency"
-msgstr "visa endast paket som kräver det angivna beroendet"
+#: smart/commands/flag.py:75
+msgid ""
+"show packages with the flags given as arguments or all flags if no argument "
+"was given"
+msgstr ""
+"visa paket med flaggorna angivna som argument eller alla flaggor om inget "
+"argument angavs"
 
-#: smart/commands/query.py:66
-msgid "show only packages conflicting with the given dependency"
-msgstr "visa endast paket som är i konflikt med angivet beroende"
-
-#: smart/commands/query.py:69
-msgid "show only packages upgrading the given dependency"
-msgstr "visa endast paket som uppgraderar det angivna beroendet"
-
-#: smart/commands/query.py:72
-msgid "show only packages which match given name"
-msgstr "visa endast paket som matchar angivet namn"
-
-#: smart/commands/query.py:74
-msgid "show only packages which match given summary"
-msgstr "visa endast paket som matchar angivet sammandrag"
-
-#: smart/commands/query.py:76
-msgid "show only packages which match given description"
-msgstr "visa endast paket som matchar angiven beskrivning"
-
-#: smart/commands/query.py:79
-msgid "show only packages which include the given path in the available meta information"
-msgstr "visa endast paket som inkluderar den angivna sökvägen i den tillgängliga metainformationen"
-
-#: smart/commands/query.py:82
-msgid "show only packages which include the given reference url in the available meta information"
-msgstr "visa endast paket som inkluderar angiven referens-url i den tillgängliga metainformationen"
-
-#: smart/commands/query.py:86
-msgid "hide package version"
-msgstr "dölj paketversion"
-
-#: smart/commands/query.py:88
-msgid "show package summaries"
-msgstr "visa paketsammandrag"
-
-#: smart/commands/query.py:90
-msgid "show provides for the given packages"
-msgstr "visa tillhandahållningar för angivna paket"
-
-#: smart/commands/query.py:92
-msgid "show requires for the given packages"
-msgstr "visa krav för de angivna paketen"
-
-#: smart/commands/query.py:94
-msgid "show requires selecting only pre-dependencies"
-msgstr "visa krav för val av endast förberoenden"
-
-#: smart/commands/query.py:96
-msgid "show upgrades for the given packages"
-msgstr "visa uppgraderingar för angivna paket"
-
-#: smart/commands/query.py:98
-msgid "show conflicts for the given packages"
-msgstr "visa konflikter för de angivna paketen"
-
-#: smart/commands/query.py:100
-msgid "show packages providing dependencies"
-msgstr "visa paket som tillhandahåller beroenden"
-
-#: smart/commands/query.py:102
-msgid "show packages requiring provided information"
-msgstr "visa paket som kräver tillhandahållen information"
-
-#: smart/commands/query.py:104
-msgid "show packages upgrading provided information"
-msgstr "visa paket som uppgraderar tillhandahållen information"
-
-#: smart/commands/query.py:106
-msgid "show packages conflicting with provided information"
-msgstr "visa paket som är i konflikt med tillhandahållen information"
-
-#: smart/commands/query.py:109
-msgid "show package priority"
-msgstr "visa paketprioritet"
-
-#: smart/commands/query.py:111
-msgid "show channels that include this package"
-msgstr "visa kanaler som inkluderar det här paketet"
-
-#: smart/commands/query.py:113
-msgid "enable all --show-* options"
-msgstr "aktivera alla --show-*-flaggor"
-
-#: smart/commands/query.py:115
-msgid "change output format"
-msgstr "ändra utdataformat"
-
-#: smart/commands/query.py:117
-msgid "redirect output to given filename"
-msgstr "omdirigera utdata till angivet filnamn"
-
-#: smart/commands/query.py:524
-msgid "Provides:"
-msgstr "Tillhandahåller:"
-
-#: smart/commands/query.py:533
-#: smart/commands/query.py:566
-msgid "pre"
-msgstr "för"
-
-#: smart/commands/query.py:544
-msgid "Upgraded By:"
-msgstr "Uppgraderad av:"
-
-#: smart/commands/query.py:554
-msgid "Conflicted By:"
-msgstr "Satt i konflikt av:"
-
-#: smart/commands/query.py:573
-#: smart/commands/query.py:589
-#: smart/commands/query.py:605
-msgid "Provided By:"
-msgstr "Tillhandahålls av:"
+#: smart/commands/flag.py:96
+#, python-format
+msgid "Invalid target: %s"
+msgstr "Ogiltigt mål: %s"
 
 #: smart/commands/info.py:29
 msgid "smart info [options] [package] ..."
@@ -3344,411 +3947,133 @@ msgstr "URL:er:"
 msgid "Paths:"
 msgstr "Sökvägar:"
 
-#: smart/backends/deb/pm.py:124
-#: smart/backends/slack/pm.py:33
-#: smart/backends/rpm/pm.py:49
-msgid "Committing transaction..."
-msgstr "Verkställer transaktion..."
+#: smart/commands/upgrade.py:31
+msgid "smart upgrade [options] [package] ..."
+msgstr "smart upgrade [flaggor] [paket] ..."
 
-#: smart/backends/deb/pm.py:155
-#: smart/backends/rpm/pm.py:134
-msgid "Found unbreakable loops:"
-msgstr "Hittade obrytbara slingor:"
-
-#: smart/backends/deb/pm.py:249
-#, python-format
-msgid "Sub-process %s has received a segmentation fault"
-msgstr "Underprocessen %s tog emot ett segmenteringsfel"
-
-#: smart/backends/deb/pm.py:252
-#, python-format
-msgid "Sub-process %s returned an error code (%d)"
-msgstr "Underprocessen %s returnerade en felkod (%d)"
-
-#: smart/backends/deb/pm.py:255
-#, python-format
-msgid "Sub-process %s exited unexpectedly"
-msgstr "Underprocessen %s avslutades oväntat"
-
-#: smart/backends/slack/pm.py:59
-#: smart/backends/rpm/pm.py:307
-#, python-format
-msgid "Installing %s"
-msgstr "Installerar %s"
-
-#: smart/backends/slack/pm.py:67
-#, python-format
-msgid "Got status %d installing %s:"
-msgstr "Fick status %d installerar %s:"
-
-#: smart/backends/slack/pm.py:70
-#, python-format
-msgid "Installing %s:"
-msgstr "Installerar %s:"
-
-#: smart/backends/slack/pm.py:73
-#, python-format
-msgid "Upgrading %s"
-msgstr "Uppgraderar %s"
-
-#: smart/backends/slack/pm.py:81
-#, python-format
-msgid "Got status %d upgrading %s:"
-msgstr "Fick status %d uppgraderar %s:"
-
-#: smart/backends/slack/pm.py:84
-#, python-format
-msgid "Upgrading %s:"
-msgstr "Uppgraderar %s:"
-
-#: smart/backends/slack/pm.py:87
-#: smart/backends/rpm/pm.py:334
-#: smart/backends/rpm/pm.py:348
-#, python-format
-msgid "Removing %s"
-msgstr "Tar bort %s"
-
-#: smart/backends/slack/pm.py:95
-#, python-format
-msgid "Got status %d removing %s:"
-msgstr "Fick status %d tar bort %s:"
-
-#: smart/backends/slack/pm.py:98
-#, python-format
-msgid "Removing %s:"
-msgstr "Tar bort %s:"
-
-#: smart/backends/slack/loader.py:68
-#, python-format
-msgid "Invalid package name: %s"
-msgstr "Ogiltigt paketnamn: %s"
-
-#: smart/backends/rpm/redcarpet.py:309
-#, python-format
-msgid "Error parsing %s: %s"
-msgstr "Fel vid tolkning av %s: %s"
-
-#: smart/backends/rpm/base.py:42
-msgid "'rpm' python module is not available"
-msgstr "Python-modulen \"rpm\" finns inte tillgänglig"
-
-#: smart/backends/rpm/base.py:61
-#, python-format
-msgid "Could not create rpm-root at %s: %s"
-msgstr "Kunde inte skapa rpm-root på %s: %s"
-
-#: smart/backends/rpm/base.py:67
-#, python-format
-msgid "Couldn't initizalize rpm database at %s"
-msgstr "Kunde inte initiera rpm-databas på %s"
-
-#: smart/backends/rpm/base.py:70
-#, python-format
-msgid "Initialized new rpm database at %s"
-msgstr "Initierade ny rpm-databas på %s"
-
-# Osäker
-#: smart/backends/rpm/pm.py:139
-msgid "Will ask RPM to order it."
-msgstr "Kommer att fråga RPM att beställa den."
-
-#: smart/backends/rpm/pm.py:201
-#, python-format
-msgid "%s requires %s"
-msgstr "%s kräver %s"
-
-#: smart/backends/rpm/pm.py:203
-#, python-format
-msgid "%s conflicts with %s"
-msgstr "%s är i konflikt med %s"
-
-#: smart/backends/rpm/pm.py:291
-#, python-format
-msgid "Processing %s in %s"
-msgstr "Behandlar %s i %s"
-
-#: smart/backends/rpm/pm.py:292
-#: smart/backends/rpm/pm.py:327
-#, python-format
-msgid "Output from %s:"
-msgstr "Utdata från %s:"
-
-#: smart/backends/rpm/pm.py:318
-msgid "Preparing..."
-msgstr "Förbereder..."
-
-#: smart/backends/rpm/pm.py:332
-#: smart/backends/rpm/pm.py:346
-#, python-format
-msgid "Cleaning %s"
-msgstr "Rensar %s"
-
-#: smart/backends/rpm/header.py:406
+#: smart/commands/upgrade.py:33
 msgid ""
-"Your rpm module has no support for readHeaderFromFD()!\n"
-"As a consequence, Smart will consume extra memory."
+"\n"
+"This command will upgrade one or more packages which\n"
+"are currently installed in the system. If no packages\n"
+"are given, all installed packages will be checked.\n"
 msgstr ""
-"Din rpm-modul saknar stöd för readHeaderFromFD()!\n"
-"Smart kommer att konsumera extra minne på grund av det."
+"\n"
+"Det här kommandot kommer att uppgradera ett eller flera\n"
+"paket som för närvarande är installerade på systemet. Om inga\n"
+"paket anges, kommer alla installerade paket att kontrolleras.\n"
 
-#: smart/backends/rpm/header.py:511
-#: smart/backends/rpm/header.py:539
-msgid "Package list with no CRPMTAG_FILENAME tag"
-msgstr "Paketlista utan CRPMTAG_FILENAME-tagg"
+#: smart/commands/upgrade.py:39
+msgid ""
+"\n"
+"smart upgrade\n"
+"smart upgrade pkgname\n"
+"smart upgrade '*kgnam*'\n"
+"smart upgrade pkgname-1.0\n"
+"smart upgrade pkgname-1.0-1\n"
+"smart upgrade pkgname1 pkgname2\n"
+msgstr ""
+"\n"
+"smart upgrade\n"
+"smart upgrade paketnamn\n"
+"smart upgrade '*ketnam*'\n"
+"smart upgrade paketnamn-1.0\n"
+"smart upgrade paketnamn-1.0-1\n"
+"smart upgrade paketnamn1 paketnamn2\n"
 
-#: smart/util/strtools.py:66
-msgid "Stalled"
-msgstr "Avstannad"
+#: smart/commands/upgrade.py:59
+msgid "update channel information before trying to upgrade"
+msgstr "uppdatera kanalinformationen innan uppgradering görs"
 
-#: smart/util/strtools.py:104
-#: smart/channel.py:229
-msgid "y"
-msgstr "j"
+#: smart/commands/upgrade.py:62
+msgid "just check if there are upgrades to be done"
+msgstr "kontrollera bara om det finns uppgraderingar att göra"
 
-#: smart/util/strtools.py:104
-#: smart/channel.py:229
-msgid "true"
-msgstr "sant"
+#: smart/commands/upgrade.py:64
+msgid "check if there are upgrades to be done, and update the known upgrades"
+msgstr ""
+"kontrollera om det finns uppgraderingar som kan göras, och uppdatera de "
+"kända uppgraderingarna"
 
-#: smart/util/strtools.py:106
-#: smart/channel.py:232
-msgid "n"
-msgstr "n"
+#: smart/commands/upgrade.py:163 smart/commands/upgrade.py:174
+msgid "No interesting upgrades available."
+msgstr "Inga intressanta uppgraderingar tillgängliga."
 
-#: smart/util/strtools.py:106
-#: smart/channel.py:232
-msgid "false"
-msgstr "falskt"
+#: smart/commands/upgrade.py:170
+msgid "There are pending upgrades!"
+msgstr "Det finns väntande uppgraderingar!"
 
-#: smart/util/optparse.py:329
+#: smart/commands/upgrade.py:172
+msgid "There are new upgrades available!"
+msgstr "Det finns nya uppgraderingar tillgängliga!"
+
+#: smart/commands/search.py:25
+msgid ""
+"\n"
+"Usage: smart search expression ...\n"
+"\n"
+"This command allows searching for the given expressions\n"
+"in the name, summary, and description of known packages.\n"
+"\n"
+"Options:\n"
+"  -h, --help  Show this help message and exit\n"
+"\n"
+"Examples:\n"
+"  smart search ldap\n"
+"  smart search kernel module\n"
+"  smart search rpm 'package manager'\n"
+"  smart search pkgname\n"
+"  smart search 'pkgn*e'\n"
+msgstr ""
+"\n"
+"Användning: smart search uttryck ...\n"
+"\n"
+"Det här kommandot tillåter sökning efter angivna uttryck\n"
+"i namnet, sammandraget samt beskrivning av kända paket.\n"
+"\n"
+"Flaggor:\n"
+"  -h, --help  Visa det här hjälpmeddelandet och avsluta\n"
+"\n"
+"Exempel:\n"
+"  smart search ldap\n"
+"  smart search kernel module\n"
+"  smart search rpm 'pakethanterare'\n"
+"  smart search paketnamn\n"
+"  smart search 'paketn*n'\n"
+
+#: smart/commands/clean.py:27
+msgid "smart clean [options]"
+msgstr "smart clean [flaggor]"
+
+#: smart/commands/clean.py:29
+msgid ""
+"\n"
+"This command cleans the package cache. You can use it to\n"
+"delete old unused files that were left behind because of\n"
+"an incomplete transaction.\n"
+msgstr ""
+"\n"
+"Det här kommandot rensar paketcachen. Du kan använda det\n"
+"för att ta bort gamla oanvända filer som lämnades kvar på\n"
+"grund av en ofullständig transaktion.\n"
+
+#: smart/commands/clean.py:49
+msgid "Removing cached package files..."
+msgstr "Tar bort cachade paketfiler..."
+
+#: smart/commands/clean.py:55
 #, python-format
-msgid "usage: %s\n"
-msgstr "användning: %s\n"
+msgid "Removed %s"
+msgstr "Tog bort %s"
 
-#: smart/util/optparse.py:348
-msgid "Usage"
-msgstr "Användning"
-
-#: smart/util/optparse.py:354
-msgid "integer"
-msgstr "heltal"
-
-#: smart/util/optparse.py:355
-msgid "long integer"
-msgstr "långt heltal"
-
-#: smart/util/optparse.py:356
-msgid "floating-point"
-msgstr "flyttal"
-
-#: smart/util/optparse.py:357
-msgid "complex"
-msgstr "komplex"
-
-#: smart/util/optparse.py:365
+#: smart/commands/clean.py:57
 #, python-format
-msgid "option %s: invalid %s value: %r"
-msgstr "flaggan %s: ogiltig %s värde: %r"
+msgid "Can't remove cached package %s: %s"
+msgstr "Kan inte ta bort det cachade paketet %s: %s"
 
-#: smart/util/optparse.py:373
-#, python-format
-msgid "option %s: invalid choice: %r (choose from %s)"
-msgstr "flaggan %s: ogiltigt val: %r (välj från %s)"
-
-#: smart/util/optparse.py:1136
-#: smart/option.py:35
-msgid "show this help message and exit"
-msgstr "visa det här hjälpmeddelandet och avsluta"
-
-#: smart/util/optparse.py:1141
-#: smart/option.py:37
-msgid "show program's version number and exit"
-msgstr "visa programmet versionsnummer och avsluta"
-
-#: smart/util/optparse.py:1164
-msgid "%prog [options]"
-msgstr "%prog [flaggor]"
-
-#: smart/util/optparse.py:1374
-#: smart/util/optparse.py:1413
-#: smart/option.py:172
-#, python-format
-msgid "%s option requires an argument"
-msgstr "Flaggan %s kräver ett argument"
-
-#: smart/util/optparse.py:1376
-#: smart/util/optparse.py:1415
-#: smart/option.py:174
-#, python-format
-msgid "%s option requires %d arguments"
-msgstr "Flaggan %s kräver %d argument"
-
-#: smart/util/optparse.py:1385
-#, python-format
-msgid "%s option does not take a value"
-msgstr "Flaggan %s tar inte emot ett värde"
-
-#: smart/util/optparse.py:1502
-#: smart/option.py:54
-msgid "options"
-msgstr "flaggor"
-
-#: smart/util/optparse.py:1559
-#, python-format
-msgid "ambiguous option: %s (%s?)"
-msgstr "tvetydlig flagga: %s (%s?)"
-
-#: smart/util/ssh.py:53
-msgid "SSH asked for password, but no password is available"
-msgstr "SSH frågade efter ett lösenord, men inget lösenord finns tillgängligt"
-
-#: smart/searcher.py:172
-msgid "Invalid string"
-msgstr "Ogiltig sträng"
-
-#: smart/uncompress.py:44
-#, python-format
-msgid "Unknown compressed file: %s"
-msgstr "Okänd komprimerad fil: %s"
-
-#: smart/uncompress.py:55
-msgid "Unsupported file type"
-msgstr "Filtypen stöds inte"
-
-#: smart/__init__.py:34
-msgid "Unknown error"
-msgstr "Okänt fel"
-
-#: smart/__init__.py:106
-msgid "Unknown log level"
-msgstr "Okänd loggnivå"
-
-#: smart/__init__.py:117
-msgid "Can't use commands with shell interfaces"
-msgstr "Kan inte använda kommandon med skalgränssnitt"
-
-#: smart/interface.py:51
-#, python-format
-msgid "Invalid command '%s'"
-msgstr "Ogiltigt kommando \"%s\""
-
-#: smart/interface.py:89
-msgid "Password"
-msgstr "Lösenord"
-
-#: smart/interface.py:90
-#, python-format
-msgid "A password is needed for '%s'."
-msgstr "Ett lösenord behövs för \"%s\"."
-
-#: smart/interface.py:160
-#, python-format
-msgid "Interface '%s' not available"
-msgstr "Gränssnittet \"%s\" är inte tillgängligt"
-
-#: smart/sysconfig.py:73
-msgid "Configuration is in readonly mode."
-msgstr "Konfigurationen är i skrivskyddat läge."
-
-#: smart/sysconfig.py:89
-#: smart/sysconfig.py:96
-#: smart/sysconfig.py:99
-#, python-format
-msgid "Broken configuration file at %s"
-msgstr "Trasig konfigurationsfil på %s"
-
-#: smart/sysconfig.py:90
-#, python-format
-msgid "Trying backup at %s"
-msgstr "Provar säkerhetskopia på %s"
-
-#: smart/option.py:49
-#, python-format
-msgid "Usage: %s\n"
-msgstr "Användning: %s\n"
-
-#: smart/option.py:89
-msgid "examples"
-msgstr "exempel"
-
-#: smart/channel.py:133
-msgid "Unique identification for the channel."
-msgstr "Unik identifiering av kanalen."
-
-#: smart/channel.py:135
-msgid "Channel type"
-msgstr "Kanaltyp"
-
-#: smart/channel.py:137
-msgid "Channel name"
-msgstr "Kanalnamn"
-
-#: smart/channel.py:138
-msgid "Manual updates"
-msgstr "Manuella uppdateringar"
-
-#: smart/channel.py:139
-msgid "If set to a true value, the given channel will only be updated when manually selected."
-msgstr "Om inställd till ett sant värde, kommer angiven kanal att endast uppdateras när den väljs manuellt."
-
-#: smart/channel.py:141
-msgid "Disabled"
-msgstr "Inaktiverad"
-
-#: smart/channel.py:142
-msgid "If set to a true value, the given channel won't be used."
-msgstr "Om inställd till ett sant värde, kommer angiven kanal inte att användas."
-
-#: smart/channel.py:144
-msgid "Removable"
-msgstr "Flyttbar"
-
-#: smart/channel.py:145
-msgid "If set to a true value, the given channel will be considered as being available in a removable media (cdrom, etc)."
-msgstr "Om inställd till ett sant värde, kommer angiven kanal att anses vara tillgänglig på ett flyttbart media (cdrom, etc)."
-
-#: smart/channel.py:151
-msgid "Default priority assigned to all packages available in this channel (0 if not set). If the exact same package is available in more than one channel, the highest priority is used."
-msgstr "Standardprioritet som tilldelas alla paket som är tillgängliga i den här kanalen (0 om inte inställd). Om exakt samma paket finns tillgängligt i fler än en kanal, kommer den med högst prioritet att användas."
-
-#: smart/channel.py:168
-#, python-format
-msgid "Unable to create channel of type '%s'"
-msgstr "Kunde inte skapa kanal av typen \"%s\""
-
-#: smart/channel.py:181
-#: smart/channel.py:207
-msgid "Channel has no type"
-msgstr "Kanalen har ingen typ"
-
-#: smart/channel.py:184
-#: smart/channel.py:210
-#, python-format
-msgid "Unknown channel type: %s"
-msgstr "Okänd kanaltyp: %s"
-
-#: smart/channel.py:194
-#: smart/channel.py:222
-#, python-format
-msgid "%s (%s) is a needed field for '%s' channels"
-msgstr "%s (%s) är ett nödvändigt fält \"%s\"-kanaler"
-
-#: smart/channel.py:235
-#: smart/channel.py:241
-#: smart/channel.py:244
-#, python-format
-msgid "Invalid value for '%s' (%s) field: %s"
-msgstr "Ogiltigt värde för \"%s\" (%s) fält: %s"
-
-#: smart/channel.py:261
-#, python-format
-msgid "Channel '%s' has no type"
-msgstr "Kanalen \"%s\" har ingen typ"
-
-#: smart/channel.py:283
-#, python-format
-msgid "Invalid channel type '%s'"
-msgstr "Ogiltig kanaltyp \"%s\""
+#: smart/commands/nothing.py:26
+msgid "smart test [options]"
+msgstr "smart test [flaggor]"
 
 #: smart/sorter.py:442
 msgid "Unbreakable loops found while sorting"
@@ -3758,152 +4083,6 @@ msgstr "Obrytbara slingor hittades vid sortering"
 #, python-format
 msgid "Internal error: there are still loops (%d != %d)!"
 msgstr "Internt fel: det finns fortfarande slingor (%d != %d)!"
-
-#: smart/media.py:183
-msgid "/proc/mounts not found"
-msgstr "/proc/mounts hittades inte"
-
-#: smart/fetcher.py:168
-#, python-format
-msgid "%s is already in the queue"
-msgstr "%s är redan i kön"
-
-#: smart/fetcher.py:202
-#: smart/fetcher.py:209
-#, python-format
-msgid "Fetching %s..."
-msgstr "Hämtar %s..."
-
-#: smart/fetcher.py:211
-msgid "Fetching information..."
-msgstr "Hämtar information..."
-
-#: smart/fetcher.py:289
-#: smart/fetcher.py:570
-msgid "Cancelled"
-msgstr "Avbruten"
-
-#: smart/fetcher.py:329
-#, python-format
-msgid "Unsupported scheme: %s"
-msgstr "Schemat stöds inte: %s"
-
-#: smart/fetcher.py:344
-msgid "File not found for validation"
-msgstr "Filen hittades inte för validering"
-
-#: smart/fetcher.py:365
-#: smart/cache.py:191
-#, python-format
-msgid "Unexpected size (expected %d, got %d)"
-msgstr "Oväntad storlek (förväntade %d, fick %d)"
-
-#: smart/fetcher.py:379
-#: smart/cache.py:205
-#, python-format
-msgid "Invalid MD5 (expected %s, got %s)"
-msgstr "Ogiltig MD5 (förväntade %s, fick %s)"
-
-#: smart/fetcher.py:393
-#: smart/cache.py:219
-#, python-format
-msgid "Invalid SHA (expected %s, got %s)"
-msgstr "Ogiltig SHA (förväntade %s, fick %s)"
-
-#: smart/fetcher.py:595
-#, python-format
-msgid "Invalid URL: %s"
-msgstr "Ogiltig URL: %s"
-
-#: smart/fetcher.py:874
-msgid "Media not found"
-msgstr "Media hittades inte"
-
-#: smart/fetcher.py:1002
-#: smart/fetcher.py:1203
-#: smart/fetcher.py:1770
-msgid "Server reports unexpected size"
-msgstr "Servern rapporterar oväntad storlek"
-
-#: smart/control.py:84
-#: smart/control.py:275
-#, python-format
-msgid "There's another channel with alias '%s'"
-msgstr "Det finns en annan kanal med aliaset \"%s\""
-
-#: smart/control.py:89
-#, python-format
-msgid "Unable to create channel for file: %s"
-msgstr "Kan inte skapa kanal för fil: %s"
-
-#: smart/control.py:99
-#, python-format
-msgid "Channel not found for '%s'"
-msgstr "Kanal hittades inte för \"%s\""
-
-#: smart/control.py:132
-#, python-format
-msgid "Configuration file not found: %s"
-msgstr "Konfigurationsfilen hittades inte: %s"
-
-#: smart/control.py:147
-#, python-format
-msgid "Can't create datadir at %s"
-msgstr "Kan inta skapa datakatalog på %s"
-
-#: smart/control.py:167
-msgid "Saving cache..."
-msgstr "Sparar cache..."
-
-#: smart/control.py:219
-msgid "Loading cache..."
-msgstr "Läser in cache..."
-
-#: smart/control.py:300
-msgid "Unable to create channel directory."
-msgstr "Kunde inte skapa kanalkatalog."
-
-#: smart/control.py:303
-msgid "Configuration is in readonly mode!"
-msgstr "Konfigurationen är i skrivskyddat läge!"
-
-#: smart/control.py:305
-msgid "Channel information is locked for writing."
-msgstr "Kanalinformationen är låst för skrivning."
-
-#: smart/control.py:307
-msgid "Can't update channels in readonly mode."
-msgstr "Kan inte uppdatera kanaler i skrivskyddat läge."
-
-#: smart/control.py:309
-msgid "Can't update channels with active readers."
-msgstr "Kan inte uppdatera kanaler med aktiva läsare."
-
-#: smart/control.py:345
-#, python-format
-msgid "Fetching information for '%s'..."
-msgstr "Hämtar information för \"%s\"..."
-
-#: smart/control.py:352
-#: smart/control.py:356
-#, python-format
-msgid "Failed fetching channel '%s'"
-msgstr "Misslyckades med att hämta kanalen \"%s\""
-
-#: smart/control.py:410
-#, python-format
-msgid "Package %s is not available for downloading"
-msgstr "Paketet %s är inte tillgängligt för hämtning"
-
-#: smart/control.py:647
-#, python-format
-msgid "No channel available for package %s"
-msgstr "Ingen kanal tillgänglig för paketet %s"
-
-#: smart/control.py:841
-#, python-format
-msgid "%s is not available for downloading"
-msgstr "%s är inte tillgänglig för hämtning"
 
 #: smart/transaction.py:645
 #, python-format
@@ -3925,8 +4104,7 @@ msgstr "Kan inte installera %s: det är i konflikt med det låsta paketet %s"
 msgid "Can't install %s: it can't coexist with %s"
 msgstr "Kan inte installera %s: det kan vara installerat samtidigt som %s"
 
-#: smart/transaction.py:753
-#: smart/transaction.py:1113
+#: smart/transaction.py:753 smart/transaction.py:1113
 #, python-format
 msgid "Can't install %s: no package provides %s"
 msgstr "Kan inte installera %s: inget paket tillhandahåller %s"
@@ -3951,37 +4129,33 @@ msgstr "Kan inte ta bort %s: %s är låst"
 msgid "Can't get rid of %s"
 msgstr "Kan inte bli av med %s"
 
-#: smart/transaction.py:1166
-#: smart/transaction.py:1303
+#: smart/transaction.py:1166 smart/transaction.py:1303
 #, python-format
 msgid ""
 "Can't install %s: all packages providing %s failed to install:\n"
 "%s"
 msgstr ""
-"Kan inte installera %s: alla paket som tillhandahåller %s misslyckades med att bli installerade:\n"
+"Kan inte installera %s: alla paket som tillhandahåller %s misslyckades med "
+"att bli installerade:\n"
 "%s"
 
-#: smart/transaction.py:1250
-#: smart/transaction.py:1255
+#: smart/transaction.py:1250 smart/transaction.py:1255
 #, python-format
 msgid "%s is locked"
 msgstr "%s är låst"
 
-#: smart/transaction.py:1466
-#: smart/transaction.py:2494
+#: smart/transaction.py:1466 smart/transaction.py:2494
 #, python-format
 msgid "Unsatisfied dependency: %s requires %s"
 msgstr "Otillfredsställt beroende: %s kräver %s"
 
-#: smart/transaction.py:1475
-#: smart/transaction.py:1485
+#: smart/transaction.py:1475 smart/transaction.py:1485
 #: smart/transaction.py:2509
 #, python-format
 msgid "Unsatisfied dependency: %s conflicts with %s"
 msgstr "Otillfredsställt beroende: %s är i konflikt med %s"
 
-#: smart/transaction.py:1495
-#: smart/transaction.py:2523
+#: smart/transaction.py:1495 smart/transaction.py:2523
 #, python-format
 msgid "Package %s can't coexist with %s"
 msgstr "Paketet %s kan inte vara installerat samtidigt som %s"
@@ -4010,18 +4184,14 @@ msgstr "Kan inte ta bort %s: den är låst"
 msgid "Can't reinstall %s: it's locked"
 msgstr "Kan inte installera om %s: den är låst"
 
-#: smart/transaction.py:2029
-#: smart/transaction.py:2129
+#: smart/transaction.py:2029 smart/transaction.py:2129
 #, python-format
 msgid "No providers for '%s', required by '%s'"
 msgstr "Ingen tillhandahåller \"%s\", krävs av \"%s\""
 
-#: smart/transaction.py:2046
-#: smart/transaction.py:2055
-#: smart/transaction.py:2166
-#: smart/transaction.py:2175
-#: smart/transaction.py:2193
-#: smart/transaction.py:2224
+#: smart/transaction.py:2046 smart/transaction.py:2055
+#: smart/transaction.py:2166 smart/transaction.py:2175
+#: smart/transaction.py:2193 smart/transaction.py:2224
 #, python-format
 msgid "Package '%s' is locked"
 msgstr "Paketet \"%s\" är låst"
@@ -4032,11 +4202,22 @@ msgid "Can't remove %s, which conflicts with %s"
 msgstr "Kan inte ta bort %s, som är i konflikt med %s"
 
 # Osäker
-#: smart/transaction.py:2191
-#: smart/transaction.py:2222
+#: smart/transaction.py:2191 smart/transaction.py:2222
 #, python-format
 msgid "Package '%s' is not in changeset"
 msgstr "Paketet \"%s\" finns inte i \"changeset\""
+
+#: smart/__init__.py:38
+msgid "Unknown error"
+msgstr "Okänt fel"
+
+#: smart/__init__.py:118
+msgid "Unknown log level"
+msgstr "Okänd loggnivå"
+
+#: smart/__init__.py:129
+msgid "Can't use commands with shell interfaces"
+msgstr "Kan inte använda kommandon med skalgränssnitt"
 
 #: smart/cache.py:185
 msgid "File not found"
@@ -4046,3 +4227,24 @@ msgstr "Filen hittades inte"
 msgid "Updating cache..."
 msgstr "Uppdaterar cache..."
 
+#: smart/sysconfig.py:73
+msgid "Configuration is in readonly mode."
+msgstr "Konfigurationen är i skrivskyddat läge."
+
+#: smart/sysconfig.py:89 smart/sysconfig.py:96 smart/sysconfig.py:99
+#, python-format
+msgid "Broken configuration file at %s"
+msgstr "Trasig konfigurationsfil på %s"
+
+#: smart/sysconfig.py:90
+#, python-format
+msgid "Trying backup at %s"
+msgstr "Provar säkerhetskopia på %s"
+
+#: smart/searcher.py:172
+msgid "Invalid string"
+msgstr "Ogiltig sträng"
+
+#: test.py:34
+msgid "test.py [options] [<test filename>, ...]"
+msgstr "test.py [flaggor] [<testfilnamn>, ...]"
