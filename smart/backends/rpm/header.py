@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005 Canonical
+# Copyright (c) 2005-2007 Canonical
 # Copyright (c) 2004 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
@@ -86,32 +86,25 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getInstalledSize(self):
         return self._h[rpm.RPMTAG_SIZE]
 
-    def getDescription(self):
-        s = self._h[rpm.RPMTAG_DESCRIPTION]
-        for encoding in ENCODINGS:
-            try:
-                s = s.decode(encoding)
-            except UnicodeDecodeError:
-                continue
-            break
-        else:
-            s = ""
-        return s
-
-    def getSummary(self):
-        s = self._h[rpm.RPMTAG_SUMMARY]
-        if not s:
-            s = ""
-        else:
+    def _getHeaderString(self, tag):
+        result = self._h and self._h[tag] or u""
+        if result:
+            if type(result) == list:
+                # Must have an element, or the check above would fail.
+                result = result[0]
             for encoding in ENCODINGS:
                 try:
-                    s = s.decode(encoding)
+                    result = result.decode(encoding)
                 except UnicodeDecodeError:
                     continue
                 break
-            else:
-                s = ""
-        return s
+        return result
+
+    def getDescription(self):
+        return self._getHeaderString(rpm.RPMTAG_DESCRIPTION)
+
+    def getSummary(self):
+        return self._getHeaderString(rpm.RPMTAG_SUMMARY)
 
     def getGroup(self):
         s = self._loader.getGroup(self._package)
