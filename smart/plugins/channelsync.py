@@ -35,7 +35,7 @@ def syncChannels(channelsdir, force=None):
         seenalias = {}
 
         for entry in os.listdir(channelsdir):
-            if not entry.endswith(".channel"):
+            if not (entry.endswith(".channel") or entry.endswith(".repo")):
                 continue
 
             filepath = os.path.join(channelsdir, entry)
