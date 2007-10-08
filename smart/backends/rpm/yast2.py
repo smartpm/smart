@@ -29,6 +29,7 @@ import os
 from re import sub
 from textwrap import wrap
 
+
 class YaST2PackageInfo(PackageInfo):
     def __init__(self, package, loader, info):
         PackageInfo.__init__(self, package)
@@ -37,8 +38,14 @@ class YaST2PackageInfo(PackageInfo):
 
     def getURLs(self):
         version, arch = splitarch(self._package.version)
-        return [posixpath.join(self._loader._baseurl,
-                               self._loader._datadir, arch,
+
+        # replace last digit with media number as yast does
+        baseurl = self._loader._baseurl.rstrip("/");
+        if baseurl[-1:] == "1" and not baseurl[-2:-1].isdigit():
+            baseurl = baseurl.rstrip("1")
+            baseurl += self._info.get("media")
+
+        return [posixpath.join(baseurl, self._loader._datadir, arch,
                                self._info.get("filename"))]
 
     def getInstalledSize(self):

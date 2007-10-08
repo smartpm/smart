@@ -20,18 +20,22 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.option import OptionParser
-from smart import init
-from smart import *
 import tempfile
 import unittest
 import doctest
 import shutil
-import tests
 import sys
 import os
 
+from smart.option import OptionParser
+from smart import init
+from smart import *
+
+import tests
+
+
 USAGE=_("test.py [options] [<test filename>, ...]")
+
 
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
@@ -53,14 +57,15 @@ def main():
 
         runner = unittest.TextTestRunner()
         loader = unittest.TestLoader()
-        testdir = os.path.dirname(tests.__file__)
-        filenames = os.listdir(testdir)
+        filepaths = [os.path.join("tests", filename)
+                     for filename in os.listdir("tests")]
         doctest_flags = doctest.ELLIPSIS
         unittests = []
         doctests = []
-        for filename in filenames:
+        for filepath in filepaths:
+            filename = os.path.basename(filepath)
             if (filename == "__init__.py" or filename.endswith(".pyc") or
-                opts.args and filename not in opts.args):
+                opts.args and filepath not in opts.args):
                 pass
             elif filename.endswith(".py"):
                 unittests.append(filename)
