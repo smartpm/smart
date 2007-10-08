@@ -65,7 +65,7 @@ class YaST2PackageInfo(PackageInfo):
 
 class YaST2Loader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+3
+    __stateversion__ = Loader.__stateversion__+4
 
     def __init__(self, baseurl, datadir, pkginfofile, pkgdescfile=None):
         Loader.__init__(self)

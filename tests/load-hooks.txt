@@ -82,4 +82,10 @@ Let's see if our hooks got called correctly.
   [(), [name1 = version1]]
 
 
+Remove hooks.
+
+  >>> hooks.unregister("cache-loaded-pre-link", add_upgrade)
+  >>> hooks.unregister("cache-loaded", check_upgrade)
+
+
 vim:ft=doctest

@@ -19,30 +19,31 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import posixpath
+
 from smart.backends.rpm.yast2 import YaST2Loader
 from smart.util.filetools import getFileDigest
-from smart.const import SUCCEEDED, FAILED, NEVER
+from smart.const import FAILED, NEVER
 from smart.channel import PackageChannel
-from smart import *
-import posixpath
-import tempfile
-import commands
-import os
+from smart import Error, _
+
 
 class YaST2Channel(PackageChannel):
-    def __init__(self, baseurl, *args):
+
+    def __init__(self, baseurl, compressed, *args):
         super(YaST2Channel, self).__init__(*args)
         self._baseurl = baseurl
+        self._compressed = compressed
 
     def getCacheCompareURLs(self):
-	return [posixpath.join(self._baseurl, "media.1/media")]
+        return [posixpath.join(self._baseurl, "media.1/media")]
 
     def getFetchSteps(self):
         return 4
 
-    def __fetchFile(self, file, fetcher, progress):
+    def __fetchFile(self, file, fetcher, progress, uncompress=False):
         fetcher.reset()
-        item = fetcher.enqueue(file)
+        item = fetcher.enqueue(file,uncomp=uncompress)
         fetcher.run(progress=progress)
         failed = item.getFailedReason()
         if failed:
@@ -52,7 +53,6 @@ class YaST2Channel(PackageChannel):
                 lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (item.getURL(), failed)]
                 raise Error, "\n".join(lines)
-            return False
         return item
 
     def fetch(self, fetcher, progress):
@@ -62,53 +62,83 @@ class YaST2Channel(PackageChannel):
         # that says if the repository has changed
         fetchitem = posixpath.join(self._baseurl, "media.1/media")
         fetched = self.__fetchFile(fetchitem, fetcher, progress)
-        if not fetched or fetched.getStatus() == FAILED: return False
+        if fetched.getStatus() == FAILED:
+            return False
 
         digest = getFileDigest(fetched.getTargetPath())
         #if digest == self._digest and getattr(self, "force-yast", False):
         if digest == self._digest:
             return True
-        self.removeLoaders()
 
         # Find location of description files
         fetchitem = posixpath.join(self._baseurl, "content")
         fetched = self.__fetchFile(fetchitem, fetcher, progress)
-        if not fetched or fetched.getStatus() == FAILED: return False
-        self.removeLoaders()
+        if fetched.getStatus() == FAILED:
+            return False
+
         descrdir = "suse/setup/descr"
         datadir = "RPMS"
+        uncompress = self._compressed
         for line in open(fetched.getTargetPath()):
-            if line.startswith("DESCRDIR"): descrdir = line[9:-1]
-            if line.startswith("DATADIR"): datadir = line[8:-1]
+            line = line.strip()
+            try:
+                key, rest = line.split(None, 1)
+            except ValueError:
+                continue
+
+            if key == "DESCRDIR":
+                descrdir = rest
+            elif key == "DATADIR":
+                datadir = rest
+            elif key == "META":
+                # Autodetect compressed/uncompressed SuSEtags metadata.
+                if rest.endswith("packages"):
+                    uncompress = False
+                elif rest.endswith("packages.gz"):
+                    uncompress = True
 
         # Fetch package information (req, dep, prov, etc)
-        fetchitem = posixpath.join(self._baseurl,
-                                  (("%s/packages") % descrdir))
-        fetched = self.__fetchFile(fetchitem, fetcher, progress)
-        if not fetched or fetched.getStatus() == FAILED: return False
+        fetchitem = posixpath.join(self._baseurl, "%s/packages" % descrdir)
+        if uncompress:
+            fetchitem += ".gz"
+        fetched = self.__fetchFile(fetchitem, fetcher, progress, uncompress)
+        if fetched.getStatus() == FAILED:
+            return False
+
         self.removeLoaders()
+
         pkginfofile = fetched.getTargetPath()
-        if open(pkginfofile).read(9) == "=Ver: 2.0":
+        header = open(pkginfofile).readline().strip()
+        if header == "=Ver: 2.0":
             fetchitem = posixpath.join(self._baseurl,
-                                      (("%s/packages.en") % descrdir))
-            fetched = self.__fetchFile(fetchitem, fetcher, progress)
-            if not fetched or fetched.getStatus() == FAILED or open(fetched.getTargetPath()).read(9) != "=Ver: 2.0":
+                                       "%s/packages.en" % descrdir)
+            if uncompress:
+                fetchitem += ".gz"
+
+            fetched = self.__fetchFile(fetchitem, fetcher,
+                                       progress, uncompress)
+
+            if (fetched.getStatus() == FAILED or
+                open(fetched.getTargetPath()).readline().strip() != "=Ver: 2.0"):
                 raise Error, "YaST2 package descriptions not loaded."
-                loader = YaST2Loader(self._baseurl, datadir, pkginfofile)
             else:
                 pkgdescfile = fetched.getTargetPath()
-                loader = YaST2Loader(self._baseurl, datadir, pkginfofile, pkgdescfile)
+                loader = YaST2Loader(self._baseurl, datadir,
+                                     pkginfofile, pkgdescfile)
+
             loader.setChannel(self)
             self._loaders.append(loader)
         else:
-            raise Error, _("Invalid package file format. Invalid header found.")
+            raise Error, _("Invalid package file header (%s)" % header)
 
         self._digest = digest
 
         return True
 
+
 def create(alias, data):
     return YaST2Channel(data["baseurl"],
+                        data["compressed"],
                         data["type"],
                         alias,
                         data["name"],

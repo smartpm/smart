@@ -1,0 +1,13 @@
+PRODUCT tests
+VERSION 10.0-0
+LABEL tests (SMART)
+VENDOR Smart Package Manager
+ARCH.i686 i686 i586 i486 i386 noarch
+ARCH.i586 i586 i486 i386 noarch
+DEFAULTBASE i586
+DESCRDIR setup/descr
+DATADIR RPMS
+META SHA1 94e15eb4e437c2fc62d7c6cbc097353955f66f6d  packages.DU.gz
+META SHA1 2df96fdea559d2cc5376794be4c7868ecdec20fe  packages.en.gz
+META SHA1 3fc5218af5c2563418984c4b21a5f37a4d66cd84  packages.gz
+
