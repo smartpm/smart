@@ -73,7 +73,7 @@ def speedToStr(speed):
 
 def secondsToStr(time):
     if not time:
-        return "Unknown"
+        return _("Unknown")
     elif time == 0:
         return "0s"
     elif time < 1:
@@ -82,7 +82,7 @@ def secondsToStr(time):
         minutes, seconds = divmod(time, 60)
         hours, minutes = divmod(minutes, 60)
         if hours > 99:
-            return "Stalled"
+            return _("Stalled")
         elif hours > 0:
             return "%02ih%02im%02is" % (hours, minutes, seconds)
         elif minutes > 0:
