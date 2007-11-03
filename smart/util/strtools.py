@@ -81,7 +81,9 @@ def secondsToStr(time):
     else:
         minutes, seconds = divmod(time, 60)
         hours, minutes = divmod(minutes, 60)
-        if hours > 0:
+        if hours > 99:
+            return "Stalled"
+        elif hours > 0:
             return "%02ih%02im%02is" % (hours, minutes, seconds)
         elif minutes > 0:
             return "%02im%02is" % (minutes, seconds)
