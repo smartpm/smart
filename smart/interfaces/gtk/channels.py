@@ -252,7 +252,7 @@ class GtkChannels(object):
             elif method == "detectpath":
                 if gtk.pygtk_version > (2,4,0):
                     dia = gtk.FileChooserDialog(
-                        action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                        action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
                         buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                                  gtk.STOCK_OK, gtk.RESPONSE_OK))
                                  
