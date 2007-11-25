@@ -188,10 +188,13 @@ class RPMPackage(Package):
             if rc == 0 and self.version != other.version:
                 selfver, selfarch = splitarch(self.version)
                 otherver, otherarch = splitarch(other.version)
-                if selfver != otherver:
-                    rc = vercmp(self.version, other.version)
+                if selfarch != otherarch:
+                    rc = cmp(getArchColor(selfarch), getArchColor(otherarch))
                 if rc == 0:
-                    rc = -cmp(archscore(selfarch), archscore(otherarch))
+                    if selfver != otherver:
+                        rc = vercmp(self.version, other.version)
+                    if rc == 0:
+                        rc = -cmp(archscore(selfarch), archscore(otherarch))
         return rc == -1
 
 class RPMProvides(Provides):         __slots__ = ()
