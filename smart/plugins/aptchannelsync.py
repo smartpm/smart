@@ -19,94 +19,106 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.channel import *
-from smart import *
-import os
+import posixpath
 import md5
+import os
 
 # be compatible with 2.3
 import sys
 if sys.version_info < (2, 4):
     from sets import Set as set
 
+from smart.channel import *
+from smart import *
+
+
 APT_SOURCES_DIR = "/etc/apt/sources.list.d/"
 APT_SOURCES = "/etc/apt/sources.list"
 
-def _readSourcesList(file):
 
-    # the lines we have seen in the sources.list
+def _loadSourcesList(filename):
+
+    file = open(filename)
+
+    # The computed aliases we have seen in the given file.
     seen = set()
-    
+
     for line in file:
         line = line.strip()
-        # we only handle type "deb" or "rpm"
+
+        # We only handle type "deb" or "rpm".
         if not (line.startswith("deb ") or line.startswith("rpm ")):
             continue
-        # strip away in-line comments
+
+        # Strip away in-line comments.
         if "#" in line:
             line = line[:line.find('#')]
-        # split it
+
+        # Split it apart.
         try:
             (type, uri, distro, comps) = line.split(None, 3)
         except ValueError:
             (type, uri, distro) = line.split(None, 2)
             comps = ""
 
-        # build a uniq alias
+        # Build a unique alias.
         m = md5.new("%s%s%s%s" % (type, uri, distro,comps))
         alias = "aptsync-%s" % m.hexdigest()
         seen.add(alias)
-        data = "[%s]\n" \
-               "type=apt-deb\n"\
-               "name=%s - %s\n" \
-               "baseurl=%s\n"\
-               "distribution=%s\n"\
-               "components=%s\n" % (alias,distro,comps,uri,distro,comps)
-        descriptions = parseChannelsDescription(data)
 
-        # create a channel for the alias
-        for alias in descriptions:
-            try:
-                createChannel(alias, descriptions[alias])
-            except Error, e:
-                iface.error(_("While using %s: %s") % (file.name, e))
-            else:
-                sysconf.set(("channels", alias), descriptions[alias])
-
-    # now delete the entries that are no longer in our sources.list
-    channels = sysconf.get("channels")
-    dellist = filter(lambda al: al.startswith("aptsync-") and al not in seen, channels)
-    for d in dellist:
-        sysconf.remove(("channels", d))
-    
+        if type == "deb":
+            data = {"type": "apt-deb",
+                    "name": "%s - %s" % (distro, comps),
+                    "baseurl": uri,
+                    "distribution": distro,
+                    "components": comps}
+        else:
+            data = {"type": "apt-rpm",
+                    "name": "%s - %s" % (distro, comps),
+                    "baseurl": posixpath.join(uri, distro),
+                    "components": comps}
             
+        # See if creating a channel works.
+        try:
+            createChannel(alias, data)
+        except Error, e:
+            iface.error(_("While using %s: %s") % (file.name, e))
+        else:
+            # Store it persistently.
+            sysconf.set(("channels", alias), data)
+
+    file.close()
+
+    return seen
+
 
 def syncAptChannels(sourcesfile, sourcesdir, force=None):
 
-    # FIXME: add the fingerprints as well!
-    #        and fix the gpg handling in smart
+    # FIXME: Add the fingerprints as well.
+    # FIXME: Fix the gpg handling in smart.
 
-    # first sources.list
-    if os.path.exists(sourcesfile):
-        _readSourcesList(open(sourcesfile))
+    seen = set()
 
-    # then the channels dir
+    # First, the sources.list file.
+    if os.path.isfile(sourcesfile):
+        seen.update(_loadSourcesList(sourcesfile))
+
+    # Then, the sources.list.d directory.
     if os.path.isdir(sourcesdir):
-
         for entry in os.listdir(sourcesdir):
-            if not entry.endswith(".list"):
-                continue
+            if entry.endswith(".list"):
+                filepath = os.path.join(sourcesdir, entry)
+                if os.path.isfile(filepath):
+                    seen.update(_loadSourcesList(filepath))
 
-            filepath = os.path.join(sourcesdir, entry)
-            if not os.path.isfile(filepath):
-                continue
-            file = open(filepath)
-            _readSourcesList(file)
-
+    # Delete the entries which were not seen in current files.
+    channels = sysconf.get("channels")
+    for alias in sysconf.keys("channels"):
+        if alias.startswith("aptsync-") and alias not in seen:
+            sysconf.remove(("channels", alias))
 
 
 if not sysconf.getReadOnly():
     if sysconf.get("sync-apt-sources",False):
         syncAptChannels(sysconf.get("apt-sources-file", APT_SOURCES),
                         sysconf.get("apt-sources-dir", APT_SOURCES_DIR))
-

@@ -37,6 +37,45 @@ import tests
 USAGE=_("test.py [options] [<test filename>, ...]")
 
 
+def find_tests(testpaths=()):
+    """Find all test paths, or test paths contained in the provided sequence.
+
+    @param testpaths: If provided, only tests in the given sequence will
+                      be considered.  If not provided, all tests are
+                      considered.
+    @return: (unittests, doctests) tuple, with lists of unittests and
+             doctests found, respectively.
+    """
+    topdir = os.path.abspath(os.path.dirname(__file__))
+    testdir = os.path.dirname(tests.__file__)
+    testpaths = set(testpaths)
+    unittests = []
+    doctests = []
+    for root, dirnames, filenames in os.walk(testdir):
+        for filename in filenames:
+            filepath = os.path.join(root, filename)
+            relpath = filepath[len(topdir)+1:]
+
+            if filename == "__init__.py" or filename.endswith(".pyc"):
+                # Skip non-tests.
+                continue
+
+            if testpaths:
+                # Skip any tests not in testpaths.
+                for testpath in testpaths:
+                    if relpath.startswith(testpath):
+                        break
+                else:
+                    continue
+
+            if filename.endswith(".py"):
+                unittests.append(relpath)
+            elif filename.endswith(".txt"):
+                doctests.append(relpath)
+
+    return unittests, doctests
+
+
 def parse_options(argv):
     parser = OptionParser(usage=USAGE)
     opts, args = parser.parse_args(argv)
@@ -57,20 +96,9 @@ def main():
 
         runner = unittest.TextTestRunner()
         loader = unittest.TestLoader()
-        filepaths = [os.path.join("tests", filename)
-                     for filename in os.listdir("tests")]
         doctest_flags = doctest.ELLIPSIS
-        unittests = []
-        doctests = []
-        for filepath in filepaths:
-            filename = os.path.basename(filepath)
-            if (filename == "__init__.py" or filename.endswith(".pyc") or
-                opts.args and filepath not in opts.args):
-                pass
-            elif filename.endswith(".py"):
-                unittests.append(filename)
-            elif filename.endswith(".txt"):
-                doctests.append(filename)
+
+        unittests, doctests = find_tests(opts.args)
 
         class Summary:
             def __init__(self):
@@ -87,8 +115,8 @@ def main():
             print "Running unittests..."
             for filename in unittests:
                 print "[%s]" % filename
-                module = __import__("tests." + filename[:-3],
-                                    None, None, [filename])
+                modulename = filename[:-3].replace("/", ".")
+                module = __import__(modulename, None, None, [filename])
                 test = loader.loadTestsFromModule(module)
                 result = runner.run(test)
                 summary(len(result.failures), test.countTestCases())
@@ -101,8 +129,7 @@ def main():
             print "Running doctests..."
             for filename in doctests:
                 print "[%s]" % filename
-                summary(*doctest.testfile(filename, package=tests,
-                                          optionflags=doctest_flags))
+                summary(*doctest.testfile(filename, optionflags=doctest_flags))
                 print
 
                 shutil.rmtree(datadir)
