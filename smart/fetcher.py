@@ -1029,7 +1029,12 @@ class FTPHandler(FetcherHandler):
                     item.progress(item.current, total)
 
                 try:
-                    ftp.retrbinary("RETR "+filename, write, BLOCKSIZE, rest)
+                    try:
+                        ftp.retrbinary("RETR "+filename, write, BLOCKSIZE,
+                                        rest)
+                    except ftplib.error_perm:
+                        iface.debug("Server does not support resume. \
+                                    Restarting...")
                 finally:
                     local.close()
 
