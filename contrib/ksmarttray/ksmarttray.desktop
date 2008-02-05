@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=KSmartTray
+Comment=KDE Tray widget for updating RPM files
+Exec=/usr/bin/ksmarttray
+Icon=ksmarttray
+Type=Application
+Categories=Qt;Settings;PackageManager;
