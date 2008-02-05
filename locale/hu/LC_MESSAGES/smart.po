@@ -1,18 +1,19 @@
+# translation of smart.po to Hungarian
 # translation of new.po to
 # translation of smart.po to
 # translation of smart.hu.po to
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Kalman Kemenczy <kkemenczy@novell.com>, 2006, 2007.
+# Kalman Kemenczy <kkemenczy@novell.com>, 2006, 2007, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: smart\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-10-05 13:36-0300\n"
-"PO-Revision-Date: 2007-04-10 17:39+0200\n"
+"PO-Revision-Date: 2008-02-02 15:41+0100\n"
 "Last-Translator: Kalman Kemenczy <kkemenczy@novell.com>\n"
-"Language-Team:  <hu@li.org>\n"
+"Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -586,7 +587,7 @@ msgstr "felhasznált hely: %s."
 #: smart/interfaces/gtk/changes.py:196 smart/interfaces/qt/changes.py:189
 #, python-format
 msgid "%s will be freed."
-msgstr "felszabaduló hely: %s"
+msgstr "felszabaduló hely: %s."
 
 #: trunk/interfaces/gtk/interactive.py:111
 #: smart/interfaces/gtk/interactive.py:114
@@ -614,9 +615,8 @@ msgstr "_Csatornák frissítése"
 
 #: trunk/interfaces/gtk/interactive.py:115
 #: smart/interfaces/qt/interactive.py:115
-#, fuzzy
 msgid "Update channels information"
-msgstr "Csatornainformációk megadása"
+msgstr "Csatornainformációk frissítése"
 
 #: trunk/interfaces/gtk/interactive.py:116
 #: smart/interfaces/gtk/interactive.py:119
@@ -944,6 +944,10 @@ msgid ""
 "Is recommended that the channels informations are updated.\n"
 "Do you want to update them automatically now?"
 msgstr ""
+"Ön egy csomagkezelőt használ,\n"
+"amelynek segítségével programokat telepíthet, frissíthet vagy eltávolíthat.\n"
+"Javasolt a csatornainformációk frissítése.\n"
+"Kívánja őket most automatikusan frissíteni?"
 
 #: trunk/interfaces/gtk/interactive.py:453
 #: smart/interfaces/qt/interactive.py:453
@@ -952,6 +956,9 @@ msgid ""
 "Is recommended that the channels informations are updated.\n"
 "Do you want to update automatically now?"
 msgstr ""
+"Ön az egész rendszert frissíti.\n"
+"Javasolt a csatornainformációk frissítése.\n"
+"Kívánja őket most automatikusan frissíteni?"
 
 #: trunk/interfaces/gtk/interactive.py:472
 #: smart/interfaces/gtk/interactive.py:465
@@ -1238,8 +1245,7 @@ msgstr "Eltávolítható"
 msgid ""
 "If set to a true value, the given channel will be considered as being "
 "available in a removable media (cdrom, etc)."
-msgstr ""
-"Bekapcsolásakor a csatorna eltávolítható médiának lesz beállítva (dvd stb.)."
+msgstr "Bekapcsolásakor a csatorna eltávolítható médiának lesz beállítva (dvd stb.)."
 
 #: smart/channel.py:151
 msgid ""
@@ -2692,22 +2698,20 @@ msgstr "Kész"
 msgid ""
 "You need PyQt installed in your system, please install with your package "
 "manager."
-msgstr ""
+msgstr "A program használatához szükség van a PyQt telepítésére. telepítse fel a programot a rendszer csomagkezelőjével."
 
 #: smart/interfaces/qt/interface.py:84 smart/interfaces/qt/interface.py:99
 #: smart/interfaces/qt/interface.py:116
 msgid "Question..."
-msgstr ""
+msgstr "Kérdés..."
 
 #: smart/interfaces/qt/interface.py:101
-#, fuzzy
 msgid "Continue"
-msgstr "Folytatja?"
+msgstr "Folytatás"
 
 #: smart/interfaces/qt/interface.py:102
-#, fuzzy
 msgid "Cancel"
-msgstr "mégsem"
+msgstr "Mégsem"
 
 #: smart/media.py:183
 msgid "/proc/mounts not found"
@@ -2789,10 +2793,8 @@ msgstr ""
 "automatikus felismerés végezhető"
 
 #: smart/commands/channel.py:108
-msgid ""
-"argument is an alias, and one or more key=value pairs modifying a channel"
-msgstr ""
-"a paraméter egy elnevezés és egy vagy több key=value módosítja a csatornát"
+msgid "argument is an alias, and one or more key=value pairs modifying a channel"
+msgstr "a paraméter egy elnevezés és egy vagy több key=value módosítja a csatornát"
 
 #: smart/commands/channel.py:111
 msgid "arguments are channel aliases to be removed"
@@ -2803,8 +2805,7 @@ msgid "remove all existent channels"
 msgstr "az összes létező csatorna eltávolítása"
 
 #: smart/commands/channel.py:115
-msgid ""
-"show channels with given aliases, or all channels if no arguments were given"
+msgid "show channels with given aliases, or all channels if no arguments were given"
 msgstr ""
 "a megadott elnevezésű csatorna megjelenítése, paraméter nélkül az összes "
 "csatorna megjelenítése"
@@ -2967,8 +2968,7 @@ msgstr "ne kérjen jóváhagyást"
 #: smart/commands/remove.py:60 smart/commands/install.py:65
 #: smart/commands/upgrade.py:72
 msgid "dump package names and versions to stderr but don't commit operation"
-msgstr ""
-"csomagnevek és verziók betöltése a stderr-be, de nem hajtja végre a műveletet"
+msgstr "csomagnevek és verziók betöltése a stderr-be, de nem hajtja végre a műveletet"
 
 #: smart/commands/remove.py:120 smart/commands/fix.py:105
 #: smart/commands/reinstall.py:121 smart/commands/install.py:164
@@ -3483,8 +3483,7 @@ msgstr ""
 
 #: smart/commands/mirror.py:99
 msgid "remove all mirrors for the given origin URLs"
-msgstr ""
-"a megadott elsődleges csatornához tartozó összes másodlagos URL eltávolítása"
+msgstr "a megadott elsődleges csatornához tartozó összes másodlagos URL eltávolítása"
 
 #: smart/commands/mirror.py:101
 msgid ""
@@ -3508,10 +3507,8 @@ msgstr ""
 "törlése"
 
 #: smart/commands/mirror.py:110
-msgid ""
-"show current penalities for origins/mirrors, based on the history information"
-msgstr ""
-"az elsődleges és másodlagos kiszolgálók hibaszámai az előzmények alapján"
+msgid "show current penalities for origins/mirrors, based on the history information"
+msgstr "az elsődleges és másodlagos kiszolgálók hibaszámai az előzmények alapján"
 
 #: smart/commands/mirror.py:120
 msgid "mirror descriptions"
@@ -3650,8 +3647,7 @@ msgstr ""
 "smart update csatorna1 csatorna2\n"
 
 #: smart/commands/update.py:49
-msgid ""
-"only update if the last successful update happened before the given delay"
+msgid "only update if the last successful update happened before the given delay"
 msgstr ""
 "csak akkor frissít, ha az utolsó sikeres frissítés befejeződött az adott "
 "késleltetési időn belül"
@@ -3780,8 +3776,7 @@ msgstr ""
 "szerepelnek"
 
 #: smart/commands/check.py:63
-msgid ""
-"check packages which are inside the given channels (comma separated aliases)"
+msgid "check packages which are inside the given channels (comma separated aliases)"
 msgstr ""
 "megadott csatornában szereplő csomagok ellenőrzése (elnevezések vesszővel "
 "elválasztva)"
@@ -4250,3 +4245,4 @@ msgstr "Érvénytelen karakterlánc"
 #: test.py:34
 msgid "test.py [options] [<test filename>, ...]"
 msgstr "test.py [kapcsolók] [<próbafájl>, ...]"
+
