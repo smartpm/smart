@@ -2,7 +2,7 @@
 appdir = $(kde_datadir)/ksmarttray/
 app_DATA = eventsrc
 
-iconsdir = $(appdir)/icons/hicolor/48x48/apps/
+iconsdir = $(datarootdir)/icons/hicolor/48x48/apps/
 icons_DATA = ksmarttray.png
 
 bin_PROGRAMS = ksmarttray
