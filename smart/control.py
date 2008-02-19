@@ -506,6 +506,9 @@ class Control(object):
         if not confirm:
             iface.showChangeSet(changeset)
 
+        if sysconf.get("dry-run"):
+            return True
+
         setCloseOnExecAll()
 
         pmpkgs = {}

@@ -185,6 +185,9 @@ class DebPackageManager(PackageManager):
         opt = sysconf.get("deb-instdir")
         if opt:
             baseargs.append("--instdir=%s" % opt)
+        opt = sysconf.get("deb-simulate")
+        if opt:
+            baseargs.append("--simulate")
 
         PURGE = object()
 

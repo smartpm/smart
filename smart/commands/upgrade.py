@@ -130,7 +130,7 @@ def main(ctrl, opts):
                         for pkg in obj.packages:
                             if pkg.installed:
                                 foundinstalled = True
-                                trans.enqueue(obj, UPGRADE)
+                                trans.enqueue(pkg, UPGRADE)
                             foundany = True
             if not foundinstalled:
                 iface.warning(_("'%s' matches no installed packages") % arg)
