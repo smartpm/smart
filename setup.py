@@ -25,7 +25,7 @@ class InstallData(install_data):
                 cmd = 'msgfmt -o %s %s' % (mo, po)
                 info('compiling %s -> %s' % (po, mo))
                 if os.system(cmd) != 0:
-                    info('Error while running msgfmt on %s') % directory
+                    info('Error while running msgfmt on %s' % directory)
             dest = os.path.dirname(os.path.join('share', mo))
             i18nfiles.append((dest, [mo]))
         return i18nfiles
