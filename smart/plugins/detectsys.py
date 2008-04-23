@@ -60,8 +60,11 @@ def detectSLACKSystem():
                             "name": "Slackware System"
                         })
 
-if sysconf.get("detect-sys-channels", True):
-    detectRPMSystem()
-    detectDEBSystem()
-    detectSLACKSystem()
-
+detect_sys_channels = sysconf.get("detect-sys-channels", True)
+if detect_sys_channels:
+    if detect_sys_channels == True or "rpm" in str(detect_sys_channels):
+        detectRPMSystem()
+    if detect_sys_channels == True or "deb" in str(detect_sys_channels):
+        detectDEBSystem()
+    if detect_sys_channels == True or "slack" in str(detect_sys_channels):
+        detectSLACKSystem()
