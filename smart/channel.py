@@ -263,7 +263,7 @@ def parseChannelsDescription(data):
             current = {}
             channels[alias] = current
         elif current is not None and not line[0] == "#" and "=" in line:
-            key, value = line.split("=")
+            key, value = line.split("=", 1)
             current[key.strip().lower()] = value.strip()
     for alias in channels:
         channels[alias] = parseChannelData(channels[alias])
