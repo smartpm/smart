@@ -296,22 +296,26 @@ class DeviceMedia(BasicMedia):
         except OSError:
             pass
 
-def discoverFstabMedias():
+def discoverFstabMedias(filename="/etc/fstab"):
     result = []
-    if os.path.isfile("/etc/fstab"):
-        for line in open("/etc/fstab"):
+    if os.path.isfile(filename):
+        for line in open(filename):
 
             line = line.strip()
             if not line or line[0] == "#":
                 continue
 
-            device, mountpoint, type = line.split()[:3]
+            tokens = line.split()
+            if len(tokens) < 3:
+                continue
+
+            device, mountpoint, type = tokens[:3]
             if device == "none":
                 device = None
 
             if type == "supermount":
                 result.append(MountMedia(mountpoint))
-            elif (type in ("iso9660", "udf") or
+            elif (type in ("iso9660", "udf", "udf,iso9660") or
                 device in ("/dev/cdrom", "/dev/dvd") or
                 mountpoint.endswith("/cdrom") or mountpoint.endswith("/dvd")):
                 result.append(BasicMedia(mountpoint, device, removable=True))

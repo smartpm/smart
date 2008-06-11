@@ -1,6 +1,7 @@
-from smart.media import discoverAutoMountMedias
+from smart.media import discoverAutoMountMedias, discoverFstabMedias
 from tempfile import NamedTemporaryFile
 import unittest
+
 
 class AutoMountTest(unittest.TestCase):
 
@@ -31,6 +32,23 @@ class AutoMountTest(unittest.TestCase):
         self.assertEquals(result[1].getMountPoint(), "/misc/cdrom2")
 
 
+class FSTabTest(unittest.TestCase):
+
+    def setUp(self):
+        self.file = NamedTemporaryFile()
+        self.file.write(FSTAB)
+        self.file.flush()
+
+    def tearDown(self):
+        self.file.close()
+
+    def test_parse(self):
+        result = discoverFstabMedias(self.file.name)
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0].getMountPoint(), "/media/cdrom0")
+
+
+
 AUTO_MASTER = """
 
 # Some comment.
@@ -51,4 +69,12 @@ cdrom2  :/dev/cdrom
 
 AUTO_NET = """
 project  :/something/else
+"""
+
+FSTAB = """
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+proc            /proc           proc    defaults        0       0
+UUID=d6e954e8-71ca-4c2a-90b4-adb554acb41a / ext3 defaults,errors=remount-ro 0 1
+bad line
+/dev/hda        /media/cdrom0   udf,iso9660 user,noauto     0       0
 """
