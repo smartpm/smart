@@ -1469,7 +1469,7 @@ class PyCurlHandler(FetcherHandler):
     def tick(self):
         import pycurl
 
-        if not self._running and self._queue:
+        if not self._running and (self._queue or self._active):
             self._running = True
             thread.start_new_thread(self.perform, ())
 
@@ -1674,6 +1674,9 @@ class PyCurlHandler(FetcherHandler):
                 res, num = multi.perform()
             self._lock.release()
             time.sleep(0.2)
+        # Keep in mind that even though the while above has exited due to
+        # self._active being False, it may actually be true *here* due to
+        # race conditions.
         self._running = False
 
 try:
