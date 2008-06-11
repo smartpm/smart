@@ -28,7 +28,7 @@ import sys
 import os
 
 from smart.option import OptionParser
-from smart import init
+from smart import init, const, interface
 from smart import *
 
 import tests
@@ -90,6 +90,8 @@ def main():
     __builtins__.__dict__.update(tests.__dict__)
 
     try:
+        const.DISTROFILE = "/non-existent/file"
+        interface.getScreenWidth = lambda: 80
 
         tests.ctrl = init(datadir=datadir)
         opts = parse_options(sys.argv[1:])

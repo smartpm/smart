@@ -34,6 +34,9 @@ class APTChannelSyncTest(MockerTestCase):
         self.sources_dir = os.path.join(self.apt_dir, "sources.list.d")
         os.mkdir(self.sources_dir)
 
+    def tearDown(self):
+        sysconf.remove("channels")
+
     def test_sychronize_sources_list(self):
         filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,
                                  basename="sources.list")
