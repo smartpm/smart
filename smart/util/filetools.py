@@ -65,7 +65,8 @@ def setCloseOnExec(fd):
         pass
 
 def setCloseOnExecAll():
-    for fd in range(3,resource.getrlimit(resource.RLIMIT_NOFILE)[1]):
+    number_of_files = min(4096, resource.getrlimit(resource.RLIMIT_NOFILE)[1])
+    for fd in range(3, number_of_files):
         try:
             flags = fcntl.fcntl(fd, fcntl.F_GETFL, 0)
             flags |= fcntl.FD_CLOEXEC
