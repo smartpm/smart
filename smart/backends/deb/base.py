@@ -27,6 +27,7 @@ from smart.cache import *
 import fnmatch
 import string
 import os, re
+import sys
 
 __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebRequires", "DebUpgrades", "DebConflicts", "DebOrRequires",
@@ -54,6 +55,9 @@ def getArchitecture():
         return arch
 
 DEBARCH = sysconf.get("deb-arch", getArchitecture())
+platform = sys.platform
+if platform != "linux2":
+    DEBARCH = "%s-%s" % (platform, DEBARCH)
 
 class DebPackage(Package):
 
