@@ -168,7 +168,6 @@ class RPMMetaDataChannel(PackageChannel):
         else:
             progress.add(1)
 
->>>>>>> MERGE-SOURCE
         self._digest = digest
 
         return True
