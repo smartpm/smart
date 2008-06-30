@@ -43,6 +43,10 @@ Currently known flags are:
   multi-version - Flagged packages may have more than one version
                   installed in the system at the same time
                   (backend dependent).
+
+  security      - Flagged packages are updates for security errata.
+  bugfix        - Flagged packages are updates for bugfix errata.
+  enhancement   - Flagged packages are updates for enhancement errata.
 """)
 
 EXAMPLES=_("""

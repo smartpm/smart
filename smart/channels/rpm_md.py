@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.metadata import RPMMetaDataLoader
+from smart.backends.rpm.updateinfo import RPMUpdateInfoLoader
 from smart.util.filetools import getFileDigest
 
 try:
@@ -53,7 +54,7 @@ class RPMMetaDataChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 3
+        return 4
 
     def fetch(self, fetcher, progress):
         
@@ -82,6 +83,8 @@ class RPMMetaDataChannel(PackageChannel):
         except expat.error, e:
             raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
                           (item.getTargetPath(), repomd, str(e))
+
+        use_updateinfo = True
 
         for node in root.getchildren():
             if node.tag != DATA:
@@ -144,6 +147,28 @@ class RPMMetaDataChannel(PackageChannel):
         else:
             return False
 
+        if use_updateinfo and "updateinfo" in info:
+            fetcher.reset()
+            item = fetcher.enqueue(info["updateinfo"]["url"],
+                                   md5=info["updateinfo"].get("md5"),
+                                   uncomp_md5=info["updateinfo"].get("uncomp_md5"),
+                                   sha=info["updateinfo"].get("sha"),
+                                   uncomp_sha=info["updateinfo"].get("uncomp_sha"),
+                                   uncomp=True)
+            fetcher.run(progress=progress)
+            if item.getStatus() == SUCCEEDED:
+                localpath = item.getTargetPath()
+                loader = RPMUpdateInfoLoader(localpath, self._baseurl)
+                loader.setChannel(self)
+                self._loaders.append(loader)
+            else:
+                iface.warning(_("Failed to download. You must fetch channel "
+                    "information to acquire needed update information.\n"
+                    "%s: %s") % (item.getURL(), item.getFailedReason()))
+        else:
+            progress.add(1)
+
+>>>>>>> MERGE-SOURCE
         self._digest = digest
 
         return True

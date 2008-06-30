@@ -66,6 +66,8 @@ def parse_options(argv):
     parser.add_option("--explain", action="store_true",
                       help=_("include additional information about changes,"
                              "when possible"))
+    parser.add_option("--flag", action="store", default=None,
+                      help=_("check only upgrades with the given flag set"))
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
     parser.add_option("--dump", action="store_true",
@@ -120,7 +122,7 @@ def main(ctrl, opts):
             foundinstalled = False
             for obj in results:
                 if isinstance(obj, Package):
-                    if obj.installed:
+                    if obj.installed and (not opts.flag or pkgconf.testFlag(opts.flag, obj)):
                         trans.enqueue(obj, UPGRADE)
                         foundinstalled = True
                     foundany = True
@@ -128,7 +130,7 @@ def main(ctrl, opts):
                 for obj in results:
                     if not isinstance(obj, Package):
                         for pkg in obj.packages:
-                            if pkg.installed:
+                            if pkg.installed and (not opts.flag or pkgconf.testFlag(opts.flag, pkg)):
                                 foundinstalled = True
                                 trans.enqueue(pkg, UPGRADE)
                             foundany = True
@@ -136,7 +138,7 @@ def main(ctrl, opts):
                 iface.warning(_("'%s' matches no installed packages") % arg)
     else:
         for pkg in cache.getPackages():
-            if pkg.installed:
+            if pkg.installed and (not opts.flag or pkgconf.testFlag(opts.flag, pkg)):
                 trans.enqueue(pkg, UPGRADE)
 
     iface.showStatus(_("Computing transaction..."))

@@ -48,7 +48,7 @@ class URPMIChannel(PackageChannel):
         return [self._compareurl]
 
     def getFetchSteps(self):
-        return 3
+        return 4
 
     def fetch(self, fetcher, progress):
 
@@ -67,7 +67,7 @@ class URPMIChannel(PackageChannel):
             self._compareurl = md5url
             digest = getFileDigest(item.getTargetPath())
             if digest == self._digest:
-                progress.add(2)
+                progress.add(3)
                 return True
 
             basename = posixpath.basename(self._hdlurl)
@@ -91,6 +91,10 @@ class URPMIChannel(PackageChannel):
             listurl = posixpath.join(hdlbaseurl, "list%s" % suffix)
             listitem = fetcher.enqueue(listurl, uncomp=True)
 
+        fetcher.run(progress=progress)
+
+        descurl = posixpath.join(hdlbaseurl, "descriptions")
+        descitem = fetcher.enqueue(descurl)
         fetcher.run(progress=progress)
 
         if hdlitem.getStatus() == FAILED:
@@ -171,10 +175,46 @@ class URPMIChannel(PackageChannel):
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
 
+            flagdict = {}
+            if descitem and descitem.getStatus() == SUCCEEDED:
+                descpath = descitem.getTargetPath()
+                try:
+                    packages = []
+                    update = importance = None
+                    pre = description = ""
+                    for line in open(descpath):
+                        if line.startswith("%package "):
+                            if packages:
+                                # TODO save pre/description for packages
+                                pass
+                            packages = line[(9):].rstrip("\n").split(" ")
+                            in_pre = in_description = False
+                            update = importance = None
+                            pre = description = ""
+                        if line.startswith("Update: "):
+                            update = line[8:].rstrip("\n")
+                        if line.startswith("Importance: "):
+                            importance = line[12:].rstrip("\n")
+                            for pkg in packages:
+                                #iface.debug("%s: %s" % (pkg, importance))
+                                flagdict[pkg] = importance
+                        if in_description:
+                            description = description + line
+                        if line.startswith("%description"):
+                            in_description = True
+                            in_pre = False
+                        if in_pre:
+                            pre = pre + line
+                        if line.startswith("%pre"):
+                            in_pre = True
+                            in_description = False
+                except (IOError):
+                    pass
+
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
-                loader = URPMILoader(localpath, self._baseurl, listpath)
+                loader = URPMILoader(localpath, self._baseurl, listpath, flagdict)
             else:
-                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath)
+                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath, flagdict)
                                 
             loader.setChannel(self)
             self._loaders.append(loader)

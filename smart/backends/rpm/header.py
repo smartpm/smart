@@ -515,7 +515,7 @@ class RPMPackageListLoader(RPMHeaderListLoader):
 
 class URPMILoader(RPMHeaderListLoader):
 
-    def __init__(self, filename, baseurl, listfile):
+    def __init__(self, filename, baseurl, listfile, flagdict):
         RPMHeaderListLoader.__init__(self, filename, baseurl)
         self._prefix = {}
         if listfile:
@@ -524,6 +524,14 @@ class URPMILoader(RPMHeaderListLoader):
                     entry = entry[2:]
                 dirname, basename = os.path.split(entry.rstrip())
                 self._prefix[basename] = dirname
+        self._flagdict = flagdict
+
+    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
+        pkg = Loader.buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs)
+        name = pkgargs[1]
+        if self._flagdict and name in self._flagdict:
+            pkgconf.setFlag(self._flagdict[name], name, "=", pkgargs[2])
+        return pkg
 
     def getFileName(self, info):
         h = info._h

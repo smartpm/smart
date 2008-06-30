@@ -70,6 +70,8 @@ def parse_options(argv, help=None):
                              "dependency"))
     parser.add_option("--name", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given name"))
+    parser.add_option("--flag", action="append", default=[], metavar="STR",
+                      help=_("show only packages with the given flag set"))
     parser.add_option("--summary", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given summary"))
     parser.add_option("--description", action="append", default=[], metavar="STR",
@@ -245,6 +247,9 @@ def main(ctrl, opts, reloadchannels=True):
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
         hasname.append(re.compile(token, re.I))
+    hasflag = []
+    for token in opts.flag:
+        hasflag.append(token)
     hassummary = []
     for token in opts.summary:
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
@@ -292,8 +297,25 @@ def main(ctrl, opts, reloadchannels=True):
                         for url in info.getReferenceURLs():
                             if pattern.match(url):
                                 newpackages[pkg] = True
+            if hasflag and not (hasname or needsinfo):
+                for flag in hasflag:
+                    if pkgconf.testFlag(flag, pkg):
+                        newpackages[pkg] = True
+            elif hasflag and pkg in newpackages:
+                for flag in hasflag:
+                    if not pkgconf.testFlag(flag, pkg):
+                        del newpackages[pkg]
+                        break
+        
         packages = newpackages.keys()
 
+    if hasflag:
+        newpackages = {}
+        for pkg in packages:
+            for flag in hasflag:
+                if pkgconf.testFlag(flag, pkg):
+                    newpackages[pkg] = True
+        packages = newpackages.keys()
     
     format = opts.format.lower()+"output"
     for attr, value in globals().items():

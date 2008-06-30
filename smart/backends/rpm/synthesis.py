@@ -59,7 +59,7 @@ class URPMISynthesisLoader(Loader):
 
     __stateversion__ = Loader.__stateversion__+3
 
-    def __init__(self, filename, baseurl, listfile):
+    def __init__(self, filename, baseurl, listfile, flagdict):
         Loader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
@@ -70,6 +70,14 @@ class URPMISynthesisLoader(Loader):
                     entry = entry[2:]
                 dirname, basename = os.path.split(entry.rstrip())
                 self._prefix[basename] = dirname
+        self._flagdict = flagdict
+
+    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
+        pkg = Loader.buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs)
+        name = pkgargs[1]
+        if self._flagdict and name in self._flagdict:
+            pkgconf.setFlag(self._flagdict[name], name, "=", pkgargs[2])
+        return pkg
 
     def getInfo(self, pkg):
         return URPMISynthesisPackageInfo(pkg, self, pkg.loaders[self])
