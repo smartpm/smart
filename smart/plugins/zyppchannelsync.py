@@ -91,7 +91,7 @@ def _findBaseUrl(mirrorlist, repo):
     """
     Fetches the first suggested mirror from the mirrorlist and use as baseurl.
     """
-    iface.debug(_("Zypp Sync: trying to locate baseurl from mirrorlist for " \
+    iface.debug(_("ZYpp Sync: trying to locate baseurl from mirrorlist for " \
                      "%s.") % repo)
     import urllib
     list = urllib.urlopen(mirrorlist)
@@ -134,7 +134,7 @@ def _loadRepoFile(filename):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
             baseurl = _findBaseUrl(mirrorlist, repo)
         else:
-            iface.warning(_("Zypp channel %s does not contain baseurl or " \
+            iface.warning(_("ZYpp channel %s does not contain baseurl or " \
                             "mirrorlist addresses. Not syncing.") % repo)
             return seen
 
@@ -168,7 +168,7 @@ def _loadRepoFile(filename):
 
 def syncZyppRepos(reposdir, force=None):
     """
-    Sync Smart channels based on Zypp repositories.
+    Sync Smart channels based on ZYpp repositories.
     """
 
     seen = set()
@@ -190,7 +190,7 @@ def syncZyppRepos(reposdir, force=None):
 if not sysconf.getReadOnly():
     if sysconf.get("sync-zypp-repos",False):
         # Sync is not enabled by default
-        iface.debug(_("Trying to sync Zypp channels..."))
+        iface.debug(_("Trying to sync ZYpp channels..."))
         BASEARCH = _getbasearch()
         RELEASEVER = _getreleasever()
         syncZyppRepos(sysconf.get("zypp-repos-dir", ZYPP_REPOS_DIR))
