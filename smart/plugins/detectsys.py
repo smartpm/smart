@@ -60,6 +60,20 @@ def detectSLACKSystem():
                             "name": "Slackware System"
                         })
 
+def detectARCHSystem():
+    dir = os.path.join(sysconf.get("arch-root", "/"),
+                       sysconf.get("arch-packages-dir",
+                                   "var/cache/pacman/pkg"))
+    if os.path.isdir(dir):
+        for alias in sysconf.keys("channels"):
+            if sysconf.get(("channels", alias, "type")) == "arch-sys":
+                break
+        else:
+            sysconf.set("channels.arch-sys", {
+                            "type": "arch-sys",
+                            "name": "Archlinux System"
+                        })
+
 detect_sys_channels = sysconf.get("detect-sys-channels", True)
 if detect_sys_channels:
     if detect_sys_channels == True or "rpm" in str(detect_sys_channels):
@@ -68,3 +82,5 @@ if detect_sys_channels:
         detectDEBSystem()
     if detect_sys_channels == True or "slack" in str(detect_sys_channels):
         detectSLACKSystem()
+    if detect_sys_channels == True or "arch" in str(detect_sys_channels):
+        detectARCHSystem()
