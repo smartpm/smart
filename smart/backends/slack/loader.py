@@ -25,7 +25,7 @@ from smart import *
 import os
 import re
 
-NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(?:.tgz)?$")
+NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(.t[gbl]z)?$")
 
 class SlackPackageInfo(PackageInfo):
 
@@ -49,8 +49,9 @@ class SlackPackageInfo(PackageInfo):
         info = self._info
         if "location" in info and "baseurl" in info:
             pkg = self._package
+            type = info.get("type", ".tgz")
             return [os.path.join(info["baseurl"], info["location"],
-                                 "%s-%s.tgz" % (pkg.name, pkg.version))]
+                   "%s-%s%s" % (pkg.name, pkg.version, type))]
         return []
 
     def getPathList(self):
@@ -73,7 +74,10 @@ def parsePackageInfo(filename):
             if info:
                 infolst.append(info)
             info = {}
-            info["name"], info["version"] = m.groups()
+            if m.lastindex < 2:
+                info["name"], info["version"] = m.groups()
+            else:
+                info["name"], info["version"], info["type"] = m.groups()
             desctag = None
             filelist = False
         elif info:
@@ -81,6 +85,10 @@ def parsePackageInfo(filename):
                 location = line[17:].strip()
                 if location.startswith("./"):
                     location = location[2:]
+                if location.endswith(".tbz"):
+                    info["type"] = ".tbz"
+                if location.endswith(".tlz"):
+                    info["type"] = ".tlz"
                 info["location"] = location
             elif line.startswith("PACKAGE DESCRIPTION:"):
                 desctag = "%s:" % info["name"]
