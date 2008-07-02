@@ -111,7 +111,7 @@ def _loadRepoFile(filename):
         # Some repos have baseurl, some have mirrorlist
         if repofile.has_option(repo, 'baseurl'):
             baseurl = _replaceStrings(repofile.get(repo, 'baseurl'))
-            baseurl = baseurl.splitlines()[1]
+            if baseurl.find("\n") >= 0: baseurl = baseurl.splitlines()[1]
         elif repofile.has_option(repo, 'mirrorlist'):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
             baseurl = _findBaseUrl(mirrorlist, repo)
