@@ -41,7 +41,10 @@ class SlackPackageManager(PackageManager):
             else:
                 remove[pkg] = True
         upgrade = {}
+        packages = {}
         for pkg in install:
+	    packages[pkg] = True
+        for pkg in packages:
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
