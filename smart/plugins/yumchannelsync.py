@@ -49,8 +49,8 @@ def _getreleasever():
     rpmroot = sysconf.get("rpm-root", "/")
     ts = rpmUtils.transaction.initReadOnlyTransaction(root=rpmroot)
     ts.pushVSFlags(~(rpm._RPMVSF_NOSIGNATURES|rpm._RPMVSF_NODIGESTS))
-    # HACK: we're hard-coding the most used distrosm, will add more if needed
-    idx = ts.dbMatch('provides', 'fedora-relase')
+    # HACK: we're hard-coding the most used distros, will add more if needed
+    idx = ts.dbMatch('provides', 'fedora-release')
     if idx.count() == 0:
         idx = ts.dbMatch('provides', 'redhat-release')
     if idx.count() != 0:
@@ -116,7 +116,7 @@ def _loadRepoFile(filename):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
             baseurl = _findBaseUrl(mirrorlist, repo)
         else:
-            iface.warning(_("Yum channel %s does not contan baseurl or " \
+            iface.warning(_("Yum channel %s does not contain baseurl or " \
                             "mirrorlist addresses. Not syncing.") % repo)
             return seen
 
