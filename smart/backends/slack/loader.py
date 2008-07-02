@@ -42,6 +42,9 @@ class SlackPackageInfo(PackageInfo):
     def getDescription(self):
         return self._info.get("description", "")
 
+    def getReferenceURLs(self):
+        return [self._info.get("website", "")]
+
     def getURLs(self):
         info = self._info
         if "location" in info and "baseurl" in info:
@@ -100,6 +103,8 @@ def parsePackageInfo(filename):
                     if line:
                         info["description"] = line
                 else:
+                    if line.startswith("Website: "):
+                        info["website"] = line[9:]
                     info["description"] += "\n"
                     info["description"] += line
     if info:
