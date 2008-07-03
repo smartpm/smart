@@ -114,11 +114,11 @@ class DebSorter(ElementSorter):
                 cnfpkgs = [prvpkg for cnf in pkg.conflicts
                                   for prv in cnf.providedby
                                   for prvpkg in prv.packages
-                                   if prvpkg is not pkg]
+                                   if prvpkg.name != pkg.name]
                 cnfpkgs.extend([cnfpkg for prv in pkg.provides
                                        for cnf in prv.conflictedby
                                        for cnfpkg in cnf.packages
-                                        if cnfpkg is not pkg])
+                                        if cnfpkg.name != pkg.name])
                 for cnfpkg in cnfpkgs:
                     if changeset.get(cnfpkg) is REMOVE:
                         self.addSuccessor((cnfpkg, REMOVE), unpack, ENFORCE)
