@@ -1,6 +1,9 @@
 import os
 
-from smart.plugins.yumchannelsync import syncYumRepos
+try:
+    from smart.plugins.yumchannelsync import syncYumRepos
+except ImportError: # yum (rpmUtils.arch) not available
+    syncYumRepos = None
 from smart import sysconf
 
 from tests.mocker import MockerTestCase
@@ -34,6 +37,8 @@ class YumRepoSyncTest(MockerTestCase):
         os.mkdir(self.repos_dir)
 
     def test_synchronize_repos_directory(self):
+        if not syncYumRepos:
+            self.skip("yum not available")
         self.makeFile(FEDORA_REPO, dirname=self.repos_dir, basename="fedora.repo")
         syncYumRepos(self.repos_dir)
         self.assertEquals(sysconf.get("channels"), {
@@ -46,6 +51,8 @@ class YumRepoSyncTest(MockerTestCase):
 
 
     def test_cleanup_removed_entries(self):
+        if not syncYumRepos:
+            self.skip("yum not available")
         self.makeFile(FEDORA_REPO, dirname=self.repos_dir, basename="fedora.repo")
         syncYumRepos(self.repos_dir)
         os.unlink(os.path.join(self.repos_dir, "fedora.repo"))
