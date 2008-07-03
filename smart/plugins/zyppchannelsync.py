@@ -149,6 +149,11 @@ def _loadRepoFile(filename):
         else:
             type = "rpm-md"
 
+        if baseurl.startswith("cd://"):
+            baseurl = "localmedia://" + baseurl[6:]
+        if baseurl.find("?devices=") > -1:
+            baseurl = baseurl.split("?")[0]
+
         data = {"type": type,
                 "name": name,
                 "baseurl": baseurl,

@@ -30,6 +30,17 @@ gpgcheck=1
 keeppackages=0
 """
 
+OPENSUSE_DVD_REPO = """\
+[openSUSE-10.3-DVD 10.3]
+name=openSUSE-10.3-DVD 10.3
+baseurl=cd:///?devices=/dev/sr0,/dev/sr1
+path=/
+type=yast2
+enabled=1
+autorefresh=0
+gpgcheck=1
+"""
+
 class ZyppRepoSyncTest(MockerTestCase):
 
     def setUp(self):
@@ -48,6 +59,17 @@ class ZyppRepoSyncTest(MockerTestCase):
                                "baseurl": "http://download.opensuse.org/distribution/11.0/repo/oss/"},
                          })
 
+    def test_repo_with_cd_baseurl(self):
+        self.makeFile(OPENSUSE_DVD_REPO, dirname=self.repos_dir, basename="opensuse-dvd.repo")
+        syncZyppRepos(self.repos_dir)
+        self.assertEquals(sysconf.get("channels"), {
+                          "zyppsync-openSUSE-10.3-DVD 10.3":
+                              {"type": "yast2",
+                               "disabled": False,
+                               "name": "openSUSE-10.3-DVD 10.3",
+                               "baseurl": "localmedia://"},
+                         })
+        os.unlink(os.path.join(self.repos_dir, "opensuse-dvd.repo"))
 
     def test_cleanup_removed_entries(self):
         self.makeFile(OPENSUSE_REPO, dirname=self.repos_dir, basename="opensuse.repo")
