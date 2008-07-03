@@ -1,6 +1,6 @@
 #
 # Written by Jonathan Rocker <linux.learner@gmail.com>
-# and Anders F Björklund <afb@users.sourceforge.net>
+# and Anders F Bjorklund <afb@users.sourceforge.net>
 #
 # This file is part of Smart Package Manager.
 #
