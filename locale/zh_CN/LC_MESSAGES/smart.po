@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: smart 0.42\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-05 13:36-0300\n"
+"POT-Creation-Date: 2008-07-03 08:55-0300\n"
 "PO-Revision-Date: 2006-01-28 09:27+0800\n"
 "Last-Translator: Funda Wang <fundawang@linux.net.cn>\n"
 "Language-Team: zh_CN <i18n-translation@lists.linux.net.cn>\n"
@@ -15,1842 +15,29 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: trunk/interfaces/gtk/priorities.py:33 smart/interfaces/gtk/priorities.py:33
-msgid "Priorities"
-msgstr "优先级"
+#: smart/backends/deb/pm.py:135 smart/backends/rpm/pm.py:49
+#: smart/backends/slack/pm.py:33
+msgid "Committing transaction..."
+msgstr "正在提交交易..."
 
-#: trunk/interfaces/gtk/priorities.py:67 smart/interfaces/gtk/priorities.py:67
-msgid "Package Name"
-msgstr "软件包名称"
+#: smart/backends/deb/pm.py:165 smart/backends/rpm/pm.py:134
+msgid "Found unbreakable loops:"
+msgstr "找到了死循环："
 
-#: trunk/interfaces/gtk/priorities.py:75 smart/interfaces/gtk/priorities.py:75
-msgid "Channel Alias"
-msgstr "频道别名"
-
-#: trunk/interfaces/gtk/priorities.py:83
-#: trunk/interfaces/gtk/interactive.py:658 smart/channel.py:150
-#: smart/interfaces/gtk/priorities.py:83
-#: smart/interfaces/gtk/interactive.py:651
-#: smart/interfaces/qt/interactive.py:658 smart/commands/priority.py:98
-msgid "Priority"
-msgstr "优先级"
-
-#: trunk/interfaces/gtk/priorities.py:129
-#: trunk/interfaces/gtk/priorities.py:167
-#: trunk/interfaces/gtk/priorities.py:177
-#: smart/interfaces/gtk/priorities.py:129
-#: smart/interfaces/gtk/priorities.py:167
-#: smart/interfaces/gtk/priorities.py:177
-msgid "Name/alias pair already exists!"
-msgstr "名称/别名对已经存在。"
-
-#: trunk/interfaces/gtk/priorities.py:192
-#: smart/interfaces/gtk/priorities.py:192
-msgid "Invalid priority!"
-msgstr "无效的优先级。"
-
-#: trunk/interfaces/gtk/priorities.py:202
-#: smart/interfaces/gtk/priorities.py:202
-msgid "New Package Priority"
-msgstr "新建软件包优先级"
-
-#: trunk/interfaces/gtk/priorities.py:223
-#: smart/interfaces/gtk/priorities.py:223
-msgid "Package Name:"
-msgstr "软件包名称："
-
-#: trunk/interfaces/gtk/priorities.py:232
-#: smart/interfaces/gtk/priorities.py:232
-msgid "Channel Alias:"
-msgstr "频道别名："
-
-#: trunk/interfaces/gtk/priorities.py:242
-#: trunk/interfaces/gtk/packageinfo.py:66
-#: smart/interfaces/gtk/priorities.py:242
-#: smart/interfaces/gtk/packageinfo.py:66 smart/commands/info.py:107
-msgid "Priority:"
-msgstr "优先级："
-
-#: trunk/interfaces/gtk/priorities.py:292
-#: smart/interfaces/gtk/priorities.py:292
-msgid "No name provided!"
-msgstr "未提供名称。"
-
-#: trunk/interfaces/gtk/priorities.py:312
-#: smart/interfaces/gtk/priorities.py:312
-msgid "Package Priority"
-msgstr "软件包优先级"
-
-#: trunk/interfaces/gtk/priorities.py:352
-#: smart/interfaces/gtk/priorities.py:352
-msgid "Package:"
-msgstr "软件包："
-
-#: trunk/interfaces/gtk/priorities.py:375
-#: smart/interfaces/gtk/priorities.py:375
-msgid "Default priority:"
-msgstr "默认优先级："
-
-#: trunk/interfaces/gtk/priorities.py:385
-#: smart/interfaces/gtk/priorities.py:385
-msgid "Channel default"
-msgstr "频道默认值"
-
-#: trunk/interfaces/gtk/priorities.py:390
-#: smart/interfaces/gtk/priorities.py:390
-msgid "Set to"
-msgstr "设定为"
-
-#: trunk/interfaces/gtk/priorities.py:406
-#: smart/interfaces/gtk/priorities.py:406
-msgid "Channel priority:"
-msgstr "频道优先级："
-
-#: trunk/interfaces/gtk/channels.py:39 trunk/interfaces/gtk/interactive.py:223
-#: smart/interfaces/gtk/channels.py:39 smart/interfaces/gtk/interactive.py:232
-#: smart/interfaces/qt/interactive.py:223
-msgid "Channels"
-msgstr "频道"
-
-#: trunk/interfaces/gtk/channels.py:83 trunk/interfaces/gtk/channels.py:362
-#: smart/channel.py:132 smart/interfaces/gtk/channels.py:86
-#: smart/interfaces/gtk/channels.py:367
-msgid "Alias"
-msgstr "别名"
-
-#: trunk/interfaces/gtk/channels.py:85 trunk/interfaces/gtk/channels.py:364
-#: smart/channel.py:134 smart/interfaces/gtk/channels.py:88
-#: smart/interfaces/gtk/channels.py:369
-msgid "Type"
-msgstr "类型"
-
-#: trunk/interfaces/gtk/channels.py:87 trunk/interfaces/gtk/channels.py:366
-#: smart/channel.py:136 smart/interfaces/gtk/channels.py:90
-#: smart/interfaces/gtk/channels.py:371
-msgid "Name"
-msgstr "名称"
-
-#: trunk/interfaces/gtk/channels.py:200 smart/interfaces/gtk/channels.py:205
-msgid "Select Channel Description"
-msgstr "选择频道描述"
-
-#: trunk/interfaces/gtk/channels.py:208 smart/channel.py:114
-#: smart/interfaces/gtk/channels.py:213 smart/commands/channel.py:183
-#: smart/commands/mirror.py:128 smart/sysconfig.py:78
+#: smart/backends/deb/pm.py:271
 #, python-format
-msgid "File not found: %s"
-msgstr "文件未找到：%s"
+msgid "Sub-process %s has received a segmentation fault"
+msgstr "子进程 %s 收到了段错误"
 
-#: trunk/interfaces/gtk/channels.py:214 smart/interfaces/gtk/channels.py:219
-msgid "Description URL"
-msgstr "描述 URL"
-
-#: trunk/interfaces/gtk/channels.py:218 smart/interfaces/gtk/channels.py:223
-msgid "channel description"
-msgstr "频道描述"
-
-#: trunk/interfaces/gtk/channels.py:220 smart/interfaces/gtk/channels.py:225
-#: smart/commands/channel.py:171
+#: smart/backends/deb/pm.py:274
 #, python-format
-msgid "Unable to fetch channel description: %s"
-msgstr "无法获取频道描述：%s"
+msgid "Sub-process %s returned an error code (%d)"
+msgstr "子进程 %s 返回了错误代码(%d)"
 
-#: trunk/interfaces/gtk/channels.py:255 smart/interfaces/gtk/channels.py:260
-msgid "Select Path"
-msgstr "选择路径"
-
-#: trunk/interfaces/gtk/channels.py:263 smart/interfaces/gtk/channels.py:268
-#: smart/commands/clean.py:47
+#: smart/backends/deb/pm.py:277
 #, python-format
-msgid "Directory not found: %s"
-msgstr "目录未找到：%s"
-
-#: trunk/interfaces/gtk/channels.py:282 smart/interfaces/gtk/channels.py:287
-msgid "No channels detected!"
-msgstr "未检测到频道。"
-
-#: trunk/interfaces/gtk/channels.py:319 smart/interfaces/gtk/channels.py:324
-msgid "Select Channels"
-msgstr "选择频道"
-
-#: trunk/interfaces/gtk/channels.py:427 smart/interfaces/gtk/channels.py:432
-msgid "Edit Channel"
-msgstr "编辑频道"
-
-#: trunk/interfaces/gtk/channels.py:513 trunk/interfaces/gtk/channels.py:570
-#: smart/interfaces/gtk/channels.py:518 smart/interfaces/gtk/channels.py:575
-#, python-format
-msgid "Don't know how to handle %s fields"
-msgstr "不知道如何处理 %s 字段"
-
-#: trunk/interfaces/gtk/channels.py:576 smart/interfaces/gtk/channels.py:581
-msgid "Invalid alias!"
-msgstr "无效的别名。"
-
-#: trunk/interfaces/gtk/channels.py:579 smart/interfaces/gtk/channels.py:584
-msgid "Alias already in use!"
-msgstr "别名已经使用。"
-
-#: trunk/interfaces/gtk/channels.py:602 trunk/interfaces/gtk/channels.py:699
-#: trunk/interfaces/gtk/channels.py:800 smart/interfaces/gtk/channels.py:607
-#: smart/interfaces/gtk/channels.py:704 smart/interfaces/gtk/channels.py:805
-msgid "New Channel"
-msgstr "新建频道"
-
-#: trunk/interfaces/gtk/channels.py:623 smart/interfaces/gtk/channels.py:628
-#: smart/commands/channel.py:135
-msgid "Type:"
-msgstr "类型："
-
-#: trunk/interfaces/gtk/channels.py:719 smart/interfaces/gtk/channels.py:724
-msgid "Method:"
-msgstr "方式："
-
-#: trunk/interfaces/gtk/channels.py:758 smart/interfaces/gtk/channels.py:763
-msgid "Provide channel information"
-msgstr "提供频道信息"
-
-#: trunk/interfaces/gtk/channels.py:760 smart/interfaces/gtk/channels.py:765
-msgid "Read channel description from local path"
-msgstr "从本地路径读取频道描述"
-
-#: trunk/interfaces/gtk/channels.py:762 smart/interfaces/gtk/channels.py:767
-msgid "Read channel description from URL"
-msgstr "从 URL 读取频道描述"
-
-#: trunk/interfaces/gtk/channels.py:764 smart/interfaces/gtk/channels.py:769
-msgid "Detect channel in media (CDROM, DVD, etc)"
-msgstr "检测介质中的频道(CDROM、DVD 等)"
-
-#: trunk/interfaces/gtk/channels.py:766 smart/interfaces/gtk/channels.py:771
-msgid "Detect channel in local path"
-msgstr "检测本地路径中的频道"
-
-#: trunk/interfaces/gtk/channels.py:821 smart/interfaces/gtk/channels.py:826
-msgid "Media path:"
-msgstr "介质路径："
-
-#: trunk/interfaces/gtk/channels.py:875 smart/interfaces/gtk/channels.py:880
-msgid "No local media found!"
-msgstr "未找到本地介质。"
-
-#: trunk/interfaces/gtk/flags.py:35 trunk/interfaces/gtk/flags.py:81
-#: smart/interfaces/gtk/flags.py:35 smart/interfaces/gtk/flags.py:81
-msgid "Flags"
-msgstr "标志"
-
-#: trunk/interfaces/gtk/flags.py:127 smart/interfaces/gtk/flags.py:127
-msgid "Targets"
-msgstr "目标"
-
-#: trunk/interfaces/gtk/flags.py:199 trunk/interfaces/gtk/flags.py:243
-#: smart/interfaces/gtk/flags.py:199 smart/interfaces/gtk/flags.py:243
-msgid "Flag already exists!"
-msgstr "标志已经存在。"
-
-#: trunk/interfaces/gtk/flags.py:228 trunk/interfaces/gtk/flags.py:255
-#: trunk/interfaces/gtk/flags.py:260 trunk/interfaces/gtk/flags.py:449
-#: smart/interfaces/gtk/flags.py:228 smart/interfaces/gtk/flags.py:255
-#: smart/interfaces/gtk/flags.py:260 smart/interfaces/gtk/flags.py:449
-msgid "Invalid target!"
-msgstr "无效的目标。"
-
-#: trunk/interfaces/gtk/flags.py:293 smart/interfaces/gtk/flags.py:293
-msgid "New Flag"
-msgstr "新建标志"
-
-#: trunk/interfaces/gtk/flags.py:314 smart/interfaces/gtk/flags.py:314
-#: smart/commands/info.py:105
-msgid "Name:"
-msgstr "名称："
-
-#: trunk/interfaces/gtk/flags.py:358 smart/interfaces/gtk/flags.py:358
-msgid "No flag name provided!"
-msgstr "未提供标志名称。"
-
-#: trunk/interfaces/gtk/flags.py:374 smart/interfaces/gtk/flags.py:374
-msgid "New Target"
-msgstr "新建目标"
-
-#: trunk/interfaces/gtk/flags.py:395 smart/interfaces/gtk/flags.py:395
-msgid "Target:"
-msgstr "目标："
-
-#: trunk/interfaces/gtk/flags.py:405 smart/interfaces/gtk/flags.py:405
-msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
-msgstr "例：“软件包名称”、“软件包名称 = 1.0”或“软件包名称 <= 1.0”"
-
-#: trunk/interfaces/gtk/flags.py:445 smart/interfaces/gtk/flags.py:445
-msgid "No target provided!"
-msgstr "未提供目标"
-
-#: trunk/interfaces/gtk/mirrors.py:32 smart/interfaces/gtk/mirrors.py:32
-msgid "Mirrors"
-msgstr "镜像"
-
-#: trunk/interfaces/gtk/mirrors.py:65 smart/interfaces/gtk/mirrors.py:65
-msgid "Mirror"
-msgstr "镜像"
-
-#: trunk/interfaces/gtk/mirrors.py:145 smart/interfaces/gtk/mirrors.py:145
-msgid "Origin already exists!"
-msgstr "原始 URL 已经存在。"
-
-#: trunk/interfaces/gtk/mirrors.py:152 smart/interfaces/gtk/mirrors.py:152
-msgid "Mirror already exists!"
-msgstr "镜像已经存在。"
-
-#: trunk/interfaces/gtk/mirrors.py:164 smart/interfaces/gtk/mirrors.py:164
-msgid "New Mirror"
-msgstr "新建镜像"
-
-#: trunk/interfaces/gtk/mirrors.py:185 smart/interfaces/gtk/mirrors.py:185
-msgid "Origin URL:"
-msgstr "原始 URL："
-
-#: trunk/interfaces/gtk/mirrors.py:195 smart/interfaces/gtk/mirrors.py:195
-msgid "Mirror URL:"
-msgstr "镜像 URL："
-
-#: trunk/interfaces/gtk/mirrors.py:243 smart/interfaces/gtk/mirrors.py:243
-msgid "No origin provided!"
-msgstr "未提供原始 URL。"
-
-#: trunk/interfaces/gtk/mirrors.py:247 smart/interfaces/gtk/mirrors.py:247
-msgid "No mirror provided!"
-msgstr "未提供镜像。"
-
-#: trunk/interfaces/gtk/__init__.py:36 smart/interfaces/gtk/__init__.py:36
-msgid "System has no support for gtk python interface"
-msgstr "系统不支持 gtk python 界面"
-
-#: trunk/interfaces/gtk/__init__.py:55 smart/interfaces/gtk/__init__.py:55
-#: smart/interfaces/qt/__init__.py:45
-#, python-format
-msgid "Image '%s' not found"
-msgstr "未找到图像“%s”"
-
-#: trunk/interfaces/gtk/interface.py:83 smart/interfaces/gtk/interface.py:83
-msgid " Continue?"
-msgstr " 继续吗？"
-
-#: trunk/interfaces/gtk/interface.py:104 smart/interfaces/gtk/interface.py:104
-#: smart/interfaces/qt/interface.py:148
-msgid "Input"
-msgstr "输入"
-
-#: trunk/interfaces/gtk/interface.py:144 smart/interfaces/gtk/interface.py:144
-#: smart/interfaces/qt/interface.py:161
-msgid "Insert one or more of the following removable channels:\n"
-msgstr "插入下列可移动介质中的一个或多个：\n"
-
-#: trunk/interfaces/gtk/progress.py:51 smart/interfaces/gtk/progress.py:51
-msgid "Operation Progress"
-msgstr "操作进度"
-
-#: trunk/interfaces/gtk/progress.py:89 smart/interfaces/gtk/progress.py:90
-msgid "Progress"
-msgstr "进度"
-
-#: trunk/interfaces/gtk/progress.py:96 smart/interfaces/gtk/progress.py:97
-msgid "Current"
-msgstr "当前"
-
-#: trunk/interfaces/gtk/progress.py:102 smart/interfaces/gtk/progress.py:103
-msgid "Total"
-msgstr "总计"
-
-#: trunk/interfaces/gtk/progress.py:108 smart/interfaces/gtk/progress.py:109
-msgid "Speed"
-msgstr "速度"
-
-#: trunk/interfaces/gtk/progress.py:114
-#: trunk/interfaces/gtk/packageinfo.py:108
-#: trunk/interfaces/gtk/interactive.py:320
-#: smart/interfaces/gtk/packageinfo.py:108
-#: smart/interfaces/gtk/interactive.py:329
-#: smart/interfaces/gtk/progress.py:121 smart/interfaces/qt/interactive.py:320
-msgid "Description"
-msgstr "描述"
-
-#: trunk/interfaces/gtk/packageinfo.py:65
-#: smart/interfaces/gtk/packageinfo.py:65
-msgid "Status:"
-msgstr "状态："
-
-#: trunk/interfaces/gtk/packageinfo.py:67
-#: smart/interfaces/gtk/packageinfo.py:67 smart/commands/info.py:108
-msgid "Group:"
-msgstr "分组："
-
-#: trunk/interfaces/gtk/packageinfo.py:68
-#: smart/interfaces/gtk/packageinfo.py:68 smart/commands/info.py:109
-msgid "Installed Size:"
-msgstr "安装后大小："
-
-#: trunk/interfaces/gtk/packageinfo.py:69
-#: smart/interfaces/gtk/packageinfo.py:69 smart/commands/info.py:121
-msgid "Channels:"
-msgstr "频道："
-
-#: trunk/interfaces/gtk/packageinfo.py:87
-#: smart/interfaces/gtk/packageinfo.py:87
-msgid "General"
-msgstr "常规"
-
-#: trunk/interfaces/gtk/packageinfo.py:128
-#: smart/interfaces/gtk/packageinfo.py:128
-msgid "Content"
-msgstr "内容"
-
-#: trunk/interfaces/gtk/packageinfo.py:137
-#: smart/interfaces/gtk/packageinfo.py:137
-msgid "Relations"
-msgstr "关系"
-
-#: trunk/interfaces/gtk/packageinfo.py:155
-#: smart/interfaces/gtk/packageinfo.py:155 smart/commands/priority.py:98
-msgid "Channel"
-msgstr "频道"
-
-#: trunk/interfaces/gtk/packageinfo.py:157
-#: smart/interfaces/gtk/packageinfo.py:157
-msgid "Size"
-msgstr "大小"
-
-#: trunk/interfaces/gtk/packageinfo.py:159
-#: smart/interfaces/gtk/packageinfo.py:159
-msgid "URL"
-msgstr "URL"
-
-#: trunk/interfaces/gtk/packageinfo.py:163
-#: smart/interfaces/gtk/packageinfo.py:163 smart/commands/download.py:144
-msgid "URLs"
-msgstr "URL"
-
-#: trunk/interfaces/gtk/packageinfo.py:217
-#: smart/interfaces/gtk/packageinfo.py:217
-msgid "Installed"
-msgstr "已安装"
-
-#: trunk/interfaces/gtk/packageinfo.py:217
-#: smart/interfaces/gtk/packageinfo.py:217
-msgid "Available"
-msgstr "可用"
-
-#: trunk/interfaces/gtk/packageinfo.py:219 smart/util/strtools.py:56
-#: smart/interfaces/gtk/packageinfo.py:219
-msgid "Unknown"
-msgstr "未知"
-
-#: trunk/interfaces/gtk/packageinfo.py:314
-#: trunk/interfaces/gtk/packageinfo.py:347
-#: smart/interfaces/gtk/packageinfo.py:314
-#: smart/interfaces/gtk/packageinfo.py:347
-msgid "Provides"
-msgstr "提供"
-
-#: trunk/interfaces/gtk/packageinfo.py:314
-#: trunk/interfaces/gtk/packageinfo.py:366 trunk/interfaces/gtk/changes.py:125
-#: smart/interfaces/gtk/packageinfo.py:314
-#: smart/interfaces/gtk/packageinfo.py:366 smart/interfaces/gtk/changes.py:125
-#: smart/interfaces/qt/changes.py:118
-msgid "Upgrades"
-msgstr "升级"
-
-#: trunk/interfaces/gtk/packageinfo.py:315
-#: trunk/interfaces/gtk/packageinfo.py:357 trunk/interfaces/gtk/changes.py:133
-#: trunk/interfaces/gtk/changes.py:170 smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:357 smart/interfaces/gtk/changes.py:133
-#: smart/interfaces/gtk/changes.py:170 smart/interfaces/qt/changes.py:126
-#: smart/interfaces/qt/changes.py:163
-msgid "Requires"
-msgstr "需要"
-
-#: trunk/interfaces/gtk/packageinfo.py:315
-#: trunk/interfaces/gtk/packageinfo.py:375 trunk/interfaces/gtk/changes.py:141
-#: trunk/interfaces/gtk/changes.py:178 smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:375 smart/interfaces/gtk/changes.py:141
-#: smart/interfaces/gtk/changes.py:178 smart/interfaces/qt/changes.py:134
-#: smart/interfaces/qt/changes.py:171
-msgid "Conflicts"
-msgstr "冲突"
-
-#: trunk/interfaces/gtk/packageinfo.py:332 trunk/interfaces/gtk/changes.py:136
-#: trunk/interfaces/gtk/changes.py:173 smart/interfaces/gtk/packageinfo.py:332
-#: smart/interfaces/gtk/changes.py:136 smart/interfaces/gtk/changes.py:173
-#: smart/interfaces/qt/changes.py:129 smart/interfaces/qt/changes.py:166
-msgid "Required By"
-msgstr "被需要"
-
-#: trunk/interfaces/gtk/packageinfo.py:338
-#: smart/interfaces/gtk/packageinfo.py:338
-msgid "Upgraded By"
-msgstr "升级原因"
-
-#: trunk/interfaces/gtk/packageinfo.py:344
-#: smart/interfaces/gtk/packageinfo.py:344
-msgid "Conflicted By"
-msgstr "冲突原因"
-
-#: trunk/interfaces/gtk/changes.py:36 smart/interfaces/gtk/changes.py:36
-msgid "Change Summary"
-msgstr "更改摘要"
-
-#: trunk/interfaces/gtk/changes.py:97 trunk/interfaces/gtk/interactive.py:548
-#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:541
-#: smart/interfaces/qt/changes.py:90 smart/interfaces/qt/interactive.py:548
-msgid "Remove"
-msgstr "删除"
-
-#: trunk/interfaces/gtk/changes.py:97 smart/interfaces/gtk/changes.py:97
-#: smart/interfaces/qt/changes.py:90
-msgid "Downgrade"
-msgstr "降级"
-
-#: trunk/interfaces/gtk/changes.py:97 trunk/interfaces/gtk/interactive.py:538
-#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:531
-#: smart/interfaces/qt/changes.py:90 smart/interfaces/qt/interactive.py:538
-msgid "Reinstall"
-msgstr "重新安装"
-
-#: trunk/interfaces/gtk/changes.py:98 trunk/interfaces/gtk/interactive.py:529
-#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:522
-#: smart/interfaces/qt/changes.py:91 smart/interfaces/qt/interactive.py:529
-msgid "Install"
-msgstr "安装"
-
-#: trunk/interfaces/gtk/changes.py:98 smart/interfaces/gtk/changes.py:98
-#: smart/interfaces/qt/changes.py:91
-msgid "Upgrade"
-msgstr "升级"
-
-#: trunk/interfaces/gtk/changes.py:129 smart/interfaces/gtk/changes.py:129
-#: smart/interfaces/qt/changes.py:122
-msgid "Downgrades"
-msgstr "降级"
-
-#: trunk/interfaces/gtk/changes.py:151 smart/interfaces/gtk/changes.py:151
-#: smart/interfaces/qt/changes.py:144
-#, python-format
-msgid "Reinstall (%d)"
-msgstr "重新安装(%d个)"
-
-#: trunk/interfaces/gtk/changes.py:154 smart/interfaces/gtk/changes.py:154
-#: smart/interfaces/qt/changes.py:147
-#, python-format
-msgid "Install (%d)"
-msgstr "安装(%d个)"
-
-#: trunk/interfaces/gtk/changes.py:156 smart/interfaces/gtk/changes.py:156
-#: smart/interfaces/qt/changes.py:149
-#, python-format
-msgid "Upgrade (%d)"
-msgstr "升级(%d个)"
-
-#: trunk/interfaces/gtk/changes.py:158 smart/interfaces/gtk/changes.py:158
-#: smart/interfaces/qt/changes.py:151
-#, python-format
-msgid "Downgrade (%d)"
-msgstr "降级(%d个)"
-
-#: trunk/interfaces/gtk/changes.py:181 smart/interfaces/gtk/changes.py:181
-#: smart/interfaces/qt/changes.py:174
-#, python-format
-msgid "Remove (%d)"
-msgstr "删除(%d个)"
-
-#: trunk/interfaces/gtk/changes.py:185 smart/interfaces/gtk/changes.py:185
-#: smart/interfaces/qt/changes.py:178
-#, python-format
-msgid "Keep (%d)"
-msgstr "保留(%d个)"
-
-#: trunk/interfaces/gtk/changes.py:191 smart/interfaces/text/interface.py:225
-#: smart/interfaces/gtk/changes.py:191 smart/interfaces/qt/changes.py:184
-#, python-format
-msgid "%s of package files are needed. "
-msgstr "需要 %s 个软件包文件。"
-
-#: trunk/interfaces/gtk/changes.py:193 smart/interfaces/text/interface.py:228
-#: smart/interfaces/gtk/changes.py:193 smart/interfaces/qt/changes.py:186
-#, python-format
-msgid "%s will be used."
-msgstr "将使用 %s。"
-
-#: trunk/interfaces/gtk/changes.py:196 smart/interfaces/text/interface.py:231
-#: smart/interfaces/gtk/changes.py:196 smart/interfaces/qt/changes.py:189
-#, python-format
-msgid "%s will be freed."
-msgstr "将释放 %s。"
-
-#: trunk/interfaces/gtk/interactive.py:111
-#: smart/interfaces/gtk/interactive.py:114
-#: smart/interfaces/qt/interactive.py:111
-msgid "_File"
-msgstr "文件(_F)"
-
-#: trunk/interfaces/gtk/interactive.py:112
-#: smart/interfaces/gtk/interactive.py:115
-#: smart/interfaces/qt/interactive.py:112
-msgid "Update _Selected Channels..."
-msgstr "更新选中频道(_S)..."
-
-#: trunk/interfaces/gtk/interactive.py:113
-#: smart/interfaces/gtk/interactive.py:116
-#: smart/interfaces/qt/interactive.py:113
-msgid "Update given channels"
-msgstr "更新给定频道"
-
-#: trunk/interfaces/gtk/interactive.py:114
-#: smart/interfaces/gtk/interactive.py:117
-#: smart/interfaces/qt/interactive.py:114
-msgid "_Update Channels"
-msgstr "更新频道(_U)"
-
-#: trunk/interfaces/gtk/interactive.py:115
-#: smart/interfaces/qt/interactive.py:115
-#, fuzzy
-msgid "Update channels information"
-msgstr "提供频道信息"
-
-#: trunk/interfaces/gtk/interactive.py:116
-#: smart/interfaces/gtk/interactive.py:119
-#: smart/interfaces/qt/interactive.py:116
-msgid "_Rebuild Cache"
-msgstr "重建缓存(_R)"
-
-#: trunk/interfaces/gtk/interactive.py:117
-#: smart/interfaces/gtk/interactive.py:120
-#: smart/interfaces/qt/interactive.py:117
-msgid "Reload package information"
-msgstr "重新装入软件包信息"
-
-#: trunk/interfaces/gtk/interactive.py:118
-#: smart/interfaces/gtk/interactive.py:121
-#: smart/interfaces/qt/interactive.py:118
-msgid "_Execute Changes..."
-msgstr "执行更改(_E)..."
-
-#: trunk/interfaces/gtk/interactive.py:119
-#: smart/interfaces/gtk/interactive.py:122
-#: smart/interfaces/qt/interactive.py:119
-msgid "Apply marked changes"
-msgstr "应用标出的更改"
-
-#: trunk/interfaces/gtk/interactive.py:120
-#: smart/interfaces/gtk/interactive.py:123
-#: smart/interfaces/qt/interactive.py:120
-msgid "_Quit"
-msgstr "退出(_Q)"
-
-#: trunk/interfaces/gtk/interactive.py:121
-#: smart/interfaces/gtk/interactive.py:124
-#: smart/interfaces/qt/interactive.py:121
-msgid "Quit application"
-msgstr "退出应用程序"
-
-#: trunk/interfaces/gtk/interactive.py:123
-#: smart/interfaces/gtk/interactive.py:126
-#: smart/interfaces/qt/interactive.py:123
-msgid "_Edit"
-msgstr "编辑(_E)"
-
-#: trunk/interfaces/gtk/interactive.py:124
-#: smart/interfaces/gtk/interactive.py:127
-#: smart/interfaces/qt/interactive.py:124
-msgid "_Undo"
-msgstr "撤消(_U)"
-
-#: trunk/interfaces/gtk/interactive.py:125
-#: smart/interfaces/gtk/interactive.py:128
-#: smart/interfaces/qt/interactive.py:125
-msgid "Undo last change"
-msgstr "撤消上次更改"
-
-#: trunk/interfaces/gtk/interactive.py:126
-#: smart/interfaces/gtk/interactive.py:129
-#: smart/interfaces/qt/interactive.py:126
-msgid "_Redo"
-msgstr "重做(_R)"
-
-#: trunk/interfaces/gtk/interactive.py:127
-#: smart/interfaces/gtk/interactive.py:130
-#: smart/interfaces/qt/interactive.py:127
-msgid "Redo last undone change"
-msgstr "重做上次撤消的更改"
-
-#: trunk/interfaces/gtk/interactive.py:128
-#: smart/interfaces/gtk/interactive.py:131
-#: smart/interfaces/qt/interactive.py:128
-msgid "Clear Marked Changes"
-msgstr "清除标出的更改"
-
-#: trunk/interfaces/gtk/interactive.py:129
-#: smart/interfaces/gtk/interactive.py:132
-#: smart/interfaces/qt/interactive.py:129
-msgid "Clear all changes"
-msgstr "清除全部更改"
-
-#: trunk/interfaces/gtk/interactive.py:130
-#: smart/interfaces/gtk/interactive.py:133
-#: smart/interfaces/qt/interactive.py:130
-msgid "Check Installed Packages..."
-msgstr "检查已安装的软件包..."
-
-#: trunk/interfaces/gtk/interactive.py:131
-#: smart/interfaces/gtk/interactive.py:134
-#: smart/interfaces/qt/interactive.py:131
-msgid "Check installed packages"
-msgstr "检查已安装的软件包"
-
-#: trunk/interfaces/gtk/interactive.py:132
-#: smart/interfaces/gtk/interactive.py:135
-#: smart/interfaces/qt/interactive.py:132
-msgid "Check Uninstalled Packages..."
-msgstr "检查已卸载的软件包..."
-
-#: trunk/interfaces/gtk/interactive.py:133
-#: smart/interfaces/gtk/interactive.py:136
-#: smart/interfaces/qt/interactive.py:133
-msgid "Check uninstalled packages"
-msgstr "检查已卸载的软件包"
-
-#: trunk/interfaces/gtk/interactive.py:134
-#: smart/interfaces/gtk/interactive.py:137
-#: smart/interfaces/qt/interactive.py:134
-msgid "Check All Packages..."
-msgstr "检查全部软件包..."
-
-#: trunk/interfaces/gtk/interactive.py:135
-#: smart/interfaces/gtk/interactive.py:138
-#: smart/interfaces/qt/interactive.py:135
-msgid "Check all packages"
-msgstr "检查全部软件包"
-
-#: trunk/interfaces/gtk/interactive.py:136
-#: smart/interfaces/gtk/interactive.py:139
-#: smart/interfaces/qt/interactive.py:136
-msgid "Upgrade _All..."
-msgstr "全部升级(_A)..."
-
-#: trunk/interfaces/gtk/interactive.py:137
-#: smart/interfaces/gtk/interactive.py:140
-#: smart/interfaces/qt/interactive.py:137
-msgid "Upgrade all packages"
-msgstr "升级全部软件包"
-
-#: trunk/interfaces/gtk/interactive.py:138
-#: smart/interfaces/gtk/interactive.py:141
-#: smart/interfaces/qt/interactive.py:138
-msgid "Fix All _Problems..."
-msgstr "修复全部问题(_P)..."
-
-#: trunk/interfaces/gtk/interactive.py:139
-#: smart/interfaces/gtk/interactive.py:142
-#: smart/interfaces/qt/interactive.py:139
-msgid "Fix all problems"
-msgstr "修复全部问题"
-
-#: trunk/interfaces/gtk/interactive.py:140
-#: smart/interfaces/gtk/interactive.py:143
-#: smart/interfaces/qt/interactive.py:140
-msgid "_Find..."
-msgstr "查找(_F)..."
-
-#: trunk/interfaces/gtk/interactive.py:141
-#: smart/interfaces/gtk/interactive.py:144
-#: smart/interfaces/qt/interactive.py:141
-msgid "Find packages"
-msgstr "查找软件包"
-
-#: trunk/interfaces/gtk/interactive.py:142
-#: smart/interfaces/gtk/interactive.py:145
-#: smart/interfaces/qt/interactive.py:142
-msgid "_Channels"
-msgstr "频道(_C)"
-
-#: trunk/interfaces/gtk/interactive.py:143
-#: smart/interfaces/gtk/interactive.py:146
-#: smart/interfaces/qt/interactive.py:143
-msgid "Edit channels"
-msgstr "编辑频道"
-
-#: trunk/interfaces/gtk/interactive.py:144
-#: smart/interfaces/gtk/interactive.py:147
-#: smart/interfaces/qt/interactive.py:144
-msgid "_Mirrors"
-msgstr "镜像(_M)"
-
-#: trunk/interfaces/gtk/interactive.py:145
-#: smart/interfaces/gtk/interactive.py:148
-#: smart/interfaces/qt/interactive.py:145
-msgid "Edit mirrors"
-msgstr "编辑镜像"
-
-#: trunk/interfaces/gtk/interactive.py:146
-#: smart/interfaces/gtk/interactive.py:149
-#: smart/interfaces/qt/interactive.py:146
-msgid "_Flags"
-msgstr "标志(_F)"
-
-#: trunk/interfaces/gtk/interactive.py:147
-#: smart/interfaces/gtk/interactive.py:150
-#: smart/interfaces/qt/interactive.py:147
-msgid "Edit package flags"
-msgstr "编辑软件包标志"
-
-#: trunk/interfaces/gtk/interactive.py:148
-#: smart/interfaces/gtk/interactive.py:151
-#: smart/interfaces/qt/interactive.py:148
-msgid "_Priorities"
-msgstr "优先级(_P)"
-
-#: trunk/interfaces/gtk/interactive.py:149
-#: smart/interfaces/gtk/interactive.py:152
-#: smart/interfaces/qt/interactive.py:149
-msgid "Edit package priorities"
-msgstr "编辑软件包优先级"
-
-#: trunk/interfaces/gtk/interactive.py:151
-#: smart/interfaces/gtk/interactive.py:154
-#: smart/interfaces/qt/interactive.py:151
-msgid "_View"
-msgstr "查看(_V)"
-
-#: trunk/interfaces/gtk/interactive.py:152
-#: smart/interfaces/gtk/interactive.py:155
-#: smart/interfaces/qt/interactive.py:152
-msgid "_Tree Style"
-msgstr "树型样式(_T)"
-
-#: trunk/interfaces/gtk/interactive.py:153
-#: smart/interfaces/gtk/interactive.py:156
-#: smart/interfaces/qt/interactive.py:153
-msgid "_Expand All"
-msgstr "全部展开(_E)"
-
-#: trunk/interfaces/gtk/interactive.py:154
-#: smart/interfaces/gtk/interactive.py:157
-#: smart/interfaces/qt/interactive.py:154
-msgid "Expand all items in the tree"
-msgstr "展开树中的全部项目"
-
-#: trunk/interfaces/gtk/interactive.py:155
-#: smart/interfaces/gtk/interactive.py:158
-#: smart/interfaces/qt/interactive.py:155
-msgid "_Collapse All"
-msgstr "全部折叠(_C)"
-
-#: trunk/interfaces/gtk/interactive.py:156
-#: smart/interfaces/gtk/interactive.py:159
-#: smart/interfaces/qt/interactive.py:156
-msgid "Collapse all items in the tree"
-msgstr "折叠树中的全部项目"
-
-#: trunk/interfaces/gtk/interactive.py:157
-#: smart/interfaces/gtk/interactive.py:160
-#: smart/interfaces/qt/interactive.py:157
-msgid "_Summary Window"
-msgstr "摘要窗口(_S)"
-
-#: trunk/interfaces/gtk/interactive.py:158
-#: smart/interfaces/gtk/interactive.py:161
-#: smart/interfaces/qt/interactive.py:158
-msgid "Show summary window"
-msgstr "显示摘要窗口"
-
-#: trunk/interfaces/gtk/interactive.py:159
-#: smart/interfaces/gtk/interactive.py:162
-#: smart/interfaces/qt/interactive.py:159
-msgid "_Log Window"
-msgstr "日志窗口(_L)"
-
-#: trunk/interfaces/gtk/interactive.py:160
-#: smart/interfaces/gtk/interactive.py:163
-#: smart/interfaces/qt/interactive.py:160
-msgid "Show log window"
-msgstr "显示日志窗口"
-
-#: trunk/interfaces/gtk/interactive.py:211
-#: smart/interfaces/gtk/interactive.py:220
-#: smart/interfaces/qt/interactive.py:211
-msgid "Hide Non-upgrades"
-msgstr "隐藏非升级"
-
-#: trunk/interfaces/gtk/interactive.py:212
-#: smart/interfaces/gtk/interactive.py:221
-#: smart/interfaces/qt/interactive.py:212
-msgid "Hide Installed"
-msgstr "隐藏已安装"
-
-#: trunk/interfaces/gtk/interactive.py:213
-#: smart/interfaces/gtk/interactive.py:222
-#: smart/interfaces/qt/interactive.py:213
-msgid "Hide Uninstalled"
-msgstr "隐藏已卸载"
-
-#: trunk/interfaces/gtk/interactive.py:214
-#: smart/interfaces/gtk/interactive.py:223
-#: smart/interfaces/qt/interactive.py:214
-msgid "Hide Unmarked"
-msgstr "隐藏未标出"
-
-#: trunk/interfaces/gtk/interactive.py:215
-#: smart/interfaces/gtk/interactive.py:224
-#: smart/interfaces/qt/interactive.py:215
-msgid "Hide Old"
-msgstr "隐藏旧软件包"
-
-#: trunk/interfaces/gtk/interactive.py:222
-#: smart/interfaces/gtk/interactive.py:231
-#: smart/interfaces/qt/interactive.py:222
-msgid "Groups"
-msgstr "分组"
-
-#: trunk/interfaces/gtk/interactive.py:224
-#: smart/interfaces/gtk/interactive.py:233
-#: smart/interfaces/qt/interactive.py:224
-msgid "Channels & Groups"
-msgstr "频道和分组"
-
-#: trunk/interfaces/gtk/interactive.py:225 smart/plugins/channelsync.py:139
-#: smart/interfaces/gtk/interactive.py:234
-#: smart/interfaces/qt/interactive.py:225
-msgid "None"
-msgstr "无"
-
-#: trunk/interfaces/gtk/interactive.py:275
-#: smart/interfaces/gtk/interactive.py:284
-#: smart/interfaces/qt/interactive.py:275
-msgid "Search:"
-msgstr "搜索："
-
-#: trunk/interfaces/gtk/interactive.py:315
-#: smart/interfaces/gtk/interactive.py:324
-#: smart/interfaces/qt/interactive.py:315
-msgid "Automatic"
-msgstr "自动"
-
-#: trunk/interfaces/gtk/interactive.py:373
-#: smart/interfaces/qt/interactive.py:373
-msgid ""
-"You are using the package manager.\n"
-"This tool allow you to install, update and remove the software.\n"
-"Is recommended that the channels informations are updated.\n"
-"Do you want to update them automatically now?"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:453
-#: smart/interfaces/qt/interactive.py:453
-msgid ""
-"You are updating the entire system.\n"
-"Is recommended that the channels informations are updated.\n"
-"Do you want to update automatically now?"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:472
-#: smart/interfaces/gtk/interactive.py:465
-#: smart/interfaces/qt/interactive.py:472
-msgid "Apply marked changes now?"
-msgstr "现在应用标出的更改吗？"
-
-#: trunk/interfaces/gtk/interactive.py:475
-#: smart/interfaces/text/interactive.py:370
-#: smart/interfaces/gtk/interactive.py:468
-#: smart/interfaces/qt/interactive.py:475
-msgid "No interesting upgrades available!"
-msgstr "没有可更新的软件包。"
-
-#: trunk/interfaces/gtk/interactive.py:560
-#: smart/interfaces/gtk/interactive.py:553
-#: smart/interfaces/qt/interactive.py:560
-msgid "Keep"
-msgstr "保留"
-
-#: trunk/interfaces/gtk/interactive.py:569
-#: smart/interfaces/gtk/interactive.py:562
-#: smart/interfaces/qt/interactive.py:569
-msgid "Fix problems"
-msgstr "修复问题"
-
-#: trunk/interfaces/gtk/interactive.py:600
-#: smart/interfaces/gtk/interactive.py:593
-#: smart/interfaces/qt/interactive.py:600
-msgid "Unlock this version"
-msgstr "解锁此版本"
-
-#: trunk/interfaces/gtk/interactive.py:612
-#: smart/interfaces/gtk/interactive.py:605
-#: smart/interfaces/qt/interactive.py:612
-msgid "Lock this version"
-msgstr "锁定此版本"
-
-#: trunk/interfaces/gtk/interactive.py:630
-#: smart/interfaces/gtk/interactive.py:623
-#: smart/interfaces/qt/interactive.py:630
-msgid "Unlock all versions"
-msgstr "解锁全部版本"
-
-#: trunk/interfaces/gtk/interactive.py:642
-#: smart/interfaces/gtk/interactive.py:635
-#: smart/interfaces/qt/interactive.py:642
-msgid "Lock all versions"
-msgstr "锁定全部版本"
-
-#: trunk/interfaces/gtk/interactive.py:673
-#: smart/interfaces/gtk/interactive.py:666
-#: smart/interfaces/qt/interactive.py:673
-msgid "Checking relations..."
-msgstr "正在检查关系..."
-
-#: trunk/interfaces/gtk/interactive.py:676
-#: smart/interfaces/gtk/interactive.py:669
-#: smart/interfaces/qt/interactive.py:676
-msgid "All checked packages have correct relations."
-msgstr "检查的全部软件包关系均正确。"
-
-#: trunk/interfaces/gtk/command.py:58 smart/interfaces/gtk/command.py:58
-msgid "Status"
-msgstr "状态"
-
-#: trunk/interfaces/gtk/log.py:40 smart/interfaces/gtk/log.py:40
-msgid "Log"
-msgstr "日志"
-
-#: trunk/interfaces/gtk/log.py:83 smart/interface.py:134
-#: smart/interfaces/gtk/log.py:83
-msgid "error"
-msgstr "错误"
-
-#: trunk/interfaces/gtk/log.py:83 smart/interface.py:134
-#: smart/interfaces/gtk/log.py:83
-msgid "warning"
-msgstr "警告"
-
-#: trunk/interfaces/gtk/log.py:84 smart/interface.py:135
-#: smart/interfaces/gtk/log.py:84
-msgid "debug"
-msgstr "调试"
-
-#: trunk/interfaces/gtk/packageview.py:132
-#: smart/interfaces/gtk/packageview.py:132
-#: smart/interfaces/qt/packageview.py:58 smart/commands/priority.py:98
-msgid "Package"
-msgstr "软件包"
-
-#: trunk/interfaces/gtk/packageview.py:145
-#: smart/interfaces/gtk/packageview.py:145
-#: smart/interfaces/qt/packageview.py:72
-msgid "Version"
-msgstr "版本"
-
-#: smart.py:37
-msgid "smart command [options] [arguments]"
-msgstr "smart 命令 [选项] [参数]"
-
-#: smart.py:39
-msgid ""
-"\n"
-"Action commands:\n"
-"    update\n"
-"    install\n"
-"    reinstall\n"
-"    upgrade\n"
-"    remove\n"
-"    check\n"
-"    fix\n"
-"    download\n"
-"    clean\n"
-"\n"
-"Query commands:\n"
-"    search\n"
-"    query\n"
-"    info\n"
-"    stats\n"
-"\n"
-"Setup commands:\n"
-"    channel\n"
-"    priority\n"
-"    mirror\n"
-"    flag\n"
-"\n"
-"Run \"smart command --help\" for more information.\n"
-msgstr ""
-"\n"
-"动作命令：\n"
-"    update\n"
-"    install\n"
-"    reinstall\n"
-"    upgrade\n"
-"    remove\n"
-"    check\n"
-"    fix\n"
-"    download\n"
-"    clean\n"
-"\n"
-"查询命令：\n"
-"    search\n"
-"    query\n"
-"    info\n"
-"    stats\n"
-"\n"
-"设置命令：\n"
-"    channel\n"
-"    priority\n"
-"    mirror\n"
-"    flag\n"
-"\n"
-"运行“smart 命令 --help”可获得更多信息。\n"
-
-#: smart.py:66
-msgid ""
-"\n"
-"smart install --help\n"
-"smart install pkgname\n"
-"smart --gui\n"
-"smart --gui install pkgname\n"
-"smart --shell\n"
-msgstr ""
-"\n"
-"smart install --help\n"
-"smart install 软件包名称\n"
-"smart --gui\n"
-"smart --gui install 软件包名称\n"
-"smart --shell\n"
-
-#: smart.py:81
-msgid "FILE"
-msgstr "文件"
-
-#: smart.py:82
-msgid "configuration file (default is <data-dir>/config)"
-msgstr "配置文件(默认为 <data-dir>/config)"
-
-#: smart.py:84
-msgid "DIR"
-msgstr "目录"
-
-#: smart.py:85
-#, python-format
-msgid "data directory (default is %s)"
-msgstr "数据目录(默认为 %s)"
-
-#: smart.py:86
-msgid "LEVEL"
-msgstr "级别"
-
-#: smart.py:87
-msgid "set the log level to LEVEL (debug, info, warning, error)"
-msgstr "将日志级别设定为[级别](debug、info、 warning、error)"
-
-#: smart.py:90
-msgid "use the default graphic interface"
-msgstr "使用默认的图形界面"
-
-#: smart.py:92
-msgid "use the default shell interface"
-msgstr "使用默认的 shell 界面"
-
-#: smart.py:93
-msgid "NAME"
-msgstr "名称"
-
-#: smart.py:94
-msgid "use the given interface"
-msgstr "使用给定的界面"
-
-#: smart.py:96
-msgid "don't respect locking"
-msgstr "不遵守锁定"
-
-#: smart.py:98
-msgid "OPT"
-msgstr "选项"
-
-#: smart.py:99
-msgid "set the option given by a name=value pair"
-msgstr "通过“名称=值”对来设定选项"
-
-#: smart.py:109 smart/option.py:161 smart/util/optparse.py:1402
-#: smart/util/optparse.py:1556
-#, python-format
-msgid "no such option: %s"
-msgstr "无此选项：%s"
-
-#: smart.py:135
-#, python-format
-msgid "Invalid option: %s"
-msgstr "无效选项：%s"
-
-#: smart.py:179
-#, python-format
-msgid "error: %s\n"
-msgstr "错误：%s\n"
-
-#: smart.py:188 smart/interfaces/text/interactive.py:200
-msgid ""
-"\n"
-"Interrupted\n"
-msgstr ""
-"\n"
-"已中断\n"
-
-#: smart/channel.py:133
-msgid "Unique identification for the channel."
-msgstr "频道的唯一标识符。"
-
-#: smart/channel.py:135
-msgid "Channel type"
-msgstr "频道类型"
-
-#: smart/channel.py:137
-msgid "Channel name"
-msgstr "频道名称"
-
-#: smart/channel.py:138
-msgid "Manual updates"
-msgstr "手动更新"
-
-#: smart/channel.py:139
-msgid ""
-"If set to a true value, the given channel will only be updated when manually "
-"selected."
-msgstr ""
-
-#: smart/channel.py:141
-msgid "Disabled"
-msgstr "已禁用"
-
-#: smart/channel.py:142
-msgid "If set to a true value, the given channel won't be used."
-msgstr ""
-
-#: smart/channel.py:144
-msgid "Removable"
-msgstr "可移动"
-
-#: smart/channel.py:145
-msgid ""
-"If set to a true value, the given channel will be considered as being "
-"available in a removable media (cdrom, etc)."
-msgstr ""
-
-#: smart/channel.py:151
-msgid ""
-"Default priority assigned to all packages available in this channel (0 if "
-"not set). If the exact same package is available in more than one channel, "
-"the highest priority is used."
-msgstr ""
-
-#: smart/channel.py:168
-#, python-format
-msgid "Unable to create channel of type '%s'"
-msgstr "无法创建类型为“%s”的频道"
-
-#: smart/channel.py:181 smart/channel.py:207
-msgid "Channel has no type"
-msgstr "频道无类型"
-
-#: smart/channel.py:184 smart/channel.py:210
-#, python-format
-msgid "Unknown channel type: %s"
-msgstr "未知的频道类型：%s"
-
-#: smart/channel.py:194 smart/channel.py:222
-#, python-format
-msgid "%s (%s) is a needed field for '%s' channels"
-msgstr ""
-
-#: smart/channel.py:229 smart/util/strtools.py:104
-msgid "y"
-msgstr "y"
-
-#: smart/channel.py:229 smart/util/strtools.py:104
-#: smart/interfaces/text/interface.py:71
-msgid "yes"
-msgstr "是"
-
-#: smart/channel.py:229 smart/util/strtools.py:104
-msgid "true"
-msgstr "真"
-
-#: smart/channel.py:232 smart/util/strtools.py:106
-msgid "n"
-msgstr "n"
-
-#: smart/channel.py:232 smart/util/strtools.py:106
-#: smart/interfaces/text/interface.py:72
-msgid "no"
-msgstr "否"
-
-#: smart/channel.py:232 smart/util/strtools.py:106
-msgid "false"
-msgstr "假"
-
-#: smart/channel.py:235 smart/channel.py:241 smart/channel.py:244
-#, python-format
-msgid "Invalid value for '%s' (%s) field: %s"
-msgstr ""
-
-#: smart/channel.py:261
-#, python-format
-msgid "Channel '%s' has no type"
-msgstr "频道“%s”没有类型"
-
-#: smart/channel.py:283
-#, python-format
-msgid "Invalid channel type '%s'"
-msgstr "无效的频道类型“%s”"
-
-#: smart/option.py:35 smart/util/optparse.py:1136
-msgid "show this help message and exit"
-msgstr "显示此帮助信息并退出"
-
-#: smart/option.py:37 smart/util/optparse.py:1141
-msgid "show program's version number and exit"
-msgstr "显示程序的版本号并退出"
-
-#: smart/option.py:49
-#, python-format
-msgid "Usage: %s\n"
-msgstr "用法：%s\n"
-
-#: smart/option.py:54 smart/util/optparse.py:1502
-msgid "options"
-msgstr "选项"
-
-#: smart/option.py:89
-msgid "examples"
-msgstr "示例"
-
-#: smart/option.py:172 smart/util/optparse.py:1374 smart/util/optparse.py:1413
-#, python-format
-msgid "%s option requires an argument"
-msgstr "%s 选项需要参数"
-
-#: smart/option.py:174 smart/util/optparse.py:1376 smart/util/optparse.py:1415
-#, python-format
-msgid "%s option requires %d arguments"
-msgstr "%s 选项需要 %d 个参数"
-
-#: smart/channels/rpm_hdl.py:60 smart/channels/up2date_mirrors.py:61
-#: smart/channels/red_carpet.py:64 smart/channels/rpm_md.py:140
-#: smart/channels/apt_deb.py:89 smart/channels/apt_deb.py:203
-#: smart/channels/apt_deb.py:238 smart/channels/urpmi.py:107
-#: smart/channels/slack_site.py:59 smart/channels/apt_rpm.py:62
-#: smart/channels/apt_rpm.py:212 smart/channels/mirrors.py:58
-#: smart/channels/yast2.py:52
-#, python-format
-msgid "Failed acquiring information for '%s':"
-msgstr "获取“%s”的信息失败："
-
-#: smart/channels/urpmi_info.py:26
-msgid "URPMI Repository"
-msgstr "URPMI 仓库"
-
-#: smart/channels/urpmi_info.py:28
-msgid ""
-"\n"
-"Repository created for Mandriva's URPMI package manager.\n"
-msgstr ""
-"\n"
-"Mandriva 的 URPMI 软件包管理器所创建的仓库。\n"
-
-#: smart/channels/urpmi_info.py:32 smart/channels/apt_rpm_info.py:32
-#: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32
-#: smart/channels/apt_deb_info.py:32 smart/channels/yast2_info.py:32
-msgid "Base URL"
-msgstr "基础 URL"
-
-#: smart/channels/urpmi_info.py:33
-msgid ""
-"Base URL where packages or the 'list' file are found under. Using ' with "
-"<hdlurl>' pattern is also supported."
-msgstr "软件包或“list”文件所在的基础 URL。使用“with <hdlurl>”模式也同样支持。"
-
-#: smart/channels/urpmi_info.py:35 smart/channels/rpm_hdl_info.py:34
-msgid "Header List URL"
-msgstr "头列表 URL"
-
-#: smart/channels/urpmi_info.py:36
-msgid ""
-"URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
-"given base URL, may be left empty. URLs relative to the Base URL are "
-"supported"
-msgstr ""
-"头列表(hdlist 或综合文件)的 URL。如果 hdlist.cz 位于给出的基础 URL 中，则此参"
-"数可省略。支持相对于基础 URL 的相对路径"
-
-#: smart/channels/urpmi_info.py:45
-msgid "Base URL has 'with', but Header List URL was provided"
-msgstr "基础 URL 有“with”，但提供了头列表 URL"
-
-#: smart/channels/urpmi_info.py:49
-msgid "Base URL has invalid 'with' pattern"
-msgstr "基础 URL 的“with”模式无效"
-
-#: smart/channels/slack_sys.py:48 smart/channels/deb_sys.py:49
-#: smart/channels/deb_dir.py:57 smart/channels/rpm_sys.py:49
-#: smart/channels/rpm_dir.py:57
-#, python-format
-msgid "%s channels cannot be removable"
-msgstr "%s 频道不是可移动的"
-
-#: smart/channels/apt_rpm_info.py:26
-msgid "APT-RPM Repository"
-msgstr "APT-RPM 仓库"
-
-#: smart/channels/apt_rpm_info.py:28
-msgid ""
-"\n"
-"Repositories created for APT-RPM.\n"
-msgstr ""
-"\n"
-"为 APT-RPM 所创将的仓库。\n"
-
-#: smart/channels/apt_rpm_info.py:33
-msgid "Base URL of APT-RPM repository, where base/ is located."
-msgstr "APT-RPM 仓库的基础 URL，即 base/ 所在地。"
-
-#: smart/channels/apt_rpm_info.py:34 smart/channels/apt_deb_info.py:36
-msgid "Components"
-msgstr "组件"
-
-#: smart/channels/apt_rpm_info.py:35 smart/channels/apt_deb_info.py:37
-msgid "Space separated list of components."
-msgstr "用空格区分的组件。"
-
-#: smart/channels/apt_rpm_info.py:36 smart/channels/apt_deb_info.py:38
-msgid "Fingerprint"
-msgstr "指纹"
-
-#: smart/channels/apt_rpm_info.py:37 smart/channels/apt_deb_info.py:39
-msgid "GPG fingerprint of key signing the channel."
-msgstr "用来对频道签名密钥 GPG 指纹。"
-
-#: smart/channels/deb_dir.py:37 smart/channels/rpm_dir.py:37
-#, python-format
-msgid "Channel '%s' has invalid directory: %s"
-msgstr "频道“%s”的目录无效：%s"
-
-#: smart/channels/slack_sys_info.py:26
-msgid "Slackware Installed Packages"
-msgstr "Slackware 已安装软件包"
-
-#: smart/channels/slack_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages in a slackware system.\n"
-msgstr ""
-"\n"
-"Slackware 系统中已安装的软件包。\n"
-
-#: smart/channels/rpm_sys_info.py:26
-msgid "RPM Installed Packages"
-msgstr "RPM 已安装软件包"
-
-#: smart/channels/rpm_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages from the local RPM database.\n"
-msgstr ""
-"\n"
-"本地 RPM 数据库中已安装的软件包。\n"
-
-#: smart/channels/rpm_md.py:68
-#, python-format
-msgid "Failed acquiring release file for '%s':"
-msgstr "获取“%s”的 release 文件失败："
-
-#: smart/channels/rpm_md.py:83
-#, python-format
-msgid ""
-"Invalid XML file:\n"
-"  %s\n"
-"  %s\n"
-"  %s"
-msgstr ""
-"无效的 XML 文件：\n"
-"  %s\n"
-"  %s\n"
-"  %s"
-
-#: smart/channels/rpm_md.py:102
-#, python-format
-msgid "Primary information not found in repository metadata for '%s'"
-msgstr "“%s”的仓库元数据中未找到主要信息"
-
-#: smart/channels/rpm_md.py:130
-#, fuzzy, python-format
-msgid ""
-"Failed to download. You must fetch channel information to acquire needed "
-"filelists.\n"
-"%s: %s"
-msgstr "要获取所需的文件列表，您必须获取频道信息。"
-
-#: smart/channels/mirrors_info.py:26
-msgid "Mirror Information"
-msgstr "镜像信息"
-
-#: smart/channels/mirrors_info.py:28
-msgid ""
-"\n"
-"Mirror information file.\n"
-msgstr ""
-"\n"
-"镜像信息文件。\n"
-
-#: smart/channels/mirrors_info.py:32 smart/channels/up2date_mirrors_info.py:32
-msgid "Mirror File URL"
-msgstr "镜像文件 URL"
-
-#: smart/channels/mirrors_info.py:33 smart/channels/up2date_mirrors_info.py:33
-msgid "URL for the mirror information file"
-msgstr "镜像信息文件的 URL"
-
-#: smart/channels/apt_deb.py:122
-#, python-format
-msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
-msgstr "频道“%s”有指纹，但下载 Release.gpg 失败：%s"
-
-#: smart/channels/apt_deb.py:144 smart/channels/apt_rpm.py:131
-#, python-format
-msgid "Channel '%s' has bad signature"
-msgstr "频道“%s”的签名无效"
-
-#: smart/channels/apt_deb.py:146 smart/channels/apt_rpm.py:133
-#, python-format
-msgid "Channel '%s' signed with unknown key"
-msgstr "频道“%s”使用了未知密钥签名"
-
-#: smart/channels/apt_deb.py:172
-#, python-format
-msgid "Component '%s' is not in Release file for channel '%s'"
-msgstr "组件“%s”未出现于频道“%s”的 Release 文件中"
-
-#: smart/channels/red_carpet_info.py:26
-msgid "Red Carpet Channel"
-msgstr "Red Carpet 频道"
-
-#: smart/channels/red_carpet_info.py:28
-msgid ""
-"\n"
-"Channel for the Red Carpet package tool.\n"
-msgstr ""
-"\n"
-"Red Carpet 软件包工具的频道。\n"
-
-#: smart/channels/red_carpet_info.py:32 smart/channels/rpm_hdl_info.py:32
-msgid "Base URL for packages"
-msgstr "软件包的基础 URL"
-
-#: smart/channels/red_carpet_info.py:33
-msgid "URL where packages are found"
-msgstr "软件包所在 URL"
-
-#: smart/channels/red_carpet_info.py:34
-msgid "URL for packageinfo XML"
-msgstr "packageinfo XML 的 URL"
-
-#: smart/channels/red_carpet_info.py:35
-msgid ""
-"URL for packageinfo.xml.gz including filename (option may be ommitted if "
-"file is named packageinfo.xml.gz and is inside the base url)"
-msgstr ""
-"packageinfo.xml.gz 的 URL，包含文件名(如果文件名为 packageinfo.xml.gz，并且位"
-"于基础 URL 中，则此选项可省略)"
-
-#: smart/channels/deb_dir_info.py:26
-msgid "DEB Directory"
-msgstr "DEB 目录"
-
-#: smart/channels/deb_dir_info.py:28
-msgid ""
-"\n"
-"Local directory with DEB packages.\n"
-msgstr ""
-"\n"
-"DEB 软件包的本地目录。\n"
-
-#: smart/channels/deb_dir_info.py:32 smart/channels/rpm_dir_info.py:32
-msgid "Directory Path"
-msgstr "目录路径"
-
-#: smart/channels/deb_dir_info.py:33
-msgid "Path of directory containing DEB packages."
-msgstr "包含 DEB 软件包的目录路径。"
-
-#: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
-msgid "Recursive"
-msgstr "递归"
-
-#: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
-msgid "Search for files recursively."
-msgstr "递归搜索文件。"
-
-#: smart/channels/rpm_hdl_info.py:26
-msgid "RPM Header List"
-msgstr "RPM 头列表"
-
-#: smart/channels/rpm_hdl_info.py:28
-msgid ""
-"\n"
-"Packages from an RPM Header List.\n"
-msgstr ""
-"\n"
-"RPM 头列表的软件包。\n"
-
-#: smart/channels/rpm_hdl_info.py:33
-msgid "Base URL where package files are found"
-msgstr "软件包文件所在的基础 URL"
-
-#: smart/channels/rpm_hdl_info.py:35
-msgid "URL for the header list"
-msgstr "头列表 URL"
-
-#: smart/channels/deb_sys_info.py:26
-msgid "DPKG Installed Packages"
-msgstr "DPKG 已安装软件包"
-
-#: smart/channels/deb_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages from dpkg status.\n"
-msgstr ""
-"\n"
-"来自 dpkg status 的已安装软件包。\n"
-
-#: smart/channels/rpm_md_info.py:26
-msgid "RPM MetaData"
-msgstr "RPM MetaData"
-
-#: smart/channels/rpm_md_info.py:28
-msgid ""
-"\n"
-"Repository created with the rpm-metadata project.\n"
-msgstr ""
-"\n"
-"rpm-metadata 项目创建的仓库。\n"
-
-#: smart/channels/rpm_md_info.py:33
-msgid "URL where repodata/ subdirectory is found"
-msgstr "repodata/ 子目录的 URL"
-
-#: smart/channels/slack_site_info.py:26
-msgid "Slackware Repository"
-msgstr "Slackware 仓库"
-
-#: smart/channels/slack_site_info.py:28
-msgid ""
-"\n"
-"Remote repository with slackware packages.\n"
-msgstr ""
-"\n"
-"Slackware 软件包的远程仓库。\n"
-
-#: smart/channels/slack_site_info.py:33
-msgid "Base URL where PACKAGES.TXT is located"
-msgstr "PACKAGES.TXT 所在的基础 URL"
-
-#: smart/channels/rpm_dir_info.py:26
-msgid "RPM Directory"
-msgstr "RPM 目录"
-
-#: smart/channels/rpm_dir_info.py:28
-msgid ""
-"\n"
-"Local directory with RPM packages.\n"
-msgstr ""
-"\n"
-"RPM 软件包的本地目录。\n"
-
-#: smart/channels/rpm_dir_info.py:33
-msgid "Path of directory containing RPM packages."
-msgstr "包含 RPM 软件包的目录路径。"
-
-#: smart/channels/apt_rpm.py:102
-#, python-format
-msgid "Channel '%s' has fingerprint but is not signed"
-msgstr "频道“%s”有指纹，但未签名"
-
-#: smart/channels/apt_rpm.py:165
-#, python-format
-msgid "Component '%s' is not in release file for channel '%s'"
-msgstr "组件“%s”未出现于频道“%s”的 release 文件中"
-
-#: smart/channels/apt_deb_info.py:26
-msgid "APT-DEB Repository"
-msgstr "APT-DEB 仓库"
-
-#: smart/channels/apt_deb_info.py:28
-msgid ""
-"\n"
-"Repositories created for APT-DEB.\n"
-msgstr ""
-"\n"
-"为 APT-DEB 所创建的仓库。\n"
-
-#: smart/channels/apt_deb_info.py:33
-msgid "Base URL of repository, where dists/ is located."
-msgstr "仓库的基础 URL，即 dist/ 所在地。"
-
-#: smart/channels/apt_deb_info.py:34
-msgid "Distribution"
-msgstr "发行版"
-
-#: smart/channels/apt_deb_info.py:35
-msgid "Distribution to use."
-msgstr "要使用的发行版。"
-
-#: smart/channels/up2date_mirrors_info.py:26
-msgid "Mirror Information (up2date format)"
-msgstr "镜像信息(up2date 格式)"
-
-#: smart/channels/up2date_mirrors_info.py:28
-msgid ""
-"\n"
-"Mirror information file, in up2date format.\n"
-msgstr ""
-"\n"
-"镜像信息文件，以 up2date 格式给出。\n"
-
-#: smart/channels/yast2.py:104
-msgid "Invalid package file format. Invalid header found."
-msgstr ""
-
-#: smart/channels/yast2_info.py:26
-#, fuzzy
-msgid "YaST2 Repository"
-msgstr "APT-DEB 仓库"
-
-#: smart/channels/yast2_info.py:28
-#, fuzzy
-msgid ""
-"\n"
-"Repositories created for YaST2.\n"
-msgstr ""
-"\n"
-"为 APT-DEB 所创建的仓库。\n"
-
-#: smart/channels/yast2_info.py:33
-#, fuzzy
-msgid "Base URL of YaST2 repository, where the 'content' file is located."
-msgstr "仓库的基础 URL，即 dist/ 所在地。"
-
-#: smart/uncompress.py:44
-#, python-format
-msgid "Unknown compressed file: %s"
-msgstr "未知的压缩文件：%s"
-
-#: smart/uncompress.py:55
-msgid "Unsupported file type"
-msgstr "不支持的文件类型"
-
-#: smart/interface.py:51
-#, python-format
-msgid "Invalid command '%s'"
-msgstr "无效的命令“%s”"
-
-#: smart/interface.py:92
-msgid "Password"
-msgstr "密码"
-
-#: smart/interface.py:93
-#, python-format
-msgid "A password is needed for '%s'."
-msgstr "“%s”需要密码。"
-
-#: smart/interface.py:163
-#, python-format
-msgid "Interface '%s' not available"
-msgstr "界面“%s”不可用"
-
-#: smart/control.py:85 smart/control.py:276
-#, python-format
-msgid "There's another channel with alias '%s'"
-msgstr "已经存在别名为“%s”的频道"
-
-#: smart/control.py:90
-#, python-format
-msgid "Unable to create channel for file: %s"
-msgstr "无法为文件创建频道：%s"
-
-#: smart/control.py:100
-#, python-format
-msgid "Channel not found for '%s'"
-msgstr "“%s”的频道未找到"
-
-#: smart/control.py:133
-#, python-format
-msgid "Configuration file not found: %s"
-msgstr "配置文件未找到：%s"
-
-#: smart/control.py:148
-#, python-format
-msgid "Can't create datadir at %s"
-msgstr ""
-
-#: smart/control.py:168
-msgid "Saving cache..."
-msgstr "正在保存缓存..."
-
-#: smart/control.py:220
-msgid "Loading cache..."
-msgstr "正在装入缓存..."
-
-#: smart/control.py:301
-msgid "Unable to create channel directory."
-msgstr "无法创建频道目录。"
-
-#: smart/control.py:304
-msgid "Configuration is in readonly mode!"
-msgstr "配置只读。"
-
-#: smart/control.py:306
-msgid "Channel information is locked for writing."
-msgstr "频道信息已被锁定，无法写入。"
-
-#: smart/control.py:308
-msgid "Can't update channels in readonly mode."
-msgstr "只读模式中无法更新频道。"
-
-#: smart/control.py:310
-msgid "Can't update channels with active readers."
-msgstr "无法更新正在获取的频道。"
-
-#: smart/control.py:346
-#, python-format
-msgid "Fetching information for '%s'..."
-msgstr "正在获取“%s”的信息..."
-
-#: smart/control.py:353 smart/control.py:357
-#, python-format
-msgid "Failed fetching channel '%s'"
-msgstr "获取频道“%s”失败"
-
-#: smart/control.py:411
-#, python-format
-msgid "Package %s is not available for downloading"
-msgstr "软件包 %s 不可下载"
-
-#: smart/control.py:643
-#, python-format
-msgid "No channel available for package %s"
-msgstr "软件包 %s 没有可用的频道"
-
-#: smart/control.py:656 smart/commands/install.py:85
-msgid "packages"
-msgstr "软件包"
-
-#: smart/control.py:660 smart/commands/install.py:88
-msgid "Failed to download packages:\n"
-msgstr "下载软件包失败：\n"
-
-#: smart/control.py:837
-#, python-format
-msgid "%s is not available for downloading"
-msgstr "%s 不可下载"
+msgid "Sub-process %s exited unexpectedly"
+msgstr "子进程 %s 异常退出"
 
 #: smart/backends/rpm/base.py:42
 msgid "'rpm' python module is not available"
@@ -1871,19 +58,15 @@ msgstr "无法初始化 %s 的 rpm 数据库"
 msgid "Initialized new rpm database at %s"
 msgstr ""
 
-#: smart/backends/rpm/redcarpet.py:309
-#, python-format
-msgid "Error parsing %s: %s"
-msgstr "分析 %s 时出错：%s"
+#: smart/backends/rpm/header.py:399
+msgid ""
+"Your rpm module has no support for readHeaderFromFD()!\n"
+"As a consequence, Smart will consume extra memory."
+msgstr ""
 
-#: smart/backends/rpm/pm.py:49 smart/backends/deb/pm.py:135
-#: smart/backends/slack/pm.py:33
-msgid "Committing transaction..."
-msgstr "正在提交交易..."
-
-#: smart/backends/rpm/pm.py:134 smart/backends/deb/pm.py:165
-msgid "Found unbreakable loops:"
-msgstr "找到了死循环："
+#: smart/backends/rpm/header.py:504 smart/backends/rpm/header.py:532
+msgid "Package list with no CRPMTAG_FILENAME tag"
+msgstr ""
 
 #: smart/backends/rpm/pm.py:139
 msgid "Will ask RPM to order it."
@@ -1929,30 +112,15 @@ msgstr "清理 %s"
 msgid "Removing %s"
 msgstr "删除 %s"
 
-#: smart/backends/rpm/header.py:406
-msgid ""
-"Your rpm module has no support for readHeaderFromFD()!\n"
-"As a consequence, Smart will consume extra memory."
-msgstr ""
-
-#: smart/backends/rpm/header.py:511 smart/backends/rpm/header.py:539
-msgid "Package list with no CRPMTAG_FILENAME tag"
-msgstr ""
-
-#: smart/backends/deb/pm.py:268
+#: smart/backends/rpm/redcarpet.py:309
 #, python-format
-msgid "Sub-process %s has received a segmentation fault"
-msgstr "子进程 %s 收到了段错误"
+msgid "Error parsing %s: %s"
+msgstr "分析 %s 时出错：%s"
 
-#: smart/backends/deb/pm.py:271
+#: smart/backends/slack/loader.py:68
 #, python-format
-msgid "Sub-process %s returned an error code (%d)"
-msgstr "子进程 %s 返回了错误代码(%d)"
-
-#: smart/backends/deb/pm.py:274
-#, python-format
-msgid "Sub-process %s exited unexpectedly"
-msgstr "子进程 %s 异常退出"
+msgid "Invalid package name: %s"
+msgstr "无效的软件包名称：%s"
 
 #: smart/backends/slack/pm.py:67
 #, python-format
@@ -1989,704 +157,418 @@ msgstr "删除 %(pkg)s 时得到了状态 %(status)d："
 msgid "Removing %s:"
 msgstr "删除 %s："
 
-#: smart/backends/slack/loader.py:68
+#: smart/channels/apt_deb.py:89 smart/channels/apt_deb.py:203
+#: smart/channels/apt_deb.py:238 smart/channels/apt_rpm.py:62
+#: smart/channels/apt_rpm.py:212 smart/channels/mirrors.py:58
+#: smart/channels/red_carpet.py:64 smart/channels/rpm_hdl.py:60
+#: smart/channels/rpm_md.py:140 smart/channels/slack_site.py:59
+#: smart/channels/up2date_mirrors.py:61 smart/channels/urpmi.py:107
+#: smart/channels/yast2.py:53
 #, python-format
-msgid "Invalid package name: %s"
+msgid "Failed acquiring information for '%s':"
+msgstr "获取“%s”的信息失败："
+
+#: smart/channels/apt_deb.py:122
+#, python-format
+msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
+msgstr "频道“%s”有指纹，但下载 Release.gpg 失败：%s"
+
+#: smart/channels/apt_deb.py:144 smart/channels/apt_rpm.py:131
+#, python-format
+msgid "Channel '%s' has bad signature"
+msgstr "频道“%s”的签名无效"
+
+#: smart/channels/apt_deb.py:146 smart/channels/apt_rpm.py:133
+#, python-format
+msgid "Channel '%s' signed with unknown key"
+msgstr "频道“%s”使用了未知密钥签名"
+
+#: smart/channels/apt_deb.py:172
+#, python-format
+msgid "Component '%s' is not in Release file for channel '%s'"
+msgstr "组件“%s”未出现于频道“%s”的 Release 文件中"
+
+#: smart/channels/apt_deb_info.py:26
+msgid "APT-DEB Repository"
+msgstr "APT-DEB 仓库"
+
+#: smart/channels/apt_deb_info.py:28
+msgid ""
+"\n"
+"Repositories created for APT-DEB.\n"
+msgstr ""
+"\n"
+"为 APT-DEB 所创建的仓库。\n"
+
+#: smart/channels/apt_deb_info.py:32 smart/channels/apt_rpm_info.py:32
+#: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32
+#: smart/channels/urpmi_info.py:32 smart/channels/yast2_info.py:32
+msgid "Base URL"
+msgstr "基础 URL"
+
+#: smart/channels/apt_deb_info.py:33
+msgid "Base URL of repository, where dists/ is located."
+msgstr "仓库的基础 URL，即 dist/ 所在地。"
+
+#: smart/channels/apt_deb_info.py:34
+msgid "Distribution"
+msgstr "发行版"
+
+#: smart/channels/apt_deb_info.py:35
+msgid "Distribution to use."
+msgstr "要使用的发行版。"
+
+#: smart/channels/apt_deb_info.py:36 smart/channels/apt_rpm_info.py:34
+msgid "Components"
+msgstr "组件"
+
+#: smart/channels/apt_deb_info.py:37 smart/channels/apt_rpm_info.py:35
+msgid "Space separated list of components."
+msgstr "用空格区分的组件。"
+
+#: smart/channels/apt_deb_info.py:38 smart/channels/apt_rpm_info.py:36
+msgid "Fingerprint"
+msgstr "指纹"
+
+#: smart/channels/apt_deb_info.py:39 smart/channels/apt_rpm_info.py:37
+msgid "GPG fingerprint of key signing the channel."
+msgstr "用来对频道签名密钥 GPG 指纹。"
+
+#: smart/channels/apt_rpm.py:102
+#, python-format
+msgid "Channel '%s' has fingerprint but is not signed"
+msgstr "频道“%s”有指纹，但未签名"
+
+#: smart/channels/apt_rpm.py:165
+#, python-format
+msgid "Component '%s' is not in release file for channel '%s'"
+msgstr "组件“%s”未出现于频道“%s”的 release 文件中"
+
+#: smart/channels/apt_rpm_info.py:26
+msgid "APT-RPM Repository"
+msgstr "APT-RPM 仓库"
+
+#: smart/channels/apt_rpm_info.py:28
+msgid ""
+"\n"
+"Repositories created for APT-RPM.\n"
+msgstr ""
+"\n"
+"为 APT-RPM 所创将的仓库。\n"
+
+#: smart/channels/apt_rpm_info.py:33
+msgid "Base URL of APT-RPM repository, where base/ is located."
+msgstr "APT-RPM 仓库的基础 URL，即 base/ 所在地。"
+
+#: smart/channels/deb_dir.py:37 smart/channels/rpm_dir.py:37
+#, python-format
+msgid "Channel '%s' has invalid directory: %s"
+msgstr "频道“%s”的目录无效：%s"
+
+#: smart/channels/deb_dir.py:57 smart/channels/deb_sys.py:49
+#: smart/channels/rpm_dir.py:57 smart/channels/rpm_sys.py:49
+#: smart/channels/slack_sys.py:48
+#, python-format
+msgid "%s channels cannot be removable"
+msgstr "%s 频道不是可移动的"
+
+#: smart/channels/deb_dir_info.py:26
+msgid "DEB Directory"
+msgstr "DEB 目录"
+
+#: smart/channels/deb_dir_info.py:28
+msgid ""
+"\n"
+"Local directory with DEB packages.\n"
+msgstr ""
+"\n"
+"DEB 软件包的本地目录。\n"
+
+#: smart/channels/deb_dir_info.py:32 smart/channels/rpm_dir_info.py:32
+msgid "Directory Path"
+msgstr "目录路径"
+
+#: smart/channels/deb_dir_info.py:33
+msgid "Path of directory containing DEB packages."
+msgstr "包含 DEB 软件包的目录路径。"
+
+#: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
+msgid "Recursive"
+msgstr "递归"
+
+#: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
+msgid "Search for files recursively."
+msgstr "递归搜索文件。"
+
+#: smart/channels/deb_sys_info.py:26
+msgid "DPKG Installed Packages"
+msgstr "DPKG 已安装软件包"
+
+#: smart/channels/deb_sys_info.py:28
+msgid ""
+"\n"
+"Installed packages from dpkg status.\n"
+msgstr ""
+"\n"
+"来自 dpkg status 的已安装软件包。\n"
+
+#: smart/channels/mirrors_info.py:26
+msgid "Mirror Information"
+msgstr "镜像信息"
+
+#: smart/channels/mirrors_info.py:28
+msgid ""
+"\n"
+"Mirror information file.\n"
+msgstr ""
+"\n"
+"镜像信息文件。\n"
+
+#: smart/channels/mirrors_info.py:32 smart/channels/up2date_mirrors_info.py:32
+msgid "Mirror File URL"
+msgstr "镜像文件 URL"
+
+#: smart/channels/mirrors_info.py:33 smart/channels/up2date_mirrors_info.py:33
+msgid "URL for the mirror information file"
+msgstr "镜像信息文件的 URL"
+
+#: smart/channels/red_carpet_info.py:26
+msgid "Red Carpet Channel"
+msgstr "Red Carpet 频道"
+
+#: smart/channels/red_carpet_info.py:28
+msgid ""
+"\n"
+"Channel for the Red Carpet package tool.\n"
+msgstr ""
+"\n"
+"Red Carpet 软件包工具的频道。\n"
+
+#: smart/channels/red_carpet_info.py:32 smart/channels/rpm_hdl_info.py:32
+msgid "Base URL for packages"
+msgstr "软件包的基础 URL"
+
+#: smart/channels/red_carpet_info.py:33
+msgid "URL where packages are found"
+msgstr "软件包所在 URL"
+
+#: smart/channels/red_carpet_info.py:34
+msgid "URL for packageinfo XML"
+msgstr "packageinfo XML 的 URL"
+
+#: smart/channels/red_carpet_info.py:35
+msgid ""
+"URL for packageinfo.xml.gz including filename (option may be ommitted if "
+"file is named packageinfo.xml.gz and is inside the base url)"
+msgstr ""
+"packageinfo.xml.gz 的 URL，包含文件名(如果文件名为 packageinfo.xml.gz，并且位"
+"于基础 URL 中，则此选项可省略)"
+
+#: smart/channels/rpm_dir_info.py:26
+msgid "RPM Directory"
+msgstr "RPM 目录"
+
+#: smart/channels/rpm_dir_info.py:28
+msgid ""
+"\n"
+"Local directory with RPM packages.\n"
+msgstr ""
+"\n"
+"RPM 软件包的本地目录。\n"
+
+#: smart/channels/rpm_dir_info.py:33
+msgid "Path of directory containing RPM packages."
+msgstr "包含 RPM 软件包的目录路径。"
+
+#: smart/channels/rpm_hdl_info.py:26
+msgid "RPM Header List"
+msgstr "RPM 头列表"
+
+#: smart/channels/rpm_hdl_info.py:28
+msgid ""
+"\n"
+"Packages from an RPM Header List.\n"
+msgstr ""
+"\n"
+"RPM 头列表的软件包。\n"
+
+#: smart/channels/rpm_hdl_info.py:33
+msgid "Base URL where package files are found"
+msgstr "软件包文件所在的基础 URL"
+
+#: smart/channels/rpm_hdl_info.py:34 smart/channels/urpmi_info.py:35
+msgid "Header List URL"
+msgstr "头列表 URL"
+
+#: smart/channels/rpm_hdl_info.py:35
+msgid "URL for the header list"
+msgstr "头列表 URL"
+
+#: smart/channels/rpm_md.py:68
+#, python-format
+msgid "Failed acquiring release file for '%s':"
+msgstr "获取“%s”的 release 文件失败："
+
+#: smart/channels/rpm_md.py:83
+#, python-format
+msgid ""
+"Invalid XML file:\n"
+"  %s\n"
+"  %s\n"
+"  %s"
+msgstr ""
+"无效的 XML 文件：\n"
+"  %s\n"
+"  %s\n"
+"  %s"
+
+#: smart/channels/rpm_md.py:102
+#, python-format
+msgid "Primary information not found in repository metadata for '%s'"
+msgstr "“%s”的仓库元数据中未找到主要信息"
+
+#: smart/channels/rpm_md.py:130
+#, fuzzy, python-format
+msgid ""
+"Failed to download. You must fetch channel information to acquire needed "
+"filelists.\n"
+"%s: %s"
+msgstr "要获取所需的文件列表，您必须获取频道信息。"
+
+#: smart/channels/rpm_md_info.py:26
+msgid "RPM MetaData"
+msgstr "RPM MetaData"
+
+#: smart/channels/rpm_md_info.py:28
+msgid ""
+"\n"
+"Repository created with the rpm-metadata project.\n"
+msgstr ""
+"\n"
+"rpm-metadata 项目创建的仓库。\n"
+
+#: smart/channels/rpm_md_info.py:33
+msgid "URL where repodata/ subdirectory is found"
+msgstr "repodata/ 子目录的 URL"
+
+#: smart/channels/rpm_sys_info.py:26
+msgid "RPM Installed Packages"
+msgstr "RPM 已安装软件包"
+
+#: smart/channels/rpm_sys_info.py:28
+msgid ""
+"\n"
+"Installed packages from the local RPM database.\n"
+msgstr ""
+"\n"
+"本地 RPM 数据库中已安装的软件包。\n"
+
+#: smart/channels/slack_site_info.py:26
+msgid "Slackware Repository"
+msgstr "Slackware 仓库"
+
+#: smart/channels/slack_site_info.py:28
+msgid ""
+"\n"
+"Remote repository with slackware packages.\n"
+msgstr ""
+"\n"
+"Slackware 软件包的远程仓库。\n"
+
+#: smart/channels/slack_site_info.py:33
+msgid "Base URL where PACKAGES.TXT is located"
+msgstr "PACKAGES.TXT 所在的基础 URL"
+
+#: smart/channels/slack_sys_info.py:26
+msgid "Slackware Installed Packages"
+msgstr "Slackware 已安装软件包"
+
+#: smart/channels/slack_sys_info.py:28
+msgid ""
+"\n"
+"Installed packages in a slackware system.\n"
+msgstr ""
+"\n"
+"Slackware 系统中已安装的软件包。\n"
+
+#: smart/channels/up2date_mirrors_info.py:26
+msgid "Mirror Information (up2date format)"
+msgstr "镜像信息(up2date 格式)"
+
+#: smart/channels/up2date_mirrors_info.py:28
+msgid ""
+"\n"
+"Mirror information file, in up2date format.\n"
+msgstr ""
+"\n"
+"镜像信息文件，以 up2date 格式给出。\n"
+
+#: smart/channels/urpmi_info.py:26
+msgid "URPMI Repository"
+msgstr "URPMI 仓库"
+
+#: smart/channels/urpmi_info.py:28
+msgid ""
+"\n"
+"Repository created for Mandriva's URPMI package manager.\n"
+msgstr ""
+"\n"
+"Mandriva 的 URPMI 软件包管理器所创建的仓库。\n"
+
+#: smart/channels/urpmi_info.py:33
+msgid ""
+"Base URL where packages or the 'list' file are found under. Using ' with "
+"<hdlurl>' pattern is also supported."
+msgstr "软件包或“list”文件所在的基础 URL。使用“with <hdlurl>”模式也同样支持。"
+
+#: smart/channels/urpmi_info.py:36
+msgid ""
+"URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
+"given base URL, may be left empty. URLs relative to the Base URL are "
+"supported"
+msgstr ""
+"头列表(hdlist 或综合文件)的 URL。如果 hdlist.cz 位于给出的基础 URL 中，则此参"
+"数可省略。支持相对于基础 URL 的相对路径"
+
+#: smart/channels/urpmi_info.py:45
+msgid "Base URL has 'with', but Header List URL was provided"
+msgstr "基础 URL 有“with”，但提供了头列表 URL"
+
+#: smart/channels/urpmi_info.py:49
+msgid "Base URL has invalid 'with' pattern"
+msgstr "基础 URL 的“with”模式无效"
+
+#: smart/channels/yast2.py:132
+#, fuzzy, python-format
+msgid "Invalid package file header (%s)"
 msgstr "无效的软件包名称：%s"
 
-#: smart/fetcher.py:168
-#, python-format
-msgid "%s is already in the queue"
-msgstr "%s 已在队列中"
-
-#: smart/fetcher.py:202 smart/fetcher.py:209
-#, python-format
-msgid "Fetching %s..."
-msgstr "正在获取 %s..."
-
-#: smart/fetcher.py:211
-msgid "Fetching information..."
-msgstr "正在获取信息..."
-
-#: smart/fetcher.py:289 smart/fetcher.py:570
-msgid "Cancelled"
-msgstr "已取消"
-
-#: smart/fetcher.py:329
-#, python-format
-msgid "Unsupported scheme: %s"
-msgstr "不支持的大纲：%s"
-
-#: smart/fetcher.py:344
+#: smart/channels/yast2_info.py:26
 #, fuzzy
-msgid "File not found for validation"
-msgstr "文件未找到"
+msgid "YaST2 Repository"
+msgstr "APT-DEB 仓库"
 
-#: smart/fetcher.py:365 smart/cache.py:191
-#, python-format
-msgid "Unexpected size (expected %d, got %d)"
-msgstr "意外大小(期待 %d，得到 %d)"
-
-#: smart/fetcher.py:379 smart/cache.py:205
-#, python-format
-msgid "Invalid MD5 (expected %s, got %s)"
-msgstr "无效的 MD5(期待 %s，得到 %s)"
-
-#: smart/fetcher.py:393 smart/cache.py:219
-#, python-format
-msgid "Invalid SHA (expected %s, got %s)"
-msgstr "无效的 SHA(期待 %s，得到 %s)"
-
-#: smart/fetcher.py:595
-#, python-format
-msgid "Invalid URL: %s"
-msgstr "无效的 URL：%s"
-
-#: smart/fetcher.py:874
-msgid "Media not found"
-msgstr "介质未找到"
-
-#: smart/fetcher.py:1002 smart/fetcher.py:1203 smart/fetcher.py:1770
-msgid "Server reports unexpected size"
-msgstr "服务器报告意外大小"
-
-#: smart/util/optparse.py:329
-#, python-format
-msgid "usage: %s\n"
-msgstr "用法：%s\n"
-
-#: smart/util/optparse.py:348
-msgid "Usage"
-msgstr "用法"
-
-#: smart/util/optparse.py:354
-msgid "integer"
-msgstr "整数"
-
-#: smart/util/optparse.py:355
-msgid "long integer"
-msgstr "长整数"
-
-#: smart/util/optparse.py:356
-msgid "floating-point"
-msgstr "浮点数"
-
-#: smart/util/optparse.py:357
-msgid "complex"
-msgstr "复数"
-
-#: smart/util/optparse.py:365
-#, python-format
-msgid "option %s: invalid %s value: %r"
-msgstr "选项 %s：无效的 %s 值：%r"
-
-#: smart/util/optparse.py:373
-#, python-format
-msgid "option %s: invalid choice: %r (choose from %s)"
-msgstr ""
-
-#: smart/util/optparse.py:1164
-msgid "%prog [options]"
-msgstr "%prog [选项]"
-
-#: smart/util/optparse.py:1385
-#, python-format
-msgid "%s option does not take a value"
-msgstr "%s 选项不接受值"
-
-#: smart/util/optparse.py:1559
-#, python-format
-msgid "ambiguous option: %s (%s?)"
-msgstr ""
-
-#: smart/util/strtools.py:66
-msgid "Stalled"
-msgstr "已暂停"
-
-#: smart/util/ssh.py:53
-msgid "SSH asked for password, but no password is available"
-msgstr "SSH 请求密码，但没有可用的密码"
-
-#: smart/plugins/rpmdir.py:33
-msgid "Dynamic RPM Directory"
-msgstr "动态 RPM 目录"
-
-#: smart/plugins/debdir.py:33
-msgid "Dynamic DEB Directory"
-msgstr "动态 DEB 目录"
-
-#: smart/plugins/channelsync.py:52 smart/plugins/channelsync.py:88
-#: smart/plugins/channelsync.py:119 smart/plugins/channelsync.py:145
-#: smart/plugins/aptchannelsync.py:72
-#, python-format
-msgid "While using %s: %s"
-msgstr "使用 %s 时：%s"
-
-#: smart/plugins/channelsync.py:83
-#, python-format
-msgid ""
-"New channel '%s' detected.\n"
-"Include it?"
-msgstr ""
-"检测到了新频道“%s”。\n"
-"是否包含此频道？"
-
-#: smart/plugins/channelsync.py:102
-#, python-format
-msgid "Channel in %s has no type."
-msgstr "%s 中的频道没有类型。"
-
-#: smart/plugins/channelsync.py:106
-#, python-format
-msgid ""
-"Change in channel '%s' detected.\n"
-"Old channel:\n"
-"\n"
-"%s\n"
-"\n"
-"New channel:\n"
-"\n"
-"%s\n"
-"\n"
-"Do you want to replace it?"
-msgstr ""
-"检测到了频道“%s”发生了更改。\n"
-"旧频道：\n"
-"\n"
-"%s\n"
-"\n"
-"新频道：\n"
-"\n"
-"%s\n"
-"\n"
-"您是否想要替换此频道？"
-
-#: smart/plugins/channelsync.py:137
-msgid "Yes"
-msgstr "是"
-
-#: smart/plugins/channelsync.py:137
-msgid "No"
-msgstr "否"
-
-#: smart/plugins/channelsync.py:157
-#, python-format
-msgid ""
-"Change in field '%(label)s' of channel '%(name)s' detected.\n"
-"Old value: %(curvalue)s\n"
-"New value: %(newvalue)s\n"
-"Replace current value?"
-msgstr ""
-"检测到频道“%(name)s”的字段“%(label)s”发生了更改。\n"
-"旧值：%(curvalue)s\n"
-"新值：%(newvalue)s\n"
-"您是否想要替换当前值？"
-
-#: smart/plugins/channelsync.py:194
-#, python-format
-msgid ""
-"Removing channel '%s' was suggested.\n"
-"Do you want to remove it?"
-msgstr ""
-"建议删除频道“%s”。\n"
-"您是否想要删除此频道？"
-
-#: smart/interfaces/text/interface.py:63
-#, python-format
-msgid "%s (Y/n): "
-msgstr "%s (Y/n)："
-
-#: smart/interfaces/text/interface.py:63
-#, python-format
-msgid "%s (y/N): "
-msgstr "%s (y/N)："
-
-#: smart/interfaces/text/interface.py:78
-#, python-format
-msgid "%s (Continue/cancel): "
-msgstr "%s ([继续]/取消)："
-
-#: smart/interfaces/text/interface.py:80
-#, python-format
-msgid "%s (continue/Cancel): "
-msgstr "%s (继续/[取消])："
-
-#: smart/interfaces/text/interface.py:88
-msgid "continue"
-msgstr "继续"
-
-#: smart/interfaces/text/interface.py:89
-#: smart/interfaces/text/interface.py:103
-msgid "cancel"
-msgstr "取消"
-
-#: smart/interfaces/text/interface.py:94
-#, python-format
-msgid "%s (Ok/cancel): "
-msgstr "%s ([确定]/取消)："
-
-#: smart/interfaces/text/interface.py:94
-#, python-format
-msgid "%s (ok/Cancel): "
-msgstr "%s (确定/[取消])："
-
-#: smart/interfaces/text/interface.py:102
-msgid "ok"
-msgstr "确定"
-
-#: smart/interfaces/text/interface.py:133
-msgid "Insert one or more of the following removable channels:"
-msgstr "请插入下列可移动频道中的一个或多个："
-
-#: smart/interfaces/text/interface.py:138 smart/commands/channel.py:335
-#: smart/commands/channel.py:348 smart/commands/mirror.py:240
-msgid "Continue?"
-msgstr "继续吗？"
-
-#: smart/interfaces/text/interface.py:161
-msgid "(installed)"
-msgstr "(已安装)"
-
-#: smart/interfaces/text/interface.py:163
-msgid "(upgraded)"
-msgstr "(已升级)"
-
-#: smart/interfaces/text/interface.py:165
-msgid "(removed)"
-msgstr "(已删除)"
-
-#: smart/interfaces/text/interface.py:167
-msgid "(downgraded)"
-msgstr "(已降级)"
-
-#: smart/interfaces/text/interface.py:176 smart/commands/query.py:583
-msgid "Upgrades:"
-msgstr "升级："
-
-#: smart/interfaces/text/interface.py:180
-msgid "Downgrades:"
-msgstr "降级："
-
-#: smart/interfaces/text/interface.py:184 smart/commands/query.py:564
-msgid "Requires:"
-msgstr "需要："
-
-#: smart/interfaces/text/interface.py:188 smart/commands/query.py:530
-msgid "Required By:"
-msgstr "被需要："
-
-#: smart/interfaces/text/interface.py:192 smart/commands/query.py:599
-msgid "Conflicts:"
-msgstr "冲突："
-
-#: smart/interfaces/text/interface.py:198
-#, python-format
-msgid "Kept packages (%d):"
-msgstr "保留软件包(%d个)："
-
-#: smart/interfaces/text/interface.py:203
-#, python-format
-msgid "Upgrading packages (%d):"
-msgstr "升级软件包(%d个)："
-
-#: smart/interfaces/text/interface.py:208
-#, python-format
-msgid "Downgrading packages (%d):"
-msgstr "降级软件包(%d个)："
-
-#: smart/interfaces/text/interface.py:213
-#, python-format
-msgid "Installing packages (%d):"
-msgstr "安装软件包(%d个)："
-
-#: smart/interfaces/text/interface.py:218
-#, python-format
-msgid "Removing packages (%d):"
-msgstr "删除软件包(%d个)："
-
-#: smart/interfaces/text/interface.py:235
-msgid "Confirm changes?"
-msgstr "确认更改吗？"
-
-#: smart/interfaces/text/interactive.py:72
-msgid "Documented commands (type help <topic>):"
-msgstr "有文档的命令(输入 help <主题>)："
-
-#: smart/interfaces/text/interactive.py:73
-msgid "Undocumented commands:"
-msgstr "无文档的命令："
-
-#: smart/interfaces/text/interactive.py:74
-msgid "Miscelaneous help topics:"
-msgstr "杂项帮助主题："
-
-#: smart/interfaces/text/interactive.py:75
-#, python-format
-msgid "*** No help on %s"
-msgstr "*** %s 无帮助"
-
-#: smart/interfaces/text/interactive.py:155
-#: smart/interfaces/text/interactive.py:586 smart/commands/remove.py:93
-#: smart/commands/fix.py:87 smart/commands/reinstall.py:90
-#: smart/commands/install.py:117 smart/commands/query.py:146
-#: smart/commands/download.py:86 smart/commands/check.py:129
-#: smart/commands/info.py:73 smart/commands/upgrade.py:113
-#, python-format
-msgid ""
-"'%s' matches no packages. Suggestions:\n"
-"%s"
-msgstr ""
-"没有与“%s”匹配的软件包。建议：\n"
-"%s"
-
-#: smart/interfaces/text/interactive.py:159
-#: smart/interfaces/text/interactive.py:591 smart/commands/remove.py:97
-#: smart/commands/fix.py:91 smart/commands/reinstall.py:94
-#: smart/commands/install.py:121 smart/commands/query.py:150
-#: smart/commands/download.py:90 smart/commands/check.py:133
-#: smart/commands/info.py:77 smart/commands/upgrade.py:117
-#, python-format
-msgid "'%s' matches no packages"
-msgstr "没有与“%s”匹配的软件包"
-
-#: smart/interfaces/text/interactive.py:215
-msgid "What would you expect!? ;-)"
-msgstr "您希望得到什么结果!? ;-)"
-
-#: smart/interfaces/text/interactive.py:218
-msgid "The exit/quit/EOF command returns to the system."
-msgstr "exit/quit/EOF 命令可返回到系统。"
-
-#: smart/interfaces/text/interactive.py:229
-msgid "The shell command offers execution of system commands."
-msgstr "shell 命令可执行系统命令。"
-
-#: smart/interfaces/text/interactive.py:231
-msgid "Usage: shell [<cmd>]"
-msgstr "用法：shell [<命令>]"
-
-#: smart/interfaces/text/interactive.py:232
-msgid "       ![<cmd>]"
-msgstr "       ![<命令>]"
-
-#: smart/interfaces/text/interactive.py:240
-msgid "The status command shows currently marked changes."
-msgstr "status 命令可显示目前标出的更改。"
-
-#: smart/interfaces/text/interactive.py:242
-msgid "Usage: status"
-msgstr "用法：status"
-
-#: smart/interfaces/text/interactive.py:246 smart/commands/channel.py:241
-#: smart/commands/priority.py:79 smart/commands/priority.py:93
-#: smart/commands/flag.py:91
-msgid "Invalid arguments"
-msgstr "无效的参数"
-
-#: smart/interfaces/text/interactive.py:248
-msgid "There are no marked changes."
-msgstr "没有标出的更改。"
-
-#: smart/interfaces/text/interactive.py:253
-msgid "The install command marks packages for installation."
-msgstr "install 命令可标出要安装的软件包。"
-
-#: smart/interfaces/text/interactive.py:255
-#: smart/interfaces/text/interactive.py:299
-#: smart/interfaces/text/interactive.py:335
-#: smart/interfaces/text/interactive.py:380
-#: smart/interfaces/text/interactive.py:422
-#: smart/interfaces/text/interactive.py:459
-#: smart/interfaces/text/interactive.py:556
-msgid "Options:"
-msgstr "选项："
-
-#: smart/interfaces/text/interactive.py:256
-#: smart/interfaces/text/interactive.py:300
-#: smart/interfaces/text/interactive.py:336
-#: smart/interfaces/text/interactive.py:381
-#: smart/interfaces/text/interactive.py:423
-#: smart/interfaces/text/interactive.py:460
-msgid ""
-"   --explain  Include additional information about\n"
-"              changes, when possible"
-msgstr "   --explain  可能时包含关于更改的额外信息"
-
-#: smart/interfaces/text/interactive.py:259
-msgid "Usage: install <pkgname> ..."
-msgstr "用法：install <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:281 smart/commands/install.py:101
-#: smart/commands/install.py:160
-#, python-format
-msgid "%s is already installed"
-msgstr "%s 已经安装"
-
-#: smart/interfaces/text/interactive.py:286
-#, python-format
-msgid "No uninstalled packages matched '%s'"
-msgstr "卸载的软件包中没有一个与“%s”匹配"
-
-#: smart/interfaces/text/interactive.py:297
-msgid "The reinstall command marks packages for reinstallation."
-msgstr "reinstall 命令可标出要重新安装的软件包。"
-
-#: smart/interfaces/text/interactive.py:303
-msgid "Usage: reinstall <pkgname> ..."
-msgstr "用法：reinstall <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:319
-#: smart/interfaces/text/interactive.py:365
-#: smart/interfaces/text/interactive.py:409 smart/commands/remove.py:118
-#: smart/commands/reinstall.py:119 smart/commands/upgrade.py:136
-#, python-format
-msgid "'%s' matches no installed packages"
-msgstr "已安装的软件包中没有一个与“%s”匹配"
-
-#: smart/interfaces/text/interactive.py:321
-#, python-format
-msgid "'%s' matches multiple installed packages"
-msgstr "已安装的软件包中有多个和“%s”匹配"
-
-#: smart/interfaces/text/interactive.py:333
-msgid "The upgrade command marks packages for upgrading."
-msgstr "upgrade 命令标出要升级的软件包。"
-
-#: smart/interfaces/text/interactive.py:339
-msgid "Usage: upgrade <pkgname> ..."
-msgstr "用法：upgrade <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:378
-msgid "The remove command marks packages for being removed."
-msgstr "remove 命令可标出要删除的软件包。"
-
-#: smart/interfaces/text/interactive.py:384
-msgid "Usage: remove <pkgname> ..."
-msgstr "用法：remove <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:420
-msgid "The keep command unmarks currently marked packages."
-msgstr "keep 命令可撤消目前对软件包所进行的标记。"
-
-#: smart/interfaces/text/interactive.py:426
-msgid "Usage: keep <pkgname> ..."
-msgstr "用法：keep <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:443
-#, python-format
-msgid "'%s' matches no marked packages"
-msgstr "已标记的软件包中没有一个与“%s”匹配"
-
-#: smart/interfaces/text/interactive.py:456
-msgid ""
-"The fix command verifies relations of given packages\n"
-"and marks the necessary changes for fixing them."
-msgstr ""
-"fix 命令可验证给定软件包的关系，并标出要修复这些关系\n"
-"所必需的更改。"
-
-#: smart/interfaces/text/interactive.py:463
-msgid "Usage: fix <pkgname> ..."
-msgstr "用法：fix <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:484 smart/commands/fix.py:108
-msgid "No problems to resolve!"
-msgstr "没有待解决的问题。"
-
-#: smart/interfaces/text/interactive.py:492
-msgid ""
-"The download command fetches the given packages\n"
-"to the local filesystem."
-msgstr "download 命令可将给定软件包获取到本地文件系统。"
-
-#: smart/interfaces/text/interactive.py:495
-msgid "Usage: download <pkgname> ..."
-msgstr "用法：download <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:502
-#, python-format
-msgid "'%s' matches multiple packages, selecting: %s"
-msgstr "“%s”与多个软件包匹配，请选择：%s"
-
-#: smart/interfaces/text/interactive.py:509
-msgid "The commit command applies marked changes in the system."
-msgstr "commit 命令可将所标出的更改应用到系统中。"
-
-#: smart/interfaces/text/interactive.py:511
-msgid "Usage: commit"
-msgstr "用法：commit"
-
-#: smart/interfaces/text/interactive.py:523
-msgid "The undo command reverts marked changes."
-msgstr "undo 命令可撤消所标出的更改。"
-
-#: smart/interfaces/text/interactive.py:525
-msgid "Usage: undo"
-msgstr "用法：undo"
-
-#: smart/interfaces/text/interactive.py:538
-msgid "The redo command reapplies undone changes."
-msgstr "redo 命令可重新应用撤消了的更改。"
-
-#: smart/interfaces/text/interactive.py:540
-msgid "Usage: redo"
-msgstr "用法：redo"
-
-#: smart/interfaces/text/interactive.py:553
-msgid ""
-"The ls command lists packages by name. Wildcards\n"
-"are accepted."
-msgstr "ls 命令可按名称列出软件包。支持通配符。"
-
-#: smart/interfaces/text/interactive.py:557
-msgid "   -i  List only installed packages"
-msgstr "   -i  只列出已安装的软件包"
-
-#: smart/interfaces/text/interactive.py:558
-msgid "   -n  List only new packages"
-msgstr "   -n  只列出新软件包"
-
-#: smart/interfaces/text/interactive.py:559
-msgid "   -v  Show versions"
-msgstr "   -v  显示版本"
-
-#: smart/interfaces/text/interactive.py:560
-msgid "   -s  Show summaries"
-msgstr "   -s  显示摘要"
-
-#: smart/interfaces/text/interactive.py:562
-msgid "Usage: ls [options] [<string>] ..."
-msgstr "用法：ls [选项] [<字符串>] ..."
-
-#: smart/interfaces/text/interactive.py:653
-msgid "The update command will update channel information."
-msgstr "update 命令可更新频道信息。"
-
-#: smart/interfaces/text/interactive.py:655
-msgid "Usage: update [<alias>] ..."
-msgstr "用法：update [<别名>] ..."
-
-#: smart/interfaces/text/interactive.py:678 smart/commands/update.py:82
-msgid "Channels have no new packages."
-msgstr "频道没有新软件包。"
-
-#: smart/interfaces/text/interactive.py:687 smart/commands/update.py:91
-#, python-format
-msgid "Channels have %d new packages%s"
-msgstr "频道有 %d 个新软件包 %s"
-
-#: smart/interfaces/text/interactive.py:692
-msgid ""
-"The flag command allows configuring, removing and\n"
-"verifying package flags, and accepts the same options\n"
-"available in the command line interface."
-msgstr ""
-"flag 命令允许配置、删除和验证软件包标志，并接受命令\n"
-"行界面中可用的相同选项。"
-
-#: smart/interfaces/text/interactive.py:696
-msgid "Usage: flag [options]"
-msgstr "用法：flag [选项]"
-
-#: smart/interfaces/text/interactive.py:711
-msgid ""
-"The query command allows querying package information,\n"
-"and accepts the same options available in the command\n"
-"line interface."
-msgstr ""
-"query 命令允许查询软件包信息，并接受命令行界面中可用\n"
-"的相同选项。"
-
-#: smart/interfaces/text/interactive.py:715
-msgid "Usage: query [options] [<pkgname>] ..."
-msgstr "用法：query [选项] [<软件包名称>] ..."
-
-#: smart/interfaces/text/interactive.py:730
-msgid "The search command allows searching for packages."
-msgstr "search 命令允许搜索软件包。"
-
-#: smart/interfaces/text/interactive.py:732
-msgid "Usage: search <string> ..."
-msgstr "用法：search <字符串> ..."
-
-#: smart/interfaces/text/interactive.py:747
-msgid "The info command shows information about packages."
-msgstr "info 命令可显示关于软件包的信息。"
-
-#: smart/interfaces/text/interactive.py:749
-msgid "Usage: info <pkgname> ..."
-msgstr "用法：info <软件包名称> ..."
-
-#: smart/interfaces/text/interactive.py:764
-msgid "The stats command shows some statistics."
-msgstr "stats 命令可显示一些统计信息。"
-
-#: smart/interfaces/text/interactive.py:766
-msgid "Usage: stats"
-msgstr "用法：stats"
-
-#: smart/interfaces/text/interactive.py:780
-msgid ""
-"The check command verifies relations between packages,\n"
-"and accepts the same options available in the command\n"
-"line interface."
-msgstr ""
-"check 命令可验证软件包之间的关系，并接受命令行界面中\n"
-"的相同选项。"
-
-#: smart/interfaces/text/interactive.py:784
-msgid "Usage: check [options] [<pkgname>] ..."
-msgstr "用法：check [选项] [<软件包名称>] ..."
-
-#: smart/interfaces/gtk/channels.py:84
-msgid "Pri"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:118
-msgid "Update channels"
-msgstr "更新频道"
-
-#: smart/interfaces/gtk/interactive.py:165
-msgid "_Help"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:166
-msgid "_About"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:167
+#: smart/channels/yast2_info.py:28
 #, fuzzy
-msgid "Show about window"
-msgstr "显示日志窗口"
-
-#: smart/interfaces/gtk/progress.py:115
-msgid "ETA"
-msgstr ""
-
-#: smart/interfaces/qt/interface.py:40
 msgid ""
-"You need PyQt installed in your system, please install with your package "
-"manager."
+"\n"
+"Repositories created for YaST2.\n"
+msgstr ""
+"\n"
+"为 APT-DEB 所创建的仓库。\n"
+
+#: smart/channels/yast2_info.py:33
+#, fuzzy
+msgid "Base URL of YaST2 repository, where the 'content' file is located."
+msgstr "仓库的基础 URL，即 dist/ 所在地。"
+
+#: smart/channels/yast2_info.py:34
+msgid "Compressed SuSETags"
 msgstr ""
 
-#: smart/interfaces/qt/interface.py:84 smart/interfaces/qt/interface.py:99
-#: smart/interfaces/qt/interface.py:116
-msgid "Question..."
+#: smart/channels/yast2_info.py:35
+msgid "Use compressed SuSETags metadata."
 msgstr ""
-
-#: smart/interfaces/qt/interface.py:101
-#, fuzzy
-msgid "Continue"
-msgstr "继续吗？"
-
-#: smart/interfaces/qt/interface.py:102
-#, fuzzy
-msgid "Cancel"
-msgstr "取消"
-
-#: smart/media.py:183
-msgid "/proc/mounts not found"
-msgstr "/proc/mounts 未找到"
 
 #: smart/commands/channel.py:32
 msgid "smart channel [options]"
@@ -2796,6 +678,10 @@ msgstr "执行无需请求确认"
 msgid "show further information about given type"
 msgstr "显示关于给定类型的更多信息"
 
+#: smart/commands/channel.py:135 smart/interfaces/gtk/channels.py:628
+msgid "Type:"
+msgstr "类型："
+
 #: smart/commands/channel.py:139
 msgid "Fields:"
 msgstr "字段："
@@ -2803,6 +689,18 @@ msgstr "字段："
 #: smart/commands/channel.py:142
 msgid "(*) These fields are necessary for this type."
 msgstr "(*) 此类型需要这些字段。"
+
+#: smart/commands/channel.py:171 smart/interfaces/gtk/channels.py:225
+#, python-format
+msgid "Unable to fetch channel description: %s"
+msgstr "无法获取频道描述：%s"
+
+#: smart/commands/channel.py:183 smart/commands/mirror.py:128
+#: smart/interfaces/gtk/channels.py:213 smart/channel.py:114
+#: smart/sysconfig.py:78
+#, python-format
+msgid "File not found: %s"
+msgstr "文件未找到：%s"
 
 #: smart/commands/channel.py:187
 msgid "Channel has no alias"
@@ -2833,6 +731,12 @@ msgstr "频道别名："
 #: smart/commands/channel.py:233
 msgid "Updating removable channels..."
 msgstr "正在更新可移动频道..."
+
+#: smart/commands/channel.py:241 smart/commands/flag.py:91
+#: smart/commands/priority.py:79 smart/commands/priority.py:93
+#: smart/interfaces/text/interactive.py:246
+msgid "Invalid arguments"
+msgstr "无效的参数"
 
 #: smart/commands/channel.py:245
 msgid "First argument must be the channel alias"
@@ -2866,105 +770,124 @@ msgstr "频道“%s”未找到。"
 msgid "Remove ALL channels?"
 msgstr "删除全部频道吗？"
 
+#: smart/commands/channel.py:335 smart/commands/channel.py:348
+#: smart/commands/mirror.py:240 smart/interfaces/text/interface.py:138
+msgid "Continue?"
+msgstr "继续吗？"
+
 #: smart/commands/channel.py:345
 #, python-format
 msgid "Error in '%s' channel: %s"
 msgstr "频道“%s”出错：%s"
 
-#: smart/commands/remove.py:29
-msgid "smart remove [options] package ..."
-msgstr "smart remove [选项] 软件包 ..."
+#: smart/commands/check.py:29
+msgid "smart check [options] [package] ..."
+msgstr "smart check [选项] [软件包] ..."
 
-#: smart/commands/remove.py:31
+#: smart/commands/check.py:31
 msgid ""
 "\n"
-"This command will remove one or more packages which\n"
-"are currently installed in the system.\n"
-msgstr ""
+"This command will check relations between packages. If no\n"
+"packages are explicitly given, all packages in the selected\n"
+"channels will be checked. Relations of the checked packages\n"
+"will only match packages inside the selected channels.\n"
 "\n"
-"此命令将删除系统中已安装的一个或多个软件包。\n"
+"Use the 'fix' command to fix broken relations of\n"
+"installed packages.\n"
+msgstr ""
 
-#: smart/commands/remove.py:36
+#: smart/commands/check.py:41
 msgid ""
 "\n"
-"smart remove pkgname\n"
-"smart remove '*kgnam*'\n"
-"smart remove pkgname-1.0\n"
-"smart remove pkgname-1.0-1\n"
-"smart remove pkgname1 pkgname2\n"
+"smart check\n"
+"smart check pkgname\n"
+"smart check '*kgna*'\n"
+"smart check pkgname-1.0\n"
+"smart check pkgname-1.0-1\n"
+"smart check pkgname1 pkgname2\n"
 msgstr ""
-"\n"
-"smart remove 软件包名称\n"
-"smart remove '*包名*'\n"
-"smart remove 软件包名称-1.0\n"
-"smart remove 软件包名称-1.0-1\n"
-"smart remove 软件包名称1 软件包名称2\n"
 
-#: smart/commands/remove.py:49 smart/commands/fix.py:52
-#: smart/commands/reinstall.py:50 smart/commands/install.py:54
-#: smart/commands/upgrade.py:53
-msgid "split operation in steps"
-msgstr "将操作拆分为多步进行"
+#: smart/commands/check.py:55
+msgid "check packages in all channels"
+msgstr "检查全部频道中的软件包"
 
-#: smart/commands/remove.py:51 smart/commands/fix.py:54
-#: smart/commands/reinstall.py:52 smart/commands/install.py:56
-#: smart/commands/upgrade.py:55
-msgid "dump needed urls and don't commit operation"
-msgstr "列出所需的 URL，但不提交操作"
+#: smart/commands/check.py:57
+msgid "check packages which are in at least one installed channel (default)"
+msgstr ""
 
-#: smart/commands/remove.py:53 smart/commands/fix.py:56
-#: smart/commands/reinstall.py:54 smart/commands/install.py:58
-#: smart/commands/upgrade.py:57
-msgid "download packages and don't commit operation"
-msgstr "下载软件包但不提交操作"
+#: smart/commands/check.py:60
+msgid "check packages which are in at least one non-installed channel"
+msgstr ""
 
-#: smart/commands/remove.py:55 smart/commands/fix.py:58
-#: smart/commands/reinstall.py:56 smart/commands/install.py:60
-#: smart/commands/upgrade.py:67
-msgid "include additional information about changes,when possible"
-msgstr "可能时包含关于更改的额外信息"
+#: smart/commands/check.py:63
+msgid ""
+"check packages which are inside the given channels (comma separated aliases)"
+msgstr ""
 
-#: smart/commands/remove.py:58 smart/commands/fix.py:61
-#: smart/commands/reinstall.py:59 smart/commands/install.py:63
-#: smart/commands/upgrade.py:70
-msgid "do not ask for confirmation"
-msgstr "不请求确认"
+#: smart/commands/check.py:101
+#, python-format
+msgid "Channels not found: %s"
+msgstr "频道未找到：%s"
 
-#: smart/commands/remove.py:60 smart/commands/install.py:65
-#: smart/commands/upgrade.py:72
-#, fuzzy
-msgid "dump package names and versions to stderr but don't commit operation"
-msgstr "下载软件包但不提交操作"
+#: smart/commands/check.py:103
+#, python-format
+msgid "Channels are disabled: %s"
+msgstr "频道已被禁用：%s"
 
-#: smart/commands/remove.py:120 smart/commands/fix.py:105
-#: smart/commands/reinstall.py:121 smart/commands/install.py:164
-#: smart/commands/upgrade.py:142
-msgid "Computing transaction..."
-msgstr "正在计算交易..."
+#: smart/commands/check.py:129 smart/commands/download.py:86
+#: smart/commands/fix.py:87 smart/commands/info.py:73
+#: smart/commands/install.py:117 smart/commands/query.py:146
+#: smart/commands/reinstall.py:90 smart/commands/remove.py:93
+#: smart/commands/upgrade.py:113 smart/interfaces/text/interactive.py:155
+#: smart/interfaces/text/interactive.py:586
+#, python-format
+msgid ""
+"'%s' matches no packages. Suggestions:\n"
+"%s"
+msgstr ""
+"没有与“%s”匹配的软件包。建议：\n"
+"%s"
 
-#: smart/commands/fix.py:29
-msgid "smart fix [options] [package] ..."
-msgstr "smart fix [选项] [软件包] ..."
+#: smart/commands/check.py:133 smart/commands/download.py:90
+#: smart/commands/fix.py:91 smart/commands/info.py:77
+#: smart/commands/install.py:121 smart/commands/query.py:150
+#: smart/commands/reinstall.py:94 smart/commands/remove.py:97
+#: smart/commands/upgrade.py:117 smart/interfaces/text/interactive.py:159
+#: smart/interfaces/text/interactive.py:591
+#, python-format
+msgid "'%s' matches no packages"
+msgstr "没有与“%s”匹配的软件包"
 
-#: smart/commands/fix.py:31
+#: smart/commands/clean.py:27
+msgid "smart clean [options]"
+msgstr "smart clean [选项]"
+
+#: smart/commands/clean.py:29
 msgid ""
 "\n"
-"This command will try to fix dependencies of installed packages\n"
-"which are related to the given packages. Notice that the given\n"
-"packages may be currently installed or not. If no packages are\n"
-"given, all installed packages will be checked.\n"
+"This command cleans the package cache. You can use it to\n"
+"delete old unused files that were left behind because of\n"
+"an incomplete transaction.\n"
 msgstr ""
 
-#: smart/commands/fix.py:38
-msgid ""
-"\n"
-"smart fix\n"
-"smart fix pkgname\n"
-"smart fix '*kgna*'\n"
-"smart fix pkgname-1.0\n"
-"smart fix pkgname-1.0-1\n"
-"smart fix pkgname1 pkgname2\n"
-msgstr ""
+#: smart/commands/clean.py:47 smart/interfaces/gtk/channels.py:268
+#, python-format
+msgid "Directory not found: %s"
+msgstr "目录未找到：%s"
+
+#: smart/commands/clean.py:49
+msgid "Removing cached package files..."
+msgstr "正在删除缓存的软件包文件..."
+
+#: smart/commands/clean.py:55
+#, python-format
+msgid "Removed %s"
+msgstr "删除 %s"
+
+#: smart/commands/clean.py:57
+#, python-format
+msgid "Can't remove cached package %s: %s"
+msgstr "无法删除缓存的软件包 %s：%s"
 
 #: smart/commands/config.py:28
 msgid "smart config [options]"
@@ -3007,8 +930,8 @@ msgstr "显示给定的选项"
 msgid "remove given options"
 msgstr "删除给定的选项"
 
-#: smart/commands/config.py:57 smart/commands/priority.py:65
-#: smart/commands/flag.py:78
+#: smart/commands/config.py:57 smart/commands/flag.py:78
+#: smart/commands/priority.py:65
 msgid "ignore problems"
 msgstr "忽略问题"
 
@@ -3027,83 +950,309 @@ msgstr "无效的 --remove 参数：%s"
 msgid "Option '%s' not found."
 msgstr "选项“%s”未找到。"
 
-#: smart/commands/reinstall.py:30
-msgid "smart reinstall [options] package ..."
-msgstr "smart reinstall [选项] 软件包 ..."
+#: smart/commands/download.py:31
+msgid "smart download [options] package ..."
+msgstr "smart download [选项] 软件包 ..."
 
-#: smart/commands/reinstall.py:32
+#: smart/commands/download.py:33
 msgid ""
 "\n"
-"This command will reinstall one or more packages which\n"
-"are already installed in the system.\n"
+"This command allows downloading one or more given packages.\n"
 msgstr ""
 "\n"
-"此命令将重新安装系统中已经安装的一个或多个软件包。\n"
+"此命令允许下载一个或多个给定的软件包。\n"
 
-#: smart/commands/reinstall.py:37
+#: smart/commands/download.py:37
 msgid ""
 "\n"
-"smart reinstall pkgname\n"
-"smart reinstall '*kgnam*'\n"
-"smart reinstall pkgname-1.0\n"
-"smart reinstall pkgname-1.0-1\n"
-"smart reinstall pkgname1 pkgname2\n"
+"smart download pkgname\n"
+"smart download '*kgna*'\n"
+"smart download pkgname-1.0\n"
+"smart download pkgname-1.0-1\n"
+"smart download pkgname1 pkgname2\n"
+"smart download pkgname --urls 2> pkgname-url.txt\n"
+"smart download --from-urls pkgname-url.txt\n"
+"smart download --from-urls http://some.url/some/path/somefile\n"
 msgstr ""
 "\n"
-"smart reinstall 软件包名称\n"
-"smart reinstall '*包名*'\n"
-"smart reinstall 软件包名称-1.0\n"
-"smart reinstall 软件包名称-1.0-1\n"
-"smart reinstall 软件包名称1 软件包名称2\n"
+"smart download 软件包名称\n"
+"smart download '*包名*'\n"
+"smart download 软件包名称-1.0\n"
+"smart download 软件包名称-1.0-1\n"
+"smart download 软件包名称1 软件包名称2\n"
+"smart download 软件包名称 --urls 2> 软件包名称-url.txt\n"
+"smart download --from-urls 软件包名称-url.txt\n"
+"smart download --from-urls http://some.url/some/path/somefile\n"
 
-#: smart/commands/reinstall.py:116
+#: smart/commands/download.py:55
+msgid "packages will be saved in given directory"
+msgstr "软件包将被保存到给定目录中"
+
+#: smart/commands/download.py:57
+msgid "dump needed urls and don't download packages"
+msgstr "列出所需的 URL，而不下载软件包"
+
+#: smart/commands/download.py:59
+msgid ""
+"download files from the given urls and/or from the given files with lists of "
+"urls"
+msgstr "从给定的 URL 和/或包含 URL 列表的给定文件中下载文件"
+
+#: smart/commands/download.py:64
+msgid "Directory not found:"
+msgstr "目录未找到："
+
+#: smart/commands/download.py:104 smart/commands/install.py:135
 #, python-format
-msgid "'%s' is not available for reinstallation"
-msgstr "“%s”不可重新安装"
+msgid "%s (for %s) is already installed"
+msgstr "%s (适用于 %s)已经安装"
 
-#: smart/commands/stats.py:27
-msgid "smart stats"
-msgstr "smart stats"
+#: smart/commands/download.py:117 smart/commands/install.py:148
+#, python-format
+msgid ""
+"There are multiple matches for '%s':\n"
+"%s"
+msgstr ""
+"“%s”有多个匹配：\n"
+"%s"
 
-#: smart/commands/stats.py:29
+#: smart/commands/download.py:143
+#, python-format
+msgid "Argument is not a file nor url: %s"
+msgstr "参数不是文件也不是 URL：%s"
+
+#: smart/commands/download.py:144 smart/interfaces/gtk/packageinfo.py:163
+msgid "URLs"
+msgstr "URL"
+
+#: smart/commands/fix.py:29
+msgid "smart fix [options] [package] ..."
+msgstr "smart fix [选项] [软件包] ..."
+
+#: smart/commands/fix.py:31
 msgid ""
 "\n"
-"This command will show some statistics.\n"
+"This command will try to fix dependencies of installed packages\n"
+"which are related to the given packages. Notice that the given\n"
+"packages may be currently installed or not. If no packages are\n"
+"given, all installed packages will be checked.\n"
 msgstr ""
-"\n"
-"此命令将显示一些统计信息。\n"
 
-#: smart/commands/stats.py:33
+#: smart/commands/fix.py:38
 msgid ""
 "\n"
-"smart stats \n"
+"smart fix\n"
+"smart fix pkgname\n"
+"smart fix '*kgna*'\n"
+"smart fix pkgname-1.0\n"
+"smart fix pkgname-1.0-1\n"
+"smart fix pkgname1 pkgname2\n"
+msgstr ""
+
+#: smart/commands/fix.py:52 smart/commands/install.py:54
+#: smart/commands/reinstall.py:50 smart/commands/remove.py:49
+#: smart/commands/upgrade.py:53
+msgid "split operation in steps"
+msgstr "将操作拆分为多步进行"
+
+#: smart/commands/fix.py:54 smart/commands/install.py:56
+#: smart/commands/reinstall.py:52 smart/commands/remove.py:51
+#: smart/commands/upgrade.py:55
+msgid "dump needed urls and don't commit operation"
+msgstr "列出所需的 URL，但不提交操作"
+
+#: smart/commands/fix.py:56 smart/commands/install.py:58
+#: smart/commands/reinstall.py:54 smart/commands/remove.py:53
+#: smart/commands/upgrade.py:57
+msgid "download packages and don't commit operation"
+msgstr "下载软件包但不提交操作"
+
+#: smart/commands/fix.py:58 smart/commands/install.py:60
+#: smart/commands/reinstall.py:56 smart/commands/remove.py:55
+#: smart/commands/upgrade.py:67
+msgid "include additional information about changes,when possible"
+msgstr "可能时包含关于更改的额外信息"
+
+#: smart/commands/fix.py:61 smart/commands/install.py:63
+#: smart/commands/reinstall.py:59 smart/commands/remove.py:58
+#: smart/commands/upgrade.py:70
+msgid "do not ask for confirmation"
+msgstr "不请求确认"
+
+#: smart/commands/fix.py:105 smart/commands/install.py:164
+#: smart/commands/reinstall.py:121 smart/commands/remove.py:120
+#: smart/commands/upgrade.py:142
+msgid "Computing transaction..."
+msgstr "正在计算交易..."
+
+#: smart/commands/fix.py:108 smart/interfaces/text/interactive.py:484
+msgid "No problems to resolve!"
+msgstr "没有待解决的问题。"
+
+#: smart/commands/flag.py:27
+msgid "smart flag [options]"
+msgstr "smart flag [选项]"
+
+#: smart/commands/flag.py:29
+msgid ""
+"\n"
+"This command allows one to set, remove, and show package flags.\n"
+"Package flags are used to tune the behavior of some algorithms\n"
+"when dealing with the given packages.\n"
+"\n"
+"Currently known flags are:\n"
+"\n"
+"  lock          - Flagged packages will not be removed, if they\n"
+"                  are currently installed, nor installed, if they\n"
+"                  are currently available.\n"
+"  new           - Flagged packages were considered new packages\n"
+"                  in the repository when the last update was done.\n"
+"                  This flag is automatically manipulated by the\n"
+"                  system.\n"
+"  multi-version - Flagged packages may have more than one version\n"
+"                  installed in the system at the same time\n"
+"                  (backend dependent).\n"
 msgstr ""
 "\n"
-"smart stats \n"
+"此命令允许设定、删除和显示软件包标志。软件包标志可在处理给定软\n"
+"件包时调整算法的行为。\n"
+"\n"
+"目前已知的标志有：\n"
+"\n"
+"  lock          - 如果该软件包已经安装，则加入此标志的软件包不会被\n"
+"                  删除；如果该软件包未安装，则不会被安装。\n"
+"  new           - 加入此标志的软件包即在上次更新完成后的新软件包。\n"
+"                  此标志由系统自动管理。\n"
+"  multi-version - 加入此标志的软件包可在系统中同时安装多个版本(需后\n"
+"                  端支持)。\n"
 
-#: smart/commands/stats.py:52
-msgid "Installed Packages:"
-msgstr "已安装的软件包："
+#: smart/commands/flag.py:48
+msgid ""
+"\n"
+"smart flag --show\n"
+"smart flag --show new\n"
+"smart flag --set lock pkgname\n"
+"smart flag --remove lock pkgname\n"
+"smart flag --set lock 'pkgname >= 1.0'\n"
+"smart flag --remove lock 'pkgname >= 1.0'\n"
+msgstr ""
+"\n"
+"smart flag --show\n"
+"smart flag --show new\n"
+"smart flag --set lock 软件包名称\n"
+"smart flag --remove lock 软件包名称\n"
+"smart flag --set lock '软件包名称 >= 1.0'\n"
+"smart flag --remove lock '软件包名称 >= 1.0'\n"
 
-#: smart/commands/stats.py:54
-msgid "Total Packages:"
-msgstr "总计软件包："
+#: smart/commands/flag.py:65
+msgid ""
+"set flags given in pairs of flag name/target, where targets may use just the "
+"package name, or the package name, relation, and version, such as: lock "
+"'python > 1.0'"
+msgstr ""
+"设定标志，格式为“标志 名称/目标”，此处目标可以仅仅是软件包名称，也可以是软件"
+"包名称、关系和版本，比如：lock 'python > 1.0'"
 
-#: smart/commands/stats.py:55
-msgid "Total Provides:"
-msgstr "总计提供："
+#: smart/commands/flag.py:70
+msgid ""
+"remove flags given in pairs of flag name/target, where targets may use just "
+"the package name, or the package name, relation, and version, such as: lock "
+"'python > 1.0'"
+msgstr ""
+"删除标志，格式为“标志 名称/目标”，此处目标可以仅仅是软件包名称，也可以是软件"
+"包名称、关系和版本，比如：lock 'python > 1.0'"
 
-#: smart/commands/stats.py:56
-msgid "Total Requires:"
-msgstr "总计需要："
+#: smart/commands/flag.py:75
+msgid ""
+"show packages with the flags given as arguments or all flags if no argument "
+"was given"
+msgstr "显示给定参数的标志，如果未给出参数，则显示全部标志"
 
-#: smart/commands/stats.py:57
-msgid "Total Upgrades:"
-msgstr "总计升级："
+#: smart/commands/flag.py:96
+#, python-format
+msgid "Invalid target: %s"
+msgstr "无效的目标：%s"
 
-#: smart/commands/stats.py:58
-msgid "Total Conflicts:"
-msgstr "总计冲突："
+#: smart/commands/info.py:29
+msgid "smart info [options] [package] ..."
+msgstr "smart info [选项] [软件包] ..."
+
+#: smart/commands/info.py:31
+msgid ""
+"\n"
+"This command will show information about the given packages.\n"
+msgstr ""
+"\n"
+"此命令将显示关于给定软件包的信息。\n"
+
+#: smart/commands/info.py:35
+msgid ""
+"\n"
+"smart info pkgname\n"
+"smart info pkgname-1.0\n"
+"smart info pkgname --urls --paths\n"
+msgstr ""
+"\n"
+"smart info 软件包名称\n"
+"smart info 软件包名称-1.0\n"
+"smart info 软件包名称 --urls --paths\n"
+
+#: smart/commands/info.py:46
+msgid "show URLs"
+msgstr "显示 URL"
+
+#: smart/commands/info.py:48
+msgid "show path list"
+msgstr "显示路径列表"
+
+#: smart/commands/info.py:105 smart/interfaces/gtk/flags.py:314
+msgid "Name:"
+msgstr "名称："
+
+#: smart/commands/info.py:106
+msgid "Version:"
+msgstr "版本："
+
+#: smart/commands/info.py:107 smart/interfaces/gtk/packageinfo.py:66
+#: smart/interfaces/gtk/priorities.py:242
+msgid "Priority:"
+msgstr "优先级："
+
+#: smart/commands/info.py:108 smart/interfaces/gtk/packageinfo.py:67
+msgid "Group:"
+msgstr "分组："
+
+#: smart/commands/info.py:109 smart/interfaces/gtk/packageinfo.py:68
+msgid "Installed Size:"
+msgstr "安装后大小："
+
+#: smart/commands/info.py:110
+msgid "Reference URLs:"
+msgstr "参考 URL："
+
+#: smart/commands/info.py:119
+msgid "Flags:"
+msgstr "标志："
+
+#: smart/commands/info.py:121 smart/interfaces/gtk/packageinfo.py:69
+msgid "Channels:"
+msgstr "频道："
+
+#: smart/commands/info.py:126
+msgid "Summary:"
+msgstr "摘要："
+
+#: smart/commands/info.py:127
+msgid "Description:"
+msgstr "描述："
+
+#: smart/commands/info.py:135
+msgid "URLs:"
+msgstr "URL："
+
+#: smart/commands/info.py:153
+msgid "Paths:"
+msgstr "路径："
 
 #: smart/commands/install.py:31
 msgid "smart install [options] package ..."
@@ -3140,19 +1289,221 @@ msgstr ""
 "smart install ./somepackage.file\n"
 "smart install http://some.url/some/path/somepackage.file\n"
 
-#: smart/commands/install.py:135 smart/commands/download.py:104
-#, python-format
-msgid "%s (for %s) is already installed"
-msgstr "%s (适用于 %s)已经安装"
+#: smart/commands/install.py:65 smart/commands/remove.py:60
+#: smart/commands/upgrade.py:72
+#, fuzzy
+msgid "dump package names and versions to stderr but don't commit operation"
+msgstr "下载软件包但不提交操作"
 
-#: smart/commands/install.py:148 smart/commands/download.py:117
+#: smart/commands/install.py:85 smart/control.py:661
+msgid "packages"
+msgstr "软件包"
+
+#: smart/commands/install.py:88 smart/control.py:665
+msgid "Failed to download packages:\n"
+msgstr "下载软件包失败：\n"
+
+#: smart/commands/install.py:101 smart/commands/install.py:160
+#: smart/interfaces/text/interactive.py:281
 #, python-format
+msgid "%s is already installed"
+msgstr "%s 已经安装"
+
+#: smart/commands/mirror.py:30
+msgid "smart mirror [options]"
+msgstr "smart mirror [选项]"
+
+#: smart/commands/mirror.py:32
 msgid ""
-"There are multiple matches for '%s':\n"
-"%s"
+"\n"
+"This command allows one to manipulate mirrors. Mirrors are URLs\n"
+"that supposedly provide the same contents as are available in\n"
+"other URLs, named origins in this help text. There is no internal\n"
+"restriction on the kind of information which is mirrored. Once\n"
+"an origin URL is provided, and one or more mirror URLs are\n"
+"provided, these mirrors will be considered for any file which\n"
+"is going to be fetched from an URL starting with the origin URL.\n"
+"Whether the mirror will be chosen or not will depend on the\n"
+"history of downloads from this mirror and from other mirrors for\n"
+"the same URL, since mirrors are automatically balanced so that\n"
+"the fastest mirror and with less errors is chosen. When errors\n"
+"occur, the next mirror is tried.\n"
+"\n"
+"For instance, if a mirror \"http://mirror.url/path/\" is provided\n"
+"for the origin \"ftp://origin.url/other/path/\", and a file in\n"
+"\"ftp://origin.url/other/path/subpath/somefile\" is going to be\n"
+"fetched, the mirror will be considered for being used, and the\n"
+"URL \"http://mirror.url/path/subpath/somefile\" will be used if\n"
+"the mirror is chosen. Notice that strings are compared and\n"
+"replaced without any pre-processing, so that it's possible to\n"
+"use URLs ending in prefixes of directory entries.\n"
 msgstr ""
-"“%s”有多个匹配：\n"
-"%s"
+
+#: smart/commands/mirror.py:56
+msgid ""
+"\n"
+"smart mirror --show\n"
+"smart mirror --add ftp://origin.url/some/path/ http://mirror.url/path/\n"
+"smart mirror --remove ftp://origin.url/some/path/ http://mirror.url/path/\n"
+"smart mirror --add http://some.url/path/to/mirrors.txt\n"
+"smart mirror --sync http://some.url/path/to/mirrors.txt\n"
+"smart mirror --clear-history ftp://origin.url/some/path/\n"
+"smart mirror --clear-history ftp://mirror.url/path/\n"
+"smart mirror --clear-history\n"
+msgstr ""
+
+#: smart/commands/mirror.py:67
+msgid ""
+"#\n"
+"# Example:\n"
+"#\n"
+"# http://origin.url/some/path/\n"
+"#     http://mirror.url/another/path/\n"
+"#     http://some.mirror.url/to/the/same/content/\n"
+"#\n"
+"# http://another.origin.url/another/path/\n"
+"#     http://another.mirror.url/yet/another/path/\n"
+"#\n"
+msgstr ""
+
+#: smart/commands/mirror.py:89
+msgid "show current mirrors"
+msgstr "显示当前的镜像"
+
+#: smart/commands/mirror.py:91
+msgid ""
+"add to the given origin URL the given mirror URL, provided either in pairs, "
+"or in a given file/url in the format used by --show"
+msgstr ""
+
+#: smart/commands/mirror.py:95
+msgid ""
+"remove from the given origin URL the given mirror URL, provided either in "
+"pairs, or in a given file/url in the format used by --show"
+msgstr ""
+
+#: smart/commands/mirror.py:99
+msgid "remove all mirrors for the given origin URLs"
+msgstr ""
+
+#: smart/commands/mirror.py:101
+msgid ""
+"synchronize mirrors from the given file/url, so that origins in the given "
+"file will have exactly the specified mirrors"
+msgstr ""
+
+#: smart/commands/mirror.py:105
+msgid "edit mirrors in editor set by $EDITOR"
+msgstr ""
+
+#: smart/commands/mirror.py:107
+msgid "clear history for the given origins/mirrors, or for all mirrors"
+msgstr ""
+
+#: smart/commands/mirror.py:110
+msgid ""
+"show current penalities for origins/mirrors, based on the history information"
+msgstr ""
+
+#: smart/commands/mirror.py:120
+msgid "mirror descriptions"
+msgstr "镜像描述"
+
+#: smart/commands/mirror.py:122
+msgid "Failed to download mirror descriptions:\n"
+msgstr "下载镜像描述失败：\n"
+
+#: smart/commands/mirror.py:147
+msgid "Invalid mirrors file"
+msgstr "无效的镜像文件"
+
+#: smart/commands/mirror.py:164
+msgid "Invalid arguments for --add"
+msgstr "--add 的参数无效"
+
+#: smart/commands/mirror.py:174
+msgid "Invalid arguments for --remove"
+msgstr "--remove 的参数无效"
+
+#: smart/commands/mirror.py:178 smart/commands/mirror.py:185
+#, python-format
+msgid "Origin not found: %s"
+msgstr ""
+
+#: smart/commands/mirror.py:180
+#, python-format
+msgid "Mirror not found: %s"
+msgstr "镜像未找到：%s"
+
+#: smart/commands/nothing.py:26
+msgid "smart test [options]"
+msgstr "smart test [选项]"
+
+#: smart/commands/priority.py:27
+msgid "smart priority [options]"
+msgstr "smart priority [选项]"
+
+#: smart/commands/priority.py:29
+msgid ""
+"\n"
+"This command allows changing the priority of given packages.\n"
+"Packages with higher priorities are considered a better option\n"
+"even when package versions state otherwise. Using priorities\n"
+"one may avoid unwanted upgrades, force downgrades, select\n"
+"packages in given channels as preferential, and other kinds\n"
+"of interesting setups. When a package has no explicit priority,\n"
+"the channel priority is used. The channel priority may be\n"
+"changed using the 'channel' command, and defaults to 0 when\n"
+"not set.\n"
+"\n"
+"Notice that negatives priorities must be preceded by '--' in\n"
+"the command line, otherwise they'll be interpreted as command\n"
+"line options.\n"
+msgstr ""
+
+#: smart/commands/priority.py:45
+msgid ""
+"\n"
+"smart priority --set pkgname 100\n"
+"smart priority --set pkgname mychannel -- -200\n"
+"smart priority --remove pkgname\n"
+"smart priority --remove pkgname mychannel\n"
+"smart priority --show\n"
+"smart priority --show pkgname\n"
+msgstr ""
+
+#: smart/commands/priority.py:59
+msgid "set priority"
+msgstr "设定优先级"
+
+#: smart/commands/priority.py:61
+msgid "unset priority"
+msgstr "取消优先级"
+
+#: smart/commands/priority.py:63
+msgid "show priorities"
+msgstr "显示优先级"
+
+#: smart/commands/priority.py:83
+msgid "Invalid priority"
+msgstr "无效的优先级"
+
+#: smart/commands/priority.py:95
+msgid "Priority not found"
+msgstr "优先级未找到"
+
+#: smart/commands/priority.py:98 smart/interfaces/gtk/packageview.py:132
+msgid "Package"
+msgstr "软件包"
+
+#: smart/commands/priority.py:98 smart/interfaces/gtk/packageinfo.py:155
+msgid "Channel"
+msgstr "频道"
+
+#: smart/commands/priority.py:98 smart/interfaces/gtk/interactive.py:651
+#: smart/interfaces/gtk/priorities.py:83 smart/channel.py:150
+msgid "Priority"
+msgstr "优先级"
 
 #: smart/commands/query.py:33
 msgid "smart query [options] [package] ..."
@@ -3300,6 +1651,10 @@ msgstr "将输出重定向到给定文件名"
 msgid "Provides:"
 msgstr "提供："
 
+#: smart/commands/query.py:530 smart/interfaces/text/interface.py:188
+msgid "Required By:"
+msgstr "被需要："
+
 #: smart/commands/query.py:533 smart/commands/query.py:566
 msgid "pre"
 msgstr "前"
@@ -3312,189 +1667,170 @@ msgstr "升级原因："
 msgid "Conflicted By:"
 msgstr "冲突原因："
 
+#: smart/commands/query.py:564 smart/interfaces/text/interface.py:184
+msgid "Requires:"
+msgstr "需要："
+
 #: smart/commands/query.py:573 smart/commands/query.py:589
 #: smart/commands/query.py:605
 msgid "Provided By:"
 msgstr "提供者："
 
-#: smart/commands/mirror.py:30
-msgid "smart mirror [options]"
-msgstr "smart mirror [选项]"
+#: smart/commands/query.py:583 smart/interfaces/text/interface.py:176
+msgid "Upgrades:"
+msgstr "升级："
 
-#: smart/commands/mirror.py:32
+#: smart/commands/query.py:599 smart/interfaces/text/interface.py:192
+msgid "Conflicts:"
+msgstr "冲突："
+
+#: smart/commands/reinstall.py:30
+msgid "smart reinstall [options] package ..."
+msgstr "smart reinstall [选项] 软件包 ..."
+
+#: smart/commands/reinstall.py:32
 msgid ""
 "\n"
-"This command allows one to manipulate mirrors. Mirrors are URLs\n"
-"that supposedly provide the same contents as are available in\n"
-"other URLs, named origins in this help text. There is no internal\n"
-"restriction on the kind of information which is mirrored. Once\n"
-"an origin URL is provided, and one or more mirror URLs are\n"
-"provided, these mirrors will be considered for any file which\n"
-"is going to be fetched from an URL starting with the origin URL.\n"
-"Whether the mirror will be chosen or not will depend on the\n"
-"history of downloads from this mirror and from other mirrors for\n"
-"the same URL, since mirrors are automatically balanced so that\n"
-"the fastest mirror and with less errors is chosen. When errors\n"
-"occur, the next mirror is tried.\n"
-"\n"
-"For instance, if a mirror \"http://mirror.url/path/\" is provided\n"
-"for the origin \"ftp://origin.url/other/path/\", and a file in\n"
-"\"ftp://origin.url/other/path/subpath/somefile\" is going to be\n"
-"fetched, the mirror will be considered for being used, and the\n"
-"URL \"http://mirror.url/path/subpath/somefile\" will be used if\n"
-"the mirror is chosen. Notice that strings are compared and\n"
-"replaced without any pre-processing, so that it's possible to\n"
-"use URLs ending in prefixes of directory entries.\n"
+"This command will reinstall one or more packages which\n"
+"are already installed in the system.\n"
 msgstr ""
+"\n"
+"此命令将重新安装系统中已经安装的一个或多个软件包。\n"
 
-#: smart/commands/mirror.py:56
+#: smart/commands/reinstall.py:37
 msgid ""
 "\n"
-"smart mirror --show\n"
-"smart mirror --add ftp://origin.url/some/path/ http://mirror.url/path/\n"
-"smart mirror --remove ftp://origin.url/some/path/ http://mirror.url/path/\n"
-"smart mirror --add http://some.url/path/to/mirrors.txt\n"
-"smart mirror --sync http://some.url/path/to/mirrors.txt\n"
-"smart mirror --clear-history ftp://origin.url/some/path/\n"
-"smart mirror --clear-history ftp://mirror.url/path/\n"
-"smart mirror --clear-history\n"
+"smart reinstall pkgname\n"
+"smart reinstall '*kgnam*'\n"
+"smart reinstall pkgname-1.0\n"
+"smart reinstall pkgname-1.0-1\n"
+"smart reinstall pkgname1 pkgname2\n"
 msgstr ""
+"\n"
+"smart reinstall 软件包名称\n"
+"smart reinstall '*包名*'\n"
+"smart reinstall 软件包名称-1.0\n"
+"smart reinstall 软件包名称-1.0-1\n"
+"smart reinstall 软件包名称1 软件包名称2\n"
 
-#: smart/commands/mirror.py:67
-msgid ""
-"#\n"
-"# Example:\n"
-"#\n"
-"# http://origin.url/some/path/\n"
-"#     http://mirror.url/another/path/\n"
-"#     http://some.mirror.url/to/the/same/content/\n"
-"#\n"
-"# http://another.origin.url/another/path/\n"
-"#     http://another.mirror.url/yet/another/path/\n"
-"#\n"
-msgstr ""
-
-#: smart/commands/mirror.py:89
-msgid "show current mirrors"
-msgstr "显示当前的镜像"
-
-#: smart/commands/mirror.py:91
-msgid ""
-"add to the given origin URL the given mirror URL, provided either in pairs, "
-"or in a given file/url in the format used by --show"
-msgstr ""
-
-#: smart/commands/mirror.py:95
-msgid ""
-"remove from the given origin URL the given mirror URL, provided either in "
-"pairs, or in a given file/url in the format used by --show"
-msgstr ""
-
-#: smart/commands/mirror.py:99
-msgid "remove all mirrors for the given origin URLs"
-msgstr ""
-
-#: smart/commands/mirror.py:101
-msgid ""
-"synchronize mirrors from the given file/url, so that origins in the given "
-"file will have exactly the specified mirrors"
-msgstr ""
-
-#: smart/commands/mirror.py:105
-msgid "edit mirrors in editor set by $EDITOR"
-msgstr ""
-
-#: smart/commands/mirror.py:107
-msgid "clear history for the given origins/mirrors, or for all mirrors"
-msgstr ""
-
-#: smart/commands/mirror.py:110
-msgid ""
-"show current penalities for origins/mirrors, based on the history information"
-msgstr ""
-
-#: smart/commands/mirror.py:120
-msgid "mirror descriptions"
-msgstr "镜像描述"
-
-#: smart/commands/mirror.py:122
-msgid "Failed to download mirror descriptions:\n"
-msgstr "下载镜像描述失败：\n"
-
-#: smart/commands/mirror.py:147
-msgid "Invalid mirrors file"
-msgstr "无效的镜像文件"
-
-#: smart/commands/mirror.py:164
-msgid "Invalid arguments for --add"
-msgstr "--add 的参数无效"
-
-#: smart/commands/mirror.py:174
-msgid "Invalid arguments for --remove"
-msgstr "--remove 的参数无效"
-
-#: smart/commands/mirror.py:178 smart/commands/mirror.py:185
+#: smart/commands/reinstall.py:116
 #, python-format
-msgid "Origin not found: %s"
-msgstr ""
+msgid "'%s' is not available for reinstallation"
+msgstr "“%s”不可重新安装"
 
-#: smart/commands/mirror.py:180
+#: smart/commands/reinstall.py:119 smart/commands/remove.py:118
+#: smart/commands/upgrade.py:136 smart/interfaces/text/interactive.py:319
+#: smart/interfaces/text/interactive.py:365
+#: smart/interfaces/text/interactive.py:409
 #, python-format
-msgid "Mirror not found: %s"
-msgstr "镜像未找到：%s"
+msgid "'%s' matches no installed packages"
+msgstr "已安装的软件包中没有一个与“%s”匹配"
 
-#: smart/commands/priority.py:27
-msgid "smart priority [options]"
-msgstr "smart priority [选项]"
+#: smart/commands/remove.py:29
+msgid "smart remove [options] package ..."
+msgstr "smart remove [选项] 软件包 ..."
 
-#: smart/commands/priority.py:29
+#: smart/commands/remove.py:31
 msgid ""
 "\n"
-"This command allows changing the priority of given packages.\n"
-"Packages with higher priorities are considered a better option\n"
-"even when package versions state otherwise. Using priorities\n"
-"one may avoid unwanted upgrades, force downgrades, select\n"
-"packages in given channels as preferential, and other kinds\n"
-"of interesting setups. When a package has no explicit priority,\n"
-"the channel priority is used. The channel priority may be\n"
-"changed using the 'channel' command, and defaults to 0 when\n"
-"not set.\n"
-"\n"
-"Notice that negatives priorities must be preceded by '--' in\n"
-"the command line, otherwise they'll be interpreted as command\n"
-"line options.\n"
+"This command will remove one or more packages which\n"
+"are currently installed in the system.\n"
 msgstr ""
+"\n"
+"此命令将删除系统中已安装的一个或多个软件包。\n"
 
-#: smart/commands/priority.py:45
+#: smart/commands/remove.py:36
 msgid ""
 "\n"
-"smart priority --set pkgname 100\n"
-"smart priority --set pkgname mychannel -- -200\n"
-"smart priority --remove pkgname\n"
-"smart priority --remove pkgname mychannel\n"
-"smart priority --show\n"
-"smart priority --show pkgname\n"
+"smart remove pkgname\n"
+"smart remove '*kgnam*'\n"
+"smart remove pkgname-1.0\n"
+"smart remove pkgname-1.0-1\n"
+"smart remove pkgname1 pkgname2\n"
 msgstr ""
+"\n"
+"smart remove 软件包名称\n"
+"smart remove '*包名*'\n"
+"smart remove 软件包名称-1.0\n"
+"smart remove 软件包名称-1.0-1\n"
+"smart remove 软件包名称1 软件包名称2\n"
 
-#: smart/commands/priority.py:59
-msgid "set priority"
-msgstr "设定优先级"
+#: smart/commands/search.py:25
+msgid ""
+"\n"
+"Usage: smart search expression ...\n"
+"\n"
+"This command allows searching for the given expressions\n"
+"in the name, summary, and description of known packages.\n"
+"\n"
+"Options:\n"
+"  -h, --help  Show this help message and exit\n"
+"\n"
+"Examples:\n"
+"  smart search ldap\n"
+"  smart search kernel module\n"
+"  smart search rpm 'package manager'\n"
+"  smart search pkgname\n"
+"  smart search 'pkgn*e'\n"
+msgstr ""
+"\n"
+"用法：smart search 表达式 ...\n"
+"\n"
+"此命令允许在已知软件包的名称、摘要和描述搜索给定表达式。\n"
+"\n"
+"选项：\n"
+"  -h, --help  显示此帮助并退出\n"
+"\n"
+"示例：\n"
+"  smart search ldap\n"
+"  smart search kernel module\n"
+"  smart search rpm 'package manager'\n"
+"  smart search pkgname\n"
+"  smart search 'pkgn*e'\n"
 
-#: smart/commands/priority.py:61
-msgid "unset priority"
-msgstr "取消优先级"
+#: smart/commands/stats.py:27
+msgid "smart stats"
+msgstr "smart stats"
 
-#: smart/commands/priority.py:63
-msgid "show priorities"
-msgstr "显示优先级"
+#: smart/commands/stats.py:29
+msgid ""
+"\n"
+"This command will show some statistics.\n"
+msgstr ""
+"\n"
+"此命令将显示一些统计信息。\n"
 
-#: smart/commands/priority.py:83
-msgid "Invalid priority"
-msgstr "无效的优先级"
+#: smart/commands/stats.py:33
+msgid ""
+"\n"
+"smart stats \n"
+msgstr ""
+"\n"
+"smart stats \n"
 
-#: smart/commands/priority.py:95
-msgid "Priority not found"
-msgstr "优先级未找到"
+#: smart/commands/stats.py:52
+msgid "Installed Packages:"
+msgstr "已安装的软件包："
+
+#: smart/commands/stats.py:54
+msgid "Total Packages:"
+msgstr "总计软件包："
+
+#: smart/commands/stats.py:55
+msgid "Total Provides:"
+msgstr "总计提供："
+
+#: smart/commands/stats.py:56
+msgid "Total Requires:"
+msgstr "总计需要："
+
+#: smart/commands/stats.py:57
+msgid "Total Upgrades:"
+msgstr "总计升级："
+
+#: smart/commands/stats.py:58
+msgid "Total Conflicts:"
+msgstr "总计冲突："
 
 #: smart/commands/update.py:29
 msgid "smart update [options] [channelalias] ..."
@@ -3527,260 +1863,14 @@ msgstr ""
 msgid "Argument '%s' is not a channel alias."
 msgstr "参数“%s”不是频道别名。"
 
-#: smart/commands/download.py:31
-msgid "smart download [options] package ..."
-msgstr "smart download [选项] 软件包 ..."
+#: smart/commands/update.py:82 smart/interfaces/text/interactive.py:678
+msgid "Channels have no new packages."
+msgstr "频道没有新软件包。"
 
-#: smart/commands/download.py:33
-msgid ""
-"\n"
-"This command allows downloading one or more given packages.\n"
-msgstr ""
-"\n"
-"此命令允许下载一个或多个给定的软件包。\n"
-
-#: smart/commands/download.py:37
-msgid ""
-"\n"
-"smart download pkgname\n"
-"smart download '*kgna*'\n"
-"smart download pkgname-1.0\n"
-"smart download pkgname-1.0-1\n"
-"smart download pkgname1 pkgname2\n"
-"smart download pkgname --urls 2> pkgname-url.txt\n"
-"smart download --from-urls pkgname-url.txt\n"
-"smart download --from-urls http://some.url/some/path/somefile\n"
-msgstr ""
-"\n"
-"smart download 软件包名称\n"
-"smart download '*包名*'\n"
-"smart download 软件包名称-1.0\n"
-"smart download 软件包名称-1.0-1\n"
-"smart download 软件包名称1 软件包名称2\n"
-"smart download 软件包名称 --urls 2> 软件包名称-url.txt\n"
-"smart download --from-urls 软件包名称-url.txt\n"
-"smart download --from-urls http://some.url/some/path/somefile\n"
-
-#: smart/commands/download.py:55
-msgid "packages will be saved in given directory"
-msgstr "软件包将被保存到给定目录中"
-
-#: smart/commands/download.py:57
-msgid "dump needed urls and don't download packages"
-msgstr "列出所需的 URL，而不下载软件包"
-
-#: smart/commands/download.py:59
-msgid ""
-"download files from the given urls and/or from the given files with lists of "
-"urls"
-msgstr "从给定的 URL 和/或包含 URL 列表的给定文件中下载文件"
-
-#: smart/commands/download.py:64
-msgid "Directory not found:"
-msgstr "目录未找到："
-
-#: smart/commands/download.py:143
+#: smart/commands/update.py:91 smart/interfaces/text/interactive.py:687
 #, python-format
-msgid "Argument is not a file nor url: %s"
-msgstr "参数不是文件也不是 URL：%s"
-
-#: smart/commands/check.py:29
-msgid "smart check [options] [package] ..."
-msgstr "smart check [选项] [软件包] ..."
-
-#: smart/commands/check.py:31
-msgid ""
-"\n"
-"This command will check relations between packages. If no\n"
-"packages are explicitly given, all packages in the selected\n"
-"channels will be checked. Relations of the checked packages\n"
-"will only match packages inside the selected channels.\n"
-"\n"
-"Use the 'fix' command to fix broken relations of\n"
-"installed packages.\n"
-msgstr ""
-
-#: smart/commands/check.py:41
-msgid ""
-"\n"
-"smart check\n"
-"smart check pkgname\n"
-"smart check '*kgna*'\n"
-"smart check pkgname-1.0\n"
-"smart check pkgname-1.0-1\n"
-"smart check pkgname1 pkgname2\n"
-msgstr ""
-
-#: smart/commands/check.py:55
-msgid "check packages in all channels"
-msgstr "检查全部频道中的软件包"
-
-#: smart/commands/check.py:57
-msgid "check packages which are in at least one installed channel (default)"
-msgstr ""
-
-#: smart/commands/check.py:60
-msgid "check packages which are in at least one non-installed channel"
-msgstr ""
-
-#: smart/commands/check.py:63
-msgid ""
-"check packages which are inside the given channels (comma separated aliases)"
-msgstr ""
-
-#: smart/commands/check.py:101
-#, python-format
-msgid "Channels not found: %s"
-msgstr "频道未找到：%s"
-
-#: smart/commands/check.py:103
-#, python-format
-msgid "Channels are disabled: %s"
-msgstr "频道已被禁用：%s"
-
-#: smart/commands/flag.py:27
-msgid "smart flag [options]"
-msgstr "smart flag [选项]"
-
-#: smart/commands/flag.py:29
-msgid ""
-"\n"
-"This command allows one to set, remove, and show package flags.\n"
-"Package flags are used to tune the behavior of some algorithms\n"
-"when dealing with the given packages.\n"
-"\n"
-"Currently known flags are:\n"
-"\n"
-"  lock          - Flagged packages will not be removed, if they\n"
-"                  are currently installed, nor installed, if they\n"
-"                  are currently available.\n"
-"  new           - Flagged packages were considered new packages\n"
-"                  in the repository when the last update was done.\n"
-"                  This flag is automatically manipulated by the\n"
-"                  system.\n"
-"  multi-version - Flagged packages may have more than one version\n"
-"                  installed in the system at the same time\n"
-"                  (backend dependent).\n"
-msgstr ""
-"\n"
-"此命令允许设定、删除和显示软件包标志。软件包标志可在处理给定软\n"
-"件包时调整算法的行为。\n"
-"\n"
-"目前已知的标志有：\n"
-"\n"
-"  lock          - 如果该软件包已经安装，则加入此标志的软件包不会被\n"
-"                  删除；如果该软件包未安装，则不会被安装。\n"
-"  new           - 加入此标志的软件包即在上次更新完成后的新软件包。\n"
-"                  此标志由系统自动管理。\n"
-"  multi-version - 加入此标志的软件包可在系统中同时安装多个版本(需后\n"
-"                  端支持)。\n"
-
-#: smart/commands/flag.py:48
-msgid ""
-"\n"
-"smart flag --show\n"
-"smart flag --show new\n"
-"smart flag --set lock pkgname\n"
-"smart flag --remove lock pkgname\n"
-"smart flag --set lock 'pkgname >= 1.0'\n"
-"smart flag --remove lock 'pkgname >= 1.0'\n"
-msgstr ""
-"\n"
-"smart flag --show\n"
-"smart flag --show new\n"
-"smart flag --set lock 软件包名称\n"
-"smart flag --remove lock 软件包名称\n"
-"smart flag --set lock '软件包名称 >= 1.0'\n"
-"smart flag --remove lock '软件包名称 >= 1.0'\n"
-
-#: smart/commands/flag.py:65
-msgid ""
-"set flags given in pairs of flag name/target, where targets may use just the "
-"package name, or the package name, relation, and version, such as: lock "
-"'python > 1.0'"
-msgstr ""
-"设定标志，格式为“标志 名称/目标”，此处目标可以仅仅是软件包名称，也可以是软件"
-"包名称、关系和版本，比如：lock 'python > 1.0'"
-
-#: smart/commands/flag.py:70
-msgid ""
-"remove flags given in pairs of flag name/target, where targets may use just "
-"the package name, or the package name, relation, and version, such as: lock "
-"'python > 1.0'"
-msgstr ""
-"删除标志，格式为“标志 名称/目标”，此处目标可以仅仅是软件包名称，也可以是软件"
-"包名称、关系和版本，比如：lock 'python > 1.0'"
-
-#: smart/commands/flag.py:75
-msgid ""
-"show packages with the flags given as arguments or all flags if no argument "
-"was given"
-msgstr "显示给定参数的标志，如果未给出参数，则显示全部标志"
-
-#: smart/commands/flag.py:96
-#, python-format
-msgid "Invalid target: %s"
-msgstr "无效的目标：%s"
-
-#: smart/commands/info.py:29
-msgid "smart info [options] [package] ..."
-msgstr "smart info [选项] [软件包] ..."
-
-#: smart/commands/info.py:31
-msgid ""
-"\n"
-"This command will show information about the given packages.\n"
-msgstr ""
-"\n"
-"此命令将显示关于给定软件包的信息。\n"
-
-#: smart/commands/info.py:35
-msgid ""
-"\n"
-"smart info pkgname\n"
-"smart info pkgname-1.0\n"
-"smart info pkgname --urls --paths\n"
-msgstr ""
-"\n"
-"smart info 软件包名称\n"
-"smart info 软件包名称-1.0\n"
-"smart info 软件包名称 --urls --paths\n"
-
-#: smart/commands/info.py:46
-msgid "show URLs"
-msgstr "显示 URL"
-
-#: smart/commands/info.py:48
-msgid "show path list"
-msgstr "显示路径列表"
-
-#: smart/commands/info.py:106
-msgid "Version:"
-msgstr "版本："
-
-#: smart/commands/info.py:110
-msgid "Reference URLs:"
-msgstr "参考 URL："
-
-#: smart/commands/info.py:119
-msgid "Flags:"
-msgstr "标志："
-
-#: smart/commands/info.py:126
-msgid "Summary:"
-msgstr "摘要："
-
-#: smart/commands/info.py:127
-msgid "Description:"
-msgstr "描述："
-
-#: smart/commands/info.py:135
-msgid "URLs:"
-msgstr "URL："
-
-#: smart/commands/info.py:153
-msgid "Paths:"
-msgstr "路径："
+msgid "Channels have %d new packages%s"
+msgstr "频道有 %d 个新软件包 %s"
 
 #: smart/commands/upgrade.py:31
 msgid "smart upgrade [options] [package] ..."
@@ -3829,68 +1919,1598 @@ msgstr "有延后的更新。"
 msgid "There are new upgrades available!"
 msgstr "有可用的更新。"
 
-#: smart/commands/search.py:25
+#: smart/interfaces/gtk/__init__.py:36
+msgid "System has no support for gtk python interface"
+msgstr "系统不支持 gtk python 界面"
+
+#: smart/interfaces/gtk/__init__.py:55
+#, python-format
+msgid "Image '%s' not found"
+msgstr "未找到图像“%s”"
+
+#: smart/interfaces/gtk/changes.py:36
+msgid "Change Summary"
+msgstr "更改摘要"
+
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:541
+msgid "Remove"
+msgstr "删除"
+
+#: smart/interfaces/gtk/changes.py:97
+msgid "Downgrade"
+msgstr "降级"
+
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:531
+msgid "Reinstall"
+msgstr "重新安装"
+
+#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:522
+msgid "Install"
+msgstr "安装"
+
+#: smart/interfaces/gtk/changes.py:98
+msgid "Upgrade"
+msgstr "升级"
+
+#: smart/interfaces/gtk/changes.py:125 smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:366
+msgid "Upgrades"
+msgstr "升级"
+
+#: smart/interfaces/gtk/changes.py:129
+msgid "Downgrades"
+msgstr "降级"
+
+#: smart/interfaces/gtk/changes.py:133 smart/interfaces/gtk/changes.py:170
+#: smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:357
+msgid "Requires"
+msgstr "需要"
+
+#: smart/interfaces/gtk/changes.py:136 smart/interfaces/gtk/changes.py:173
+#: smart/interfaces/gtk/packageinfo.py:332
+msgid "Required By"
+msgstr "被需要"
+
+#: smart/interfaces/gtk/changes.py:141 smart/interfaces/gtk/changes.py:178
+#: smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:375
+msgid "Conflicts"
+msgstr "冲突"
+
+#: smart/interfaces/gtk/changes.py:151
+#, python-format
+msgid "Reinstall (%d)"
+msgstr "重新安装(%d个)"
+
+#: smart/interfaces/gtk/changes.py:154
+#, python-format
+msgid "Install (%d)"
+msgstr "安装(%d个)"
+
+#: smart/interfaces/gtk/changes.py:156
+#, python-format
+msgid "Upgrade (%d)"
+msgstr "升级(%d个)"
+
+#: smart/interfaces/gtk/changes.py:158
+#, python-format
+msgid "Downgrade (%d)"
+msgstr "降级(%d个)"
+
+#: smart/interfaces/gtk/changes.py:181
+#, python-format
+msgid "Remove (%d)"
+msgstr "删除(%d个)"
+
+#: smart/interfaces/gtk/changes.py:185
+#, python-format
+msgid "Keep (%d)"
+msgstr "保留(%d个)"
+
+#: smart/interfaces/gtk/changes.py:191 smart/interfaces/text/interface.py:225
+#, python-format
+msgid "%s of package files are needed. "
+msgstr "需要 %s 个软件包文件。"
+
+#: smart/interfaces/gtk/changes.py:193 smart/interfaces/text/interface.py:228
+#, python-format
+msgid "%s will be used."
+msgstr "将使用 %s。"
+
+#: smart/interfaces/gtk/changes.py:196 smart/interfaces/text/interface.py:231
+#, python-format
+msgid "%s will be freed."
+msgstr "将释放 %s。"
+
+#: smart/interfaces/gtk/channels.py:39 smart/interfaces/gtk/interactive.py:232
+msgid "Channels"
+msgstr "频道"
+
+#: smart/interfaces/gtk/channels.py:84
+msgid "Pri"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:86 smart/interfaces/gtk/channels.py:367
+#: smart/channel.py:132
+msgid "Alias"
+msgstr "别名"
+
+#: smart/interfaces/gtk/channels.py:88 smart/interfaces/gtk/channels.py:369
+#: smart/channel.py:134
+msgid "Type"
+msgstr "类型"
+
+#: smart/interfaces/gtk/channels.py:90 smart/interfaces/gtk/channels.py:371
+#: smart/channel.py:136
+msgid "Name"
+msgstr "名称"
+
+#: smart/interfaces/gtk/channels.py:205
+msgid "Select Channel Description"
+msgstr "选择频道描述"
+
+#: smart/interfaces/gtk/channels.py:219
+msgid "Description URL"
+msgstr "描述 URL"
+
+#: smart/interfaces/gtk/channels.py:223
+msgid "channel description"
+msgstr "频道描述"
+
+#: smart/interfaces/gtk/channels.py:260
+msgid "Select Path"
+msgstr "选择路径"
+
+#: smart/interfaces/gtk/channels.py:287
+msgid "No channels detected!"
+msgstr "未检测到频道。"
+
+#: smart/interfaces/gtk/channels.py:324
+msgid "Select Channels"
+msgstr "选择频道"
+
+#: smart/interfaces/gtk/channels.py:432
+msgid "Edit Channel"
+msgstr "编辑频道"
+
+#: smart/interfaces/gtk/channels.py:518 smart/interfaces/gtk/channels.py:575
+#, python-format
+msgid "Don't know how to handle %s fields"
+msgstr "不知道如何处理 %s 字段"
+
+#: smart/interfaces/gtk/channels.py:581
+msgid "Invalid alias!"
+msgstr "无效的别名。"
+
+#: smart/interfaces/gtk/channels.py:584
+msgid "Alias already in use!"
+msgstr "别名已经使用。"
+
+#: smart/interfaces/gtk/channels.py:607 smart/interfaces/gtk/channels.py:704
+#: smart/interfaces/gtk/channels.py:805
+msgid "New Channel"
+msgstr "新建频道"
+
+#: smart/interfaces/gtk/channels.py:724
+msgid "Method:"
+msgstr "方式："
+
+#: smart/interfaces/gtk/channels.py:763
+msgid "Provide channel information"
+msgstr "提供频道信息"
+
+#: smart/interfaces/gtk/channels.py:765
+msgid "Read channel description from local path"
+msgstr "从本地路径读取频道描述"
+
+#: smart/interfaces/gtk/channels.py:767
+msgid "Read channel description from URL"
+msgstr "从 URL 读取频道描述"
+
+#: smart/interfaces/gtk/channels.py:769
+msgid "Detect channel in media (CDROM, DVD, etc)"
+msgstr "检测介质中的频道(CDROM、DVD 等)"
+
+#: smart/interfaces/gtk/channels.py:771
+msgid "Detect channel in local path"
+msgstr "检测本地路径中的频道"
+
+#: smart/interfaces/gtk/channels.py:826
+msgid "Media path:"
+msgstr "介质路径："
+
+#: smart/interfaces/gtk/channels.py:880
+msgid "No local media found!"
+msgstr "未找到本地介质。"
+
+#: smart/interfaces/gtk/command.py:58
+msgid "Status"
+msgstr "状态"
+
+#: smart/interfaces/gtk/flags.py:35 smart/interfaces/gtk/flags.py:81
+msgid "Flags"
+msgstr "标志"
+
+#: smart/interfaces/gtk/flags.py:127
+msgid "Targets"
+msgstr "目标"
+
+#: smart/interfaces/gtk/flags.py:199 smart/interfaces/gtk/flags.py:243
+msgid "Flag already exists!"
+msgstr "标志已经存在。"
+
+#: smart/interfaces/gtk/flags.py:228 smart/interfaces/gtk/flags.py:255
+#: smart/interfaces/gtk/flags.py:260 smart/interfaces/gtk/flags.py:449
+msgid "Invalid target!"
+msgstr "无效的目标。"
+
+#: smart/interfaces/gtk/flags.py:293
+msgid "New Flag"
+msgstr "新建标志"
+
+#: smart/interfaces/gtk/flags.py:358
+msgid "No flag name provided!"
+msgstr "未提供标志名称。"
+
+#: smart/interfaces/gtk/flags.py:374
+msgid "New Target"
+msgstr "新建目标"
+
+#: smart/interfaces/gtk/flags.py:395
+msgid "Target:"
+msgstr "目标："
+
+#: smart/interfaces/gtk/flags.py:405
+msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
+msgstr "例：“软件包名称”、“软件包名称 = 1.0”或“软件包名称 <= 1.0”"
+
+#: smart/interfaces/gtk/flags.py:445
+msgid "No target provided!"
+msgstr "未提供目标"
+
+#: smart/interfaces/gtk/interactive.py:114
+msgid "_File"
+msgstr "文件(_F)"
+
+#: smart/interfaces/gtk/interactive.py:115
+msgid "Update _Selected Channels..."
+msgstr "更新选中频道(_S)..."
+
+#: smart/interfaces/gtk/interactive.py:116
+msgid "Update given channels"
+msgstr "更新给定频道"
+
+#: smart/interfaces/gtk/interactive.py:117
+msgid "_Update Channels"
+msgstr "更新频道(_U)"
+
+#: smart/interfaces/gtk/interactive.py:118
+msgid "Update channels"
+msgstr "更新频道"
+
+#: smart/interfaces/gtk/interactive.py:119
+msgid "_Rebuild Cache"
+msgstr "重建缓存(_R)"
+
+#: smart/interfaces/gtk/interactive.py:120
+msgid "Reload package information"
+msgstr "重新装入软件包信息"
+
+#: smart/interfaces/gtk/interactive.py:121
+msgid "_Execute Changes..."
+msgstr "执行更改(_E)..."
+
+#: smart/interfaces/gtk/interactive.py:122
+msgid "Apply marked changes"
+msgstr "应用标出的更改"
+
+#: smart/interfaces/gtk/interactive.py:123
+msgid "_Quit"
+msgstr "退出(_Q)"
+
+#: smart/interfaces/gtk/interactive.py:124
+msgid "Quit application"
+msgstr "退出应用程序"
+
+#: smart/interfaces/gtk/interactive.py:126
+msgid "_Edit"
+msgstr "编辑(_E)"
+
+#: smart/interfaces/gtk/interactive.py:127
+msgid "_Undo"
+msgstr "撤消(_U)"
+
+#: smart/interfaces/gtk/interactive.py:128
+msgid "Undo last change"
+msgstr "撤消上次更改"
+
+#: smart/interfaces/gtk/interactive.py:129
+msgid "_Redo"
+msgstr "重做(_R)"
+
+#: smart/interfaces/gtk/interactive.py:130
+msgid "Redo last undone change"
+msgstr "重做上次撤消的更改"
+
+#: smart/interfaces/gtk/interactive.py:131
+msgid "Clear Marked Changes"
+msgstr "清除标出的更改"
+
+#: smart/interfaces/gtk/interactive.py:132
+msgid "Clear all changes"
+msgstr "清除全部更改"
+
+#: smart/interfaces/gtk/interactive.py:133
+msgid "Check Installed Packages..."
+msgstr "检查已安装的软件包..."
+
+#: smart/interfaces/gtk/interactive.py:134
+msgid "Check installed packages"
+msgstr "检查已安装的软件包"
+
+#: smart/interfaces/gtk/interactive.py:135
+msgid "Check Uninstalled Packages..."
+msgstr "检查已卸载的软件包..."
+
+#: smart/interfaces/gtk/interactive.py:136
+msgid "Check uninstalled packages"
+msgstr "检查已卸载的软件包"
+
+#: smart/interfaces/gtk/interactive.py:137
+msgid "Check All Packages..."
+msgstr "检查全部软件包..."
+
+#: smart/interfaces/gtk/interactive.py:138
+msgid "Check all packages"
+msgstr "检查全部软件包"
+
+#: smart/interfaces/gtk/interactive.py:139
+msgid "Upgrade _All..."
+msgstr "全部升级(_A)..."
+
+#: smart/interfaces/gtk/interactive.py:140
+msgid "Upgrade all packages"
+msgstr "升级全部软件包"
+
+#: smart/interfaces/gtk/interactive.py:141
+msgid "Fix All _Problems..."
+msgstr "修复全部问题(_P)..."
+
+#: smart/interfaces/gtk/interactive.py:142
+msgid "Fix all problems"
+msgstr "修复全部问题"
+
+#: smart/interfaces/gtk/interactive.py:143
+msgid "_Find..."
+msgstr "查找(_F)..."
+
+#: smart/interfaces/gtk/interactive.py:144
+msgid "Find packages"
+msgstr "查找软件包"
+
+#: smart/interfaces/gtk/interactive.py:145
+msgid "_Channels"
+msgstr "频道(_C)"
+
+#: smart/interfaces/gtk/interactive.py:146
+msgid "Edit channels"
+msgstr "编辑频道"
+
+#: smart/interfaces/gtk/interactive.py:147
+msgid "_Mirrors"
+msgstr "镜像(_M)"
+
+#: smart/interfaces/gtk/interactive.py:148
+msgid "Edit mirrors"
+msgstr "编辑镜像"
+
+#: smart/interfaces/gtk/interactive.py:149
+msgid "_Flags"
+msgstr "标志(_F)"
+
+#: smart/interfaces/gtk/interactive.py:150
+msgid "Edit package flags"
+msgstr "编辑软件包标志"
+
+#: smart/interfaces/gtk/interactive.py:151
+msgid "_Priorities"
+msgstr "优先级(_P)"
+
+#: smart/interfaces/gtk/interactive.py:152
+msgid "Edit package priorities"
+msgstr "编辑软件包优先级"
+
+#: smart/interfaces/gtk/interactive.py:154
+msgid "_View"
+msgstr "查看(_V)"
+
+#: smart/interfaces/gtk/interactive.py:155
+msgid "_Tree Style"
+msgstr "树型样式(_T)"
+
+#: smart/interfaces/gtk/interactive.py:156
+msgid "_Expand All"
+msgstr "全部展开(_E)"
+
+#: smart/interfaces/gtk/interactive.py:157
+msgid "Expand all items in the tree"
+msgstr "展开树中的全部项目"
+
+#: smart/interfaces/gtk/interactive.py:158
+msgid "_Collapse All"
+msgstr "全部折叠(_C)"
+
+#: smart/interfaces/gtk/interactive.py:159
+msgid "Collapse all items in the tree"
+msgstr "折叠树中的全部项目"
+
+#: smart/interfaces/gtk/interactive.py:160
+msgid "_Summary Window"
+msgstr "摘要窗口(_S)"
+
+#: smart/interfaces/gtk/interactive.py:161
+msgid "Show summary window"
+msgstr "显示摘要窗口"
+
+#: smart/interfaces/gtk/interactive.py:162
+msgid "_Log Window"
+msgstr "日志窗口(_L)"
+
+#: smart/interfaces/gtk/interactive.py:163
+msgid "Show log window"
+msgstr "显示日志窗口"
+
+#: smart/interfaces/gtk/interactive.py:165
+msgid "_Help"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:166
+msgid "_About"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:167
+#, fuzzy
+msgid "Show about window"
+msgstr "显示日志窗口"
+
+#: smart/interfaces/gtk/interactive.py:220
+msgid "Hide Non-upgrades"
+msgstr "隐藏非升级"
+
+#: smart/interfaces/gtk/interactive.py:221
+msgid "Hide Installed"
+msgstr "隐藏已安装"
+
+#: smart/interfaces/gtk/interactive.py:222
+msgid "Hide Uninstalled"
+msgstr "隐藏已卸载"
+
+#: smart/interfaces/gtk/interactive.py:223
+msgid "Hide Unmarked"
+msgstr "隐藏未标出"
+
+#: smart/interfaces/gtk/interactive.py:224
+msgid "Hide Old"
+msgstr "隐藏旧软件包"
+
+#: smart/interfaces/gtk/interactive.py:231
+msgid "Groups"
+msgstr "分组"
+
+#: smart/interfaces/gtk/interactive.py:233
+msgid "Channels & Groups"
+msgstr "频道和分组"
+
+#: smart/interfaces/gtk/interactive.py:234 smart/plugins/channelsync.py:139
+msgid "None"
+msgstr "无"
+
+#: smart/interfaces/gtk/interactive.py:284
+msgid "Search:"
+msgstr "搜索："
+
+#: smart/interfaces/gtk/interactive.py:324
+msgid "Automatic"
+msgstr "自动"
+
+#: smart/interfaces/gtk/interactive.py:329
+#: smart/interfaces/gtk/packageinfo.py:108
+#: smart/interfaces/gtk/progress.py:121
+msgid "Description"
+msgstr "描述"
+
+#: smart/interfaces/gtk/interactive.py:465
+msgid "Apply marked changes now?"
+msgstr "现在应用标出的更改吗？"
+
+#: smart/interfaces/gtk/interactive.py:468
+#: smart/interfaces/text/interactive.py:370
+msgid "No interesting upgrades available!"
+msgstr "没有可更新的软件包。"
+
+#: smart/interfaces/gtk/interactive.py:553
+msgid "Keep"
+msgstr "保留"
+
+#: smart/interfaces/gtk/interactive.py:562
+msgid "Fix problems"
+msgstr "修复问题"
+
+#: smart/interfaces/gtk/interactive.py:593
+msgid "Unlock this version"
+msgstr "解锁此版本"
+
+#: smart/interfaces/gtk/interactive.py:605
+msgid "Lock this version"
+msgstr "锁定此版本"
+
+#: smart/interfaces/gtk/interactive.py:623
+msgid "Unlock all versions"
+msgstr "解锁全部版本"
+
+#: smart/interfaces/gtk/interactive.py:635
+msgid "Lock all versions"
+msgstr "锁定全部版本"
+
+#: smart/interfaces/gtk/interactive.py:666
+msgid "Checking relations..."
+msgstr "正在检查关系..."
+
+#: smart/interfaces/gtk/interactive.py:669
+msgid "All checked packages have correct relations."
+msgstr "检查的全部软件包关系均正确。"
+
+#: smart/interfaces/gtk/interface.py:83
+msgid " Continue?"
+msgstr " 继续吗？"
+
+#: smart/interfaces/gtk/interface.py:104
+msgid "Input"
+msgstr "输入"
+
+#: smart/interfaces/gtk/interface.py:144
+msgid "Insert one or more of the following removable channels:\n"
+msgstr "插入下列可移动介质中的一个或多个：\n"
+
+#: smart/interfaces/gtk/log.py:40
+msgid "Log"
+msgstr "日志"
+
+#: smart/interfaces/gtk/log.py:83 smart/interface.py:134
+msgid "error"
+msgstr "错误"
+
+#: smart/interfaces/gtk/log.py:83 smart/interface.py:134
+msgid "warning"
+msgstr "警告"
+
+#: smart/interfaces/gtk/log.py:84 smart/interface.py:135
+msgid "debug"
+msgstr "调试"
+
+#: smart/interfaces/gtk/mirrors.py:32
+msgid "Mirrors"
+msgstr "镜像"
+
+#: smart/interfaces/gtk/mirrors.py:65
+msgid "Mirror"
+msgstr "镜像"
+
+#: smart/interfaces/gtk/mirrors.py:145
+msgid "Origin already exists!"
+msgstr "原始 URL 已经存在。"
+
+#: smart/interfaces/gtk/mirrors.py:152
+msgid "Mirror already exists!"
+msgstr "镜像已经存在。"
+
+#: smart/interfaces/gtk/mirrors.py:164
+msgid "New Mirror"
+msgstr "新建镜像"
+
+#: smart/interfaces/gtk/mirrors.py:185
+msgid "Origin URL:"
+msgstr "原始 URL："
+
+#: smart/interfaces/gtk/mirrors.py:195
+msgid "Mirror URL:"
+msgstr "镜像 URL："
+
+#: smart/interfaces/gtk/mirrors.py:243
+msgid "No origin provided!"
+msgstr "未提供原始 URL。"
+
+#: smart/interfaces/gtk/mirrors.py:247
+msgid "No mirror provided!"
+msgstr "未提供镜像。"
+
+#: smart/interfaces/gtk/packageinfo.py:65
+msgid "Status:"
+msgstr "状态："
+
+#: smart/interfaces/gtk/packageinfo.py:87
+msgid "General"
+msgstr "常规"
+
+#: smart/interfaces/gtk/packageinfo.py:128
+msgid "Content"
+msgstr "内容"
+
+#: smart/interfaces/gtk/packageinfo.py:137
+msgid "Relations"
+msgstr "关系"
+
+#: smart/interfaces/gtk/packageinfo.py:157
+msgid "Size"
+msgstr "大小"
+
+#: smart/interfaces/gtk/packageinfo.py:159
+msgid "URL"
+msgstr "URL"
+
+#: smart/interfaces/gtk/packageinfo.py:217
+msgid "Installed"
+msgstr "已安装"
+
+#: smart/interfaces/gtk/packageinfo.py:217
+msgid "Available"
+msgstr "可用"
+
+#: smart/interfaces/gtk/packageinfo.py:219 smart/util/strtools.py:56
+#: smart/util/strtools.py:76
+msgid "Unknown"
+msgstr "未知"
+
+#: smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:347
+msgid "Provides"
+msgstr "提供"
+
+#: smart/interfaces/gtk/packageinfo.py:338
+msgid "Upgraded By"
+msgstr "升级原因"
+
+#: smart/interfaces/gtk/packageinfo.py:344
+msgid "Conflicted By"
+msgstr "冲突原因"
+
+#: smart/interfaces/gtk/packageview.py:145
+msgid "Version"
+msgstr "版本"
+
+#: smart/interfaces/gtk/priorities.py:33
+msgid "Priorities"
+msgstr "优先级"
+
+#: smart/interfaces/gtk/priorities.py:67
+msgid "Package Name"
+msgstr "软件包名称"
+
+#: smart/interfaces/gtk/priorities.py:75
+msgid "Channel Alias"
+msgstr "频道别名"
+
+#: smart/interfaces/gtk/priorities.py:129
+#: smart/interfaces/gtk/priorities.py:167
+#: smart/interfaces/gtk/priorities.py:177
+msgid "Name/alias pair already exists!"
+msgstr "名称/别名对已经存在。"
+
+#: smart/interfaces/gtk/priorities.py:192
+msgid "Invalid priority!"
+msgstr "无效的优先级。"
+
+#: smart/interfaces/gtk/priorities.py:202
+msgid "New Package Priority"
+msgstr "新建软件包优先级"
+
+#: smart/interfaces/gtk/priorities.py:223
+msgid "Package Name:"
+msgstr "软件包名称："
+
+#: smart/interfaces/gtk/priorities.py:232
+msgid "Channel Alias:"
+msgstr "频道别名："
+
+#: smart/interfaces/gtk/priorities.py:292
+msgid "No name provided!"
+msgstr "未提供名称。"
+
+#: smart/interfaces/gtk/priorities.py:312
+msgid "Package Priority"
+msgstr "软件包优先级"
+
+#: smart/interfaces/gtk/priorities.py:352
+msgid "Package:"
+msgstr "软件包："
+
+#: smart/interfaces/gtk/priorities.py:375
+msgid "Default priority:"
+msgstr "默认优先级："
+
+#: smart/interfaces/gtk/priorities.py:385
+msgid "Channel default"
+msgstr "频道默认值"
+
+#: smart/interfaces/gtk/priorities.py:390
+msgid "Set to"
+msgstr "设定为"
+
+#: smart/interfaces/gtk/priorities.py:406
+msgid "Channel priority:"
+msgstr "频道优先级："
+
+#: smart/interfaces/gtk/progress.py:51
+msgid "Operation Progress"
+msgstr "操作进度"
+
+#: smart/interfaces/gtk/progress.py:90
+msgid "Progress"
+msgstr "进度"
+
+#: smart/interfaces/gtk/progress.py:97
+msgid "Current"
+msgstr "当前"
+
+#: smart/interfaces/gtk/progress.py:103
+msgid "Total"
+msgstr "总计"
+
+#: smart/interfaces/gtk/progress.py:109
+msgid "Speed"
+msgstr "速度"
+
+#: smart/interfaces/gtk/progress.py:115
+msgid "ETA"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:72
+msgid "Documented commands (type help <topic>):"
+msgstr "有文档的命令(输入 help <主题>)："
+
+#: smart/interfaces/text/interactive.py:73
+msgid "Undocumented commands:"
+msgstr "无文档的命令："
+
+#: smart/interfaces/text/interactive.py:74
+msgid "Miscelaneous help topics:"
+msgstr "杂项帮助主题："
+
+#: smart/interfaces/text/interactive.py:75
+#, python-format
+msgid "*** No help on %s"
+msgstr "*** %s 无帮助"
+
+#: smart/interfaces/text/interactive.py:200 smart.py:188
 msgid ""
 "\n"
-"Usage: smart search expression ...\n"
-"\n"
-"This command allows searching for the given expressions\n"
-"in the name, summary, and description of known packages.\n"
-"\n"
-"Options:\n"
-"  -h, --help  Show this help message and exit\n"
-"\n"
-"Examples:\n"
-"  smart search ldap\n"
-"  smart search kernel module\n"
-"  smart search rpm 'package manager'\n"
-"  smart search pkgname\n"
-"  smart search 'pkgn*e'\n"
+"Interrupted\n"
 msgstr ""
 "\n"
-"用法：smart search 表达式 ...\n"
-"\n"
-"此命令允许在已知软件包的名称、摘要和描述搜索给定表达式。\n"
-"\n"
-"选项：\n"
-"  -h, --help  显示此帮助并退出\n"
-"\n"
-"示例：\n"
-"  smart search ldap\n"
-"  smart search kernel module\n"
-"  smart search rpm 'package manager'\n"
-"  smart search pkgname\n"
-"  smart search 'pkgn*e'\n"
+"已中断\n"
 
-#: smart/commands/clean.py:27
-msgid "smart clean [options]"
-msgstr "smart clean [选项]"
+#: smart/interfaces/text/interactive.py:215
+msgid "What would you expect!? ;-)"
+msgstr "您希望得到什么结果!? ;-)"
 
-#: smart/commands/clean.py:29
+#: smart/interfaces/text/interactive.py:218
+msgid "The exit/quit/EOF command returns to the system."
+msgstr "exit/quit/EOF 命令可返回到系统。"
+
+#: smart/interfaces/text/interactive.py:229
+msgid "The shell command offers execution of system commands."
+msgstr "shell 命令可执行系统命令。"
+
+#: smart/interfaces/text/interactive.py:231
+msgid "Usage: shell [<cmd>]"
+msgstr "用法：shell [<命令>]"
+
+#: smart/interfaces/text/interactive.py:232
+msgid "       ![<cmd>]"
+msgstr "       ![<命令>]"
+
+#: smart/interfaces/text/interactive.py:240
+msgid "The status command shows currently marked changes."
+msgstr "status 命令可显示目前标出的更改。"
+
+#: smart/interfaces/text/interactive.py:242
+msgid "Usage: status"
+msgstr "用法：status"
+
+#: smart/interfaces/text/interactive.py:248
+msgid "There are no marked changes."
+msgstr "没有标出的更改。"
+
+#: smart/interfaces/text/interactive.py:253
+msgid "The install command marks packages for installation."
+msgstr "install 命令可标出要安装的软件包。"
+
+#: smart/interfaces/text/interactive.py:255
+#: smart/interfaces/text/interactive.py:299
+#: smart/interfaces/text/interactive.py:335
+#: smart/interfaces/text/interactive.py:380
+#: smart/interfaces/text/interactive.py:422
+#: smart/interfaces/text/interactive.py:459
+#: smart/interfaces/text/interactive.py:556
+msgid "Options:"
+msgstr "选项："
+
+#: smart/interfaces/text/interactive.py:256
+#: smart/interfaces/text/interactive.py:300
+#: smart/interfaces/text/interactive.py:336
+#: smart/interfaces/text/interactive.py:381
+#: smart/interfaces/text/interactive.py:423
+#: smart/interfaces/text/interactive.py:460
 msgid ""
+"   --explain  Include additional information about\n"
+"              changes, when possible"
+msgstr "   --explain  可能时包含关于更改的额外信息"
+
+#: smart/interfaces/text/interactive.py:259
+msgid "Usage: install <pkgname> ..."
+msgstr "用法：install <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:286
+#, python-format
+msgid "No uninstalled packages matched '%s'"
+msgstr "卸载的软件包中没有一个与“%s”匹配"
+
+#: smart/interfaces/text/interactive.py:297
+msgid "The reinstall command marks packages for reinstallation."
+msgstr "reinstall 命令可标出要重新安装的软件包。"
+
+#: smart/interfaces/text/interactive.py:303
+msgid "Usage: reinstall <pkgname> ..."
+msgstr "用法：reinstall <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:321
+#, python-format
+msgid "'%s' matches multiple installed packages"
+msgstr "已安装的软件包中有多个和“%s”匹配"
+
+#: smart/interfaces/text/interactive.py:333
+msgid "The upgrade command marks packages for upgrading."
+msgstr "upgrade 命令标出要升级的软件包。"
+
+#: smart/interfaces/text/interactive.py:339
+msgid "Usage: upgrade <pkgname> ..."
+msgstr "用法：upgrade <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:378
+msgid "The remove command marks packages for being removed."
+msgstr "remove 命令可标出要删除的软件包。"
+
+#: smart/interfaces/text/interactive.py:384
+msgid "Usage: remove <pkgname> ..."
+msgstr "用法：remove <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:420
+msgid "The keep command unmarks currently marked packages."
+msgstr "keep 命令可撤消目前对软件包所进行的标记。"
+
+#: smart/interfaces/text/interactive.py:426
+msgid "Usage: keep <pkgname> ..."
+msgstr "用法：keep <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:443
+#, python-format
+msgid "'%s' matches no marked packages"
+msgstr "已标记的软件包中没有一个与“%s”匹配"
+
+#: smart/interfaces/text/interactive.py:456
+msgid ""
+"The fix command verifies relations of given packages\n"
+"and marks the necessary changes for fixing them."
+msgstr ""
+"fix 命令可验证给定软件包的关系，并标出要修复这些关系\n"
+"所必需的更改。"
+
+#: smart/interfaces/text/interactive.py:463
+msgid "Usage: fix <pkgname> ..."
+msgstr "用法：fix <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:492
+msgid ""
+"The download command fetches the given packages\n"
+"to the local filesystem."
+msgstr "download 命令可将给定软件包获取到本地文件系统。"
+
+#: smart/interfaces/text/interactive.py:495
+msgid "Usage: download <pkgname> ..."
+msgstr "用法：download <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:502
+#, python-format
+msgid "'%s' matches multiple packages, selecting: %s"
+msgstr "“%s”与多个软件包匹配，请选择：%s"
+
+#: smart/interfaces/text/interactive.py:509
+msgid "The commit command applies marked changes in the system."
+msgstr "commit 命令可将所标出的更改应用到系统中。"
+
+#: smart/interfaces/text/interactive.py:511
+msgid "Usage: commit"
+msgstr "用法：commit"
+
+#: smart/interfaces/text/interactive.py:523
+msgid "The undo command reverts marked changes."
+msgstr "undo 命令可撤消所标出的更改。"
+
+#: smart/interfaces/text/interactive.py:525
+msgid "Usage: undo"
+msgstr "用法：undo"
+
+#: smart/interfaces/text/interactive.py:538
+msgid "The redo command reapplies undone changes."
+msgstr "redo 命令可重新应用撤消了的更改。"
+
+#: smart/interfaces/text/interactive.py:540
+msgid "Usage: redo"
+msgstr "用法：redo"
+
+#: smart/interfaces/text/interactive.py:553
+msgid ""
+"The ls command lists packages by name. Wildcards\n"
+"are accepted."
+msgstr "ls 命令可按名称列出软件包。支持通配符。"
+
+#: smart/interfaces/text/interactive.py:557
+msgid "   -i  List only installed packages"
+msgstr "   -i  只列出已安装的软件包"
+
+#: smart/interfaces/text/interactive.py:558
+msgid "   -n  List only new packages"
+msgstr "   -n  只列出新软件包"
+
+#: smart/interfaces/text/interactive.py:559
+msgid "   -v  Show versions"
+msgstr "   -v  显示版本"
+
+#: smart/interfaces/text/interactive.py:560
+msgid "   -s  Show summaries"
+msgstr "   -s  显示摘要"
+
+#: smart/interfaces/text/interactive.py:562
+msgid "Usage: ls [options] [<string>] ..."
+msgstr "用法：ls [选项] [<字符串>] ..."
+
+#: smart/interfaces/text/interactive.py:653
+msgid "The update command will update channel information."
+msgstr "update 命令可更新频道信息。"
+
+#: smart/interfaces/text/interactive.py:655
+msgid "Usage: update [<alias>] ..."
+msgstr "用法：update [<别名>] ..."
+
+#: smart/interfaces/text/interactive.py:692
+msgid ""
+"The flag command allows configuring, removing and\n"
+"verifying package flags, and accepts the same options\n"
+"available in the command line interface."
+msgstr ""
+"flag 命令允许配置、删除和验证软件包标志，并接受命令\n"
+"行界面中可用的相同选项。"
+
+#: smart/interfaces/text/interactive.py:696
+msgid "Usage: flag [options]"
+msgstr "用法：flag [选项]"
+
+#: smart/interfaces/text/interactive.py:711
+msgid ""
+"The query command allows querying package information,\n"
+"and accepts the same options available in the command\n"
+"line interface."
+msgstr ""
+"query 命令允许查询软件包信息，并接受命令行界面中可用\n"
+"的相同选项。"
+
+#: smart/interfaces/text/interactive.py:715
+msgid "Usage: query [options] [<pkgname>] ..."
+msgstr "用法：query [选项] [<软件包名称>] ..."
+
+#: smart/interfaces/text/interactive.py:730
+msgid "The search command allows searching for packages."
+msgstr "search 命令允许搜索软件包。"
+
+#: smart/interfaces/text/interactive.py:732
+msgid "Usage: search <string> ..."
+msgstr "用法：search <字符串> ..."
+
+#: smart/interfaces/text/interactive.py:747
+msgid "The info command shows information about packages."
+msgstr "info 命令可显示关于软件包的信息。"
+
+#: smart/interfaces/text/interactive.py:749
+msgid "Usage: info <pkgname> ..."
+msgstr "用法：info <软件包名称> ..."
+
+#: smart/interfaces/text/interactive.py:764
+msgid "The stats command shows some statistics."
+msgstr "stats 命令可显示一些统计信息。"
+
+#: smart/interfaces/text/interactive.py:766
+msgid "Usage: stats"
+msgstr "用法：stats"
+
+#: smart/interfaces/text/interactive.py:780
+msgid ""
+"The check command verifies relations between packages,\n"
+"and accepts the same options available in the command\n"
+"line interface."
+msgstr ""
+"check 命令可验证软件包之间的关系，并接受命令行界面中\n"
+"的相同选项。"
+
+#: smart/interfaces/text/interactive.py:784
+msgid "Usage: check [options] [<pkgname>] ..."
+msgstr "用法：check [选项] [<软件包名称>] ..."
+
+#: smart/interfaces/text/interface.py:63
+#, python-format
+msgid "%s (Y/n): "
+msgstr "%s (Y/n)："
+
+#: smart/interfaces/text/interface.py:63
+#, python-format
+msgid "%s (y/N): "
+msgstr "%s (y/N)："
+
+#: smart/interfaces/text/interface.py:71 smart/util/strtools.py:106
+#: smart/channel.py:229
+msgid "yes"
+msgstr "是"
+
+#: smart/interfaces/text/interface.py:72 smart/util/strtools.py:108
+#: smart/channel.py:232
+msgid "no"
+msgstr "否"
+
+#: smart/interfaces/text/interface.py:78
+#, python-format
+msgid "%s (Continue/cancel): "
+msgstr "%s ([继续]/取消)："
+
+#: smart/interfaces/text/interface.py:80
+#, python-format
+msgid "%s (continue/Cancel): "
+msgstr "%s (继续/[取消])："
+
+#: smart/interfaces/text/interface.py:88
+msgid "continue"
+msgstr "继续"
+
+#: smart/interfaces/text/interface.py:89
+#: smart/interfaces/text/interface.py:103
+msgid "cancel"
+msgstr "取消"
+
+#: smart/interfaces/text/interface.py:94
+#, python-format
+msgid "%s (Ok/cancel): "
+msgstr "%s ([确定]/取消)："
+
+#: smart/interfaces/text/interface.py:94
+#, python-format
+msgid "%s (ok/Cancel): "
+msgstr "%s (确定/[取消])："
+
+#: smart/interfaces/text/interface.py:102
+msgid "ok"
+msgstr "确定"
+
+#: smart/interfaces/text/interface.py:133
+msgid "Insert one or more of the following removable channels:"
+msgstr "请插入下列可移动频道中的一个或多个："
+
+#: smart/interfaces/text/interface.py:161
+msgid "(installed)"
+msgstr "(已安装)"
+
+#: smart/interfaces/text/interface.py:163
+msgid "(upgraded)"
+msgstr "(已升级)"
+
+#: smart/interfaces/text/interface.py:165
+msgid "(removed)"
+msgstr "(已删除)"
+
+#: smart/interfaces/text/interface.py:167
+msgid "(downgraded)"
+msgstr "(已降级)"
+
+#: smart/interfaces/text/interface.py:180
+msgid "Downgrades:"
+msgstr "降级："
+
+#: smart/interfaces/text/interface.py:198
+#, python-format
+msgid "Kept packages (%d):"
+msgstr "保留软件包(%d个)："
+
+#: smart/interfaces/text/interface.py:203
+#, python-format
+msgid "Upgrading packages (%d):"
+msgstr "升级软件包(%d个)："
+
+#: smart/interfaces/text/interface.py:208
+#, python-format
+msgid "Downgrading packages (%d):"
+msgstr "降级软件包(%d个)："
+
+#: smart/interfaces/text/interface.py:213
+#, python-format
+msgid "Installing packages (%d):"
+msgstr "安装软件包(%d个)："
+
+#: smart/interfaces/text/interface.py:218
+#, python-format
+msgid "Removing packages (%d):"
+msgstr "删除软件包(%d个)："
+
+#: smart/interfaces/text/interface.py:235
+msgid "Confirm changes?"
+msgstr "确认更改吗？"
+
+#: smart/plugins/aptchannelsync.py:85 smart/plugins/channelsync.py:52
+#: smart/plugins/channelsync.py:88 smart/plugins/channelsync.py:119
+#: smart/plugins/channelsync.py:145
+#, python-format
+msgid "While using %s: %s"
+msgstr "使用 %s 时：%s"
+
+#: smart/plugins/channelsync.py:83
+#, python-format
+msgid ""
+"New channel '%s' detected.\n"
+"Include it?"
+msgstr ""
+"检测到了新频道“%s”。\n"
+"是否包含此频道？"
+
+#: smart/plugins/channelsync.py:102
+#, python-format
+msgid "Channel in %s has no type."
+msgstr "%s 中的频道没有类型。"
+
+#: smart/plugins/channelsync.py:106
+#, python-format
+msgid ""
+"Change in channel '%s' detected.\n"
+"Old channel:\n"
 "\n"
-"This command cleans the package cache. You can use it to\n"
-"delete old unused files that were left behind because of\n"
-"an incomplete transaction.\n"
+"%s\n"
+"\n"
+"New channel:\n"
+"\n"
+"%s\n"
+"\n"
+"Do you want to replace it?"
+msgstr ""
+"检测到了频道“%s”发生了更改。\n"
+"旧频道：\n"
+"\n"
+"%s\n"
+"\n"
+"新频道：\n"
+"\n"
+"%s\n"
+"\n"
+"您是否想要替换此频道？"
+
+#: smart/plugins/channelsync.py:137
+msgid "Yes"
+msgstr "是"
+
+#: smart/plugins/channelsync.py:137
+msgid "No"
+msgstr "否"
+
+#: smart/plugins/channelsync.py:157
+#, python-format
+msgid ""
+"Change in field '%(label)s' of channel '%(name)s' detected.\n"
+"Old value: %(curvalue)s\n"
+"New value: %(newvalue)s\n"
+"Replace current value?"
+msgstr ""
+"检测到频道“%(name)s”的字段“%(label)s”发生了更改。\n"
+"旧值：%(curvalue)s\n"
+"新值：%(newvalue)s\n"
+"您是否想要替换当前值？"
+
+#: smart/plugins/channelsync.py:194
+#, python-format
+msgid ""
+"Removing channel '%s' was suggested.\n"
+"Do you want to remove it?"
+msgstr ""
+"建议删除频道“%s”。\n"
+"您是否想要删除此频道？"
+
+#: smart/plugins/debdir.py:33
+msgid "Dynamic DEB Directory"
+msgstr "动态 DEB 目录"
+
+#: smart/plugins/rpmdir.py:33
+msgid "Dynamic RPM Directory"
+msgstr "动态 RPM 目录"
+
+#: smart/util/optparse.py:329
+#, python-format
+msgid "usage: %s\n"
+msgstr "用法：%s\n"
+
+#: smart/util/optparse.py:348
+msgid "Usage"
+msgstr "用法"
+
+#: smart/util/optparse.py:354
+msgid "integer"
+msgstr "整数"
+
+#: smart/util/optparse.py:355
+msgid "long integer"
+msgstr "长整数"
+
+#: smart/util/optparse.py:356
+msgid "floating-point"
+msgstr "浮点数"
+
+#: smart/util/optparse.py:357
+msgid "complex"
+msgstr "复数"
+
+#: smart/util/optparse.py:365
+#, python-format
+msgid "option %s: invalid %s value: %r"
+msgstr "选项 %s：无效的 %s 值：%r"
+
+#: smart/util/optparse.py:373
+#, python-format
+msgid "option %s: invalid choice: %r (choose from %s)"
 msgstr ""
 
-#: smart/commands/clean.py:49
-msgid "Removing cached package files..."
-msgstr "正在删除缓存的软件包文件..."
+#: smart/util/optparse.py:1136 smart/option.py:35
+msgid "show this help message and exit"
+msgstr "显示此帮助信息并退出"
 
-#: smart/commands/clean.py:55
+#: smart/util/optparse.py:1141 smart/option.py:37
+msgid "show program's version number and exit"
+msgstr "显示程序的版本号并退出"
+
+#: smart/util/optparse.py:1164
+msgid "%prog [options]"
+msgstr "%prog [选项]"
+
+#: smart/util/optparse.py:1374 smart/util/optparse.py:1413 smart/option.py:172
 #, python-format
-msgid "Removed %s"
-msgstr "删除 %s"
+msgid "%s option requires an argument"
+msgstr "%s 选项需要参数"
 
-#: smart/commands/clean.py:57
+#: smart/util/optparse.py:1376 smart/util/optparse.py:1415 smart/option.py:174
 #, python-format
-msgid "Can't remove cached package %s: %s"
-msgstr "无法删除缓存的软件包 %s：%s"
+msgid "%s option requires %d arguments"
+msgstr "%s 选项需要 %d 个参数"
 
-#: smart/commands/nothing.py:26
-msgid "smart test [options]"
-msgstr "smart test [选项]"
+#: smart/util/optparse.py:1385
+#, python-format
+msgid "%s option does not take a value"
+msgstr "%s 选项不接受值"
+
+#: smart/util/optparse.py:1402 smart/util/optparse.py:1556 smart/option.py:161
+#: smart.py:109
+#, python-format
+msgid "no such option: %s"
+msgstr "无此选项：%s"
+
+#: smart/util/optparse.py:1502 smart/option.py:54
+msgid "options"
+msgstr "选项"
+
+#: smart/util/optparse.py:1559
+#, python-format
+msgid "ambiguous option: %s (%s?)"
+msgstr ""
+
+#: smart/util/ssh.py:53
+msgid "SSH asked for password, but no password is available"
+msgstr "SSH 请求密码，但没有可用的密码"
+
+#: smart/util/strtools.py:66 smart/util/strtools.py:85
+msgid "Stalled"
+msgstr "已暂停"
+
+#: smart/util/strtools.py:106 smart/channel.py:229
+msgid "y"
+msgstr "y"
+
+#: smart/util/strtools.py:106 smart/channel.py:229
+msgid "true"
+msgstr "真"
+
+#: smart/util/strtools.py:108 smart/channel.py:232
+msgid "n"
+msgstr "n"
+
+#: smart/util/strtools.py:108 smart/channel.py:232
+msgid "false"
+msgstr "假"
+
+#: smart/__init__.py:38
+msgid "Unknown error"
+msgstr "未知错误"
+
+#: smart/__init__.py:118
+msgid "Unknown log level"
+msgstr "未知的日志级别"
+
+#: smart/__init__.py:129
+msgid "Can't use commands with shell interfaces"
+msgstr "shell 界面无法使用命令"
+
+#: smart/cache.py:185
+msgid "File not found"
+msgstr "文件未找到"
+
+#: smart/cache.py:191 smart/fetcher.py:365
+#, python-format
+msgid "Unexpected size (expected %d, got %d)"
+msgstr "意外大小(期待 %d，得到 %d)"
+
+#: smart/cache.py:205 smart/fetcher.py:379
+#, python-format
+msgid "Invalid MD5 (expected %s, got %s)"
+msgstr "无效的 MD5(期待 %s，得到 %s)"
+
+#: smart/cache.py:219 smart/fetcher.py:393
+#, python-format
+msgid "Invalid SHA (expected %s, got %s)"
+msgstr "无效的 SHA(期待 %s，得到 %s)"
+
+#: smart/cache.py:631
+msgid "Updating cache..."
+msgstr "正在更新缓存..."
+
+#: smart/channel.py:133
+msgid "Unique identification for the channel."
+msgstr "频道的唯一标识符。"
+
+#: smart/channel.py:135
+msgid "Channel type"
+msgstr "频道类型"
+
+#: smart/channel.py:137
+msgid "Channel name"
+msgstr "频道名称"
+
+#: smart/channel.py:138
+msgid "Manual updates"
+msgstr "手动更新"
+
+#: smart/channel.py:139
+msgid ""
+"If set to a true value, the given channel will only be updated when manually "
+"selected."
+msgstr ""
+
+#: smart/channel.py:141
+msgid "Disabled"
+msgstr "已禁用"
+
+#: smart/channel.py:142
+msgid "If set to a true value, the given channel won't be used."
+msgstr ""
+
+#: smart/channel.py:144
+msgid "Removable"
+msgstr "可移动"
+
+#: smart/channel.py:145
+msgid ""
+"If set to a true value, the given channel will be considered as being "
+"available in a removable media (cdrom, etc)."
+msgstr ""
+
+#: smart/channel.py:151
+msgid ""
+"Default priority assigned to all packages available in this channel (0 if "
+"not set). If the exact same package is available in more than one channel, "
+"the highest priority is used."
+msgstr ""
+
+#: smart/channel.py:168
+#, python-format
+msgid "Unable to create channel of type '%s'"
+msgstr "无法创建类型为“%s”的频道"
+
+#: smart/channel.py:181 smart/channel.py:207
+msgid "Channel has no type"
+msgstr "频道无类型"
+
+#: smart/channel.py:184 smart/channel.py:210
+#, python-format
+msgid "Unknown channel type: %s"
+msgstr "未知的频道类型：%s"
+
+#: smart/channel.py:194 smart/channel.py:222
+#, python-format
+msgid "%s (%s) is a needed field for '%s' channels"
+msgstr ""
+
+#: smart/channel.py:235 smart/channel.py:241 smart/channel.py:244
+#, python-format
+msgid "Invalid value for '%s' (%s) field: %s"
+msgstr ""
+
+#: smart/channel.py:261
+#, python-format
+msgid "Channel '%s' has no type"
+msgstr "频道“%s”没有类型"
+
+#: smart/channel.py:283
+#, python-format
+msgid "Invalid channel type '%s'"
+msgstr "无效的频道类型“%s”"
+
+#: smart/control.py:85 smart/control.py:276
+#, python-format
+msgid "There's another channel with alias '%s'"
+msgstr "已经存在别名为“%s”的频道"
+
+#: smart/control.py:90
+#, python-format
+msgid "Unable to create channel for file: %s"
+msgstr "无法为文件创建频道：%s"
+
+#: smart/control.py:100
+#, python-format
+msgid "Channel not found for '%s'"
+msgstr "“%s”的频道未找到"
+
+#: smart/control.py:133
+#, python-format
+msgid "Configuration file not found: %s"
+msgstr "配置文件未找到：%s"
+
+#: smart/control.py:148
+#, python-format
+msgid "Can't create datadir at %s"
+msgstr ""
+
+#: smart/control.py:168
+msgid "Saving cache..."
+msgstr "正在保存缓存..."
+
+#: smart/control.py:220
+msgid "Loading cache..."
+msgstr "正在装入缓存..."
+
+#: smart/control.py:301
+msgid "Unable to create channel directory."
+msgstr "无法创建频道目录。"
+
+#: smart/control.py:304
+msgid "The Smart library is already in use by another process."
+msgstr ""
+
+#: smart/control.py:306
+msgid "Configuration is in readonly mode!"
+msgstr "配置只读。"
+
+#: smart/control.py:308
+msgid "Channel information is locked for writing."
+msgstr "频道信息已被锁定，无法写入。"
+
+#: smart/control.py:310
+msgid "Can't update channels in readonly mode."
+msgstr "只读模式中无法更新频道。"
+
+#: smart/control.py:312
+msgid "Can't update channels with active readers."
+msgstr "无法更新正在获取的频道。"
+
+#: smart/control.py:348
+#, python-format
+msgid "Fetching information for '%s'..."
+msgstr "正在获取“%s”的信息..."
+
+#: smart/control.py:355 smart/control.py:359
+#, python-format
+msgid "Failed fetching channel '%s'"
+msgstr "获取频道“%s”失败"
+
+#: smart/control.py:413
+#, python-format
+msgid "Package %s is not available for downloading"
+msgstr "软件包 %s 不可下载"
+
+#: smart/control.py:648
+#, python-format
+msgid "No channel available for package %s"
+msgstr "软件包 %s 没有可用的频道"
+
+#: smart/control.py:842
+#, python-format
+msgid "%s is not available for downloading"
+msgstr "%s 不可下载"
+
+#: smart/fetcher.py:168
+#, python-format
+msgid "%s is already in the queue"
+msgstr "%s 已在队列中"
+
+#: smart/fetcher.py:202 smart/fetcher.py:209
+#, python-format
+msgid "Fetching %s..."
+msgstr "正在获取 %s..."
+
+#: smart/fetcher.py:211
+msgid "Fetching information..."
+msgstr "正在获取信息..."
+
+#: smart/fetcher.py:289 smart/fetcher.py:570
+msgid "Cancelled"
+msgstr "已取消"
+
+#: smart/fetcher.py:329
+#, python-format
+msgid "Unsupported scheme: %s"
+msgstr "不支持的大纲：%s"
+
+#: smart/fetcher.py:344
+#, fuzzy
+msgid "File not found for validation"
+msgstr "文件未找到"
+
+#: smart/fetcher.py:595
+#, python-format
+msgid "Invalid URL: %s"
+msgstr "无效的 URL：%s"
+
+#: smart/fetcher.py:874
+msgid "Media not found"
+msgstr "介质未找到"
+
+#: smart/fetcher.py:1002 smart/fetcher.py:1208 smart/fetcher.py:1778
+msgid "Server reports unexpected size"
+msgstr "服务器报告意外大小"
+
+#: smart/interface.py:51
+#, python-format
+msgid "Invalid command '%s'"
+msgstr "无效的命令“%s”"
+
+#: smart/interface.py:92
+msgid "Password"
+msgstr "密码"
+
+#: smart/interface.py:93
+#, python-format
+msgid "A password is needed for '%s'."
+msgstr "“%s”需要密码。"
+
+#: smart/interface.py:163
+#, python-format
+msgid "Interface '%s' not available"
+msgstr "界面“%s”不可用"
+
+#: smart/media.py:183
+msgid "/proc/mounts not found"
+msgstr "/proc/mounts 未找到"
+
+#: smart/option.py:49
+#, python-format
+msgid "Usage: %s\n"
+msgstr "用法：%s\n"
+
+#: smart/option.py:89
+msgid "examples"
+msgstr "示例"
+
+#: smart/searcher.py:172
+msgid "Invalid string"
+msgstr "无效的字符串"
 
 #: smart/sorter.py:442
 msgid "Unbreakable loops found while sorting"
@@ -3900,6 +3520,20 @@ msgstr "排序时找到了死循环"
 #, python-format
 msgid "Internal error: there are still loops (%d != %d)!"
 msgstr "内部错误：仍有循环(%d != %d)！"
+
+#: smart/sysconfig.py:73
+msgid "Configuration is in readonly mode."
+msgstr "配置只读。"
+
+#: smart/sysconfig.py:89 smart/sysconfig.py:96 smart/sysconfig.py:99
+#, python-format
+msgid "Broken configuration file at %s"
+msgstr "%s 的配置文件已损坏"
+
+#: smart/sysconfig.py:90
+#, python-format
+msgid "Trying backup at %s"
+msgstr "试图在 %s 备份"
 
 #: smart/transaction.py:645
 #, python-format
@@ -4022,47 +3656,167 @@ msgstr "无法删除 %s，因其与 %s 冲突"
 msgid "Package '%s' is not in changeset"
 msgstr "软件包“%s”未在更改集中"
 
-#: smart/__init__.py:38
-msgid "Unknown error"
-msgstr "未知错误"
-
-#: smart/__init__.py:118
-msgid "Unknown log level"
-msgstr "未知的日志级别"
-
-#: smart/__init__.py:129
-msgid "Can't use commands with shell interfaces"
-msgstr "shell 界面无法使用命令"
-
-#: smart/cache.py:185
-msgid "File not found"
-msgstr "文件未找到"
-
-#: smart/cache.py:631
-msgid "Updating cache..."
-msgstr "正在更新缓存..."
-
-#: smart/sysconfig.py:73
-msgid "Configuration is in readonly mode."
-msgstr "配置只读。"
-
-#: smart/sysconfig.py:89 smart/sysconfig.py:96 smart/sysconfig.py:99
+#: smart/uncompress.py:44
 #, python-format
-msgid "Broken configuration file at %s"
-msgstr "%s 的配置文件已损坏"
+msgid "Unknown compressed file: %s"
+msgstr "未知的压缩文件：%s"
 
-#: smart/sysconfig.py:90
+#: smart/uncompress.py:55
+msgid "Unsupported file type"
+msgstr "不支持的文件类型"
+
+#: smart.py:37
+msgid "smart command [options] [arguments]"
+msgstr "smart 命令 [选项] [参数]"
+
+#: smart.py:39
+msgid ""
+"\n"
+"Action commands:\n"
+"    update\n"
+"    install\n"
+"    reinstall\n"
+"    upgrade\n"
+"    remove\n"
+"    check\n"
+"    fix\n"
+"    download\n"
+"    clean\n"
+"\n"
+"Query commands:\n"
+"    search\n"
+"    query\n"
+"    info\n"
+"    stats\n"
+"\n"
+"Setup commands:\n"
+"    channel\n"
+"    priority\n"
+"    mirror\n"
+"    flag\n"
+"\n"
+"Run \"smart command --help\" for more information.\n"
+msgstr ""
+"\n"
+"动作命令：\n"
+"    update\n"
+"    install\n"
+"    reinstall\n"
+"    upgrade\n"
+"    remove\n"
+"    check\n"
+"    fix\n"
+"    download\n"
+"    clean\n"
+"\n"
+"查询命令：\n"
+"    search\n"
+"    query\n"
+"    info\n"
+"    stats\n"
+"\n"
+"设置命令：\n"
+"    channel\n"
+"    priority\n"
+"    mirror\n"
+"    flag\n"
+"\n"
+"运行“smart 命令 --help”可获得更多信息。\n"
+
+#: smart.py:66
+msgid ""
+"\n"
+"smart install --help\n"
+"smart install pkgname\n"
+"smart --gui\n"
+"smart --gui install pkgname\n"
+"smart --shell\n"
+msgstr ""
+"\n"
+"smart install --help\n"
+"smart install 软件包名称\n"
+"smart --gui\n"
+"smart --gui install 软件包名称\n"
+"smart --shell\n"
+
+#: smart.py:81
+msgid "FILE"
+msgstr "文件"
+
+#: smart.py:82
+msgid "configuration file (default is <data-dir>/config)"
+msgstr "配置文件(默认为 <data-dir>/config)"
+
+#: smart.py:84
+msgid "DIR"
+msgstr "目录"
+
+#: smart.py:85
 #, python-format
-msgid "Trying backup at %s"
-msgstr "试图在 %s 备份"
+msgid "data directory (default is %s)"
+msgstr "数据目录(默认为 %s)"
 
-#: smart/searcher.py:172
-msgid "Invalid string"
-msgstr "无效的字符串"
+#: smart.py:86
+msgid "LEVEL"
+msgstr "级别"
 
-#: test.py:34
+#: smart.py:87
+msgid "set the log level to LEVEL (debug, info, warning, error)"
+msgstr "将日志级别设定为[级别](debug、info、 warning、error)"
+
+#: smart.py:90
+msgid "use the default graphic interface"
+msgstr "使用默认的图形界面"
+
+#: smart.py:92
+msgid "use the default shell interface"
+msgstr "使用默认的 shell 界面"
+
+#: smart.py:93
+msgid "NAME"
+msgstr "名称"
+
+#: smart.py:94
+msgid "use the given interface"
+msgstr "使用给定的界面"
+
+#: smart.py:96
+msgid "don't respect locking"
+msgstr "不遵守锁定"
+
+#: smart.py:98
+msgid "OPT"
+msgstr "选项"
+
+#: smart.py:99
+msgid "set the option given by a name=value pair"
+msgstr "通过“名称=值”对来设定选项"
+
+#: smart.py:135
+#, python-format
+msgid "Invalid option: %s"
+msgstr "无效选项：%s"
+
+#: smart.py:179
+#, python-format
+msgid "error: %s\n"
+msgstr "错误：%s\n"
+
+#: test.py:37
 msgid "test.py [options] [<test filename>, ...]"
 msgstr "test.py [选项] [<测试文件名>, ...]"
+
+#, fuzzy
+#~ msgid "Update channels information"
+#~ msgstr "提供频道信息"
+
+#, fuzzy
+#~ msgid "Continue"
+#~ msgstr "继续吗？"
+
+#, fuzzy
+#~ msgid "Cancel"
+#~ msgstr "取消"
 
 #~ msgid "Can't remove %s: requiring package %s is locked"
 #~ msgstr "无法删除 %s：所需软件包 %s 已锁定"
