@@ -80,7 +80,7 @@ packages = [
             "smart.backends.rpm",
             "smart.backends.deb",
             "smart.backends.slack",
-            "smart.backends.arch", 
+            "smart.backends.arch",
             "smart.channels",
             "smart.commands",
             "smart.interfaces",
