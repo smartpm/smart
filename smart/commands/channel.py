@@ -142,6 +142,10 @@ def main(ctrl, opts):
         print _("(*) These fields are necessary for this type.")
         print
         sys.exit(0)
+
+    if sysconf.getReadOnly() is True and opts.show is None:
+        iface.warning(_("Can't edit channels information."))
+        raise Error, _("Configuration is in readonly mode.")
     
     if opts.add is not None:
         if not opts.add and opts.args == ["-"]:
