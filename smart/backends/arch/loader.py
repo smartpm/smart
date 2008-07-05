@@ -55,37 +55,48 @@ class ArchPackageInfo(PackageInfo):
         return self._info.get("filelist", [])
 
 def parseDBPackageInfo(filename):
-    #tar = tarfile.open(filename)
     infolst = []
     info = None
     desctag = None
     desctaglen = None
     filelist = False
-    file = open(filename)
+    #file = open(filename)
+    tar = tarfile.open(filename)
+    file = tar.extractfile('.PKGINFO')
     for line in file:
-        if line.startswith("PACKAGE NAME:"):
-            name = line[13:].strip()
-            m = namere.match(name)
-            if not m:
-                iface.warning(_("Invalid package name: %s") % name)
-                continue
+        if line.startswith("pkgname"):
+            name = line[9:].strip()
+            #m = namere.match(name)
+            #if not m:
+            #    iface.warning(_("Invalid package name: %s") % name)
+            #    continue
             if info:
                 infolst.append(info)
             info = {}
-            info["name"], info["version"] = m.groups()
+            info["name"] = name #, info["version"] = m.groups()
             desctag = None
             filelist = False
         elif info:
-            if line.startswith("PACKAGE LOCATION:"):
-                location = line[17:].strip()
-                if location.startswith("./"):
-                    location = location[2:]
-                info["location"] = location
-            elif line.startswith("PACKAGE DESCRIPTION:"):
-                desctag = "%s:" % info["name"]
-                desctaglen = len(desctag)
-            elif line.startswith("FILE LIST:"):
-                filelist = True
+            if line.startswith("pkgver"):
+                info["version"] = line[8:].strip()
+            elif line.startswith("pkgdesc"):
+                info["description"] = line[9:].strip()
+            elif line.startswith("url"):
+                info["url"] = line[6:].strip()
+            elif line.startswith("builddate"):
+                info["builddate"] = line[12:].strip()
+            elif line.startswith("packager"):
+                info["packager"]  = line[11:].strip()
+            elif line.startswith("size"):
+                info["size"] = line[7:].strip()
+            elif line.startswith("arch"):
+                info["arch"] = line[7:].strip()
+            elif line.startswith("license"):
+                info["license"] = line[10:].strip()
+            elif line.startswith("group"):
+                info["group"] = line[8:].strip()
+            elif line.startswith("depend"):
+                info["depend"] = line[9:].strip()
             elif filelist:
                 line = line.rstrip()
                 if line != "./":
@@ -94,16 +105,7 @@ def parseDBPackageInfo(filename):
                         info["filelist"].append(line)
                     else:
                         info["filelist"] = [line]
-            elif desctag and line.startswith(desctag):
-                line = line[desctaglen:].strip()
-                if "summary" not in info:
-                    info["summary"] = line
-                elif "description" not in info:
-                    if line:
-                        info["description"] = line
-                else:
-                    info["description"] += "\n"
-                    info["description"] += line
+            ################################
     if info:
         infolst.append(info)
     file.close()
@@ -114,7 +116,6 @@ def parseSitePackageInfo(desclist, dependlist):
     tar = tarfile.open
     file_list = tar.getnames()
     file_list_its = file_list / 3 # pkg dir > (desc, depends) --- 3 'files/names' per pkg
-    
     i, file_dict = 0, {}
     # parse through desc file
     while i < len(desclist):
@@ -141,7 +142,8 @@ def parseSitePackageInfo(desclist, dependlist):
             file_dict[ftitle] = finfo
         else:
             raise "iteration error at iteration %d in dependlist" % i
-
+    return file_dict
+    
 class ArchLoader(Loader):
 
     def __init__(self):
@@ -186,7 +188,7 @@ class ArchDBLoader(ArchLoader):
         if dir is None:
             dir = os.path.join(sysconf.get("Arch-root", "/"),
                                sysconf.get("Arch-packages-dir",
-                                           "/var/log/packages"))
+                                           "/var/cache/pacman/pkg"))
         self._dir = dir
         self.setInstalled(True)
     

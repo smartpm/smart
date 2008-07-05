@@ -28,7 +28,7 @@ from smart.const import SUCCEEDED, FAILED, NEVER
 from smart import *
 import posixpath,  urllib2,  re
 
-siteDBRE = re.compile("^(.+)(\.db\.tar\.gz)+?$")
+siteDBRE = re.compile("^(.+) (.+\.db\.tar\.gz)?$")
 
 class ArchSiteChannel(PackageChannel):
 
@@ -49,25 +49,21 @@ class ArchSiteChannel(PackageChannel):
         except URLError,  e:
             raise "URLERROR in smart/smart/channels/arch_site.py ==> %s" % e.reason
         else:
-            ''' Perhaps a better way?..... 06/12/08 - 3am
-                siteDBRE = re.compile("^(.+) (.+\.db\.tar\.gz)?$")
-                m = siteDBRE.match(html.rstrip()).groups()[-1]
-            '''
             html = response.readline(); m = ''; i=0
             while not m:
-                m = siteDBRE.match(html.split(' ')[-1].rstrip())
+                m = siteDBRE.match(html.rstrip()).groups()[-1]
                 html = response.readline()
                 i+=1;
-                if i > 2000: 
+                if i > 2000:
+                    raise "ERROR: *.db.tar.gz not found!"
                     break # infinite loops are nasty...
-            dbfile = m.group()
+            dbfile = m
             return dbfile
 
     def getFetchSteps(self):
         return 1
 
     def fetch(self, fetcher, progress):
-
         fetcher.reset()
         dbfile = getDBFile()
         # Fetch packages file
