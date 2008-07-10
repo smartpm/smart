@@ -193,7 +193,7 @@ def main(ctrl, opts):
             for arg in opts.add:
                 if "=" not in arg:
                     raise Error, _("Argument '%s' has no '='") % arg
-                key, value = arg.split("=")
+                key, value = arg.split("=", 1)
                 channel[key.strip()] = value.strip()
             channel = parseChannelData(channel)
             channel["alias"] = alias
