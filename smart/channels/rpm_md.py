@@ -45,19 +45,32 @@ OPENCHECKSUM = NS+"open-checksum"
 
 class RPMMetaDataChannel(PackageChannel):
 
-    def __init__(self, baseurl, *args):
+    def __init__(self, baseurl, mirrorlist = None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
+        self._mirrorlist = mirrorlist
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 3
+        return 4
 
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
+        mirrors = self._mirrorlist
+        item = fetcher.enqueue(mirrors)
+        fetcher.run(progress=progress)
+
+        if item.getStatus() is FAILED:
+            progress.add(self.getFetchSteps()-1)
+            if fetcher.getCaching() is NEVER:
+                lines = [_("Failed acquiring release file for '%s':") % self,
+                         u"%s: %s" % (item.getURL(), item.getFailedReason())]
+                raise Error, "\n".join(lines)
+            return False
+
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
         item = fetcher.enqueue(repomd)
         fetcher.run(progress=progress)
@@ -150,6 +163,7 @@ class RPMMetaDataChannel(PackageChannel):
 
 def create(alias, data):
     return RPMMetaDataChannel(data["baseurl"],
+                              data["mirrorlist"],
                               data["type"],
                               alias,
                               data["name"],
