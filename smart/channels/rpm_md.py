@@ -56,20 +56,34 @@ class RPMMetaDataChannel(PackageChannel):
     def getFetchSteps(self):
         return 4
 
+    def loadMirrors(self, mirrorfile):
+        try:
+            for line in open(mirrorfile):
+                if line[0] != "#":
+                    mirror = line.strip()
+                    if mirror:
+                        sysconf.add(("mirrors", self._baseurl), mirror, unique=True)
+        except:
+            iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            pass
+
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
-        mirrors = self._mirrorlist
-        item = fetcher.enqueue(mirrors)
-        fetcher.run(progress=progress)
 
-        if item.getStatus() is FAILED:
-            progress.add(self.getFetchSteps()-1)
-            if fetcher.getCaching() is NEVER:
-                lines = [_("Failed acquiring release file for '%s':") % self,
-                         u"%s: %s" % (item.getURL(), item.getFailedReason())]
-                raise Error, "\n".join(lines)
-            return False
+        if self._mirrorlist:
+            mirrors = self._mirrorlist
+            item = fetcher.enqueue(mirrors)
+            fetcher.run(progress=progress)
+
+            if item.getStatus() is FAILED:
+                progress.add(self.getFetchSteps()-1)
+                if fetcher.getCaching() is NEVER:
+                    iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            else:
+                self.loadMirrors(item.getTargetPath())
+
+            fetcher.reset()
 
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
         item = fetcher.enqueue(repomd)
