@@ -4,7 +4,8 @@ Create the channel.
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "rpm-md",
-  ...                          "baseurl": "file://%s/rpm" % TESTDATADIR})
+  ...                          "baseurl": "file://%s/rpm" % TESTDATADIR,
+  ...                          "mirrorlist": "file://%s/rpm/mirrorlist.txt" % TESTDATADIR})
   >>> channel
   <smart.channels.rpm_md.RPMMetaDataChannel object at ...>
 
@@ -101,5 +102,9 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getSize(url)
   2160
 
+Now let's test for the mirror information.
+
+  >>> sysconf.get("mirrors", channel._baseurl)
+  {...: ['http://url1.tld/path', 'ftp://url2.tld/path']}
 
 vim:ft=doctest
