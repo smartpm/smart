@@ -20,4 +20,4 @@ Testing
 
 - For every change, try to create a new test.
 - Run all tests: 'make test'.
-- Run specific test: 'TEST=test.txt make test'
+- Run specific test: 'TEST=tests/test.txt make test'
