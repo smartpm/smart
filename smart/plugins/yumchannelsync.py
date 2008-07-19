@@ -107,15 +107,17 @@ def _loadRepoFile(filename):
                repofile.get(repo, 'name'))
         name = re.sub("\$releasever", "%s" % RELEASEVER,
                name)
+        baseurl = None
+        mirrorlist = None
 
         # Some repos have baseurl, some have mirrorlist
         if repofile.has_option(repo, 'baseurl'):
             baseurl = _replaceStrings(repofile.get(repo, 'baseurl'))
             if baseurl.find("\n") >= 0: baseurl = baseurl.splitlines()[1]
-        elif repofile.has_option(repo, 'mirrorlist'):
+        if repofile.has_option(repo, 'mirrorlist'):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
             baseurl = _findBaseUrl(mirrorlist, repo)
-        else:
+        if baseurl is None and mirrorlist is None:
             iface.warning(_("Yum channel %s does not contain baseurl or " \
                             "mirrorlist addresses. Not syncing.") % repo)
             return seen
@@ -129,6 +131,8 @@ def _loadRepoFile(filename):
                 "name": name,
                 "baseurl": baseurl,
                 "disabled": enabled}
+        if mirrorlist:
+            data["mirrorlist"] = mirrorlist
         seen.add(alias)
  
         try:
