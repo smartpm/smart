@@ -104,7 +104,7 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
 
 Now let's test for the mirror information.
 
-  >>> sysconf.get("mirrors", channel._baseurl)
+  >>> channel.getMirrors()
   {...: ['http://url1.tld/path', 'ftp://url2.tld/path']}
 
 vim:ft=doctest
