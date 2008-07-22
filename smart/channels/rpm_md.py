@@ -56,20 +56,24 @@ class RPMMetaDataChannel(PackageChannel):
     def getFetchSteps(self):
         return 4
 
-    def loadMirrors(self, mirrorfile):
+    def loadMirrors(self, mirrorlistfile):
         self._mirrors.clear()
+
         try:
-            for line in open(mirrorfile):
-                if line[0] != "#":
-                    mirror = line.strip()
-                    if mirror:
-                        if self._baseurl in self._mirrors:
-                            if mirror not in self._mirrors[self._baseurl]:
-                                self._mirrors[self._baseurl].append(mirror)
-                        else:
-                            self._mirrors[self._baseurl] = [mirror]
-        except:
+            file = open(mirrorlistfile, 'r')
+        except IOError, e:
             iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            iface.debug(e)
+
+        for line in file:
+            if line[0] != "#":
+                mirror = line.strip()
+                if mirror:
+                    if self._baseurl in self._mirrors:
+                        if mirror not in self._mirrors[self._baseurl]:
+                            self._mirrors[self._baseurl].append(mirror)
+                    else:
+                        self._mirrors[self._baseurl] = [mirror]
 
     def fetch(self, fetcher, progress):
         
