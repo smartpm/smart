@@ -45,7 +45,7 @@ OPENCHECKSUM = NS+"open-checksum"
 
 class RPMMetaDataChannel(PackageChannel):
 
-    def __init__(self, baseurl, mirrorlist = None, *args):
+    def __init__(self, baseurl, mirrorlist=None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
         self._mirrorlist = mirrorlist
@@ -57,23 +57,27 @@ class RPMMetaDataChannel(PackageChannel):
         return 4
 
     def loadMirrors(self, mirrorfile):
+        self._mirrors.clear()
         try:
             for line in open(mirrorfile):
                 if line[0] != "#":
                     mirror = line.strip()
                     if mirror:
-                        sysconf.add(("mirrors", self._baseurl), mirror, unique=True)
+                        if self._baseurl in self._mirrors:
+                            if mirror not in self._mirrors[self._baseurl]:
+                                self._mirrors[self._baseurl].append(mirror)
+                        else:
+                            self._mirrors[self._baseurl] = [mirror]
         except:
             iface.warning(_("Could not load mirror list. Continuing with base URL only."))
-            pass
 
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
 
         if self._mirrorlist:
-            mirrors = self._mirrorlist
-            item = fetcher.enqueue(mirrors)
+            mirrorlist = self._mirrorlist
+            item = fetcher.enqueue(mirrorlist)
             fetcher.run(progress=progress)
 
             if item.getStatus() is FAILED:

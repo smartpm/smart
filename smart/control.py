@@ -189,13 +189,12 @@ class Control(object):
     def reloadMirrors(self):
         mirrors = sysconf.get("mirrors", {})
         for channel in self._channels.values():
-            if isinstance(channel, MirrorsChannel):
-                cmirrors = channel.getMirrors()
-                if cmirrors:
-                    for origin in cmirrors:
-                        set = dict.fromkeys(cmirrors[origin])
-                        set.update(dict.fromkeys(mirrors.get(origin, [])))
-                        mirrors[origin] = set.keys()
+            cmirrors = channel.getMirrors()
+            if cmirrors:
+                for origin in cmirrors:
+                    set = dict.fromkeys(cmirrors[origin])
+                    set.update(dict.fromkeys(mirrors.get(origin, [])))
+                    mirrors[origin] = set.keys()
         msys = self._fetcher.getMirrorSystem()
         msys.setMirrors(mirrors)
         if not msys.getHistory():
