@@ -178,39 +178,8 @@ class URPMIChannel(PackageChannel):
             flagdict = {}
             if descitem and descitem.getStatus() == SUCCEEDED:
                 descpath = descitem.getTargetPath()
-                try:
-                    packages = []
-                    update = importance = None
-                    pre = description = ""
-                    for line in open(descpath):
-                        if line.startswith("%package "):
-                            if packages:
-                                # TODO save pre/description for packages
-                                pass
-                            packages = line[(9):].rstrip("\n").split(" ")
-                            in_pre = in_description = False
-                            update = importance = None
-                            pre = description = ""
-                        if line.startswith("Update: "):
-                            update = line[8:].rstrip("\n")
-                        if line.startswith("Importance: "):
-                            importance = line[12:].rstrip("\n")
-                            for pkg in packages:
-                                #iface.debug("%s: %s" % (pkg, importance))
-                                flagdict[pkg] = importance
-                        if in_description:
-                            description = description + line
-                        if line.startswith("%description"):
-                            in_description = True
-                            in_pre = False
-                        if in_pre:
-                            pre = pre + line
-                        if line.startswith("%pre"):
-                            in_pre = True
-                            in_description = False
-                except (IOError):
-                    pass
-
+                flagdict = self.getDescriptionFlags(descpath)
+            
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
                 loader = URPMILoader(localpath, self._baseurl, listpath, flagdict)
             else:
@@ -222,6 +191,44 @@ class URPMIChannel(PackageChannel):
         self._digest = digest
 
         return True
+
+    def getDescriptionFlags(self, descpath):
+
+        flagdict = {}
+        try:
+            packages = []
+            update = importance = None
+            pre = description = ""
+            for line in open(descpath):
+                if line.startswith("%package "):
+                    if packages:
+                        # TODO save pre/description for packages
+                        pass
+                    packages = line[(9):].rstrip("\n").split(" ")
+                    in_pre = in_description = False
+                    update = importance = None
+                    pre = description = ""
+                if line.startswith("Update: "):
+                    update = line[8:].rstrip("\n")
+                if line.startswith("Importance: "):
+                    importance = line[12:].rstrip("\n")
+                    for pkg in packages:
+                        #iface.debug("%s: %s" % (pkg, importance))
+                        flagdict[pkg] = importance
+                if in_description:
+                    description = description + line
+                if line.startswith("%description"):
+                    in_description = True
+                    in_pre = False
+                if in_pre:
+                    pre = pre + line
+                if line.startswith("%pre"):
+                    in_pre = True
+                    in_description = False
+        except (IOError):
+            pass
+
+        return flagdict
 
 def create(alias, data):
     return URPMIChannel(data["baseurl"],
