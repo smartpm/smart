@@ -84,8 +84,6 @@ class RPMMetaDataChannel(PackageChannel):
             raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
                           (item.getTargetPath(), repomd, str(e))
 
-        use_updateinfo = True
-
         for node in root.getchildren():
             if node.tag != DATA:
                 continue
@@ -147,7 +145,7 @@ class RPMMetaDataChannel(PackageChannel):
         else:
             return False
 
-        if use_updateinfo and "updateinfo" in info:
+        if "updateinfo" in info:
             fetcher.reset()
             item = fetcher.enqueue(info["updateinfo"]["url"],
                                    md5=info["updateinfo"].get("md5"),
