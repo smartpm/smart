@@ -54,7 +54,7 @@ class RPMMetaDataChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 4
+        return 3
 
     def fetch(self, fetcher, progress):
         
@@ -116,6 +116,13 @@ class RPMMetaDataChannel(PackageChannel):
                                  sha=info["filelists"].get("sha"),
                                  uncomp_sha=info["filelists"].get("uncomp_sha"),
                                  uncomp=True)
+        if "updateinfo" in info:
+            uiitem = fetcher.enqueue(info["updateinfo"]["url"],
+                                   md5=info["updateinfo"].get("md5"),
+                                   uncomp_md5=info["updateinfo"].get("uncomp_md5"),
+                                   sha=info["updateinfo"].get("sha"),
+                                   uncomp_sha=info["updateinfo"].get("uncomp_sha"),
+                                   uncomp=True)
         fetcher.run(progress=progress)
  
         if item.getStatus() == SUCCEEDED and flitem.getStatus() == SUCCEEDED:
@@ -125,6 +132,16 @@ class RPMMetaDataChannel(PackageChannel):
                                        self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
+            if "updateinfo" in info:
+                if uiitem.getStatus() == SUCCEEDED:
+                    localpath = uiitem.getTargetPath()
+                    loader = RPMUpdateInfoLoader(localpath, self._baseurl)
+                    loader.setChannel(self)
+                    self._loaders.append(loader)
+                else:
+                    iface.warning(_("Failed to download. You must fetch channel "
+                        "information to acquire needed update information.\n"
+                        "%s: %s") % (uiitem.getURL(), uiitem.getFailedReason()))
         elif (item.getStatus() == SUCCEEDED and
               flitem.getStatus() == FAILED and
               fetcher.getCaching() is ALWAYS):
@@ -144,27 +161,6 @@ class RPMMetaDataChannel(PackageChannel):
             raise Error, "\n".join(lines)
         else:
             return False
-
-        if "updateinfo" in info:
-            fetcher.reset()
-            item = fetcher.enqueue(info["updateinfo"]["url"],
-                                   md5=info["updateinfo"].get("md5"),
-                                   uncomp_md5=info["updateinfo"].get("uncomp_md5"),
-                                   sha=info["updateinfo"].get("sha"),
-                                   uncomp_sha=info["updateinfo"].get("uncomp_sha"),
-                                   uncomp=True)
-            fetcher.run(progress=progress)
-            if item.getStatus() == SUCCEEDED:
-                localpath = item.getTargetPath()
-                loader = RPMUpdateInfoLoader(localpath, self._baseurl)
-                loader.setChannel(self)
-                self._loaders.append(loader)
-            else:
-                iface.warning(_("Failed to download. You must fetch channel "
-                    "information to acquire needed update information.\n"
-                    "%s: %s") % (item.getURL(), item.getFailedReason()))
-        else:
-            progress.add(1)
 
         self._digest = digest
 
