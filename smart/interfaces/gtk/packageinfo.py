@@ -128,6 +128,25 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label(_("Content"))
         self._notebook.append_page(sw, label)
 
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.set_border_width(5)
+        sw.show()
+
+        self._change = gtk.TextView()
+        self._change.set_editable(False)
+        self._change.set_cursor_visible(False)
+        self._change.set_left_margin(5)
+        self._change.set_right_margin(5)
+        self._change.show()
+        buffer = self._change.get_buffer()
+        buffer.create_tag("changetime", font_desc=boldfont)
+        buffer.create_tag("changelog", font_desc=font)
+        sw.add(self._change)
+
+        label = gtk.Label(_("Changelog"))
+        self._notebook.append_page(sw, label)
 
         self._relations = GtkPackageView()
         self._relations.set_border_width(5)
@@ -273,6 +292,30 @@ class GtkPackageInfo(gtk.Alignment):
                 contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
 
         elif num == 3:
+            # Update changelog
+
+            contbuf = self._change.get_buffer()
+            contbuf.set_text("")
+            if not pkg: return
+
+            iter = contbuf.get_end_iter()
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    break
+            else:
+                loader = pkg.loaders.keys()[0]
+            info = loader.getInfo(pkg)
+            changelog = info.getChangeLog()
+
+            for i in range(len(changelog)/2):
+                contbuf.insert_with_tags_by_name(iter, changelog[2*i]+"\n", "changetime")
+                changesplit = changelog[2*i+1].split("\n")
+                changedetails = changesplit[0] + "\n"
+                for i in range(1, len(changesplit)):
+                    changedetails += "  " + changesplit[i] + "\n"
+                contbuf.insert_with_tags_by_name(iter, changedetails, "changelog")
+
+        elif num == 4:
 
             # Update relations
 
@@ -282,7 +325,7 @@ class GtkPackageInfo(gtk.Alignment):
 
             self._setRelations(pkg)
 
-        elif num == 4:
+        elif num == 5:
 
             # Update URLs
 

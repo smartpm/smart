@@ -46,6 +46,8 @@ def parse_options(argv):
                       help=_("show URLs"))
     parser.add_option("--paths", action="store_true",
                       help=_("show path list"))
+    parser.add_option("--changelog", action="store_true",
+                      help=_("show change log"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
@@ -156,5 +158,22 @@ def main(ctrl, opts, reloadchannels=True):
             for entry in paths:
                 print "", entry
         print
+
+        if opts.changelog:
+            print "     ", _("Changelog:")
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    break
+            else:
+                loader = pkg.loaders.keys()[0]
+            info = loader.getInfo(pkg)
+            changelog = info.getChangeLog()
+            for i in range(len(changelog)/2):
+                print "       ", "%s" % changelog[2*i]
+                changesplit = changelog[2*i+1].split("\n")
+                print "       ", "%s" % changesplit[0]
+                for i in range(1, len(changesplit)):
+                    print "         ", "%s" % changesplit[i]
+            print 
 
 # vim:ts=4:sw=4:et

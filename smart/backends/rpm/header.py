@@ -30,6 +30,8 @@ from smart import *
 import locale
 import stat
 import os
+from datetime import datetime
+import time
 
 try:
     import rpmhelper
@@ -64,6 +66,7 @@ class RPMHeaderPackageInfo(PackageInfo):
         PackageInfo.__init__(self, package, order)
         self._loader = loader
         self._path = None
+        self._change = None
 
     def getReferenceURLs(self):
         url = self._h[rpm.RPMTAG_URL]
@@ -117,6 +120,23 @@ class RPMHeaderPackageInfo(PackageInfo):
         else:
             s = ""
         return s
+
+    def getChangeLog(self):
+        if self._change is None:
+            logname = self._h[rpm.RPMTAG_CHANGELOGNAME]
+            logtime = self._h[rpm.RPMTAG_CHANGELOGTIME]
+            change = self._h[rpm.RPMTAG_CHANGELOGTEXT]
+            if type(logname) != list:
+                logname = [logname]
+            if type(logtime) != list:
+                logtime = [logtime]              
+            if type(change) != list:
+                change = [change]
+            self._change = {}
+            for i in range(len(change)):
+                self._change[2*i] = datetime.fromtimestamp(logtime[i]).strftime("%Y-%m-%d")+"  "+ logname[i]
+                self._change[2*i+1] = "  " + change[i]
+        return self._change
 
     def getPathList(self):
         if self._path is None:

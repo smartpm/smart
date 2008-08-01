@@ -149,6 +149,9 @@ class PackageInfo(object):
     def getPathList(self):
         return []
 
+    def getChangeLog(self):
+        return []
+
     def pathIsDir(self, path):
         return None
 
