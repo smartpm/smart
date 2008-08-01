@@ -2374,6 +2374,10 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
+#: smart/interfaces/gtk/packageinfo.py:167
+msgid "Reference"
+msgstr ""
+
 #: smart/interfaces/gtk/packageinfo.py:217
 msgid "Installed"
 msgstr ""

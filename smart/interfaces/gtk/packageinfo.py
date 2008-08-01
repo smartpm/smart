@@ -23,8 +23,12 @@ from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk, pango
+import subprocess
 
 class GtkPackageInfo(gtk.Alignment):
+    hovering_over_link = False
+    hand_cursor = gtk.gdk.Cursor(gtk.gdk.HAND2)
+    regular_cursor = gtk.gdk.Cursor(gtk.gdk.XTERM)
 
     def __init__(self):
         gtk.Alignment.__init__(self, 0.5, 0.5, 1.0, 1.0)
@@ -163,8 +167,107 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label(_("URLs"))
         self._notebook.append_page(sw, label)
 
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.set_border_width(5)
+        sw.show()
+
+        self._reftv = gtk.TextView()
+        self._reftv.set_editable(False)
+        self._reftv.set_cursor_visible(False)
+        self._reftv.set_left_margin(5)
+        self._reftv.set_right_margin(5)
+        self._reftv.connect("motion-notify-event", self.motion_notify_event)
+        self._reftv.connect("event-after", self.event_after)
+        self._reftv.show()
+        buffer = self._reftv.get_buffer()
+        buffer.create_tag("reference", font_desc=font)
+        sw.add(self._reftv)
+
+        label = gtk.Label(_("Reference"))
+        self._notebook.append_page(sw, label)
 
         self._notebook.connect("switch_page", self._switchPage)
+
+    '''
+    this motion_notify_event/event_after code was adopted from hypertext demo
+    '''
+
+    # Update the cursor image if the pointer moved.
+    def motion_notify_event(self, text_view, event):
+        x, y = text_view.window_to_buffer_coords(gtk.TEXT_WINDOW_WIDGET,
+            int(event.x), int(event.y))
+        self.set_cursor_if_appropriate(text_view, x, y)
+        text_view.window.get_pointer()
+        return False
+
+    # Looks at all tags covering the position (x, y) in the text view,
+    # and if one of them is a link, change the cursor to the "hands" cursor
+    # typically used by web browsers.
+    def set_cursor_if_appropriate(self, text_view, x, y):
+        hovering = False
+
+        buffer = text_view.get_buffer()
+        iter = text_view.get_iter_at_location(x, y)
+
+        tags = iter.get_tags()
+        for tag in tags:
+            url = tag.get_data("url")
+            if url:
+                hovering = True
+                break
+
+        if hovering != self.hovering_over_link:
+            self.hovering_over_link = hovering
+
+        if self.hovering_over_link:
+            text_view.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(self.hand_cursor)
+        else:
+            text_view.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(self.regular_cursor)
+
+    def event_after(self, text_view, event):
+        if event.type != gtk.gdk.BUTTON_RELEASE:
+            return False
+        if event.button != 1:
+            return False
+        buffer = text_view.get_buffer()
+
+        # we shouldn't follow a link if the user has selected something
+        try:
+            start, end = buffer.get_selection_bounds()
+        except ValueError:
+            # If there is nothing selected, None is return
+            pass
+        else:
+            if start.get_offset() != end.get_offset():
+                return False
+
+        x, y = text_view.window_to_buffer_coords(gtk.TEXT_WINDOW_WIDGET,
+            int(event.x), int(event.y))
+        iter = text_view.get_iter_at_location(x, y)
+
+        self.follow_if_link(text_view, iter)
+        return False
+
+    def follow_if_link(self, text_view, iter):
+        ''' Looks at all tags covering the position of iter in the text view,
+            and if one of them is a link, follow it by opening the url.
+        '''
+        tags = iter.get_tags()
+        for tag in tags:
+            url = tag.get_data("url")
+            if url:
+                self.open_url(url)
+                break
+
+    def open_url(self, url):
+        ''' Open the specified URL in a browser (try a few alternatives) '''
+        for browser in ['gnome-open', 'x-www-browser', 'firefox']:
+            command = [browser, url]
+            retcode = subprocess.call(command)
+            if retcode == 0:
+                break
 
     def _switchPage(self, notebook, page, pagenum):
         self.setPackage(self._pkg, _pagenum=pagenum)
@@ -307,6 +410,28 @@ class GtkPackageInfo(gtk.Alignment):
                 if item != lastitem:
                     lastitem = item
                     model.append(item)
+
+        elif num == 5:
+
+            # Update reference
+
+            refbuf = self._reftv.get_buffer()
+            refbuf.set_text("")
+            if not pkg: return
+
+            iter = refbuf.get_end_iter()
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    break
+            else:
+                loader = pkg.loaders.keys()[0]
+            info = loader.getInfo(pkg)
+            urls = info.getReferenceURLs()
+            for url in urls:
+                tag = refbuf.create_tag(None,
+                    foreground="blue", underline=pango.UNDERLINE_SINGLE)
+                tag.set_data("url", url)
+                refbuf.insert_with_tags(iter, url+"\n", tag)
 
     def _setRelations(self, pkg):
 
