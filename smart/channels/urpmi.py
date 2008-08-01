@@ -91,10 +91,9 @@ class URPMIChannel(PackageChannel):
             listurl = posixpath.join(hdlbaseurl, "list%s" % suffix)
             listitem = fetcher.enqueue(listurl, uncomp=True)
 
-        fetcher.run(progress=progress)
-
         descurl = posixpath.join(hdlbaseurl, "descriptions")
         descitem = fetcher.enqueue(descurl)
+
         fetcher.run(progress=progress)
 
         if hdlitem.getStatus() == FAILED:
