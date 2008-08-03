@@ -78,6 +78,10 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   ['file:///.../data/slack/./name1-version1-noarch-release1.tgz']
   >>> url = info.getURLs()[0]
 
+  >>> info.getMD5(url)
+  '6cca7b11acf8f3919f9d3afcf362fb0f'
+  >>> info.getSize(url)
+
   >>> info.getReferenceURLs()
   []
 

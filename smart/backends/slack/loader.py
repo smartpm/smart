@@ -62,15 +62,27 @@ class SlackPackageInfo(PackageInfo):
                    "%s-%s%s" % (pkg.name, version, type))]
         return []
 
+    def getMD5(self, url):
+        return self._info.get("md5", None)
+
     def getPathList(self):
         return self._info.get("filelist", [])
 
-def parsePackageInfo(filename):
+def parsePackageInfo(filename, checksum = None):
+    md5sums = {}
     infolst = []
     info = None
     desctag = None
     desctaglen = None
     filelist = False
+    if checksum:
+        file = open(checksum)
+        for line in file:
+            if line.find(" ") == -1:
+                continue
+            (md5, path) = line.split()
+            md5sums[path] = md5
+        file.close()
     file = open(filename)
     for line in file:
         if line.startswith("PACKAGE NAME:"):
@@ -93,6 +105,9 @@ def parsePackageInfo(filename):
                 location = line[17:].strip()
                 if location.startswith("./"):
                     location = location[2:]
+                path = "%s/%s" % (location, name)
+                if path in md5sums:
+                     info["md5"] = md5sums[path]
                 if location.endswith(".tbz"):
                     info["type"] = ".tbz"
                 if location.endswith(".tlz"):
@@ -138,6 +153,7 @@ class SlackLoader(Loader):
 
     def __init__(self):
         Loader.__init__(self)
+        self._md5sums = {}
         self._baseurl = None
 
     def getInfoList(self):
@@ -217,13 +233,14 @@ class SlackDBLoader(SlackLoader):
 
 class SlackSiteLoader(SlackLoader):
 
-    def __init__(self, filename, baseurl):
+    def __init__(self, filename, checksum, baseurl):
         SlackLoader.__init__(self)
         self._filename = filename
+        self._checksum = checksum
         self._baseurl = baseurl
     
     def getInfoList(self):
-        return parsePackageInfo(self._filename)
+        return parsePackageInfo(self._filename, self._checksum)
 
     def getLoadSteps(self):
         file = open(self._filename)

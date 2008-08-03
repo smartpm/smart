@@ -36,7 +36,7 @@ class SlackSiteChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "PACKAGES.TXT")]
 
     def getFetchSteps(self):
-        return 1
+        return 2
 
     def fetch(self, fetcher, progress):
 
@@ -51,8 +51,18 @@ class SlackSiteChannel(PackageChannel):
             digest = getFileDigest(localpath)
             if digest == self._digest:
                 return True
+            fetcher.reset()
+            url = posixpath.join(self._baseurl, "CHECKSUMS.md5")
+            item = fetcher.enqueue(url)
+            gpgurl = posixpath.join(self._baseurl, "CHECKSUMS.md5.asc")
+            gpgitem = fetcher.enqueue(gpgurl)
+            fetcher.run(progress=progress)
+            if item.getStatus() == SUCCEEDED:
+                checksumpath = item.getTargetPath()
+            else:
+                checksumpath = None
             self.removeLoaders()
-            loader = SlackSiteLoader(localpath, self._baseurl)
+            loader = SlackSiteLoader(localpath, checksumpath, self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
