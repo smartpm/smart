@@ -46,7 +46,11 @@ class SlackPackageInfo(PackageInfo):
         return self._info.get("description", "")
 
     def getReferenceURLs(self):
-        return [self._info.get("website", "")]
+        website = self._info.get("website", "")
+        if website:
+            return [website]
+        else:
+            return []
 
     def getURLs(self):
         info = self._info
