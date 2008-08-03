@@ -27,6 +27,9 @@ import re
 
 NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(.t[gbl]z)?$")
 
+# this RE is a fallback, for packages with periods in release :(
+NAMERE2 = re.compile("^([^-]+)-([^-]+-[^-]+-[^-]+?)(.t[gbl]z)?$")
+
 class SlackPackageInfo(PackageInfo):
 
     def __init__(self, package, info):
@@ -89,8 +92,10 @@ def parsePackageInfo(filename, checksum = None):
             name = line[13:].strip()
             m = NAMERE.match(name)
             if not m:
-                iface.warning(_("Invalid package name: %s") % name)
-                continue
+                m = NAMERE2.match(name)
+                if not m:
+                    iface.warning(_("Invalid package name: %s") % name)
+                    continue
             if info:
                 infolst.append(info)
             info = {}
