@@ -52,9 +52,10 @@ class SlackPackageInfo(PackageInfo):
         info = self._info
         if "location" in info and "baseurl" in info:
             pkg = self._package
+            version = info.get("version", pkg.version)
             type = info.get("type", ".tgz")
             return [os.path.join(info["baseurl"], info["location"],
-                   "%s-%s%s" % (pkg.name, pkg.version, type))]
+                   "%s-%s%s" % (pkg.name, version, type))]
         return []
 
     def getPathList(self):
@@ -77,7 +78,7 @@ def parsePackageInfo(filename):
             if info:
                 infolst.append(info)
             info = {}
-            if m.lastindex < 2:
+            if m.lastindex < 3:
                 info["name"], info["version"] = m.groups()
             else:
                 info["name"], info["version"], info["type"] = m.groups()
@@ -93,6 +94,12 @@ def parsePackageInfo(filename):
                 if location.endswith(".tlz"):
                     info["type"] = ".tlz"
                 info["location"] = location
+            elif line.startswith("PACKAGE REQUIRED:"):
+                required = line[17:].strip()
+                info["required"] = required.split(",")
+            elif line.startswith("PACKAGE CONFLICTS:"):
+                conflicts = line[18:].strip()
+                info["conflicts"] = conflicts.split(",")
             elif line.startswith("PACKAGE DESCRIPTION:"):
                 desctag = "%s:" % info["name"]
                 desctaglen = len(desctag)
@@ -134,17 +141,39 @@ class SlackLoader(Loader):
 
     def load(self):
 
-        reqargs = cnfargs = []
-
         prog = iface.getProgress(self._cache)
 
         for info in self.getInfoList():
 
             name = info["name"]
             version = info["version"]
+            
+            ver, arch, rel = version.split("-")
+            version = "%s-%s@%s" % (ver, rel, arch)
 
             prvargs = [(SlackProvides, name, version)]
             upgargs = [(SlackUpgrades, name, "<", version)]
+            
+            reqargs = []
+            if "required" in info:
+                for req in info["required"]:
+                    if req.find("|") != -1:
+                        # TODO: handle conditional
+                        pass
+                    elif req.find(" ") != -1:
+                        (n, r, v) = req.strip().split(" ")
+                    else:
+                        (n, r, v) = (req, None, None)
+                    reqargs.append((SlackRequires, n, r, v))
+            
+            cnfargs = []
+            if "conflicts" in info:
+                for cnf in info["conflicts"]:
+                    if cnf.find(" ") != -1:
+                        (n, r, v) = cnf.strip().split(" ")
+                    else:
+                        (n, r, v) = (cnf, None, None)
+                    cnfargs.append((SlackConflicts, n, r, v))
 
             pkg = self.buildPackage((SlackPackage, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)

@@ -27,7 +27,8 @@ import fnmatch
 import string
 import os, re
 
-__all__ = ["SlackPackage", "SlackProvides", "SlackUpgrades"]
+__all__ = ["SlackPackage", "SlackProvides", "SlackRequires", "SlackUpgrades",
+           "SlackConflicts"]
 
 class SlackPackage(Package):
 
@@ -81,7 +82,11 @@ class SlackDepends(Depends):
             return True
         return checkdep(prv.version, self.relation, self.version)
 
+class SlackRequires(SlackDepends,Requires): __slots__ = ()
+
 class SlackUpgrades(SlackDepends,Upgrades): __slots__ = ()
+
+class SlackConflicts(SlackDepends,Conflicts): __slots__ = ()
 
 def enablePsyco(psyco):
     psyco.bind(SlackPackage.coexists)
