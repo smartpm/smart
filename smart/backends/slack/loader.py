@@ -28,7 +28,7 @@ import re
 NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(.t[gbl]z)?$")
 
 # this RE is a fallback, for packages with periods in release :(
-NAMERE2 = re.compile("^([^-]+)-([^-]+-[^-]+-[^-]+?)(.t[gbl]z)?$")
+NAMERE2 = re.compile("^(.+?)-([^-]+-[^-]+-[^-]+?)(.t[gbl]z)?$")
 
 class SlackPackageInfo(PackageInfo):
 
