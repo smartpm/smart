@@ -54,10 +54,14 @@ def getArchitecture():
     else:
         return arch
 
-DEBARCH = sysconf.get("deb-arch", getArchitecture())
-platform = sys.platform
-if platform != "linux2":
-    DEBARCH = "%s-%s" % (platform, DEBARCH)
+def getPlatformPrefix():
+    platform = sys.platform
+    if platform != "linux2":
+        return platform + "-"
+    else:
+        return "" # no prefix
+
+DEBARCH = sysconf.get("deb-arch", getPlatformPrefix() + getArchitecture())
 
 class DebPackage(Package):
 
