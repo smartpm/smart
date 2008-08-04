@@ -40,7 +40,7 @@ class SlackPackageInfo(PackageInfo):
         return "Slackware"
 
     def getLicense(self):
-        return "Unknown"
+        return self._info.get("license", "Unknown")
 
     def getSummary(self):
         return self._info.get("summary", "")
@@ -145,6 +145,8 @@ def parsePackageInfo(filename, checksum = None):
                     if line:
                         info["description"] = line
                 else:
+                    if line.startswith("License: "):
+                        info["license"] = line[9:]
                     if line.startswith("Website: "):
                         info["website"] = line[9:]
                     info["description"] += "\n"
