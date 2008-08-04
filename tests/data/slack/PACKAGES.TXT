@@ -15,6 +15,9 @@ PACKAGE DESCRIPTION:
 name1: Summary1
 name1:
 name1: Description1
+name1: License: License1
+name1: Authors: 
+name1: Website: http://www.example.com/name1
 
 PACKAGE NAME:  name2-version2-noarch-release2.tgz
 PACKAGE LOCATION:  .
@@ -24,3 +27,6 @@ PACKAGE DESCRIPTION:
 name2: Summary2
 name2:
 name2: Description2
+name2: License: License2
+name2: Authors: 
+name2: Website: http://www.example.com/name2

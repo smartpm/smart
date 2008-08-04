@@ -68,11 +68,11 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getGroup()
   'Slackware'
   >>> info.getLicense()
-  'Unknown'
+  'License1'
   >>> info.getSummary()
   'Summary1'
   >>> info.getDescription()
-  'Description1'
+  'Description1\n...'
 
   >>> info.getURLs()
   ['file:///.../data/slack/./name1-version1-noarch-release1.tgz']
@@ -83,7 +83,7 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getSize(url)
 
   >>> info.getReferenceURLs()
-  []
+  ['http://www.example.com/name1']
 
 
 vim:ft=doctest
