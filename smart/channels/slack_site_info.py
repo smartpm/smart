@@ -30,4 +30,6 @@ Remote repository with slackware packages.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
-           _("Base URL where PACKAGES.TXT is located"))]
+           _("Base URL where PACKAGES.TXT is located")),
+          ("compressed", _("Compressed"), bool, False,
+          _("Whether PACKAGES.TXT is gzip compressed"))]

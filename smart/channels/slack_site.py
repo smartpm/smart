@@ -28,9 +28,10 @@ import posixpath
 
 class SlackSiteChannel(PackageChannel):
 
-    def __init__(self, baseurl, *args):
+    def __init__(self, baseurl, compressed, *args):
         super(SlackSiteChannel, self).__init__(*args)
         self._baseurl = baseurl
+        self._compressed = compressed
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "PACKAGES.TXT")]
@@ -42,9 +43,16 @@ class SlackSiteChannel(PackageChannel):
 
         fetcher.reset()
 
+        if self._compressed:
+            PACKAGES_TXT="PACKAGES.TXT.gz"
+            CHECKSUMS_md5="CHECKSUMS.md5.gz"
+        else:
+            PACKAGES_TXT="PACKAGES.TXT"
+            CHECKSUMS_md5="CHECKSUMS.md5"
+
         # Fetch packages file
-        url = posixpath.join(self._baseurl, "PACKAGES.TXT")
-        item = fetcher.enqueue(url)
+        url = posixpath.join(self._baseurl, PACKAGES_TXT)
+        item = fetcher.enqueue(url, uncomp=self._compressed)
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
@@ -52,9 +60,9 @@ class SlackSiteChannel(PackageChannel):
             if digest == self._digest:
                 return True
             fetcher.reset()
-            url = posixpath.join(self._baseurl, "CHECKSUMS.md5")
-            item = fetcher.enqueue(url)
-            gpgurl = posixpath.join(self._baseurl, "CHECKSUMS.md5.asc")
+            url = posixpath.join(self._baseurl, CHECKSUMS_md5)
+            item = fetcher.enqueue(url, uncomp=self._compressed)
+            gpgurl = posixpath.join(self._baseurl, CHECKSUMS_md5 + ".asc")
             gpgitem = fetcher.enqueue(gpgurl)
             fetcher.run(progress=progress)
             if item.getStatus() == SUCCEEDED:
@@ -78,6 +86,7 @@ class SlackSiteChannel(PackageChannel):
 
 def create(alias, data):
     return SlackSiteChannel(data["baseurl"],
+                            data["compressed"],
                             data["type"],
                             alias,
                             data["name"],
