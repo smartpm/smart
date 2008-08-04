@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-05 13:36-0300\n"
+"POT-Creation-Date: 2008-07-03 08:55-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,1766 +16,28 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: trunk/interfaces/gtk/priorities.py:33 smart/interfaces/gtk/priorities.py:33
-msgid "Priorities"
+#: smart/backends/deb/pm.py:135 smart/backends/rpm/pm.py:49
+#: smart/backends/slack/pm.py:33
+msgid "Committing transaction..."
 msgstr ""
 
-#: trunk/interfaces/gtk/priorities.py:67 smart/interfaces/gtk/priorities.py:67
-msgid "Package Name"
+#: smart/backends/deb/pm.py:165 smart/backends/rpm/pm.py:134
+msgid "Found unbreakable loops:"
 msgstr ""
 
-#: trunk/interfaces/gtk/priorities.py:75 smart/interfaces/gtk/priorities.py:75
-msgid "Channel Alias"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:83
-#: trunk/interfaces/gtk/interactive.py:658 smart/channel.py:150
-#: smart/interfaces/gtk/priorities.py:83
-#: smart/interfaces/gtk/interactive.py:651
-#: smart/interfaces/qt/interactive.py:658 smart/commands/priority.py:98
-msgid "Priority"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:129
-#: trunk/interfaces/gtk/priorities.py:167
-#: trunk/interfaces/gtk/priorities.py:177
-#: smart/interfaces/gtk/priorities.py:129
-#: smart/interfaces/gtk/priorities.py:167
-#: smart/interfaces/gtk/priorities.py:177
-msgid "Name/alias pair already exists!"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:192
-#: smart/interfaces/gtk/priorities.py:192
-msgid "Invalid priority!"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:202
-#: smart/interfaces/gtk/priorities.py:202
-msgid "New Package Priority"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:223
-#: smart/interfaces/gtk/priorities.py:223
-msgid "Package Name:"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:232
-#: smart/interfaces/gtk/priorities.py:232
-msgid "Channel Alias:"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:242
-#: trunk/interfaces/gtk/packageinfo.py:66
-#: smart/interfaces/gtk/priorities.py:242
-#: smart/interfaces/gtk/packageinfo.py:66 smart/commands/info.py:107
-msgid "Priority:"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:292
-#: smart/interfaces/gtk/priorities.py:292
-msgid "No name provided!"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:312
-#: smart/interfaces/gtk/priorities.py:312
-msgid "Package Priority"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:352
-#: smart/interfaces/gtk/priorities.py:352
-msgid "Package:"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:375
-#: smart/interfaces/gtk/priorities.py:375
-msgid "Default priority:"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:385
-#: smart/interfaces/gtk/priorities.py:385
-msgid "Channel default"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:390
-#: smart/interfaces/gtk/priorities.py:390
-msgid "Set to"
-msgstr ""
-
-#: trunk/interfaces/gtk/priorities.py:406
-#: smart/interfaces/gtk/priorities.py:406
-msgid "Channel priority:"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:39 trunk/interfaces/gtk/interactive.py:223
-#: smart/interfaces/gtk/channels.py:39 smart/interfaces/gtk/interactive.py:232
-#: smart/interfaces/qt/interactive.py:223
-msgid "Channels"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:83 trunk/interfaces/gtk/channels.py:362
-#: smart/channel.py:132 smart/interfaces/gtk/channels.py:86
-#: smart/interfaces/gtk/channels.py:367
-msgid "Alias"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:85 trunk/interfaces/gtk/channels.py:364
-#: smart/channel.py:134 smart/interfaces/gtk/channels.py:88
-#: smart/interfaces/gtk/channels.py:369
-msgid "Type"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:87 trunk/interfaces/gtk/channels.py:366
-#: smart/channel.py:136 smart/interfaces/gtk/channels.py:90
-#: smart/interfaces/gtk/channels.py:371
-msgid "Name"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:200 smart/interfaces/gtk/channels.py:205
-msgid "Select Channel Description"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:208 smart/channel.py:114
-#: smart/interfaces/gtk/channels.py:213 smart/commands/channel.py:183
-#: smart/commands/mirror.py:128 smart/sysconfig.py:78
+#: smart/backends/deb/pm.py:271
 #, python-format
-msgid "File not found: %s"
+msgid "Sub-process %s has received a segmentation fault"
 msgstr ""
 
-#: trunk/interfaces/gtk/channels.py:214 smart/interfaces/gtk/channels.py:219
-msgid "Description URL"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:218 smart/interfaces/gtk/channels.py:223
-msgid "channel description"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:220 smart/interfaces/gtk/channels.py:225
-#: smart/commands/channel.py:171
+#: smart/backends/deb/pm.py:274
 #, python-format
-msgid "Unable to fetch channel description: %s"
+msgid "Sub-process %s returned an error code (%d)"
 msgstr ""
 
-#: trunk/interfaces/gtk/channels.py:255 smart/interfaces/gtk/channels.py:260
-msgid "Select Path"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:263 smart/interfaces/gtk/channels.py:268
-#: smart/commands/clean.py:47
+#: smart/backends/deb/pm.py:277
 #, python-format
-msgid "Directory not found: %s"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:282 smart/interfaces/gtk/channels.py:287
-msgid "No channels detected!"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:319 smart/interfaces/gtk/channels.py:324
-msgid "Select Channels"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:427 smart/interfaces/gtk/channels.py:432
-msgid "Edit Channel"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:513 trunk/interfaces/gtk/channels.py:570
-#: smart/interfaces/gtk/channels.py:518 smart/interfaces/gtk/channels.py:575
-#, python-format
-msgid "Don't know how to handle %s fields"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:576 smart/interfaces/gtk/channels.py:581
-msgid "Invalid alias!"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:579 smart/interfaces/gtk/channels.py:584
-msgid "Alias already in use!"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:602 trunk/interfaces/gtk/channels.py:699
-#: trunk/interfaces/gtk/channels.py:800 smart/interfaces/gtk/channels.py:607
-#: smart/interfaces/gtk/channels.py:704 smart/interfaces/gtk/channels.py:805
-msgid "New Channel"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:623 smart/interfaces/gtk/channels.py:628
-#: smart/commands/channel.py:135
-msgid "Type:"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:719 smart/interfaces/gtk/channels.py:724
-msgid "Method:"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:758 smart/interfaces/gtk/channels.py:763
-msgid "Provide channel information"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:760 smart/interfaces/gtk/channels.py:765
-msgid "Read channel description from local path"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:762 smart/interfaces/gtk/channels.py:767
-msgid "Read channel description from URL"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:764 smart/interfaces/gtk/channels.py:769
-msgid "Detect channel in media (CDROM, DVD, etc)"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:766 smart/interfaces/gtk/channels.py:771
-msgid "Detect channel in local path"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:821 smart/interfaces/gtk/channels.py:826
-msgid "Media path:"
-msgstr ""
-
-#: trunk/interfaces/gtk/channels.py:875 smart/interfaces/gtk/channels.py:880
-msgid "No local media found!"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:35 trunk/interfaces/gtk/flags.py:81
-#: smart/interfaces/gtk/flags.py:35 smart/interfaces/gtk/flags.py:81
-msgid "Flags"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:127 smart/interfaces/gtk/flags.py:127
-msgid "Targets"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:199 trunk/interfaces/gtk/flags.py:243
-#: smart/interfaces/gtk/flags.py:199 smart/interfaces/gtk/flags.py:243
-msgid "Flag already exists!"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:228 trunk/interfaces/gtk/flags.py:255
-#: trunk/interfaces/gtk/flags.py:260 trunk/interfaces/gtk/flags.py:449
-#: smart/interfaces/gtk/flags.py:228 smart/interfaces/gtk/flags.py:255
-#: smart/interfaces/gtk/flags.py:260 smart/interfaces/gtk/flags.py:449
-msgid "Invalid target!"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:293 smart/interfaces/gtk/flags.py:293
-msgid "New Flag"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:314 smart/interfaces/gtk/flags.py:314
-#: smart/commands/info.py:105
-msgid "Name:"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:358 smart/interfaces/gtk/flags.py:358
-msgid "No flag name provided!"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:374 smart/interfaces/gtk/flags.py:374
-msgid "New Target"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:395 smart/interfaces/gtk/flags.py:395
-msgid "Target:"
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:405 smart/interfaces/gtk/flags.py:405
-msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
-msgstr ""
-
-#: trunk/interfaces/gtk/flags.py:445 smart/interfaces/gtk/flags.py:445
-msgid "No target provided!"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:32 smart/interfaces/gtk/mirrors.py:32
-msgid "Mirrors"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:65 smart/interfaces/gtk/mirrors.py:65
-msgid "Mirror"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:145 smart/interfaces/gtk/mirrors.py:145
-msgid "Origin already exists!"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:152 smart/interfaces/gtk/mirrors.py:152
-msgid "Mirror already exists!"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:164 smart/interfaces/gtk/mirrors.py:164
-msgid "New Mirror"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:185 smart/interfaces/gtk/mirrors.py:185
-msgid "Origin URL:"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:195 smart/interfaces/gtk/mirrors.py:195
-msgid "Mirror URL:"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:243 smart/interfaces/gtk/mirrors.py:243
-msgid "No origin provided!"
-msgstr ""
-
-#: trunk/interfaces/gtk/mirrors.py:247 smart/interfaces/gtk/mirrors.py:247
-msgid "No mirror provided!"
-msgstr ""
-
-#: trunk/interfaces/gtk/__init__.py:36 smart/interfaces/gtk/__init__.py:36
-msgid "System has no support for gtk python interface"
-msgstr ""
-
-#: trunk/interfaces/gtk/__init__.py:55 smart/interfaces/gtk/__init__.py:55
-#: smart/interfaces/qt/__init__.py:45
-#, python-format
-msgid "Image '%s' not found"
-msgstr ""
-
-#: trunk/interfaces/gtk/interface.py:83 smart/interfaces/gtk/interface.py:83
-msgid " Continue?"
-msgstr ""
-
-#: trunk/interfaces/gtk/interface.py:104 smart/interfaces/gtk/interface.py:104
-#: smart/interfaces/qt/interface.py:148
-msgid "Input"
-msgstr ""
-
-#: trunk/interfaces/gtk/interface.py:144 smart/interfaces/gtk/interface.py:144
-#: smart/interfaces/qt/interface.py:161
-msgid "Insert one or more of the following removable channels:\n"
-msgstr ""
-
-#: trunk/interfaces/gtk/progress.py:51 smart/interfaces/gtk/progress.py:51
-msgid "Operation Progress"
-msgstr ""
-
-#: trunk/interfaces/gtk/progress.py:89 smart/interfaces/gtk/progress.py:90
-msgid "Progress"
-msgstr ""
-
-#: trunk/interfaces/gtk/progress.py:96 smart/interfaces/gtk/progress.py:97
-msgid "Current"
-msgstr ""
-
-#: trunk/interfaces/gtk/progress.py:102 smart/interfaces/gtk/progress.py:103
-msgid "Total"
-msgstr ""
-
-#: trunk/interfaces/gtk/progress.py:108 smart/interfaces/gtk/progress.py:109
-msgid "Speed"
-msgstr ""
-
-#: trunk/interfaces/gtk/progress.py:114
-#: trunk/interfaces/gtk/packageinfo.py:108
-#: trunk/interfaces/gtk/interactive.py:320
-#: smart/interfaces/gtk/packageinfo.py:108
-#: smart/interfaces/gtk/interactive.py:329
-#: smart/interfaces/gtk/progress.py:121 smart/interfaces/qt/interactive.py:320
-msgid "Description"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:65
-#: smart/interfaces/gtk/packageinfo.py:65
-msgid "Status:"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:67
-#: smart/interfaces/gtk/packageinfo.py:67 smart/commands/info.py:108
-msgid "Group:"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:68
-#: smart/interfaces/gtk/packageinfo.py:68 smart/commands/info.py:109
-msgid "Installed Size:"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:69
-#: smart/interfaces/gtk/packageinfo.py:69 smart/commands/info.py:121
-msgid "Channels:"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:87
-#: smart/interfaces/gtk/packageinfo.py:87
-msgid "General"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:128
-#: smart/interfaces/gtk/packageinfo.py:128
-msgid "Content"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:137
-#: smart/interfaces/gtk/packageinfo.py:137
-msgid "Relations"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:155
-#: smart/interfaces/gtk/packageinfo.py:155 smart/commands/priority.py:98
-msgid "Channel"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:157
-#: smart/interfaces/gtk/packageinfo.py:157
-msgid "Size"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:159
-#: smart/interfaces/gtk/packageinfo.py:159
-msgid "URL"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:163
-#: smart/interfaces/gtk/packageinfo.py:163 smart/commands/download.py:144
-msgid "URLs"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:217
-#: smart/interfaces/gtk/packageinfo.py:217
-msgid "Installed"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:217
-#: smart/interfaces/gtk/packageinfo.py:217
-msgid "Available"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:219 smart/util/strtools.py:56
-#: smart/interfaces/gtk/packageinfo.py:219
-msgid "Unknown"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:314
-#: trunk/interfaces/gtk/packageinfo.py:347
-#: smart/interfaces/gtk/packageinfo.py:314
-#: smart/interfaces/gtk/packageinfo.py:347
-msgid "Provides"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:314
-#: trunk/interfaces/gtk/packageinfo.py:366 trunk/interfaces/gtk/changes.py:125
-#: smart/interfaces/gtk/packageinfo.py:314
-#: smart/interfaces/gtk/packageinfo.py:366 smart/interfaces/gtk/changes.py:125
-#: smart/interfaces/qt/changes.py:118
-msgid "Upgrades"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:315
-#: trunk/interfaces/gtk/packageinfo.py:357 trunk/interfaces/gtk/changes.py:133
-#: trunk/interfaces/gtk/changes.py:170 smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:357 smart/interfaces/gtk/changes.py:133
-#: smart/interfaces/gtk/changes.py:170 smart/interfaces/qt/changes.py:126
-#: smart/interfaces/qt/changes.py:163
-msgid "Requires"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:315
-#: trunk/interfaces/gtk/packageinfo.py:375 trunk/interfaces/gtk/changes.py:141
-#: trunk/interfaces/gtk/changes.py:178 smart/interfaces/gtk/packageinfo.py:315
-#: smart/interfaces/gtk/packageinfo.py:375 smart/interfaces/gtk/changes.py:141
-#: smart/interfaces/gtk/changes.py:178 smart/interfaces/qt/changes.py:134
-#: smart/interfaces/qt/changes.py:171
-msgid "Conflicts"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:332 trunk/interfaces/gtk/changes.py:136
-#: trunk/interfaces/gtk/changes.py:173 smart/interfaces/gtk/packageinfo.py:332
-#: smart/interfaces/gtk/changes.py:136 smart/interfaces/gtk/changes.py:173
-#: smart/interfaces/qt/changes.py:129 smart/interfaces/qt/changes.py:166
-msgid "Required By"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:338
-#: smart/interfaces/gtk/packageinfo.py:338
-msgid "Upgraded By"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageinfo.py:344
-#: smart/interfaces/gtk/packageinfo.py:344
-msgid "Conflicted By"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:36 smart/interfaces/gtk/changes.py:36
-msgid "Change Summary"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:97 trunk/interfaces/gtk/interactive.py:548
-#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:541
-#: smart/interfaces/qt/changes.py:90 smart/interfaces/qt/interactive.py:548
-msgid "Remove"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:97 smart/interfaces/gtk/changes.py:97
-#: smart/interfaces/qt/changes.py:90
-msgid "Downgrade"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:97 trunk/interfaces/gtk/interactive.py:538
-#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:531
-#: smart/interfaces/qt/changes.py:90 smart/interfaces/qt/interactive.py:538
-msgid "Reinstall"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:98 trunk/interfaces/gtk/interactive.py:529
-#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:522
-#: smart/interfaces/qt/changes.py:91 smart/interfaces/qt/interactive.py:529
-msgid "Install"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:98 smart/interfaces/gtk/changes.py:98
-#: smart/interfaces/qt/changes.py:91
-msgid "Upgrade"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:129 smart/interfaces/gtk/changes.py:129
-#: smart/interfaces/qt/changes.py:122
-msgid "Downgrades"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:151 smart/interfaces/gtk/changes.py:151
-#: smart/interfaces/qt/changes.py:144
-#, python-format
-msgid "Reinstall (%d)"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:154 smart/interfaces/gtk/changes.py:154
-#: smart/interfaces/qt/changes.py:147
-#, python-format
-msgid "Install (%d)"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:156 smart/interfaces/gtk/changes.py:156
-#: smart/interfaces/qt/changes.py:149
-#, python-format
-msgid "Upgrade (%d)"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:158 smart/interfaces/gtk/changes.py:158
-#: smart/interfaces/qt/changes.py:151
-#, python-format
-msgid "Downgrade (%d)"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:181 smart/interfaces/gtk/changes.py:181
-#: smart/interfaces/qt/changes.py:174
-#, python-format
-msgid "Remove (%d)"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:185 smart/interfaces/gtk/changes.py:185
-#: smart/interfaces/qt/changes.py:178
-#, python-format
-msgid "Keep (%d)"
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:191 smart/interfaces/text/interface.py:225
-#: smart/interfaces/gtk/changes.py:191 smart/interfaces/qt/changes.py:184
-#, python-format
-msgid "%s of package files are needed. "
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:193 smart/interfaces/text/interface.py:228
-#: smart/interfaces/gtk/changes.py:193 smart/interfaces/qt/changes.py:186
-#, python-format
-msgid "%s will be used."
-msgstr ""
-
-#: trunk/interfaces/gtk/changes.py:196 smart/interfaces/text/interface.py:231
-#: smart/interfaces/gtk/changes.py:196 smart/interfaces/qt/changes.py:189
-#, python-format
-msgid "%s will be freed."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:111
-#: smart/interfaces/gtk/interactive.py:114
-#: smart/interfaces/qt/interactive.py:111
-msgid "_File"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:112
-#: smart/interfaces/gtk/interactive.py:115
-#: smart/interfaces/qt/interactive.py:112
-msgid "Update _Selected Channels..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:113
-#: smart/interfaces/gtk/interactive.py:116
-#: smart/interfaces/qt/interactive.py:113
-msgid "Update given channels"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:114
-#: smart/interfaces/gtk/interactive.py:117
-#: smart/interfaces/qt/interactive.py:114
-msgid "_Update Channels"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:115
-#: smart/interfaces/qt/interactive.py:115
-msgid "Update channels information"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:116
-#: smart/interfaces/gtk/interactive.py:119
-#: smart/interfaces/qt/interactive.py:116
-msgid "_Rebuild Cache"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:117
-#: smart/interfaces/gtk/interactive.py:120
-#: smart/interfaces/qt/interactive.py:117
-msgid "Reload package information"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:118
-#: smart/interfaces/gtk/interactive.py:121
-#: smart/interfaces/qt/interactive.py:118
-msgid "_Execute Changes..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:119
-#: smart/interfaces/gtk/interactive.py:122
-#: smart/interfaces/qt/interactive.py:119
-msgid "Apply marked changes"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:120
-#: smart/interfaces/gtk/interactive.py:123
-#: smart/interfaces/qt/interactive.py:120
-msgid "_Quit"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:121
-#: smart/interfaces/gtk/interactive.py:124
-#: smart/interfaces/qt/interactive.py:121
-msgid "Quit application"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:123
-#: smart/interfaces/gtk/interactive.py:126
-#: smart/interfaces/qt/interactive.py:123
-msgid "_Edit"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:124
-#: smart/interfaces/gtk/interactive.py:127
-#: smart/interfaces/qt/interactive.py:124
-msgid "_Undo"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:125
-#: smart/interfaces/gtk/interactive.py:128
-#: smart/interfaces/qt/interactive.py:125
-msgid "Undo last change"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:126
-#: smart/interfaces/gtk/interactive.py:129
-#: smart/interfaces/qt/interactive.py:126
-msgid "_Redo"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:127
-#: smart/interfaces/gtk/interactive.py:130
-#: smart/interfaces/qt/interactive.py:127
-msgid "Redo last undone change"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:128
-#: smart/interfaces/gtk/interactive.py:131
-#: smart/interfaces/qt/interactive.py:128
-msgid "Clear Marked Changes"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:129
-#: smart/interfaces/gtk/interactive.py:132
-#: smart/interfaces/qt/interactive.py:129
-msgid "Clear all changes"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:130
-#: smart/interfaces/gtk/interactive.py:133
-#: smart/interfaces/qt/interactive.py:130
-msgid "Check Installed Packages..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:131
-#: smart/interfaces/gtk/interactive.py:134
-#: smart/interfaces/qt/interactive.py:131
-msgid "Check installed packages"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:132
-#: smart/interfaces/gtk/interactive.py:135
-#: smart/interfaces/qt/interactive.py:132
-msgid "Check Uninstalled Packages..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:133
-#: smart/interfaces/gtk/interactive.py:136
-#: smart/interfaces/qt/interactive.py:133
-msgid "Check uninstalled packages"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:134
-#: smart/interfaces/gtk/interactive.py:137
-#: smart/interfaces/qt/interactive.py:134
-msgid "Check All Packages..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:135
-#: smart/interfaces/gtk/interactive.py:138
-#: smart/interfaces/qt/interactive.py:135
-msgid "Check all packages"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:136
-#: smart/interfaces/gtk/interactive.py:139
-#: smart/interfaces/qt/interactive.py:136
-msgid "Upgrade _All..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:137
-#: smart/interfaces/gtk/interactive.py:140
-#: smart/interfaces/qt/interactive.py:137
-msgid "Upgrade all packages"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:138
-#: smart/interfaces/gtk/interactive.py:141
-#: smart/interfaces/qt/interactive.py:138
-msgid "Fix All _Problems..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:139
-#: smart/interfaces/gtk/interactive.py:142
-#: smart/interfaces/qt/interactive.py:139
-msgid "Fix all problems"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:140
-#: smart/interfaces/gtk/interactive.py:143
-#: smart/interfaces/qt/interactive.py:140
-msgid "_Find..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:141
-#: smart/interfaces/gtk/interactive.py:144
-#: smart/interfaces/qt/interactive.py:141
-msgid "Find packages"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:142
-#: smart/interfaces/gtk/interactive.py:145
-#: smart/interfaces/qt/interactive.py:142
-msgid "_Channels"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:143
-#: smart/interfaces/gtk/interactive.py:146
-#: smart/interfaces/qt/interactive.py:143
-msgid "Edit channels"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:144
-#: smart/interfaces/gtk/interactive.py:147
-#: smart/interfaces/qt/interactive.py:144
-msgid "_Mirrors"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:145
-#: smart/interfaces/gtk/interactive.py:148
-#: smart/interfaces/qt/interactive.py:145
-msgid "Edit mirrors"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:146
-#: smart/interfaces/gtk/interactive.py:149
-#: smart/interfaces/qt/interactive.py:146
-msgid "_Flags"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:147
-#: smart/interfaces/gtk/interactive.py:150
-#: smart/interfaces/qt/interactive.py:147
-msgid "Edit package flags"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:148
-#: smart/interfaces/gtk/interactive.py:151
-#: smart/interfaces/qt/interactive.py:148
-msgid "_Priorities"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:149
-#: smart/interfaces/gtk/interactive.py:152
-#: smart/interfaces/qt/interactive.py:149
-msgid "Edit package priorities"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:151
-#: smart/interfaces/gtk/interactive.py:154
-#: smart/interfaces/qt/interactive.py:151
-msgid "_View"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:152
-#: smart/interfaces/gtk/interactive.py:155
-#: smart/interfaces/qt/interactive.py:152
-msgid "_Tree Style"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:153
-#: smart/interfaces/gtk/interactive.py:156
-#: smart/interfaces/qt/interactive.py:153
-msgid "_Expand All"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:154
-#: smart/interfaces/gtk/interactive.py:157
-#: smart/interfaces/qt/interactive.py:154
-msgid "Expand all items in the tree"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:155
-#: smart/interfaces/gtk/interactive.py:158
-#: smart/interfaces/qt/interactive.py:155
-msgid "_Collapse All"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:156
-#: smart/interfaces/gtk/interactive.py:159
-#: smart/interfaces/qt/interactive.py:156
-msgid "Collapse all items in the tree"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:157
-#: smart/interfaces/gtk/interactive.py:160
-#: smart/interfaces/qt/interactive.py:157
-msgid "_Summary Window"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:158
-#: smart/interfaces/gtk/interactive.py:161
-#: smart/interfaces/qt/interactive.py:158
-msgid "Show summary window"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:159
-#: smart/interfaces/gtk/interactive.py:162
-#: smart/interfaces/qt/interactive.py:159
-msgid "_Log Window"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:160
-#: smart/interfaces/gtk/interactive.py:163
-#: smart/interfaces/qt/interactive.py:160
-msgid "Show log window"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:211
-#: smart/interfaces/gtk/interactive.py:220
-#: smart/interfaces/qt/interactive.py:211
-msgid "Hide Non-upgrades"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:212
-#: smart/interfaces/gtk/interactive.py:221
-#: smart/interfaces/qt/interactive.py:212
-msgid "Hide Installed"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:213
-#: smart/interfaces/gtk/interactive.py:222
-#: smart/interfaces/qt/interactive.py:213
-msgid "Hide Uninstalled"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:214
-#: smart/interfaces/gtk/interactive.py:223
-#: smart/interfaces/qt/interactive.py:214
-msgid "Hide Unmarked"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:215
-#: smart/interfaces/gtk/interactive.py:224
-#: smart/interfaces/qt/interactive.py:215
-msgid "Hide Old"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:222
-#: smart/interfaces/gtk/interactive.py:231
-#: smart/interfaces/qt/interactive.py:222
-msgid "Groups"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:224
-#: smart/interfaces/gtk/interactive.py:233
-#: smart/interfaces/qt/interactive.py:224
-msgid "Channels & Groups"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:225 smart/plugins/channelsync.py:139
-#: smart/interfaces/gtk/interactive.py:234
-#: smart/interfaces/qt/interactive.py:225
-msgid "None"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:275
-#: smart/interfaces/gtk/interactive.py:284
-#: smart/interfaces/qt/interactive.py:275
-msgid "Search:"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:315
-#: smart/interfaces/gtk/interactive.py:324
-#: smart/interfaces/qt/interactive.py:315
-msgid "Automatic"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:373
-#: smart/interfaces/qt/interactive.py:373
-msgid ""
-"You are using the package manager.\n"
-"This tool allow you to install, update and remove the software.\n"
-"Is recommended that the channels informations are updated.\n"
-"Do you want to update them automatically now?"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:453
-#: smart/interfaces/qt/interactive.py:453
-msgid ""
-"You are updating the entire system.\n"
-"Is recommended that the channels informations are updated.\n"
-"Do you want to update automatically now?"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:472
-#: smart/interfaces/gtk/interactive.py:465
-#: smart/interfaces/qt/interactive.py:472
-msgid "Apply marked changes now?"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:475
-#: smart/interfaces/text/interactive.py:370
-#: smart/interfaces/gtk/interactive.py:468
-#: smart/interfaces/qt/interactive.py:475
-msgid "No interesting upgrades available!"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:560
-#: smart/interfaces/gtk/interactive.py:553
-#: smart/interfaces/qt/interactive.py:560
-msgid "Keep"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:569
-#: smart/interfaces/gtk/interactive.py:562
-#: smart/interfaces/qt/interactive.py:569
-msgid "Fix problems"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:600
-#: smart/interfaces/gtk/interactive.py:593
-#: smart/interfaces/qt/interactive.py:600
-msgid "Unlock this version"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:612
-#: smart/interfaces/gtk/interactive.py:605
-#: smart/interfaces/qt/interactive.py:612
-msgid "Lock this version"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:630
-#: smart/interfaces/gtk/interactive.py:623
-#: smart/interfaces/qt/interactive.py:630
-msgid "Unlock all versions"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:642
-#: smart/interfaces/gtk/interactive.py:635
-#: smart/interfaces/qt/interactive.py:642
-msgid "Lock all versions"
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:673
-#: smart/interfaces/gtk/interactive.py:666
-#: smart/interfaces/qt/interactive.py:673
-msgid "Checking relations..."
-msgstr ""
-
-#: trunk/interfaces/gtk/interactive.py:676
-#: smart/interfaces/gtk/interactive.py:669
-#: smart/interfaces/qt/interactive.py:676
-msgid "All checked packages have correct relations."
-msgstr ""
-
-#: trunk/interfaces/gtk/command.py:58 smart/interfaces/gtk/command.py:58
-msgid "Status"
-msgstr ""
-
-#: trunk/interfaces/gtk/log.py:40 smart/interfaces/gtk/log.py:40
-msgid "Log"
-msgstr ""
-
-#: trunk/interfaces/gtk/log.py:83 smart/interface.py:134
-#: smart/interfaces/gtk/log.py:83
-msgid "error"
-msgstr ""
-
-#: trunk/interfaces/gtk/log.py:83 smart/interface.py:134
-#: smart/interfaces/gtk/log.py:83
-msgid "warning"
-msgstr ""
-
-#: trunk/interfaces/gtk/log.py:84 smart/interface.py:135
-#: smart/interfaces/gtk/log.py:84
-msgid "debug"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageview.py:132
-#: smart/interfaces/gtk/packageview.py:132
-#: smart/interfaces/qt/packageview.py:58 smart/commands/priority.py:98
-msgid "Package"
-msgstr ""
-
-#: trunk/interfaces/gtk/packageview.py:145
-#: smart/interfaces/gtk/packageview.py:145
-#: smart/interfaces/qt/packageview.py:72
-msgid "Version"
-msgstr ""
-
-#: smart.py:37
-msgid "smart command [options] [arguments]"
-msgstr ""
-
-#: smart.py:39
-msgid ""
-"\n"
-"Action commands:\n"
-"    update\n"
-"    install\n"
-"    reinstall\n"
-"    upgrade\n"
-"    remove\n"
-"    check\n"
-"    fix\n"
-"    download\n"
-"    clean\n"
-"\n"
-"Query commands:\n"
-"    search\n"
-"    query\n"
-"    info\n"
-"    stats\n"
-"\n"
-"Setup commands:\n"
-"    channel\n"
-"    priority\n"
-"    mirror\n"
-"    flag\n"
-"\n"
-"Run \"smart command --help\" for more information.\n"
-msgstr ""
-
-#: smart.py:66
-msgid ""
-"\n"
-"smart install --help\n"
-"smart install pkgname\n"
-"smart --gui\n"
-"smart --gui install pkgname\n"
-"smart --shell\n"
-msgstr ""
-
-#: smart.py:81
-msgid "FILE"
-msgstr ""
-
-#: smart.py:82
-msgid "configuration file (default is <data-dir>/config)"
-msgstr ""
-
-#: smart.py:84
-msgid "DIR"
-msgstr ""
-
-#: smart.py:85
-#, python-format
-msgid "data directory (default is %s)"
-msgstr ""
-
-#: smart.py:86
-msgid "LEVEL"
-msgstr ""
-
-#: smart.py:87
-msgid "set the log level to LEVEL (debug, info, warning, error)"
-msgstr ""
-
-#: smart.py:90
-msgid "use the default graphic interface"
-msgstr ""
-
-#: smart.py:92
-msgid "use the default shell interface"
-msgstr ""
-
-#: smart.py:93
-msgid "NAME"
-msgstr ""
-
-#: smart.py:94
-msgid "use the given interface"
-msgstr ""
-
-#: smart.py:96
-msgid "don't respect locking"
-msgstr ""
-
-#: smart.py:98
-msgid "OPT"
-msgstr ""
-
-#: smart.py:99
-msgid "set the option given by a name=value pair"
-msgstr ""
-
-#: smart.py:109 smart/option.py:161 smart/util/optparse.py:1402
-#: smart/util/optparse.py:1556
-#, python-format
-msgid "no such option: %s"
-msgstr ""
-
-#: smart.py:135
-#, python-format
-msgid "Invalid option: %s"
-msgstr ""
-
-#: smart.py:179
-#, python-format
-msgid "error: %s\n"
-msgstr ""
-
-#: smart.py:188 smart/interfaces/text/interactive.py:200
-msgid ""
-"\n"
-"Interrupted\n"
-msgstr ""
-
-#: smart/channel.py:133
-msgid "Unique identification for the channel."
-msgstr ""
-
-#: smart/channel.py:135
-msgid "Channel type"
-msgstr ""
-
-#: smart/channel.py:137
-msgid "Channel name"
-msgstr ""
-
-#: smart/channel.py:138
-msgid "Manual updates"
-msgstr ""
-
-#: smart/channel.py:139
-msgid ""
-"If set to a true value, the given channel will only be updated when manually "
-"selected."
-msgstr ""
-
-#: smart/channel.py:141
-msgid "Disabled"
-msgstr ""
-
-#: smart/channel.py:142
-msgid "If set to a true value, the given channel won't be used."
-msgstr ""
-
-#: smart/channel.py:144
-msgid "Removable"
-msgstr ""
-
-#: smart/channel.py:145
-msgid ""
-"If set to a true value, the given channel will be considered as being "
-"available in a removable media (cdrom, etc)."
-msgstr ""
-
-#: smart/channel.py:151
-msgid ""
-"Default priority assigned to all packages available in this channel (0 if "
-"not set). If the exact same package is available in more than one channel, "
-"the highest priority is used."
-msgstr ""
-
-#: smart/channel.py:168
-#, python-format
-msgid "Unable to create channel of type '%s'"
-msgstr ""
-
-#: smart/channel.py:181 smart/channel.py:207
-msgid "Channel has no type"
-msgstr ""
-
-#: smart/channel.py:184 smart/channel.py:210
-#, python-format
-msgid "Unknown channel type: %s"
-msgstr ""
-
-#: smart/channel.py:194 smart/channel.py:222
-#, python-format
-msgid "%s (%s) is a needed field for '%s' channels"
-msgstr ""
-
-#: smart/channel.py:229 smart/util/strtools.py:104
-msgid "y"
-msgstr ""
-
-#: smart/channel.py:229 smart/util/strtools.py:104
-#: smart/interfaces/text/interface.py:71
-msgid "yes"
-msgstr ""
-
-#: smart/channel.py:229 smart/util/strtools.py:104
-msgid "true"
-msgstr ""
-
-#: smart/channel.py:232 smart/util/strtools.py:106
-msgid "n"
-msgstr ""
-
-#: smart/channel.py:232 smart/util/strtools.py:106
-#: smart/interfaces/text/interface.py:72
-msgid "no"
-msgstr ""
-
-#: smart/channel.py:232 smart/util/strtools.py:106
-msgid "false"
-msgstr ""
-
-#: smart/channel.py:235 smart/channel.py:241 smart/channel.py:244
-#, python-format
-msgid "Invalid value for '%s' (%s) field: %s"
-msgstr ""
-
-#: smart/channel.py:261
-#, python-format
-msgid "Channel '%s' has no type"
-msgstr ""
-
-#: smart/channel.py:283
-#, python-format
-msgid "Invalid channel type '%s'"
-msgstr ""
-
-#: smart/option.py:35 smart/util/optparse.py:1136
-msgid "show this help message and exit"
-msgstr ""
-
-#: smart/option.py:37 smart/util/optparse.py:1141
-msgid "show program's version number and exit"
-msgstr ""
-
-#: smart/option.py:49
-#, python-format
-msgid "Usage: %s\n"
-msgstr ""
-
-#: smart/option.py:54 smart/util/optparse.py:1502
-msgid "options"
-msgstr ""
-
-#: smart/option.py:89
-msgid "examples"
-msgstr ""
-
-#: smart/option.py:172 smart/util/optparse.py:1374 smart/util/optparse.py:1413
-#, python-format
-msgid "%s option requires an argument"
-msgstr ""
-
-#: smart/option.py:174 smart/util/optparse.py:1376 smart/util/optparse.py:1415
-#, python-format
-msgid "%s option requires %d arguments"
-msgstr ""
-
-#: smart/channels/rpm_hdl.py:60 smart/channels/up2date_mirrors.py:61
-#: smart/channels/red_carpet.py:64 smart/channels/rpm_md.py:140
-#: smart/channels/apt_deb.py:89 smart/channels/apt_deb.py:203
-#: smart/channels/apt_deb.py:238 smart/channels/urpmi.py:107
-#: smart/channels/slack_site.py:59 smart/channels/apt_rpm.py:62
-#: smart/channels/apt_rpm.py:212 smart/channels/mirrors.py:58
-#: smart/channels/yast2.py:52
-#, python-format
-msgid "Failed acquiring information for '%s':"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:26
-msgid "URPMI Repository"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:28
-msgid ""
-"\n"
-"Repository created for Mandriva's URPMI package manager.\n"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:32 smart/channels/apt_rpm_info.py:32
-#: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32
-#: smart/channels/apt_deb_info.py:32 smart/channels/yast2_info.py:32
-msgid "Base URL"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:33
-msgid ""
-"Base URL where packages or the 'list' file are found under. Using ' with "
-"<hdlurl>' pattern is also supported."
-msgstr ""
-
-#: smart/channels/urpmi_info.py:35 smart/channels/rpm_hdl_info.py:34
-msgid "Header List URL"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:36
-msgid ""
-"URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
-"given base URL, may be left empty. URLs relative to the Base URL are "
-"supported"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:45
-msgid "Base URL has 'with', but Header List URL was provided"
-msgstr ""
-
-#: smart/channels/urpmi_info.py:49
-msgid "Base URL has invalid 'with' pattern"
-msgstr ""
-
-#: smart/channels/slack_sys.py:48 smart/channels/deb_sys.py:49
-#: smart/channels/deb_dir.py:57 smart/channels/rpm_sys.py:49
-#: smart/channels/rpm_dir.py:57
-#, python-format
-msgid "%s channels cannot be removable"
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:26
-msgid "APT-RPM Repository"
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:28
-msgid ""
-"\n"
-"Repositories created for APT-RPM.\n"
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:33
-msgid "Base URL of APT-RPM repository, where base/ is located."
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:34 smart/channels/apt_deb_info.py:36
-msgid "Components"
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:35 smart/channels/apt_deb_info.py:37
-msgid "Space separated list of components."
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:36 smart/channels/apt_deb_info.py:38
-msgid "Fingerprint"
-msgstr ""
-
-#: smart/channels/apt_rpm_info.py:37 smart/channels/apt_deb_info.py:39
-msgid "GPG fingerprint of key signing the channel."
-msgstr ""
-
-#: smart/channels/deb_dir.py:37 smart/channels/rpm_dir.py:37
-#, python-format
-msgid "Channel '%s' has invalid directory: %s"
-msgstr ""
-
-#: smart/channels/slack_sys_info.py:26
-msgid "Slackware Installed Packages"
-msgstr ""
-
-#: smart/channels/slack_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages in a slackware system.\n"
-msgstr ""
-
-#: smart/channels/rpm_sys_info.py:26
-msgid "RPM Installed Packages"
-msgstr ""
-
-#: smart/channels/rpm_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages from the local RPM database.\n"
-msgstr ""
-
-#: smart/channels/rpm_md.py:68
-#, python-format
-msgid "Failed acquiring release file for '%s':"
-msgstr ""
-
-#: smart/channels/rpm_md.py:83
-#, python-format
-msgid ""
-"Invalid XML file:\n"
-"  %s\n"
-"  %s\n"
-"  %s"
-msgstr ""
-
-#: smart/channels/rpm_md.py:102
-#, python-format
-msgid "Primary information not found in repository metadata for '%s'"
-msgstr ""
-
-#: smart/channels/rpm_md.py:130
-#, python-format
-msgid ""
-"Failed to download. You must fetch channel information to acquire needed "
-"filelists.\n"
-"%s: %s"
-msgstr ""
-
-#: smart/channels/mirrors_info.py:26
-msgid "Mirror Information"
-msgstr ""
-
-#: smart/channels/mirrors_info.py:28
-msgid ""
-"\n"
-"Mirror information file.\n"
-msgstr ""
-
-#: smart/channels/mirrors_info.py:32 smart/channels/up2date_mirrors_info.py:32
-msgid "Mirror File URL"
-msgstr ""
-
-#: smart/channels/mirrors_info.py:33 smart/channels/up2date_mirrors_info.py:33
-msgid "URL for the mirror information file"
-msgstr ""
-
-#: smart/channels/apt_deb.py:122
-#, python-format
-msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
-msgstr ""
-
-#: smart/channels/apt_deb.py:144 smart/channels/apt_rpm.py:131
-#, python-format
-msgid "Channel '%s' has bad signature"
-msgstr ""
-
-#: smart/channels/apt_deb.py:146 smart/channels/apt_rpm.py:133
-#, python-format
-msgid "Channel '%s' signed with unknown key"
-msgstr ""
-
-#: smart/channels/apt_deb.py:172
-#, python-format
-msgid "Component '%s' is not in Release file for channel '%s'"
-msgstr ""
-
-#: smart/channels/red_carpet_info.py:26
-msgid "Red Carpet Channel"
-msgstr ""
-
-#: smart/channels/red_carpet_info.py:28
-msgid ""
-"\n"
-"Channel for the Red Carpet package tool.\n"
-msgstr ""
-
-#: smart/channels/red_carpet_info.py:32 smart/channels/rpm_hdl_info.py:32
-msgid "Base URL for packages"
-msgstr ""
-
-#: smart/channels/red_carpet_info.py:33
-msgid "URL where packages are found"
-msgstr ""
-
-#: smart/channels/red_carpet_info.py:34
-msgid "URL for packageinfo XML"
-msgstr ""
-
-#: smart/channels/red_carpet_info.py:35
-msgid ""
-"URL for packageinfo.xml.gz including filename (option may be ommitted if "
-"file is named packageinfo.xml.gz and is inside the base url)"
-msgstr ""
-
-#: smart/channels/deb_dir_info.py:26
-msgid "DEB Directory"
-msgstr ""
-
-#: smart/channels/deb_dir_info.py:28
-msgid ""
-"\n"
-"Local directory with DEB packages.\n"
-msgstr ""
-
-#: smart/channels/deb_dir_info.py:32 smart/channels/rpm_dir_info.py:32
-msgid "Directory Path"
-msgstr ""
-
-#: smart/channels/deb_dir_info.py:33
-msgid "Path of directory containing DEB packages."
-msgstr ""
-
-#: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
-msgid "Recursive"
-msgstr ""
-
-#: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
-msgid "Search for files recursively."
-msgstr ""
-
-#: smart/channels/rpm_hdl_info.py:26
-msgid "RPM Header List"
-msgstr ""
-
-#: smart/channels/rpm_hdl_info.py:28
-msgid ""
-"\n"
-"Packages from an RPM Header List.\n"
-msgstr ""
-
-#: smart/channels/rpm_hdl_info.py:33
-msgid "Base URL where package files are found"
-msgstr ""
-
-#: smart/channels/rpm_hdl_info.py:35
-msgid "URL for the header list"
-msgstr ""
-
-#: smart/channels/deb_sys_info.py:26
-msgid "DPKG Installed Packages"
-msgstr ""
-
-#: smart/channels/deb_sys_info.py:28
-msgid ""
-"\n"
-"Installed packages from dpkg status.\n"
-msgstr ""
-
-#: smart/channels/rpm_md_info.py:26
-msgid "RPM MetaData"
-msgstr ""
-
-#: smart/channels/rpm_md_info.py:28
-msgid ""
-"\n"
-"Repository created with the rpm-metadata project.\n"
-msgstr ""
-
-#: smart/channels/rpm_md_info.py:33
-msgid "URL where repodata/ subdirectory is found"
-msgstr ""
-
-#: smart/channels/slack_site_info.py:26
-msgid "Slackware Repository"
-msgstr ""
-
-#: smart/channels/slack_site_info.py:28
-msgid ""
-"\n"
-"Remote repository with slackware packages.\n"
-msgstr ""
-
-#: smart/channels/slack_site_info.py:33
-msgid "Base URL where PACKAGES.TXT is located"
-msgstr ""
-
-#: smart/channels/rpm_dir_info.py:26
-msgid "RPM Directory"
-msgstr ""
-
-#: smart/channels/rpm_dir_info.py:28
-msgid ""
-"\n"
-"Local directory with RPM packages.\n"
-msgstr ""
-
-#: smart/channels/rpm_dir_info.py:33
-msgid "Path of directory containing RPM packages."
-msgstr ""
-
-#: smart/channels/apt_rpm.py:102
-#, python-format
-msgid "Channel '%s' has fingerprint but is not signed"
-msgstr ""
-
-#: smart/channels/apt_rpm.py:165
-#, python-format
-msgid "Component '%s' is not in release file for channel '%s'"
-msgstr ""
-
-#: smart/channels/apt_deb_info.py:26
-msgid "APT-DEB Repository"
-msgstr ""
-
-#: smart/channels/apt_deb_info.py:28
-msgid ""
-"\n"
-"Repositories created for APT-DEB.\n"
-msgstr ""
-
-#: smart/channels/apt_deb_info.py:33
-msgid "Base URL of repository, where dists/ is located."
-msgstr ""
-
-#: smart/channels/apt_deb_info.py:34
-msgid "Distribution"
-msgstr ""
-
-#: smart/channels/apt_deb_info.py:35
-msgid "Distribution to use."
-msgstr ""
-
-#: smart/channels/up2date_mirrors_info.py:26
-msgid "Mirror Information (up2date format)"
-msgstr ""
-
-#: smart/channels/up2date_mirrors_info.py:28
-msgid ""
-"\n"
-"Mirror information file, in up2date format.\n"
-msgstr ""
-
-#: smart/channels/yast2.py:104
-msgid "Invalid package file format. Invalid header found."
-msgstr ""
-
-#: smart/channels/yast2_info.py:26
-msgid "YaST2 Repository"
-msgstr ""
-
-#: smart/channels/yast2_info.py:28
-msgid ""
-"\n"
-"Repositories created for YaST2.\n"
-msgstr ""
-
-#: smart/channels/yast2_info.py:33
-msgid "Base URL of YaST2 repository, where the 'content' file is located."
-msgstr ""
-
-#: smart/uncompress.py:44
-#, python-format
-msgid "Unknown compressed file: %s"
-msgstr ""
-
-#: smart/uncompress.py:55
-msgid "Unsupported file type"
-msgstr ""
-
-#: smart/interface.py:51
-#, python-format
-msgid "Invalid command '%s'"
-msgstr ""
-
-#: smart/interface.py:92
-msgid "Password"
-msgstr ""
-
-#: smart/interface.py:93
-#, python-format
-msgid "A password is needed for '%s'."
-msgstr ""
-
-#: smart/interface.py:163
-#, python-format
-msgid "Interface '%s' not available"
-msgstr ""
-
-#: smart/control.py:85 smart/control.py:276
-#, python-format
-msgid "There's another channel with alias '%s'"
-msgstr ""
-
-#: smart/control.py:90
-#, python-format
-msgid "Unable to create channel for file: %s"
-msgstr ""
-
-#: smart/control.py:100
-#, python-format
-msgid "Channel not found for '%s'"
-msgstr ""
-
-#: smart/control.py:133
-#, python-format
-msgid "Configuration file not found: %s"
-msgstr ""
-
-#: smart/control.py:148
-#, python-format
-msgid "Can't create datadir at %s"
-msgstr ""
-
-#: smart/control.py:168
-msgid "Saving cache..."
-msgstr ""
-
-#: smart/control.py:220
-msgid "Loading cache..."
-msgstr ""
-
-#: smart/control.py:301
-msgid "Unable to create channel directory."
-msgstr ""
-
-#: smart/control.py:304
-msgid "Configuration is in readonly mode!"
-msgstr ""
-
-#: smart/control.py:306
-msgid "Channel information is locked for writing."
-msgstr ""
-
-#: smart/control.py:308
-msgid "Can't update channels in readonly mode."
-msgstr ""
-
-#: smart/control.py:310
-msgid "Can't update channels with active readers."
-msgstr ""
-
-#: smart/control.py:346
-#, python-format
-msgid "Fetching information for '%s'..."
-msgstr ""
-
-#: smart/control.py:353 smart/control.py:357
-#, python-format
-msgid "Failed fetching channel '%s'"
-msgstr ""
-
-#: smart/control.py:411
-#, python-format
-msgid "Package %s is not available for downloading"
-msgstr ""
-
-#: smart/control.py:643
-#, python-format
-msgid "No channel available for package %s"
-msgstr ""
-
-#: smart/control.py:656 smart/commands/install.py:85
-msgid "packages"
-msgstr ""
-
-#: smart/control.py:660 smart/commands/install.py:88
-msgid "Failed to download packages:\n"
-msgstr ""
-
-#: smart/control.py:837
-#, python-format
-msgid "%s is not available for downloading"
+msgid "Sub-process %s exited unexpectedly"
 msgstr ""
 
 #: smart/backends/rpm/base.py:42
@@ -1797,18 +59,14 @@ msgstr ""
 msgid "Initialized new rpm database at %s"
 msgstr ""
 
-#: smart/backends/rpm/redcarpet.py:309
-#, python-format
-msgid "Error parsing %s: %s"
+#: smart/backends/rpm/header.py:399
+msgid ""
+"Your rpm module has no support for readHeaderFromFD()!\n"
+"As a consequence, Smart will consume extra memory."
 msgstr ""
 
-#: smart/backends/rpm/pm.py:49 smart/backends/deb/pm.py:135
-#: smart/backends/slack/pm.py:33
-msgid "Committing transaction..."
-msgstr ""
-
-#: smart/backends/rpm/pm.py:134 smart/backends/deb/pm.py:165
-msgid "Found unbreakable loops:"
+#: smart/backends/rpm/header.py:504 smart/backends/rpm/header.py:532
+msgid "Package list with no CRPMTAG_FILENAME tag"
 msgstr ""
 
 #: smart/backends/rpm/pm.py:139
@@ -1855,29 +113,14 @@ msgstr ""
 msgid "Removing %s"
 msgstr ""
 
-#: smart/backends/rpm/header.py:406
-msgid ""
-"Your rpm module has no support for readHeaderFromFD()!\n"
-"As a consequence, Smart will consume extra memory."
-msgstr ""
-
-#: smart/backends/rpm/header.py:511 smart/backends/rpm/header.py:539
-msgid "Package list with no CRPMTAG_FILENAME tag"
-msgstr ""
-
-#: smart/backends/deb/pm.py:268
+#: smart/backends/rpm/redcarpet.py:309
 #, python-format
-msgid "Sub-process %s has received a segmentation fault"
+msgid "Error parsing %s: %s"
 msgstr ""
 
-#: smart/backends/deb/pm.py:271
+#: smart/backends/slack/loader.py:68
 #, python-format
-msgid "Sub-process %s returned an error code (%d)"
-msgstr ""
-
-#: smart/backends/deb/pm.py:274
-#, python-format
-msgid "Sub-process %s exited unexpectedly"
+msgid "Invalid package name: %s"
 msgstr ""
 
 #: smart/backends/slack/pm.py:67
@@ -1915,671 +158,376 @@ msgstr ""
 msgid "Removing %s:"
 msgstr ""
 
-#: smart/backends/slack/loader.py:68
+#: smart/channels/apt_deb.py:89 smart/channels/apt_deb.py:203
+#: smart/channels/apt_deb.py:238 smart/channels/apt_rpm.py:62
+#: smart/channels/apt_rpm.py:212 smart/channels/mirrors.py:58
+#: smart/channels/red_carpet.py:64 smart/channels/rpm_hdl.py:60
+#: smart/channels/rpm_md.py:140 smart/channels/slack_site.py:59
+#: smart/channels/up2date_mirrors.py:61 smart/channels/urpmi.py:107
+#: smart/channels/yast2.py:53
 #, python-format
-msgid "Invalid package name: %s"
+msgid "Failed acquiring information for '%s':"
 msgstr ""
 
-#: smart/fetcher.py:168
+#: smart/channels/apt_deb.py:122
 #, python-format
-msgid "%s is already in the queue"
+msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
 msgstr ""
 
-#: smart/fetcher.py:202 smart/fetcher.py:209
+#: smart/channels/apt_deb.py:144 smart/channels/apt_rpm.py:131
 #, python-format
-msgid "Fetching %s..."
+msgid "Channel '%s' has bad signature"
 msgstr ""
 
-#: smart/fetcher.py:211
-msgid "Fetching information..."
-msgstr ""
-
-#: smart/fetcher.py:289 smart/fetcher.py:570
-msgid "Cancelled"
-msgstr ""
-
-#: smart/fetcher.py:329
+#: smart/channels/apt_deb.py:146 smart/channels/apt_rpm.py:133
 #, python-format
-msgid "Unsupported scheme: %s"
+msgid "Channel '%s' signed with unknown key"
 msgstr ""
 
-#: smart/fetcher.py:344
-msgid "File not found for validation"
-msgstr ""
-
-#: smart/fetcher.py:365 smart/cache.py:191
+#: smart/channels/apt_deb.py:172
 #, python-format
-msgid "Unexpected size (expected %d, got %d)"
+msgid "Component '%s' is not in Release file for channel '%s'"
 msgstr ""
 
-#: smart/fetcher.py:379 smart/cache.py:205
-#, python-format
-msgid "Invalid MD5 (expected %s, got %s)"
+#: smart/channels/apt_deb_info.py:26
+msgid "APT-DEB Repository"
 msgstr ""
 
-#: smart/fetcher.py:393 smart/cache.py:219
-#, python-format
-msgid "Invalid SHA (expected %s, got %s)"
-msgstr ""
-
-#: smart/fetcher.py:595
-#, python-format
-msgid "Invalid URL: %s"
-msgstr ""
-
-#: smart/fetcher.py:874
-msgid "Media not found"
-msgstr ""
-
-#: smart/fetcher.py:1002 smart/fetcher.py:1203 smart/fetcher.py:1770
-msgid "Server reports unexpected size"
-msgstr ""
-
-#: smart/util/optparse.py:329
-#, python-format
-msgid "usage: %s\n"
-msgstr ""
-
-#: smart/util/optparse.py:348
-msgid "Usage"
-msgstr ""
-
-#: smart/util/optparse.py:354
-msgid "integer"
-msgstr ""
-
-#: smart/util/optparse.py:355
-msgid "long integer"
-msgstr ""
-
-#: smart/util/optparse.py:356
-msgid "floating-point"
-msgstr ""
-
-#: smart/util/optparse.py:357
-msgid "complex"
-msgstr ""
-
-#: smart/util/optparse.py:365
-#, python-format
-msgid "option %s: invalid %s value: %r"
-msgstr ""
-
-#: smart/util/optparse.py:373
-#, python-format
-msgid "option %s: invalid choice: %r (choose from %s)"
-msgstr ""
-
-#: smart/util/optparse.py:1164
-msgid "%prog [options]"
-msgstr ""
-
-#: smart/util/optparse.py:1385
-#, python-format
-msgid "%s option does not take a value"
-msgstr ""
-
-#: smart/util/optparse.py:1559
-#, python-format
-msgid "ambiguous option: %s (%s?)"
-msgstr ""
-
-#: smart/util/strtools.py:66
-msgid "Stalled"
-msgstr ""
-
-#: smart/util/ssh.py:53
-msgid "SSH asked for password, but no password is available"
-msgstr ""
-
-#: smart/plugins/rpmdir.py:33
-msgid "Dynamic RPM Directory"
-msgstr ""
-
-#: smart/plugins/debdir.py:33
-msgid "Dynamic DEB Directory"
-msgstr ""
-
-#: smart/plugins/channelsync.py:52 smart/plugins/channelsync.py:88
-#: smart/plugins/channelsync.py:119 smart/plugins/channelsync.py:145
-#: smart/plugins/aptchannelsync.py:72
-#, python-format
-msgid "While using %s: %s"
-msgstr ""
-
-#: smart/plugins/channelsync.py:83
-#, python-format
+#: smart/channels/apt_deb_info.py:28
 msgid ""
-"New channel '%s' detected.\n"
-"Include it?"
-msgstr ""
-
-#: smart/plugins/channelsync.py:102
-#, python-format
-msgid "Channel in %s has no type."
-msgstr ""
-
-#: smart/plugins/channelsync.py:106
-#, python-format
-msgid ""
-"Change in channel '%s' detected.\n"
-"Old channel:\n"
 "\n"
-"%s\n"
+"Repositories created for APT-DEB.\n"
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:32 smart/channels/apt_rpm_info.py:32
+#: smart/channels/rpm_md_info.py:32 smart/channels/slack_site_info.py:32
+#: smart/channels/urpmi_info.py:32 smart/channels/yast2_info.py:32
+msgid "Base URL"
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:33
+msgid "Base URL of repository, where dists/ is located."
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:34
+msgid "Distribution"
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:35
+msgid "Distribution to use."
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:36 smart/channels/apt_rpm_info.py:34
+msgid "Components"
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:37 smart/channels/apt_rpm_info.py:35
+msgid "Space separated list of components."
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:38 smart/channels/apt_rpm_info.py:36
+msgid "Fingerprint"
+msgstr ""
+
+#: smart/channels/apt_deb_info.py:39 smart/channels/apt_rpm_info.py:37
+msgid "GPG fingerprint of key signing the channel."
+msgstr ""
+
+#: smart/channels/apt_rpm.py:102
+#, python-format
+msgid "Channel '%s' has fingerprint but is not signed"
+msgstr ""
+
+#: smart/channels/apt_rpm.py:165
+#, python-format
+msgid "Component '%s' is not in release file for channel '%s'"
+msgstr ""
+
+#: smart/channels/apt_rpm_info.py:26
+msgid "APT-RPM Repository"
+msgstr ""
+
+#: smart/channels/apt_rpm_info.py:28
+msgid ""
 "\n"
-"New channel:\n"
+"Repositories created for APT-RPM.\n"
+msgstr ""
+
+#: smart/channels/apt_rpm_info.py:33
+msgid "Base URL of APT-RPM repository, where base/ is located."
+msgstr ""
+
+#: smart/channels/deb_dir.py:37 smart/channels/rpm_dir.py:37
+#, python-format
+msgid "Channel '%s' has invalid directory: %s"
+msgstr ""
+
+#: smart/channels/deb_dir.py:57 smart/channels/deb_sys.py:49
+#: smart/channels/rpm_dir.py:57 smart/channels/rpm_sys.py:49
+#: smart/channels/slack_sys.py:48
+#, python-format
+msgid "%s channels cannot be removable"
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:26
+msgid "DEB Directory"
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:28
+msgid ""
 "\n"
-"%s\n"
+"Local directory with DEB packages.\n"
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:32 smart/channels/rpm_dir_info.py:32
+msgid "Directory Path"
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:33
+msgid "Path of directory containing DEB packages."
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:34 smart/channels/rpm_dir_info.py:34
+msgid "Recursive"
+msgstr ""
+
+#: smart/channels/deb_dir_info.py:35 smart/channels/rpm_dir_info.py:35
+msgid "Search for files recursively."
+msgstr ""
+
+#: smart/channels/deb_sys_info.py:26
+msgid "DPKG Installed Packages"
+msgstr ""
+
+#: smart/channels/deb_sys_info.py:28
+msgid ""
 "\n"
-"Do you want to replace it?"
+"Installed packages from dpkg status.\n"
 msgstr ""
 
-#: smart/plugins/channelsync.py:137
-msgid "Yes"
+#: smart/channels/mirrors_info.py:26
+msgid "Mirror Information"
 msgstr ""
 
-#: smart/plugins/channelsync.py:137
-msgid "No"
+#: smart/channels/mirrors_info.py:28
+msgid ""
+"\n"
+"Mirror information file.\n"
 msgstr ""
 
-#: smart/plugins/channelsync.py:157
+#: smart/channels/mirrors_info.py:32 smart/channels/up2date_mirrors_info.py:32
+msgid "Mirror File URL"
+msgstr ""
+
+#: smart/channels/mirrors_info.py:33 smart/channels/up2date_mirrors_info.py:33
+msgid "URL for the mirror information file"
+msgstr ""
+
+#: smart/channels/red_carpet_info.py:26
+msgid "Red Carpet Channel"
+msgstr ""
+
+#: smart/channels/red_carpet_info.py:28
+msgid ""
+"\n"
+"Channel for the Red Carpet package tool.\n"
+msgstr ""
+
+#: smart/channels/red_carpet_info.py:32 smart/channels/rpm_hdl_info.py:32
+msgid "Base URL for packages"
+msgstr ""
+
+#: smart/channels/red_carpet_info.py:33
+msgid "URL where packages are found"
+msgstr ""
+
+#: smart/channels/red_carpet_info.py:34
+msgid "URL for packageinfo XML"
+msgstr ""
+
+#: smart/channels/red_carpet_info.py:35
+msgid ""
+"URL for packageinfo.xml.gz including filename (option may be ommitted if "
+"file is named packageinfo.xml.gz and is inside the base url)"
+msgstr ""
+
+#: smart/channels/rpm_dir_info.py:26
+msgid "RPM Directory"
+msgstr ""
+
+#: smart/channels/rpm_dir_info.py:28
+msgid ""
+"\n"
+"Local directory with RPM packages.\n"
+msgstr ""
+
+#: smart/channels/rpm_dir_info.py:33
+msgid "Path of directory containing RPM packages."
+msgstr ""
+
+#: smart/channels/rpm_hdl_info.py:26
+msgid "RPM Header List"
+msgstr ""
+
+#: smart/channels/rpm_hdl_info.py:28
+msgid ""
+"\n"
+"Packages from an RPM Header List.\n"
+msgstr ""
+
+#: smart/channels/rpm_hdl_info.py:33
+msgid "Base URL where package files are found"
+msgstr ""
+
+#: smart/channels/rpm_hdl_info.py:34 smart/channels/urpmi_info.py:35
+msgid "Header List URL"
+msgstr ""
+
+#: smart/channels/rpm_hdl_info.py:35
+msgid "URL for the header list"
+msgstr ""
+
+#: smart/channels/rpm_md.py:68
+#, python-format
+msgid "Failed acquiring release file for '%s':"
+msgstr ""
+
+#: smart/channels/rpm_md.py:83
 #, python-format
 msgid ""
-"Change in field '%(label)s' of channel '%(name)s' detected.\n"
-"Old value: %(curvalue)s\n"
-"New value: %(newvalue)s\n"
-"Replace current value?"
+"Invalid XML file:\n"
+"  %s\n"
+"  %s\n"
+"  %s"
 msgstr ""
 
-#: smart/plugins/channelsync.py:194
+#: smart/channels/rpm_md.py:102
+#, python-format
+msgid "Primary information not found in repository metadata for '%s'"
+msgstr ""
+
+#: smart/channels/rpm_md.py:130
 #, python-format
 msgid ""
-"Removing channel '%s' was suggested.\n"
-"Do you want to remove it?"
+"Failed to download. You must fetch channel information to acquire needed "
+"filelists.\n"
+"%s: %s"
 msgstr ""
 
-#: smart/interfaces/text/interface.py:63
-#, python-format
-msgid "%s (Y/n): "
+#: smart/channels/rpm_md_info.py:26
+msgid "RPM MetaData"
 msgstr ""
 
-#: smart/interfaces/text/interface.py:63
-#, python-format
-msgid "%s (y/N): "
-msgstr ""
-
-#: smart/interfaces/text/interface.py:78
-#, python-format
-msgid "%s (Continue/cancel): "
-msgstr ""
-
-#: smart/interfaces/text/interface.py:80
-#, python-format
-msgid "%s (continue/Cancel): "
-msgstr ""
-
-#: smart/interfaces/text/interface.py:88
-msgid "continue"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:89
-#: smart/interfaces/text/interface.py:103
-msgid "cancel"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:94
-#, python-format
-msgid "%s (Ok/cancel): "
-msgstr ""
-
-#: smart/interfaces/text/interface.py:94
-#, python-format
-msgid "%s (ok/Cancel): "
-msgstr ""
-
-#: smart/interfaces/text/interface.py:102
-msgid "ok"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:133
-msgid "Insert one or more of the following removable channels:"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:138 smart/commands/channel.py:335
-#: smart/commands/channel.py:348 smart/commands/mirror.py:240
-msgid "Continue?"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:161
-msgid "(installed)"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:163
-msgid "(upgraded)"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:165
-msgid "(removed)"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:167
-msgid "(downgraded)"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:176 smart/commands/query.py:583
-msgid "Upgrades:"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:180
-msgid "Downgrades:"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:184 smart/commands/query.py:564
-msgid "Requires:"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:188 smart/commands/query.py:530
-msgid "Required By:"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:192 smart/commands/query.py:599
-msgid "Conflicts:"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:198
-#, python-format
-msgid "Kept packages (%d):"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:203
-#, python-format
-msgid "Upgrading packages (%d):"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:208
-#, python-format
-msgid "Downgrading packages (%d):"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:213
-#, python-format
-msgid "Installing packages (%d):"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:218
-#, python-format
-msgid "Removing packages (%d):"
-msgstr ""
-
-#: smart/interfaces/text/interface.py:235
-msgid "Confirm changes?"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:72
-msgid "Documented commands (type help <topic>):"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:73
-msgid "Undocumented commands:"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:74
-msgid "Miscelaneous help topics:"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:75
-#, python-format
-msgid "*** No help on %s"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:155
-#: smart/interfaces/text/interactive.py:586 smart/commands/remove.py:93
-#: smart/commands/fix.py:87 smart/commands/reinstall.py:90
-#: smart/commands/install.py:117 smart/commands/query.py:146
-#: smart/commands/download.py:86 smart/commands/check.py:129
-#: smart/commands/info.py:73 smart/commands/upgrade.py:113
-#, python-format
+#: smart/channels/rpm_md_info.py:28
 msgid ""
-"'%s' matches no packages. Suggestions:\n"
-"%s"
+"\n"
+"Repository created with the rpm-metadata project.\n"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:159
-#: smart/interfaces/text/interactive.py:591 smart/commands/remove.py:97
-#: smart/commands/fix.py:91 smart/commands/reinstall.py:94
-#: smart/commands/install.py:121 smart/commands/query.py:150
-#: smart/commands/download.py:90 smart/commands/check.py:133
-#: smart/commands/info.py:77 smart/commands/upgrade.py:117
-#, python-format
-msgid "'%s' matches no packages"
+#: smart/channels/rpm_md_info.py:33
+msgid "URL where repodata/ subdirectory is found"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:215
-msgid "What would you expect!? ;-)"
+#: smart/channels/rpm_sys_info.py:26
+msgid "RPM Installed Packages"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:218
-msgid "The exit/quit/EOF command returns to the system."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:229
-msgid "The shell command offers execution of system commands."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:231
-msgid "Usage: shell [<cmd>]"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:232
-msgid "       ![<cmd>]"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:240
-msgid "The status command shows currently marked changes."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:242
-msgid "Usage: status"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:246 smart/commands/channel.py:241
-#: smart/commands/priority.py:79 smart/commands/priority.py:93
-#: smart/commands/flag.py:91
-msgid "Invalid arguments"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:248
-msgid "There are no marked changes."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:253
-msgid "The install command marks packages for installation."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:255
-#: smart/interfaces/text/interactive.py:299
-#: smart/interfaces/text/interactive.py:335
-#: smart/interfaces/text/interactive.py:380
-#: smart/interfaces/text/interactive.py:422
-#: smart/interfaces/text/interactive.py:459
-#: smart/interfaces/text/interactive.py:556
-msgid "Options:"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:256
-#: smart/interfaces/text/interactive.py:300
-#: smart/interfaces/text/interactive.py:336
-#: smart/interfaces/text/interactive.py:381
-#: smart/interfaces/text/interactive.py:423
-#: smart/interfaces/text/interactive.py:460
+#: smart/channels/rpm_sys_info.py:28
 msgid ""
-"   --explain  Include additional information about\n"
-"              changes, when possible"
+"\n"
+"Installed packages from the local RPM database.\n"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:259
-msgid "Usage: install <pkgname> ..."
+#: smart/channels/slack_site_info.py:26
+msgid "Slackware Repository"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:281 smart/commands/install.py:101
-#: smart/commands/install.py:160
-#, python-format
-msgid "%s is already installed"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:286
-#, python-format
-msgid "No uninstalled packages matched '%s'"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:297
-msgid "The reinstall command marks packages for reinstallation."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:303
-msgid "Usage: reinstall <pkgname> ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:319
-#: smart/interfaces/text/interactive.py:365
-#: smart/interfaces/text/interactive.py:409 smart/commands/remove.py:118
-#: smart/commands/reinstall.py:119 smart/commands/upgrade.py:136
-#, python-format
-msgid "'%s' matches no installed packages"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:321
-#, python-format
-msgid "'%s' matches multiple installed packages"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:333
-msgid "The upgrade command marks packages for upgrading."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:339
-msgid "Usage: upgrade <pkgname> ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:378
-msgid "The remove command marks packages for being removed."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:384
-msgid "Usage: remove <pkgname> ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:420
-msgid "The keep command unmarks currently marked packages."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:426
-msgid "Usage: keep <pkgname> ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:443
-#, python-format
-msgid "'%s' matches no marked packages"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:456
+#: smart/channels/slack_site_info.py:28
 msgid ""
-"The fix command verifies relations of given packages\n"
-"and marks the necessary changes for fixing them."
+"\n"
+"Remote repository with slackware packages.\n"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:463
-msgid "Usage: fix <pkgname> ..."
+#: smart/channels/slack_site_info.py:33
+msgid "Base URL where PACKAGES.TXT is located"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:484 smart/commands/fix.py:108
-msgid "No problems to resolve!"
+#: smart/channels/slack_sys_info.py:26
+msgid "Slackware Installed Packages"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:492
+#: smart/channels/slack_sys_info.py:28
 msgid ""
-"The download command fetches the given packages\n"
-"to the local filesystem."
+"\n"
+"Installed packages in a slackware system.\n"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:495
-msgid "Usage: download <pkgname> ..."
+#: smart/channels/up2date_mirrors_info.py:26
+msgid "Mirror Information (up2date format)"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:502
+#: smart/channels/up2date_mirrors_info.py:28
+msgid ""
+"\n"
+"Mirror information file, in up2date format.\n"
+msgstr ""
+
+#: smart/channels/urpmi_info.py:26
+msgid "URPMI Repository"
+msgstr ""
+
+#: smart/channels/urpmi_info.py:28
+msgid ""
+"\n"
+"Repository created for Mandriva's URPMI package manager.\n"
+msgstr ""
+
+#: smart/channels/urpmi_info.py:33
+msgid ""
+"Base URL where packages or the 'list' file are found under. Using ' with "
+"<hdlurl>' pattern is also supported."
+msgstr ""
+
+#: smart/channels/urpmi_info.py:36
+msgid ""
+"URL for header list (hdlist or synthesis). If it's hdlist.cz inside the "
+"given base URL, may be left empty. URLs relative to the Base URL are "
+"supported"
+msgstr ""
+
+#: smart/channels/urpmi_info.py:45
+msgid "Base URL has 'with', but Header List URL was provided"
+msgstr ""
+
+#: smart/channels/urpmi_info.py:49
+msgid "Base URL has invalid 'with' pattern"
+msgstr ""
+
+#: smart/channels/yast2.py:132
 #, python-format
-msgid "'%s' matches multiple packages, selecting: %s"
+msgid "Invalid package file header (%s)"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:509
-msgid "The commit command applies marked changes in the system."
+#: smart/channels/yast2_info.py:26
+msgid "YaST2 Repository"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:511
-msgid "Usage: commit"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:523
-msgid "The undo command reverts marked changes."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:525
-msgid "Usage: undo"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:538
-msgid "The redo command reapplies undone changes."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:540
-msgid "Usage: redo"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:553
+#: smart/channels/yast2_info.py:28
 msgid ""
-"The ls command lists packages by name. Wildcards\n"
-"are accepted."
+"\n"
+"Repositories created for YaST2.\n"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:557
-msgid "   -i  List only installed packages"
+#: smart/channels/yast2_info.py:33
+msgid "Base URL of YaST2 repository, where the 'content' file is located."
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:558
-msgid "   -n  List only new packages"
+#: smart/channels/yast2_info.py:34
+msgid "Compressed SuSETags"
 msgstr ""
 
-#: smart/interfaces/text/interactive.py:559
-msgid "   -v  Show versions"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:560
-msgid "   -s  Show summaries"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:562
-msgid "Usage: ls [options] [<string>] ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:653
-msgid "The update command will update channel information."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:655
-msgid "Usage: update [<alias>] ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:678 smart/commands/update.py:82
-msgid "Channels have no new packages."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:687 smart/commands/update.py:91
-#, python-format
-msgid "Channels have %d new packages%s"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:692
-msgid ""
-"The flag command allows configuring, removing and\n"
-"verifying package flags, and accepts the same options\n"
-"available in the command line interface."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:696
-msgid "Usage: flag [options]"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:711
-msgid ""
-"The query command allows querying package information,\n"
-"and accepts the same options available in the command\n"
-"line interface."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:715
-msgid "Usage: query [options] [<pkgname>] ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:730
-msgid "The search command allows searching for packages."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:732
-msgid "Usage: search <string> ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:747
-msgid "The info command shows information about packages."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:749
-msgid "Usage: info <pkgname> ..."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:764
-msgid "The stats command shows some statistics."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:766
-msgid "Usage: stats"
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:780
-msgid ""
-"The check command verifies relations between packages,\n"
-"and accepts the same options available in the command\n"
-"line interface."
-msgstr ""
-
-#: smart/interfaces/text/interactive.py:784
-msgid "Usage: check [options] [<pkgname>] ..."
-msgstr ""
-
-#: smart/interfaces/gtk/channels.py:84
-msgid "Pri"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:118
-msgid "Update channels"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:165
-msgid "_Help"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:166
-msgid "_About"
-msgstr ""
-
-#: smart/interfaces/gtk/interactive.py:167
-msgid "Show about window"
-msgstr ""
-
-#: smart/interfaces/gtk/progress.py:115
-msgid "ETA"
-msgstr ""
-
-#: smart/interfaces/qt/interface.py:40
-msgid ""
-"You need PyQt installed in your system, please install with your package "
-"manager."
-msgstr ""
-
-#: smart/interfaces/qt/interface.py:84 smart/interfaces/qt/interface.py:99
-#: smart/interfaces/qt/interface.py:116
-msgid "Question..."
-msgstr ""
-
-#: smart/interfaces/qt/interface.py:101
-msgid "Continue"
-msgstr ""
-
-#: smart/interfaces/qt/interface.py:102
-msgid "Cancel"
-msgstr ""
-
-#: smart/media.py:183
-msgid "/proc/mounts not found"
+#: smart/channels/yast2_info.py:35
+msgid "Use compressed SuSETags metadata."
 msgstr ""
 
 #: smart/commands/channel.py:32
@@ -2665,12 +613,28 @@ msgstr ""
 msgid "show further information about given type"
 msgstr ""
 
+#: smart/commands/channel.py:135 smart/interfaces/gtk/channels.py:628
+msgid "Type:"
+msgstr ""
+
 #: smart/commands/channel.py:139
 msgid "Fields:"
 msgstr ""
 
 #: smart/commands/channel.py:142
 msgid "(*) These fields are necessary for this type."
+msgstr ""
+
+#: smart/commands/channel.py:171 smart/interfaces/gtk/channels.py:225
+#, python-format
+msgid "Unable to fetch channel description: %s"
+msgstr ""
+
+#: smart/commands/channel.py:183 smart/commands/mirror.py:128
+#: smart/interfaces/gtk/channels.py:213 smart/channel.py:114
+#: smart/sysconfig.py:78
+#, python-format
+msgid "File not found: %s"
 msgstr ""
 
 #: smart/commands/channel.py:187
@@ -2701,6 +665,12 @@ msgstr ""
 
 #: smart/commands/channel.py:233
 msgid "Updating removable channels..."
+msgstr ""
+
+#: smart/commands/channel.py:241 smart/commands/flag.py:91
+#: smart/commands/priority.py:79 smart/commands/priority.py:93
+#: smart/interfaces/text/interactive.py:246
+msgid "Invalid arguments"
 msgstr ""
 
 #: smart/commands/channel.py:245
@@ -2735,95 +705,121 @@ msgstr ""
 msgid "Remove ALL channels?"
 msgstr ""
 
+#: smart/commands/channel.py:335 smart/commands/channel.py:348
+#: smart/commands/mirror.py:240 smart/interfaces/text/interface.py:138
+msgid "Continue?"
+msgstr ""
+
 #: smart/commands/channel.py:345
 #, python-format
 msgid "Error in '%s' channel: %s"
 msgstr ""
 
-#: smart/commands/remove.py:29
-msgid "smart remove [options] package ..."
+#: smart/commands/check.py:29
+msgid "smart check [options] [package] ..."
 msgstr ""
 
-#: smart/commands/remove.py:31
+#: smart/commands/check.py:31
 msgid ""
 "\n"
-"This command will remove one or more packages which\n"
-"are currently installed in the system.\n"
+"This command will check relations between packages. If no\n"
+"packages are explicitly given, all packages in the selected\n"
+"channels will be checked. Relations of the checked packages\n"
+"will only match packages inside the selected channels.\n"
+"\n"
+"Use the 'fix' command to fix broken relations of\n"
+"installed packages.\n"
 msgstr ""
 
-#: smart/commands/remove.py:36
+#: smart/commands/check.py:41
 msgid ""
 "\n"
-"smart remove pkgname\n"
-"smart remove '*kgnam*'\n"
-"smart remove pkgname-1.0\n"
-"smart remove pkgname-1.0-1\n"
-"smart remove pkgname1 pkgname2\n"
+"smart check\n"
+"smart check pkgname\n"
+"smart check '*kgna*'\n"
+"smart check pkgname-1.0\n"
+"smart check pkgname-1.0-1\n"
+"smart check pkgname1 pkgname2\n"
 msgstr ""
 
-#: smart/commands/remove.py:49 smart/commands/fix.py:52
-#: smart/commands/reinstall.py:50 smart/commands/install.py:54
-#: smart/commands/upgrade.py:53
-msgid "split operation in steps"
+#: smart/commands/check.py:55
+msgid "check packages in all channels"
 msgstr ""
 
-#: smart/commands/remove.py:51 smart/commands/fix.py:54
-#: smart/commands/reinstall.py:52 smart/commands/install.py:56
-#: smart/commands/upgrade.py:55
-msgid "dump needed urls and don't commit operation"
+#: smart/commands/check.py:57
+msgid "check packages which are in at least one installed channel (default)"
 msgstr ""
 
-#: smart/commands/remove.py:53 smart/commands/fix.py:56
-#: smart/commands/reinstall.py:54 smart/commands/install.py:58
-#: smart/commands/upgrade.py:57
-msgid "download packages and don't commit operation"
+#: smart/commands/check.py:60
+msgid "check packages which are in at least one non-installed channel"
 msgstr ""
 
-#: smart/commands/remove.py:55 smart/commands/fix.py:58
-#: smart/commands/reinstall.py:56 smart/commands/install.py:60
-#: smart/commands/upgrade.py:67
-msgid "include additional information about changes,when possible"
+#: smart/commands/check.py:63
+msgid ""
+"check packages which are inside the given channels (comma separated aliases)"
 msgstr ""
 
-#: smart/commands/remove.py:58 smart/commands/fix.py:61
-#: smart/commands/reinstall.py:59 smart/commands/install.py:63
-#: smart/commands/upgrade.py:70
-msgid "do not ask for confirmation"
+#: smart/commands/check.py:101
+#, python-format
+msgid "Channels not found: %s"
 msgstr ""
 
-#: smart/commands/remove.py:60 smart/commands/install.py:65
-#: smart/commands/upgrade.py:72
-msgid "dump package names and versions to stderr but don't commit operation"
+#: smart/commands/check.py:103
+#, python-format
+msgid "Channels are disabled: %s"
 msgstr ""
 
-#: smart/commands/remove.py:120 smart/commands/fix.py:105
-#: smart/commands/reinstall.py:121 smart/commands/install.py:164
-#: smart/commands/upgrade.py:142
-msgid "Computing transaction..."
+#: smart/commands/check.py:129 smart/commands/download.py:86
+#: smart/commands/fix.py:87 smart/commands/info.py:73
+#: smart/commands/install.py:117 smart/commands/query.py:146
+#: smart/commands/reinstall.py:90 smart/commands/remove.py:93
+#: smart/commands/upgrade.py:113 smart/interfaces/text/interactive.py:155
+#: smart/interfaces/text/interactive.py:586
+#, python-format
+msgid ""
+"'%s' matches no packages. Suggestions:\n"
+"%s"
 msgstr ""
 
-#: smart/commands/fix.py:29
-msgid "smart fix [options] [package] ..."
+#: smart/commands/check.py:133 smart/commands/download.py:90
+#: smart/commands/fix.py:91 smart/commands/info.py:77
+#: smart/commands/install.py:121 smart/commands/query.py:150
+#: smart/commands/reinstall.py:94 smart/commands/remove.py:97
+#: smart/commands/upgrade.py:117 smart/interfaces/text/interactive.py:159
+#: smart/interfaces/text/interactive.py:591
+#, python-format
+msgid "'%s' matches no packages"
 msgstr ""
 
-#: smart/commands/fix.py:31
+#: smart/commands/clean.py:27
+msgid "smart clean [options]"
+msgstr ""
+
+#: smart/commands/clean.py:29
 msgid ""
 "\n"
-"This command will try to fix dependencies of installed packages\n"
-"which are related to the given packages. Notice that the given\n"
-"packages may be currently installed or not. If no packages are\n"
-"given, all installed packages will be checked.\n"
+"This command cleans the package cache. You can use it to\n"
+"delete old unused files that were left behind because of\n"
+"an incomplete transaction.\n"
 msgstr ""
 
-#: smart/commands/fix.py:38
-msgid ""
-"\n"
-"smart fix\n"
-"smart fix pkgname\n"
-"smart fix '*kgna*'\n"
-"smart fix pkgname-1.0\n"
-"smart fix pkgname-1.0-1\n"
-"smart fix pkgname1 pkgname2\n"
+#: smart/commands/clean.py:47 smart/interfaces/gtk/channels.py:268
+#, python-format
+msgid "Directory not found: %s"
+msgstr ""
+
+#: smart/commands/clean.py:49
+msgid "Removing cached package files..."
+msgstr ""
+
+#: smart/commands/clean.py:55
+#, python-format
+msgid "Removed %s"
+msgstr ""
+
+#: smart/commands/clean.py:57
+#, python-format
+msgid "Can't remove cached package %s: %s"
 msgstr ""
 
 #: smart/commands/config.py:28
@@ -2859,8 +855,8 @@ msgstr ""
 msgid "remove given options"
 msgstr ""
 
-#: smart/commands/config.py:57 smart/commands/priority.py:65
-#: smart/commands/flag.py:78
+#: smart/commands/config.py:57 smart/commands/flag.py:78
+#: smart/commands/priority.py:65
 msgid "ignore problems"
 msgstr ""
 
@@ -2879,70 +875,266 @@ msgstr ""
 msgid "Option '%s' not found."
 msgstr ""
 
-#: smart/commands/reinstall.py:30
-msgid "smart reinstall [options] package ..."
+#: smart/commands/download.py:31
+msgid "smart download [options] package ..."
 msgstr ""
 
-#: smart/commands/reinstall.py:32
+#: smart/commands/download.py:33
 msgid ""
 "\n"
-"This command will reinstall one or more packages which\n"
-"are already installed in the system.\n"
+"This command allows downloading one or more given packages.\n"
 msgstr ""
 
-#: smart/commands/reinstall.py:37
+#: smart/commands/download.py:37
 msgid ""
 "\n"
-"smart reinstall pkgname\n"
-"smart reinstall '*kgnam*'\n"
-"smart reinstall pkgname-1.0\n"
-"smart reinstall pkgname-1.0-1\n"
-"smart reinstall pkgname1 pkgname2\n"
+"smart download pkgname\n"
+"smart download '*kgna*'\n"
+"smart download pkgname-1.0\n"
+"smart download pkgname-1.0-1\n"
+"smart download pkgname1 pkgname2\n"
+"smart download pkgname --urls 2> pkgname-url.txt\n"
+"smart download --from-urls pkgname-url.txt\n"
+"smart download --from-urls http://some.url/some/path/somefile\n"
 msgstr ""
 
-#: smart/commands/reinstall.py:116
+#: smart/commands/download.py:55
+msgid "packages will be saved in given directory"
+msgstr ""
+
+#: smart/commands/download.py:57
+msgid "dump needed urls and don't download packages"
+msgstr ""
+
+#: smart/commands/download.py:59
+msgid ""
+"download files from the given urls and/or from the given files with lists of "
+"urls"
+msgstr ""
+
+#: smart/commands/download.py:64
+msgid "Directory not found:"
+msgstr ""
+
+#: smart/commands/download.py:104 smart/commands/install.py:135
 #, python-format
-msgid "'%s' is not available for reinstallation"
+msgid "%s (for %s) is already installed"
 msgstr ""
 
-#: smart/commands/stats.py:27
-msgid "smart stats"
+#: smart/commands/download.py:117 smart/commands/install.py:148
+#, python-format
+msgid ""
+"There are multiple matches for '%s':\n"
+"%s"
 msgstr ""
 
-#: smart/commands/stats.py:29
+#: smart/commands/download.py:143
+#, python-format
+msgid "Argument is not a file nor url: %s"
+msgstr ""
+
+#: smart/commands/download.py:144 smart/interfaces/gtk/packageinfo.py:163
+msgid "URLs"
+msgstr ""
+
+#: smart/commands/fix.py:29
+msgid "smart fix [options] [package] ..."
+msgstr ""
+
+#: smart/commands/fix.py:31
 msgid ""
 "\n"
-"This command will show some statistics.\n"
+"This command will try to fix dependencies of installed packages\n"
+"which are related to the given packages. Notice that the given\n"
+"packages may be currently installed or not. If no packages are\n"
+"given, all installed packages will be checked.\n"
 msgstr ""
 
-#: smart/commands/stats.py:33
+#: smart/commands/fix.py:38
 msgid ""
 "\n"
-"smart stats \n"
+"smart fix\n"
+"smart fix pkgname\n"
+"smart fix '*kgna*'\n"
+"smart fix pkgname-1.0\n"
+"smart fix pkgname-1.0-1\n"
+"smart fix pkgname1 pkgname2\n"
 msgstr ""
 
-#: smart/commands/stats.py:52
-msgid "Installed Packages:"
+#: smart/commands/fix.py:52 smart/commands/install.py:54
+#: smart/commands/reinstall.py:50 smart/commands/remove.py:49
+#: smart/commands/upgrade.py:53
+msgid "split operation in steps"
 msgstr ""
 
-#: smart/commands/stats.py:54
-msgid "Total Packages:"
+#: smart/commands/fix.py:54 smart/commands/install.py:56
+#: smart/commands/reinstall.py:52 smart/commands/remove.py:51
+#: smart/commands/upgrade.py:55
+msgid "dump needed urls and don't commit operation"
 msgstr ""
 
-#: smart/commands/stats.py:55
-msgid "Total Provides:"
+#: smart/commands/fix.py:56 smart/commands/install.py:58
+#: smart/commands/reinstall.py:54 smart/commands/remove.py:53
+#: smart/commands/upgrade.py:57
+msgid "download packages and don't commit operation"
 msgstr ""
 
-#: smart/commands/stats.py:56
-msgid "Total Requires:"
+#: smart/commands/fix.py:58 smart/commands/install.py:60
+#: smart/commands/reinstall.py:56 smart/commands/remove.py:55
+#: smart/commands/upgrade.py:67
+msgid "include additional information about changes,when possible"
 msgstr ""
 
-#: smart/commands/stats.py:57
-msgid "Total Upgrades:"
+#: smart/commands/fix.py:61 smart/commands/install.py:63
+#: smart/commands/reinstall.py:59 smart/commands/remove.py:58
+#: smart/commands/upgrade.py:70
+msgid "do not ask for confirmation"
 msgstr ""
 
-#: smart/commands/stats.py:58
-msgid "Total Conflicts:"
+#: smart/commands/fix.py:105 smart/commands/install.py:164
+#: smart/commands/reinstall.py:121 smart/commands/remove.py:120
+#: smart/commands/upgrade.py:142
+msgid "Computing transaction..."
+msgstr ""
+
+#: smart/commands/fix.py:108 smart/interfaces/text/interactive.py:484
+msgid "No problems to resolve!"
+msgstr ""
+
+#: smart/commands/flag.py:27
+msgid "smart flag [options]"
+msgstr ""
+
+#: smart/commands/flag.py:29
+msgid ""
+"\n"
+"This command allows one to set, remove, and show package flags.\n"
+"Package flags are used to tune the behavior of some algorithms\n"
+"when dealing with the given packages.\n"
+"\n"
+"Currently known flags are:\n"
+"\n"
+"  lock          - Flagged packages will not be removed, if they\n"
+"                  are currently installed, nor installed, if they\n"
+"                  are currently available.\n"
+"  new           - Flagged packages were considered new packages\n"
+"                  in the repository when the last update was done.\n"
+"                  This flag is automatically manipulated by the\n"
+"                  system.\n"
+"  multi-version - Flagged packages may have more than one version\n"
+"                  installed in the system at the same time\n"
+"                  (backend dependent).\n"
+msgstr ""
+
+#: smart/commands/flag.py:48
+msgid ""
+"\n"
+"smart flag --show\n"
+"smart flag --show new\n"
+"smart flag --set lock pkgname\n"
+"smart flag --remove lock pkgname\n"
+"smart flag --set lock 'pkgname >= 1.0'\n"
+"smart flag --remove lock 'pkgname >= 1.0'\n"
+msgstr ""
+
+#: smart/commands/flag.py:65
+msgid ""
+"set flags given in pairs of flag name/target, where targets may use just the "
+"package name, or the package name, relation, and version, such as: lock "
+"'python > 1.0'"
+msgstr ""
+
+#: smart/commands/flag.py:70
+msgid ""
+"remove flags given in pairs of flag name/target, where targets may use just "
+"the package name, or the package name, relation, and version, such as: lock "
+"'python > 1.0'"
+msgstr ""
+
+#: smart/commands/flag.py:75
+msgid ""
+"show packages with the flags given as arguments or all flags if no argument "
+"was given"
+msgstr ""
+
+#: smart/commands/flag.py:96
+#, python-format
+msgid "Invalid target: %s"
+msgstr ""
+
+#: smart/commands/info.py:29
+msgid "smart info [options] [package] ..."
+msgstr ""
+
+#: smart/commands/info.py:31
+msgid ""
+"\n"
+"This command will show information about the given packages.\n"
+msgstr ""
+
+#: smart/commands/info.py:35
+msgid ""
+"\n"
+"smart info pkgname\n"
+"smart info pkgname-1.0\n"
+"smart info pkgname --urls --paths\n"
+msgstr ""
+
+#: smart/commands/info.py:46
+msgid "show URLs"
+msgstr ""
+
+#: smart/commands/info.py:48
+msgid "show path list"
+msgstr ""
+
+#: smart/commands/info.py:105 smart/interfaces/gtk/flags.py:314
+msgid "Name:"
+msgstr ""
+
+#: smart/commands/info.py:106
+msgid "Version:"
+msgstr ""
+
+#: smart/commands/info.py:107 smart/interfaces/gtk/packageinfo.py:66
+#: smart/interfaces/gtk/priorities.py:242
+msgid "Priority:"
+msgstr ""
+
+#: smart/commands/info.py:108 smart/interfaces/gtk/packageinfo.py:67
+msgid "Group:"
+msgstr ""
+
+#: smart/commands/info.py:109 smart/interfaces/gtk/packageinfo.py:68
+msgid "Installed Size:"
+msgstr ""
+
+#: smart/commands/info.py:110
+msgid "Reference URLs:"
+msgstr ""
+
+#: smart/commands/info.py:119
+msgid "Flags:"
+msgstr ""
+
+#: smart/commands/info.py:121 smart/interfaces/gtk/packageinfo.py:69
+msgid "Channels:"
+msgstr ""
+
+#: smart/commands/info.py:126
+msgid "Summary:"
+msgstr ""
+
+#: smart/commands/info.py:127
+msgid "Description:"
+msgstr ""
+
+#: smart/commands/info.py:135
+msgid "URLs:"
+msgstr ""
+
+#: smart/commands/info.py:153
+msgid "Paths:"
 msgstr ""
 
 #: smart/commands/install.py:31
@@ -2969,16 +1161,219 @@ msgid ""
 "smart install http://some.url/some/path/somepackage.file\n"
 msgstr ""
 
-#: smart/commands/install.py:135 smart/commands/download.py:104
-#, python-format
-msgid "%s (for %s) is already installed"
+#: smart/commands/install.py:65 smart/commands/remove.py:60
+#: smart/commands/upgrade.py:72
+msgid "dump package names and versions to stderr but don't commit operation"
 msgstr ""
 
-#: smart/commands/install.py:148 smart/commands/download.py:117
+#: smart/commands/install.py:85 smart/control.py:661
+msgid "packages"
+msgstr ""
+
+#: smart/commands/install.py:88 smart/control.py:665
+msgid "Failed to download packages:\n"
+msgstr ""
+
+#: smart/commands/install.py:101 smart/commands/install.py:160
+#: smart/interfaces/text/interactive.py:281
 #, python-format
+msgid "%s is already installed"
+msgstr ""
+
+#: smart/commands/mirror.py:30
+msgid "smart mirror [options]"
+msgstr ""
+
+#: smart/commands/mirror.py:32
 msgid ""
-"There are multiple matches for '%s':\n"
-"%s"
+"\n"
+"This command allows one to manipulate mirrors. Mirrors are URLs\n"
+"that supposedly provide the same contents as are available in\n"
+"other URLs, named origins in this help text. There is no internal\n"
+"restriction on the kind of information which is mirrored. Once\n"
+"an origin URL is provided, and one or more mirror URLs are\n"
+"provided, these mirrors will be considered for any file which\n"
+"is going to be fetched from an URL starting with the origin URL.\n"
+"Whether the mirror will be chosen or not will depend on the\n"
+"history of downloads from this mirror and from other mirrors for\n"
+"the same URL, since mirrors are automatically balanced so that\n"
+"the fastest mirror and with less errors is chosen. When errors\n"
+"occur, the next mirror is tried.\n"
+"\n"
+"For instance, if a mirror \"http://mirror.url/path/\" is provided\n"
+"for the origin \"ftp://origin.url/other/path/\", and a file in\n"
+"\"ftp://origin.url/other/path/subpath/somefile\" is going to be\n"
+"fetched, the mirror will be considered for being used, and the\n"
+"URL \"http://mirror.url/path/subpath/somefile\" will be used if\n"
+"the mirror is chosen. Notice that strings are compared and\n"
+"replaced without any pre-processing, so that it's possible to\n"
+"use URLs ending in prefixes of directory entries.\n"
+msgstr ""
+
+#: smart/commands/mirror.py:56
+msgid ""
+"\n"
+"smart mirror --show\n"
+"smart mirror --add ftp://origin.url/some/path/ http://mirror.url/path/\n"
+"smart mirror --remove ftp://origin.url/some/path/ http://mirror.url/path/\n"
+"smart mirror --add http://some.url/path/to/mirrors.txt\n"
+"smart mirror --sync http://some.url/path/to/mirrors.txt\n"
+"smart mirror --clear-history ftp://origin.url/some/path/\n"
+"smart mirror --clear-history ftp://mirror.url/path/\n"
+"smart mirror --clear-history\n"
+msgstr ""
+
+#: smart/commands/mirror.py:67
+msgid ""
+"#\n"
+"# Example:\n"
+"#\n"
+"# http://origin.url/some/path/\n"
+"#     http://mirror.url/another/path/\n"
+"#     http://some.mirror.url/to/the/same/content/\n"
+"#\n"
+"# http://another.origin.url/another/path/\n"
+"#     http://another.mirror.url/yet/another/path/\n"
+"#\n"
+msgstr ""
+
+#: smart/commands/mirror.py:89
+msgid "show current mirrors"
+msgstr ""
+
+#: smart/commands/mirror.py:91
+msgid ""
+"add to the given origin URL the given mirror URL, provided either in pairs, "
+"or in a given file/url in the format used by --show"
+msgstr ""
+
+#: smart/commands/mirror.py:95
+msgid ""
+"remove from the given origin URL the given mirror URL, provided either in "
+"pairs, or in a given file/url in the format used by --show"
+msgstr ""
+
+#: smart/commands/mirror.py:99
+msgid "remove all mirrors for the given origin URLs"
+msgstr ""
+
+#: smart/commands/mirror.py:101
+msgid ""
+"synchronize mirrors from the given file/url, so that origins in the given "
+"file will have exactly the specified mirrors"
+msgstr ""
+
+#: smart/commands/mirror.py:105
+msgid "edit mirrors in editor set by $EDITOR"
+msgstr ""
+
+#: smart/commands/mirror.py:107
+msgid "clear history for the given origins/mirrors, or for all mirrors"
+msgstr ""
+
+#: smart/commands/mirror.py:110
+msgid ""
+"show current penalities for origins/mirrors, based on the history information"
+msgstr ""
+
+#: smart/commands/mirror.py:120
+msgid "mirror descriptions"
+msgstr ""
+
+#: smart/commands/mirror.py:122
+msgid "Failed to download mirror descriptions:\n"
+msgstr ""
+
+#: smart/commands/mirror.py:147
+msgid "Invalid mirrors file"
+msgstr ""
+
+#: smart/commands/mirror.py:164
+msgid "Invalid arguments for --add"
+msgstr ""
+
+#: smart/commands/mirror.py:174
+msgid "Invalid arguments for --remove"
+msgstr ""
+
+#: smart/commands/mirror.py:178 smart/commands/mirror.py:185
+#, python-format
+msgid "Origin not found: %s"
+msgstr ""
+
+#: smart/commands/mirror.py:180
+#, python-format
+msgid "Mirror not found: %s"
+msgstr ""
+
+#: smart/commands/nothing.py:26
+msgid "smart test [options]"
+msgstr ""
+
+#: smart/commands/priority.py:27
+msgid "smart priority [options]"
+msgstr ""
+
+#: smart/commands/priority.py:29
+msgid ""
+"\n"
+"This command allows changing the priority of given packages.\n"
+"Packages with higher priorities are considered a better option\n"
+"even when package versions state otherwise. Using priorities\n"
+"one may avoid unwanted upgrades, force downgrades, select\n"
+"packages in given channels as preferential, and other kinds\n"
+"of interesting setups. When a package has no explicit priority,\n"
+"the channel priority is used. The channel priority may be\n"
+"changed using the 'channel' command, and defaults to 0 when\n"
+"not set.\n"
+"\n"
+"Notice that negatives priorities must be preceded by '--' in\n"
+"the command line, otherwise they'll be interpreted as command\n"
+"line options.\n"
+msgstr ""
+
+#: smart/commands/priority.py:45
+msgid ""
+"\n"
+"smart priority --set pkgname 100\n"
+"smart priority --set pkgname mychannel -- -200\n"
+"smart priority --remove pkgname\n"
+"smart priority --remove pkgname mychannel\n"
+"smart priority --show\n"
+"smart priority --show pkgname\n"
+msgstr ""
+
+#: smart/commands/priority.py:59
+msgid "set priority"
+msgstr ""
+
+#: smart/commands/priority.py:61
+msgid "unset priority"
+msgstr ""
+
+#: smart/commands/priority.py:63
+msgid "show priorities"
+msgstr ""
+
+#: smart/commands/priority.py:83
+msgid "Invalid priority"
+msgstr ""
+
+#: smart/commands/priority.py:95
+msgid "Priority not found"
+msgstr ""
+
+#: smart/commands/priority.py:98 smart/interfaces/gtk/packageview.py:132
+msgid "Package"
+msgstr ""
+
+#: smart/commands/priority.py:98 smart/interfaces/gtk/packageinfo.py:155
+msgid "Channel"
+msgstr ""
+
+#: smart/commands/priority.py:98 smart/interfaces/gtk/interactive.py:651
+#: smart/interfaces/gtk/priorities.py:83 smart/channel.py:150
+msgid "Priority"
 msgstr ""
 
 #: smart/commands/query.py:33
@@ -3116,6 +1511,10 @@ msgstr ""
 msgid "Provides:"
 msgstr ""
 
+#: smart/commands/query.py:530 smart/interfaces/text/interface.py:188
+msgid "Required By:"
+msgstr ""
+
 #: smart/commands/query.py:533 smart/commands/query.py:566
 msgid "pre"
 msgstr ""
@@ -3128,188 +1527,135 @@ msgstr ""
 msgid "Conflicted By:"
 msgstr ""
 
+#: smart/commands/query.py:564 smart/interfaces/text/interface.py:184
+msgid "Requires:"
+msgstr ""
+
 #: smart/commands/query.py:573 smart/commands/query.py:589
 #: smart/commands/query.py:605
 msgid "Provided By:"
 msgstr ""
 
-#: smart/commands/mirror.py:30
-msgid "smart mirror [options]"
+#: smart/commands/query.py:583 smart/interfaces/text/interface.py:176
+msgid "Upgrades:"
 msgstr ""
 
-#: smart/commands/mirror.py:32
+#: smart/commands/query.py:599 smart/interfaces/text/interface.py:192
+msgid "Conflicts:"
+msgstr ""
+
+#: smart/commands/reinstall.py:30
+msgid "smart reinstall [options] package ..."
+msgstr ""
+
+#: smart/commands/reinstall.py:32
 msgid ""
 "\n"
-"This command allows one to manipulate mirrors. Mirrors are URLs\n"
-"that supposedly provide the same contents as are available in\n"
-"other URLs, named origins in this help text. There is no internal\n"
-"restriction on the kind of information which is mirrored. Once\n"
-"an origin URL is provided, and one or more mirror URLs are\n"
-"provided, these mirrors will be considered for any file which\n"
-"is going to be fetched from an URL starting with the origin URL.\n"
-"Whether the mirror will be chosen or not will depend on the\n"
-"history of downloads from this mirror and from other mirrors for\n"
-"the same URL, since mirrors are automatically balanced so that\n"
-"the fastest mirror and with less errors is chosen. When errors\n"
-"occur, the next mirror is tried.\n"
-"\n"
-"For instance, if a mirror \"http://mirror.url/path/\" is provided\n"
-"for the origin \"ftp://origin.url/other/path/\", and a file in\n"
-"\"ftp://origin.url/other/path/subpath/somefile\" is going to be\n"
-"fetched, the mirror will be considered for being used, and the\n"
-"URL \"http://mirror.url/path/subpath/somefile\" will be used if\n"
-"the mirror is chosen. Notice that strings are compared and\n"
-"replaced without any pre-processing, so that it's possible to\n"
-"use URLs ending in prefixes of directory entries.\n"
+"This command will reinstall one or more packages which\n"
+"are already installed in the system.\n"
 msgstr ""
 
-#: smart/commands/mirror.py:56
+#: smart/commands/reinstall.py:37
 msgid ""
 "\n"
-"smart mirror --show\n"
-"smart mirror --add ftp://origin.url/some/path/ http://mirror.url/path/\n"
-"smart mirror --remove ftp://origin.url/some/path/ http://mirror.url/path/\n"
-"smart mirror --add http://some.url/path/to/mirrors.txt\n"
-"smart mirror --sync http://some.url/path/to/mirrors.txt\n"
-"smart mirror --clear-history ftp://origin.url/some/path/\n"
-"smart mirror --clear-history ftp://mirror.url/path/\n"
-"smart mirror --clear-history\n"
+"smart reinstall pkgname\n"
+"smart reinstall '*kgnam*'\n"
+"smart reinstall pkgname-1.0\n"
+"smart reinstall pkgname-1.0-1\n"
+"smart reinstall pkgname1 pkgname2\n"
 msgstr ""
 
-#: smart/commands/mirror.py:67
-msgid ""
-"#\n"
-"# Example:\n"
-"#\n"
-"# http://origin.url/some/path/\n"
-"#     http://mirror.url/another/path/\n"
-"#     http://some.mirror.url/to/the/same/content/\n"
-"#\n"
-"# http://another.origin.url/another/path/\n"
-"#     http://another.mirror.url/yet/another/path/\n"
-"#\n"
-msgstr ""
-
-#: smart/commands/mirror.py:89
-msgid "show current mirrors"
-msgstr ""
-
-#: smart/commands/mirror.py:91
-msgid ""
-"add to the given origin URL the given mirror URL, provided either in pairs, "
-"or in a given file/url in the format used by --show"
-msgstr ""
-
-#: smart/commands/mirror.py:95
-msgid ""
-"remove from the given origin URL the given mirror URL, provided either in "
-"pairs, or in a given file/url in the format used by --show"
-msgstr ""
-
-#: smart/commands/mirror.py:99
-msgid "remove all mirrors for the given origin URLs"
-msgstr ""
-
-#: smart/commands/mirror.py:101
-msgid ""
-"synchronize mirrors from the given file/url, so that origins in the given "
-"file will have exactly the specified mirrors"
-msgstr ""
-
-#: smart/commands/mirror.py:105
-msgid "edit mirrors in editor set by $EDITOR"
-msgstr ""
-
-#: smart/commands/mirror.py:107
-msgid "clear history for the given origins/mirrors, or for all mirrors"
-msgstr ""
-
-#: smart/commands/mirror.py:110
-msgid ""
-"show current penalities for origins/mirrors, based on the history information"
-msgstr ""
-
-#: smart/commands/mirror.py:120
-msgid "mirror descriptions"
-msgstr ""
-
-#: smart/commands/mirror.py:122
-msgid "Failed to download mirror descriptions:\n"
-msgstr ""
-
-#: smart/commands/mirror.py:147
-msgid "Invalid mirrors file"
-msgstr ""
-
-#: smart/commands/mirror.py:164
-msgid "Invalid arguments for --add"
-msgstr ""
-
-#: smart/commands/mirror.py:174
-msgid "Invalid arguments for --remove"
-msgstr ""
-
-#: smart/commands/mirror.py:178 smart/commands/mirror.py:185
+#: smart/commands/reinstall.py:116
 #, python-format
-msgid "Origin not found: %s"
+msgid "'%s' is not available for reinstallation"
 msgstr ""
 
-#: smart/commands/mirror.py:180
+#: smart/commands/reinstall.py:119 smart/commands/remove.py:118
+#: smart/commands/upgrade.py:136 smart/interfaces/text/interactive.py:319
+#: smart/interfaces/text/interactive.py:365
+#: smart/interfaces/text/interactive.py:409
 #, python-format
-msgid "Mirror not found: %s"
+msgid "'%s' matches no installed packages"
 msgstr ""
 
-#: smart/commands/priority.py:27
-msgid "smart priority [options]"
+#: smart/commands/remove.py:29
+msgid "smart remove [options] package ..."
 msgstr ""
 
-#: smart/commands/priority.py:29
+#: smart/commands/remove.py:31
 msgid ""
 "\n"
-"This command allows changing the priority of given packages.\n"
-"Packages with higher priorities are considered a better option\n"
-"even when package versions state otherwise. Using priorities\n"
-"one may avoid unwanted upgrades, force downgrades, select\n"
-"packages in given channels as preferential, and other kinds\n"
-"of interesting setups. When a package has no explicit priority,\n"
-"the channel priority is used. The channel priority may be\n"
-"changed using the 'channel' command, and defaults to 0 when\n"
-"not set.\n"
-"\n"
-"Notice that negatives priorities must be preceded by '--' in\n"
-"the command line, otherwise they'll be interpreted as command\n"
-"line options.\n"
+"This command will remove one or more packages which\n"
+"are currently installed in the system.\n"
 msgstr ""
 
-#: smart/commands/priority.py:45
+#: smart/commands/remove.py:36
 msgid ""
 "\n"
-"smart priority --set pkgname 100\n"
-"smart priority --set pkgname mychannel -- -200\n"
-"smart priority --remove pkgname\n"
-"smart priority --remove pkgname mychannel\n"
-"smart priority --show\n"
-"smart priority --show pkgname\n"
+"smart remove pkgname\n"
+"smart remove '*kgnam*'\n"
+"smart remove pkgname-1.0\n"
+"smart remove pkgname-1.0-1\n"
+"smart remove pkgname1 pkgname2\n"
 msgstr ""
 
-#: smart/commands/priority.py:59
-msgid "set priority"
+#: smart/commands/search.py:25
+msgid ""
+"\n"
+"Usage: smart search expression ...\n"
+"\n"
+"This command allows searching for the given expressions\n"
+"in the name, summary, and description of known packages.\n"
+"\n"
+"Options:\n"
+"  -h, --help  Show this help message and exit\n"
+"\n"
+"Examples:\n"
+"  smart search ldap\n"
+"  smart search kernel module\n"
+"  smart search rpm 'package manager'\n"
+"  smart search pkgname\n"
+"  smart search 'pkgn*e'\n"
 msgstr ""
 
-#: smart/commands/priority.py:61
-msgid "unset priority"
+#: smart/commands/stats.py:27
+msgid "smart stats"
 msgstr ""
 
-#: smart/commands/priority.py:63
-msgid "show priorities"
+#: smart/commands/stats.py:29
+msgid ""
+"\n"
+"This command will show some statistics.\n"
 msgstr ""
 
-#: smart/commands/priority.py:83
-msgid "Invalid priority"
+#: smart/commands/stats.py:33
+msgid ""
+"\n"
+"smart stats \n"
 msgstr ""
 
-#: smart/commands/priority.py:95
-msgid "Priority not found"
+#: smart/commands/stats.py:52
+msgid "Installed Packages:"
+msgstr ""
+
+#: smart/commands/stats.py:54
+msgid "Total Packages:"
+msgstr ""
+
+#: smart/commands/stats.py:55
+msgid "Total Provides:"
+msgstr ""
+
+#: smart/commands/stats.py:56
+msgid "Total Requires:"
+msgstr ""
+
+#: smart/commands/stats.py:57
+msgid "Total Upgrades:"
+msgstr ""
+
+#: smart/commands/stats.py:58
+msgid "Total Conflicts:"
 msgstr ""
 
 #: smart/commands/update.py:29
@@ -3343,219 +1689,13 @@ msgstr ""
 msgid "Argument '%s' is not a channel alias."
 msgstr ""
 
-#: smart/commands/download.py:31
-msgid "smart download [options] package ..."
+#: smart/commands/update.py:82 smart/interfaces/text/interactive.py:678
+msgid "Channels have no new packages."
 msgstr ""
 
-#: smart/commands/download.py:33
-msgid ""
-"\n"
-"This command allows downloading one or more given packages.\n"
-msgstr ""
-
-#: smart/commands/download.py:37
-msgid ""
-"\n"
-"smart download pkgname\n"
-"smart download '*kgna*'\n"
-"smart download pkgname-1.0\n"
-"smart download pkgname-1.0-1\n"
-"smart download pkgname1 pkgname2\n"
-"smart download pkgname --urls 2> pkgname-url.txt\n"
-"smart download --from-urls pkgname-url.txt\n"
-"smart download --from-urls http://some.url/some/path/somefile\n"
-msgstr ""
-
-#: smart/commands/download.py:55
-msgid "packages will be saved in given directory"
-msgstr ""
-
-#: smart/commands/download.py:57
-msgid "dump needed urls and don't download packages"
-msgstr ""
-
-#: smart/commands/download.py:59
-msgid ""
-"download files from the given urls and/or from the given files with lists of "
-"urls"
-msgstr ""
-
-#: smart/commands/download.py:64
-msgid "Directory not found:"
-msgstr ""
-
-#: smart/commands/download.py:143
+#: smart/commands/update.py:91 smart/interfaces/text/interactive.py:687
 #, python-format
-msgid "Argument is not a file nor url: %s"
-msgstr ""
-
-#: smart/commands/check.py:29
-msgid "smart check [options] [package] ..."
-msgstr ""
-
-#: smart/commands/check.py:31
-msgid ""
-"\n"
-"This command will check relations between packages. If no\n"
-"packages are explicitly given, all packages in the selected\n"
-"channels will be checked. Relations of the checked packages\n"
-"will only match packages inside the selected channels.\n"
-"\n"
-"Use the 'fix' command to fix broken relations of\n"
-"installed packages.\n"
-msgstr ""
-
-#: smart/commands/check.py:41
-msgid ""
-"\n"
-"smart check\n"
-"smart check pkgname\n"
-"smart check '*kgna*'\n"
-"smart check pkgname-1.0\n"
-"smart check pkgname-1.0-1\n"
-"smart check pkgname1 pkgname2\n"
-msgstr ""
-
-#: smart/commands/check.py:55
-msgid "check packages in all channels"
-msgstr ""
-
-#: smart/commands/check.py:57
-msgid "check packages which are in at least one installed channel (default)"
-msgstr ""
-
-#: smart/commands/check.py:60
-msgid "check packages which are in at least one non-installed channel"
-msgstr ""
-
-#: smart/commands/check.py:63
-msgid ""
-"check packages which are inside the given channels (comma separated aliases)"
-msgstr ""
-
-#: smart/commands/check.py:101
-#, python-format
-msgid "Channels not found: %s"
-msgstr ""
-
-#: smart/commands/check.py:103
-#, python-format
-msgid "Channels are disabled: %s"
-msgstr ""
-
-#: smart/commands/flag.py:27
-msgid "smart flag [options]"
-msgstr ""
-
-#: smart/commands/flag.py:29
-msgid ""
-"\n"
-"This command allows one to set, remove, and show package flags.\n"
-"Package flags are used to tune the behavior of some algorithms\n"
-"when dealing with the given packages.\n"
-"\n"
-"Currently known flags are:\n"
-"\n"
-"  lock          - Flagged packages will not be removed, if they\n"
-"                  are currently installed, nor installed, if they\n"
-"                  are currently available.\n"
-"  new           - Flagged packages were considered new packages\n"
-"                  in the repository when the last update was done.\n"
-"                  This flag is automatically manipulated by the\n"
-"                  system.\n"
-"  multi-version - Flagged packages may have more than one version\n"
-"                  installed in the system at the same time\n"
-"                  (backend dependent).\n"
-msgstr ""
-
-#: smart/commands/flag.py:48
-msgid ""
-"\n"
-"smart flag --show\n"
-"smart flag --show new\n"
-"smart flag --set lock pkgname\n"
-"smart flag --remove lock pkgname\n"
-"smart flag --set lock 'pkgname >= 1.0'\n"
-"smart flag --remove lock 'pkgname >= 1.0'\n"
-msgstr ""
-
-#: smart/commands/flag.py:65
-msgid ""
-"set flags given in pairs of flag name/target, where targets may use just the "
-"package name, or the package name, relation, and version, such as: lock "
-"'python > 1.0'"
-msgstr ""
-
-#: smart/commands/flag.py:70
-msgid ""
-"remove flags given in pairs of flag name/target, where targets may use just "
-"the package name, or the package name, relation, and version, such as: lock "
-"'python > 1.0'"
-msgstr ""
-
-#: smart/commands/flag.py:75
-msgid ""
-"show packages with the flags given as arguments or all flags if no argument "
-"was given"
-msgstr ""
-
-#: smart/commands/flag.py:96
-#, python-format
-msgid "Invalid target: %s"
-msgstr ""
-
-#: smart/commands/info.py:29
-msgid "smart info [options] [package] ..."
-msgstr ""
-
-#: smart/commands/info.py:31
-msgid ""
-"\n"
-"This command will show information about the given packages.\n"
-msgstr ""
-
-#: smart/commands/info.py:35
-msgid ""
-"\n"
-"smart info pkgname\n"
-"smart info pkgname-1.0\n"
-"smart info pkgname --urls --paths\n"
-msgstr ""
-
-#: smart/commands/info.py:46
-msgid "show URLs"
-msgstr ""
-
-#: smart/commands/info.py:48
-msgid "show path list"
-msgstr ""
-
-#: smart/commands/info.py:106
-msgid "Version:"
-msgstr ""
-
-#: smart/commands/info.py:110
-msgid "Reference URLs:"
-msgstr ""
-
-#: smart/commands/info.py:119
-msgid "Flags:"
-msgstr ""
-
-#: smart/commands/info.py:126
-msgid "Summary:"
-msgstr ""
-
-#: smart/commands/info.py:127
-msgid "Description:"
-msgstr ""
-
-#: smart/commands/info.py:135
-msgid "URLs:"
-msgstr ""
-
-#: smart/commands/info.py:153
-msgid "Paths:"
+msgid "Channels have %d new packages%s"
 msgstr ""
 
 #: smart/commands/upgrade.py:31
@@ -3605,53 +1745,1567 @@ msgstr ""
 msgid "There are new upgrades available!"
 msgstr ""
 
-#: smart/commands/search.py:25
+#: smart/interfaces/gtk/__init__.py:36
+msgid "System has no support for gtk python interface"
+msgstr ""
+
+#: smart/interfaces/gtk/__init__.py:55
+#, python-format
+msgid "Image '%s' not found"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:36
+msgid "Change Summary"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:541
+msgid "Remove"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:97
+msgid "Downgrade"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:531
+msgid "Reinstall"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:522
+msgid "Install"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:98
+msgid "Upgrade"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:125 smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:366
+msgid "Upgrades"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:129
+msgid "Downgrades"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:133 smart/interfaces/gtk/changes.py:170
+#: smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:357
+msgid "Requires"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:136 smart/interfaces/gtk/changes.py:173
+#: smart/interfaces/gtk/packageinfo.py:332
+msgid "Required By"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:141 smart/interfaces/gtk/changes.py:178
+#: smart/interfaces/gtk/packageinfo.py:315
+#: smart/interfaces/gtk/packageinfo.py:375
+msgid "Conflicts"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:151
+#, python-format
+msgid "Reinstall (%d)"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:154
+#, python-format
+msgid "Install (%d)"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:156
+#, python-format
+msgid "Upgrade (%d)"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:158
+#, python-format
+msgid "Downgrade (%d)"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:181
+#, python-format
+msgid "Remove (%d)"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:185
+#, python-format
+msgid "Keep (%d)"
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:191 smart/interfaces/text/interface.py:225
+#, python-format
+msgid "%s of package files are needed. "
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:193 smart/interfaces/text/interface.py:228
+#, python-format
+msgid "%s will be used."
+msgstr ""
+
+#: smart/interfaces/gtk/changes.py:196 smart/interfaces/text/interface.py:231
+#, python-format
+msgid "%s will be freed."
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:39 smart/interfaces/gtk/interactive.py:232
+msgid "Channels"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:84
+msgid "Pri"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:86 smart/interfaces/gtk/channels.py:367
+#: smart/channel.py:132
+msgid "Alias"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:88 smart/interfaces/gtk/channels.py:369
+#: smart/channel.py:134
+msgid "Type"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:90 smart/interfaces/gtk/channels.py:371
+#: smart/channel.py:136
+msgid "Name"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:205
+msgid "Select Channel Description"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:219
+msgid "Description URL"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:223
+msgid "channel description"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:260
+msgid "Select Path"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:287
+msgid "No channels detected!"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:324
+msgid "Select Channels"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:432
+msgid "Edit Channel"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:518 smart/interfaces/gtk/channels.py:575
+#, python-format
+msgid "Don't know how to handle %s fields"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:581
+msgid "Invalid alias!"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:584
+msgid "Alias already in use!"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:607 smart/interfaces/gtk/channels.py:704
+#: smart/interfaces/gtk/channels.py:805
+msgid "New Channel"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:724
+msgid "Method:"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:763
+msgid "Provide channel information"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:765
+msgid "Read channel description from local path"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:767
+msgid "Read channel description from URL"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:769
+msgid "Detect channel in media (CDROM, DVD, etc)"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:771
+msgid "Detect channel in local path"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:826
+msgid "Media path:"
+msgstr ""
+
+#: smart/interfaces/gtk/channels.py:880
+msgid "No local media found!"
+msgstr ""
+
+#: smart/interfaces/gtk/command.py:58
+msgid "Status"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:35 smart/interfaces/gtk/flags.py:81
+msgid "Flags"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:127
+msgid "Targets"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:199 smart/interfaces/gtk/flags.py:243
+msgid "Flag already exists!"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:228 smart/interfaces/gtk/flags.py:255
+#: smart/interfaces/gtk/flags.py:260 smart/interfaces/gtk/flags.py:449
+msgid "Invalid target!"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:293
+msgid "New Flag"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:358
+msgid "No flag name provided!"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:374
+msgid "New Target"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:395
+msgid "Target:"
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:405
+msgid "Examples: \"pkgname\", \"pkgname = 1.0\" or \"pkgname <= 1.0\""
+msgstr ""
+
+#: smart/interfaces/gtk/flags.py:445
+msgid "No target provided!"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:114
+msgid "_File"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:115
+msgid "Update _Selected Channels..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:116
+msgid "Update given channels"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:117
+msgid "_Update Channels"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:118
+msgid "Update channels"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:119
+msgid "_Rebuild Cache"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:120
+msgid "Reload package information"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:121
+msgid "_Execute Changes..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:122
+msgid "Apply marked changes"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:123
+msgid "_Quit"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:124
+msgid "Quit application"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:126
+msgid "_Edit"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:127
+msgid "_Undo"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:128
+msgid "Undo last change"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:129
+msgid "_Redo"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:130
+msgid "Redo last undone change"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:131
+msgid "Clear Marked Changes"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:132
+msgid "Clear all changes"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:133
+msgid "Check Installed Packages..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:134
+msgid "Check installed packages"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:135
+msgid "Check Uninstalled Packages..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:136
+msgid "Check uninstalled packages"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:137
+msgid "Check All Packages..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:138
+msgid "Check all packages"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:139
+msgid "Upgrade _All..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:140
+msgid "Upgrade all packages"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:141
+msgid "Fix All _Problems..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:142
+msgid "Fix all problems"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:143
+msgid "_Find..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:144
+msgid "Find packages"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:145
+msgid "_Channels"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:146
+msgid "Edit channels"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:147
+msgid "_Mirrors"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:148
+msgid "Edit mirrors"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:149
+msgid "_Flags"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:150
+msgid "Edit package flags"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:151
+msgid "_Priorities"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:152
+msgid "Edit package priorities"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:154
+msgid "_View"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:155
+msgid "_Tree Style"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:156
+msgid "_Expand All"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:157
+msgid "Expand all items in the tree"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:158
+msgid "_Collapse All"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:159
+msgid "Collapse all items in the tree"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:160
+msgid "_Summary Window"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:161
+msgid "Show summary window"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:162
+msgid "_Log Window"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:163
+msgid "Show log window"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:165
+msgid "_Help"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:166
+msgid "_About"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:167
+msgid "Show about window"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:220
+msgid "Hide Non-upgrades"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:221
+msgid "Hide Installed"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:222
+msgid "Hide Uninstalled"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:223
+msgid "Hide Unmarked"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:224
+msgid "Hide Old"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:231
+msgid "Groups"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:233
+msgid "Channels & Groups"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:234 smart/plugins/channelsync.py:139
+msgid "None"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:284
+msgid "Search:"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:324
+msgid "Automatic"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:329
+#: smart/interfaces/gtk/packageinfo.py:108
+#: smart/interfaces/gtk/progress.py:121
+msgid "Description"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:465
+msgid "Apply marked changes now?"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:468
+#: smart/interfaces/text/interactive.py:370
+msgid "No interesting upgrades available!"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:553
+msgid "Keep"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:562
+msgid "Fix problems"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:593
+msgid "Unlock this version"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:605
+msgid "Lock this version"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:623
+msgid "Unlock all versions"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:635
+msgid "Lock all versions"
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:666
+msgid "Checking relations..."
+msgstr ""
+
+#: smart/interfaces/gtk/interactive.py:669
+msgid "All checked packages have correct relations."
+msgstr ""
+
+#: smart/interfaces/gtk/interface.py:83
+msgid " Continue?"
+msgstr ""
+
+#: smart/interfaces/gtk/interface.py:104
+msgid "Input"
+msgstr ""
+
+#: smart/interfaces/gtk/interface.py:144
+msgid "Insert one or more of the following removable channels:\n"
+msgstr ""
+
+#: smart/interfaces/gtk/log.py:40
+msgid "Log"
+msgstr ""
+
+#: smart/interfaces/gtk/log.py:83 smart/interface.py:134
+msgid "error"
+msgstr ""
+
+#: smart/interfaces/gtk/log.py:83 smart/interface.py:134
+msgid "warning"
+msgstr ""
+
+#: smart/interfaces/gtk/log.py:84 smart/interface.py:135
+msgid "debug"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:32
+msgid "Mirrors"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:65
+msgid "Mirror"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:145
+msgid "Origin already exists!"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:152
+msgid "Mirror already exists!"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:164
+msgid "New Mirror"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:185
+msgid "Origin URL:"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:195
+msgid "Mirror URL:"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:243
+msgid "No origin provided!"
+msgstr ""
+
+#: smart/interfaces/gtk/mirrors.py:247
+msgid "No mirror provided!"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:65
+msgid "Status:"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:87
+msgid "General"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:128
+msgid "Content"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:137
+msgid "Relations"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:157
+msgid "Size"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:159
+msgid "URL"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:217
+msgid "Installed"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:217
+msgid "Available"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:219 smart/util/strtools.py:56
+#: smart/util/strtools.py:76
+msgid "Unknown"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:314
+#: smart/interfaces/gtk/packageinfo.py:347
+msgid "Provides"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:338
+msgid "Upgraded By"
+msgstr ""
+
+#: smart/interfaces/gtk/packageinfo.py:344
+msgid "Conflicted By"
+msgstr ""
+
+#: smart/interfaces/gtk/packageview.py:145
+msgid "Version"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:33
+msgid "Priorities"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:67
+msgid "Package Name"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:75
+msgid "Channel Alias"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:129
+#: smart/interfaces/gtk/priorities.py:167
+#: smart/interfaces/gtk/priorities.py:177
+msgid "Name/alias pair already exists!"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:192
+msgid "Invalid priority!"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:202
+msgid "New Package Priority"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:223
+msgid "Package Name:"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:232
+msgid "Channel Alias:"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:292
+msgid "No name provided!"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:312
+msgid "Package Priority"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:352
+msgid "Package:"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:375
+msgid "Default priority:"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:385
+msgid "Channel default"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:390
+msgid "Set to"
+msgstr ""
+
+#: smart/interfaces/gtk/priorities.py:406
+msgid "Channel priority:"
+msgstr ""
+
+#: smart/interfaces/gtk/progress.py:51
+msgid "Operation Progress"
+msgstr ""
+
+#: smart/interfaces/gtk/progress.py:90
+msgid "Progress"
+msgstr ""
+
+#: smart/interfaces/gtk/progress.py:97
+msgid "Current"
+msgstr ""
+
+#: smart/interfaces/gtk/progress.py:103
+msgid "Total"
+msgstr ""
+
+#: smart/interfaces/gtk/progress.py:109
+msgid "Speed"
+msgstr ""
+
+#: smart/interfaces/gtk/progress.py:115
+msgid "ETA"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:72
+msgid "Documented commands (type help <topic>):"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:73
+msgid "Undocumented commands:"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:74
+msgid "Miscelaneous help topics:"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:75
+#, python-format
+msgid "*** No help on %s"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:200 smart.py:188
 msgid ""
 "\n"
-"Usage: smart search expression ...\n"
-"\n"
-"This command allows searching for the given expressions\n"
-"in the name, summary, and description of known packages.\n"
-"\n"
-"Options:\n"
-"  -h, --help  Show this help message and exit\n"
-"\n"
-"Examples:\n"
-"  smart search ldap\n"
-"  smart search kernel module\n"
-"  smart search rpm 'package manager'\n"
-"  smart search pkgname\n"
-"  smart search 'pkgn*e'\n"
+"Interrupted\n"
 msgstr ""
 
-#: smart/commands/clean.py:27
-msgid "smart clean [options]"
+#: smart/interfaces/text/interactive.py:215
+msgid "What would you expect!? ;-)"
 msgstr ""
 
-#: smart/commands/clean.py:29
+#: smart/interfaces/text/interactive.py:218
+msgid "The exit/quit/EOF command returns to the system."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:229
+msgid "The shell command offers execution of system commands."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:231
+msgid "Usage: shell [<cmd>]"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:232
+msgid "       ![<cmd>]"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:240
+msgid "The status command shows currently marked changes."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:242
+msgid "Usage: status"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:248
+msgid "There are no marked changes."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:253
+msgid "The install command marks packages for installation."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:255
+#: smart/interfaces/text/interactive.py:299
+#: smart/interfaces/text/interactive.py:335
+#: smart/interfaces/text/interactive.py:380
+#: smart/interfaces/text/interactive.py:422
+#: smart/interfaces/text/interactive.py:459
+#: smart/interfaces/text/interactive.py:556
+msgid "Options:"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:256
+#: smart/interfaces/text/interactive.py:300
+#: smart/interfaces/text/interactive.py:336
+#: smart/interfaces/text/interactive.py:381
+#: smart/interfaces/text/interactive.py:423
+#: smart/interfaces/text/interactive.py:460
 msgid ""
+"   --explain  Include additional information about\n"
+"              changes, when possible"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:259
+msgid "Usage: install <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:286
+#, python-format
+msgid "No uninstalled packages matched '%s'"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:297
+msgid "The reinstall command marks packages for reinstallation."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:303
+msgid "Usage: reinstall <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:321
+#, python-format
+msgid "'%s' matches multiple installed packages"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:333
+msgid "The upgrade command marks packages for upgrading."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:339
+msgid "Usage: upgrade <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:378
+msgid "The remove command marks packages for being removed."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:384
+msgid "Usage: remove <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:420
+msgid "The keep command unmarks currently marked packages."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:426
+msgid "Usage: keep <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:443
+#, python-format
+msgid "'%s' matches no marked packages"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:456
+msgid ""
+"The fix command verifies relations of given packages\n"
+"and marks the necessary changes for fixing them."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:463
+msgid "Usage: fix <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:492
+msgid ""
+"The download command fetches the given packages\n"
+"to the local filesystem."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:495
+msgid "Usage: download <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:502
+#, python-format
+msgid "'%s' matches multiple packages, selecting: %s"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:509
+msgid "The commit command applies marked changes in the system."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:511
+msgid "Usage: commit"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:523
+msgid "The undo command reverts marked changes."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:525
+msgid "Usage: undo"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:538
+msgid "The redo command reapplies undone changes."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:540
+msgid "Usage: redo"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:553
+msgid ""
+"The ls command lists packages by name. Wildcards\n"
+"are accepted."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:557
+msgid "   -i  List only installed packages"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:558
+msgid "   -n  List only new packages"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:559
+msgid "   -v  Show versions"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:560
+msgid "   -s  Show summaries"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:562
+msgid "Usage: ls [options] [<string>] ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:653
+msgid "The update command will update channel information."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:655
+msgid "Usage: update [<alias>] ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:692
+msgid ""
+"The flag command allows configuring, removing and\n"
+"verifying package flags, and accepts the same options\n"
+"available in the command line interface."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:696
+msgid "Usage: flag [options]"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:711
+msgid ""
+"The query command allows querying package information,\n"
+"and accepts the same options available in the command\n"
+"line interface."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:715
+msgid "Usage: query [options] [<pkgname>] ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:730
+msgid "The search command allows searching for packages."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:732
+msgid "Usage: search <string> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:747
+msgid "The info command shows information about packages."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:749
+msgid "Usage: info <pkgname> ..."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:764
+msgid "The stats command shows some statistics."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:766
+msgid "Usage: stats"
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:780
+msgid ""
+"The check command verifies relations between packages,\n"
+"and accepts the same options available in the command\n"
+"line interface."
+msgstr ""
+
+#: smart/interfaces/text/interactive.py:784
+msgid "Usage: check [options] [<pkgname>] ..."
+msgstr ""
+
+#: smart/interfaces/text/interface.py:63
+#, python-format
+msgid "%s (Y/n): "
+msgstr ""
+
+#: smart/interfaces/text/interface.py:63
+#, python-format
+msgid "%s (y/N): "
+msgstr ""
+
+#: smart/interfaces/text/interface.py:71 smart/util/strtools.py:106
+#: smart/channel.py:229
+msgid "yes"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:72 smart/util/strtools.py:108
+#: smart/channel.py:232
+msgid "no"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:78
+#, python-format
+msgid "%s (Continue/cancel): "
+msgstr ""
+
+#: smart/interfaces/text/interface.py:80
+#, python-format
+msgid "%s (continue/Cancel): "
+msgstr ""
+
+#: smart/interfaces/text/interface.py:88
+msgid "continue"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:89
+#: smart/interfaces/text/interface.py:103
+msgid "cancel"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:94
+#, python-format
+msgid "%s (Ok/cancel): "
+msgstr ""
+
+#: smart/interfaces/text/interface.py:94
+#, python-format
+msgid "%s (ok/Cancel): "
+msgstr ""
+
+#: smart/interfaces/text/interface.py:102
+msgid "ok"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:133
+msgid "Insert one or more of the following removable channels:"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:161
+msgid "(installed)"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:163
+msgid "(upgraded)"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:165
+msgid "(removed)"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:167
+msgid "(downgraded)"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:180
+msgid "Downgrades:"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:198
+#, python-format
+msgid "Kept packages (%d):"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:203
+#, python-format
+msgid "Upgrading packages (%d):"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:208
+#, python-format
+msgid "Downgrading packages (%d):"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:213
+#, python-format
+msgid "Installing packages (%d):"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:218
+#, python-format
+msgid "Removing packages (%d):"
+msgstr ""
+
+#: smart/interfaces/text/interface.py:235
+msgid "Confirm changes?"
+msgstr ""
+
+#: smart/plugins/aptchannelsync.py:85 smart/plugins/channelsync.py:52
+#: smart/plugins/channelsync.py:88 smart/plugins/channelsync.py:119
+#: smart/plugins/channelsync.py:145
+#, python-format
+msgid "While using %s: %s"
+msgstr ""
+
+#: smart/plugins/channelsync.py:83
+#, python-format
+msgid ""
+"New channel '%s' detected.\n"
+"Include it?"
+msgstr ""
+
+#: smart/plugins/channelsync.py:102
+#, python-format
+msgid "Channel in %s has no type."
+msgstr ""
+
+#: smart/plugins/channelsync.py:106
+#, python-format
+msgid ""
+"Change in channel '%s' detected.\n"
+"Old channel:\n"
 "\n"
-"This command cleans the package cache. You can use it to\n"
-"delete old unused files that were left behind because of\n"
-"an incomplete transaction.\n"
+"%s\n"
+"\n"
+"New channel:\n"
+"\n"
+"%s\n"
+"\n"
+"Do you want to replace it?"
 msgstr ""
 
-#: smart/commands/clean.py:49
-msgid "Removing cached package files..."
+#: smart/plugins/channelsync.py:137
+msgid "Yes"
 msgstr ""
 
-#: smart/commands/clean.py:55
+#: smart/plugins/channelsync.py:137
+msgid "No"
+msgstr ""
+
+#: smart/plugins/channelsync.py:157
 #, python-format
-msgid "Removed %s"
+msgid ""
+"Change in field '%(label)s' of channel '%(name)s' detected.\n"
+"Old value: %(curvalue)s\n"
+"New value: %(newvalue)s\n"
+"Replace current value?"
 msgstr ""
 
-#: smart/commands/clean.py:57
+#: smart/plugins/channelsync.py:194
 #, python-format
-msgid "Can't remove cached package %s: %s"
+msgid ""
+"Removing channel '%s' was suggested.\n"
+"Do you want to remove it?"
 msgstr ""
 
-#: smart/commands/nothing.py:26
-msgid "smart test [options]"
+#: smart/plugins/debdir.py:33
+msgid "Dynamic DEB Directory"
+msgstr ""
+
+#: smart/plugins/rpmdir.py:33
+msgid "Dynamic RPM Directory"
+msgstr ""
+
+#: smart/util/optparse.py:329
+#, python-format
+msgid "usage: %s\n"
+msgstr ""
+
+#: smart/util/optparse.py:348
+msgid "Usage"
+msgstr ""
+
+#: smart/util/optparse.py:354
+msgid "integer"
+msgstr ""
+
+#: smart/util/optparse.py:355
+msgid "long integer"
+msgstr ""
+
+#: smart/util/optparse.py:356
+msgid "floating-point"
+msgstr ""
+
+#: smart/util/optparse.py:357
+msgid "complex"
+msgstr ""
+
+#: smart/util/optparse.py:365
+#, python-format
+msgid "option %s: invalid %s value: %r"
+msgstr ""
+
+#: smart/util/optparse.py:373
+#, python-format
+msgid "option %s: invalid choice: %r (choose from %s)"
+msgstr ""
+
+#: smart/util/optparse.py:1136 smart/option.py:35
+msgid "show this help message and exit"
+msgstr ""
+
+#: smart/util/optparse.py:1141 smart/option.py:37
+msgid "show program's version number and exit"
+msgstr ""
+
+#: smart/util/optparse.py:1164
+msgid "%prog [options]"
+msgstr ""
+
+#: smart/util/optparse.py:1374 smart/util/optparse.py:1413 smart/option.py:172
+#, python-format
+msgid "%s option requires an argument"
+msgstr ""
+
+#: smart/util/optparse.py:1376 smart/util/optparse.py:1415 smart/option.py:174
+#, python-format
+msgid "%s option requires %d arguments"
+msgstr ""
+
+#: smart/util/optparse.py:1385
+#, python-format
+msgid "%s option does not take a value"
+msgstr ""
+
+#: smart/util/optparse.py:1402 smart/util/optparse.py:1556 smart/option.py:161
+#: smart.py:109
+#, python-format
+msgid "no such option: %s"
+msgstr ""
+
+#: smart/util/optparse.py:1502 smart/option.py:54
+msgid "options"
+msgstr ""
+
+#: smart/util/optparse.py:1559
+#, python-format
+msgid "ambiguous option: %s (%s?)"
+msgstr ""
+
+#: smart/util/ssh.py:53
+msgid "SSH asked for password, but no password is available"
+msgstr ""
+
+#: smart/util/strtools.py:66 smart/util/strtools.py:85
+msgid "Stalled"
+msgstr ""
+
+#: smart/util/strtools.py:106 smart/channel.py:229
+msgid "y"
+msgstr ""
+
+#: smart/util/strtools.py:106 smart/channel.py:229
+msgid "true"
+msgstr ""
+
+#: smart/util/strtools.py:108 smart/channel.py:232
+msgid "n"
+msgstr ""
+
+#: smart/util/strtools.py:108 smart/channel.py:232
+msgid "false"
+msgstr ""
+
+#: smart/__init__.py:38
+msgid "Unknown error"
+msgstr ""
+
+#: smart/__init__.py:118
+msgid "Unknown log level"
+msgstr ""
+
+#: smart/__init__.py:129
+msgid "Can't use commands with shell interfaces"
+msgstr ""
+
+#: smart/cache.py:185
+msgid "File not found"
+msgstr ""
+
+#: smart/cache.py:191 smart/fetcher.py:365
+#, python-format
+msgid "Unexpected size (expected %d, got %d)"
+msgstr ""
+
+#: smart/cache.py:205 smart/fetcher.py:379
+#, python-format
+msgid "Invalid MD5 (expected %s, got %s)"
+msgstr ""
+
+#: smart/cache.py:219 smart/fetcher.py:393
+#, python-format
+msgid "Invalid SHA (expected %s, got %s)"
+msgstr ""
+
+#: smart/cache.py:631
+msgid "Updating cache..."
+msgstr ""
+
+#: smart/channel.py:133
+msgid "Unique identification for the channel."
+msgstr ""
+
+#: smart/channel.py:135
+msgid "Channel type"
+msgstr ""
+
+#: smart/channel.py:137
+msgid "Channel name"
+msgstr ""
+
+#: smart/channel.py:138
+msgid "Manual updates"
+msgstr ""
+
+#: smart/channel.py:139
+msgid ""
+"If set to a true value, the given channel will only be updated when manually "
+"selected."
+msgstr ""
+
+#: smart/channel.py:141
+msgid "Disabled"
+msgstr ""
+
+#: smart/channel.py:142
+msgid "If set to a true value, the given channel won't be used."
+msgstr ""
+
+#: smart/channel.py:144
+msgid "Removable"
+msgstr ""
+
+#: smart/channel.py:145
+msgid ""
+"If set to a true value, the given channel will be considered as being "
+"available in a removable media (cdrom, etc)."
+msgstr ""
+
+#: smart/channel.py:151
+msgid ""
+"Default priority assigned to all packages available in this channel (0 if "
+"not set). If the exact same package is available in more than one channel, "
+"the highest priority is used."
+msgstr ""
+
+#: smart/channel.py:168
+#, python-format
+msgid "Unable to create channel of type '%s'"
+msgstr ""
+
+#: smart/channel.py:181 smart/channel.py:207
+msgid "Channel has no type"
+msgstr ""
+
+#: smart/channel.py:184 smart/channel.py:210
+#, python-format
+msgid "Unknown channel type: %s"
+msgstr ""
+
+#: smart/channel.py:194 smart/channel.py:222
+#, python-format
+msgid "%s (%s) is a needed field for '%s' channels"
+msgstr ""
+
+#: smart/channel.py:235 smart/channel.py:241 smart/channel.py:244
+#, python-format
+msgid "Invalid value for '%s' (%s) field: %s"
+msgstr ""
+
+#: smart/channel.py:261
+#, python-format
+msgid "Channel '%s' has no type"
+msgstr ""
+
+#: smart/channel.py:283
+#, python-format
+msgid "Invalid channel type '%s'"
+msgstr ""
+
+#: smart/control.py:85 smart/control.py:276
+#, python-format
+msgid "There's another channel with alias '%s'"
+msgstr ""
+
+#: smart/control.py:90
+#, python-format
+msgid "Unable to create channel for file: %s"
+msgstr ""
+
+#: smart/control.py:100
+#, python-format
+msgid "Channel not found for '%s'"
+msgstr ""
+
+#: smart/control.py:133
+#, python-format
+msgid "Configuration file not found: %s"
+msgstr ""
+
+#: smart/control.py:148
+#, python-format
+msgid "Can't create datadir at %s"
+msgstr ""
+
+#: smart/control.py:168
+msgid "Saving cache..."
+msgstr ""
+
+#: smart/control.py:220
+msgid "Loading cache..."
+msgstr ""
+
+#: smart/control.py:301
+msgid "Unable to create channel directory."
+msgstr ""
+
+#: smart/control.py:304
+msgid "The Smart library is already in use by another process."
+msgstr ""
+
+#: smart/control.py:306
+msgid "Configuration is in readonly mode!"
+msgstr ""
+
+#: smart/control.py:308
+msgid "Channel information is locked for writing."
+msgstr ""
+
+#: smart/control.py:310
+msgid "Can't update channels in readonly mode."
+msgstr ""
+
+#: smart/control.py:312
+msgid "Can't update channels with active readers."
+msgstr ""
+
+#: smart/control.py:348
+#, python-format
+msgid "Fetching information for '%s'..."
+msgstr ""
+
+#: smart/control.py:355 smart/control.py:359
+#, python-format
+msgid "Failed fetching channel '%s'"
+msgstr ""
+
+#: smart/control.py:413
+#, python-format
+msgid "Package %s is not available for downloading"
+msgstr ""
+
+#: smart/control.py:648
+#, python-format
+msgid "No channel available for package %s"
+msgstr ""
+
+#: smart/control.py:842
+#, python-format
+msgid "%s is not available for downloading"
+msgstr ""
+
+#: smart/fetcher.py:168
+#, python-format
+msgid "%s is already in the queue"
+msgstr ""
+
+#: smart/fetcher.py:202 smart/fetcher.py:209
+#, python-format
+msgid "Fetching %s..."
+msgstr ""
+
+#: smart/fetcher.py:211
+msgid "Fetching information..."
+msgstr ""
+
+#: smart/fetcher.py:289 smart/fetcher.py:570
+msgid "Cancelled"
+msgstr ""
+
+#: smart/fetcher.py:329
+#, python-format
+msgid "Unsupported scheme: %s"
+msgstr ""
+
+#: smart/fetcher.py:344
+msgid "File not found for validation"
+msgstr ""
+
+#: smart/fetcher.py:595
+#, python-format
+msgid "Invalid URL: %s"
+msgstr ""
+
+#: smart/fetcher.py:874
+msgid "Media not found"
+msgstr ""
+
+#: smart/fetcher.py:1002 smart/fetcher.py:1208 smart/fetcher.py:1778
+msgid "Server reports unexpected size"
+msgstr ""
+
+#: smart/interface.py:51
+#, python-format
+msgid "Invalid command '%s'"
+msgstr ""
+
+#: smart/interface.py:92
+msgid "Password"
+msgstr ""
+
+#: smart/interface.py:93
+#, python-format
+msgid "A password is needed for '%s'."
+msgstr ""
+
+#: smart/interface.py:163
+#, python-format
+msgid "Interface '%s' not available"
+msgstr ""
+
+#: smart/media.py:183
+msgid "/proc/mounts not found"
+msgstr ""
+
+#: smart/option.py:49
+#, python-format
+msgid "Usage: %s\n"
+msgstr ""
+
+#: smart/option.py:89
+msgid "examples"
+msgstr ""
+
+#: smart/searcher.py:172
+msgid "Invalid string"
 msgstr ""
 
 #: smart/sorter.py:442
@@ -3661,6 +3315,20 @@ msgstr ""
 #: smart/sorter.py:467
 #, python-format
 msgid "Internal error: there are still loops (%d != %d)!"
+msgstr ""
+
+#: smart/sysconfig.py:73
+msgid "Configuration is in readonly mode."
+msgstr ""
+
+#: smart/sysconfig.py:89 smart/sysconfig.py:96 smart/sysconfig.py:99
+#, python-format
+msgid "Broken configuration file at %s"
+msgstr ""
+
+#: smart/sysconfig.py:90
+#, python-format
+msgid "Trying backup at %s"
 msgstr ""
 
 #: smart/transaction.py:645
@@ -3780,44 +3448,121 @@ msgstr ""
 msgid "Package '%s' is not in changeset"
 msgstr ""
 
-#: smart/__init__.py:38
-msgid "Unknown error"
-msgstr ""
-
-#: smart/__init__.py:118
-msgid "Unknown log level"
-msgstr ""
-
-#: smart/__init__.py:129
-msgid "Can't use commands with shell interfaces"
-msgstr ""
-
-#: smart/cache.py:185
-msgid "File not found"
-msgstr ""
-
-#: smart/cache.py:631
-msgid "Updating cache..."
-msgstr ""
-
-#: smart/sysconfig.py:73
-msgid "Configuration is in readonly mode."
-msgstr ""
-
-#: smart/sysconfig.py:89 smart/sysconfig.py:96 smart/sysconfig.py:99
+#: smart/uncompress.py:44
 #, python-format
-msgid "Broken configuration file at %s"
+msgid "Unknown compressed file: %s"
 msgstr ""
 
-#: smart/sysconfig.py:90
+#: smart/uncompress.py:55
+msgid "Unsupported file type"
+msgstr ""
+
+#: smart.py:37
+msgid "smart command [options] [arguments]"
+msgstr ""
+
+#: smart.py:39
+msgid ""
+"\n"
+"Action commands:\n"
+"    update\n"
+"    install\n"
+"    reinstall\n"
+"    upgrade\n"
+"    remove\n"
+"    check\n"
+"    fix\n"
+"    download\n"
+"    clean\n"
+"\n"
+"Query commands:\n"
+"    search\n"
+"    query\n"
+"    info\n"
+"    stats\n"
+"\n"
+"Setup commands:\n"
+"    channel\n"
+"    priority\n"
+"    mirror\n"
+"    flag\n"
+"\n"
+"Run \"smart command --help\" for more information.\n"
+msgstr ""
+
+#: smart.py:66
+msgid ""
+"\n"
+"smart install --help\n"
+"smart install pkgname\n"
+"smart --gui\n"
+"smart --gui install pkgname\n"
+"smart --shell\n"
+msgstr ""
+
+#: smart.py:81
+msgid "FILE"
+msgstr ""
+
+#: smart.py:82
+msgid "configuration file (default is <data-dir>/config)"
+msgstr ""
+
+#: smart.py:84
+msgid "DIR"
+msgstr ""
+
+#: smart.py:85
 #, python-format
-msgid "Trying backup at %s"
+msgid "data directory (default is %s)"
 msgstr ""
 
-#: smart/searcher.py:172
-msgid "Invalid string"
+#: smart.py:86
+msgid "LEVEL"
 msgstr ""
 
-#: test.py:34
+#: smart.py:87
+msgid "set the log level to LEVEL (debug, info, warning, error)"
+msgstr ""
+
+#: smart.py:90
+msgid "use the default graphic interface"
+msgstr ""
+
+#: smart.py:92
+msgid "use the default shell interface"
+msgstr ""
+
+#: smart.py:93
+msgid "NAME"
+msgstr ""
+
+#: smart.py:94
+msgid "use the given interface"
+msgstr ""
+
+#: smart.py:96
+msgid "don't respect locking"
+msgstr ""
+
+#: smart.py:98
+msgid "OPT"
+msgstr ""
+
+#: smart.py:99
+msgid "set the option given by a name=value pair"
+msgstr ""
+
+#: smart.py:135
+#, python-format
+msgid "Invalid option: %s"
+msgstr ""
+
+#: smart.py:179
+#, python-format
+msgid "error: %s\n"
+msgstr ""
+
+#: test.py:37
 msgid "test.py [options] [<test filename>, ...]"
 msgstr ""

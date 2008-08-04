@@ -14,8 +14,8 @@
   </data>
   <data type="primary">
     <location href="repodata/primary.xml.gz"/>
-    <checksum type="sha">ff35ec1504974c3b97fae56d95ebc94263ed318d</checksum>
+    <checksum type="sha">1c26db370ddb96ba672a415db9c3db246f6a4185</checksum>
     <timestamp>1135343099</timestamp>
-    <open-checksum type="sha">f42296f0e07c84d663033ac867d5841450274924</open-checksum>
+    <open-checksum type="sha">c31d0cb0d3ddaee86a8c1402421192c93f1a61c9</open-checksum>
   </data>
 </repomd>
