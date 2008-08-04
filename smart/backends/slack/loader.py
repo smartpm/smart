@@ -184,7 +184,10 @@ class SlackLoader(Loader):
             def parserelation(str):
                 toks = str.strip().split(" ")
                 if len(toks) == 3:
-                    return toks[0], toks[1], toks[2]
+                    # normalize slackware versionarch
+                    ver, arch, rel = toks[2].split("-")
+                    version = "%s-%s@%s" % (ver, rel, arch)
+                    return toks[0], toks[1], version
                 else:
                     return str.strip(), None, None
 
