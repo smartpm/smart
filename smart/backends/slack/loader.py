@@ -120,10 +120,10 @@ def parsePackageInfo(filename, checksum = None):
                 info["location"] = location
             elif line.startswith("PACKAGE REQUIRED:"):
                 required = line[17:].strip()
-                info["required"] = required.split(",")
+                info["required"] = required
             elif line.startswith("PACKAGE CONFLICTS:"):
                 conflicts = line[18:].strip()
-                info["conflicts"] = conflicts.split(",")
+                info["conflicts"] = conflicts
             elif line.startswith("PACKAGE DESCRIPTION:"):
                 desctag = "%s:" % info["name"]
                 desctaglen = len(desctag)
@@ -178,26 +178,37 @@ class SlackLoader(Loader):
 
             prvargs = [(SlackProvides, name, version)]
             upgargs = [(SlackUpgrades, name, "<", version)]
-            
+
+            def parserelation(str):
+                toks = str.strip().split(" ")
+                if len(toks) == 3:
+                    return toks[0], toks[1], toks[2]
+                else:
+                    return str.strip(), None, None
+
+            def parserelations(str):
+                ret = []
+                for descr in str.strip().split(","):
+                    group = descr.split("|")
+                    if len(group) == 1:
+                       ret.append(parserelation(group[0]))
+                    else:
+                       ret.append([parserelation(x) for x in group])
+                return ret
+
             reqargs = []
             if "required" in info:
-                for req in info["required"]:
-                    if req.find("|") != -1:
-                        # TODO: handle conditional
-                        pass
-                    elif req.find(" ") != -1:
-                        (n, r, v) = req.strip().split(" ")
+                for req in parserelations(info["required"]):
+                    if type(req) is not list:
+                        n, r, v = req
+                        reqargs.append((SlackRequires, n, r, v))
                     else:
-                        (n, r, v) = (req, None, None)
-                    reqargs.append((SlackRequires, n, r, v))
-            
+                        reqargs.append((SlackOrRequires, tuple(req)))
+
             cnfargs = []
             if "conflicts" in info:
-                for cnf in info["conflicts"]:
-                    if cnf.find(" ") != -1:
-                        (n, r, v) = cnf.strip().split(" ")
-                    else:
-                        (n, r, v) = (cnf, None, None)
+                for cnf in parserelations(info["conflicts"]):
+                    n, r, v = cnf
                     cnfargs.append((SlackConflicts, n, r, v))
 
             pkg = self.buildPackage((SlackPackage, name, version),
