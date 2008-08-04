@@ -44,7 +44,7 @@ The setup is ready. Now we can load the data into the cache.
 This should give us one package with the data we already know.
 
   >>> cache.getPackages()
-  [name1-version1-release1@noarch, name2-version2-release2@noarch]
+  [name1-version1-noarch-release1, name2-version2-noarch-release2]
 
   >>> pkg = cache.getPackages()[0]
   >>> type(pkg)
@@ -56,7 +56,7 @@ Let's inspect the package data.
   >>> pkg.name
   'name1'
   >>> pkg.version
-  'version1-release1@noarch'
+  'version1-noarch-release1'
 
 
 Now let's ask the loader for a PackageInfo instance, and inspect it.
