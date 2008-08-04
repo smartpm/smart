@@ -175,22 +175,13 @@ class SlackLoader(Loader):
             name = info["name"]
             version = info["version"]
             
-            ver, arch, rel = version.split("-")
-            version = "%s-%s@%s" % (ver, rel, arch)
-
             prvargs = [(SlackProvides, name, version)]
             upgargs = [(SlackUpgrades, name, "<", version)]
 
             def parserelation(str):
                 toks = str.strip().split(" ")
                 if len(toks) == 3:
-                    if toks[2].find("-") != -1:
-                        # normalize slackware versionarch
-                        ver, arch, rel = toks[2].split("-")
-                        version = "%s-%s@%s" % (ver, rel, arch)
-                    else:
-                        version = toks[2]
-                    return toks[0], toks[1], version
+                    return toks[0], toks[1], toks[2]
                 else:
                     return str.strip(), None, None
 
