@@ -30,8 +30,8 @@ import os, re
 import sys
 
 __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
-           "DebRequires", "DebUpgrades", "DebConflicts", "DebOrRequires",
-           "DebOrPreRequires", "DEBARCH"]
+           "DebRequires", "DebUpgrades", "DebConflicts", "DebBreaks",
+           "DebOrRequires", "DebOrPreRequires", "DEBARCH"]
 
 def getArchitecture():
     arch = os.uname()[-1]
@@ -170,6 +170,7 @@ class DebUpgrades(DebDepends,Upgrades):
         return checkdep(prv.version, self.relation, self.version)
 
 class DebConflicts(DebDepends,Conflicts): __slots__ = ()
+class DebBreaks(DebDepends,Conflicts): __slots__ = ()
 
 def enablePsyco(psyco):
     psyco.bind(DebPackage.coexists)
