@@ -25,6 +25,7 @@ from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart import *
 import posixpath
+import commands
 
 class SlackSiteChannel(PackageChannel):
 
@@ -37,7 +38,7 @@ class SlackSiteChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "PACKAGES.TXT")]
 
     def getFetchSteps(self):
-        return 2
+        return 3
 
     def fetch(self, fetcher, progress):
 
@@ -54,6 +55,7 @@ class SlackSiteChannel(PackageChannel):
         url = posixpath.join(self._baseurl, PACKAGES_TXT)
         item = fetcher.enqueue(url, uncomp=self._compressed)
         fetcher.run(progress=progress)
+        checksig = True # TODO: config this
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
             digest = getFileDigest(localpath)
@@ -69,6 +71,39 @@ class SlackSiteChannel(PackageChannel):
                 checksumpath = item.getTargetPath()
             else:
                 checksumpath = None
+            if checksig:
+                if gpgitem.getStatus() is SUCCEEDED:
+                    try:
+                        status, output = commands.getstatusoutput(
+                            "gpg --batch --no-secmem-warning --status-fd 1 "
+                            "--verify %s %s" % (gpgitem.getTargetPath(),
+                                                item.getTargetPath()))
+    
+                        badsig = False
+                        goodsig = False
+                        validsig = None
+                        for line in output.splitlines():
+                            if line.startswith("[GNUPG:]"):
+                                tokens = line[8:].split()
+                                first = tokens[0]
+                                if first == "VALIDSIG":
+                                    validsig = tokens[1]
+                                elif first == "GOODSIG":
+                                    goodsig = True
+                                elif first == "BADSIG":
+                                    badsig = True
+                        if badsig:
+                            raise Error, _("Channel '%s' has bad signature") % self
+                        if not goodsig:
+                            raise Error, _("Channel '%s' signed with unknown key") \
+                                         % self
+                    except Error, e:
+                        progress.add(self.getFetchSteps()-2)
+                        progress.show()
+                        if fetcher.getCaching() is NEVER:
+                            raise
+                        else:
+                            return False
             self.removeLoaders()
             loader = SlackSiteLoader(localpath, checksumpath, self._baseurl)
             loader.setChannel(self)
