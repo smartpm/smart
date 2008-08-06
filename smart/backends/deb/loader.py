@@ -101,7 +101,7 @@ class DebPackageInfo(PackageInfo):
 
 class DebTagLoader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+1
+    __stateversion__ = Loader.__stateversion__+2
 
     def __init__(self, baseurl=None):
         Loader.__init__(self)
