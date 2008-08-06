@@ -1,5 +1,5 @@
 
-Set up the loader.
+Set up the parser.
 
   >>> from smart.backends.rpm.descriptions import RPMDescriptions
   >>> localpath = "%s/urpmi/media_info/descriptions" % TESTDATADIR

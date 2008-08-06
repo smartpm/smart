@@ -1,5 +1,5 @@
 
-Set up the loader.
+Set up the parser.
 
   >>> from smart.backends.rpm.updateinfo import RPMUpdateInfo
   >>> localpath = "%s/rpm/repodata/updateinfo.xml" % TESTDATADIR
