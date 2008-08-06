@@ -1,0 +1,11 @@
+%package name1 name2
+Update: Wed Jun 20 01:02:03 2007
+Importance: bugfix
+ID: SMARTTEST-2008:001
+URL: http://www.example.com/security/advisories?name=SMARTTEST-2008:001
+
+%pre
+update fixes bugs
+
+%description
+
