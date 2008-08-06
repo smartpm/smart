@@ -7,6 +7,10 @@ Set up the loader.
   >>> updateinfo = RPMUpdateInfo(localpath)
   >>> updateinfo.load()
   
+  >>> updateinfo.getErrataFlags()
+  {'name2=version2-release2@noarch': 'bugfix', 'name1=version1-release1@noarch': 'bugfix'}
+  >>> updateinfo.setErrataFlags()
+  
 This should give us one test "update" with data we already know.
 
   >>> pkgconf.getFlagNames()

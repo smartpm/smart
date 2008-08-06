@@ -52,6 +52,7 @@ class RPMUpdateInfo:
 
     def __init__(self, filename):
         self._filename = filename
+        self._flagdict = {}
 
     def load(self):
         UPDATES     = nstag(NS_UPDATEINFO, "updates")
@@ -78,10 +79,6 @@ class RPMUpdateInfo:
         skip = None
         packagelist = False
         queue = []
-
-        # Can't set flags when in read-only mode
-        if sysconf.getReadOnly():
-            return
 
         file = open(self._filename)
         for event, elem in cElementTree.iterparse(file, ("start", "end")):
@@ -151,7 +148,8 @@ class RPMUpdateInfo:
 
                     #iface.debug("%s-%s: %s" % (name, versionarch, type))
                     if type:
-                        pkgconf.setFlag(type, name, "=", versionarch)
+                        pkg = "%s=%s" % (name, versionarch)
+                        self._flagdict[pkg] = type
                     if info:
                         # TODO save info for packages
                         pass
@@ -168,5 +166,18 @@ class RPMUpdateInfo:
                 elem.clear()
 
         file.close()
+        
+    def getErrataFlags(self):
+        return self._flagdict
+
+    def setErrataFlags(self):
+        # Can't set flags when in read-only mode
+        if sysconf.getReadOnly():
+            return
+
+        for pkg, type in self._flagdict.iteritems():
+            (name, version) = pkg.split("=")
+            pkgconf.setFlag(type, name, "=", version)
+
 
 # vim:ts=4:sw=4:et
