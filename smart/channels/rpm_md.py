@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.metadata import RPMMetaDataLoader
-from smart.backends.rpm.updateinfo import RPMUpdateInfoLoader
+from smart.backends.rpm.updateinfo import RPMUpdateInfo
 from smart.util.filetools import getFileDigest
 
 try:
@@ -135,9 +135,8 @@ class RPMMetaDataChannel(PackageChannel):
             if "updateinfo" in info:
                 if uiitem.getStatus() == SUCCEEDED:
                     localpath = uiitem.getTargetPath()
-                    loader = RPMUpdateInfoLoader(localpath, self._baseurl)
-                    loader.setChannel(self)
-                    self._loaders.append(loader)
+                    updateinfo = RPMUpdateInfo(localpath)
+                    updateinfo.load()
                 else:
                     iface.warning(_("Failed to download. You must fetch channel "
                         "information to acquire needed update information.\n"

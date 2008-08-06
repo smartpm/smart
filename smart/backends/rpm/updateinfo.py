@@ -20,7 +20,6 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.cache import Loader
 from smart.backends.rpm.base import *
 
 try:
@@ -49,20 +48,10 @@ def nstag(ns, tag):
 
 BYTESPERPKG = 3000
 
-class RPMUpdateInfoLoader(Loader):
+class RPMUpdateInfo:
 
-    __stateversion__ = Loader.__stateversion__+3
- 
-    def __init__(self, filename, baseurl):
-        Loader.__init__(self)
+    def __init__(self, filename):
         self._filename = filename
-        self._baseurl = baseurl
-
-    def reset(self):
-        Loader.reset(self)
-
-    def getLoadSteps(self):
-        return os.path.getsize(self._filename)/BYTESPERPKG
 
     def load(self):
         UPDATES     = nstag(NS_UPDATEINFO, "updates")
@@ -79,11 +68,6 @@ class RPMUpdateInfoLoader(Loader):
         NAME        = nstag(NS_UPDATEINFO, "name")
         PACKAGE     = nstag(NS_UPDATEINFO, "package")
         FILENAME    = nstag(NS_UPDATEINFO, "filename")
-
-        # Prepare progress reporting.
-        lastoffset = 0
-        mod = 0
-        progress = iface.getProgress(self._cache)
 
         # Prepare package information.
         id = None
@@ -178,23 +162,11 @@ class RPMUpdateInfoLoader(Loader):
                     id = None
                     type = None
 
-                    # Do not clear it. pkg.loaders has a reference.
+                    # Do not clear it.
                     info = {}
-
-                    # Update progress
-                    offset = file.tell()
-                    div, mod = divmod(offset-lastoffset+mod, BYTESPERPKG)
-                    lastoffset = offset
-                    progress.add(div)
-                    progress.show()
 
                 elem.clear()
 
         file.close()
-
-def enablePsyco(psyco):
-    psyco.bind(RPMUpdateInfoLoader.load)
-
-hooks.register("enable-psyco", enablePsyco)
 
 # vim:ts=4:sw=4:et
