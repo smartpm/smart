@@ -6,10 +6,11 @@ just build the cache, and return.
   >>> process.wait()
   0
 
-  >>> print process.stdout.read()
+  >>> print "Output:\n\n" + process.stdout.read()
+  Output:
+  ...
   Updating cache...               ######################################## [100%]
   <BLANKLINE>
-  Saving cache...
   <BLANKLINE>
   <BLANKLINE>
 
