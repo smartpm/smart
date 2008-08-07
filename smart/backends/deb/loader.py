@@ -101,7 +101,7 @@ class DebPackageInfo(PackageInfo):
 
 class DebTagLoader(Loader):
 
-    __stateversion__ = Loader.__stateversion__+1
+    __stateversion__ = Loader.__stateversion__+2
 
     def __init__(self, baseurl=None):
         Loader.__init__(self)
@@ -130,6 +130,7 @@ class DebTagLoader(Loader):
         OrPreReq = DebOrPreRequires
         Upg = DebUpgrades
         Cnf = DebConflicts
+        Brk = DebBreaks
         prog = iface.getProgress(self._cache)
         inst = self.getInstalled()
         sysarch = DEBARCH
@@ -184,6 +185,12 @@ class DebTagLoader(Loader):
                 for relation in parserelations(value):
                     n, r, v = relation
                     cnfargs.append((Cnf, n, r, v))
+
+            value = section.get("breaks")
+            if value:
+                for relation in parserelations(value):
+                    n, r, v = relation
+                    cnfargs.append((Brk, n, r, v))
 
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)

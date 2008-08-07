@@ -2,6 +2,7 @@ from StringIO import StringIO
 import unittest
 
 from smart.backends.deb.loader import DebTagLoader, DEBARCH, TagFile
+from smart.backends.deb.base import DebBreaks
 from smart.cache import Cache
 
 
@@ -64,3 +65,16 @@ class DebLoaderTest(unittest.TestCase):
         self.assertEquals(len(packages), 1)
         self.assertEquals(packages[0].name, "smartpm-core")
         self.assertEquals(packages[0].version, "0.51-1")
+
+    def test_breaks(self):
+        section = SMARTPM_SECTION + "Breaks: name (= 1.0)"
+        self.loader.fake_sections = [section]
+        self.loader.load()
+        packages = self.cache.getPackages()
+        self.assertEquals(len(packages), 1)
+        self.assertEquals(len(packages[0].conflicts), 1)
+        breaks = packages[0].conflicts[0]
+        self.assertEquals(breaks.name, "name")
+        self.assertEquals(breaks.relation, "=")
+        self.assertEquals(breaks.version, "1.0")
+        self.assertEquals(type(breaks), DebBreaks)
