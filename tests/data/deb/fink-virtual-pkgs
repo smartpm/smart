@@ -1,0 +1,10 @@
+#! /usr/bin/perl -w
+
+print <<__EOF__
+Package: macosx
+Status: install ok installed
+Version: 10.4.11-1
+homepage: http://www.finkproject.org/faq/usage-general.php#virtpackage
+description: [virtual package representing the system]
+
+__EOF__
