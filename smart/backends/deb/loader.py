@@ -86,6 +86,13 @@ class DebPackageInfo(PackageInfo):
             return decode(description.split("\n", 1)[0])
         return u""
 
+    def getReferenceURLs(self):
+        description = self._dict.get("description")
+        for line in description.splitlines():
+            if line.startswith("Web site:"):
+                return [line[9:].strip()]
+        return []
+
     def getGroup(self):
         return decode(self._loader.getSection(self._package))
 
