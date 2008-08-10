@@ -35,10 +35,13 @@ from smart import *
 import posixpath
 import locale
 import os
+from datetime import datetime
+import time
 
 NS_COMMON    = "http://linux.duke.edu/metadata/common"
 NS_RPM       = "http://linux.duke.edu/metadata/rpm"
 NS_FILELISTS = "http://linux.duke.edu/metadata/filelists"
+NS_CHANGELOG = "http://linux.duke.edu/metadata/other"
 
 BYTESPERPKG = 3000
 
@@ -47,10 +50,12 @@ def nstag(ns, tag):
 
 class RPMMetaDataPackageInfo(PackageInfo):
 
-    def __init__(self, package, loader, info):
+    def __init__(self, package, loader, info, pathlist=[], changelog=[]):
         PackageInfo.__init__(self, package)
         self._loader = loader
         self._info = info
+        self._pathlist = pathlist
+        self._changelog = changelog
 
     def getURLs(self):
         url = self._info.get("location")
@@ -82,28 +87,38 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getGroup(self):
         return self._info.get("group", "")
 
+    def getPathList(self):
+        return self._pathlist
+
+    def getChangeLog(self):
+        return self._changelog
 
 class RPMMetaDataLoader(Loader):
 
     __stateversion__ = Loader.__stateversion__+3
  
-    def __init__(self, filename, filelistsname, baseurl):
+    def __init__(self, filename, filelistsname, changelogname, baseurl, errata = None):
         Loader.__init__(self)
         self._filename = filename
         self._filelistsname = filelistsname
+        self._changelogname = changelogname
         self._baseurl = baseurl
         self._fileprovides = {}
+        self._changelogs = {}
         self._parsedflist = False
         self._pkgids = {}
 
     def reset(self):
         Loader.reset(self)
         self._fileprovides.clear()
+        self._changelogs.clear()
         self._parsedflist = False
         self._pkgids.clear()
 
     def getInfo(self, pkg):
-        return RPMMetaDataPackageInfo(pkg, self, pkg.loaders[self])
+        fl = []
+        cl = self._changelogs.get(pkg, ["not found"])
+        return RPMMetaDataPackageInfo(pkg, self, pkg.loaders[self], fl, cl)
 
     def getLoadSteps(self):
         return os.path.getsize(self._filename)/BYTESPERPKG
@@ -329,6 +344,9 @@ class RPMMetaDataLoader(Loader):
 
         file.close()
 
+        if self._changelogname:
+            self.parseChangeLog()
+
     def loadFileProvides(self, fndict):
         bfp = self.buildFileProvides
         parsed = self._parsedflist
@@ -383,10 +401,51 @@ class RPMMetaDataLoader(Loader):
                 elem.clear()
         file.close()
 
+    def parseChangeLog(self):
+        CHANGELOG = nstag(NS_CHANGELOG, "changelog")
+        PACKAGE   = nstag(NS_CHANGELOG, "package")
+
+        pkgids = self._pkgids
+
+        pkg = None
+        info = None
+        skip = None
+        file = open(self._changelogname)
+        for event, elem in cElementTree.iterparse(file, ("start", "end")):
+            if event == "start":
+                if not skip and elem.tag == PACKAGE:
+                    if elem.get("arch") == "src":
+                        skip = PACKAGE
+                    else:
+                        pkg = pkgids.get(elem.get("pkgid"))
+                        if not pkg:
+                            skip = PACKAGE
+                elif not skip and elem.tag == CHANGELOG:        
+                    logname = elem.get("author")
+                    logtime = int(elem.get("date"))
+
+            elif event == "end":
+                if skip:
+                    if elem.tag == skip:
+                        skip = None
+                elif elem.tag == CHANGELOG:
+                    if pkg in self._changelogs:
+                       changelog = self._changelogs[pkg]
+                    else:
+                       self._changelogs[pkg] = changelog = []
+                    if logname and logtime:
+                        changelog.append(datetime.fromtimestamp(logtime).strftime("%Y-%m-%d")+"  "+ logname)
+                    else:
+                        changelog.append("")
+                    changelog.append("  " + elem.text)
+                elem.clear()
+        file.close()
+
 def enablePsyco(psyco):
     psyco.bind(RPMMetaDataLoader.load)
     psyco.bind(RPMMetaDataLoader.loadFileProvides)
     psyco.bind(RPMMetaDataLoader.parseFilesList)
+    psyco.bind(RPMMetaDataLoader.parseChangeLog)
 
 hooks.register("enable-psyco", enablePsyco)
 
