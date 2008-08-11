@@ -100,7 +100,7 @@ def parsePackageInfo(filename, checksum = None):
                 infolst.append(info)
             info = {}
             if m.lastindex < 3:
-                info["name"], info["version"] = m.groups()
+                info["name"], info["version"], ignore = m.groups()
             else:
                 info["name"], info["version"], info["type"] = m.groups()
             desctag = None
