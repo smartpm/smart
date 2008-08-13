@@ -65,12 +65,25 @@ class GtkPackageInfo(gtk.Alignment):
         attrsright = pango.AttrList()
         attrsright.insert(pango.AttrFontDesc(boldfont, 0, -1))
 
+        style = sw.get_style()
+        bgcolor = style.bg[gtk.STATE_NORMAL]
+        
+        self._reftv = gtk.TextView()
+        self._reftv.modify_base(gtk.STATE_NORMAL, bgcolor)
+        self._reftv.set_editable(False)
+        self._reftv.set_cursor_visible(False)
+        self._reftv.connect("motion-notify-event", self.motion_notify_event)
+        self._reftv.connect("event-after", self.event_after)
+        self._reftv.show()
+        self._reftv.get_buffer().create_tag("reference", font_desc=font)
+
         row = 0
         for attr, text in [("status", _("Status:")),
                            ("priority", _("Priority:")),
                            ("group", _("Group:")),
                            ("installedsize", _("Installed Size:")),
-                           ("channels", _("Channels:"))]:
+                           ("channels", _("Channels:")),
+                           ("reference", _("Reference URLs:"))]:
             label = gtk.Label(text)
             label.set_attributes(attrsleft)
             if attr == "channels":
@@ -80,9 +93,12 @@ class GtkPackageInfo(gtk.Alignment):
             label.show()
             table.attach(label, 0, 1, row, row+1, gtk.FILL, gtk.FILL)
             setattr(self._info, attr+"_label", label)
-            label = gtk.Label()
-            label.set_attributes(attrsright)
-            label.set_alignment(0.0, 0.5)
+            if attr == "reference":
+                label = self._reftv
+            else:
+                label = gtk.Label()
+                label.set_attributes(attrsright)
+                label.set_alignment(0.0, 0.5)
             label.show()
             table.attach(label, 1, 2, row, row+1, gtk.FILL, gtk.FILL)
             setattr(self._info, attr, label)
@@ -172,21 +188,6 @@ class GtkPackageInfo(gtk.Alignment):
         sw.set_shadow_type(gtk.SHADOW_IN)
         sw.set_border_width(5)
         sw.show()
-
-        self._reftv = gtk.TextView()
-        self._reftv.set_editable(False)
-        self._reftv.set_cursor_visible(False)
-        self._reftv.set_left_margin(5)
-        self._reftv.set_right_margin(5)
-        self._reftv.connect("motion-notify-event", self.motion_notify_event)
-        self._reftv.connect("event-after", self.event_after)
-        self._reftv.show()
-        buffer = self._reftv.get_buffer()
-        buffer.create_tag("reference", font_desc=font)
-        sw.add(self._reftv)
-
-        label = gtk.Label(_("Reference"))
-        self._notebook.append_page(sw, label)
 
         self._notebook.connect("switch_page", self._switchPage)
 
@@ -299,6 +300,7 @@ class GtkPackageInfo(gtk.Alignment):
             group = None
             installedsize = None
             channels = []
+            urls = []
             for loader in pkg.loaders:
                 info = loader.getInfo(pkg)
                 if group is None:
@@ -309,6 +311,7 @@ class GtkPackageInfo(gtk.Alignment):
                 channels.append("%s (%s)" %
                                 (channel.getName() or channel.getAlias(),
                                  channel.getAlias()))
+                urls.extend(info.getReferenceURLs())
 
             flags = pkgconf.testAllFlags(pkg)
             if flags:
@@ -322,6 +325,13 @@ class GtkPackageInfo(gtk.Alignment):
             self._info.group.set_text(group or _("Unknown"))
             self._info.priority.set_text(str(pkg.getPriority()))
             self._info.channels.set_text("\n".join(channels))
+            self._info.reference.get_buffer().set_text("")
+            for url in urls:
+                refbuf = self._info.reference.get_buffer()
+                tag = refbuf.create_tag(None,
+                        foreground="blue", underline=pango.UNDERLINE_SINGLE)
+                tag.set_data("url", url)
+                refbuf.insert_with_tags(refbuf.get_end_iter(), url, tag)
 
             if installedsize:
                 self._info.installedsize.set_text(sizeToStr(installedsize))
@@ -410,28 +420,6 @@ class GtkPackageInfo(gtk.Alignment):
                 if item != lastitem:
                     lastitem = item
                     model.append(item)
-
-        elif num == 5:
-
-            # Update reference
-
-            refbuf = self._reftv.get_buffer()
-            refbuf.set_text("")
-            if not pkg: return
-
-            iter = refbuf.get_end_iter()
-            for loader in pkg.loaders:
-                if loader.getInstalled():
-                    break
-            else:
-                loader = pkg.loaders.keys()[0]
-            info = loader.getInfo(pkg)
-            urls = info.getReferenceURLs()
-            for url in urls:
-                tag = refbuf.create_tag(None,
-                    foreground="blue", underline=pango.UNDERLINE_SINGLE)
-                tag.set_data("url", url)
-                refbuf.insert_with_tags(iter, url+"\n", tag)
 
     def _setRelations(self, pkg):
 
