@@ -1162,6 +1162,8 @@ class URLLIBHandler(FetcherHandler):
 
                 del opener.addheaders[:]
 
+                opener.addheader("User-Agent", "smart/" + VERSION)
+
                 if (os.path.isfile(localpath) and
                     fetcher.validate(item, localpath)):
                     mtime = os.path.getmtime(localpath)
@@ -1643,6 +1645,8 @@ class PyCurlHandler(FetcherHandler):
                         handle.setopt(pycurl.WRITEDATA, local)
                         handle.setopt(pycurl.FOLLOWLOCATION, 1)
                         handle.setopt(pycurl.MAXREDIRS, 5)
+                        handle.setopt(pycurl.HTTPHEADER, ["Pragma:"])
+                        handle.setopt(pycurl.USERAGENT, "smart/" + VERSION)
 
                         # check if we have a valid local file and use I-M-S
                         if fetcher.validate(item, localpath):
