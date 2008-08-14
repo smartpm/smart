@@ -5,6 +5,7 @@ import time
 
 from smart.progress import Progress
 from smart.fetcher import Fetcher
+from smart.const import VERSION
 
 
 PORT = 43543
@@ -35,7 +36,7 @@ class FetcherTest(unittest.TestCase):
         fetcher = Fetcher()
         fetcher.enqueue(URL)
         fetcher.run(progress=Progress())
-        self.assertTrue("User-Agent: smart/0.52\r\n" in headers)
+        self.assertTrue(("User-Agent: smart/%s\r\n" % VERSION) in headers)
 
     def test_remove_pragma_no_cache_from_curl(self):
         headers = []
