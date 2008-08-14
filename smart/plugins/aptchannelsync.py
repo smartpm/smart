@@ -61,6 +61,9 @@ def _loadSourcesList(filename):
             (type, uri, distro) = line.split(None, 2)
             comps = ""
 
+        if uri.startswith("cdrom:"):
+            continue # We don't deal with these yet.
+
         # Build a unique alias.
         m = md5.new("%s%s%s%s" % (type, uri, distro,comps))
         alias = "aptsync-%s" % m.hexdigest()
