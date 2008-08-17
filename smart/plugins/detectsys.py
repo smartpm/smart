@@ -22,17 +22,9 @@
 from smart import *
 import os
 
-try:
-    import rpm
-except ImportError:
-    rpm = None
-
 def detectRPMSystem():
     dir = os.path.join(sysconf.get("rpm-root", "/"), "var/lib/rpm")
     if os.path.isdir(dir):
-        if not rpm:
-            iface.debug("detectRPMSystem: rpm-python not available")
-            return
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "rpm-sys":
                 break
