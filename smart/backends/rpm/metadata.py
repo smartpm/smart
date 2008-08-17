@@ -76,6 +76,9 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getSummary(self):
         return self._info.get("summary", "")
 
+    def getReferenceURLs(self):
+        return [self._info.get("url", "")]
+
     def getGroup(self):
         return self._info.get("group", "")
 
@@ -113,6 +116,7 @@ class RPMMetaDataLoader(Loader):
         VERSION     = nstag(NS_COMMON, "version")
         SUMMARY     = nstag(NS_COMMON, "summary")
         DESCRIPTION = nstag(NS_COMMON, "description")
+        URL         = nstag(NS_COMMON, "url")
         SIZE        = nstag(NS_COMMON, "size")
         LOCATION    = nstag(NS_COMMON, "location")
         FORMAT      = nstag(NS_COMMON, "format")
@@ -192,6 +196,10 @@ class RPMMetaDataLoader(Loader):
                 elif tag == DESCRIPTION:
                     if elem.text:
                         info["description"] = elem.text
+
+                elif tag == URL:
+                    if elem.text:
+                        info["url"] = elem.text
 
                 elif tag == SIZE:
                     info["size"] = int(elem.get("package"))
