@@ -36,6 +36,16 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
 """
 
+CENTOS_MEDIA_REPO = """\
+[c4-media]
+name=CentOS-$releasever - Media
+baseurl=file:///media/cdrom/
+        file:///media/cdrecorder/
+gpgcheck=1
+enabled=0
+gpgkey=file:///usr/share/doc/centos-release-4/RPM-GPG-KEY-centos4
+"""
+
 class YumRepoSyncTest(MockerTestCase):
 
     def setUp(self):
@@ -80,4 +90,17 @@ class YumRepoSyncTest(MockerTestCase):
         syncYumRepos(self.repos_dir)
         self.assertEquals(sysconf.get("channels")["yumsync-fedora"]["name"],
                           "Fedora %s - %s" % (RELEASEVER, BASEARCH))
+
+    def test_synchronize_media_repo(self):
+        if not syncYumRepos:
+            self.skip("yum not available")
+        self.makeFile(CENTOS_MEDIA_REPO, dirname=self.repos_dir, basename="c4-media.repo")
+        syncYumRepos(self.repos_dir)
+        self.assertEquals(sysconf.get("channels"), {
+                          "yumsync-c4-media":
+                              {"disabled": True,
+                               "type": "rpm-md",
+                               "name": "CentOS-%s - Media" % RELEASEVER,
+                               "baseurl": "localmedia://"},
+                         })
 
