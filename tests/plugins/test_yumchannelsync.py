@@ -1,7 +1,7 @@
 import os
 
 try:
-    from smart.plugins.yumchannelsync import syncYumRepos
+    from smart.plugins.yumchannelsync import syncYumRepos, BASEARCH, RELEASEVER
 except ImportError: # yum (rpmUtils.arch) not available
     syncYumRepos = None
 from smart import sysconf
@@ -23,6 +23,17 @@ name=Fedora 8 - i386 - Debug
 baseurl=http://mirrors.kernel.org/fedora/releases/8/Everything/i386/debug/
 enabled=0
 gpgcheck=1
+"""
+
+FEDORA_DYNAMIC_REPO = """\
+[fedora]
+name=Fedora $releasever - $basearch
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/$releasever/Everything/$basearch/os/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
 """
 
 class YumRepoSyncTest(MockerTestCase):
@@ -61,3 +72,12 @@ class YumRepoSyncTest(MockerTestCase):
                                "name": "Fedora 8 - i386 - Debug",
                                "baseurl": "http://mirrors.kernel.org/fedora/releases/8/Everything/i386/debug/"},
                          })
+
+    def test_synchronize_dynamic_repos(self):
+        if not syncYumRepos:
+            self.skip("yum not available")
+        self.makeFile(FEDORA_DYNAMIC_REPO, dirname=self.repos_dir, basename="fedora.repo")
+        syncYumRepos(self.repos_dir)
+        self.assertEquals(sysconf.get("channels")["yumsync-fedora"]["name"],
+                          "Fedora %s - %s" % (RELEASEVER, BASEARCH))
+
