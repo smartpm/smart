@@ -90,6 +90,7 @@ def _findBaseUrl(mirrorlist, repo):
                      "%s.") % repo)
     import urllib
     list = urllib.urlopen(mirrorlist)
+    baseurl = None
     while 1:
         line = list.readline()
         if line.startswith("#"):
