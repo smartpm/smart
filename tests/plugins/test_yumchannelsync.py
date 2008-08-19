@@ -21,7 +21,7 @@ FEDORA_DEBUG_REPO = """\
 [debug]
 name=Fedora 8 - i386 - Debug
 baseurl=http://mirrors.kernel.org/fedora/releases/8/Everything/i386/debug/
-enabled=1
+enabled=0
 gpgcheck=1
 """
 
@@ -39,8 +39,8 @@ class YumRepoSyncTest(MockerTestCase):
         syncYumRepos(self.repos_dir)
         self.assertEquals(sysconf.get("channels"), {
                           "yumsync-base":
-                              {"type": "rpm-md",
-                               "enabled": "1",
+                              {"disabled": False,
+                               "type": "rpm-md",
                                "name": "Fedora 8 - i386 - Base",
                                "baseurl": "http://mirrors.kernel.org/fedora/releases/8/Everything/i386/os/"},
                          })
@@ -56,8 +56,8 @@ class YumRepoSyncTest(MockerTestCase):
         syncYumRepos(self.repos_dir)
         self.assertEquals(sysconf.get("channels"), {
                           "yumsync-debug":
-                              {"type": "rpm-md",
-                               "enabled": "1",
+                              {"disabled": True,
+                               "type": "rpm-md",
                                "name": "Fedora 8 - i386 - Debug",
                                "baseurl": "http://mirrors.kernel.org/fedora/releases/8/Everything/i386/debug/"},
                          })
