@@ -35,9 +35,12 @@ from smart import *
  
 YUM_REPOS_DIR = "/etc/yum.repos.d/"
 
-import rpmUtils.arch
-BASEARCH = rpmUtils.arch.getBaseArch()
-RELEASEVER = None
+def _getbasearch():
+    """
+    Get system "base" architecture.
+    """
+    import rpmUtils.arch # from yum
+    return rpmUtils.arch.getBaseArch()
 
 def _getreleasever():
     """
@@ -49,17 +52,21 @@ def _getreleasever():
     rpmroot = sysconf.get("rpm-root", "/")
     ts = rpmUtils.transaction.initReadOnlyTransaction(root=rpmroot)
     ts.pushVSFlags(~(rpm._RPMVSF_NOSIGNATURES|rpm._RPMVSF_NODIGESTS))
+    releasever = None
     # HACK: we're hard-coding the most used distros, will add more if needed
     idx = ts.dbMatch('provides', 'fedora-release')
     if idx.count() == 0:
         idx = ts.dbMatch('provides', 'redhat-release')
     if idx.count() != 0:
         hdr = idx.next()
-        releasever = hdr['version']
+        releasever = str(hdr['version'])
         del hdr
     del idx
     del ts
-    return str(releasever)
+    return releasever
+
+BASEARCH = _getbasearch()
+RELEASEVER = _getreleasever()
 
 def _replaceStrings(txt):
     """
@@ -171,7 +178,6 @@ if not sysconf.getReadOnly():
     if sysconf.get("sync-yum-repos",False):
         # Sync is not enabled by default
         iface.debug(_("Trying to sync Yum channels..."))
-        RELEASEVER = _getreleasever()
         syncYumRepos(sysconf.get("yum-repos-dir", YUM_REPOS_DIR))
 
 # vim:ts=4:sw=4:et
