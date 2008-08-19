@@ -95,8 +95,8 @@ def _findBaseUrl(mirrorlist, repo):
         line = list.readline()
         if line.startswith("#"):
             continue
-        elif (line.startswith("http:") or
-            line.startswith("ftp:")):
+        elif (line.startswith("http:") or line.startswith("https:") or
+            line.startswith("ftp:") or line.startswith("file:")):
             baseurl = line
             break
         elif not line:
