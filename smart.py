@@ -55,6 +55,7 @@ Query commands:
     stats
 
 Setup commands:
+    config
     channel
     priority
     mirror
