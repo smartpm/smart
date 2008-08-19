@@ -130,6 +130,8 @@ def _loadRepoFile(filename):
         if repofile.has_option(repo, 'baseurl'):
             baseurl = _replaceStrings(repofile.get(repo, 'baseurl'))
             if baseurl.find("\n") >= 0: baseurl = baseurl.splitlines()[1]
+            if baseurl == "file:///media/cdrom/":  baseurl = "localmedia://"
+            if baseurl == "file:///media/cdrecorder/": baseurl = "localmedia://"
         if repofile.has_option(repo, 'mirrorlist'):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
             baseurl = _findBaseUrl(mirrorlist, repo)
