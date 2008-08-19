@@ -39,15 +39,21 @@ def _getbasearch():
     """
     Get system "base" architecture.
     """
-    import rpmUtils.arch # from yum
-    return rpmUtils.arch.getBaseArch()
+    try:
+        import rpmUtils.arch # from yum
+        return rpmUtils.arch.getBaseArch()
+    except:
+        return None
 
 def _getreleasever():
     """
     Get system release and version.
     """
-    import rpm
-    import rpmUtils.transaction
+    try:
+        import rpm
+        import rpmUtils.transaction
+    except:
+        return None
 
     rpmroot = sysconf.get("rpm-root", "/")
     ts = rpmUtils.transaction.initReadOnlyTransaction(root=rpmroot)
