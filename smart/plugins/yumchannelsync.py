@@ -42,7 +42,7 @@ def _getbasearch():
     try:
         import rpmUtils.arch # from yum
         return rpmUtils.arch.getBaseArch()
-    except:
+    except ImportError:
         return None
 
 def _getreleasever():
@@ -52,7 +52,7 @@ def _getreleasever():
     try:
         import rpm
         import rpmUtils.transaction
-    except:
+    except ImportError:
         return None
 
     rpmroot = sysconf.get("rpm-root", "/")
