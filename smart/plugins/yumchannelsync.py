@@ -98,6 +98,8 @@ def _findBaseUrl(mirrorlist, repo):
             line.startswith("ftp:")):
             baseurl = line
             break
+        elif not line:
+            break
     return baseurl
 
 def _loadRepoFile(filename):
