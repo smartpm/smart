@@ -23,7 +23,7 @@ from smart import *
 import os
 
 def checkPackageFile(filename):
-    return os.path.isfile(filename) and filename.endswith(".tgz") or
+    return os.path.isfile(filename) and filename.endswith(".tgz") or \
            filename.endswith(".tbz") or filename.endswith(".tlz")
 
 hooks.register("check-package-file", checkPackageFile)
