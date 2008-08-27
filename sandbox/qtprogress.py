@@ -65,7 +65,7 @@ class QtProgress(Progress, QDialog):
         self.subprogress = {}
         self.subindex = 0
 
-    def expose(self, topic, percent, subkey, subtopic, subpercent, data):
+    def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         QDialog.show(self)
         
         self.topic.setText(topic)
@@ -89,7 +89,7 @@ def test():
     prog = QtProgress()
     data = {"item-number": 0}
     total, subtotal = 100, 100
-    prog.start(True)
+    prog.start()
     prog.setTopic("Installing packages...")
     for n in range(1,total+1):
         data["item-number"] = n
