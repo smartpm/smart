@@ -335,6 +335,12 @@ class QtInteractiveInterface(QtInterface):
                         m.insertSeparator()
              insertmenu(self._menubar, MENU)
 
+        # disable these until the qt dialogs are ready :
+        self._actions["edit-channels"].setEnabled(False)
+        self._actions["edit-mirrors"].setEnabled(False)
+        self._actions["edit-flags"].setEnabled(False)
+        self._actions["edit-priorities"].setEnabled(False)
+
         self._toolbar = qt.QToolBar(self._window)
         for TOOL in TOOLBAR:
             def inserttool(toolbar, tool):
