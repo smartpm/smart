@@ -22,6 +22,7 @@
 from smart.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP, FIX
 from smart.transaction import Transaction, ChangeSet, checkPackagesSimple
 from smart.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
+'''
 from smart.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from smart.interfaces.gtk.mirrors import GtkMirrors
 from smart.interfaces.gtk.flags import GtkFlags
@@ -30,13 +31,17 @@ from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.interfaces.gtk.packageinfo import GtkPackageInfo
 from smart.interfaces.gtk.interface import GtkInterface
 from smart.interfaces.gtk import getPixbuf
+'''
+from smart.interfaces.qt.interface import QtInterface
+from smart.interfaces.qt import getPixmap
 from smart.const import NEVER, VERSION
 from smart.searcher import Searcher
 from smart.cache import Package
 from smart import *
 import shlex, re
 import fnmatch
-import gtk
+#import gtk
+import qt
 
 UI = """
 <ui>
@@ -173,39 +178,39 @@ def compileActions(actions, globals):
         newactions.append(tuple(action))
     return newactions
 
-class GtkInteractiveInterface(GtkInterface):
+class QtInteractiveInterface(QtInterface):
 
-    def __init__(self, ctrl):
-        GtkInterface.__init__(self, ctrl)
+    def __init__(self, ctrl, argv=None):
+        QtInterface.__init__(self, ctrl, argv)
 	
         self._changeset = None
 
-        self._window = gtk.Window()
-        self._window.set_title("Smart Package Manager %s" % VERSION)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        self._window.set_geometry_hints(min_width=640, min_height=480)
-        def delete(widget, event):
-            gtk.main_quit()
-            return True
-        self._window.connect("delete-event", delete)
+        #self._window = gtk.Window()
+        #self._window.set_title("Smart Package Manager %s" % VERSION)
+        #self._window.set_position(gtk.WIN_POS_CENTER)
+        #self._window.set_geometry_hints(min_width=640, min_height=480)
+        #def delete(widget, event):
+        #    gtk.main_quit()
+        #    return True
+        #self._window.connect("delete-event", delete)
 
-        self._log.set_transient_for(self._window)
-        self._progress.set_transient_for(self._window)
-        self._hassubprogress.set_transient_for(self._window)
-        self._changes.set_transient_for(self._window)
+        #self._log.set_transient_for(self._window)
+        #self._progress.set_transient_for(self._window)
+        #self._hassubprogress.set_transient_for(self._window)
+        #self._changes.set_transient_for(self._window)
 
-        self._watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
+        #self._watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
 
         self._undo = []
         self._redo = []
 
-        self._topvbox = gtk.VBox()
-        self._topvbox.show()
-        self._window.add(self._topvbox)
+        #self._topvbox = gtk.VBox()
+        #self._topvbox.show()
+        #self._window.add(self._topvbox)
 
-        globals = {"self": self, "gtk": gtk}
-        self._actions = gtk.ActionGroup("Actions")
-        self._actions.add_actions(compileActions(ACTIONS, globals))
+        #globals = {"self": self, "gtk": gtk}
+        #self._actions = gtk.ActionGroup("Actions")
+        #self._actions.add_actions(compileActions(ACTIONS, globals))
 
         self._filters = {}
         for name, label in [("hide-non-upgrades", _("Hide Non-upgrades")),
@@ -213,9 +218,10 @@ class GtkInteractiveInterface(GtkInterface):
                             ("hide-uninstalled", _("Hide Uninstalled")),
                             ("hide-unmarked", _("Hide Unmarked")),
                             ("hide-old", _("Hide Old"))]:
-            action = gtk.ToggleAction(name, label, "", "")
-            action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
-            self._actions.add_action(action)
+            #action = gtk.ToggleAction(name, label, "", "")
+            #action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
+            #self._actions.add_action(action)
+            pass
 
         treestyle = sysconf.get("package-tree")
         lastaction = None
@@ -223,159 +229,161 @@ class GtkInteractiveInterface(GtkInterface):
                             ("channels", _("Channels")),
                             ("channels-groups", _("Channels & Groups")),
                             ("none", _("None"))]:
-            action = gtk.RadioAction("tree-style-"+name, label, "", "", 0)
-            if name == treestyle:
-                action.set_active(True)
-            if lastaction:
-                action.set_group(lastaction)
-            lastaction = action
-            action.connect("toggled", lambda x, y: self.setTreeStyle(y), name)
-            self._actions.add_action(action)
+            #action = gtk.RadioAction("tree-style-"+name, label, "", "", 0)
+            #if name == treestyle:
+            #    action.set_active(True)
+            #if lastaction:
+            #    action.set_group(lastaction)
+            #lastaction = action
+            #action.connect("toggled", lambda x, y: self.setTreeStyle(y), name)
+            #self._actions.add_action(action)
+            pass
 
-        self._ui = gtk.UIManager()
-        self._ui.insert_action_group(self._actions, 0)
-        self._ui.add_ui_from_string(UI)
-        self._menubar = self._ui.get_widget("/menubar")
-        self._topvbox.pack_start(self._menubar, False)
+        #self._ui = gtk.UIManager()
+        #self._ui.insert_action_group(self._actions, 0)
+        #self._ui.add_ui_from_string(UI)
+        #self._menubar = self._ui.get_widget("/menubar")
+        #self._topvbox.pack_start(self._menubar, False)
 
-        self._toolbar = self._ui.get_widget("/toolbar")
-        self._toolbar.set_style(gtk.TOOLBAR_BOTH)
-        self._topvbox.pack_start(self._toolbar, False)
+        #self._toolbar = self._ui.get_widget("/toolbar")
+        #self._toolbar.set_style(gtk.TOOLBAR_BOTH)
+        #self._topvbox.pack_start(self._toolbar, False)
 
-        self._window.add_accel_group(self._ui.get_accel_group())
+        #self._window.add_accel_group(self._ui.get_accel_group())
 
-        self._execmenuitem = self._ui.get_action("/menubar/file/exec-changes")
-        self._execmenuitem.set_property("sensitive", False)
-        self._clearmenuitem = self._ui.get_action("/menubar/edit/clear-changes")
-        self._clearmenuitem.set_property("sensitive", False)
-        self._undomenuitem = self._ui.get_action("/menubar/edit/undo")
-        self._undomenuitem.set_property("sensitive", False)
-        self._redomenuitem = self._ui.get_action("/menubar/edit/redo")
-        self._redomenuitem.set_property("sensitive", False)
+        #self._execmenuitem = self._ui.get_action("/menubar/file/exec-changes")
+        #self._execmenuitem.set_property("sensitive", False)
+        #self._clearmenuitem = self._ui.get_action("/menubar/edit/clear-changes")
+        #self._clearmenuitem.set_property("sensitive", False)
+        #self._undomenuitem = self._ui.get_action("/menubar/edit/undo")
+        #self._undomenuitem.set_property("sensitive", False)
+        #self._redomenuitem = self._ui.get_action("/menubar/edit/redo")
+        #self._redomenuitem.set_property("sensitive", False)
 
         # Search bar
 
-        self._searchbar = gtk.Alignment()
-        self._searchbar.set(0, 0, 1, 1)
-        self._searchbar.set_padding(3, 3, 0, 0)
-        self._topvbox.pack_start(self._searchbar, False)
+        #self._searchbar = gtk.Alignment()
+        #self._searchbar.set(0, 0, 1, 1)
+        #self._searchbar.set_padding(3, 3, 0, 0)
+        #self._topvbox.pack_start(self._searchbar, False)
 
-        searchvp = gtk.Viewport()
-        searchvp.set_shadow_type(gtk.SHADOW_OUT)
-        searchvp.show()
-        self._searchbar.add(searchvp)
+        #searchvp = gtk.Viewport()
+        #searchvp.set_shadow_type(gtk.SHADOW_OUT)
+        #searchvp.show()
+        #self._searchbar.add(searchvp)
 
-        searchtable = gtk.Table(1, 1)
-        searchtable.set_row_spacings(5)
-        searchtable.set_col_spacings(5)
-        searchtable.set_border_width(5)
-        searchtable.show()
-        searchvp.add(searchtable)
+        #searchtable = gtk.Table(1, 1)
+        #searchtable.set_row_spacings(5)
+        #searchtable.set_col_spacings(5)
+        #searchtable.set_border_width(5)
+        #searchtable.show()
+        #searchvp.add(searchtable)
 
-        label = gtk.Label(_("Search:"))
-        label.show()
-        searchtable.attach(label, 0, 1, 0, 1, 0, 0)
+        #label = gtk.Label(_("Search:"))
+        #label.show()
+        #searchtable.attach(label, 0, 1, 0, 1, 0, 0)
 
-        self._searchentry = gtk.Entry()
-        self._searchentry.connect("activate", lambda x: self.refreshPackages())
-        self._searchentry.show()
-        searchtable.attach(self._searchentry, 1, 2, 0, 1)
+        #self._searchentry = gtk.Entry()
+        #self._searchentry.connect("activate", lambda x: self.refreshPackages())
+        #self._searchentry.show()
+        #searchtable.attach(self._searchentry, 1, 2, 0, 1)
 
-        button = gtk.Button()
-        button.set_relief(gtk.RELIEF_NONE)
-        button.connect("clicked", lambda x: self.refreshPackages())
-        button.show()
-        searchtable.attach(button, 2, 3, 0, 1, 0, 0)
-        image = gtk.Image()
-        image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
-        image.show()
-        button.add(image)
+        #button = gtk.Button()
+        #button.set_relief(gtk.RELIEF_NONE)
+        #button.connect("clicked", lambda x: self.refreshPackages())
+        #button.show()
+        #searchtable.attach(button, 2, 3, 0, 1, 0, 0)
+        #image = gtk.Image()
+        #image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+        #image.show()
+        #button.add(image)
 
-        align = gtk.Alignment()
-        align.set(1, 0, 0, 0)
-        align.set_padding(0, 0, 10, 0)
-        align.show()
-        searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
-        button = gtk.Button()
-        button.set_size_request(20, 20)
-        button.set_relief(gtk.RELIEF_NONE)
-        button.connect("clicked", lambda x: self.toggleSearch())
-        button.show()
-        align.add(button)
-        image = gtk.Image()
-        image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
-        image.show()
-        button.add(image)
+        #align = gtk.Alignment()
+        #align.set(1, 0, 0, 0)
+        #align.set_padding(0, 0, 10, 0)
+        #align.show()
+        #searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
+        #button = gtk.Button()
+        #button.set_size_request(20, 20)
+        #button.set_relief(gtk.RELIEF_NONE)
+        #button.connect("clicked", lambda x: self.toggleSearch())
+        #button.show()
+        #align.add(button)
+        #image = gtk.Image()
+        #image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
+        #image.show()
+        #button.add(image)
 
-        hbox = gtk.HBox()
-        hbox.set_spacing(10)
-        hbox.show()
-        searchtable.attach(hbox, 1, 2, 1, 2)
+        #hbox = gtk.HBox()
+        #hbox.set_spacing(10)
+        #hbox.show()
+        #searchtable.attach(hbox, 1, 2, 1, 2)
 
-        self._searchname = gtk.RadioButton(None, _("Automatic"))
-        self._searchname.set_active(True)
-        self._searchname.connect("clicked", lambda x: self.refreshPackages())
-        self._searchname.show()
-        hbox.pack_start(self._searchname, False)
-        self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
-        self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
-        self._searchdesc.show()
-        hbox.pack_start(self._searchdesc, False)
+        #self._searchname = gtk.RadioButton(None, _("Automatic"))
+        #self._searchname.set_active(True)
+        #self._searchname.connect("clicked", lambda x: self.refreshPackages())
+        #self._searchname.show()
+        #hbox.pack_start(self._searchname, False)
+        #self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
+        #self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
+        #self._searchdesc.show()
+        #hbox.pack_start(self._searchdesc, False)
 
         # Packages and information
 
-        self._vpaned = gtk.VPaned()
-        self._vpaned.show()
-        self._topvbox.pack_start(self._vpaned)
+        #self._vpaned = gtk.VPaned()
+        #self._vpaned.show()
+        #self._topvbox.pack_start(self._vpaned)
 
-        self._pv = GtkPackageView()
-        self._pv.show()
-        self._vpaned.pack1(self._pv, True)
+        #self._pv = GtkPackageView()
+        #self._pv.show()
+        #self._vpaned.pack1(self._pv, True)
 
-        self._pi = GtkPackageInfo()
-        self._pi.show()
-        self._pv.connect("package_selected",
-                         lambda x, y: self._pi.setPackage(y))
-        self._pv.connect("package_activated",
-                         lambda x, y: self.actOnPackages(y))
-        self._pv.connect("package_popup", self.packagePopup)
-        self._vpaned.pack2(self._pi, False)
+        #self._pi = GtkPackageInfo()
+        #self._pi.show()
+        #self._pv.connect("package_selected",
+        #                 lambda x, y: self._pi.setPackage(y))
+        #self._pv.connect("package_activated",
+        #                 lambda x, y: self.actOnPackages(y))
+        #self._pv.connect("package_popup", self.packagePopup)
+        #self._vpaned.pack2(self._pi, False)
 
-        self._status = gtk.Statusbar()
-        self._status.show()
-        self._topvbox.pack_start(self._status, False)
-	
+        #self._status = gtk.Statusbar()
+        #self._status.show()
+        #self._topvbox.pack_start(self._status, False)
+	    pass
 	
 	
     def showStatus(self, msg):
-        self._status.pop(0)
-        self._status.push(0, msg)
-        while gtk.events_pending():
-            gtk.main_iteration()
-	
+        #self._status.pop(0)
+        #self._status.push(0, msg)
+        #while gtk.events_pending():
+        #    gtk.main_iteration()
+	    pass
 	
 
     def hideStatus(self):
-        self._status.pop(0)
-        while gtk.events_pending():
-            gtk.main_iteration()
+        #self._status.pop(0)
+        #while gtk.events_pending():
+        #    gtk.main_iteration()
+        pass
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
         self.loadState()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.show()
-        self._ctrl.reloadChannels()
-        self._changeset = ChangeSet(self._ctrl.getCache())
-        self._pi.setChangeSet(self._changeset)
-        self._progress.hide()
+        #self._window.set_icon(getPixbuf("smart"))
+        #self._window.show()
+        #self._ctrl.reloadChannels()
+        #self._changeset = ChangeSet(self._ctrl.getCache())
+        #self._pi.setChangeSet(self._changeset)
+        #self._progress.hide()
         self.refreshPackages()
 	if self.askYesNo(_("You are using the package manager.\n"
 			   "This tool allow you to install, update and remove the software.\n"
 			   "Is recommended that the channels informations are updated.\n"
 			   "Do you want to update them automatically now?"), True):
 	    self.updateChannels()
-        gtk.main()
+        #gtk.main()
         self.saveState()
         self.setCatchExceptions(False)
 	
@@ -383,40 +391,42 @@ class GtkInteractiveInterface(GtkInterface):
     # Non-standard interface methods:
 
     def saveState(self):
-        sysconf.set("gtk-size", self._window.get_size())
+        #sysconf.set("gtk-size", self._window.get_size())
         #sysconf.set("gtk-position", self._window.get_position())
-        sysconf.set("gtk-vpaned-position", self._vpaned.get_position())
+        #sysconf.set("gtk-vpaned-position", self._vpaned.get_position())
+        pass
 
     def loadState(self):
-        var = sysconf.get("gtk-size")
-        if var is not None:
-            self._window.set_size_request(*var)
+        #var = sysconf.get("gtk-size")
+        #if var is not None:
+        #    self._window.set_size_request(*var)
         #var = sysconf.get("gtk-position")
         #if var is not None:
         #    self._window.move(*var)
-        var = sysconf.get("gtk-vpaned-position")
-        if var is not None:
-            self._vpaned.set_position(var)
+        #var = sysconf.get("gtk-vpaned-position")
+        #if var is not None:
+        #    self._vpaned.set_position(var)
+        pass
 
     def getChangeSet(self):
         return self._changeset
 
     def updateChannels(self, selected=False, channels=None):
-        if selected:
-            aliases = GtkChannelSelector().show()
-            channels = [channel for channel in self._ctrl.getChannels()
-                        if channel.getAlias() in aliases]
-            if not channels:
-                return
-        state = self._changeset.getPersistentState()
+        #if selected:
+        #    aliases = GtkChannelSelector().show()
+        #    channels = [channel for channel in self._ctrl.getChannels()
+        #                if channel.getAlias() in aliases]
+        #    if not channels:
+        #        return
+        #state = self._changeset.getPersistentState()
         self._ctrl.reloadChannels(channels, caching=NEVER)
-        self._changeset.setPersistentState(state)
+        #self._changeset.setPersistentState(state)
         self.refreshPackages()
 
     def rebuildCache(self):
-        state = self._changeset.getPersistentState()
+        #state = self._changeset.getPersistentState()
         self._ctrl.reloadChannels()
-        self._changeset.setPersistentState(state)
+        #self._changeset.setPersistentState(state)
         self.refreshPackages()
 
     def applyChanges(self, confirm=True):
@@ -425,9 +435,9 @@ class GtkInteractiveInterface(GtkInterface):
         if self._ctrl.commitTransaction(transaction, confirm=confirm):
             del self._undo[:]
             del self._redo[:]
-            self._redomenuitem.set_property("sensitive", False)
-            self._undomenuitem.set_property("sensitive", False)
-            self._changeset.clear()
+            #self._redomenuitem.set_property("sensitive", False)
+            #self._undomenuitem.set_property("sensitive", False)
+            #self._changeset.clear()
             self._ctrl.reloadChannels()
             self.refreshPackages()
             self.changedMarks()
@@ -517,61 +527,61 @@ class GtkInteractiveInterface(GtkInterface):
 
     def packagePopup(self, packageview, pkgs, event):
 
-        menu = gtk.Menu()
+        #menu = gtk.Menu()
 
         hasinstalled = bool([pkg for pkg in pkgs if pkg.installed
                              and self._changeset.get(pkg) is not REMOVE])
         hasnoninstalled = bool([pkg for pkg in pkgs if not pkg.installed
                                 and self._changeset.get(pkg) is not INSTALL])
 
-        image = gtk.Image()
-        image.set_from_pixbuf(getPixbuf("package-install"))
-        item = gtk.ImageMenuItem(_("Install"))
-        item.set_image(image)
-        item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
-        if not hasnoninstalled:
-            item.set_sensitive(False)
-        menu.append(item)
+        #image = gtk.Image()
+        #image.set_from_pixbuf(getPixbuf("package-install"))
+        #item = gtk.ImageMenuItem(_("Install"))
+        #item.set_image(image)
+        #item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
+        #if not hasnoninstalled:
+        #    item.set_sensitive(False)
+        #menu.append(item)
 
-        image = gtk.Image()
-        image.set_from_pixbuf(getPixbuf("package-reinstall"))
-        item = gtk.ImageMenuItem(_("Reinstall"))
-        item.set_image(image)
-        item.connect("activate", lambda x: self.actOnPackages(pkgs, REINSTALL))
-        if not hasinstalled:
-            item.set_sensitive(False)
-        menu.append(item)
+        #image = gtk.Image()
+        #image.set_from_pixbuf(getPixbuf("package-reinstall"))
+        #item = gtk.ImageMenuItem(_("Reinstall"))
+        #item.set_image(image)
+        #item.connect("activate", lambda x: self.actOnPackages(pkgs, REINSTALL))
+        #if not hasinstalled:
+        #    item.set_sensitive(False)
+        #menu.append(item)
 
 
-        image = gtk.Image()
-        image.set_from_pixbuf(getPixbuf("package-remove"))
-        item = gtk.ImageMenuItem(_("Remove"))
-        item.set_image(image)
-        item.connect("activate", lambda x: self.actOnPackages(pkgs, REMOVE))
-        if not hasinstalled:
-            item.set_sensitive(False)
-        menu.append(item)
+        #image = gtk.Image()
+        #image.set_from_pixbuf(getPixbuf("package-remove"))
+        #item = gtk.ImageMenuItem(_("Remove"))
+        #item.set_image(image)
+        #item.connect("activate", lambda x: self.actOnPackages(pkgs, REMOVE))
+        #if not hasinstalled:
+        #    item.set_sensitive(False)
+        #menu.append(item)
 
-        image = gtk.Image()
-        if not hasinstalled:
-            image.set_from_pixbuf(getPixbuf("package-available"))
-        else:
-            image.set_from_pixbuf(getPixbuf("package-installed"))
-        item = gtk.ImageMenuItem(_("Keep"))
-        item.set_image(image)
-        item.connect("activate", lambda x: self.actOnPackages(pkgs, KEEP))
-        if not [pkg for pkg in pkgs if pkg in self._changeset]:
-            item.set_sensitive(False)
-        menu.append(item)
+        #image = gtk.Image()
+        #if not hasinstalled:
+        #    image.set_from_pixbuf(getPixbuf("package-available"))
+        #else:
+        #    image.set_from_pixbuf(getPixbuf("package-installed"))
+        #item = gtk.ImageMenuItem(_("Keep"))
+        #item.set_image(image)
+        #item.connect("activate", lambda x: self.actOnPackages(pkgs, KEEP))
+        #if not [pkg for pkg in pkgs if pkg in self._changeset]:
+        #    item.set_sensitive(False)
+        #menu.append(item)
 
-        image = gtk.Image()
-        image.set_from_pixbuf(getPixbuf("package-broken"))
-        item = gtk.ImageMenuItem(_("Fix problems"))
-        item.set_image(image)
-        item.connect("activate", lambda x: self.actOnPackages(pkgs, FIX))
-        if not hasinstalled:
-            item.set_sensitive(False)
-        menu.append(item)
+        #image = gtk.Image()
+        #image.set_from_pixbuf(getPixbuf("package-broken"))
+        #item = gtk.ImageMenuItem(_("Fix problems"))
+        #item.set_image(image)
+        #item.connect("activate", lambda x: self.actOnPackages(pkgs, FIX))
+        #if not hasinstalled:
+        #    item.set_sensitive(False)
+        #menu.append(item)
 
         inconsistent = False
         thislocked = None
@@ -605,8 +615,8 @@ class GtkInteractiveInterface(GtkInterface):
             def unlock_this(x):
                 for pkg in pkgs:
                     pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                #self._pv.queue_draw()
+                #self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_this)
         else:
             item = gtk.ImageMenuItem(_("Lock this version"))
@@ -617,8 +627,8 @@ class GtkInteractiveInterface(GtkInterface):
             def lock_this(x):
                 for pkg in pkgs:
                     pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                #self._pv.queue_draw()
+                #self._pi.setPackage(pkgs[0])
             item.connect("activate", lock_this)
         item.set_image(image)
         if inconsistent:
@@ -635,8 +645,8 @@ class GtkInteractiveInterface(GtkInterface):
             def unlock_all(x):
                 for pkg in pkgs:
                     pkgconf.clearFlag("lock", pkg.name)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                #self._pv.queue_draw()
+                #self._pi.setPackage(pkgs[0])
             item.connect("activate", unlock_all)
         else:
             item = gtk.ImageMenuItem(_("Lock all versions"))
@@ -647,8 +657,8 @@ class GtkInteractiveInterface(GtkInterface):
             def lock_all(x):
                 for pkg in pkgs:
                     pkgconf.setFlag("lock", pkg.name)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                #self._pv.queue_draw()
+                #self._pi.setPackage(pkgs[0])
             item.connect("activate", lock_all)
         item.set_image(image)
         if inconsistent:
@@ -712,40 +722,48 @@ class GtkInteractiveInterface(GtkInterface):
             self.refreshPackages()
 
     def editChannels(self):
-        if GtkChannels(self._window).show():
-            self.rebuildCache()
+        #if GtkChannels(self._window).show():
+        #    self.rebuildCache()
+        pass
 
     def editMirrors(self):
-        GtkMirrors(self._window).show()
+        #GtkMirrors(self._window).show()
+        pass
 
     def editFlags(self):
-        GtkFlags(self._window).show()
+        #GtkFlags(self._window).show()
+        pass
 
     def editPriorities(self):
-        GtkPriorities(self._window).show()
+        #GtkPriorities(self._window).show()
+        pass
 
     def setBusy(self, flag):
         if flag:
-            self._window.window.set_cursor(self._watch)
-            while gtk.events_pending():
-                gtk.main_iteration()
+            #self._window.window.set_cursor(self._watch)
+            #while gtk.events_pending():
+            #    gtk.main_iteration()
+            pass
         else:
-            self._window.window.set_cursor(None)
+            #self._window.window.set_cursor(None)
+            pass
 
     def changedMarks(self):
         if "hide-unmarked" in self._filters:
             self.refreshPackages()
         else:
-            self._pv.queue_draw()
+            #self._pv.queue_draw()
+            pass
         self._execmenuitem.set_property("sensitive", bool(self._changeset))
         self._clearmenuitem.set_property("sensitive", bool(self._changeset))
 
     def toggleSearch(self):
-        visible = not self._searchbar.get_property('visible')
-        self._searchbar.set_property('visible', visible)
+        #visible = not self._searchbar.get_property('visible')
+        #self._searchbar.set_property('visible', visible)
         self.refreshPackages()
         if visible:
-            self._searchentry.grab_focus()
+            #self._searchentry.grab_focus()
+            pass
 
     def refreshPackages(self):
         if not self._ctrl:
@@ -757,7 +775,7 @@ class GtkInteractiveInterface(GtkInterface):
         ctrl = self._ctrl
         changeset = self._changeset
 
-        if self._searchbar.get_property("visible"):
+        if False: #self._searchbar.get_property("visible"):
 
             searcher = Searcher()
             dosearch = False
@@ -873,7 +891,7 @@ class GtkInteractiveInterface(GtkInterface):
         else:
             groups = packages
 
-        self._pv.setPackages(groups, changeset, keepstate=True)
+        #self._pv.setPackages(groups, changeset, keepstate=True)
 
         self.setBusy(False)
 

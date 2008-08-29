@@ -27,21 +27,13 @@ from smart.const import OPTIONAL, ALWAYS
 from smart.fetcher import Fetcher
 from smart.report import Report
 from smart import *
+import qt
 import getpass
 import sys
 import os
 
 
-try:
-	from qt import *
-	#from PyQt4.QtCore import QApplication
-	
-except:
-	print _("You need PyQt installed in your system,"
-		" please install with your package manager.")
-	exit(-1)
-
-app = QApplication(sys.argv)
+app = qt.QApplication(sys.argv)
 
 class QtInterface(Interface):
 
@@ -80,22 +72,22 @@ class QtInterface(Interface):
 
 
     def askYesNo(self, question, default=False):
-        response = QMessageBox.question(self._window,
+        response = qt.QMessageBox.question(self._window,
                                 	_("Question..."),
 					question,
-					QMessageBox.Yes,
-					QMessageBox.No)
+					qt.QMessageBox.Yes,
+					qt.QMessageBox.No)
 
 
-        if response == QMessageBox.Yes:
+        if response == qt.QMessageBox.Yes:
             return True
-        elif response == QMessageBox.No:
+        elif response == qt.QMessageBox.No:
             return False
         else:
             return default
 
     def askContCancel(self, question, default=False):
-	response = QMessageBox.question(self._window,
+	response = qt.QMessageBox.question(self._window,
                                    _("Question..."),
 				   question,
 				   _("Continue"),
@@ -112,16 +104,16 @@ class QtInterface(Interface):
             return default
 
     def askOkCancel(self, question, default=False):
- 	response = QMessageBox.question(self._window,
+ 	response = qt.QMessageBox.question(self._window,
                                    _("Question..."),
 				   question,
-				   QMessageBox.Ok,
-				   QMessageBox.Cancel)
+				   qt.QMessageBox.Ok,
+				   qt.QMessageBox.Cancel)
 
 	
-        if response == QMessageBox.Ok:
+        if response == qt.QMessageBox.Ok:
             return True
-        elif response == QMessageBox.Cancel:
+        elif response == qt.QMessageBox.Cancel:
             return False
         else:
             return default
@@ -145,7 +137,7 @@ class QtInterface(Interface):
 	else:
 		stringToShow = prompt
 		
-	text, ok = QInputDialog.getText( _("Input"), stringToShow)
+	text, ok = qt.QInputDialog.getText( _("Input"), stringToShow)
     		
 	if (ok and text != None):
 		return text
@@ -154,7 +146,7 @@ class QtInterface(Interface):
 	
     def message(self, type, msg):
 	
-	message = QMessageBox.information(None, "Message",  msg)
+	message = qt.QMessageBox.information(None, "Message",  msg)
 	
 
     def insertRemovableChannels(self, channels):

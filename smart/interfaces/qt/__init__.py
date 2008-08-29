@@ -21,8 +21,16 @@
 #
 from smart.interface import getImagePath
 from smart import *
-from qt import *
 import os
+
+try:
+    import qt
+except ImportError:
+    from smart.const import DEBUG
+    if sysconf.get("log-level") == DEBUG:
+        import traceback
+        traceback.print_exc()
+    raise Error, _("System has no support for qt python interface")
 
 def create(ctrl, command=None, argv=None):
     if command:
@@ -39,12 +47,11 @@ def getPixmap(iconName):
 	if iconName not in _pixbuf:
 		filename = getImagePath(iconName)
         	if os.path.isfile(filename):
-            		pixbuf = QPixmap(filename)
+            		pixbuf = qt.QPixmap(filename)
             		_pixbuf[iconName] = pixbuf
         	else:
             		raise Error, _("Image '%s' not found") % iconName
     	return _pixbuf[iconName]
-		
 
 
 # vim:ts=4:sw=4:et

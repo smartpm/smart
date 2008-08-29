@@ -22,9 +22,9 @@
 from smart.interfaces.qt import getPixmap
 from smart.const import INSTALL, REMOVE
 from smart import *
-from qt import *
+import qt
 
-class QtPackageView(QWidget):
+class QtPackageView(qt.QWidget):
 
     #__gsignals__ = {
         #"package_selected":  (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
@@ -36,15 +36,14 @@ class QtPackageView(QWidget):
     #}
 
     def __init__(self, parent):
-        QWidget.__init__(self, parent)
+        qt.QWidget.__init__(self, parent)
 
 	self.show()
         self._expandpackage = False
 
         self._changeset = {}
-	self._vbox = QVBoxLayout(self)
-	
-        self._treeview = QListView(self)
+        self._treeview = qt.QListView(self)
+        self._vbox = qt.QVBoxLayout(self)
         #self._treeview.connect("button_press_event", self._buttonPress)
         #self._treeview.connect("select_cursor_row", self._selectCursor)
         #self._treeview.connect("cursor_changed", self._cursorChanged)
@@ -53,9 +52,9 @@ class QtPackageView(QWidget):
 	
         #selection = self._treeview.get_selection()
         #selection.set_mode(gtk.SELECTION_MULTIPLE)
-	self._treeview.setSelectionMode(QListView.NoSelection)
 	
 	self._treeview.addColumn(_("Package"))
+        self._treeview.setSelectionMode(qt.QListView.NoSelection)
         #column = gtk.TreeViewColumn(_("Package"))
         #renderer = PixbufCellRenderer()
         #renderer.set_property("activate", self._pixbufClicked)
@@ -268,14 +267,7 @@ class QtPackageView(QWidget):
                 iter = self._setPackage(report, parent, key)
                 self._setPackage(report, iter, item[key])
         else:
-	    if parent is None:
-		iter = QListViewItem(self._treeview)
-	    else:
-	    	iter = QListViewItem(parent)
-	    self._setNameVersion(iter, item)
-	    #iter.setText(0, str(item))
-	    iter.setPixmap(0, self._setPixmap(item))
-	    
+                iter = qt.QListViewItem(self._treeview)
             return iter
 
     def _buttonPress(self, treeview, event):
@@ -289,7 +281,7 @@ class QtPackageView(QWidget):
         model = treeview.get_model()
         iter = model.get_iter(path)
         value = model.get_value(iter, 0)
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if False: #event.type == gtk.gdk._2BUTTON_PRESS:
             if not self._expandpackage and hasattr(value, "name"):
                 pkgs = self.getSelectedPkgs()
                 if len(pkgs) > 1:
@@ -300,7 +292,7 @@ class QtPackageView(QWidget):
                 treeview.collapse_row(path)
             else:
                 treeview.expand_row(path, False)
-        elif event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+        elif False: #event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
             pkgs = self.getSelectedPkgs()
             if len(pkgs) > 1:
                 self.emit("package_popup", pkgs, event)

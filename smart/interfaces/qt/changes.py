@@ -24,12 +24,11 @@ from smart.interfaces.qt import getPixmap
 from smart.util.strtools import sizeToStr
 from smart.report import Report
 from smart import *
-from qt import *
-#import gobject, gtk
+import qt
 
-class QtChanges(QDialog):
+class QtChanges(qt.QDialog):
     def __init__(self, parent = None, name = None,  fl= 0):
-	    QDialog.__init__(self,parent,name,fl)
+	    qt.QDialog.__init__(self,parent,name,fl)
 	    if not name:
 		self.setName("Change Summary:")
 		self.createInterface()
@@ -43,8 +42,8 @@ class QtChanges(QDialog):
 
     def createInterface(self):
             #self.setIcon(getPixbuf("smart"))
-            self._vbox = QVBoxLayout(self)
-	    self._label = QLabel(self)
+            self._vbox = qt.QVBoxLayout(self)
+	    self._label = qt.QLabel(self)
 	    self._label.setText("Change Summary:")
 
 	    self._packageListView = QtPackageView(self)
@@ -56,19 +55,19 @@ class QtChanges(QDialog):
 		#self._packageListView.insertItem(item)
 			
 
-	    self._sizelabel = QLabel("label spazio", self)
+	    self._sizelabel = qt.QLabel("label spazio", self)
 	    #####spazio x i bottoni########
-	    self._confirmbbox = QHBoxLayout(self)
-	    self._cancelbutton = QPushButton("Cancel", self)
-	    self._confirmbutton = QPushButton("Confirm", self)
+	    self._confirmbbox = qt.QHBoxLayout(self)
+	    self._cancelbutton = qt.QPushButton("Cancel", self)
+	    self._confirmbutton = qt.QPushButton("Confirm", self)
 
 
 	    #QObject.connect( self._confirmbutton, SIGNAL("clicked()"), self.confirmClicked)
-	    QObject.connect( self._confirmbutton, SIGNAL("clicked()"), self, SLOT("accept()"))
+	    qt.QObject.connect( self._confirmbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("accept()"))
 	    #QObject.connect( self._cancelbutton, SIGNAL("clicked()"), self.closeClicked)
-	    QObject.connect( self._cancelbutton, SIGNAL("clicked()"), self, SLOT("reject()"))
+	    qt.QObject.connect( self._cancelbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("reject()"))
 		
-	    spacer = QSpacerItem(160,20)
+	    spacer = qt.QSpacerItem(160,20)
 	    self._confirmbbox.addItem(spacer)
 	    self._confirmbbox.addWidget(self._cancelbutton)
 	    self._confirmbbox.addWidget(self._confirmbutton)
@@ -214,7 +213,7 @@ class QtChanges(QDialog):
         self._result = False
 
 	dialogResult = self.exec_loop()
-	if dialogResult == QDialog.Accepted:
+	if dialogResult == qt.QDialog.Accepted:
 		self._result = True
 	else:
 		self._result = False
@@ -222,9 +221,9 @@ class QtChanges(QDialog):
 
 if __name__ == "__main__":
     import sys
-    app = QApplication(sys.argv)
+    app = qt.QApplication(sys.argv)
     change = QtChanges()
     change.show()
-    app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
+    app.connect(app, qt.SIGNAL("lastWindowClosed()"), app, qt.SLOT("quit()"))
     app.exec_loop()
 # vim:ts=4:sw=4:et

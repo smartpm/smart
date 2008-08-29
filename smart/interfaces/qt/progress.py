@@ -22,11 +22,11 @@
 from smart.interface import getScreenWidth
 from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
+import qt
 import posixpath
 import time
 import sys
 import thread
-from qt import *
 
 class QtProgress(Progress):
 
@@ -42,7 +42,7 @@ class QtProgress(Progress):
 
     def __init__(self, hassub):
 	Progress.__init__(self)
-        self.win = QWidget(None, "Progress",Qt.WType_Dialog  )
+        self.win = qt.QWidget(None, "Progress", qt.Qt.WType_Dialog)
         self.win.setName("Progress")
 	
         self._lasttopic = None
@@ -58,50 +58,50 @@ class QtProgress(Progress):
 	
 
 	#aggiungo il movie dal file png
-        self.win.movie = QMovie("reload.mng")
-	self.win.iconwait = QLabel(self.win,"Wait")
+        self.win.movie = qt.QMovie("reload.mng")
+	self.win.iconwait = qt.QLabel(self.win,"Wait")
 	#self.win.iconwait.setPixmap( QPixmap("info.png"))
 	self.win.iconwait.setMovie(self.win.movie)
 
 
-        ProgressFormLayout = QGridLayout(self.win,1,1,11,6,"ProgressFormLayout")
-        spacer1 = QSpacerItem(391,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        ProgressFormLayout = qt.QGridLayout(self.win,1,1,11,6,"ProgressFormLayout")
+        spacer1 = qt.QSpacerItem(391,21,qt.QSizePolicy.Expanding,qt.QSizePolicy.Minimum)
         ProgressFormLayout.addMultiCell(spacer1,3,3,2,3)
-        spacer2 = QSpacerItem(431,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer2 = qt.QSpacerItem(431,20,qt.QSizePolicy.Expanding,qt.QSizePolicy.Minimum)
         ProgressFormLayout.addMultiCell(spacer2,5,5,0,2)
 
-        self.win.pleaseWaitLabel = QLabel(self.win,"pleaseWaitLabel")
-        self.win.pleaseWaitLabel.setAlignment(QLabel.WordBreak | QLabel.AlignVCenter)
+        self.win.pleaseWaitLabel = qt.QLabel(self.win,"pleaseWaitLabel")
+        self.win.pleaseWaitLabel.setAlignment(qt.QLabel.WordBreak | qt.QLabel.AlignVCenter)
 	self.win.pleaseWaitLabel.setText("Please wait, operation in progress...")
 
         ProgressFormLayout.addMultiCellWidget(self.win.pleaseWaitLabel,0,0,0,3)
 
-        self.win.mainStepLabel = QLabel(self.win,"mainStepLabel")
+        self.win.mainStepLabel = qt.QLabel(self.win,"mainStepLabel")
 	self.win.mainStepLabel.setText("Main step label")
 
         ProgressFormLayout.addMultiCellWidget(self.win.mainStepLabel,1,1,1,3)
 
         ProgressFormLayout.addMultiCellWidget(self.win.iconwait,1,2,0,0)
 
-        self.win.mainProgressBar = QProgressBar(self.win,"mainProgressBar")
+        self.win.mainProgressBar = qt.QProgressBar(self.win,"mainProgressBar")
 
         ProgressFormLayout.addMultiCellWidget(self.win.mainProgressBar,2,2,1,3)
 
 	#se ci sono sottoprocessi
 	if hassub:
-		self.win.showHideDetailsBtn = QPushButton(self.win,"Show details")
+		self.win.showHideDetailsBtn = qt.QPushButton(self.win,"Show details")
 		self.win.showHideDetailsBtn.setText("Show details")
-		QObject.connect(self.win.showHideDetailsBtn, SIGNAL ("clicked()"), self.setStepListViewVisible)
+		qt.QObject.connect(self.win.showHideDetailsBtn, qt.SIGNAL ("clicked()"), self.setStepListViewVisible)
         	ProgressFormLayout.addMultiCellWidget(self.win.showHideDetailsBtn,3,3,0,1)
 
-        	self.win.cancelBtn = QPushButton(self.win,"cancelBtn")
+        	self.win.cancelBtn = qt.QPushButton(self.win,"cancelBtn")
 		self.win.cancelBtn.setText("Cancel")
-		QObject.connect(self.win.cancelBtn, SIGNAL ("clicked()"), self._cancel)
+		qt.QObject.connect(self.win.cancelBtn, qt.SIGNAL ("clicked()"), self._cancel)
         	ProgressFormLayout.addWidget(self.win.cancelBtn,5,3)
 
-        	self.win.stepListView = QListView(self.win,"stepListView")
+        	self.win.stepListView = qt.QListView(self.win,"stepListView")
 		self.win.stepListView.setSorting(-1, False);
-		self.win.stepListView.setSelectionMode(QListView.NoSelection )
+		self.win.stepListView.setSelectionMode(qt.QListView.NoSelection )
 		#creo le colonne per la lista
 	
 		self.win.stepListView.addColumn("Subpercent")
@@ -147,8 +147,8 @@ class QtProgress(Progress):
     def tick(self):
         while not self._stopticking:
            self.lock()
-           while QApplication.eventLoop().hasPendingEvents():
-		   QApplication.eventLoop().processEvents(QEventLoop.AllEvents)
+           while qt.QApplication.eventLoop().hasPendingEvents():
+		   qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
            self.unlock()
            time.sleep(INTERVAL)
         self._ticking = False
@@ -184,7 +184,7 @@ class QtProgress(Progress):
 	
 	
     def hide(self):
-	QWidget.close(self.win)
+	qt.QWidget.close(self.win)
 	
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
@@ -197,7 +197,7 @@ class QtProgress(Progress):
 	#print "data= " + str(data)
 	#print "done= " + str(done)
 	
-	QWidget.show(self.win)
+	qt.QWidget.show(self.win)
 	if self._hassub and subkey:
 	    #metto a posto i sottoprocessi	
             if subkey in self._subiters:
@@ -209,7 +209,7 @@ class QtProgress(Progress):
                 #iter = self._treemodel.append()
 		
 		#creo l'elemento
-		iter = QListViewItem(self.win.stepListView)
+		iter = qt.QListViewItem(self.win.stepListView)
 		
 		#lo aggiungo al dizionario
                 self._subiters[subkey] = iter
@@ -263,7 +263,7 @@ class QtProgress(Progress):
                 self.win.stepListView.repaint()
 	
 	self.win.update()
-	QApplication.eventLoop().processEvents(QEventLoop.AllEvents)
+	qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
 		
 
     
@@ -288,7 +288,7 @@ def test():
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = qt.QApplication(sys.argv)
     test()
     #prog = QtProgress(True)
     #prog.win.show()
