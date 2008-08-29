@@ -266,7 +266,8 @@ Dependencies
 	higher, and a C compiler to build the extensions.
 
 :Graphic Interface:
-	The graphic interface depends on `pygtk` 2.4 or higher.
+	The "gtk" graphic interface depends on `pygtk` 2.4 or higher.
+	The "qt" graphic interface depends on `pyqt` 3.3 (not 4.x).
 
 :RPM backend:
 	The RPM backend depends on the Python `rpm` module of RPM 4.4 or
