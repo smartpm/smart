@@ -236,7 +236,7 @@ class QtInteractiveInterface(QtInterface):
 
     def __init__(self, ctrl, argv=None):
         QtInterface.__init__(self, ctrl, argv)
-	
+
         self._changeset = None
 
         self._window = qt.QMainWindow()

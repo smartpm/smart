@@ -45,15 +45,15 @@ def create(ctrl, command=None, argv=None):
 _pixmap = {}
 
 def getPixmap(iconName):
-	if iconName not in _pixmap:
-		filename = getImagePath(iconName)
-        	if os.path.isfile(filename):
-            		pixmap = qt.QPixmap(filename)
-            		_pixmap[iconName] = pixmap
-        	else:
-            		raise Error, _("Image '%s' not found") % iconName
-    	return _pixmap[iconName]
-		
+    if iconName not in _pixmap:
+        filename = getImagePath(iconName)
+            if os.path.isfile(filename):
+                    pixmap = qt.QPixmap(filename)
+                    _pixmap[iconName] = pixmap
+            else:
+                    raise Error, _("Image '%s' not found") % iconName
+        return _pixmap[iconName]
+
 def centerWindow(window):
     w = window.topLevelWidget()
     if w:
