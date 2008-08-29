@@ -27,58 +27,34 @@ from smart import *
 import qt
 
 class QtChanges(qt.QDialog):
-    def __init__(self, parent = None, name = None,  fl= 0):
-	    qt.QDialog.__init__(self,parent,name,fl)
-	    if not name:
-		self.setName("Change Summary:")
-		self.createInterface()
 
-    def confirmClicked(self):
-	    self._result = True
-            self.close()
-	
-    def closeClicked(self):
-	    self.close()	
+    def __init__(self, parent = None):
+        qt.QDialog.__init__(self,parent)
 
-    def createInterface(self):
-            #self.setIcon(getPixbuf("smart"))
-            self._vbox = qt.QVBoxLayout(self)
-	    self._label = qt.QLabel(self)
-	    self._label.setText("Change Summary:")
+        self.setIcon(getPixmap("smart"))
+        self.setCaption(_("Change Summary"))
+        
+        self._vbox = qt.QVBoxLayout(self)
 
-	    self._packageListView = QtPackageView(self)
-	    self._pv = self._packageListView 
-	    #self._packageListView = QListView(self)
-	    #self._packageListView.addColumn("colonna 1")
-	    #for i in range(30):
-	        #item = QListViewItem(self._packageListView, "ciao "+ str(i))
-		#self._packageListView.insertItem(item)
-			
+        self._label = qt.QLabel(self)
+        self._vbox.addWidget(self._label)
 
-	    self._sizelabel = qt.QLabel("label spazio", self)
-	    #####spazio x i bottoni########
-	    self._confirmbbox = qt.QHBoxLayout(self)
-	    self._cancelbutton = qt.QPushButton("Cancel", self)
-	    self._confirmbutton = qt.QPushButton("Confirm", self)
+        self._pv = QtPackageView(self)
+        self._pv.getTreeView().header().hide()
+        self._pv.setExpandPackage(True)
+        self._pv.show()
+        self._vbox.addWidget(self._pv)
 
+        self._sizelabel = qt.QLabel("", self)
+        self._vbox.addWidget(self._sizelabel)
 
-	    #QObject.connect( self._confirmbutton, SIGNAL("clicked()"), self.confirmClicked)
-	    qt.QObject.connect( self._confirmbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("accept()"))
-	    #QObject.connect( self._cancelbutton, SIGNAL("clicked()"), self.closeClicked)
-	    qt.QObject.connect( self._cancelbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("reject()"))
-		
-	    spacer = qt.QSpacerItem(160,20)
-	    self._confirmbbox.addItem(spacer)
-	    self._confirmbbox.addWidget(self._cancelbutton)
-	    self._confirmbbox.addWidget(self._confirmbutton)
-		
-	    ####layout#########
-	    self._vbox.addWidget(self._label)
-	    self._vbox.addWidget(self._packageListView)
-	    self._vbox.addWidget(self._sizelabel)
-		
-	    
-	    self._vbox.addItem(self._confirmbbox)
+        self._confirmbbox = qt.QHBox(self)
+        self._confirmbbox.layout().addStretch(1)
+        self._vbox.addWidget(self._confirmbbox)
+        self._cancelbutton = qt.QPushButton(_("Cancel"), self._confirmbbox)
+        qt.QObject.connect( self._cancelbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("reject()"))
+        self._confirmbutton = qt.QPushButton(_("Confirm"), self._confirmbbox)
+        qt.QObject.connect( self._confirmbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("accept()"))
 
     def showChangeSet(self, changeset, keep=None, confirm=False, label=None):
 
@@ -194,10 +170,10 @@ class QtChanges(qt.QDialog):
 
         if confirm:
             self._confirmbutton.show()
-            #self._cancelbutton.hide()
+            self._cancelbutton.hide()
         else:
             self._cancelbutton.show()
-            #self._confirmbutton.hide()
+            self._confirmbutton.hide()
 
         if label:
             self._label.set_text(label)
@@ -208,22 +184,13 @@ class QtChanges(qt.QDialog):
         self._pv.setPackages(packages, changeset)
 
         # Expand first level
-        #self._pv.setExpanded([(x,) for x in packages])
+        self._pv.setExpanded([(x,) for x in packages])
 
         self._result = False
 
-	dialogResult = self.exec_loop()
-	if dialogResult == qt.QDialog.Accepted:
-		self._result = True
-	else:
-		self._result = False
+        dialogResult = self.exec_loop()
+        self._result = (dialogResult == qt.QDialog.Accepted)
+
         return self._result
 
-if __name__ == "__main__":
-    import sys
-    app = qt.QApplication(sys.argv)
-    change = QtChanges()
-    change.show()
-    app.connect(app, qt.SIGNAL("lastWindowClosed()"), app, qt.SLOT("quit()"))
-    app.exec_loop()
 # vim:ts=4:sw=4:et

@@ -21,16 +21,14 @@
 #
 from smart.interfaces.qt.progress import QtProgress
 from smart.interfaces.qt.changes import QtChanges
+from smart.interfaces.qt.log import QtLog
 from smart.interface import Interface, getScreenWidth
 from smart.util.strtools import sizeToStr, printColumns
-from smart.const import OPTIONAL, ALWAYS
 from smart.fetcher import Fetcher
-from smart.report import Report
+from smart.const import DEBUG
 from smart import *
 import qt
-import getpass
 import sys
-import os
 
 
 app = qt.QApplication(sys.argv)
@@ -39,13 +37,12 @@ class QtInterface(Interface):
 
     def __init__(self, ctrl, argv):
         Interface.__init__(self, ctrl)
-	
+        self._log = QtLog()
         self._progress = QtProgress(False)
         self._hassubprogress = QtProgress(True)
-
-	self.changesWindow = QtChanges()
-	self._window = None
-	self._sys_excepthook = sys.excepthook
+        self._changes = QtChanges()
+        self._window = None
+        self._sys_excepthook = sys.excepthook
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
@@ -63,20 +60,15 @@ class QtInterface(Interface):
             self._hassubprogress.hide()
             return self._progress
 
-
     def getSubProgress(self, obj):
         return self._hassubprogress
 
-    def message(self, level, msg):
-	print "NEW MESSAGE TO IMPLEMENT IN QT---> level= "+level+"  msg= "+msg
-
-
     def askYesNo(self, question, default=False):
         response = qt.QMessageBox.question(self._window,
-                                	_("Question..."),
-					question,
-					qt.QMessageBox.Yes,
-					qt.QMessageBox.No)
+                                        _("Question..."),
+                                        question,
+                                        qt.QMessageBox.Yes,
+                                        qt.QMessageBox.No)
 
 
         if response == qt.QMessageBox.Yes:
@@ -87,15 +79,15 @@ class QtInterface(Interface):
             return default
 
     def askContCancel(self, question, default=False):
-	response = qt.QMessageBox.question(self._window,
+        response = qt.QMessageBox.question(self._window,
                                    _("Question..."),
-				   question,
-				   _("Continue"),
-				   _("Cancel"),
-				   )
+                                   question,
+                                   _("Continue"),
+                                   _("Cancel"),
+                                   )
 
-	#response.setButtonText(QMessageBox.Ok, )
-	
+        #response.setButtonText(QMessageBox.Ok, )
+        
         if response == 0:
             return True
         elif response == 1:
@@ -104,13 +96,13 @@ class QtInterface(Interface):
             return default
 
     def askOkCancel(self, question, default=False):
- 	response = qt.QMessageBox.question(self._window,
+        response = qt.QMessageBox.question(self._window,
                                    _("Question..."),
-				   question,
-				   qt.QMessageBox.Ok,
-				   qt.QMessageBox.Cancel)
+                                   question,
+                                   qt.QMessageBox.Ok,
+                                   qt.QMessageBox.Cancel)
 
-	
+        
         if response == qt.QMessageBox.Ok:
             return True
         elif response == qt.QMessageBox.Cancel:
@@ -118,8 +110,31 @@ class QtInterface(Interface):
         else:
             return default
 
-    def confirmChangeSet(self, changeset):
-        return self.changesWindow.showChangeSet(changeset, confirm=True)
+    def askInput(self, prompt, message=None, widthchars=None, echo=True):
+        if (message != None):
+            stringToShow = message + "\n" + prompt
+        else:
+            stringToShow = prompt
+
+        text, ok = qt.QInputDialog.getText( _("Input"), stringToShow)
+                
+        if (ok and text != None):
+            return text
+        else:
+            return ""
+
+    def insertRemovableChannels(self, channels):
+        question = _("Insert one or more of the following removable "
+                     "channels:\n")
+        question += "\n"
+        for channel in channels:
+            question += "    "
+            question += channel.getName()
+            question += "\n"
+        return self.askOkCancel(question, default=True)
+
+    def message(self, level, msg):
+        self._log.message(level, msg)
 
     def confirmChange(self, oldchangeset, newchangeset, expected=1):
         changeset = newchangeset.difference(oldchangeset)
@@ -129,38 +144,12 @@ class QtInterface(Interface):
                 keep.append(pkg)
         if len(keep)+len(changeset) <= expected:
             return True
-        return self.changesWindow.showChangeSet(changeset, keep=keep, confirm=True)
+        return self._changes.showChangeSet(changeset, keep=keep, confirm=True)
 
-    def askInput(self, prompt, message=None, widthchars=None, echo=True):
-	if (message != None):
-		stringToShow = message + "\n" + prompt
-	else:
-		stringToShow = prompt
-		
-	text, ok = qt.QInputDialog.getText( _("Input"), stringToShow)
-    		
-	if (ok and text != None):
-		return text
-	else:
-		return ""
-	
-    def message(self, type, msg):
-	
-	message = qt.QMessageBox.information(None, "Message",  msg)
-	
+    def confirmChangeSet(self, changeset):
+        return self._changes.showChangeSet(changeset, confirm=True)
 
-    def insertRemovableChannels(self, channels):
-	question = _("Insert one or more of the following removable "
-                     "channels:\n")
-        question += "\n"
-        for channel in channels:
-            question += "    "
-            question += channel.getName()
-            question += "\n"
-        return self.askOkCancel(question, default=True)
-
-    # Non-standard interface methods:
-
+    # Non-standard interface methods
 
     def _excepthook(self, type, value, tb):
         if issubclass(type, Error) and not sysconf.get("log-level") is DEBUG:
@@ -181,7 +170,6 @@ class QtInterface(Interface):
     def hideProgress(self):
         self._progress.hide()
         self._hassubprogress.hide()
-	
 
 
 # vim:ts=4:sw=4:et

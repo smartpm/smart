@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2005 Canonical
 # Copyright (c) 2004 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
@@ -34,25 +35,36 @@ except ImportError:
 
 def create(ctrl, command=None, argv=None):
     if command:
-        from smart.interfaces.qt.interface import QtInterface
-        return QtInterface(ctrl, argv)
+        from smart.interfaces.qt.command import QtCommandInterface
+        return QtCommandInterface(ctrl)
     else:
         from smart.interfaces.qt.interactive import QtInteractiveInterface
         return QtInteractiveInterface(ctrl)
 
 
-_pixbuf = {}
+_pixmap = {}
 
 def getPixmap(iconName):
-	if iconName not in _pixbuf:
+	if iconName not in _pixmap:
 		filename = getImagePath(iconName)
         	if os.path.isfile(filename):
-            		pixbuf = qt.QPixmap(filename)
-            		_pixbuf[iconName] = pixbuf
+            		pixmap = qt.QPixmap(filename)
+            		_pixmap[iconName] = pixmap
         	else:
             		raise Error, _("Image '%s' not found") % iconName
-    	return _pixbuf[iconName]
+    	return _pixmap[iconName]
+		
+def centerWindow(window):
+    w = window.topLevelWidget()
+    if w:
+        scrn = qt.QApplication.desktop().screenNumber(w)
+    elif qt.QApplication.desktop().isVirtualDesktop():
+        scrn = qt.QApplication.desktop().screenNumber(qt.QCursor.pos())
+    else:
+        scrn = qt.QApplication.desktop().screenNumber(window)
+    desk = qt.QApplication.desktop().availableGeometry(scrn)
+    window.move((desk.width() - window.frameGeometry().width()) / 2, \
+                (desk.height() - window.frameGeometry().height()) / 2)
 
 
 # vim:ts=4:sw=4:et
-

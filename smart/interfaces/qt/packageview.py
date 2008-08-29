@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2004 Conectiva, Inc.
 #
-# Written by Gustavo Niemeyer <niemeyer@conectiva.com>
+# Written by Anders F Bjorklund <afb@users.sourceforge.net>
 #
 # This file is part of Smart Package Manager.
 #
@@ -24,6 +24,11 @@ from smart.const import INSTALL, REMOVE
 from smart import *
 import qt
 
+class PackageListViewItem(qt.QListViewItem):
+    def __init__(self, parent, package = None):
+        qt.QListViewItem.__init__(self, parent)
+        self._pkg = package
+
 class QtPackageView(qt.QWidget):
 
     #__gsignals__ = {
@@ -35,26 +40,32 @@ class QtPackageView(qt.QWidget):
                               #(gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)),
     #}
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         qt.QWidget.__init__(self, parent)
 
-	self.show()
+        self.show()
         self._expandpackage = False
 
         self._changeset = {}
-        self._treeview = qt.QListView(self)
         self._vbox = qt.QVBoxLayout(self)
+        
+        self._treeview = qt.QListView(self)
         #self._treeview.connect("button_press_event", self._buttonPress)
         #self._treeview.connect("select_cursor_row", self._selectCursor)
         #self._treeview.connect("cursor_changed", self._cursorChanged)
+        qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self._doubleClicked)
+        qt.QObject.connect(self._treeview, qt.SIGNAL("rightButtonPressed(QListViewItem *, const QPoint &, int)"), self._rightButtonPressed)
+        qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self._selectionChanged)
+        self._treeview.setAllColumnsShowFocus(True)
+        self._treeview.setRootIsDecorated(True)
         self._treeview.show()
-	self._vbox.addWidget(self._treeview)
-	
+        self._vbox.addWidget(self._treeview)
+        
         #selection = self._treeview.get_selection()
         #selection.set_mode(gtk.SELECTION_MULTIPLE)
-	
-	self._treeview.addColumn(_("Package"))
-        self._treeview.setSelectionMode(qt.QListView.NoSelection)
+        self._treeview.setSelectionMode(qt.QListView.Multi)
+        
+        self._treeview.addColumn(_("Package"))
         #column = gtk.TreeViewColumn(_("Package"))
         #renderer = PixbufCellRenderer()
         #renderer.set_property("activate", self._pixbufClicked)
@@ -68,7 +79,7 @@ class QtPackageView(qt.QWidget):
         #self._treeview.append_column(column)
 
         #renderer = gtk.CellRendererText()
-	self._treeview.addColumn(_("Version"))
+        self._treeview.addColumn(_("Version"))
         #self._treeview.insert_column_with_data_func(-1, _("Version"), renderer,
                                                     #self._setVersion)
 
@@ -84,32 +95,32 @@ class QtPackageView(qt.QWidget):
         self._rpixbuf = getPixmap("package-reinstall")
 
     def _setPixmap(self, pkg):
-	    
-    	    if not hasattr(pkg, "name"):
-		    return self._fpixbuf
-	    else:
-		    if pkg.installed:
-			    if self._changeset.get(pkg) is REMOVE:
-				    return self._Rpixbuf
-			    elif self._changeset.get(pkg) is INSTALL:
-				    return self._rpixbuf
-			    elif pkgconf.testFlag("lock", pkg):
-				    return self._ilpixbuf
-			    else:
-				    return self._ipixbuf
-        	    else:
-			    if self._changeset.get(pkg) is INSTALL:
-				    return self._Ipixbuf
-			    elif pkgconf.testFlag("lock", pkg):
-				    if pkgconf.testFlag("new", pkg):
-					    return self._nlpixbuf
-				    else:
-					    return self._alpixbuf
-			    elif pkgconf.testFlag("new", pkg):
-				    return self._npixbuf
-			    else:
-				    return self._apixbuf
-	    return self._fpixbuf #default
+            
+            if not hasattr(pkg, "name"):
+                    return self._fpixbuf
+            else:
+                    if pkg.installed:
+                            if self._changeset.get(pkg) is REMOVE:
+                                    return self._Rpixbuf
+                            elif self._changeset.get(pkg) is INSTALL:
+                                    return self._rpixbuf
+                            elif pkgconf.testFlag("lock", pkg):
+                                    return self._ilpixbuf
+                            else:
+                                    return self._ipixbuf
+                    else:
+                            if self._changeset.get(pkg) is INSTALL:
+                                    return self._Ipixbuf
+                            elif pkgconf.testFlag("lock", pkg):
+                                    if pkgconf.testFlag("new", pkg):
+                                            return self._nlpixbuf
+                                    else:
+                                            return self._alpixbuf
+                            elif pkgconf.testFlag("new", pkg):
+                                    return self._npixbuf
+                            else:
+                                    return self._apixbuf
+            return self._fpixbuf #default
 
     def _setNameVersion(self, iter, pkg):
         if hasattr(pkg, "name"):
@@ -124,15 +135,28 @@ class QtPackageView(qt.QWidget):
     def getTreeView(self):
         return self._treeview
 
+    def expandAll(self):
+        iter = qt.QListViewItemIterator(self._treeview)
+        while iter.current():
+            iter.current().setOpen(True)
+            iter += 1
+
+    def collapseAll(self):
+        iter = qt.QListViewItemIterator(self._treeview)
+        while iter.current():
+            iter.current().setOpen(False)
+            iter += 1
+
     def getSelectedPkgs(self):
-        selection = self._treeview.get_selection()
-        model, paths = selection.get_selected_rows()
+        iter = qt.QListViewItemIterator(self._treeview)
         lst = []
-        for path in paths:
-            iter = model.get_iter(path)
-            value = model.get_value(iter, 0)
-            if hasattr(value, "name"):
-                lst.append(value)
+        while iter.current():
+            item = iter.current()
+            if item.isSelected():
+                value = item._pkg
+                if hasattr(value, "name"):
+                    lst.append(value)
+            iter += 1
         return lst
 
     def setExpandPackage(self, flag):
@@ -154,28 +178,28 @@ class QtPackageView(qt.QWidget):
         if not cursor:
             return
         treeview = self._treeview
-        model = treeview.get_model()
-        iter = None
-        bestiter = None
-        for i in range(len(cursor)):
-            cursori = cursor[i]
-            iter = model.iter_children(iter)
-            while iter:
-                value = model.get_value(iter, 0)
-                if value == cursori:
-                    bestiter = iter
-                    break
-                # Convert to str to protect against comparing
-                # packages and strings.
-                if str(value) < str(cursori):
-                    bestiter = iter
-                iter = model.iter_next(iter)
-            else:
-                break
-        if bestiter:
-            path = model.get_path(bestiter)
-            treeview.set_cursor(path)
-            treeview.scroll_to_cell(path)
+        #model = treeview.get_model()
+        #iter = None
+        #bestiter = None
+        #for i in range(len(cursor)):
+        #    cursori = cursor[i]
+        #    iter = model.iter_children(iter)
+        #    while iter:
+        #        value = model.get_value(iter, 0)
+        #        if value == cursori:
+        #            bestiter = iter
+        #            break
+        #        # Convert to str to protect against comparing
+        #        # packages and strings.
+        #        if str(value) < str(cursori):
+        #            bestiter = iter
+        #        iter = model.iter_next(iter)
+        #    else:
+        #        break
+        #if bestiter:
+        #    path = model.get_path(bestiter)
+        #    treeview.set_cursor(path)
+        #    treeview.scroll_to_cell(path)
 
     def getExpanded(self):
         expanded = []
@@ -194,7 +218,7 @@ class QtPackageView(qt.QWidget):
         if not expanded:
             return
         treeview = self._treeview
-        model = treeview.get_model()
+        #model = treeview.get_model()
         cache = {}
         for item in expanded:
             item = tuple(item)
@@ -205,16 +229,17 @@ class QtPackageView(qt.QWidget):
                     iter = cached
                     continue
                 itemi = item[i]
-                iter = model.iter_children(iter)
-                while iter:
-                    value = model.get_value(iter, 0)
-                    if value == itemi:
-                        cache[item[:i+1]] = iter
-                        treeview.expand_row(model.get_path(iter), False)
-                        break
-                    iter = model.iter_next(iter)
-                else:
-                    break
+                #iter = model.iter_children(iter)
+                #while iter:
+                #    value = model.get_value(iter, 0)
+                #    if value == itemi:
+                #        cache[item[:i+1]] = iter
+                #        treeview.expand_row(model.get_path(iter), False)
+                #        break
+                #    iter = model.iter_next(iter)
+                #else:
+                #    break
+                break
 
     def setChangeSet(self, changeset):
         if changeset is None:
@@ -225,31 +250,22 @@ class QtPackageView(qt.QWidget):
     def setPackages(self, packages, changeset=None, keepstate=False):
         treeview = self._treeview
         if not packages:
-	    treeview.clear()
+            treeview.clear()
             return
         self.setChangeSet(changeset)
-	
+        
         if keepstate: ###TO IMPLEMENT IN QT
-            if treeview.get_model():
+            if False: #treeview.get_model():
                 expanded = self.getExpanded()
-                cursor = self.getCursor()
+                #cursor = self.getCursor()
             else:
                 keepstate = False
-	
-	
-        # clear the model until the new one is ready
-        #treeview.set_model(None)
-	treeview.clear()
-	self._setPackage(None, None, packages)
-	
-	 ###TO IMPLEMENT IN QT
-        #if isinstance(packages, list):
-            #model = gtk.ListStore(gobject.TYPE_PYOBJECT)
-        #elif isinstance(packages, dict):
-            #model = gtk.TreeStore(gobject.TYPE_PYOBJECT)
-	    
         
-        #treeview.set_model(model)
+        
+        # clear the model until the new one is ready
+        treeview.clear()
+        self._setPackage(None, None, packages)
+        
         #if keepstate:
             #self.setExpanded(expanded)
             #self.setCursor(cursor)
@@ -267,8 +283,42 @@ class QtPackageView(qt.QWidget):
                 iter = self._setPackage(report, parent, key)
                 self._setPackage(report, iter, item[key])
         else:
-                iter = qt.QListViewItem(self._treeview)
+            if parent is None:
+                iter = PackageListViewItem(self._treeview, item)
+            else:
+                iter = PackageListViewItem(parent, item)
+            self._setNameVersion(iter, item)
+            #iter.setText(0, str(item))
+            iter.setPixmap(0, self._setPixmap(item))
+            
             return iter
+
+    def _selectionChanged(self):
+        item = self._treeview.currentItem()
+        if item and hasattr(item._pkg, "name"):
+            self.emit(qt.PYSIGNAL("packageSelected"), (item._pkg, ))
+
+    def _doubleClicked(self, item, pnt, c):
+         if not item:
+             return
+         value = item._pkg
+         if not self._expandpackage and hasattr(value, "name"):
+             pkgs = self.getSelectedPkgs()
+             if len(pkgs) > 1:
+                 self.emit(qt.PYSIGNAL("packageActivated"), (pkgs, ))
+             else:
+                 self.emit(qt.PYSIGNAL("packageActivated"), ([value], ))
+
+    def _rightButtonPressed(self, item, pnt, c):
+         if not item:
+             return
+         value = item._pkg
+         if item and hasattr(value, "name"):
+             pkgs = self.getSelectedPkgs()
+             if len(pkgs) > 1:
+                 self.emit(qt.PYSIGNAL("packagePopup"), (self, pkgs, pnt))
+             else:
+                 self.emit(qt.PYSIGNAL("packagePopup"), (self, [value], pnt))
 
     def _buttonPress(self, treeview, event):
         if event.window != treeview.get_bin_window():

@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2006 FoXLinux.org
+# Copyright (c) 2004 Conectiva, Inc.
 #
-# Written by Luca Ferrari <luka4e@foxlinux.org>
+# Written by Anders F Bjorklund <afb@users.sourceforge.net>
 #
 # This file is part of Smart Package Manager.
 #
@@ -19,153 +19,114 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interface import getScreenWidth
 from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
+from smart.interfaces.qt import getPixmap
+from smart import *
 import qt
 import posixpath
+import thread
 import time
 import sys
-import thread
 
-class QtProgress(Progress):
+class QtProgress(Progress, qt.QDialog):
 
-    #def __init__(self):
-        #Progress.__init__(self)
-        #self._lasttopic = None
-        #self._lastsubkey = None
-        #self._lastsubkeystart = 0
-        #self._fetchermode = False
-        #self._seentopics = {}
-        #self._addline = False
-        #self.setScreenWidth(getScreenWidth())
+    def __init__(self, hassub, parent=None):
+        Progress.__init__(self)
+        qt.QDialog.__init__(self, parent)
 
-    def __init__(self, hassub):
-	Progress.__init__(self)
-        self.win = qt.QWidget(None, "Progress", qt.Qt.WType_Dialog)
-        self.win.setName("Progress")
-	
-        self._lasttopic = None
-        self._lastsubkey = None
-        self._lastsubkeystart = 0
-        self._fetchermode = False
-        self._seentopics = {}
-        self._addline = False
-	self._subiters = {}
-	self._shorturl = ShortURL(50)
-	self._hassub = hassub
+        self._hassub = hassub
+        self._shorturl = ShortURL(50)
+        self._ticking = False
+        self._stopticking = False
+        self._fetcher = None
 
-	
+        if hassub:
+            self.setMinimumSize(500, 400)
+        else:
+            self.setMinimumSize(300, 80)
 
-	#aggiungo il movie dal file png
-        self.win.movie = qt.QMovie("reload.mng")
-	self.win.iconwait = qt.QLabel(self.win,"Wait")
-	#self.win.iconwait.setPixmap( QPixmap("info.png"))
-	self.win.iconwait.setMovie(self.win.movie)
+        self.setIcon(getPixmap("smart"))
+        self.setCaption(_("Operation Progress"))
 
+        vbox = qt.QVBoxLayout(self, 10, 10)
 
-        ProgressFormLayout = qt.QGridLayout(self.win,1,1,11,6,"ProgressFormLayout")
-        spacer1 = qt.QSpacerItem(391,21,qt.QSizePolicy.Expanding,qt.QSizePolicy.Minimum)
-        ProgressFormLayout.addMultiCell(spacer1,3,3,2,3)
-        spacer2 = qt.QSpacerItem(431,20,qt.QSizePolicy.Expanding,qt.QSizePolicy.Minimum)
-        ProgressFormLayout.addMultiCell(spacer2,5,5,0,2)
+        self._topic = qt.QLabel(self)
+        self._topic.setMinimumWidth(300) #HACK
+        vbox.addWidget(self._topic)
 
-        self.win.pleaseWaitLabel = qt.QLabel(self.win,"pleaseWaitLabel")
-        self.win.pleaseWaitLabel.setAlignment(qt.QLabel.WordBreak | qt.QLabel.AlignVCenter)
-	self.win.pleaseWaitLabel.setText("Please wait, operation in progress...")
+        self._progressbar = qt.QProgressBar(self)
+        self._progressbar.setPercentageVisible(True)
+        vbox.addWidget(self._progressbar)
 
-        ProgressFormLayout.addMultiCellWidget(self.win.pleaseWaitLabel,0,0,0,3)
+        if hassub:
+            self._listview = qt.QListView(self)
+            self._listview.setSorting(-1, False);
+            self._listview.setSelectionMode(qt.QListView.NoSelection )
+            self._listview.show()
+            vbox.addWidget(self._listview)
 
-        self.win.mainStepLabel = qt.QLabel(self.win,"mainStepLabel")
-	self.win.mainStepLabel.setText("Main step label")
+            column = self._listview.addColumn(_("Progress"))
+            self._listview.setColumnWidthMode(column, qt.QListView.Manual)
+            self._listview.setColumnWidth(column, 110)
+            column = self._listview.addColumn(_("Current"))
+            self._currentcolumn = column
+            column = self._listview.addColumn(_("Total"))
+            self._totalcolumn = column
+            column = self._listview.addColumn(_("Speed"))
+            self._speedcolumn = column
+            column = self._listview.addColumn(_("ETA"))
+            self._etacolumn = column
+            column = self._listview.addColumn(_("Description"))
+            self._listview.setColumnWidthMode(column, qt.QListView.Manual)
 
-        ProgressFormLayout.addMultiCellWidget(self.win.mainStepLabel,1,1,1,3)
+            self._subiters = {}
+            self._subindex = 0
 
-        ProgressFormLayout.addMultiCellWidget(self.win.iconwait,1,2,0,0)
+            self._bbox = qt.QHBox(self)
+            self._bbox.layout().addStretch(1)
+            vbox.addWidget(self._bbox)
+            
+            button = qt.QPushButton(self._bbox)
+            button.setText(_("Cancel"))
+            button.hide()
+            qt.QObject.connect(button, qt.SIGNAL ("clicked()"), self._cancel)
 
-        self.win.mainProgressBar = qt.QProgressBar(self.win,"mainProgressBar")
-
-        ProgressFormLayout.addMultiCellWidget(self.win.mainProgressBar,2,2,1,3)
-
-	#se ci sono sottoprocessi
-	if hassub:
-		self.win.showHideDetailsBtn = qt.QPushButton(self.win,"Show details")
-		self.win.showHideDetailsBtn.setText("Show details")
-		qt.QObject.connect(self.win.showHideDetailsBtn, qt.SIGNAL ("clicked()"), self.setStepListViewVisible)
-        	ProgressFormLayout.addMultiCellWidget(self.win.showHideDetailsBtn,3,3,0,1)
-
-        	self.win.cancelBtn = qt.QPushButton(self.win,"cancelBtn")
-		self.win.cancelBtn.setText("Cancel")
-		qt.QObject.connect(self.win.cancelBtn, qt.SIGNAL ("clicked()"), self._cancel)
-        	ProgressFormLayout.addWidget(self.win.cancelBtn,5,3)
-
-        	self.win.stepListView = qt.QListView(self.win,"stepListView")
-		self.win.stepListView.setSorting(-1, False);
-		self.win.stepListView.setSelectionMode(qt.QListView.NoSelection )
-		#creo le colonne per la lista
-	
-		self.win.stepListView.addColumn("Subpercent")
-		self.win.stepListView.addColumn("Current")
-		self.win.stepListView.addColumn("Total")
-		self.win.stepListView.addColumn("Speed")
-		self.win.stepListView.addColumn("Description")
-		self.win.stepListView.hideColumn(1)		
-		self.win.stepListView.hideColumn(2)
-		self.win.stepListView.hideColumn(3)
-		
-        	ProgressFormLayout.addMultiCellWidget(self.win.stepListView,4,4,0,3)
-		self.win.stepListView.show()
-		self.setStepListViewVisible()
-
-	
-    def setFetcherMode(self, flag):
-        self._fetchermode = flag
-
-
-    def setStepListViewVisible(self):
-	toShow = not self.win.stepListView.isVisible()
-	
-	if toShow:
-	    self.win.stepListView.show()
-	    self.win.showHideDetailsBtn.setText("Hide details")
-	else:
-	    self.win.stepListView.hide()
-	    self.win.showHideDetailsBtn.setText("Show details")
+    def setFetcher(self, fetcher):
+        if fetcher:
+            self._bbox.show()
+            self._fetcher = fetcher
+        else:
+            self._bbox.hide()
+            self._fetcher = None
 
     def _cancel(self):
         if self._fetcher:
             self._fetcher.cancel()
 
-    def setFetcher(self, fetcher):
-        if fetcher:
-            self.win.cancelBtn.show()
-            self._fetcher = fetcher
-        else:
-            self.win.cancelBtn.hide()
-            self._fetcher = None
-
     def tick(self):
         while not self._stopticking:
-           self.lock()
-           while qt.QApplication.eventLoop().hasPendingEvents():
-		   qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
-           self.unlock()
-           time.sleep(INTERVAL)
+            self.lock()
+            while qt.QApplication.eventLoop().hasPendingEvents():
+                   qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+            self.unlock()
+            time.sleep(INTERVAL)
         self._ticking = False
-
 
     def start(self):
         Progress.start(self)
+
         self.setHasSub(self._hassub)
         self._ticking = True
         self._stopticking = False
         if self._hassub:
-            self.setStepListViewVisible()
-	
+            self._listview.hideColumn(self._currentcolumn) 
+            self._listview.hideColumn(self._totalcolumn) 
+            self._listview.hideColumn(self._speedcolumn) 
+            self._listview.hideColumn(self._etacolumn) 
+
         thread.start_new_thread(self.tick, ())
 
-	
-	
     def stop(self):
         self._stopticking = True
         while self._ticking: pass
@@ -173,105 +134,75 @@ class QtProgress(Progress):
         Progress.stop(self)
 
         if self._hassub:
-            self.win.stepListView.clear()
-	    self._subiters.clear()
+            self._listview.clear()
+            self._subiters.clear()
             self._subindex = 0
-            self._lastpath = None
 
         self._shorturl.reset()
-        self.hide()
-	#QApplication.eventLoop().exit()
-	
-	
-    def hide(self):
-	qt.QWidget.close(self.win)
-	
+
+        qt.QDialog.hide(self)
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
-	#print '\n\n\nexpose richiamato'    
-	#print "topic= " +topic
-	#print "percent= " + str(percent)
-	#print "subkey= " + str(subkey)
-	#print "subtopic= " + str(subtopic)
-	#print "subpercent= " + str(subpercent)
-	#print "data= " + str(data)
-	#print "done= " + str(done)
-	
-	qt.QWidget.show(self.win)
-	if self._hassub and subkey:
-	    #metto a posto i sottoprocessi	
+        qt.QDialog.show(self)
+        
+        if self._hassub and subkey:
             if subkey in self._subiters:
-		#se il sottoprocesso e gia stato analizzato lo prendo dal dizionario
                 iter = self._subiters[subkey]
-		
             else:
-		#altrimenti ne aggiungo uno alla lista
-                #iter = self._treemodel.append()
-		
-		#creo l'elemento
-		iter = qt.QListViewItem(self.win.stepListView)
-		
-		#lo aggiungo al dizionario
+                iter = qt.QListViewItem(self._listview)
                 self._subiters[subkey] = iter
-		
-		
-                #path = self._treemodel.get_path(iter)
-                #if self._lastpath:
-                    #column = self._treeview.get_column(1)
-                    #cellarea = self._treeview.get_cell_area(self._lastpath,
-                                                            #column)
-                    #cellarea.x, cellarea.y = self._treeview.\
-                                             #widget_to_tree_coords(cellarea.x,
-                                                                   #cellarea.y)
-                    #visiblearea = self._treeview.get_visible_rect()
-                    #isvisible = visiblearea.intersect(cellarea).height
-                #if not self._lastpath or isvisible:
-                    #self._treeview.scroll_to_cell(path, None, True, 0, 0)
-                #self._lastpath = path
+                self._listview.ensureItemVisible(iter)
 
             current = data.get("current", "")
             if current:
-                self.win.stepListView.setColumnWidth(1, 30)
-				
+                 self._listview.showColumn(self._currentcolumn)
             total = data.get("total", "")
             if total:
-                self.win.stepListView.setColumnWidth(2, 30)
-		
-            speed = data.get("speed", "")
-            if speed:
-                self.win.stepListView.setColumnWidth(3, 30)
-		
-            if current or total or speed:
-		iter.setText(1, current)
-	        iter.setText(2, total)
-	        iter.setText(3, speed)    
-
+                 self._listview.showColumn(self._totalcolumn)
+            if done:
+                speed = ""
+                eta = ""
+            else:
+                speed = data.get("speed", "")
+                if speed:
+                    self._listview.showColumn(self._speedcolumn)
+                eta = data.get("eta", "")
+                if eta:
+                    self._listview.showColumn(self._etacolumn)
+            if current or total or speed or eta:
+                iter.setText(1, current)
+                iter.setText(2, total)
+                iter.setText(3, speed)
+                iter.setText(4, eta)
                 subtopic = self._shorturl.get(subtopic)
-		
-	    iter.setText(4, subtopic)
-	    iter.setText(0, str(subpercent))
-	    #print subtopic
+            iter.setText(0, str(subpercent))
+            iter.setText(5, subtopic)
 
-	    #aggiungo alla listview l'elemento
-	    self.win.stepListView.insertItem(iter)
+            self._listview.insertItem(iter)
         else:
-            self.win.mainStepLabel.setText('<b>'+topic+'</b>')
-	    self.win.mainProgressBar.setProgress(percent, 100)
-            #self._progress.set_fraction(percent/100.)
-            #self._progress.set_text("%d%%" % percent)
+            self._topic.setText('<b>'+topic+'</b>')
+            self._progressbar.setProgress(percent, 100)
             if self._hassub:
-                self.win.stepListView.repaint()
-	
-	self.win.update()
-	qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
-		
+                self._listview.repaint()
+        
+        self.update()
+        while qt.QApplication.eventLoop().hasPendingEvents():
+            qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
 
-    
+    def setTopic(self, topic):
+        Progress.setTopic(self, topic)
+
+        self.update()
+        while qt.QApplication.eventLoop().hasPendingEvents():
+            qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
 
 def test():
+    import sys, time
+
+    prog = QtProgress(True)
+
     data = {"item-number": 0}
     total, subtotal = 20, 5
-    prog = QtProgress(True)
     
     prog.start()
     prog.setTopic("Installing packages...")
@@ -282,21 +213,12 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            time.sleep(0.1)
+            time.sleep(0.01)
     prog.stop()
-
 
 
 if __name__ == "__main__":
     app = qt.QApplication(sys.argv)
     test()
-    #prog = QtProgress(True)
-    #prog.win.show()
-    #app.connect(app, SIGNAL('lastWindowClosed()'), app, SLOT('quit()'))
-    ##test()
-    #thread.start_new_thread(test, ())
-    #app.exec_loop()
-    
-    
 
 # vim:ts=4:sw=4:et
