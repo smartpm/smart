@@ -28,9 +28,9 @@ class QtMirrors(object):
     def __init__(self, parent=None):
 
         self._window = qt.QDialog(parent)
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("Mirrors"))
-        #self.setModal(True)
+        self._window.setIcon(getPixmap("smart"))
+        self._window.setCaption(_("Mirrors"))
+        #self._window.setModal(True)
 
         #self._window.set_transient_for(parent)
         #self._window.set_position(gtk.WIN_POS_CENTER)
