@@ -31,8 +31,8 @@ class QtFlags(object):
     def __init__(self, parent=None):
 
         self._window = qt.QDialog(parent)
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("Flags"))
+        self._window.setIcon(getPixmap("smart"))
+        self._window.setCaption(_("Flags"))
         #self._window.setModal(True)
 
         #self._window.set_transient_for(parent)
@@ -290,8 +290,8 @@ class FlagCreator(object):
     def __init__(self):
 
         self._window = qt.QDialog(parent)
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("New Flag"))
+        self._window.setIcon(getPixmap("smart"))
+        self._window.setCaption(_("New Flag"))
         #self._window.set_modal(True)
 
         #self._window.set_position(gtk.WIN_POS_CENTER)
@@ -372,8 +372,8 @@ class TargetCreator(object):
     def __init__(self):
 
         self._window = qt.QDialog(parent)
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("New Target"))
+        self._window.setIcon(getPixmap("smart"))
+        self._window.setCaption(_("New Target"))
         #self._window.set_modal(True)
 
         #self._window.set_position(gtk.WIN_POS_CENTER)
