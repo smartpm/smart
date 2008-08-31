@@ -28,17 +28,18 @@ class QtPriorities(object):
 
     def __init__(self, parent=None):
 
-        self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title(_("Priorities"))
-        self._window.set_modal(True)
-        self._window.set_transient_for(parent)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        self._window.set_geometry_hints(min_width=600, min_height=400)
-        def delete(widget, event):
-            gtk.main_quit()
-            return True
-        self._window.connect("delete-event", delete)
+        self._window = qt.QDialog(parent)
+        self._window.setIcon(getPixmap("smart"))
+        self._window.setCaption(_("Priorities"))
+        #self._window.setModal(True)
+
+        #self._window.set_transient_for(parent)
+        #self._window.set_position(gtk.WIN_POS_CENTER)
+        #self._window.set_geometry_hints(min_width=600, min_height=400)
+        #def delete(widget, event):
+        #    gtk.main_quit()
+        #    return True
+        #self._window.connect("delete-event", delete)
 
         vbox = gtk.VBox()
         vbox.set_border_width(10)
@@ -307,17 +308,18 @@ class QtSinglePriority(object):
 
     def __init__(self, parent=None):
 
-        self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title(_("Package Priority"))
-        self._window.set_modal(True)
-        self._window.set_transient_for(parent)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        #self._window.set_geometry_hints(min_width=600, min_height=400)
-        def delete(widget, event):
-            gtk.main_quit()
-            return True
-        self._window.connect("delete-event", delete)
+        self._window = qt.QDialog(parent)
+        self._window.setIcon(getPixmap("smart"))
+        self._window.setCaption(_("Package Priority"))
+        #self._window.setModal(True)
+
+        #self._window.set_transient_for(parent)
+        #self._window.set_position(gtk.WIN_POS_CENTER)
+        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        #def delete(widget, event):
+        #    gtk.main_quit()
+        #    return True
+        #self._window.connect("delete-event", delete)
 
         vbox = gtk.VBox()
         vbox.set_border_width(10)

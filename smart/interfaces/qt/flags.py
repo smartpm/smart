@@ -30,17 +30,18 @@ class QtFlags(object):
 
     def __init__(self, parent=None):
 
-        self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title(_("Flags"))
-        self._window.set_modal(True)
-        self._window.set_transient_for(parent)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        self._window.set_geometry_hints(min_width=600, min_height=400)
-        def delete(widget, event):
-            gtk.main_quit()
-            return True
-        self._window.connect("delete-event", delete)
+        self._window = qt.QDialog(parent)
+        self.setIcon(getPixmap("smart"))
+        self.setCaption(_("Flags"))
+        #self._window.setModal(True)
+
+        #self._window.set_transient_for(parent)
+        #self._window.set_position(gtk.WIN_POS_CENTER)
+        #self._window.set_geometry_hints(min_width=600, min_height=400)
+        #def delete(widget, event):
+        #    gtk.main_quit()
+        #    return True
+        #self._window.connect("delete-event", delete)
 
         topvbox = gtk.VBox()
         topvbox.set_border_width(10)
@@ -288,16 +289,17 @@ class FlagCreator(object):
 
     def __init__(self):
 
-        self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title(_("New Flag"))
-        self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        #self._window.set_geometry_hints(min_width=600, min_height=400)
-        def delete(widget, event):
-            gtk.main_quit()
-            return True
-        self._window.connect("delete-event", delete)
+        self._window = qt.QDialog(parent)
+        self.setIcon(getPixmap("smart"))
+        self.setCaption(_("New Flag"))
+        #self._window.set_modal(True)
+
+        #self._window.set_position(gtk.WIN_POS_CENTER)
+        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        #def delete(widget, event):
+        #    gtk.main_quit()
+        #    return True
+        #self._window.connect("delete-event", delete)
 
         vbox = gtk.VBox()
         vbox.set_border_width(10)
@@ -369,16 +371,17 @@ class TargetCreator(object):
 
     def __init__(self):
 
-        self._window = gtk.Window()
-        self._window.set_icon(getPixbuf("smart"))
-        self._window.set_title(_("New Target"))
-        self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
-        #self._window.set_geometry_hints(min_width=600, min_height=400)
-        def delete(widget, event):
-            gtk.main_quit()
-            return True
-        self._window.connect("delete-event", delete)
+        self._window = qt.QDialog(parent)
+        self.setIcon(getPixmap("smart"))
+        self.setCaption(_("New Target"))
+        #self._window.set_modal(True)
+
+        #self._window.set_position(gtk.WIN_POS_CENTER)
+        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        #def delete(widget, event):
+        #    gtk.main_quit()
+        #    return True
+        #self._window.connect("delete-event", delete)
 
         vbox = gtk.VBox()
         vbox.set_border_width(10)
