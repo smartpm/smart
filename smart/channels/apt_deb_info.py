@@ -39,4 +39,4 @@ fields = [("baseurl", _("Base URL"), str, None,
            _("GPG fingerprint of key signing the channel.")),
           ("keyring", _("Keyring"), str, "",
            _("If provided, channel must necessarily be signed by a key "
-             "in a GPG keyring at the given path."))]
+             "in the GPG keyring at the given path."))]
