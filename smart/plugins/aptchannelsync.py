@@ -38,6 +38,10 @@ APT_SOURCES = "/etc/apt/sources.list"
 
 def _loadSourcesList(filename):
 
+    keyring_path = sysconf.get("sync-apt-keyring", "/etc/apt/trusted.gpg")
+    if not os.path.isfile(keyring_path):
+        keyring_path = None
+
     file = open(filename)
 
     # The computed aliases we have seen in the given file.
@@ -88,7 +92,10 @@ def _loadSourcesList(filename):
             iface.error(_("While using %s: %s") % (file.name, e))
         else:
             # Store it persistently, without destroying existing setttings.
-            channel = sysconf.get(("channels", alias), {})
+            default_channel = {}
+            if keyring_path:
+                default_channel["keyring"] = keyring_path
+            channel = sysconf.get(("channels", alias), default_channel)
             channel.update(data)
             sysconf.set(("channels", alias), channel)
 

@@ -36,10 +36,13 @@ class APTChannelSyncTest(MockerTestCase):
     def setUp(self):
         self.apt_dir = self.makeDir()
         self.sources_dir = os.path.join(self.apt_dir, "sources.list.d")
+        self.keyring_file = os.path.join(self.apt_dir, "trusted.gpg")
         os.mkdir(self.sources_dir)
+        sysconf.set("sync-apt-keyring", self.keyring_file)
 
     def tearDown(self):
         sysconf.remove("channels")
+        sysconf.remove("sync-apt-keyring")
 
     def test_sychronize_sources_list(self):
         filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,
@@ -127,3 +130,56 @@ class APTChannelSyncTest(MockerTestCase):
                            "components": "comp1 comp2",
                            "baseurl": "http://some/url/",
                            "disabled": True})
+
+    def test_keyring_is_set_when_present(self):
+        open(self.keyring_file, "w").close()
+        filename = self.makeFile(SOURCES_LIST_2, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get("channels"),
+                          {"aptsync-daf183fd6a41da026012b24e2d2904b7":
+                              {"type": "apt-deb",
+                               "name": "distro/name3 - comp1 comp2",
+                               "distribution": "distro/name3",
+                               "components": "comp1 comp2",
+                               "baseurl": "http://some/url/",
+                               "keyring": self.keyring_file}
+                           })
+
+    def test_keyring_isnt_reset_after_being_removed(self):
+        open(self.keyring_file, "w").close()
+        filename = self.makeFile(SOURCES_LIST_2, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        sysconf.remove(("channels",
+                        "aptsync-daf183fd6a41da026012b24e2d2904b7",
+                        "keyring"))
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get("channels"),
+                          {"aptsync-daf183fd6a41da026012b24e2d2904b7":
+                              {"type": "apt-deb",
+                               "name": "distro/name3 - comp1 comp2",
+                               "distribution": "distro/name3",
+                               "components": "comp1 comp2",
+                               "baseurl": "http://some/url/"},
+                          })
+
+    def test_keyring_isnt_changed_if_modified(self):
+        open(self.keyring_file, "w").close()
+        filename = self.makeFile(SOURCES_LIST_2, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        sysconf.set(("channels",
+                     "aptsync-daf183fd6a41da026012b24e2d2904b7",
+                     "keyring"),
+                    "/a/different/keyring.gpg")
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get("channels"),
+                          {"aptsync-daf183fd6a41da026012b24e2d2904b7":
+                              {"type": "apt-deb",
+                               "name": "distro/name3 - comp1 comp2",
+                               "distribution": "distro/name3",
+                               "components": "comp1 comp2",
+                               "baseurl": "http://some/url/",
+                               "keyring": "/a/different/keyring.gpg"},
+                          })
