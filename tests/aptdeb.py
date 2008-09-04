@@ -11,6 +11,9 @@ from smart import Error
 from tests import TESTDATADIR
 
 
+FINGERPRINT = "2AAC 7928 0FBF 0299 5EB5  60E2 2253 B29A 6664 3A0C"
+
+
 class AptDebChannelTest(unittest.TestCase):
 
     def setUp(self):
@@ -51,14 +54,72 @@ class AptDebChannelTest(unittest.TestCase):
                                  "components": "component"})
         self.check_channel(channel)
 
-    def test_fetch_with_bad_signature(self):
+    def test_fetch_with_unknown_signature(self):
         channel = createChannel("alias",
                                 {"type": "apt-deb",
                                  "baseurl": "file://%s/aptdeb" % TESTDATADIR,
                                  "distribution": "./",
                                  "fingerprint": "NON-EXISTENT-FINGERPRINT",
+                                 "keyring": "%s/aptdeb/trusted.gpg" %
+                                            TESTDATADIR,
                                  "components": "component"})
         try:
             self.check_channel(channel)
         except Error, error:
-            self.assertEquals(str(error), "Channel 'alias' has bad signature")
+            self.assertEquals(str(error),
+                              "Channel 'alias' signed with unknown key")
+        else:
+            self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_with_unknown_signature_without_fingerprint(self):
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % TESTDATADIR,
+                                 "distribution": "./",
+                                 "keyring": "%s/aptdeb/nonexistent.gpg" %
+                                            TESTDATADIR,
+                                 "components": "component"})
+        try:
+            self.check_channel(channel)
+        except Error, error:
+            self.assertEquals(str(error),
+                              "Channel 'alias' signed with unknown key")
+        else:
+            self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_with_missing_keyring(self):
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % TESTDATADIR,
+                                 "distribution": "./",
+                                 "fingerprint": "NON-EXISTENT-FINGERPRINT",
+                                 "keyring": "/dev/null",
+                                 "components": "component"})
+        try:
+            self.check_channel(channel)
+        except Error, error:
+            self.assertEquals(str(error),
+                              "Channel 'alias' signed with unknown key")
+        else:
+            self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_with_good_signature(self):
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % TESTDATADIR,
+                                 "distribution": "./",
+                                 "fingerprint": FINGERPRINT,
+                                 "keyring": "%s/aptdeb/trusted.gpg" %
+                                            TESTDATADIR,
+                                 "components": "component"})
+        self.check_channel(channel)
+
+    def test_fetch_with_good_signature_without_fingerprint(self):
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % TESTDATADIR,
+                                 "distribution": "./",
+                                 "keyring": "%s/aptdeb/trusted.gpg" %
+                                            TESTDATADIR,
+                                 "components": "component"})
+        self.check_channel(channel)

@@ -19,20 +19,27 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import posixpath
+import commands
+import md5
+import os
+
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.filetools import getFileDigest
 from smart.backends.deb.base import DEBARCH
 from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, NEVER
 from smart import *
-import posixpath
-import commands
-import md5
-import os
+
 
 class APTDEBChannel(PackageChannel):
 
-    def __init__(self, baseurl, distro, comps, fingerprint, *args):
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _fingerprint = None
+    _keyring = None
+
+    def __init__(self, baseurl, distro, comps, fingerprint, keyring, *args):
         super(APTDEBChannel, self).__init__(*args)
 
         distro = distro.lstrip('/')
@@ -40,10 +47,9 @@ class APTDEBChannel(PackageChannel):
         self._distro = distro
         self._comps = comps
         if fingerprint:
-            self._fingerprint = "".join([x for x in fingerprint
-                                         if not x.isspace()])
-        else:
-            self._fingerprint = None
+            self._fingerprint = "".join(fingerprint.split())
+        if keyring:
+            self._keyring = keyring
 
     def _getURL(self, filename="", component=None, subpath=False):
         if subpath:
@@ -113,17 +119,25 @@ class APTDEBChannel(PackageChannel):
                     else:
                         md5sum[path] = (md5, int(size))
 
-            if self._fingerprint:
+            if self._fingerprint or self._keyring:
                 try:
                     failed = gpgitem.getFailedReason()
                     if failed:
                         raise Error, _("Channel '%s' has fingerprint but download "
                                        "of Release.gpg failed: %s")%(self, failed)
 
-                    status, output = commands.getstatusoutput(
-                        "gpg --batch --no-secmem-warning --status-fd 1 "
-                        "--verify %s %s" % (gpgitem.getTargetPath(),
-                                            item.getTargetPath()))
+                    arguments = ["gpg", "--batch", "--no-secmem-warning",
+                                 "--status-fd", "1"]
+
+                    if self._keyring:
+                        arguments.extend(["--no-default-keyring",
+                                          "--keyring", self._keyring])
+
+                    arguments.extend(["--verify", gpgitem.getTargetPath(),
+                                      item.getTargetPath()])
+
+                    command = " ".join(arguments)
+                    status, output = commands.getstatusoutput(command)
 
                     badsig = False
                     goodsig = False
@@ -140,7 +154,8 @@ class APTDEBChannel(PackageChannel):
                                 badsig = True
                     if badsig:
                         raise Error, _("Channel '%s' has bad signature") % self
-                    if not goodsig or validsig != self._fingerprint:
+                    if (not goodsig or
+                        (self._fingerprint and validsig != self._fingerprint)):
                         raise Error, _("Channel '%s' signed with unknown key") \
                                      % self
                 except Error, e:
@@ -242,11 +257,13 @@ class APTDEBChannel(PackageChannel):
 
         return True
 
+
 def create(alias, data):
     return APTDEBChannel(data["baseurl"],
                          data["distribution"],
                          data["components"].split(),
                          data["fingerprint"],
+                         data["keyring"],
                          data["type"],
                          alias,
                          data["name"],
