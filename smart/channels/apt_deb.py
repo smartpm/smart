@@ -21,8 +21,6 @@
 #
 import posixpath
 import commands
-import md5
-import os
 
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.filetools import getFileDigest
