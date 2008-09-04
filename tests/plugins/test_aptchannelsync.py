@@ -49,13 +49,13 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"), {
-                          "aptsync-7448307d0748a16950338f05e5027cf1":
+                          "aptsync-1cd42dbb12232a2e2582ad0145fd0516":
                               {"distribution": "distro/name1",
                                "type": "apt-deb",
                                "name": "distro/name1 - comp1 comp2",
                                "components": "comp1 comp2",
                                "baseurl": "http://some/url/"},
-                          "aptsync-b15198b11bcb8f717051cb4fc5867522":
+                          "aptsync-ca9430daa6beaccf4d4c9aad9e365c26":
                               {"type": "apt-rpm",
                                "name": "distro/name2 - comp1 comp2",
                                "components": "comp1 comp2",
@@ -68,18 +68,18 @@ class APTChannelSyncTest(MockerTestCase):
         self.makeFile(SOURCES_LIST_2, dirname=self.sources_dir, suffix=".list")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"), {
-                          "aptsync-7448307d0748a16950338f05e5027cf1":
+                          "aptsync-1cd42dbb12232a2e2582ad0145fd0516":
                               {"type": "apt-deb",
                                "name": "distro/name1 - comp1 comp2",
                                "distribution": "distro/name1",
                                "components": "comp1 comp2",
                                "baseurl": "http://some/url/"},
-                          "aptsync-b15198b11bcb8f717051cb4fc5867522":
+                          "aptsync-ca9430daa6beaccf4d4c9aad9e365c26":
                               {"type": "apt-rpm",
                                "name": "distro/name2 - comp1 comp2",
                                "components": "comp1 comp2",
                                "baseurl": "http://some/url/distro/name2"},
-                          "aptsync-daf183fd6a41da026012b24e2d2904b7":
+                          "aptsync-a3ea5e5aa96019e33241318e7f87a3d1":
                               {"type": "apt-deb",
                                "name": "distro/name3 - comp1 comp2",
                                "distribution": "distro/name3",
@@ -96,13 +96,13 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"), {
-                          "aptsync-7448307d0748a16950338f05e5027cf1":
+                          "aptsync-1cd42dbb12232a2e2582ad0145fd0516":
                               {"type": "apt-deb",
                                "name": "distro/name1 - comp1 comp2",
                                "distribution": "distro/name1",
                                "components": "comp1 comp2",
                                "baseurl": "http://some/url/"},
-                          "aptsync-daf183fd6a41da026012b24e2d2904b7":
+                          "aptsync-a3ea5e5aa96019e33241318e7f87a3d1":
                               {"type": "apt-deb",
                                "name": "distro/name3 - comp1 comp2",
                                "distribution": "distro/name3",
@@ -120,7 +120,7 @@ class APTChannelSyncTest(MockerTestCase):
         filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
-        channel_key = "aptsync-7448307d0748a16950338f05e5027cf1"
+        channel_key = "aptsync-1cd42dbb12232a2e2582ad0145fd0516"
         sysconf.set(("channels", channel_key, "disabled"), True)
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get(("channels", channel_key)),
@@ -137,7 +137,7 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"),
-                          {"aptsync-daf183fd6a41da026012b24e2d2904b7":
+                          {"aptsync-a3ea5e5aa96019e33241318e7f87a3d1":
                               {"type": "apt-deb",
                                "name": "distro/name3 - comp1 comp2",
                                "distribution": "distro/name3",
@@ -152,11 +152,11 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         sysconf.remove(("channels",
-                        "aptsync-daf183fd6a41da026012b24e2d2904b7",
+                        "aptsync-a3ea5e5aa96019e33241318e7f87a3d1",
                         "keyring"))
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"),
-                          {"aptsync-daf183fd6a41da026012b24e2d2904b7":
+                          {"aptsync-a3ea5e5aa96019e33241318e7f87a3d1":
                               {"type": "apt-deb",
                                "name": "distro/name3 - comp1 comp2",
                                "distribution": "distro/name3",
@@ -170,12 +170,12 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         sysconf.set(("channels",
-                     "aptsync-daf183fd6a41da026012b24e2d2904b7",
+                     "aptsync-a3ea5e5aa96019e33241318e7f87a3d1",
                      "keyring"),
                     "/a/different/keyring.gpg")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"),
-                          {"aptsync-daf183fd6a41da026012b24e2d2904b7":
+                          {"aptsync-a3ea5e5aa96019e33241318e7f87a3d1":
                               {"type": "apt-deb",
                                "name": "distro/name3 - comp1 comp2",
                                "distribution": "distro/name3",

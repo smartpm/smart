@@ -69,7 +69,7 @@ def _loadSourcesList(filename):
             continue # We don't deal with these yet.
 
         # Build a unique alias.
-        m = md5.new("%s%s%s%s" % (type, uri, distro, comps))
+        m = md5.new("%s|%s|%s|%s" % (type, uri, distro, comps))
         alias = "aptsync-%s" % m.hexdigest()
         seen.add(alias)
 
@@ -92,10 +92,11 @@ def _loadSourcesList(filename):
             iface.error(_("While using %s: %s") % (file.name, e))
         else:
             # Store it persistently, without destroying existing setttings.
-            default_channel = {}
-            if keyring_path:
-                default_channel["keyring"] = keyring_path
-            channel = sysconf.get(("channels", alias), default_channel)
+            channel = sysconf.get(("channels", alias))
+            if channel is None:
+                channel = {}
+                if keyring_path:
+                    channel["keyring"] = keyring_path
             channel.update(data)
             sysconf.set(("channels", alias), channel)
 
