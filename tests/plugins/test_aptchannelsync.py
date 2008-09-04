@@ -84,7 +84,6 @@ class APTChannelSyncTest(MockerTestCase):
                                "baseurl": "http://some/url/"},
                          })
 
-
     def test_cleanup_removed_entries(self):
         filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,
                                  basename="sources.list")
@@ -113,3 +112,18 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"), None)
+
+    def test_preserves_unrelated_changes(self):
+        filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        channel_key = "aptsync-7448307d0748a16950338f05e5027cf1"
+        sysconf.set(("channels", channel_key, "disabled"), True)
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get(("channels", channel_key)),
+                          {"distribution": "distro/name1",
+                           "type": "apt-deb",
+                           "name": "distro/name1 - comp1 comp2",
+                           "components": "comp1 comp2",
+                           "baseurl": "http://some/url/",
+                           "disabled": True})
