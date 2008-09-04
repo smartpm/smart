@@ -26,7 +26,7 @@ import os
 
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.filetools import getFileDigest
-from smart.backends.deb.base import DEBARCH
+from smart.backends.deb.base import getArchitecture
 from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, NEVER
 from smart import *
@@ -38,6 +38,7 @@ class APTDEBChannel(PackageChannel):
     # instances which don't have these attributes still work fine.
     _fingerprint = None
     _keyring = None
+    _arch = None
 
     def __init__(self, baseurl, distro, comps, fingerprint, keyring, *args):
         super(APTDEBChannel, self).__init__(*args)
@@ -52,6 +53,8 @@ class APTDEBChannel(PackageChannel):
             self._keyring = keyring
 
     def _getURL(self, filename="", component=None, subpath=False):
+        if self._arch is None:
+            self._arch = getArchitecture()
         if subpath:
             distrourl = ""
         elif not self._comps:
@@ -60,7 +63,7 @@ class APTDEBChannel(PackageChannel):
             distrourl = posixpath.join(self._baseurl, "dists", self._distro)
         if component:
             return posixpath.join(distrourl, component,
-                                 "binary-"+DEBARCH, filename)
+                                 "binary-"+self._arch, filename)
         else:
             return posixpath.join(distrourl, filename)
 

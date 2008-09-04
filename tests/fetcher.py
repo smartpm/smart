@@ -2,6 +2,7 @@ import BaseHTTPServer
 import threading
 import unittest
 import time
+import os
 
 from smart.progress import Progress
 from smart.fetcher import Fetcher

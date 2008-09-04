@@ -1,4 +1,6 @@
 
+  >>> from tests import *
+
 Create the channel.
 
   >>> from smart.channel import createChannel

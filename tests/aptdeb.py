@@ -1,12 +1,13 @@
 from StringIO import StringIO
 import unittest
+import sys
 
 from smart.channel import createChannel
 from smart.progress import Progress
 from smart.fetcher import Fetcher
 from smart.const import NEVER
 from smart.cache import Cache
-from smart import Error
+from smart import Error, sysconf
 
 from tests import TESTDATADIR
 
@@ -23,6 +24,11 @@ class AptDebChannelTest(unittest.TestCase):
 
         # Disable caching so that things blow up when not found.
         self.fetcher.setCaching(NEVER)
+
+        sysconf.set("deb-arch", "i386")
+
+    def tearDown(self):
+        sysconf.remove("deb-arch")
 
     def check_channel(self, channel):
         self.assertEquals(channel.fetch(self.fetcher, self.progress), True)
