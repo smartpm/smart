@@ -93,11 +93,12 @@ def _loadSourcesList(filename):
         else:
             # Store it persistently, without destroying existing setttings.
             channel = sysconf.get(("channels", alias))
-            if channel is None:
-                channel = {}
+            if channel is not None:
+                channel.update(data)
+            else:
+                channel = data
                 if keyring_path:
                     channel["keyring"] = keyring_path
-            channel.update(data)
             sysconf.set(("channels", alias), channel)
 
     file.close()
