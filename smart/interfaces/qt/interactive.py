@@ -22,12 +22,10 @@
 from smart.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP, FIX
 from smart.transaction import Transaction, ChangeSet, checkPackagesSimple
 from smart.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
-'''
-from smart.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
-from smart.interfaces.gtk.mirrors import GtkMirrors
-from smart.interfaces.gtk.flags import GtkFlags
-from smart.interfaces.gtk.priorities import GtkPriorities, GtkSinglePriority
-'''
+from smart.interfaces.qt.channels import QtChannels, QtChannelSelector
+from smart.interfaces.qt.mirrors import QtMirrors
+from smart.interfaces.qt.flags import QtFlags
+from smart.interfaces.qt.priorities import QtPriorities, QtSinglePriority
 from smart.interfaces.qt.packageview import QtPackageView
 from smart.interfaces.qt.packageinfo import QtPackageInfo
 from smart.interfaces.qt.interface import QtInterface, app
@@ -194,9 +192,12 @@ def compileActions(group, actions, globals):
         if action[0] == "find": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.toggleSearch)
+        if action[0] == "update-selected-channels": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.selectedChannels)
         if action[0] == "update-channels": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.updateChannels)
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.allChannels)
         if action[0] == "rebuild-cache": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.rebuildCache)
@@ -215,6 +216,18 @@ def compileActions(group, actions, globals):
         if action[0] == "collapse-all": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.collapsePackages)
+        if action[0] == "edit-channels": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editChannels)
+        if action[0] == "edit-mirrors": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editMirrors)
+        if action[0] == "edit-flags": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editFlags)
+        if action[0] == "edit-priorities": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editPriorities)
         if action[0] == "summary-window": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showChanges)
@@ -334,12 +347,6 @@ class QtInteractiveInterface(QtInterface):
                     else:
                         m.insertSeparator()
              insertmenu(self._menubar, MENU)
-
-        # disable these until the qt dialogs are ready :
-        self._actions["edit-channels"].setEnabled(False)
-        self._actions["edit-mirrors"].setEnabled(False)
-        self._actions["edit-flags"].setEnabled(False)
-        self._actions["edit-priorities"].setEnabled(False)
 
         self._toolbar = qt.QToolBar(self._window)
         for TOOL in TOOLBAR:
@@ -544,13 +551,20 @@ class QtInteractiveInterface(QtInterface):
     def getChangeSet(self):
         return self._changeset
 
+    def selectedChannels(self):
+        self.updateChannels(selected=True)
+
+    def allChannels(self):
+        self.updateChannels(selected=False)
+
     def updateChannels(self, selected=False, channels=None):
-        #if selected:
-        #    aliases = GtkChannelSelector().show()
-        #    channels = [channel for channel in self._ctrl.getChannels()
-        #                if channel.getAlias() in aliases]
-        #    if not channels:
-        #        return
+        if selected:
+            #aliases = GtkChannelSelector().show()
+            aliases = QtChannelSelector().show()
+            channels = [channel for channel in self._ctrl.getChannels()
+                        if channel.getAlias() in aliases]
+            if not channels:
+                return
         state = self._changeset.getPersistentState()
         self._ctrl.reloadChannels(channels, caching=NEVER)
         self._changeset.setPersistentState(state)
@@ -934,40 +948,36 @@ class QtInteractiveInterface(QtInterface):
             self.refreshPackages()
 
     def editChannels(self):
-        #if GtkChannels(self._window).show():
-        #    self.rebuildCache()
-        pass
+        if QtChannels(self._window).show():
+            self.rebuildCache()
 
     def editMirrors(self):
-        #GtkMirrors(self._window).show()
-        pass
+        QtMirrors(self._window).show()
 
     def editFlags(self):
-        #GtkFlags(self._window).show()
-        pass
+        QtFlags(self._window).show()
 
     def editPriorities(self):
-        #GtkPriorities(self._window).show()
-        pass
+        QtPriorities(self._window).show()
 
     def setBusy(self, flag):
         if flag:
             #self._window.window.set_cursor(self._watch)
+            qt.QApplication.setOverrideCursor( qt.QCursor(qt.Qt.WaitCursor) )
             #while gtk.events_pending():
             #    gtk.main_iteration()
             while qt.QApplication.eventLoop().hasPendingEvents():
                 qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
-            pass
         else:
             #self._window.window.set_cursor(None)
-            pass
+            qt.QApplication.restoreOverrideCursor()
 
     def changedMarks(self):
         if "hide-unmarked" in self._filters:
             self.refreshPackages()
         else:
             #self._pv.queue_draw()
-            pass
+            self._pv.update()
         self._actions["exec-changes"].setEnabled(bool(self._changeset))
         self._actions["clear-changes"].setEnabled(bool(self._changeset))
         

@@ -40,57 +40,34 @@ class QtLog(qt.QDialog):
         self.setMinimumSize(400, 300)
         #self.setModal(True)
 
-        #self._vbox = gtk.VBox()
-        #self._vbox.set_border_width(10)
-        #self._vbox.set_spacing(10)
-        #self._vbox.show()
-        #self.add(self._vbox)
-        self._vbox = qt.QVBoxLayout(self)
+        self._vbox = qt.QVBox(self)
+        self._vbox.setMinimumSize(400, 300) # HACK
+        self._vbox.setMargin(10)
+        self._vbox.setSpacing(10)
+        self._vbox.show()
 
-        #self._scrollwin = gtk.ScrolledWindow()
-        #self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        #self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        #self._scrollwin.show()
-        #self._vbox.add(self._scrollwin)
-        sv = qt.QScrollView(self)
-        sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
-        sv.show()
-        self._vbox.addWidget(sv)
+        self._scrollview = qt.QScrollView(self._vbox)
+        #self._scrollview.setVScrollBarMode(qt.QScrollView.AlwaysOn)
+        self._scrollview.show()
 
-        #self._textview = gtk.TextView()
-        #self._textview.set_editable(False)
-        #self._textview.show()
-        #self._scrollwin.add(self._textview)
-        self._textview = qt.QLabel(sv)
-        self._textview.setMinimumSize(400, 300) # HACK
-        self._textview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
+        self._textview = qt.QLabel(self._scrollview)
+        self._textview.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
+        self._textview.setAlignment(qt.Qt.AlignTop)
+        self._textview.setTextFormat(qt.Qt.LogText)
         self._textview.show()
-        
-        #self._buttonbox = gtk.HButtonBox()
-        #self._buttonbox.set_spacing(10)
-        #self._buttonbox.set_layout(gtk.BUTTONBOX_END)
-        #self._buttonbox.show()
-        #self._vbox.pack_start(self._buttonbox, expand=False, fill=False)
-        
-        #self._clearbutton = gtk.Button(stock="gtk-clear")
-        #self._clearbutton.show()
-        #self._clearbutton.connect("clicked",
-        #                          lambda x: self._textview.get_buffer()
-        #                                                 .set_text(""))
-        #self._buttonbox.pack_start(self._clearbutton)
-        self._clearbutton = qt.QPushButton("Clear", self)
+
+        self._buttonbox = qt.QHBox(self._vbox)
+        self._buttonbox.setSpacing(10)
+        self._buttonbox.layout().addStretch(1)
+        self._buttonbox.show()
+
+        self._clearbutton = qt.QPushButton(_("Clear"), self._buttonbox)
         self._clearbutton.show()
         qt.QObject.connect(self._clearbutton, qt.SIGNAL("clicked()"), self.clearText)
-        self._vbox.addWidget(self._clearbutton)
 
-        #self._closebutton = gtk.Button(stock="gtk-close")
-        #self._closebutton.show()
-        #self._closebutton.connect("clicked", lambda x: self.hide())
-        #self._buttonbox.pack_start(self._closebutton)
-        self._closebutton = qt.QPushButton("Close", self)
+        self._closebutton = qt.QPushButton(_("Close"), self._buttonbox)
         self._closebutton.show()
         qt.QObject.connect(self._closebutton, qt.SIGNAL("clicked()"), self, qt.SLOT("hide()"))
-        self._vbox.addWidget(self._closebutton)
 
         self._closebutton.setDefault(True)
 
@@ -115,6 +92,6 @@ class QtLog(qt.QDialog):
         self._textview.setText(buffer)
 
         if level == ERROR:
-             response = qt.QMessageBox.critical(self, "", msg)
+            response = qt.QMessageBox.critical(self, "", msg)
         else:
-             self.show()
+            self.show()

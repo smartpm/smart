@@ -107,8 +107,8 @@ class QtProgress(Progress, qt.QDialog):
     def tick(self):
         while not self._stopticking:
             self.lock()
-            while qt.QApplication.eventLoop().hasPendingEvents():
-                   qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+            #while qt.QApplication.eventLoop().hasPendingEvents():
+            #       qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
             self.unlock()
             time.sleep(INTERVAL)
         self._ticking = False
@@ -185,13 +185,6 @@ class QtProgress(Progress, qt.QDialog):
             if self._hassub:
                 self._listview.repaint()
         
-        self.update()
-        while qt.QApplication.eventLoop().hasPendingEvents():
-            qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
-
-    def setTopic(self, topic):
-        Progress.setTopic(self, topic)
-
         self.update()
         while qt.QApplication.eventLoop().hasPendingEvents():
             qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
