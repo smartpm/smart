@@ -269,3 +269,75 @@ class AptDebChannelTest(MockerTestCase):
             self.assertTrue(str(error).endswith(error_message), str(error))
         else:
             self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_without_component_with_corrupted_packages_file_md5(self):
+        repo_dir = self.makeDir()
+        shutil.copytree(TESTDATADIR + "/aptdeb", repo_dir + "/aptdeb")
+        path = os.path.join(repo_dir, "aptdeb/component-less/Packages.gz")
+        file = open(path, "r+")
+        file.seek(0)
+        file.write(" ")
+        file.close()
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % repo_dir,
+                                 "distribution": "component-less"})
+        try:
+            self.check_channel(channel)
+        except Error, error:
+            error_message =  ("Invalid MD5 "
+                              "(expected 384ccb05e3f6da02312b6e383b211777,"
+                              " got 6a2857275a35bf2b79e480e653431f83)")
+            self.assertTrue(str(error).endswith(error_message), str(error))
+        else:
+            self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_with_corrupted_packages_file_size(self):
+        repo_dir = self.makeDir()
+        shutil.copytree(TESTDATADIR + "/aptdeb", repo_dir + "/aptdeb")
+        path = os.path.join(repo_dir,
+                            "aptdeb/dists/component/binary-i386/Packages.gz")
+        file = open(path, "r+")
+        file.seek(0)
+        file.write(" ")
+        file.close()
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % repo_dir,
+                                 "distribution": "./",
+                                 "components": "component",
+                                 })
+        try:
+            self.check_channel(channel)
+        except Error, error:
+            error_message =  ("Invalid MD5 "
+                              "(expected 384ccb05e3f6da02312b6e383b211777,"
+                              " got 6a2857275a35bf2b79e480e653431f83)")
+            self.assertTrue(str(error).endswith(error_message), str(error))
+        else:
+            self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_with_corrupted_packages_file_md5(self):
+        repo_dir = self.makeDir()
+        shutil.copytree(TESTDATADIR + "/aptdeb", repo_dir + "/aptdeb")
+        path = os.path.join(repo_dir,
+                            "aptdeb/dists/component/binary-i386/Packages.gz")
+        file = open(path, "r+")
+        file.seek(0)
+        file.write(" ")
+        file.close()
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % repo_dir,
+                                 "distribution": "./",
+                                 "components": "component",
+                                 })
+        try:
+            self.check_channel(channel)
+        except Error, error:
+            error_message =  ("Invalid MD5 "
+                              "(expected 384ccb05e3f6da02312b6e383b211777,"
+                              " got 6a2857275a35bf2b79e480e653431f83)")
+            self.assertTrue(str(error).endswith(error_message), str(error))
+        else:
+            self.fail("Fetch worked with a bad signature! :-(")
