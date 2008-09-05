@@ -311,12 +311,17 @@ class DebTagFileLoader(DebTagLoader):
         if os.path.isfile(filename):
             import gzip
             file = gzip.open(filename)
+            line = file.readline()
             while True:
-                line = file.readline()
                 if not line:
                     break
-                # TODO: parse and reformat
                 changes.append(line.strip())
+                line = file.readline()
+                change = ""
+                while line.startswith(" ") or (line == "\n"):
+                    change += line
+                    line = file.readline()
+                changes.append(change.rstrip())
         return changes
 
     def getPaths(self, info):
