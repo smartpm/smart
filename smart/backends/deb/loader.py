@@ -312,8 +312,11 @@ class DebTagFileLoader(DebTagLoader):
         filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
         changes = []
         if os.path.isfile(filename):
-            import gzip
-            file = gzip.open(filename)
+            if filename.endswith(".gz"):
+                import gzip
+                file = gzip.open(filename)
+            else:
+                file = open(filename)
             line = file.readline()
             while True:
                 if not line:
