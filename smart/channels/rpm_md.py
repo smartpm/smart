@@ -130,6 +130,7 @@ class RPMMetaDataChannel(PackageChannel):
             filelistspath = flitem.getTargetPath()
             changelogpath = clitem.getTargetPath()
             loader = RPMMetaDataLoader(localpath, filelistspath, changelogpath,
+                                       self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
         elif (item.getStatus() == SUCCEEDED and
