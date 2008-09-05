@@ -671,9 +671,7 @@ class RPMDirLoader(RPMHeaderLoader):
         pkg = info.getPackage()
         filename = self._filenames[pkg.loaders[self]]
         filepath = os.path.join(self._dir, filename)
-        while filepath.startswith("/"):
-            filepath = filepath[1:]
-        return filepath
+        return filepath.lstrip("/")
 
     def getSize(self, info):
         pkg = info.getPackage()

@@ -26,6 +26,10 @@ deb http://some/url/ distro/name1 comp1 comp2
 deb-src http://some/url/ distro/name1 comp1 comp2
 """
 
+SOURCES_LIST_4 = """
+deb cdrom:[Ubuntu 7.10 _Gutsy Gibbon_ - Release i386 (20071016)]/ gutsy main restricted
+"""
+
 
 class APTChannelSyncTest(MockerTestCase):
 
@@ -103,3 +107,9 @@ class APTChannelSyncTest(MockerTestCase):
                                "components": "comp1 comp2",
                                "baseurl": "http://some/url/"},
                          })
+
+    def test_ignore_cdrom_entries(self):
+        filename = self.makeFile(SOURCES_LIST_4, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get("channels"), None)
