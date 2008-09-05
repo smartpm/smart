@@ -82,7 +82,7 @@ class APTDEBChannel(PackageChannel):
     def _checkRelease(self, release_item, release_gpg_item):
         is_secure_channel = bool(self._fingerprint or self._keyring)
         need_release = bool(is_secure_channel or self._comps)
-        release_failed = release_gpg_item.getFailedReason()
+        release_failed = release_item.getFailedReason()
 
         if need_release and release_failed:
             raise Error, _("Download of Release failed for channel '%s': %s") \
