@@ -759,6 +759,7 @@ class QtInteractiveInterface(QtInterface):
         #menu.append(item)
         iconset = qt.QIconSet(getPixmap("package-broken"))
         item = menu.insertItem(iconset, _("Fix problems"))
+        action.connect(item, self.actOnPackages, FIX)
         if not hasinstalled:
             menu.setItemEnabled(item, False)
 
