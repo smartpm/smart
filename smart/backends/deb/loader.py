@@ -27,7 +27,6 @@ from smart.channel import FileChannel
 from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb.base import *
 from smart.progress import Progress
-from smart.uncompress import Uncompressor
 from smart import *
 from cStringIO import StringIO
 import locale
@@ -309,17 +308,15 @@ class DebTagFileLoader(DebTagLoader):
     def getChanges(self, info):
         filename = os.path.join("/usr", "share/doc", info._package.name, "changelog.Debian.gz")
         changes = []
-        if os.path.isfile(listname):
-           uncomp = Uncompressor()
-           uncomphandler = uncomp.getHandler(listname)
-           if uncomphandler:
-               tempfd,tempname = tempfile.mkstemp()
-               uncomphandler.uncompress(tempname)
-               if os.path.isfile(tempname):
-                   for line in open(tempname):
-                       # TODO: parse and reformat
-                       changes.append(line.strip())
-                   os.unlink(tempname)
+        if os.path.isfile(filename):
+            import gzip
+            file = gzip.open(filename)
+            while True:
+                line = file.readline()
+                if not line:
+                    break
+                # TODO: parse and reformat
+                changes.append(line.strip())
         return changes
 
     def getPaths(self, info):
