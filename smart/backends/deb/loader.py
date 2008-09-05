@@ -271,9 +271,11 @@ class DebTagLoader(Loader):
 
 class DebTagFileLoader(DebTagLoader):
 
-    def __init__(self, filename, baseurl=None):
+    def __init__(self, filename, filelistsname="", changelogname="", baseurl=None):
         DebTagLoader.__init__(self, baseurl)
         self._filename = filename
+        self._filelistsname = filelistsname
+        self._changelogname = changelogname
         self._tagfile = TagFile(self._filename)
 
     def getLoadSteps(self):
@@ -306,7 +308,7 @@ class DebTagFileLoader(DebTagLoader):
         return None
 
     def getChanges(self, info):
-        filename = os.path.join("/usr", "share/doc", info._package.name, "changelog.Debian.gz")
+        filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
         changes = []
         if os.path.isfile(filename):
             import gzip
@@ -325,7 +327,7 @@ class DebTagFileLoader(DebTagLoader):
         return changes
 
     def getPaths(self, info):
-        listname = os.path.join(os.path.dirname(self._filename), "info", info._package.name+".list")
+        listname = os.path.join(self._filelistsname, info._package.name+".list")
         paths = {}
         if os.path.isfile(listname):
             md5name = listname[:-4]+"md5sums"

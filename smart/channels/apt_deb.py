@@ -32,13 +32,15 @@ import os
 
 class APTDEBChannel(PackageChannel):
 
-    def __init__(self, baseurl, distro, comps, fingerprint, *args):
+    def __init__(self, baseurl, distro, comps, filelists, changelog, fingerprint, *args):
         super(APTDEBChannel, self).__init__(*args)
 
         distro = distro.lstrip('/')
         self._baseurl = baseurl
         self._distro = distro
         self._comps = comps
+        self._filelists = filelists
+        self._changelog = changelog
         if fingerprint:
             self._fingerprint = "".join([x for x in fingerprint
                                          if not x.isspace()])
@@ -224,7 +226,8 @@ class APTDEBChannel(PackageChannel):
                 #    except (IOError, ValueError):
                 #        pass
                 localpath = pkgitem.getTargetPath()
-                loader = DebTagFileLoader(localpath, self._baseurl)
+                loader = DebTagFileLoader(localpath, self._baseurl,
+                                          self._filelists, self._changelog)
                 loader.setChannel(self)
                 self._loaders.append(loader)
             else:
@@ -246,6 +249,8 @@ def create(alias, data):
     return APTDEBChannel(data["baseurl"],
                          data["distribution"],
                          data["components"].split(),
+                         data["filelists"],
+                         data["changelog"],
                          data["fingerprint"],
                          data["type"],
                          alias,

@@ -37,7 +37,9 @@ class DebSysChannel(PackageChannel):
         if digest == self._digest:
             return True
         self.removeLoaders()
-        loader = DebTagFileLoader(path)
+        filelistspath = os.path.join("/var", "lib/dpkg/info")
+        changelogpath = os.path.join("/usr", "share/doc")
+        loader = DebTagFileLoader(path, filelistspath, changelogpath)
         loader.setInstalled(True)
         loader.setChannel(self)
         self._loaders.append(loader)
