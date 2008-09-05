@@ -383,7 +383,7 @@ class RPMMetaDataLoader(Loader):
                         skip = PACKAGE
                     else:
                         pkg = pkgids.get(elem.get("pkgid"))
-                        if not pkg:
+                        if not pkg or (package and pkg != package):
                             skip = PACKAGE
                         paths = {}
                 elif elem.tag == FILE:
@@ -427,7 +427,7 @@ class RPMMetaDataLoader(Loader):
                         skip = PACKAGE
                     else:
                         pkg = pkgids.get(elem.get("pkgid"))
-                        if not pkg:
+                        if not pkg or (package and pkg != package):
                             skip = PACKAGE
                         changelog = []
                 elif not skip and elem.tag == CHANGELOG:        
