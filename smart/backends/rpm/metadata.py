@@ -50,12 +50,12 @@ def nstag(ns, tag):
 
 class RPMMetaDataPackageInfo(PackageInfo):
 
-    def __init__(self, package, loader, info, pathlist=[], changelog=[]):
+    def __init__(self, package, loader, info):
         PackageInfo.__init__(self, package)
         self._loader = loader
         self._info = info
-        self._pathlist = pathlist
-        self._changelog = changelog
+        self._path = None
+        self._change = None
 
     def getURLs(self):
         url = self._info.get("location")
@@ -87,11 +87,15 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getGroup(self):
         return self._info.get("group", "")
 
-    def getPathList(self):
-        return self._pathlist
-
     def getChangeLog(self):
-        return self._changelog
+        if self._change is None:
+            self._change = self._loader.getChanges(self)
+        return self._change
+
+    def getPathList(self):
+        if self._path is None:
+            self._path = self._loader.getPaths(self)
+        return self._path.keys()
 
 class RPMMetaDataLoader(Loader):
 
@@ -104,21 +108,17 @@ class RPMMetaDataLoader(Loader):
         self._changelogname = changelogname
         self._baseurl = baseurl
         self._fileprovides = {}
-        self._changelogs = {}
         self._parsedflist = False
         self._pkgids = {}
 
     def reset(self):
         Loader.reset(self)
         self._fileprovides.clear()
-        self._changelogs.clear()
         self._parsedflist = False
         self._pkgids.clear()
 
     def getInfo(self, pkg):
-        fl = []
-        cl = self._changelogs.get(pkg, ["not found"])
-        return RPMMetaDataPackageInfo(pkg, self, pkg.loaders[self], fl, cl)
+        return RPMMetaDataPackageInfo(pkg, self, pkg.loaders[self])
 
     def getLoadSteps(self):
         return os.path.getsize(self._filename)/BYTESPERPKG
@@ -344,9 +344,6 @@ class RPMMetaDataLoader(Loader):
 
         file.close()
 
-        if self._changelogname:
-            self.parseChangeLog()
-
     def loadFileProvides(self, fndict):
         bfp = self.buildFileProvides
         parsed = self._parsedflist
@@ -369,7 +366,7 @@ class RPMMetaDataLoader(Loader):
                     bfp(pkg, (RPMProvides, fn, None))
 
 
-    def parseFilesList(self, fndict):
+    def parseFilesList(self, fndict={}, package=None):
         FILE    = nstag(NS_FILELISTS, "file")
         PACKAGE = nstag(NS_FILELISTS, "package")
 
@@ -388,20 +385,32 @@ class RPMMetaDataLoader(Loader):
                         pkg = pkgids.get(elem.get("pkgid"))
                         if not pkg:
                             skip = PACKAGE
+                        paths = {}
+                elif elem.tag == FILE:
+                    type = elem.get("type", "file")
             elif event == "end":
                 if skip:
                     if elem.tag == skip:
                         skip = None
-                elif elem.tag == FILE and elem.text in fndict:
-                    pkgs = fileprovides.get(elem.text)
-                    if not pkgs:
-                        fileprovides[elem.text] = [pkg]
-                    else:
-                        pkgs.append(pkg)
+                elif elem.tag == FILE:
+                    if elem.text in fndict:
+                        pkgs = fileprovides.get(elem.text)
+                        if not pkgs:
+                            fileprovides[elem.text] = [pkg]
+                        else:
+                            pkgs.append(pkg)
+                    elif package:
+                        paths[elem.text] = (type == "dir") and "d" or "f"
+                elif elem.tag == PACKAGE:
+                    if pkg == package:
+                        return paths
                 elem.clear()
         file.close()
 
-    def parseChangeLog(self):
+    def getPaths(self, info):
+        return self.parseFilesList(package=info.getPackage())
+
+    def parseChangeLog(self, package=None):
         CHANGELOG = nstag(NS_CHANGELOG, "changelog")
         PACKAGE   = nstag(NS_CHANGELOG, "package")
 
@@ -420,26 +429,28 @@ class RPMMetaDataLoader(Loader):
                         pkg = pkgids.get(elem.get("pkgid"))
                         if not pkg:
                             skip = PACKAGE
+                        changelog = []
                 elif not skip and elem.tag == CHANGELOG:        
                     logname = elem.get("author")
                     logtime = int(elem.get("date"))
-
             elif event == "end":
                 if skip:
                     if elem.tag == skip:
                         skip = None
                 elif elem.tag == CHANGELOG:
-                    if pkg in self._changelogs:
-                       changelog = self._changelogs[pkg]
-                    else:
-                       self._changelogs[pkg] = changelog = []
                     if logname and logtime:
                         changelog.append(datetime.fromtimestamp(logtime).strftime("%Y-%m-%d")+"  "+ logname)
                     else:
                         changelog.append("")
                     changelog.append("  " + elem.text)
+                elif elem.tag == PACKAGE:
+                    if pkg == package:
+                        return changelog
                 elem.clear()
         file.close()
+
+    def getChanges(self, info):
+        return self.parseChangeLog(package=info.getPackage())
 
 def enablePsyco(psyco):
     psyco.bind(RPMMetaDataLoader.load)
