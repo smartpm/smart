@@ -321,7 +321,7 @@ class DebTagFileLoader(DebTagLoader):
                 while line.startswith(" ") or (line == "\n"):
                     change += line
                     line = file.readline()
-                changes.append(change.rstrip())
+                changes.append(change)
         return changes
 
     def getPaths(self, info):
