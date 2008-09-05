@@ -27,11 +27,13 @@ from smart.channel import FileChannel
 from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb.base import *
 from smart.progress import Progress
+from smart.uncompress import Uncompressor
 from smart import *
 from cStringIO import StringIO
 import locale
 import stat
 import os
+import tempfile
 
 
 def decode(s):
@@ -88,6 +90,10 @@ class DebPackageInfo(PackageInfo):
 
     def getGroup(self):
         return decode(self._loader.getSection(self._package))
+
+    def getChangeLog(self):
+        self._change = self._loader.getChanges(self)
+        return self._change
 
     def getPathList(self):
         self._paths = self._loader.getPaths(self)
@@ -257,6 +263,9 @@ class DebTagLoader(Loader):
         raise TypeError, "Subclasses of DebTagLoader must " \
                          "implement the getFileName() method"
 
+    def getChanges(self, info):
+        return []
+
     def getPaths(self, info):
         return {}
 
@@ -296,6 +305,22 @@ class DebTagFileLoader(DebTagLoader):
         if size:
             return long(size)
         return None
+
+    def getChanges(self, info):
+        filename = os.path.join("/usr", "share/doc", info._package.name, "changelog.Debian.gz")
+        changes = []
+        if os.path.isfile(listname):
+           uncomp = Uncompressor()
+           uncomphandler = uncomp.getHandler(listname)
+           if uncomphandler:
+               tempfd,tempname = tempfile.mkstemp()
+               uncomphandler.uncompress(tempname)
+               if os.path.isfile(tempname):
+                   for line in open(tempname):
+                       # TODO: parse and reformat
+                       changes.append(line.strip())
+                   os.unlink(tempname)
+        return changes
 
     def getPaths(self, info):
         listname = os.path.join(os.path.dirname(self._filename), "info", info._package.name+".list")
