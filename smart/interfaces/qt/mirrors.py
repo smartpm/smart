@@ -55,60 +55,29 @@ class QtMirrors(object):
         #    return True
         #self._window.connect("delete-event", delete)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(600, 400) # HACK
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        #sw = gtk.ScrolledWindow()
-        #sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        #sw.set_shadow_type(gtk.SHADOW_IN)
-        #sw.show()
-        #vbox.add(sw)
         sv = qt.QScrollView(vbox)
         sv.show()
 
-        #self._treemodel = gtk.TreeStore(gobject.TYPE_STRING)
-        #self._treeview = gtk.TreeView(self._treemodel)
-        #self._treeview.set_rules_hint(True)
-        #self._treeview.set_headers_visible(False)
-        #self._treeview.show()
-        #sw.add(self._treeview)
         self._treeview = qt.QListView(sv)
         self._treeview.setMinimumSize(600, 400) # HACK
         self._treeview.header().hide()
         self._treeview.show()
 
-        #renderer = gtk.CellRendererText()
-        #renderer.set_property("xpad", 3)
-        #renderer.set_property("editable", True)
-        #renderer.connect("edited", self.rowEdited)
-        #self._treeview.insert_column_with_attributes(-1, _("Mirror"), renderer,
-        #                                             text=0)
         self._treeview.addColumn(_("Mirror"))
         qt.QObject.connect(self._treeview, qt.SIGNAL("itemRenamed(QListViewItem *, int, const QString &)"), self.itemRenamed)
         qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self.selectionChanged)
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #button = gtk.Button(stock="gtk-new")
-        #button.show()
-        #button.connect("clicked", lambda x: self.newMirror())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("New"), bbox)
         button.setEnabled(True)
         button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
@@ -116,10 +85,6 @@ class QtMirrors(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newMirror)
         self._newmirror = button
 
-        #button = gtk.Button(stock="gtk-delete")
-        #button.show()
-        #button.connect("clicked", lambda x: self.delMirror())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
         button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
@@ -127,23 +92,15 @@ class QtMirrors(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delMirror)
         self._delmirror = button
 
-        #button = gtk.Button(stock="gtk-close")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Close"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
         
         button.setDefault(True)
 
     def fill(self):
-        #self._treemodel.clear()
         self._treeview.clear()
         mirrors = sysconf.get("mirrors", {})
         for origin in mirrors:
-        #    parent = self._treemodel.append(None, (origin,))
-        #    for mirror in mirrors[origin]:
-        #        iter = self._treemodel.append(parent, (mirror,))
         #self._treeview.expand_all()
              parent = TextListViewItem(self._treeview)
              parent.setText(0, origin)
@@ -158,7 +115,6 @@ class QtMirrors(object):
         self.fill()
         self._window.show()
         self._window.raiseW()
-        #gtk.main()
         self._window.exec_loop()
         self._window.hide()
 
@@ -251,93 +207,47 @@ class MirrorCreator(object):
         self._window.setCaption(_("New Mirror"))
         self._window.setModal(True)
         #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
         #def delete(widget, event):
         #    gtk.main_quit()
         #    return True
         #self._window.connect("delete-event", delete)
         #self._window.setMinimumSize(600, 400)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        #table = gtk.Table()
-        #table.set_row_spacings(10)
-        #table.set_col_spacings(10)
-        #table.show()
-        #vbox.pack_start(table)
         table = qt.QGrid(2, vbox)
         table.setSpacing(10)
         table.show()
         
-        #label = gtk.Label(_("Origin URL:"))
-        #label.set_alignment(1.0, 0.5)
-        #label.show()
-        #table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Origin URL:"), table)
         label.show()
 
-        #self._origin = gtk.Entry()
-        #self._origin.set_width_chars(40)
-        #self._origin.show()
-        #table.attach(self._origin, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._origin = qt.QLineEdit(table)
         self._origin.setMaxLength(40)
         self._origin.show()
 
-        #label = gtk.Label(_("Mirror URL:"))
-        #label.set_alignment(1.0, 0.5)
-        #label.show()
-        #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Mirror URL:"), table)
         label.show()
 
-        #self._mirror = gtk.Entry()
-        #self._mirror.set_width_chars(40)
-        #self._mirror.show()
-        #table.attach(self._mirror, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._mirror = qt.QLineEdit(table)
         self._mirror.setMaxLength(40)
         self._mirror.show()
 
-        #sep = gtk.HSeparator()
-        #sep.show()
-        #vbox.pack_start(sep, expand=False)
         sep = qt.QFrame(vbox)
         sep.setFrameStyle(qt.QFrame.HLine)
         sep.show()
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #self._okbutton = gtk.Button(stock="gtk-ok")
-        #self._okbutton.show()
-        #def clicked(x):
-        #    self._result = True
-        #    gtk.main_quit()
-        #self._okbutton.connect("clicked", clicked)
-        #bbox.pack_start(self._okbutton)
         button = qt.QPushButton(_("OK"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
-        #self._cancelbutton = gtk.Button(stock="gtk-cancel")
-        #self._cancelbutton.show()
-        #self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(self._cancelbutton)
         button = qt.QPushButton(_("Cancel"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
         
