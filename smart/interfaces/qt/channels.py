@@ -58,29 +58,14 @@ class QtChannels(object):
 
         #self._window.set_transient_for(parent)
         #self._window.set_position(gtk.WIN_POS_CENTER)
-        #self._window.set_geometry_hints(min_width=600, min_height=400)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
         self._window.setMinimumSize(600, 400)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(600, 400) # HACK
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        #sw = gtk.ScrolledWindow()
-        #sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        #sw.set_shadow_type(gtk.SHADOW_IN)
-        #sw.show()
-        #vbox.add(sw)
         sv = qt.QScrollView(vbox)
         sv.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
         sv.show()
@@ -128,37 +113,17 @@ class QtChannels(object):
         self._treeview.addColumn(_("Name"))
         self._treeview.addColumn(_("Pri"))
         
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #button = gtk.Button(stock="gtk-new")
-        #button.show()
-        #button.connect("clicked", lambda x: self.newChannel())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("New"), bbox)
         button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
         button.show()
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newChannel)
         self._newchannel = button
 
-        #button = gtk.Button(stock="gtk-delete")
-        #button.show()
-        #def clicked(x):
-        #    selection = self._treeview.get_selection()
-        #    model, iter = selection.get_selected()
-        #    if not iter:
-        #        return
-        #    alias = model.get_value(iter, 1)
-        #    self.delChannel(alias)
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
         button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
@@ -166,17 +131,6 @@ class QtChannels(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delChannel)
         self._delchannel = button
 
-        #button = gtk.Button(stock="gtk-properties")
-        #button.show()
-        #def clicked(x):
-        #   selection = self._treeview.get_selection()
-        #    model, iter = selection.get_selected()
-        #    if not iter:
-        #        return
-        #    alias = model.get_value(iter, 1)
-        #    self.editChannel(alias)
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Edit"), bbox)
         button.setEnabled(False)
         button.setIconSet(qt.QIconSet(getPixmap("crystal-edit")))
@@ -184,10 +138,6 @@ class QtChannels(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.editChannel)
         self._editchannel = button
 
-        #button = gtk.Button(stock="gtk-close")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Close"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
@@ -201,12 +151,6 @@ class QtChannels(object):
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
-            #self._treemodel.append((not strToBool(channel.get("disabled")),
-            #                        alias,
-            #                        channel.get("type", ""),
-            #                        channel.get("name", ""),
-            #                        int(channel.get("priority", "") or 0),
-#))
             item = qt.QCheckListItem(self._treeview, alias, qt.QCheckListItem.CheckBoxController)
             item.setOn(not strToBool(channel.get("disabled")))
             item.setText(0, alias)
@@ -270,20 +214,6 @@ class QtChannels(object):
         elif method in ("descriptionpath", "descriptionurl"):
 
             if method == "descriptionpath":
-                #if gtk.pygtk_version > (2,4,0):
-                #    dia = gtk.FileChooserDialog(
-                #        action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                #        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                #                 gtk.STOCK_OK, gtk.RESPONSE_OK))
-                #                 
-                #else:
-                #    dia = gtk.FileSelection(_("Select Channel Description"))
-                #    dia.hide_fileop_buttons()
-                #response = dia.run()
-                #filename = dia.get_filename()
-                #dia.destroy()
-                #if response != gtk.RESPONSE_OK:
-                #    return
                 filename = qt.QFileDialog.getOpenFileName("", "",
                      self._window, "", _("Select Channel Description"))
                 if not filename:
@@ -329,20 +259,6 @@ class QtChannels(object):
                 if not path:
                     return
             elif method == "detectpath":
-                #if gtk.pygtk_version > (2,4,0):
-                #    dia = gtk.FileChooserDialog(
-                #        action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                #        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                #                 gtk.STOCK_OK, gtk.RESPONSE_OK))
-                #                 
-                #else:
-                #    dia = gtk.FileSelection(_("Select Path"))
-                #    dia.hide_fileop_buttons()
-                #response = dia.run()
-                #path = dia.get_filename()
-                #dia.destroy()
-                #if response != gtk.RESPONSE_OK:
-                #    return
                 path = qt.QFileDialog.getExistingDirectory("",
                      self._window, "", _("Select Path"), True)
                 if not path:
@@ -431,26 +347,13 @@ class QtChannelSelector(object):
 
         #self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        #self._scrollwin = gtk.ScrolledWindow()
-        #self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
         #self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
-        #self._scrollwin.show()
-        #vbox.add(self._scrollwin)
         self._scrollview = qt.QScrollView(vbox)
         self._scrollview.show()
 
@@ -489,30 +392,14 @@ class QtChannelSelector(object):
         self._treeview.addColumn(_("Type"))
         self._treeview.addColumn(_("Name"))
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #button = gtk.Button(stock="gtk-cancel")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Cancel"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
 
-        #button = gtk.Button(stock="gtk-ok")
-        #button.show()
-        #def clicked(x):
-        #    self._result = True
-        #    gtk.main_quit()
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("OK"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
@@ -522,7 +409,6 @@ class QtChannelSelector(object):
         self._window.adjustSize()
 
     def fill(self):
-        #self._treemodel.clear()
         self._treeview.clear()
         channels = sysconf.get("channels", {})
         aliases = channels.keys()
@@ -530,9 +416,6 @@ class QtChannelSelector(object):
         for alias in aliases:
             channel = channels[alias]
             if not channel.get("disabled"):
-                #self._treemodel.append((False, alias,
-                #                        channel.get("type", ""),
-                #                        channel.get("name", "")))
                 item = qt.QCheckListItem(self._treeview, alias)
                 item.setOn(False)
                 item.setText(0, alias)
@@ -548,9 +431,6 @@ class QtChannelSelector(object):
 
         result = []
         if self._result == qt.QDialog.Accepted:
-            #for row in self._treemodel:
-            #    if row[0]:
-            #        result.append(row[1])
             iter = qt.QListViewItemIterator(self._treeview)
             while iter.current():
                 item = iter.current()
@@ -575,16 +455,7 @@ class ChannelEditor(object):
         #self._window.setModal(True)
         #self._window.set_position(gtk.WIN_POS_CENTER)
         ##self._window.set_geometry_hints(min_width=600, min_height=400)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(200,100) # HACK
         vbox.setMargin(10)
@@ -592,47 +463,23 @@ class ChannelEditor(object):
         vbox.show()
         self._vbox = vbox
 
-        #self._table = gtk.Table()
-        #self._table.set_row_spacings(10)
-        #self._table.set_col_spacings(10)
-        #self._table.show()
-        #vbox.pack_start(self._table)
         self._table = qt.QGrid(2, vbox)
         self._table.setSpacing(10)
         self._table.show()
 
-        #sep = gtk.HSeparator()
-        #sep.show()
-        #vbox.pack_start(sep, expand=False)
         sep = qt.QFrame(vbox)
         sep.setFrameShape(qt.QFrame.HLine)
         sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #button = gtk.Button(stock="gtk-cancel")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Cancel"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
 
-        #button = gtk.Button(stock="gtk-ok")
-        #button.show()
-        #def clicked(x):
-        #    self._result = True
-        #    gtk.main_quit()
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("OK"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
@@ -642,66 +489,36 @@ class ChannelEditor(object):
                  editable=True, tip=None, needed=False):
 
         if ftype is bool:
-            #widget = gtk.CheckButton(label)
-            #widget.set_active(value)
-            #align = gtk.Alignment(0.0, 0.5)
-            #align.add(widget)
-            #child = align
             spacer = qt.QWidget(self._table)
             spacer.show()
             widget = qt.QCheckBox(label, self._table)
             widget.setChecked(value)
         else:
-            #_label = gtk.Label("%s:" % label)
-            #_label.set_alignment(1.0, 0.5)
-            #_label.show()
             _label = qt.QLabel("%s:" % label, self._table)
             _label.show()
             #self._table.attach(_label, 0, 1, self._fieldn, self._fieldn+1,
             #                   gtk.FILL, gtk.FILL)
             if tip:
-                #self._tooltips.set_tip(_label, tip)
                 qt.QToolTip.add(_label, tip)
             if ftype is int:
-                #widget = gtk.SpinButton()
-                #widget.set_increments(1, 10)
-                #widget.set_numeric(True)
-                #widget.set_range(-100000,+100000)
-                #widget.set_value(value)
-                #widget.set_width_chars(8)
-                #align = gtk.Alignment(0.0, 0.5, 0.0, 0.0)
-                #align.add(widget)
-                #align.show()
-                #child = align
                 widget = qt.QSpinBox(self._table)
                 widget.setSteps(1, 10)
                 widget.setRange(-100000,+100000)
                 widget.setValue(value)
             elif ftype is str:
-                #widget = gtk.Entry()
-                #widget.set_text(value)
                 widget = qt.QLineEdit(self._table)
                 widget.setText(value)
                 if key in ("alias", "type"):
-                    #widget.set_width_chars(20)
                     widget.setMaxLength(20)
-                    #align = gtk.Alignment(0.0, 0.5, 0.0, 0.0)
-                    #align.add(widget)
-                    #align.show()
-                    #child = align
                 else:
-                    #widget.set_width_chars(40)
                     widget.setMaxLength(40)
             else:
                 raise Error, _("Don't know how to handle %s fields") % ftype
 
-        #child.show_all()
         widget.show()
 
-        #widget.set_property("sensitive", bool(editable))
         widget.setEnabled(bool(editable))
         if tip:
-            #self._tooltips.set_tip(widget, tip)
             qt.QToolTip.add(widget, tip)
 
         #self._table.attach(child, 1, 2, self._fieldn, self._fieldn+1,
@@ -711,7 +528,6 @@ class ChannelEditor(object):
 
     def show(self, alias, oldchannel, editalias=False):
         # reset the dialog fields
-        #self._table.foreach(self._table.remove)
         for item in self._table.children():
             if isinstance(item, qt.QWidget): 
                 self._table.removeChild(item)
@@ -749,7 +565,6 @@ class ChannelEditor(object):
         self._window.raiseW()
 
         while True:
-            #gtk.main()
             self._result = self._window.exec_loop()
             if self._result == qt.QDialog.Accepted:
                 newchannel = {}
@@ -800,78 +615,39 @@ class TypeSelector(object):
         self._window.setModal(True)
         #self._window.set_position(gtk.WIN_POS_CENTER)
         ##self._window.set_geometry_hints(min_width=600, min_height=400)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
         self._vbox = vbox
 
-        #table = gtk.Table()
-        #table.set_row_spacings(10)
-        #table.set_col_spacings(10)
-        #table.show()
-        #vbox.pack_start(table)
         table = qt.QGrid(2, vbox)
         table.setSpacing(10)
         table.show()
         self._table = table
         
-        #label = gtk.Label(_("Type:"))
-        #label.set_alignment(1.0, 0.0)
-        #label.show()
         #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Type:"), table)
 
-        #self._typevbox = gtk.VBox()
-        #self._typevbox.set_spacing(10)
-        #self._typevbox.show()
         #table.attach(self._typevbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._typevbox = qt.QVButtonGroup(table)
         self._typevbox.setFrameStyle(qt.QFrame.NoFrame)
         self._typevbox.show()
 
-        #sep = gtk.HSeparator()
-        #sep.show()
-        #vbox.pack_start(sep, expand=False)
         sep = qt.QFrame(vbox)
         sep.setFrameShape(qt.QFrame.HLine)
         sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #button = gtk.Button(stock="gtk-cancel")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Cancel"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
 
-        #self._ok = button = gtk.Button(stock="gtk-ok")
-        #button.show()
-        #def clicked(x):
-        #    self._result = True
-        #    gtk.main_quit()
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("OK"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
@@ -879,7 +655,6 @@ class TypeSelector(object):
         self._ok.setEnabled(False)
 
     def show(self):
-        #self._typevbox.foreach(self._typevbox.remove)
         for item in self._typevbox.children():
             if isinstance(item, qt.QWidget): 
                 self._typevbox.removeChild(item)
@@ -941,75 +716,36 @@ class MethodSelector(object):
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
         #self._window.set_position(gtk.WIN_POS_CENTER)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        #table = gtk.Table()
-        #table.set_row_spacings(10)
-        #table.set_col_spacings(10)
-        #table.show()
-        #vbox.pack_start(table)
         table = qt.QGrid(1, vbox)
         table.setSpacing(10)
         table.show()
         
-        #label = gtk.Label(_("Method:"))
-        #label.set_alignment(1.0, 0.0)
-        #label.show()
         #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Method:"), table)
 
-        #methodvbox = gtk.VBox()
-        #methodvbox.set_spacing(10)
-        #methodvbox.show()
         #table.attach(methodvbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         methodvbox = qt.QVButtonGroup(table)
         methodvbox.show()
 
-        #sep = gtk.HSeparator()
-        #sep.show()
-        #vbox.pack_start(sep, expand=False)
         sep = qt.QFrame(vbox)
         sep.setFrameShape(qt.QFrame.HLine)
         sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #button = gtk.Button(stock="gtk-cancel")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Cancel"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
 
-        #ok = button = gtk.Button(stock="gtk-ok")
-        #button.show()
-        #def clicked(x):
-        #    self._result = True
-        #    gtk.main_quit()
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("OK"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
@@ -1055,7 +791,6 @@ class MethodSelector(object):
 
         method = None
         while True:
-            #gtk.main()
             self._result = self._window.exec_loop()
             if self._result == qt.QDialog.Accepted:
                 method = self._method
@@ -1081,76 +816,37 @@ class MountPointSelector(object):
         #self._window.setModal(True)
         #self._window.set_position(gtk.WIN_POS_CENTER)
         ##self._window.set_geometry_hints(min_width=600, min_height=400)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
 
-        #vbox = gtk.VBox()
-        #vbox.set_border_width(10)
-        #vbox.set_spacing(10)
-        #vbox.show()
-        #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        #table = gtk.Table()
-        #table.set_row_spacings(10)
-        #table.set_col_spacings(10)
-        #table.show()
-        #vbox.pack_start(table)
         table = qt.QGrid(2, vbox)
         table.setSpacing(10)
         table.show()
         
-        #label = gtk.Label(_("Media path:"))
-        #label.set_alignment(1.0, 0.0)
-        #label.show()
         #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Media path:"), table)
 
-        #self._mpvbox = gtk.VBox()
-        #self._mpvbox.set_spacing(10)
-        #self._mpvbox.show()
         #table.attach(self._mpvbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._mpvbox = qt.QVBox(table)
         self._mpvbox.setSpacing(10)
         self._mpvbox.show()
 
-        #sep = gtk.HSeparator()
-        #sep.show()
-        #vbox.pack_start(sep, expand=False)
         sep = qt.QFrame(vbox)
         sep.setFrameShape(qt.QFrame.HLine)
         sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
 
-        #bbox = gtk.HButtonBox()
-        #bbox.set_spacing(10)
-        #bbox.set_layout(gtk.BUTTONBOX_END)
-        #bbox.show()
-        #vbox.pack_start(bbox, expand=False)
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        #self._ok = button = gtk.Button(stock="gtk-ok")
-        #button.show()
-        #def clicked(x):
-        #    self._result = True
-        #    gtk.main_quit()
-        #button.connect("clicked", clicked)
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("OK"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
-        #button = gtk.Button(stock="gtk-cancel")
-        #button.show()
-        #button.connect("clicked", lambda x: gtk.main_quit())
-        #bbox.pack_start(button)
         button = qt.QPushButton(_("Cancel"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
 
@@ -1191,7 +887,6 @@ class MountPointSelector(object):
 
         mp = None
         while True:
-            #gtk.main()
             self._result = self._window.exec_loop()
             if self._result == qt.QDialog.Accepted:
                 mp = self._mp
