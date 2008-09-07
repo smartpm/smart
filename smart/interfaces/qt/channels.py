@@ -72,6 +72,8 @@ class QtChannels(object):
         #self._window.add(vbox)
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(600, 400) # HACK
+        vbox.setMargin(10)
+        vbox.setSpacing(10)
         vbox.show()
 
         #sw = gtk.ScrolledWindow()
