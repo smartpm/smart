@@ -76,7 +76,7 @@ def main(ctrl, opts):
     urls = []
     for arg in opts.args[:]:
         if (os.path.isfile(arg) and
-            '/' in arg or filter(None, hooks.call("check-package-file", arg))):
+            '/' in arg or ctrl.checkPackageFile(arg)):
             ctrl.addFileChannel(arg)
             opts.args.remove(arg)
         elif ":/" in arg:
