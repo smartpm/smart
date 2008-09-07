@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2004 Conectiva, Inc.
 #
-# Written by Gustavo Niemeyer <niemeyer@conectiva.com>
+# Written by Anders F Bjorklund <afb@users.sourceforge.net>
 #
 # This file is part of Smart Package Manager.
 #
@@ -30,11 +30,11 @@ class QtFlags(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = qt.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Flags"))
-        #self._window.setModal(True)
-
+        #self._window.set_modal(True)
+        
         #self._window.set_transient_for(parent)
         #self._window.set_position(gtk.WIN_POS_CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -42,139 +42,216 @@ class QtFlags(object):
         #    gtk.main_quit()
         #    return True
         #self._window.connect("delete-event", delete)
+        self._window.setMinimumSize(600, 400)
 
-        topvbox = gtk.VBox()
-        topvbox.set_border_width(10)
-        topvbox.set_spacing(10)
+        #topvbox = gtk.VBox()
+        #topvbox.set_border_width(10)
+        #topvbox.set_spacing(10)
+        #topvbox.show()
+        #self._window.add(topvbox)
+        topvbox = qt.QVBox(self._window)
+        topvbox.setMinimumSize(600, 400) # HACK
+        topvbox.setMargin(10)
+        topvbox.setSpacing(10)
         topvbox.show()
-        self._window.add(topvbox)
 
-        tophbox = gtk.HBox()
-        tophbox.set_spacing(20)
+        #tophbox = gtk.HBox()
+        #tophbox.set_spacing(20)
+        #tophbox.show()
+        #topvbox.add(tophbox)
+        tophbox = qt.QHBox(topvbox)
+        tophbox.setSpacing(20)
         tophbox.show()
-        topvbox.add(tophbox)
 
         # Left side
-        vbox = gtk.VBox()
-        tophbox.set_spacing(10)
+        #vbox = gtk.VBox()
+        #tophbox.set_spacing(10)
+        #vbox.show()
+        #tophbox.pack_start(vbox)
+        vbox = qt.QVGroupBox(tophbox)
+        vbox.setInsideSpacing(10)
         vbox.show()
-        tophbox.pack_start(vbox)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
-        sw.show()
-        vbox.add(sw)
+        #sw = gtk.ScrolledWindow()
+        #sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        #sw.set_shadow_type(gtk.SHADOW_IN)
+        #sw.show()
+        #vbox.add(sw)
+        sv = qt.QScrollView(vbox)
+        sv.show()
 
-        self._flagsmodel = gtk.ListStore(gobject.TYPE_STRING)
-        self._flagsview = gtk.TreeView(self._flagsmodel)
-        self._flagsview.set_rules_hint(True)
+        #self._flagsmodel = gtk.ListStore(gobject.TYPE_STRING)
+        #self._flagsview = gtk.TreeView(self._flagsmodel)
+        #self._flagsview.set_rules_hint(True)
+        #self._flagsview.show()
+        #sw.add(self._flagsview)
+        self._flagsview = qt.QListView(sv)
+        self._flagsview.setMinimumSize(300, 400) # HACK
         self._flagsview.show()
-        sw.add(self._flagsview)
 
-        selection = self._flagsview.get_selection()
-        selection.connect("changed", self.flagSelectionChanged)
+        #selection = self._flagsview.get_selection()
+        #selection.connect("changed", self.flagSelectionChanged)
+        qt.QObject.connect(self._flagsview, qt.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
 
-        renderer = gtk.CellRendererText()
-        renderer.set_property("xpad", 3)
-        renderer.set_property("editable", True)
-        renderer.connect("edited", self.flagEdited)
-        self._flagsview.insert_column_with_attributes(-1, _("Flags"), renderer,
-                                                      text=0)
+        #renderer = gtk.CellRendererText()
+        #renderer.set_property("xpad", 3)
+        #renderer.set_property("editable", True)
+        #renderer.connect("edited", self.flagEdited)
+        #self._flagsview.insert_column_with_attributes(-1, _("Flags"), renderer,
+        #                                              text=0)
+        self._flagsview.addColumn(_("Flags"))
 
-        bbox = gtk.HButtonBox()
-        bbox.set_border_width(5)
-        bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_SPREAD)
+        #bbox = gtk.HButtonBox()
+        #bbox.set_border_width(5)
+        #bbox.set_spacing(10)
+        #bbox.set_layout(gtk.BUTTONBOX_SPREAD)
+        #bbox.show()
+        #vbox.pack_start(bbox, expand=False)
+        bbox = qt.QHBox(vbox)
+        bbox.setMargin(5)
+        bbox.setSpacing(10)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-new")
-        button.connect("clicked", lambda x: self.newFlag())
+        #button = gtk.Button(stock="gtk-new")
+        #button.connect("clicked", lambda x: self.newFlag())
+        #button.show()
+        #bbox.pack_start(button)
+        button = qt.QPushButton(_("New"), bbox)
+        button.setEnabled(True)
+        button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
         button.show()
-        bbox.pack_start(button)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newFlag)
+        self._newflag = button
 
-        button = gtk.Button(stock="gtk-delete")
-        button.connect("clicked", lambda x: self.delFlag())
+        #button = gtk.Button(stock="gtk-delete")
+        #button.connect("clicked", lambda x: self.delFlag())
+        #button.show()
+        #bbox.pack_start(button)
+        #self._delflag = button
+        button = qt.QPushButton(_("Delete"), bbox)
+        button.setEnabled(False)
+        button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
         button.show()
-        bbox.pack_start(button)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delFlag)
         self._delflag = button
 
         # Right side
-        vbox = gtk.VBox()
-        tophbox.set_spacing(10)
+        #vbox = gtk.VBox()
+        #tophbox.set_spacing(10)
+        #vbox.show()
+        #tophbox.pack_start(vbox)
+        vbox = qt.QVGroupBox(tophbox)
+        vbox.setInsideSpacing(10)
         vbox.show()
-        tophbox.pack_start(vbox)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
-        sw.show()
-        vbox.add(sw)
+        #sw = gtk.ScrolledWindow()
+        #sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        #sw.set_shadow_type(gtk.SHADOW_IN)
+        #sw.show()
+        #vbox.add(sw)
+        sv = qt.QScrollView(vbox)
+        sv.show()
 
-        self._targetsmodel = gtk.ListStore(gobject.TYPE_STRING)
-        self._targetsview = gtk.TreeView(self._targetsmodel)
-        self._targetsview.set_rules_hint(True)
+        #self._targetsmodel = gtk.ListStore(gobject.TYPE_STRING)
+        #self._targetsview = gtk.TreeView(self._targetsmodel)
+        #self._targetsview.set_rules_hint(True)
+        #self._targetsview.show()
+        #sw.add(self._targetsview)
+        self._targetsview = qt.QListView(sv)
+        self._targetsview.setMinimumSize(300, 400) # HACK
         self._targetsview.show()
-        sw.add(self._targetsview)
 
-        selection = self._targetsview.get_selection()
-        selection.connect("changed", self.targetSelectionChanged)
+        #selection = self._targetsview.get_selection()
+        #selection.connect("changed", self.targetSelectionChanged)
+        qt.QObject.connect(self._targetsview, qt.SIGNAL("selectionChanged()"), self.targetSelectionChanged)
 
-        renderer = gtk.CellRendererText()
-        renderer.set_property("xpad", 3)
-        renderer.set_property("editable", True)
-        renderer.connect("edited", self.targetEdited)
-        self._targetsview.insert_column_with_attributes(-1, _("Targets"),
-                                                        renderer, text=0)
+        #renderer = gtk.CellRendererText()
+        #renderer.set_property("xpad", 3)
+        #renderer.set_property("editable", True)
+        #renderer.connect("edited", self.targetEdited)
+        #self._targetsview.insert_column_with_attributes(-1, _("Targets"),
+        #                                                renderer, text=0)
+        self._targetsview.addColumn(_("Targets"))
 
-        bbox = gtk.HButtonBox()
-        bbox.set_border_width(5)
-        bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_SPREAD)
+        #bbox = gtk.HButtonBox()
+        #bbox.set_border_width(5)
+        #bbox.set_spacing(10)
+        #bbox.set_layout(gtk.BUTTONBOX_SPREAD)
+        #bbox.show()
+        #vbox.pack_start(bbox, expand=False)
+        bbox = qt.QHBox(vbox)
+        bbox.setMargin(5)
+        bbox.setSpacing(10)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-new")
-        button.set_property("sensitive", False)
-        button.connect("clicked", lambda x: self.newTarget())
+        #button = gtk.Button(stock="gtk-new")
+        #button.set_property("sensitive", False)
+        #button.connect("clicked", lambda x: self.newTarget())
+        #button.show()
+        #bbox.pack_start(button)
+        #self._newtarget = button
+        button = qt.QPushButton(_("New"), bbox)
+        button.setEnabled(False)
+        button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
         button.show()
-        bbox.pack_start(button)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newTarget)
         self._newtarget = button
 
-        button = gtk.Button(stock="gtk-delete")
-        button.set_property("sensitive", False)
-        button.connect("clicked", lambda x: self.delTarget())
+        #button = gtk.Button(stock="gtk-delete")
+        #button.set_property("sensitive", False)
+        #button.connect("clicked", lambda x: self.delTarget())
+        #button.show()
+        #bbox.pack_start(button)
+        #self._deltarget = button
+        button = qt.QPushButton(_("Delete"), bbox)
+        button.setEnabled(False)
+        button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
         button.show()
-        bbox.pack_start(button)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delTarget)
         self._deltarget = button
 
 
         # Bottom
-        sep = gtk.HSeparator()
+        #sep = gtk.HSeparator()
+        #sep.show()
+        #topvbox.pack_start(sep, expand=False)
+        sep = qt.QFrame(topvbox)
+        sep.setFrameShape(qt.QFrame.HLine)
+        sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
-        topvbox.pack_start(sep, expand=False)
 
-        bbox = gtk.HButtonBox()
-        bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        #bbox = gtk.HButtonBox()
+        #bbox.set_spacing(10)
+        #bbox.set_layout(gtk.BUTTONBOX_END)
+        #bbox.show()
+        #topvbox.pack_start(bbox, expand=False)
+        bbox = qt.QHBox(topvbox)
+        bbox.setSpacing(10)
+        bbox.layout().addStretch(1)
         bbox.show()
-        topvbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-close")
-        button.connect("clicked", lambda x: gtk.main_quit())
+        #button = gtk.Button(stock="gtk-close")
+        #button.connect("clicked", lambda x: gtk.main_quit())
+        #button.show()
+        #bbox.pack_start(button)
+        button = qt.QPushButton(_("Close"), bbox)
         button.show()
-        bbox.pack_start(button)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        
+        button.setDefault(True)
 
     def fillFlags(self):
-        self._flagsmodel.clear()
+        #self._flagsmodel.clear()
+        self._flagsview.clear()
         flaglst = pkgconf.getFlagNames()
         flaglst.sort()
         for flag in flaglst:
-            self._flagsmodel.append((flag,))
+            #self._flagsmodel.append((flag,))
+            qt.QListViewItem(self._flagsview).setText(0, flag)
     
     def fillTargets(self):
-        self._targetsmodel.clear()
+        #self._targetsmodel.clear()
+        self._targetsview.clear()
         if self._flag:
             names = pkgconf.getFlagTargets(self._flag)
             namelst = names.keys()
@@ -182,19 +259,24 @@ class QtFlags(object):
             for name in namelst:
                 for relation, version in names[name]:
                     if relation and version:
-                        self._targetsmodel.append(("%s %s %s" %
-                                                   (name, relation, version),))
+                        #self._targetsmodel.append(("%s %s %s" %
+                        #                           (name, relation, version),))
+                        item = qt.QListViewItem(self._targetsview)
+                        item.setText(0, "%s %s %s" % (name, relation, version))
                     else:
-                        self._targetsmodel.append((name,))
+                        #self._targetsmodel.append((name,))
+                        qt.QListViewItem(self._targetsview).setText(0, name)
 
     def show(self):
         self.fillFlags()
         self._window.show()
-        gtk.main()
+        self._window.raiseW()
+        #gtk.main()
+        self._window.exec_loop()
         self._window.hide()
 
     def newFlag(self):
-        flag = FlagCreator().show()
+        flag = FlagCreator(self._window).show()
         if flag:
             if pkgconf.flagExists(flag):
                 iface.error(_("Flag already exists!"))
@@ -203,7 +285,7 @@ class QtFlags(object):
                 self.fillFlags()
 
     def newTarget(self):
-        target = TargetCreator().show()
+        target = TargetCreator(self._window).show()
         if target:
             m = TARGETRE.match(target)
             if m:
@@ -212,18 +294,20 @@ class QtFlags(object):
             self.fillTargets()
 
     def delFlag(self):
-        selection = self._flagsview.get_selection()
-        model, iter = selection.get_selected()
-        if iter:
+        #selection = self._flagsview.get_selection()
+        #model, iter = selection.get_selected()
+        item = self._flagsview.selectedItem()
+        if item:
             pkgconf.clearFlag(self._flag)
             self.fillFlags()
             self.fillTargets()
 
     def delTarget(self):
-        selection = self._targetsview.get_selection()
-        model, iter = selection.get_selected()
-        if iter:
-            target = model.get_value(iter, 0)
+        #selection = self._targetsview.get_selection()
+        #model, iter = selection.get_selected()
+        item = self._targetsview.selectedItem()
+        if item:
+            target = str(item.text(0))
             m = TARGETRE.match(target)
             if not m:
                 iface.error(_("Invalid target!"))
@@ -271,28 +355,33 @@ class QtFlags(object):
                     else:
                         model.set_value(iter, 0, newname)
 
-    def flagSelectionChanged(self, selection):
-        model, iter = selection.get_selected()
-        self._delflag.set_property("sensitive", bool(iter))
-        self._newtarget.set_property("sensitive", bool(iter))
-        if iter:
-            self._flag = model.get_value(iter, 0)
+    def flagSelectionChanged(self):
+        #model, iter = selection.get_selected()
+        #self._delflag.set_property("sensitive", bool(iter))
+        #self._newtarget.set_property("sensitive", bool(iter))
+        item = self._flagsview.selectedItem()
+        self._delflag.setEnabled(bool(item))
+        self._newtarget.setEnabled(bool(item))
+        if item:
+            self._flag = str(item.text(0))
         else:
             self._flag = None
         self.fillTargets()
 
-    def targetSelectionChanged(self, selection):
-        model, iter = selection.get_selected()
-        self._deltarget.set_property("sensitive", bool(iter))
+    def targetSelectionChanged(self):
+        #model, iter = selection.get_selected()
+        #self._deltarget.set_property("sensitive", bool(iter))
+        item = self._targetsview.selectedItem()
+        self._deltarget.setEnabled(bool(item))
 
 class FlagCreator(object):
 
-    def __init__(self):
+    def __init__(self, parent=None):
 
         self._window = qt.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Flag"))
-        #self._window.set_modal(True)
+        self._window.setModal(True)
 
         #self._window.set_position(gtk.WIN_POS_CENTER)
         ##self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -301,61 +390,87 @@ class FlagCreator(object):
         #    return True
         #self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
-        vbox.set_border_width(10)
-        vbox.set_spacing(10)
+        #vbox = gtk.VBox()
+        #vbox.set_border_width(10)
+        #vbox.set_spacing(10)
+        #vbox.show()
+        #self._window.add(vbox)
+        vbox = qt.QVBox(self._window)
+        vbox.setMargin(10)
+        vbox.setSpacing(10)
         vbox.show()
-        self._window.add(vbox)
 
-        table = gtk.Table()
-        table.set_row_spacings(10)
-        table.set_col_spacings(10)
-        table.show()
-        vbox.pack_start(table)
+        #table = gtk.Table()
+        #table.set_row_spacings(10)
+        #table.set_col_spacings(10)
+        #table.show()
+        #vbox.pack_start(table)
+        table = qt.QGrid(2, vbox)
+        table.setSpacing(10)
         
-        label = gtk.Label(_("Name:"))
-        label.set_alignment(1.0, 0.5)
-        label.show()
-        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        #label = gtk.Label(_("Name:"))
+        #label.set_alignment(1.0, 0.5)
+        #label.show()
+        #table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        label = qt.QLabel(_("Name:"), table)
 
-        self._flag = gtk.Entry()
-        self._flag.set_width_chars(20)
+        #self._flag = gtk.Entry()
+        #self._flag.set_width_chars(20)
+        #self._flag.show()
+        #table.attach(self._flag, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        self._flag = qt.QLineEdit(table)
+        self._flag.setMaxLength(20)
         self._flag.show()
-        table.attach(self._flag, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
 
-        sep = gtk.HSeparator()
+        #sep = gtk.HSeparator()
+        #sep.show()
+        #vbox.pack_start(sep, expand=False)
+        sep = qt.QFrame(vbox)
+        sep.setFrameShape(qt.QFrame.HLine)
+        sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
-        vbox.pack_start(sep, expand=False)
 
-        bbox = gtk.HButtonBox()
-        bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        #bbox = gtk.HButtonBox()
+        #bbox.set_spacing(10)
+        #bbox.set_layout(gtk.BUTTONBOX_END)
+        #bbox.show()
+        #vbox.pack_start(bbox, expand=False)
+        bbox = qt.QHBox(vbox)
+        bbox.setSpacing(10)
+        bbox.layout().addStretch(1)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-ok")
-        button.show()
-        def clicked(x):
-            self._result = True
-            gtk.main_quit()
-        button.connect("clicked", clicked)
-        bbox.pack_start(button)
+        #button = gtk.Button(stock="gtk-ok")
+        #button.show()
+        #def clicked(x):
+        #    self._result = True
+        #    gtk.main_quit()
+        #button.connect("clicked", clicked)
+        #bbox.pack_start(button)
+        button = qt.QPushButton(bbox.tr("OK"), bbox)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
+        #button = gtk.Button(stock="gtk-cancel")
+        #button.show()
+        #button.connect("clicked", lambda x: gtk.main_quit())
+        #bbox.pack_start(button)
+        button = qt.QPushButton(bbox.tr("Cancel"), bbox)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+
+        vbox.adjustSize()
+        self._window.adjustSize()
 
     def show(self):
 
         self._window.show()
+        self._window.raiseW()
+        self._window.setActiveWindow()
 
-        self._result = False
         while True:
-            gtk.main()
-            if self._result:
-                self._result = False
-                flag = self._flag.get_text().strip()
+            #gtk.main()
+            self._result = self._window.exec_loop()
+            if self._result == qt.QDialog.Accepted:
+                flag = str(self._flag.text()).strip()
                 if not flag:
                     iface.error(_("No flag name provided!"))
                     continue
@@ -369,12 +484,12 @@ class FlagCreator(object):
 
 class TargetCreator(object):
 
-    def __init__(self):
+    def __init__(self, parent=None):
 
         self._window = qt.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Target"))
-        #self._window.set_modal(True)
+        self._window.setModal(True)
 
         #self._window.set_position(gtk.WIN_POS_CENTER)
         ##self._window.set_geometry_hints(min_width=600, min_height=400)
@@ -383,67 +498,98 @@ class TargetCreator(object):
         #    return True
         #self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
-        vbox.set_border_width(10)
-        vbox.set_spacing(10)
+        #vbox = gtk.VBox()
+        #vbox.set_border_width(10)
+        #vbox.set_spacing(10)
+        #vbox.show()
+        #self._window.add(vbox)
+        vbox = qt.QVBox(self._window)
+        vbox.setMargin(10)
+        vbox.setSpacing(10)
         vbox.show()
-        self._window.add(vbox)
 
-        table = gtk.Table()
-        table.set_row_spacings(10)
-        table.set_col_spacings(10)
+        #table = gtk.Table()
+        #table.set_row_spacings(10)
+        #table.set_col_spacings(10)
+        #table.show()
+        #vbox.pack_start(table)
+        table = qt.QGrid(2, vbox)
+        table.setSpacing(10)
         table.show()
-        vbox.pack_start(table)
         
-        label = gtk.Label(_("Target:"))
-        label.set_alignment(1.0, 0.5)
-        label.show()
-        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        #label = gtk.Label(_("Target:"))
+        #label.set_alignment(1.0, 0.5)
+        #label.show()
+        #table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        label = qt.QLabel(_("Target:"), table)
 
-        self._target = gtk.Entry()
-        self._target.set_width_chars(40)
+        #self._target = gtk.Entry()
+        #self._target.set_width_chars(40)
+        #self._target.show()
+        #table.attach(self._target, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        self._target = qt.QLineEdit(table)
+        self._target.setMaxLength(40)
         self._target.show()
-        table.attach(self._target, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
 
-        label = gtk.Label(_("Examples: \"pkgname\", \"pkgname = 1.0\" or "
-                            "\"pkgname <= 1.0\""))
-        label.set_alignment(1.0, 0.5)
-        label.show()
-        table.attach(label, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
+        blank = qt.QWidget(table)
 
-        sep = gtk.HSeparator()
+        #label = gtk.Label(_("Examples: \"pkgname\", \"pkgname = 1.0\" or "
+        #                    "\"pkgname <= 1.0\""))
+        #label.set_alignment(1.0, 0.5)
+        #label.show()
+        #table.attach(label, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
+        label = qt.QLabel(_("Examples: \"pkgname\", \"pkgname = 1.0\" or "
+                            "\"pkgname <= 1.0\""), table)
+
+        #sep = gtk.HSeparator()
+        #sep.show()
+        #vbox.pack_start(sep, expand=False)
+        sep = qt.QFrame(vbox)
+        sep.setFrameShape(qt.QFrame.HLine)
+        sep.setFrameShadow(qt.QFrame.Sunken)
         sep.show()
-        vbox.pack_start(sep, expand=False)
 
-        bbox = gtk.HButtonBox()
-        bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        #bbox = gtk.HButtonBox()
+        #bbox.set_spacing(10)
+        #bbox.set_layout(gtk.BUTTONBOX_END)
+        #bbox.show()
+        #vbox.pack_start(bbox, expand=False)
+        bbox = qt.QHBox(vbox)
+        bbox.setSpacing(10)
+        bbox.layout().addStretch(1)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
 
-        button = gtk.Button(stock="gtk-ok")
-        button.show()
-        def clicked(x):
-            self._result = True
-            gtk.main_quit()
-        button.connect("clicked", clicked)
-        bbox.pack_start(button)
+        #button = gtk.Button(stock="gtk-ok")
+        #button.show()
+        #def clicked(x):
+        #    self._result = True
+        #    gtk.main_quit()
+        #button.connect("clicked", clicked)
+        #bbox.pack_start(button)
+        button = qt.QPushButton(bbox.tr("OK"), bbox)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
-        button = gtk.Button(stock="gtk-cancel")
-        button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
+        #button = gtk.Button(stock="gtk-cancel")
+        #button.show()
+        #button.connect("clicked", lambda x: gtk.main_quit())
+        #bbox.pack_start(button)
+        button = qt.QPushButton(bbox.tr("Cancel"), bbox)
+        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+
+        vbox.adjustSize()
+        self._window.adjustSize()
 
     def show(self):
 
         self._window.show()
+        self._window.raiseW()
+        self._window.setActiveWindow()
 
-        self._result = False
         while True:
-            gtk.main()
-            if self._result:
-                self._result = False
-                target = self._target.get_text().strip()
+            #gtk.main()
+            self._result = self._window.exec_loop()
+            if self._result == qt.QDialog.Accepted:
+                target = str(self._target.text()).strip()
                 if not target:
                     iface.error(_("No target provided!"))
                     continue

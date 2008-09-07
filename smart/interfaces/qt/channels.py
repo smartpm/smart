@@ -353,7 +353,6 @@ class QtChannelSelector(object):
         vbox.setSpacing(10)
         vbox.show()
 
-        #self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
         self._scrollview = qt.QScrollView(vbox)
         self._scrollview.show()
 
@@ -826,10 +825,8 @@ class MountPointSelector(object):
         table.setSpacing(10)
         table.show()
         
-        #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Media path:"), table)
 
-        #table.attach(self._mpvbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._mpvbox = qt.QVBox(table)
         self._mpvbox.setSpacing(10)
         self._mpvbox.show()
