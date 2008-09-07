@@ -50,10 +50,6 @@ class QtMirrors(object):
         #self._window.set_transient_for(parent)
         #self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.setMinimumSize(600, 400)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
 
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(600, 400) # HACK
@@ -207,10 +203,6 @@ class MirrorCreator(object):
         self._window.setCaption(_("New Mirror"))
         self._window.setModal(True)
         #self._window.set_position(gtk.WIN_POS_CENTER)
-        #def delete(widget, event):
-        #    gtk.main_quit()
-        #    return True
-        #self._window.connect("delete-event", delete)
         #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
