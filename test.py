@@ -87,8 +87,6 @@ def main():
 
     datadir = tempfile.mkdtemp()
 
-    __builtins__.__dict__.update(tests.__dict__)
-
     try:
         const.DISTROFILE = "/non-existent/file"
         interface.getScreenWidth = lambda: 80

@@ -1,6 +1,7 @@
 
 Create the channel.
 
+  >>> from tests import *
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "deb-dir",
