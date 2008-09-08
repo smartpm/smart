@@ -1,3 +1,4 @@
+  >>> from tests import *
 
 Create the channel.
 
