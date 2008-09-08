@@ -271,7 +271,7 @@ class DebTagLoader(Loader):
 
 class DebTagFileLoader(DebTagLoader):
 
-    def __init__(self, filename, filelistsname="", changelogname="", baseurl=None):
+    def __init__(self, filename, baseurl=None, filelistsname="", changelogname=""):
         DebTagLoader.__init__(self, baseurl)
         self._filename = filename
         self._filelistsname = filelistsname
