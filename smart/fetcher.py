@@ -1512,8 +1512,11 @@ class PyCurlHandler(FetcherHandler):
                 multi.remove_handle(handle)
                 self._lock.release()
 
-                if handle.getinfo(pycurl.SIZE_DOWNLOAD) == 0:
-                    # Not modified
+                http_code = handle.getinfo(pycurl.HTTP_CODE)
+
+                if (http_code == 404 or
+                    handle.getinfo(pycurl.SIZE_DOWNLOAD) == 0):
+                    # Not modified or not found
                     os.unlink(localpath+".part")
                 else:
                     if os.path.isfile(localpath):
@@ -1527,15 +1530,18 @@ class PyCurlHandler(FetcherHandler):
                 userhost = (url.user, url.host, url.port)
                 self._inactive[handle] = userhost
 
-                valid, reason = fetcher.validate(item, localpath,
-                                                 withreason=True)
-                if valid:
-                    fetchedsize = handle.getinfo(pycurl.SIZE_DOWNLOAD)
-                    item.setSucceeded(localpath, fetchedsize)
-                elif handle.partsize:
-                    self._queue.append(item)
+                if http_code == 404:
+                    item.setFailed(_("File not found"))
                 else:
-                    item.setFailed(reason)
+                    valid, reason = fetcher.validate(item, localpath,
+                                                     withreason=True)
+                    if valid:
+                        fetchedsize = handle.getinfo(pycurl.SIZE_DOWNLOAD)
+                        item.setSucceeded(localpath, fetchedsize)
+                    elif handle.partsize:
+                        self._queue.append(item)
+                    else:
+                        item.setFailed(reason)
 
             for handle, errno, errmsg in failed:
 

@@ -33,6 +33,9 @@ __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebOrRequires", "DebOrPreRequires", "DEBARCH"]
 
 def getArchitecture():
+    arch = sysconf.get("deb-arch")
+    if arch is not None:
+        return arch
     arch = os.uname()[-1]
     result = {"pentium": "i386",
               "sparc64": "sparc",
@@ -53,7 +56,7 @@ def getArchitecture():
     else:
         return arch
 
-DEBARCH = sysconf.get("deb-arch", getArchitecture())
+DEBARCH = getArchitecture()
 
 class DebPackage(Package):
 

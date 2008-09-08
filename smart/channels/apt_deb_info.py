@@ -40,4 +40,7 @@ fields = [("baseurl", _("Base URL"), str, None,
           ("changelog", _("Changelog"), str, "",
            _("The directory or URL that contains changelog.")),
           ("fingerprint", _("Fingerprint"), str, "",
-           _("GPG fingerprint of key signing the channel."))]
+           _("GPG fingerprint of key signing the channel.")),
+          ("keyring", _("Keyring"), str, "",
+           _("If provided, channel must necessarily be signed by a key "
+             "in the GPG keyring at the given path."))]
