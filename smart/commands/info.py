@@ -106,6 +106,7 @@ def main(ctrl, opts, reloadchannels=True):
         print _("Version:"), pkg.version
         print _("Priority:"), pkg.getPriority()
         print _("Group:"), info.getGroup()
+        print _("License:"), info.getLicense()
         print _("Installed Size:"), sizeToStr(info.getInstalledSize())
         print _("Reference URLs:"), " ".join(info.getReferenceURLs())
 

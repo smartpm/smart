@@ -89,9 +89,10 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
 
   >>> info.getGroup()
   u'Group1'
+  >>> info.getLicense()
+  u''
   >>> info.getSummary()
   u'Summary1'
-
   >>> info.getDescription()
   u'Description1'
 

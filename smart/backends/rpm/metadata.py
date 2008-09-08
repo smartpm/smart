@@ -82,6 +82,9 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getGroup(self):
         return self._info.get("group", "")
 
+    def getLicense(self):
+        return self._info.get("license", "")
+
 
 class RPMMetaDataLoader(Loader):
 
@@ -123,6 +126,7 @@ class RPMMetaDataLoader(Loader):
         CHECKSUM    = nstag(NS_COMMON, "checksum")
         FILE        = nstag(NS_COMMON, "file")
         GROUP       = nstag(NS_RPM, "group")
+        LICENSE     = nstag(NS_RPM, "license")
         ENTRY       = nstag(NS_RPM, "entry")
         REQUIRES    = nstag(NS_RPM, "requires")
         PROVIDES    = nstag(NS_RPM, "provides")
@@ -216,6 +220,10 @@ class RPMMetaDataLoader(Loader):
                 elif tag == GROUP:
                     if elem.text:
                         info["group"] = elem.text
+
+                elif tag == LICENSE:
+                    if elem.text:
+                        info["license"] = elem.text
 
                 elif tag == FILE:
                     filedict[elem.text] = True

@@ -89,6 +89,9 @@ class DebPackageInfo(PackageInfo):
     def getGroup(self):
         return decode(self._loader.getSection(self._package))
 
+    def getLicense(self):
+        return u""
+
     def getPathList(self):
         self._paths = self._loader.getPaths(self)
         return self._paths.keys()

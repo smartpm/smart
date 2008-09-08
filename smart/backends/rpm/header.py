@@ -118,6 +118,9 @@ class RPMHeaderPackageInfo(PackageInfo):
             s = ""
         return s
 
+    def getLicense(self):
+        return self._getHeaderString(rpm.RPMTAG_LICENSE)
+
     def getPathList(self):
         if self._path is None:
             paths = self._h[rpm.RPMTAG_OLDFILENAMES]
