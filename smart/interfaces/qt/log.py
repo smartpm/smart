@@ -48,13 +48,18 @@ class QtLog(qt.QDialog):
 
         self._scrollview = qt.QScrollView(self._vbox)
         #self._scrollview.setVScrollBarMode(qt.QScrollView.AlwaysOn)
+        self._scrollview.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
         self._scrollview.show()
 
-        self._textview = qt.QLabel(self._scrollview)
-        self._textview.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
+        bg = qt.QWidget(self._scrollview)
+        bg.setMinimumSize(400, 300) # HACK
+        bg.show()
+
+        self._textview = qt.QLabel(bg)
         self._textview.setAlignment(qt.Qt.AlignTop)
         self._textview.setTextFormat(qt.Qt.LogText)
         self._textview.show()
+        self._textview.adjustSize()
 
         self._buttonbox = qt.QHBox(self._vbox)
         self._buttonbox.setSpacing(10)
@@ -90,6 +95,7 @@ class QtLog(qt.QDialog):
             buffer += msg
         buffer += "\n"
         self._textview.setText(buffer)
+        self._textview.adjustSize()
 
         if level == ERROR:
             response = qt.QMessageBox.critical(self, "", msg)
