@@ -155,20 +155,20 @@ class QtProgress(Progress, qt.QDialog):
 
             current = data.get("current", "")
             if current:
-                 self._listview.showColumn(self._currentcolumn)
+                 self._listview.setColumnWidth(self._currentcolumn, 110)
             total = data.get("total", "")
             if total:
-                 self._listview.showColumn(self._totalcolumn)
+                 self._listview.setColumnWidth(self._totalcolumn, 110)
             if done:
                 speed = ""
                 eta = ""
             else:
                 speed = data.get("speed", "")
                 if speed:
-                    self._listview.showColumn(self._speedcolumn)
+                    self._listview.setColumnWidth(self._speedcolumn, 110)
                 eta = data.get("eta", "")
                 if eta:
-                    self._listview.showColumn(self._etacolumn)
+                    self._listview.setColumnWidth(self._etacolumn, 110)
             if current or total or speed or eta:
                 iter.setText(1, current)
                 iter.setText(2, total)
