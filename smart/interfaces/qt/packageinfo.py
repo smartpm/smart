@@ -51,8 +51,13 @@ class QtPackageInfo(qt.QWidget):
         ##sw.set_border_width(5)
         #sw.show()
         sv = qt.QScrollView(self)
+        self._tabwidget.setMinimumSize(640,200) #HACK
         sv.setLineWidth(5)
         sv.show()
+
+        bg = qt.QWidget(sv)
+        bg.setMinimumSize(640,200) #HACK
+        bg.show()
 
         #table = gtk.Table()
         #table.set_row_spacings(2)
@@ -60,7 +65,8 @@ class QtPackageInfo(qt.QWidget):
         #table.set_border_width(5)
         #table.show()
         #sw.add_with_viewport(table)
-        grid = qt.QGridLayout(sv)
+        grid = qt.QGrid(2, bg)
+        grid.show()
 
         self._info = type("Info", (), {})()
 
@@ -92,9 +98,8 @@ class QtPackageInfo(qt.QWidget):
             #    label.set_alignment(1.0, 0.0)
             #else:
             #    label.set_alignment(1.0, 0.5)
-            label = qt.QLabel(text, sv)
+            label = qt.QLabel(text, grid)
             label.show()
-            grid.addWidget((label), row, 1, qt.Qt.AlignLeft)
             setattr(self._info, attr+"_label", label)
             #if attr == "reference":
             #    label = self._reftv
@@ -102,12 +107,14 @@ class QtPackageInfo(qt.QWidget):
             #    label = gtk.Label()
             #    label.set_attributes(attrsright)
             #    label.set_alignment(0.0, 0.5)
-            label = qt.QLabel("", sv)
+            label = qt.QLabel("", grid)
             label.show()
-            grid.addWidget((label), row, 2, qt.Qt.AlignRight)
             setattr(self._info, attr, label)
             row += 1
-
+        
+        grid.adjustSize()
+        self._grid = grid
+        
         #label = gtk.Label(_("General"))
         #self._notebook.append_page(sw, label)
         self._tabwidget.addTab(sv, _("General"))
@@ -276,11 +283,14 @@ class QtPackageInfo(qt.QWidget):
             else:
                 flags = ""
 
+            def bold(text):
+                return "<b>"+qt.QStyleSheet.escape(text)+"</b>"
+            
             status = pkg.installed and _("Installed") or _("Available")
-            self._info.status.setText(status+flags)
-            self._info.group.setText(group or _("Unknown"))
-            self._info.priority.setText(str(pkg.getPriority()))
-            self._info.channels.setText("\n".join(channels))
+            self._info.status.setText(bold(status+flags))
+            self._info.group.setText(bold(group or _("Unknown")))
+            self._info.priority.setText(bold(str(pkg.getPriority())))
+            self._info.channels.setText(bold("\n".join(channels)))
             #self._info.reference.get_buffer().set_text("")
             for url in urls:
                 #refbuf = self._info.reference.get_buffer()
@@ -291,13 +301,15 @@ class QtPackageInfo(qt.QWidget):
                 pass
 
             if installedsize:
-                self._info.installedsize.setText(sizeToStr(installedsize))
+                self._info.installedsize.setText(bold(sizeToStr(installedsize)))
                 self._info.installedsize.show()
                 self._info.installedsize_label.show()
             else:
                 self._info.installedsize.hide()
                 self._info.installedsize_label.hide()
                 pass
+                
+            self._grid.adjustSize()
 
         elif num == 1:
 
