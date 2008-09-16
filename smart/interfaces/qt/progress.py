@@ -84,12 +84,12 @@ class QtProgress(Progress, qt.QDialog):
             self._subindex = 0
 
             self._bbox = qt.QHBox(self)
+            self._bbox.setSpacing(10)
             self._bbox.layout().addStretch(1)
             vbox.addWidget(self._bbox)
             
-            button = qt.QPushButton(self._bbox)
-            button.setText(_("Cancel"))
-            button.hide()
+            button = qt.QPushButton(_("Cancel"), self._bbox)
+            button.show()
             qt.QObject.connect(button, qt.SIGNAL ("clicked()"), self._cancel)
 
     def setFetcher(self, fetcher):
