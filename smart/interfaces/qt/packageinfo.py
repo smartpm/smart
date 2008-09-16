@@ -159,6 +159,10 @@ class QtPackageInfo(qt.QWidget):
         sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         sv.show()
 
+        bg = qt.QWidget(sv)
+        bg.setMinimumSize(600, 400) # HACK
+        bg.show()
+
         #self._conttv = gtk.TextView()
         #self._conttv.set_editable(False)
         #self._conttv.set_cursor_visible(False)
@@ -367,6 +371,7 @@ class QtPackageInfo(qt.QWidget):
                 text += path+"\n"
 
             self._cont.setText(text)
+            self._cont.adjustSize()
 
         elif num == 3:
 
