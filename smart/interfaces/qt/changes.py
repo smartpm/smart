@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.interfaces.qt.packageview import QtPackageView
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt import getPixmap, centerWindow
 from smart.util.strtools import sizeToStr
 from smart.report import Report
 from smart import *
@@ -33,8 +33,13 @@ class QtChanges(qt.QDialog):
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Change Summary"))
+        self.setModal(True)
+        self.setMinimumSize(600, 400)
+        centerWindow(self)
         
         self._vbox = qt.QVBoxLayout(self)
+        self._vbox.setMargin(10)
+        self._vbox.setSpacing(10)
 
         self._label = qt.QLabel(self)
         self._vbox.addWidget(self._label)
@@ -49,13 +54,23 @@ class QtChanges(qt.QDialog):
         self._vbox.addWidget(self._sizelabel)
 
         self._confirmbbox = qt.QHBox(self)
+        self._confirmbbox.setSpacing(10)
         self._confirmbbox.layout().addStretch(1)
         self._vbox.addWidget(self._confirmbbox)
+
         self._cancelbutton = qt.QPushButton(_("Cancel"), self._confirmbbox)
         qt.QObject.connect( self._cancelbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("reject()"))
-        self._confirmbutton = qt.QPushButton(_("Confirm"), self._confirmbbox)
-        qt.QObject.connect( self._confirmbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("accept()"))
+        self._okbutton = qt.QPushButton(_("OK"), self._confirmbbox)
+        qt.QObject.connect( self._okbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("accept()"))
 
+        self._closebbox = qt.QHBox(self)
+        self._closebbox.setSpacing(10)
+        self._closebbox.layout().addStretch(1)
+        self._vbox.addWidget(self._closebbox)
+
+        self._closebutton = qt.QPushButton(_("Close"), self._closebbox)
+        qt.QObject.connect( self._closebutton, qt.SIGNAL("clicked()"), self, qt.SLOT("close()"))
+        
     def showChangeSet(self, changeset, keep=None, confirm=False, label=None):
 
         report = Report(changeset)
@@ -169,11 +184,13 @@ class QtChanges(qt.QDialog):
             self._sizelabel.hide()
 
         if confirm:
-            self._confirmbutton.show()
-            self._cancelbutton.hide()
+            self._confirmbbox.show()
+            self._closebbox.hide()
+            self._okbutton.setDefault(True)
         else:
-            self._cancelbutton.show()
-            self._confirmbutton.hide()
+            self._closebbox.show()
+            self._confirmbbox.hide()
+            self._closebutton.setDefault(True)
 
         if label:
             self._label.set_text(label)
@@ -187,7 +204,7 @@ class QtChanges(qt.QDialog):
         self._pv.setExpanded([(x,) for x in packages])
 
         self._result = False
-
+        self.show()
         dialogResult = self.exec_loop()
         self._result = (dialogResult == qt.QDialog.Accepted)
 
