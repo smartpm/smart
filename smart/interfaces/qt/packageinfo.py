@@ -51,11 +51,11 @@ class QtPackageInfo(qt.QWidget):
         ##sw.set_border_width(5)
         #sw.show()
         sv = qt.QScrollView(self)
-        sv.setMinimumSize(640,200) #HACK
+        #sv.setMinimumSize(640,200) #HACK
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QWidget(sv)
+        bg = qt.QVBox(sv)
         bg.setMinimumSize(640,200) #HACK
         bg.show()
 
@@ -130,6 +130,10 @@ class QtPackageInfo(qt.QWidget):
         sv.setMargin(5)
         sv.show()
 
+        bg = qt.QVBox(sv)
+        bg.setMinimumSize(600, 200) # HACK
+        bg.show()
+
         #self._descrtv = gtk.TextView()
         #self._descrtv.set_editable(False)
         #self._descrtv.set_cursor_visible(False)
@@ -140,7 +144,7 @@ class QtPackageInfo(qt.QWidget):
         #buffer.create_tag("description", font_desc=font)
         #buffer.create_tag("summary", font_desc=boldfont)
         #sw.add(self._descrtv)
-        self._descr = qt.QLabel(sv)
+        self._descr = qt.QLabel(bg)
         self._descr.setMinimumSize(600, 200) #HACK
         self._descr.setAlignment(qt.Qt.AlignTop)
         self._descr.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
@@ -156,12 +160,12 @@ class QtPackageInfo(qt.QWidget):
         #sw.set_border_width(5)
         #sw.show()
         sv = qt.QScrollView(self)
-        sv.setMinimumSize(600, 400) # HACK
+        #sv.setMinimumSize(600, 400) # HACK
         sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QWidget(sv)
+        bg = qt.QVBox(sv)
         bg.setMinimumSize(600, 400) # HACK
         bg.show()
 
@@ -174,7 +178,7 @@ class QtPackageInfo(qt.QWidget):
         #buffer = self._conttv.get_buffer()
         #buffer.create_tag("content", font_desc=font)
         #sw.add(self._conttv)
-        self._cont = qt.QLabel(sv)
+        self._cont = qt.QLabel(bg)
         self._cont.setAlignment(qt.Qt.AlignTop)
         self._cont.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._cont.show()
