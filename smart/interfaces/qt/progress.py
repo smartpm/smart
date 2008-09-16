@@ -48,7 +48,6 @@ class QtProgress(Progress, qt.QDialog):
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Operation Progress"))
-        self.setModal(True)
 
         vbox = qt.QVBoxLayout(self, 10, 10)
 
@@ -108,8 +107,8 @@ class QtProgress(Progress, qt.QDialog):
     def tick(self):
         while not self._stopticking:
             self.lock()
-            #while qt.QApplication.eventLoop().hasPendingEvents():
-            #       qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+            if qt.QApplication.eventLoop().hasPendingEvents():
+                qt.QApplication.eventLoop().processEvents(qt.QEventLoop.ExcludeUserInput)
             self.unlock()
             time.sleep(INTERVAL)
         self._ticking = False
@@ -146,7 +145,7 @@ class QtProgress(Progress, qt.QDialog):
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         qt.QDialog.show(self)
         centerWindow(self)
-
+        
         if self._hassub and subkey:
             if subkey in self._subiters:
                 iter = self._subiters[subkey]
@@ -185,7 +184,7 @@ class QtProgress(Progress, qt.QDialog):
             self._topic.setText('<b>'+topic+'</b>')
             self._progressbar.setProgress(percent, 100)
             if self._hassub:
-                self._listview.repaint()
+                self._listview.update()
         
         self.update()
         while qt.QApplication.eventLoop().hasPendingEvents():
