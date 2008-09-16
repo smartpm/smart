@@ -53,6 +53,7 @@ class QtPackageView(qt.QWidget):
         #self._treeview.connect("button_press_event", self._buttonPress)
         #self._treeview.connect("select_cursor_row", self._selectCursor)
         #self._treeview.connect("cursor_changed", self._cursorChanged)
+        qt.QObject.connect(self._treeview, qt.SIGNAL("clicked(QListViewItem *, const QPoint &, int)"), self._clicked)
         qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self._doubleClicked)
         qt.QObject.connect(self._treeview, qt.SIGNAL("rightButtonPressed(QListViewItem *, const QPoint &, int)"), self._rightButtonPressed)
         qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self._selectionChanged)
@@ -65,6 +66,7 @@ class QtPackageView(qt.QWidget):
         #selection.set_mode(gtk.SELECTION_MULTIPLE)
         self._treeview.setSelectionMode(qt.QListView.Multi)
         
+        self._treeview.addColumn("") # pixmap
         self._treeview.addColumn(_("Package"))
         #column = gtk.TreeViewColumn(_("Package"))
         #renderer = PixbufCellRenderer()
@@ -124,12 +126,12 @@ class QtPackageView(qt.QWidget):
 
     def _setNameVersion(self, iter, pkg):
         if hasattr(pkg, "name"):
-            iter.setText(0, pkg.name)
+            iter.setText(1, pkg.name)
         else:
-            iter.setText(0, str(pkg))
+            iter.setText(1, str(pkg))
 
         if hasattr(pkg, "version"):
-            iter.setText(1, pkg.version)
+            iter.setText(2, pkg.version)
 
 
     def getTreeView(self):
@@ -287,8 +289,8 @@ class QtPackageView(qt.QWidget):
                 iter = PackageListViewItem(self._treeview, item)
             else:
                 iter = PackageListViewItem(parent, item)
-            self._setNameVersion(iter, item)
             #iter.setText(0, str(item))
+            self._setNameVersion(iter, item)
             iter.setPixmap(0, self._setPixmap(item))
             
             return iter
@@ -297,6 +299,13 @@ class QtPackageView(qt.QWidget):
         item = self._treeview.currentItem()
         if item and hasattr(item._pkg, "name"):
             self.emit(qt.PYSIGNAL("packageSelected"), (item._pkg, ))
+
+    def _clicked(self, item, pnt, c):
+        if not item:
+            return
+        value = item._pkg
+        if c == 0 and hasattr(value, "name"):
+            self.emit(qt.PYSIGNAL("packageActivated"), ([value], ))
 
     def _doubleClicked(self, item, pnt, c):
          if not item:
