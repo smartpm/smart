@@ -188,7 +188,6 @@ class QtPackageInfo(qt.QWidget):
         #self._relations.getTreeView().set_headers_visible(False)
         #self._relations.show()
         self._relations = QtPackageView()
-        self._relations.setMargin(5)
         self._relations.getTreeView().header().hide()
         self._relations.show()
 
