@@ -343,16 +343,16 @@ class QtSinglePriority(object):
         label.show()
 
         def toggled(check, spin, alias):
-            if check.get_active():
-                priority[alias] = int(spin.get_value())
-                spin.set_sensitive(True)
+            if check.isChecked():
+                priority[alias] = int(spin.getValue())
+                spin.setEnabled(True)
             else:
                 if alias in priority:
                     del priority[alias]
-                spin.set_sensitive(False)
+                spin.setEnabled(False)
 
         def value_changed(spin, alias):
-            priority[alias] = int(spin.get_value())
+            priority[alias] = int(spin.getValue())
 
         label = qt.QLabel(_("Default priority:"), table)
         label.show()
@@ -362,11 +362,11 @@ class QtSinglePriority(object):
         hbox.show()
 
         radio = qt.QRadioButton(_("Channel default"), hbox)
-        radio.setEnabled(None not in priority)
+        radio.setChecked(None not in priority)
         radio.show()
         
         radio = qt.QRadioButton(_("Set to"), hbox)
-        radio.setEnabled(None in priority)
+        radio.setChecked(None in priority)
         radio.show()
         spin = qt.QSpinBox(hbox)
         spin.setSteps(1, 10)
