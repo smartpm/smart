@@ -57,7 +57,6 @@ class QtStatus(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Status"))
         self._window.setModal(True)
-        centerWindow(self._window)
         
         self._vbox = qt.QVBox(self._window)
         self._vbox.setMargin(20)
@@ -72,6 +71,7 @@ class QtStatus(object):
         self._vbox.adjustSize()
         self._window.adjustSize()
         self._window.show()
+        centerWindow(self._window)
         self._lastshown = time.time()
         while qt.QApplication.eventLoop().hasPendingEvents():
             qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
