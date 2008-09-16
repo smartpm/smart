@@ -679,24 +679,24 @@ class QtInteractiveInterface(QtInterface):
         if not lock:
              for pkg in pkgs:
                   pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
-             self._pv.refresh()
+             self._pv.update()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
                   pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
-             self._pv.refresh()
+             self._pv.update()
              self._pi.setPackage(pkgs[0])
 
     def lockAllPackages(self, pkgs, lock):
         if not lock:
              for pkg in pkgs:
                   pkgconf.clearFlag("lock", pkg.name)
-             self._pv.refresh()
+             self._pv.update()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
                   pkgconf.setFlag("lock", pkg.name)
-             self._pv.refresh()
+             self._pv.update()
              self._pi.setPackage(pkgs[0])
 
     def priorityPackages(self, pkgs, none):
