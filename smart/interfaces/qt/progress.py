@@ -207,6 +207,8 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
+            while qt.QApplication.eventLoop().hasPendingEvents():
+                qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
             time.sleep(0.01)
     prog.stop()
 
