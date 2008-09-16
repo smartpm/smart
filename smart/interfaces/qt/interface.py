@@ -40,7 +40,7 @@ class QtInterface(Interface):
         self._log = QtLog()
         self._progress = QtProgress(False)
         self._hassubprogress = QtProgress(True)
-        self._changes = QtChanges(self)
+        self._changes = QtChanges()
         self._window = None
         self._sys_excepthook = sys.excepthook
 

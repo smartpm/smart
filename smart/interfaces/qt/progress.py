@@ -21,7 +21,7 @@
 #
 from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt import getPixmap, centerWindow
 from smart import *
 import qt
 import posixpath
@@ -48,6 +48,7 @@ class QtProgress(Progress, qt.QDialog):
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Operation Progress"))
+        self.setModal(True)
 
         vbox = qt.QVBoxLayout(self, 10, 10)
 
@@ -144,7 +145,8 @@ class QtProgress(Progress, qt.QDialog):
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         qt.QDialog.show(self)
-        
+        centerWindow(self)
+
         if self._hassub and subkey:
             if subkey in self._subiters:
                 iter = self._subiters[subkey]
