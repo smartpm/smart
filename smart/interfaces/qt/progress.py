@@ -107,8 +107,8 @@ class QtProgress(Progress, qt.QDialog):
     def tick(self):
         while not self._stopticking:
             self.lock()
-            if qt.QApplication.eventLoop().hasPendingEvents():
-                qt.QApplication.eventLoop().processEvents(qt.QEventLoop.ExcludeUserInput)
+            #while qt.QApplication.eventLoop().hasPendingEvents():
+            #    qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
             self.unlock()
             time.sleep(INTERVAL)
         self._ticking = False
@@ -187,8 +187,8 @@ class QtProgress(Progress, qt.QDialog):
                 self._listview.update()
         
         self.update()
-        while qt.QApplication.eventLoop().hasPendingEvents():
-            qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+        #while qt.QApplication.eventLoop().hasPendingEvents():
+        #    qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
 
 def test():
     import sys, time
