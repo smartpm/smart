@@ -301,7 +301,7 @@ class QtSinglePriority(object):
         self._window = qt.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Package Priority"))
-        #self._window.setModal(True)
+        self._window.setModal(True)
         
         #self._window.set_transient_for(parent)
         #self._window.set_position(gtk.WIN_POS_CENTER)
@@ -311,6 +311,8 @@ class QtSinglePriority(object):
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
+
+        self._vbox = vbox
 
         self._table = qt.QGrid(2, vbox)
         self._table.setSpacing(10)
@@ -324,7 +326,7 @@ class QtSinglePriority(object):
         button = qt.QPushButton(_("Close"), bbox)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("hide()"))
 
-        vbox.adjustSize()
+        self._vbox.adjustSize()
         self._window.adjustSize()
 
     def show(self, pkg):
@@ -375,7 +377,7 @@ class QtSinglePriority(object):
         label = qt.QLabel(_("Channel priority:"), table)
         label.show()
 
-        chantable = qt.QGrid(1, vbox)
+        chantable = qt.QGrid(2, table)
         chantable.setSpacing(10)
         chantable.show()
 
@@ -388,10 +390,10 @@ class QtSinglePriority(object):
             name = channel.get("name")
             if not name:
                 name = alias
-            check = qt.QCheckButton(name, chantable)
+            check = qt.QCheckBox(name, chantable)
             check.setChecked(alias in priority)
             check.show()
-            spin = qt.QSpinBox(table)
+            spin = qt.QSpinBox(chantable)
             if alias not in priority:
                 spin.setEnabled(False)
             spin.setSteps(1, 10)
@@ -400,7 +402,13 @@ class QtSinglePriority(object):
             spin.show()
             pos += 1
         
+        table.adjustSize()
+        self._vbox.adjustSize()
+        self._window.adjustSize()
+        
         self._window.show()
+        self._window.raiseW()
+        self._window.setActiveWindow()
         self._window.exec_loop()
         self._window.hide()
 
