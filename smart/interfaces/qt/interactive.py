@@ -675,6 +675,34 @@ class QtInteractiveInterface(QtInterface):
             self._changeset.setState(changeset)
             self.changedMarks()
 
+    def lockPackages(self, pkgs, lock):
+        if not lock:
+             for pkg in pkgs:
+                  pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
+             self._pv.refresh()
+             self._pi.setPackage(pkgs[0])
+        else:
+             for pkg in pkgs:
+                  pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
+             self._pv.refresh()
+             self._pi.setPackage(pkgs[0])
+
+    def lockAllPackages(self, pkgs, lock):
+        if not lock:
+             for pkg in pkgs:
+                  pkgconf.clearFlag("lock", pkg.name)
+             self._pv.refresh()
+             self._pi.setPackage(pkgs[0])
+        else:
+             for pkg in pkgs:
+                  pkgconf.setFlag("lock", pkg.name)
+             self._pv.refresh()
+             self._pi.setPackage(pkgs[0])
+
+    def priorityPackages(self, pkgs, none):
+        QtSinglePriority(self._window).show(pkgs[0])
+        self._pi.setPackage(pkgs[0])
+
     def packagePopup(self, packageview, pkgs, pnt):
         
         menu = qt.QPopupMenu(packageview)
@@ -692,7 +720,7 @@ class QtInteractiveInterface(QtInterface):
                 self._callback = {}
                 self._userdata = {}
             
-            def connect(self, item, callback, userdata):
+            def connect(self, item, callback, userdata=None):
                 self._callback[item] = callback
                 self._userdata[item] = userdata
             
@@ -772,7 +800,7 @@ class QtInteractiveInterface(QtInterface):
         #    item.set_sensitive(False)
         #menu.append(item)
         iconset = qt.QIconSet(getPixmap("package-broken"))
-        item = menu.insertItem(iconset, _("Fix problems"))
+        item = menu.insertItem(iconset, _("Fix problems"), action.slot)
         action.connect(item, self.actOnPackages, FIX)
         if not hasinstalled:
             menu.setItemEnabled(item, False)
@@ -798,6 +826,8 @@ class QtInteractiveInterface(QtInterface):
                     break
                 thislocked = newthislocked
                 alllocked = newalllocked
+
+        lockaction = PackagesAction(pkgs)
 
         #image = gtk.Image()
         #if thislocked:
@@ -833,15 +863,19 @@ class QtInteractiveInterface(QtInterface):
                 iconset = qt.QIconSet(getPixmap("package-installed"))
             else:
                 iconset = qt.QIconSet(getPixmap("package-available"))
-            item = menu.insertItem(iconset, _("Unlock this version"))
+            item = menu.insertItem(iconset, _("Unlock this version"), lockaction.slot)
+            lockaction.connect(item, self.lockPackages, False)
         else:
             if not hasnoninstalled:
                 iconset = qt.QIconSet(getPixmap("package-installed-locked"))
             else:
                 iconset = qt.QIconSet(getPixmap("package-available-locked"))
-            item = menu.insertItem(iconset, _("Lock this version"))
-        if inconsistent or True:
+            item = menu.insertItem(iconset, _("Lock this version"), lockaction.slot)
+            lockaction.connect(item, self.lockPackages, True)
+        if inconsistent:
             menu.setItemEnabled(item, False)
+
+        lockallaction = PackagesAction(pkgs)
 
         #image = gtk.Image()
         #if alllocked:
@@ -877,16 +911,20 @@ class QtInteractiveInterface(QtInterface):
                 iconset = qt.QIconSet(getPixmap("package-installed"))
             else:
                 iconset = qt.QIconSet(getPixmap("package-available"))
-            item = menu.insertItem(iconset, _("Unlock all versions"))
+            item = menu.insertItem(iconset, _("Unlock all versions"), lockallaction.slot)
+            lockallaction.connect(item, self.lockAllPackages, False)
         else:
             if not hasnoninstalled:
                 iconset = qt.QIconSet(getPixmap("package-installed-locked"))
             else:
                 iconset = qt.QIconSet(getPixmap("package-available-locked"))
-            item = menu.insertItem(iconset, _("Lock all versions"))
-        if inconsistent or True:
+            item = menu.insertItem(iconset, _("Lock all versions"), lockallaction.slot)
+            lockallaction.connect(item, self.lockAllPackages, True)
+        if inconsistent:
             menu.setItemEnabled(item, False)
 
+        priorityaction = PackagesAction(pkgs)
+        
         #item = gtk.MenuItem(_("Priority"))
         #def priority(x):
         #    GtkSinglePriority(self._window).show(pkgs[0])
@@ -895,7 +933,8 @@ class QtInteractiveInterface(QtInterface):
         #if len(pkgs) != 1:
         #    item.set_sensitive(False)
         #menu.append(item)
-        item = menu.insertItem(_("Priority"))
+        item = menu.insertItem(_("Priority"), priorityaction.slot)
+        priorityaction.connect(item, self.priorityPackages)
         if len(pkgs) != 1:
             menu.setItemEnabled(item, False)
 
