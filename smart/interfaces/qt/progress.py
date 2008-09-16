@@ -90,7 +90,7 @@ class QtProgress(Progress, qt.QDialog):
             
             button = qt.QPushButton(_("Cancel"), self._bbox)
             button.show()
-            qt.QObject.connect(button, qt.SIGNAL ("clicked()"), self._cancel)
+            qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._cancel)
 
     def setFetcher(self, fetcher):
         if fetcher:
