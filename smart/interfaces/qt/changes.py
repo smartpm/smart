@@ -29,7 +29,7 @@ import qt
 class QtChanges(qt.QDialog):
 
     def __init__(self, parent=None):
-        qt.QDialog.__init__(self,parent)
+        qt.QDialog.__init__(self, parent)
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Change Summary"))
