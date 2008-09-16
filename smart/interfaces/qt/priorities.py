@@ -342,17 +342,39 @@ class QtSinglePriority(object):
         label = qt.QLabel("<b>%s</b>" % pkg.name, table)
         label.show()
 
-        def toggled(check, spin, alias):
-            if check.isChecked():
-                priority[alias] = int(spin.getValue())
-                spin.setEnabled(True)
-            else:
-                if alias in priority:
-                    del priority[alias]
-                spin.setEnabled(False)
+        class AliasCheckBox(qt.QCheckBox):
+        
+            def __init__(self, name, parent):
+                qt.QSpinBox.__init__(self, name, parent)
 
-        def value_changed(spin, alias):
-            priority[alias] = int(spin.getValue())
+            def connect(self, signal, slot, spin, alias):
+                qt.QObject.connect(self, qt.SIGNAL(signal), slot)
+                self._spin = spin
+                self._alias = alias
+            
+            def toggled(self, check):
+                spin = self._spin
+                alias = self._alias
+                if check:
+                    priority[alias] = int(spin.value())
+                    spin.setEnabled(True)
+                else:
+                    if alias in priority:
+                        del priority[alias]
+                    spin.setEnabled(False)
+
+        class AliasSpinBox(qt.QSpinBox):
+        
+            def __init__(self, parent):
+                qt.QSpinBox.__init__(self, parent)
+            
+            def connect(self, signal, slot, alias):
+                qt.QObject.connect(self, qt.SIGNAL(signal), slot)
+                self._alias = alias
+            
+            def value_changed(self, value):
+                alias = spin._alias
+                priority[alias] = value
 
         label = qt.QLabel(_("Default priority:"), table)
         label.show()
@@ -390,15 +412,17 @@ class QtSinglePriority(object):
             name = channel.get("name")
             if not name:
                 name = alias
-            check = qt.QCheckBox(name, chantable)
+            check = AliasCheckBox(name, chantable)
             check.setChecked(alias in priority)
             check.show()
-            spin = qt.QSpinBox(chantable)
+            spin = AliasSpinBox(chantable)
             if alias not in priority:
                 spin.setEnabled(False)
             spin.setSteps(1, 10)
             spin.setRange(-100000,+100000)
             spin.setValue(priority.get(alias, 0))
+            spin.connect("valueChanged(int)", spin.value_changed, alias)
+            check.connect("toggled(bool)", check.toggled, spin, alias)
             spin.show()
             pos += 1
         
