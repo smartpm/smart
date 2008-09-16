@@ -66,6 +66,8 @@ class QtPackageInfo(qt.QWidget):
         #table.show()
         #sw.add_with_viewport(table)
         grid = qt.QGrid(2, bg)
+        grid.setSpacing(5)
+        grid.setMargin(5)
         grid.show()
 
         self._info = type("Info", (), {})()
@@ -153,6 +155,7 @@ class QtPackageInfo(qt.QWidget):
         #sw.set_border_width(5)
         #sw.show()
         sv = qt.QScrollView(self)
+        sv.setMinimumSize(600, 400) # HACK
         sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         sv.show()
 
@@ -166,7 +169,6 @@ class QtPackageInfo(qt.QWidget):
         #buffer.create_tag("content", font_desc=font)
         #sw.add(self._conttv)
         self._cont = qt.QLabel(sv)
-        self._cont.setMinimumSize(600, 400)
         self._cont.setAlignment(qt.Qt.AlignTop)
         self._cont.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._cont.show()
