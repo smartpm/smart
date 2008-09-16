@@ -31,15 +31,6 @@ class PackageListViewItem(qt.QListViewItem):
 
 class QtPackageView(qt.QWidget):
 
-    #__gsignals__ = {
-        #"package_selected":  (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                              #(gobject.TYPE_PYOBJECT,)),
-        #"package_activated": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                              #(gobject.TYPE_PYOBJECT,)),
-        #"package_popup":     (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                              #(gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)),
-    #}
-
     def __init__(self, parent=None):
         qt.QWidget.__init__(self, parent)
 
