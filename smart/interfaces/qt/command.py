@@ -58,15 +58,19 @@ class QtStatus(object):
         self._window.setCaption(_("Status"))
         self._window.setModal(True)
         centerWindow(self._window)
-        #self._window.set_border_width(20)
+        
+        self._vbox = qt.QVBox(self._window)
+        self._vbox.setMargin(20)
 
-        self._label = qt.QLabel(self._window)
+        self._label = qt.QLabel(self._vbox)
         self._label.show()
 
         self._lastshown = 0
 
     def show(self, msg):
         self._label.setText(msg)
+        self._vbox.adjustSize()
+        self._window.adjustSize()
         self._window.show()
         self._lastshown = time.time()
         while qt.QApplication.eventLoop().hasPendingEvents():
