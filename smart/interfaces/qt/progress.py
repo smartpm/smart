@@ -145,6 +145,7 @@ class QtProgress(Progress, qt.QDialog):
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         qt.QDialog.show(self)
         centerWindow(self)
+        self.raiseW()
         
         if self._hassub and subkey:
             if subkey in self._subiters:
