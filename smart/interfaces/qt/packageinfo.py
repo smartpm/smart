@@ -51,8 +51,8 @@ class QtPackageInfo(qt.QWidget):
         ##sw.set_border_width(5)
         #sw.show()
         sv = qt.QScrollView(self)
-        self._tabwidget.setMinimumSize(640,200) #HACK
-        sv.setLineWidth(5)
+        sv.setMinimumSize(640,200) #HACK
+        sv.setMargin(5)
         sv.show()
 
         bg = qt.QWidget(sv)
@@ -127,6 +127,7 @@ class QtPackageInfo(qt.QWidget):
         #sw.set_border_width(5)
         #sw.show()
         sv = qt.QScrollView(None)
+        sv.setMargin(5)
         sv.show()
 
         #self._descrtv = gtk.TextView()
@@ -157,6 +158,7 @@ class QtPackageInfo(qt.QWidget):
         sv = qt.QScrollView(self)
         sv.setMinimumSize(600, 400) # HACK
         sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
+        sv.setMargin(5)
         sv.show()
 
         bg = qt.QWidget(sv)
@@ -186,6 +188,7 @@ class QtPackageInfo(qt.QWidget):
         #self._relations.getTreeView().set_headers_visible(False)
         #self._relations.show()
         self._relations = QtPackageView()
+        self._relations.setMargin(5)
         self._relations.getTreeView().header().hide()
         self._relations.show()
 
