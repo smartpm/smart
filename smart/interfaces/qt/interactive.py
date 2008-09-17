@@ -353,21 +353,6 @@ class QtInteractiveInterface(QtInterface):
         self._searchbar = qt.QToolBar(self._window)
         self._searchbar.hide()
        
-        #searchvp = gtk.Viewport()
-        #searchvp.set_shadow_type(gtk.SHADOW_OUT)
-        #searchvp.show()
-        #self._searchbar.add(searchvp)
-
-        #searchtable = gtk.Table(1, 1)
-        #searchtable.set_row_spacings(5)
-        #searchtable.set_col_spacings(5)
-        #searchtable.set_border_width(5)
-        #searchtable.show()
-        #searchvp.add(searchtable)
-
-        #label = gtk.Label(_("Search:"))
-        #label.show()
-        #searchtable.attach(label, 0, 1, 0, 1, 0, 0)
         label = qt.QLabel(_("Search:"), self._searchbar)
         label.show()
 
