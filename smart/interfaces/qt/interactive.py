@@ -261,9 +261,8 @@ class QtInteractiveInterface(QtInterface):
         self._undo = []
         self._redo = []
 
-        #self._topvbox = gtk.VBox()
-        #self._topvbox.show()
-        #self._window.add(self._topvbox)
+        self._central = qt.QWidget(self._window)
+        self._window.setCentralWidget(self._central)
 
         globals = {"self": self, "qt": qt}
         group = qt.QActionGroup(self._window, "Actions")
@@ -398,8 +397,6 @@ class QtInteractiveInterface(QtInterface):
 
         # Packages and information
 
-        self._central = qt.QWidget(self._window)
-        self._window.setCentralWidget(self._central)
         self._splitter = qt.QSplitter(qt.Qt.Vertical, self._central)
         self._splitter.setMinimumSize(640,440) # HACK
         
