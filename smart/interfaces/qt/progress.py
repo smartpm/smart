@@ -107,6 +107,7 @@ class QtProgress(Progress, qt.QDialog):
     def tick(self):
         while not self._stopticking:
             self.lock()
+            ## Note: it's NOT safe to call processEvents from threads other than main
             #while qt.QApplication.eventLoop().hasPendingEvents():
             #    qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
             self.unlock()
@@ -186,10 +187,6 @@ class QtProgress(Progress, qt.QDialog):
             self._progressbar.setProgress(percent, 100)
             if self._hassub:
                 self._listview.update()
-        
-        self.update()
-        #while qt.QApplication.eventLoop().hasPendingEvents():
-        #    qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
 
 def test():
     import sys, time

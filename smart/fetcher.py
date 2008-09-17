@@ -280,8 +280,6 @@ class Fetcher(object):
                 else:
                     item.setSucceeded(uncomppath)
             prog.show()
-            while iface.eventsPending():
-                iface.processEvents()
             time.sleep(0.1)
         for handler in handlers:
             handler.stop()
