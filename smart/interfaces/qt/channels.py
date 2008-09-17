@@ -68,48 +68,19 @@ class QtChannels(object):
         sv.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
         sv.show()
 
-        #self._treemodel = gtk.ListStore(gobject.TYPE_INT,
-        #                                gobject.TYPE_STRING,
-        #                                gobject.TYPE_STRING,
-        #                                gobject.TYPE_STRING,
-        #                                gobject.TYPE_INT);
-        #self._treeview = gtk.TreeView(self._treemodel)
-        #self._treeview.set_rules_hint(True)
-        #self._treeview.show()
-        #sw.add(self._treeview)
         self._treeview = qt.QListView(sv)
         self._treeview.setMinimumSize(600, 400) # HACK
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.setSelectionMode(qt.QListView.Single)
         self._treeview.show()
 
-        #renderer = gtk.CellRendererToggle()
-        #renderer.set_property("xpad", 4)
-        #renderer.set_active(False)
-        #def toggled(cell, path):
-        #    model = self._treemodel
-        #    iter = model.get_iter(path)
-        #    model.set(iter, 0, not bool(model.get_value(iter, 0)))
-        #renderer.connect("toggled", toggled)
-        #self._treeview.insert_column_with_attributes(-1, "", renderer,
-        #                                             active=0)
         qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self.selectionChanged)
         qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self.doubleClicked)
 
-        #renderer = gtk.CellRendererText()
-        #renderer.set_property("xpad", 4)
-        #self._treeview.insert_column_with_attributes(-1, _("Pri"), renderer,
-        #                                             text=4)
-        #self._treeview.insert_column_with_attributes(-1, _("Alias"), renderer,
-        #                                             text=1)
-        #self._treeview.insert_column_with_attributes(-1, _("Type"), renderer,
-        #                                             text=2)
-        #self._treeview.insert_column_with_attributes(-1, _("Name"), renderer,
-        #                                             text=3)
+        self._treeview.addColumn(_("Pri"))
         self._treeview.addColumn(_("Alias"))
         self._treeview.addColumn(_("Type"))
         self._treeview.addColumn(_("Name"))
-        self._treeview.addColumn(_("Pri"))
         
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
@@ -151,23 +122,23 @@ class QtChannels(object):
             channel = channels[alias]
             item = qt.QCheckListItem(self._treeview, alias, qt.QCheckListItem.CheckBoxController)
             item.setOn(not strToBool(channel.get("disabled")))
-            item.setText(0, alias)
-            item.setText(1, channel.get("type", ""))
-            item.setText(2, channel.get("name", ""))
-            item.setText(3, channel.get("priority", "0"))
+            item.setText(0, channel.get("priority", "0"))
+            item.setText(1, alias)
+            item.setText(2, channel.get("type", ""))
+            item.setText(3, channel.get("name", ""))
 
     def enableDisable(self):
         iter = qt.QListViewItemIterator(self._treeview)
         while iter.current():
             item = iter.current()
-            disabled = strToBool(sysconf.get(("channels", str(item.text(0)), "disabled")))
+            disabled = strToBool(sysconf.get(("channels", str(item.text(1)), "disabled")))
             if item.isOn():
                 if disabled:
-                    sysconf.remove(("channels", str(item.text(0)), "disabled"))
+                    sysconf.remove(("channels", str(item.text(1)), "disabled"))
                     self._changed = True
             else:
                 if not disabled:
-                    sysconf.set(("channels", str(item.text(0)), "disabled"), True)
+                    sysconf.set(("channels", str(item.text(1)), "disabled"), True)
                     self._changed = True
             iter += 1
             
@@ -301,7 +272,7 @@ class QtChannels(object):
     def editChannel(self):
         item = self._treeview.selectedItem()
         if item:
-            alias = str(item.text(0))
+            alias = str(item.text(1))
         else:
             return
         self.enableDisable()
@@ -316,7 +287,7 @@ class QtChannels(object):
     def delChannel(self):
         item = self._treeview.selectedItem()
         if item:
-            alias = item.text(0)
+            alias = item.text(1)
         else:
             return
         if sysconf.remove(("channels", alias)):
@@ -354,37 +325,11 @@ class QtChannelSelector(object):
         self._scrollview = qt.QScrollView(vbox)
         self._scrollview.show()
 
-        #self._treemodel = gtk.ListStore(gobject.TYPE_INT,
-        #                                gobject.TYPE_STRING,
-        #                                gobject.TYPE_STRING,
-        #                                gobject.TYPE_STRING)
-        #self._treeview = gtk.TreeView(self._treemodel)
-        #self._treeview.set_rules_hint(True)
-        #self._treeview.show()
-        #self._scrollwin.add(self._treeview)
         self._treeview = qt.QListView(self._scrollview)
         self._treeview.setMinimumSize(400,200)
         self._treeview.show()
 
-        #renderer = gtk.CellRendererToggle()
-        #renderer.set_property("xpad", 3)
-        #renderer.set_active(False)
-        #def toggled(cell, path):
-        #    model = self._treemodel
-        #    iter = model.get_iter(path)
-        #    model.set(iter, 0, not bool(model.get_value(iter, 0)))
-        #renderer.connect("toggled", toggled)
-        #self._treeview.insert_column_with_attributes(-1, "", renderer,
-        #                                             active=0)
-
-        #renderer = gtk.CellRendererText()
-        #renderer.set_property("xpad", 3)
-        #self._treeview.insert_column_with_attributes(-1, _("Alias"), renderer,
-        #                                             text=1)
-        #self._treeview.insert_column_with_attributes(-1, _("Type"), renderer,
-        #                                             text=2)
-        #self._treeview.insert_column_with_attributes(-1, _("Name"), renderer,
-        #                                             text=3)
+        self._treeview.addColumn("")
         self._treeview.addColumn(_("Alias"))
         self._treeview.addColumn(_("Type"))
         self._treeview.addColumn(_("Name"))
@@ -415,9 +360,9 @@ class QtChannelSelector(object):
             if not channel.get("disabled"):
                 item = qt.QCheckListItem(self._treeview, alias)
                 item.setOn(False)
-                item.setText(0, alias)
-                item.setText(1, channel.get("type", ""))
-                item.setText(2, channel.get("name", ""))
+                item.setText(1, alias)
+                item.setText(2, channel.get("type", ""))
+                item.setText(3, channel.get("name", ""))
 
     def show(self):
         self.fill()
@@ -493,8 +438,6 @@ class ChannelEditor(object):
         else:
             _label = qt.QLabel("%s:" % label, self._table)
             _label.show()
-            #self._table.attach(_label, 0, 1, self._fieldn, self._fieldn+1,
-            #                   gtk.FILL, gtk.FILL)
             if tip:
                 qt.QToolTip.add(_label, tip)
             if ftype is int:
@@ -518,8 +461,6 @@ class ChannelEditor(object):
         if tip:
             qt.QToolTip.add(widget, tip)
 
-        #self._table.attach(child, 1, 2, self._fieldn, self._fieldn+1,
-        #                   gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._fields[key] = widget
         self._fieldn += 1
 
@@ -588,6 +529,7 @@ class ChannelEditor(object):
                             alias = value
                     createChannel(alias, newchannel)
                 except Error, e:
+                    self._result == qt.QDialog.Rejected
                     iface.error(unicode(e))
                     continue
                 else:
@@ -653,21 +595,12 @@ class TypeSelector(object):
                 del item
         self._type = None
 
-        #radio = None
-        #def type_toggled(button, type):
-        #    if button.get_active():
-        #        self._type = type
         infos = [(info.name, type) for type, info in
                  getAllChannelInfos().items()]
         infos.sort()
         for name, type in infos:
             if not self._type:
                 self._type = type
-            #radio = gtk.RadioButton(radio, name)
-            #radio.connect("activate", lambda x: self._ok.activate())
-            #radio.connect("toggled", type_toggled, type)
-            #radio.show()
-            #self._typevbox.pack_start(radio)
             radio = qt.QRadioButton(name, self._typevbox, type)
             qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
             act = RadioAction(radio, type, name)
@@ -741,11 +674,7 @@ class MethodSelector(object):
         self._ok = button
         self._ok.setEnabled(False)
         
-        #radio = None
         self._method = None
-        #def method_toggled(button, method):
-        #    if button.get_active():
-        #        self._method = method
         for method, descr in [("manual",
                                _("Provide channel information")),
                               ("descriptionpath",
@@ -758,11 +687,6 @@ class MethodSelector(object):
                                _("Detect channel in local path"))]:
             if not self._method:
                 self._method = method
-            #radio = gtk.RadioButton(radio, descr)
-            #radio.connect("activate", lambda x: ok.activate())
-            #radio.connect("toggled", method_toggled, method)
-            #radio.show()
-            #methodvbox.pack_start(radio)
             radio = qt.QRadioButton(descr, methodvbox, method)
             qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
             act = RadioAction(radio, method, descr)
@@ -841,7 +765,6 @@ class MountPointSelector(object):
         #self._mpvbox.foreach(self._mpvbox.remove)
         self._mp = None
 
-        #radio = None
         group = qt.QButtonGroup(None, "mp")
         #def mp_toggled(button, mp):
         #    if button.get_active():
@@ -851,11 +774,8 @@ class MountPointSelector(object):
             mp = media.getMountPoint()
             if not self._mp:
                 self._mp = mp
-            #radio = gtk.RadioButton(radio, mp)
-            #radio.connect("activate", lambda x: self._ok.activate())
+            qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
             #radio.connect("toggled", mp_toggled, mp)
-            #radio.show()
-            #self._mpvbox.pack_start(radio)
             radio = qt.QRadioButton(mp, self._mpvbox)
             group.insert(radio)
             act = RadioAction(radio, mp)
@@ -884,5 +804,9 @@ class MountPointSelector(object):
         self._window.hide()
 
         return mp
+
+    def ok(self):
+        self._ok.setEnabled(True)
+        self._ok.setDefault((True))
 
 # vim:ts=4:sw=4:et
