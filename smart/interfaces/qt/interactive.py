@@ -120,7 +120,7 @@ ACTIONS = [
     ("update-selected-channels", "gtk-refresh", _("Update _Selected Channels..."), None,
      _("Update given channels"), "self.updateChannels(True)"),
     ("update-channels", "gtk-refresh", _("_Update Channels"), None,
-     _("Update channels information"), "self.updateChannels()"),
+     _("Update channels"), "self.updateChannels()"),
     ("rebuild-cache", None, _("_Rebuild Cache"), None,
      _("Reload package information"), "self.rebuildCache()"),
     ("exec-changes", "gtk-execute", _("_Execute Changes..."), "<control>c",
@@ -258,13 +258,6 @@ class QtInteractiveInterface(QtInterface):
         self._window.setMinimumSize(640, 480)
         app.connect(app, qt.SIGNAL('lastWindowClosed()'), app, qt.SLOT('quit()'))
 
-        #self._log.set_transient_for(self._window)
-        #self._progress.set_transient_for(self._window)
-        #self._hassubprogress.set_transient_for(self._window)
-        #self._changes.set_transient_for(self._window)
-
-        #self._watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
-
         self._undo = []
         self._redo = []
 
@@ -273,8 +266,6 @@ class QtInteractiveInterface(QtInterface):
         #self._window.add(self._topvbox)
 
         globals = {"self": self, "qt": qt}
-        #self._actions = gtk.ActionGroup("Actions")
-        #self._actions.add_actions(compileActions(ACTIONS, globals))
         group = qt.QActionGroup(self._window, "Actions")
         self._actions = compileActions(group, ACTIONS, globals)
 
@@ -300,27 +291,15 @@ class QtInteractiveInterface(QtInterface):
                             ("hide-uninstalled", _("Hide Uninstalled")),
                             ("hide-unmarked", _("Hide Unmarked")),
                             ("hide-old", _("Hide Old"))]:
-            #action = gtk.ToggleAction(name, label, "", "")
-            #action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
-            #self._actions.add_action(action)
             act = ToggleAction(None, name, label)
             act.connect("activated()", self.toggleFilter, name)
             self._actions[name] = act
 
         treestyle = sysconf.get("package-tree")
-        #lastaction = None
         for name, label in [("groups", _("Groups")),
                             ("channels", _("Channels")),
                             ("channels-groups", _("Channels & Groups")),
                             ("none", _("None"))]:
-            #action = gtk.RadioAction("tree-style-"+name, label, "", "", 0)
-            #if name == treestyle:
-            #    action.set_active(True)
-            #if lastaction:
-            #    action.set_group(lastaction)
-            #lastaction = action
-            #action.connect("toggled", lambda x, y: self.setTreeStyle(y), name)
-            #self._actions.add_action(action)
             act = ToggleAction(group, "tree-style-"+name, label)
             if name == treestyle:
                 act.setOn(True)
@@ -372,10 +351,6 @@ class QtInteractiveInterface(QtInterface):
 
         # Search bar
 
-        #self._searchbar = gtk.Alignment()
-        #self._searchbar.set(0, 0, 1, 1)
-        #self._searchbar.set_padding(3, 3, 0, 0)
-        #self._topvbox.pack_start(self._searchbar, False)
         self._searchbar = qt.QToolBar(self._window)
         self._searchbar.hide()
        
@@ -397,62 +372,19 @@ class QtInteractiveInterface(QtInterface):
         label = qt.QLabel(_("Search:"), self._searchbar)
         label.show()
 
-        #self._searchentry = gtk.Entry()
-        #self._searchentry.connect("activate", lambda x: self.refreshPackages())
-        #self._searchentry.show()
-        #searchtable.attach(self._searchentry, 1, 2, 0, 1)
         self._searchentry = qt.QLineEdit(self._searchbar)
         qt.QObject.connect(self._searchentry, qt.SIGNAL("returnPressed()"), self.refreshPackages)
         self._searchentry.show()
 
-        #button = gtk.Button()
-        #button.set_relief(gtk.RELIEF_NONE)
-        #button.connect("clicked", lambda x: self.refreshPackages())
-        #button.show()
-        #searchtable.attach(button, 2, 3, 0, 1, 0, 0)
-        #image = gtk.Image()
-        #image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
-        #image.show()
-        #button.add(image)
         button = qt.QPushButton(self._searchbar)
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.refreshPackages)
         pixmap = getPixmap("crystal-search")
         button.setIconSet(qt.QIconSet(pixmap))
         button.show()
 
-        #align = gtk.Alignment()
-        #align.set(1, 0, 0, 0)
-        #align.set_padding(0, 0, 10, 0)
-        #align.show()
-        #searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
-        #button = gtk.Button()
-        #button.set_size_request(20, 20)
-        #button.set_relief(gtk.RELIEF_NONE)
-        #button.connect("clicked", lambda x: self.toggleSearch())
-        #button.show()
-        #align.add(button)
-        #image = gtk.Image()
-        #image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
-        #image.show()
-        #button.add(image)
-
-        #hbox = gtk.HBox()
-        #hbox.set_spacing(10)
-        #hbox.show()
-        #searchtable.attach(hbox, 1, 2, 1, 2)
-
         buttongroup = qt.QButtonGroup(self._searchbar)
         buttongroup.hide()
         
-        #self._searchname = gtk.RadioButton(None, _("Automatic"))
-        #self._searchname.set_active(True)
-        #self._searchname.connect("clicked", lambda x: self.refreshPackages())
-        #self._searchname.show()
-        #hbox.pack_start(self._searchname, False)
-        #self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
-        #self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
-        #self._searchdesc.show()
-        #hbox.pack_start(self._searchdesc, False)
         self._searchname = qt.QRadioButton(_("Automatic"), self._searchbar)
         self._searchname.setChecked(True)
         qt.QObject.connect(self._searchname, qt.SIGNAL("clicked()"), self.refreshPackages)
@@ -470,25 +402,10 @@ class QtInteractiveInterface(QtInterface):
         self._window.setCentralWidget(self._central)
         self._vbox = qt.QVBoxLayout(self._central)
         
-        #self._vpaned = gtk.VPaned()
-        #self._vpaned.show()
-        #self._topvbox.pack_start(self._vpaned)
-
-        #self._pv = GtkPackageView()
-        #self._pv.show()
-        #self._vpaned.pack1(self._pv, True)
         self._pv = QtPackageView(self._central)
         self._pv.show()
         self._vbox.addWidget(self._pv)
 
-        #self._pi = GtkPackageInfo()
-        #self._pi.show()
-        #self._pv.connect("package_selected",
-        #                 lambda x, y: self._pi.setPackage(y))
-        #self._pv.connect("package_activated",
-        #                 lambda x, y: self.actOnPackages(y))
-        #self._pv.connect("package_popup", self.packagePopup)
-        #self._vpaned.pack2(self._pi, False)
         self._pi = QtPackageInfo(self._central)
         self._pi.setMinimumSize(640,220) # HACK
         self._pi.show()
@@ -501,16 +418,9 @@ class QtInteractiveInterface(QtInterface):
         self._status.show()
 
     def showStatus(self, msg):
-        #self._status.pop(0)
-        #self._status.push(0, msg)
-        #while gtk.events_pending():
-        #    gtk.main_iteration()
         self._status.message(msg)
 
     def hideStatus(self):
-        #self._status.pop(0)
-        #while gtk.events_pending():
-        #    gtk.main_iteration()
         self._status.clear()
 
     def run(self, command=None, argv=None):
@@ -523,7 +433,6 @@ class QtInteractiveInterface(QtInterface):
         self._pi.setChangeSet(self._changeset)
         self._progress.hide()
         self.refreshPackages()
-        #gtk.main()
         app.exec_loop()
         self.saveState()
         self.setCatchExceptions(False)
@@ -1001,14 +910,10 @@ class QtInteractiveInterface(QtInterface):
 
     def setBusy(self, flag):
         if flag:
-            #self._window.window.set_cursor(self._watch)
             qt.QApplication.setOverrideCursor( qt.QCursor(qt.Qt.WaitCursor) )
-            #while gtk.events_pending():
-            #    gtk.main_iteration()
             while qt.QApplication.eventLoop().hasPendingEvents():
                 qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
         else:
-            #self._window.window.set_cursor(None)
             qt.QApplication.restoreOverrideCursor()
 
     def changedMarks(self):
