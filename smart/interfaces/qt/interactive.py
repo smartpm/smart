@@ -400,19 +400,18 @@ class QtInteractiveInterface(QtInterface):
 
         self._central = qt.QWidget(self._window)
         self._window.setCentralWidget(self._central)
-        self._vbox = qt.QVBoxLayout(self._central)
+        self._splitter = qt.QSplitter(qt.Qt.Vertical, self._central)
+        self._splitter.setMinimumSize(640,440) # HACK
         
-        self._pv = QtPackageView(self._central)
+        self._pv = QtPackageView(self._splitter)
         self._pv.show()
-        self._vbox.addWidget(self._pv)
 
-        self._pi = QtPackageInfo(self._central)
+        self._pi = QtPackageInfo(self._splitter)
         self._pi.setMinimumSize(640,220) # HACK
         self._pi.show()
         qt.QObject.connect(self._pv, qt.PYSIGNAL("packageSelected"), self._pi.setPackage)
         qt.QObject.connect(self._pv, qt.PYSIGNAL("packageActivated"), self.actOnPackages)
         qt.QObject.connect(self._pv, qt.PYSIGNAL("packagePopup"), self.packagePopup)
-        self._vbox.addWidget(self._pi)
 
         self._status = self._window.statusBar()
         self._status.show()
