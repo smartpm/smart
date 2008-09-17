@@ -114,6 +114,7 @@ class QtMirrors(object):
         self._window.hide()
 
     def newMirror(self):
+        item = self._treeview.selectedItem()
         if item:
             if item.childCount() == 2:
                 item = item.parent()
