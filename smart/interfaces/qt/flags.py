@@ -61,12 +61,6 @@ class QtFlags(object):
 
         qt.QObject.connect(self._flagsview, qt.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
 
-        #renderer = gtk.CellRendererText()
-        #renderer.set_property("xpad", 3)
-        #renderer.set_property("editable", True)
-        #renderer.connect("edited", self.flagEdited)
-        #self._flagsview.insert_column_with_attributes(-1, _("Flags"), renderer,
-        #                                              text=0)
         self._flagsview.addColumn(_("Flags"))
 
         bbox = qt.QHBox(vbox)
@@ -96,23 +90,12 @@ class QtFlags(object):
         sv = qt.QScrollView(vbox)
         sv.show()
 
-        #self._targetsmodel = gtk.ListStore(gobject.TYPE_STRING)
-        #self._targetsview = gtk.TreeView(self._targetsmodel)
-        #self._targetsview.set_rules_hint(True)
-        #self._targetsview.show()
-        #sw.add(self._targetsview)
         self._targetsview = qt.QListView(sv)
         self._targetsview.setMinimumSize(300, 400) # HACK
         self._targetsview.show()
 
         qt.QObject.connect(self._targetsview, qt.SIGNAL("selectionChanged()"), self.targetSelectionChanged)
 
-        #renderer = gtk.CellRendererText()
-        #renderer.set_property("xpad", 3)
-        #renderer.set_property("editable", True)
-        #renderer.connect("edited", self.targetEdited)
-        #self._targetsview.insert_column_with_attributes(-1, _("Targets"),
-        #                                                renderer, text=0)
         self._targetsview.addColumn(_("Targets"))
 
         bbox = qt.QHBox(vbox)
