@@ -448,9 +448,9 @@ class QtInteractiveInterface(QtInterface):
         var = sysconf.get("qt-size")
         if var is not None:
             self._window.resize(*var)
-        #var = sysconf.get("qt-position")
-        #if var is not None:
-        #    self._window.move(*var)
+        var = sysconf.get("qt-position")
+        if var is not None:
+            self._window.move(*var)
         var = sysconf.get("qt-splitter-sizes")
         if var is not None:
             self._splitter.setSizes(var)
