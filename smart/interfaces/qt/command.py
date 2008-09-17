@@ -57,7 +57,6 @@ class QtStatus(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Status"))
         self._window.setModal(True)
-        
         self._vbox = qt.QVBox(self._window)
         self._vbox.setMargin(20)
 
