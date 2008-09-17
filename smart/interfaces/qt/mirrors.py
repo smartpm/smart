@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt import getPixmap, centerWindow
 from smart import *
 import qt
 
@@ -45,10 +45,8 @@ class QtMirrors(object):
         self._window = qt.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Mirrors"))
-        #self._window.setModal(True)
+        self._window.setModal(True)
 
-        #self._window.set_transient_for(parent)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
@@ -109,6 +107,7 @@ class QtMirrors(object):
     def show(self):
         self.fill()
         self._window.show()
+        centerWindow(self._window)
         self._window.raiseW()
         self._window.exec_loop()
         self._window.hide()
