@@ -47,7 +47,7 @@ class QtLog(qt.QDialog):
         self._vbox.show()
 
         self._scrollview = qt.QScrollView(self._vbox)
-        #self._scrollview.setVScrollBarMode(qt.QScrollView.AlwaysOn)
+        self._scrollview.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         self._scrollview.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
         self._scrollview.show()
 
