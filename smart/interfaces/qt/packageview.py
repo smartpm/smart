@@ -41,9 +41,6 @@ class QtPackageView(qt.QWidget):
         self._vbox = qt.QVBoxLayout(self)
         
         self._treeview = qt.QListView(self)
-        #self._treeview.connect("button_press_event", self._buttonPress)
-        #self._treeview.connect("select_cursor_row", self._selectCursor)
-        #self._treeview.connect("cursor_changed", self._cursorChanged)
         qt.QObject.connect(self._treeview, qt.SIGNAL("clicked(QListViewItem *, const QPoint &, int)"), self._clicked)
         qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self._doubleClicked)
         qt.QObject.connect(self._treeview, qt.SIGNAL("rightButtonPressed(QListViewItem *, const QPoint &, int)"), self._rightButtonPressed)
@@ -53,28 +50,12 @@ class QtPackageView(qt.QWidget):
         self._treeview.show()
         self._vbox.addWidget(self._treeview)
         
-        #selection = self._treeview.get_selection()
-        #selection.set_mode(gtk.SELECTION_MULTIPLE)
         self._treeview.setSelectionMode(qt.QListView.Multi)
         
         self._treeview.addColumn("") # pixmap
         self._treeview.addColumn(_("Package"))
-        #column = gtk.TreeViewColumn(_("Package"))
-        #renderer = PixbufCellRenderer()
-        #renderer.set_property("activate", self._pixbufClicked)
-        #renderer.set_property("xpad", 3)
-        #renderer.set_property("mode", gtk.CELL_RENDERER_MODE_ACTIVATABLE)
-        #column.pack_start(renderer, False)
-        #column.set_cell_data_func(renderer, self._setPixbuf)
-        #renderer = gtk.CellRendererText()
-        #column.pack_start(renderer, True)
-        #column.set_cell_data_func(renderer, self._setName)
-        #self._treeview.append_column(column)
 
-        #renderer = gtk.CellRendererText()
         self._treeview.addColumn(_("Version"))
-        #self._treeview.insert_column_with_data_func(-1, _("Version"), renderer,
-                                                    #self._setVersion)
 
         self._ipixbuf = getPixmap("package-installed")
         self._ilpixbuf = getPixmap("package-installed-locked")
@@ -211,7 +192,6 @@ class QtPackageView(qt.QWidget):
         if not expanded:
             return
         treeview = self._treeview
-        #model = treeview.get_model()
         cache = {}
         for item in expanded:
             item = tuple(item)
@@ -254,7 +234,6 @@ class QtPackageView(qt.QWidget):
             else:
                 keepstate = False
         
-        
         # clear the model until the new one is ready
         treeview.clear()
         self._setPackage(None, None, packages)
@@ -286,18 +265,6 @@ class QtPackageView(qt.QWidget):
             
             return iter
 
-    def _selectionChanged(self):
-        item = self._treeview.currentItem()
-        if item and hasattr(item._pkg, "name"):
-            self.emit(qt.PYSIGNAL("packageSelected"), (item._pkg, ))
-
-    def _clicked(self, item, pnt, c):
-        if not item:
-            return
-        value = item._pkg
-        if c == 0 and hasattr(value, "name"):
-            self.emit(qt.PYSIGNAL("packageActivated"), ([value], ))
-
     def _doubleClicked(self, item, pnt, c):
          if not item:
              return
@@ -320,73 +287,18 @@ class QtPackageView(qt.QWidget):
              else:
                  self.emit(qt.PYSIGNAL("packagePopup"), (self, [value], pnt))
 
-    def _buttonPress(self, treeview, event):
-        if event.window != treeview.get_bin_window():
+    def _clicked(self, item, pnt, c):
+        if not item:
             return
-        try:
-            path, column, cellx, celly = treeview.get_path_at_pos(int(event.x),
-                                                                  int(event.y))
-        except TypeError:
-            return
-        model = treeview.get_model()
-        iter = model.get_iter(path)
-        value = model.get_value(iter, 0)
-        if False: #event.type == gtk.gdk._2BUTTON_PRESS:
-            if not self._expandpackage and hasattr(value, "name"):
-                pkgs = self.getSelectedPkgs()
-                if len(pkgs) > 1:
-                    self.emit("package_activated", pkgs)
-                else:
-                    self.emit("package_activated", [value])
-            elif treeview.row_expanded(path):
-                treeview.collapse_row(path)
-            else:
-                treeview.expand_row(path, False)
-        elif False: #event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
-            pkgs = self.getSelectedPkgs()
-            if len(pkgs) > 1:
-                self.emit("package_popup", pkgs, event)
-            elif hasattr(value, "name"):
-                self.emit("package_popup", [value], event)
+        value = item._pkg
+        if c == 0 and hasattr(value, "name"):
+            self.emit(qt.PYSIGNAL("packageActivated"), ([value], ))
 
-    def _selectCursor(self, treeview, start_editing=False):
-        pkgs = self.getSelectedPkgs()
-        if not self._expandpackage and pkgs:
-            self.emit("package_activated", pkgs)
+    def _selectionChanged(self):
+        item = self._treeview.currentItem()
+        if item and hasattr(item._pkg, "name"):
+            self.emit(qt.PYSIGNAL("packageSelected"), (item._pkg, ))
         else:
-            model = treeview.get_model()
-            path = treeview.get_cursor()[0]
-            if path:
-                iter = model.get_iter(path)
-                value = model.get_value(iter, 0)
-                if not self._expandpackage and hasattr(value, "name"):
-                    self.emit("package_activated", [value])
-                else:
-                    if treeview.row_expanded(path):
-                        treeview.collapse_row(path)
-                    else:
-                        treeview.expand_row(path, False)
-
-    def _pixbufClicked(self, path):
-        model = self._treeview.get_model()
-        iter = model.get_iter(path)
-        value = model.get_value(iter, 0)
-        if hasattr(value, "name"):
-            self.emit("package_activated", [value])
-
-    def _cursorChanged(self, treeview):
-        treeview = self._treeview
-        model = treeview.get_model()
-        path = treeview.get_cursor()[0]
-        if path:
-            iter = model.get_iter(path)
-            value = model.get_value(iter, 0)
-            if hasattr(value, "name"):
-                self.emit("package_selected", value)
-            else:
-                self.emit("package_selected", None)
-            path = model.get_path(iter)
-        else:
-            self.emit("package_selected", None)
+            self.emit(qt.PYSIGNAL("packageSelected"), None)
 
 # vim:ts=4:sw=4:et
