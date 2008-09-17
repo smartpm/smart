@@ -117,7 +117,7 @@ class QtPackageInfo(qt.QWidget):
 
         self._tabwidget.addTab(self._relations, _("Relations"))
 
-       sv = qt.QScrollView(self)
+        sv = qt.QScrollView(self)
         sv.setMargin(5)
         sv.show()
 
