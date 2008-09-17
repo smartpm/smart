@@ -50,6 +50,8 @@ class QtProgress(Progress, qt.QDialog):
         self.setCaption(_("Operation Progress"))
 
         vbox = qt.QVBoxLayout(self, 10, 10)
+        vbox.setMargin(10)
+        vbox.setSpacing(10)
 
         self._topic = qt.QLabel(self)
         self._topic.setMinimumWidth(300) #HACK
@@ -57,6 +59,7 @@ class QtProgress(Progress, qt.QDialog):
 
         self._progressbar = qt.QProgressBar(self)
         self._progressbar.setPercentageVisible(True)
+        self._progressbar.show()
         vbox.addWidget(self._progressbar)
 
         if hassub:
@@ -68,7 +71,7 @@ class QtProgress(Progress, qt.QDialog):
 
             column = self._listview.addColumn(_("Progress"))
             self._listview.setColumnWidthMode(column, qt.QListView.Manual)
-            self._listview.setColumnWidth(column, 110)
+            self._listview.setColumnWidth(column, 55)
             column = self._listview.addColumn(_("Current"))
             self._currentcolumn = column
             column = self._listview.addColumn(_("Total"))
@@ -79,6 +82,8 @@ class QtProgress(Progress, qt.QDialog):
             self._etacolumn = column
             column = self._listview.addColumn(_("Description"))
             self._listview.setColumnWidthMode(column, qt.QListView.Manual)
+            self._listview.setColumnWidth(column, 165)
+            self._desccolumn = column
 
             self._subiters = {}
             self._subindex = 0
@@ -158,10 +163,10 @@ class QtProgress(Progress, qt.QDialog):
 
             current = data.get("current", "")
             if current:
-                 self._listview.setColumnWidth(self._currentcolumn, 110)
+                self._listview.setColumnWidth(self._currentcolumn, 110)
             total = data.get("total", "")
             if total:
-                 self._listview.setColumnWidth(self._totalcolumn, 110)
+                self._listview.setColumnWidth(self._totalcolumn, 110)
             if done:
                 speed = ""
                 eta = ""
@@ -180,7 +185,7 @@ class QtProgress(Progress, qt.QDialog):
                 subtopic = self._shorturl.get(subtopic)
             iter.setText(0, str(subpercent))
             iter.setText(5, subtopic)
-
+            iter.widthChanged(self._desccolumn)
             self._listview.insertItem(iter)
         else:
             self._topic.setText('<b>'+topic+'</b>')
@@ -194,8 +199,7 @@ def test():
     prog = QtProgress(True)
 
     data = {"item-number": 0}
-    total, subtotal = 20, 5
-    
+    total, subtotal = 100, 100
     prog.start()
     prog.setTopic("Installing packages...")
     for n in range(1,total+1):
