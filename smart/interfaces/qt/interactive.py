@@ -343,7 +343,10 @@ class QtInteractiveInterface(QtInterface):
 
         #self._window.add_accel_group(self._ui.get_accel_group())
 
+        self._actions["exec-changes"].setAccel(qt.QKeySequence("Ctrl+C"))
         self._actions["find"].setAccel(qt.QKeySequence("Ctrl+F"))
+        self._actions["expand-all"].setAccel(qt.QKeySequence("Ctrl+O"))
+        self._actions["collapse-all"].setAccel(qt.QKeySequence("Ctrl+W"))
         self._actions["summary-window"].setAccel(qt.QKeySequence("Ctrl+S"))
 
         self._actions["exec-changes"].setEnabled(False)
