@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt import getPixmap, centerWindow
 from smart import *
 import qt
 import re
@@ -176,6 +176,7 @@ class QtFlags(object):
     def show(self):
         self.fillFlags()
         self._window.show()
+        centerWindow(self._window)
         self._window.raiseW()
         self._window.exec_loop()
         self._window.hide()

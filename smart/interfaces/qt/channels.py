@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt import getPixmap, centerWindow
 from smart.util.strtools import strToBool
 from smart.const import NEVER
 from smart.channel import *
@@ -174,6 +174,7 @@ class QtChannels(object):
     def show(self):
         self.fill()
         self._window.show()
+        centerWindow(self._window)
         self._window.raiseW()
         self._window.setActiveWindow()
         self._window.exec_loop()
@@ -422,6 +423,8 @@ class QtChannelSelector(object):
         self.fill()
         self._result = False
         self._window.show()
+        centerWindow(self._window)
+        self._window.raiseW()
         self._result = self._window.exec_loop()
         self._window.hide()
 
