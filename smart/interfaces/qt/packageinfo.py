@@ -45,12 +45,6 @@ class QtPackageInfo(qt.QWidget):
         bg.setMinimumSize(640,200) #HACK
         bg.show()
 
-        #table = gtk.Table()
-        #table.set_row_spacings(2)
-        #table.set_col_spacings(5)
-        #table.set_border_width(5)
-        #table.show()
-        #sw.add_with_viewport(table)
         grid = qt.QGrid(2, bg)
         grid.setSpacing(5)
         grid.setMargin(5)

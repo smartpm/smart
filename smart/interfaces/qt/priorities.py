@@ -56,7 +56,6 @@ class QtPriorities(object):
         vbox.setSpacing(10)
         vbox.show()
 
-        #sw.set_shadow_type(gtk.SHADOW_IN)
         sv = qt.QScrollView(vbox)
         sv.show()
 
