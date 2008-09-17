@@ -56,8 +56,6 @@ class QtChannels(object):
         self._window.setCaption(_("Channels"))
         self._window.setModal(True)
 
-        #self._window.set_transient_for(parent)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
@@ -162,14 +160,14 @@ class QtChannels(object):
         iter = qt.QListViewItemIterator(self._treeview)
         while iter.current():
             item = iter.current()
-            disabled = strToBool(sysconf.get(("channels", item.text(0), "disabled")))
+            disabled = strToBool(sysconf.get(("channels", str(item.text(0)), "disabled")))
             if item.isOn():
                 if disabled:
-                    sysconf.remove(("channels", item.text(0), "disabled"))
+                    sysconf.remove(("channels", str(item.text(0)), "disabled"))
                     self._changed = True
             else:
                 if not disabled:
-                    sysconf.set(("channels", item.text(0), "disabled"), True)
+                    sysconf.set(("channels", str(item.text(0)), "disabled"), True)
                     self._changed = True
             iter += 1
             
@@ -345,8 +343,7 @@ class QtChannelSelector(object):
         self._window.setCaption(_("Select Channels"))
         self._window.setModal(True)
 
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        #self._window.set_geometry_hints(min_width=600, min_height=400)
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -446,14 +443,12 @@ class ChannelEditor(object):
         self._fields = {}
         self._fieldn = 0
 
-        #self._tooltips = gtk.Tooltips()
-
         self._window = qt.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Edit Channel"))
-        #self._window.setModal(True)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        self._window.setModal(True)
+
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(200,100) # HACK
@@ -570,13 +565,10 @@ class ChannelEditor(object):
                 for key, label, ftype, default, descr in info.fields:
                     widget = self._fields[key]
                     if ftype == str:
-                        #newchannel[key] = widget.get_text().strip()
                         newchannel[key] = str(widget.text()).strip()
                     elif ftype == int:
-                        #newchannel[key] = int(widget.get_text())
                         newchannel[key] = int(widget.text())
                     elif ftype == bool:
-                        #newchannel[key] = widget.get_active()
                         newchannel[key] = widget.isChecked()
                     else:
                         raise Error, _("Don't know how to handle %s fields") %\
@@ -612,8 +604,8 @@ class TypeSelector(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -626,10 +618,8 @@ class TypeSelector(object):
         table.show()
         self._table = table
         
-        #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Type:"), table)
 
-        #table.attach(self._typevbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         self._typevbox = qt.QVButtonGroup(table)
         self._typevbox.setFrameStyle(qt.QFrame.NoFrame)
         self._typevbox.show()
@@ -714,7 +704,6 @@ class MethodSelector(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -725,10 +714,8 @@ class MethodSelector(object):
         table.setSpacing(10)
         table.show()
         
-        #table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         label = qt.QLabel(_("Method:"), table)
 
-        #table.attach(methodvbox, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
         methodvbox = qt.QVButtonGroup(table)
         methodvbox.show()
 
@@ -812,9 +799,9 @@ class MountPointSelector(object):
         self._window = qt.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
-        #self._window.setModal(True)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        self._window.setModal(True)
+
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)

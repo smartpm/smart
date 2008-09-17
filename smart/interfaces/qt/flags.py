@@ -33,10 +33,8 @@ class QtFlags(object):
         self._window = qt.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Flags"))
-        #self._window.set_modal(True)
+        self._window.set_modal(True)
         
-        #self._window.set_transient_for(parent)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.setMinimumSize(600, 400)
 
         topvbox = qt.QVBox(self._window)
@@ -54,21 +52,13 @@ class QtFlags(object):
         vbox.setInsideSpacing(10)
         vbox.show()
 
-        #sw.set_shadow_type(gtk.SHADOW_IN)
         sv = qt.QScrollView(vbox)
         sv.show()
 
-        #self._flagsmodel = gtk.ListStore(gobject.TYPE_STRING)
-        #self._flagsview = gtk.TreeView(self._flagsmodel)
-        #self._flagsview.set_rules_hint(True)
-        #self._flagsview.show()
-        #sw.add(self._flagsview)
         self._flagsview = qt.QListView(sv)
         self._flagsview.setMinimumSize(300, 400) # HACK
         self._flagsview.show()
 
-        #selection = self._flagsview.get_selection()
-        #selection.connect("changed", self.flagSelectionChanged)
         qt.QObject.connect(self._flagsview, qt.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
 
         #renderer = gtk.CellRendererText()
@@ -103,11 +93,6 @@ class QtFlags(object):
         vbox.setInsideSpacing(10)
         vbox.show()
 
-        #sw = gtk.ScrolledWindow()
-        #sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        #sw.set_shadow_type(gtk.SHADOW_IN)
-        #sw.show()
-        #vbox.add(sw)
         sv = qt.QScrollView(vbox)
         sv.show()
 
@@ -120,8 +105,6 @@ class QtFlags(object):
         self._targetsview.setMinimumSize(300, 400) # HACK
         self._targetsview.show()
 
-        #selection = self._targetsview.get_selection()
-        #selection.connect("changed", self.targetSelectionChanged)
         qt.QObject.connect(self._targetsview, qt.SIGNAL("selectionChanged()"), self.targetSelectionChanged)
 
         #renderer = gtk.CellRendererText()
@@ -170,16 +153,13 @@ class QtFlags(object):
         button.setDefault(True)
 
     def fillFlags(self):
-        #self._flagsmodel.clear()
         self._flagsview.clear()
         flaglst = pkgconf.getFlagNames()
         flaglst.sort()
         for flag in flaglst:
-            #self._flagsmodel.append((flag,))
             qt.QListViewItem(self._flagsview).setText(0, flag)
     
     def fillTargets(self):
-        #self._targetsmodel.clear()
         self._targetsview.clear()
         if self._flag:
             names = pkgconf.getFlagTargets(self._flag)
@@ -188,12 +168,9 @@ class QtFlags(object):
             for name in namelst:
                 for relation, version in names[name]:
                     if relation and version:
-                        #self._targetsmodel.append(("%s %s %s" %
-                        #                           (name, relation, version),))
                         item = qt.QListViewItem(self._targetsview)
                         item.setText(0, "%s %s %s" % (name, relation, version))
                     else:
-                        #self._targetsmodel.append((name,))
                         qt.QListViewItem(self._targetsview).setText(0, name)
 
     def show(self):
@@ -222,8 +199,6 @@ class QtFlags(object):
             self.fillTargets()
 
     def delFlag(self):
-        #selection = self._flagsview.get_selection()
-        #model, iter = selection.get_selected()
         item = self._flagsview.selectedItem()
         if item:
             pkgconf.clearFlag(self._flag)
@@ -231,8 +206,6 @@ class QtFlags(object):
             self.fillTargets()
 
     def delTarget(self):
-        #selection = self._targetsview.get_selection()
-        #model, iter = selection.get_selected()
         item = self._targetsview.selectedItem()
         if item:
             target = str(item.text(0))
@@ -284,9 +257,6 @@ class QtFlags(object):
                         model.set_value(iter, 0, newname)
 
     def flagSelectionChanged(self):
-        #model, iter = selection.get_selected()
-        #self._delflag.set_property("sensitive", bool(iter))
-        #self._newtarget.set_property("sensitive", bool(iter))
         item = self._flagsview.selectedItem()
         self._delflag.setEnabled(bool(item))
         self._newtarget.setEnabled(bool(item))
@@ -297,8 +267,6 @@ class QtFlags(object):
         self.fillTargets()
 
     def targetSelectionChanged(self):
-        #model, iter = selection.get_selected()
-        #self._deltarget.set_property("sensitive", bool(iter))
         item = self._targetsview.selectedItem()
         self._deltarget.setEnabled(bool(item))
 
@@ -311,8 +279,7 @@ class FlagCreator(object):
         self._window.setCaption(_("New Flag"))
         self._window.setModal(True)
 
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -377,8 +344,7 @@ class TargetCreator(object):
         self._window.setCaption(_("New Target"))
         self._window.setModal(True)
 
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)

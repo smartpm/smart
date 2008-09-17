@@ -48,8 +48,6 @@ class QtPriorities(object):
         self._window.setCaption(_("Priorities"))
         #self._window.setModal(True)
 
-        #self._window.set_transient_for(parent)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
         self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
@@ -100,7 +98,6 @@ class QtPriorities(object):
         vbox.adjustSize()
 
     def fill(self):
-        #self._treemodel.clear()
         self._treeview.clear()
         priorities = sysconf.get("package-priorities", {})
         prioritieslst = priorities.items()
@@ -127,88 +124,67 @@ class QtPriorities(object):
     def newPriority(self):
         name, alias, priority = PriorityCreator(self._window).show()
         if name:
-            if sysconf.has(("package-priorities", str(name), str(alias))):
+            if sysconf.has(("package-priorities", name, alias)):
                 iface.error(_("Name/alias pair already exists!"))
             else:
-                sysconf.set(("package-priorities", str(name), str(alias)), int(priority))
+                sysconf.set(("package-priorities", name, alias), int(priority))
                 self.fill()
 
     def delPriority(self):
         item = self._treeview.selectedItem()
         if item:
-            name = item.text(0)
-            alias = item.text(1)
+            name = str(item.text(0))
+            alias = str(item.text(1))
             if alias == "*":
                 alias = None
-            sysconf.remove(("package-priorities", str(name), str(alias)))
+            sysconf.remove(("package-priorities", name, alias))
         self.fill()
 
     def selectionChanged(self):
         item = self._treeview.selectedItem()
         self._delpriority.setEnabled(bool(item))
 
-    #def rowEdited(self, cell, row, newtext):
     def itemRenamed(self, item, col, newtext):
         newtext = str(newtext).strip()
-        #if cell is self._namerenderer:
-        #    col = 0
-        #elif cell is self._aliasrenderer:
-        #    col = 1
-        #    if newtext == "*":
-        #        newtext = ""
-        #else:
-        #    col = 2
-        #model = self._treemodel
-        #iter = model.get_iter_from_string(row)
-        #oldtext = model.get_value(iter, col)
         if col == 1:
             if newtext == "*":
                 newtext = ""
         oldtext = item.oldtext(col)
         if newtext != oldtext:
             if col == 0:
-                #alias = model.get_value(iter, 1)
-                alias = item.text(0)
+                alias = str(item.text(0))
                 if alias == "*":
                     alias = None
-                #priority = model.get_value(iter, 2)
-                priority = item.text(2)
+                priority = str(item.text(2))
                 if not newtext:
                     pass
-                elif sysconf.has(("package-priorities", str(newtext), str(alias))):
+                elif sysconf.has(("package-priorities", newtext, alias)):
                     iface.error(_("Name/alias pair already exists!"))
                 else:
-                    sysconf.set(("package-priorities", str(newtext), str(alias)),
+                    sysconf.set(("package-priorities", newtext, alias),
                                 int(priority))
-                    sysconf.remove(("package-priorities", str(oldtext), str(alias)))
-                    #model.set_value(iter, col, newtext)
+                    sysconf.remove(("package-priorities", oldtext, alias))
             elif col == 1:
-                #name = model.get_value(iter, 0)
-                #priority = model.get_value(iter, 2)
                 name = item.text(0)
                 priority = item.text(2)
-                if sysconf.has(("package-priorities", str(name), str(newtext))):
+                if sysconf.has(("package-priorities", name, newtext)):
                     iface.error(_("Name/alias pair already exists!"))
                 else:
-                    sysconf.move(("package-priorities", str(name), str(oldtext)),
-                                 ("package-priorities", str(name), str(newtext)))
-                    #model.set_value(iter, col, newtext or "*")
+                    sysconf.move(("package-priorities", name, oldtext),
+                                 ("package-priorities", name, newtext))
+                    item.setText(col, newtext or "*")
             elif col == 2:
                 if newtext:
-                    #name = model.get_value(iter, 0)
-                    #alias = model.get_value(iter, 1)
-                    name = item.text(0)
-                    alias = item.text(1)
+                    name = str(item.text(0))
+                    alias = str(item.text(1))
                     if alias == "*":
                         alias = None
                     try:
-                        sysconf.set(("package-priorities", str(name), str(alias)),
+                        sysconf.set(("package-priorities", name, alias),
                                     int(newtext))
                     except ValueError:
                         item.setText(col, oldtext)
                         iface.error(_("Invalid priority!"))
-                    #else:
-                    #    model.set_value(iter, col, newtext)
 
 class PriorityCreator(object):
 
@@ -217,10 +193,9 @@ class PriorityCreator(object):
         self._window = qt.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Package Priority"))
-        #self._window.setModal(True)
+        self._window.setModal(True)
 
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        ##self._window.set_geometry_hints(min_width=600, min_height=400)
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -230,7 +205,7 @@ class PriorityCreator(object):
         table = qt.QGrid(2, vbox)
         table.setSpacing(10)
         table.show()
-        
+
         label = qt.QLabel(_("Package Name:"), table)
 
         self._name = qt.QLineEdit(table)
@@ -285,7 +260,7 @@ class PriorityCreator(object):
                 alias = str(self._alias.text()).strip()
                 if alias == "*":
                     alias = None
-                priority = self._priority.value()
+                priority = str(self._priority.value())
                 break
             name = alias = priority = None
             break
@@ -303,9 +278,7 @@ class QtSinglePriority(object):
         self._window.setCaption(_("Package Priority"))
         self._window.setModal(True)
         
-        #self._window.set_transient_for(parent)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
-        #self._window.set_geometry_hints(min_width=600, min_height=400)
+        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)

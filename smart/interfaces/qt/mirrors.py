@@ -97,7 +97,6 @@ class QtMirrors(object):
         self._treeview.clear()
         mirrors = sysconf.get("mirrors", {})
         for origin in mirrors:
-        #self._treeview.expand_all()
              parent = TextListViewItem(self._treeview)
              parent.setText(0, origin)
              parent.setRenameEnabled(0, True)
@@ -115,43 +114,22 @@ class QtMirrors(object):
         self._window.hide()
 
     def newMirror(self):
-        #selection = self._treeview.get_selection()
-        #model, iter = selection.get_selected()
-        item = self._treeview.selectedItem()
-        #if iter:
-        #    path = model.get_path(iter)
-        #    if len(path) == 2:
-        #        iter = model.get_iter(path[:1])
-        #    origin = model.get_value(iter, 0)
-        #else:
-        #    origin = ""
         if item:
             if item.childCount() == 2:
                 item = item.parent()
-            origin = item.text(0)
+            origin = str(item.text(0))
         else:
             origin = ""
         origin, mirror = MirrorCreator(self._window).show(origin)
         if origin and mirror:
-            sysconf.add(("mirrors", str(origin)), str(mirror), unique=True)
+            sysconf.add(("mirrors", origin), mirror, unique=True)
         self.fill()
 
 
     def delMirror(self):
-        #selection = self._treeview.get_selection()
-        #model, iter = selection.get_selected()
         item = self._treeview.selectedItem()
         if not item:
             return
-        #path = model.get_path(iter)
-        #if len(path) == 1:
-        #    origin = model.get_value(iter, 0)
-        #    sysconf.remove(("mirrors", origin))
-        #else:
-        #    mirror = model.get_value(iter, 0)
-        #    iter = model.get_iter(path[:1])
-        #    origin = model.get_value(iter, 0)
-        #    sysconf.remove(("mirrors", origin), mirror)
         if item.parent() is None:
             origin = str(item.text(0))
             sysconf.remove(("mirrors", origin))
@@ -167,12 +145,7 @@ class QtMirrors(object):
         item = self._treeview.selectedItem()
         self._delmirror.setEnabled(bool(item))
 
-    #def rowEdited(self, cell, row, newtext):
     def itemRenamed(self, item, col, newtext):
-        #model = self._treemodel
-        #iter = model.get_iter_from_string(row)
-        #path = model.get_path(iter)
-        #oldtext = model.get_value(iter, 0)
         oldtext = item.oldtext(col)
         if not oldtext:
             return
@@ -181,17 +154,14 @@ class QtMirrors(object):
                 iface.error(_("Origin already exists!"))
             else:
                 sysconf.move(("mirrors", str(oldtext)), ("mirrors", str(newtext)))
-                #model.set_value(iter, 0, newtext)
                 
         else:
-            #origin = model.get_value(model.get_iter(path[1:]), 0)
             origin = item.parent().text(0)
             if sysconf.has(("mirrors", str(origin)), str(newtext)):
                 iface.error(_("Mirror already exists!"))
             else:
                 sysconf.remove(("mirrors", str(origin)), oldtext)
                 sysconf.add(("mirrors", str(origin)), str(newtext), unique=True)
-                #model.set_value(iter, 0, newtext)
 
 
 class MirrorCreator(object):
@@ -202,7 +172,7 @@ class MirrorCreator(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Mirror"))
         self._window.setModal(True)
-        #self._window.set_position(gtk.WIN_POS_CENTER)
+
         #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
