@@ -638,59 +638,24 @@ class QtInteractiveInterface(QtInterface):
 
         action = PackagesAction(pkgs)
 
-        #image = gtk.Image()
-        #image.set_from_pixbuf(getPixbuf("package-install"))
-        #item = gtk.ImageMenuItem(_("Install"))
-        #item.set_image(image)
-        #item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
-        #if not hasnoninstalled:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         iconset = qt.QIconSet(getPixmap("package-install"))
         item = menu.insertItem(iconset, _("Install"), action.slot)
         action.connect(item, self.actOnPackages, INSTALL)
         if not hasnoninstalled:
             menu.setItemEnabled(item, False)
 
-        #image = gtk.Image()
-        #image.set_from_pixbuf(getPixbuf("package-reinstall"))
-        #item = gtk.ImageMenuItem(_("Reinstall"))
-        #item.set_image(image)
-        #item.connect("activate", lambda x: self.actOnPackages(pkgs, REINSTALL))
-        #if not hasinstalled:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         iconset = qt.QIconSet(getPixmap("package-reinstall"))
         item = menu.insertItem(iconset, _("Reinstall"), action.slot)
         action.connect(item, self.actOnPackages, REINSTALL)
         if not hasinstalled:
             menu.setItemEnabled(item, False)
 
-        #image = gtk.Image()
-        #image.set_from_pixbuf(getPixbuf("package-remove"))
-        #item = gtk.ImageMenuItem(_("Remove"))
-        #item.set_image(image)
-        #item.connect("activate", lambda x: self.actOnPackages(pkgs, REMOVE))
-        #if not hasinstalled:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         iconset = qt.QIconSet(getPixmap("package-remove"))
         item = menu.insertItem(iconset, _("Remove"), action.slot)
         action.connect(item, self.actOnPackages, REMOVE)
         if not hasinstalled:
             menu.setItemEnabled(item, False)
 
-        #image = gtk.Image()
-        #if not hasinstalled:
-        #    image.set_from_pixbuf(getPixbuf("package-available"))
-        #else:
-        #    image.set_from_pixbuf(getPixbuf("package-installed"))
-        #item = gtk.ImageMenuItem(_("Keep"))
-        #item.set_image(image)
-        #item.connect("activate", lambda x: self.actOnPackages(pkgs, KEEP))
-        #if not [pkg for pkg in pkgs if pkg in self._changeset]:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         if not hasinstalled:
             iconset = qt.QIconSet(getPixmap("package-available"))
         else:
@@ -700,14 +665,6 @@ class QtInteractiveInterface(QtInterface):
         if not [pkg for pkg in pkgs if pkg in self._changeset]:
             menu.setItemEnabled(item, False)
 
-        #image = gtk.Image()
-        #image.set_from_pixbuf(getPixbuf("package-broken"))
-        #item = gtk.ImageMenuItem(_("Fix problems"))
-        #item.set_image(image)
-        #item.connect("activate", lambda x: self.actOnPackages(pkgs, FIX))
-        #if not hasinstalled:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         iconset = qt.QIconSet(getPixmap("package-broken"))
         item = menu.insertItem(iconset, _("Fix problems"), action.slot)
         action.connect(item, self.actOnPackages, FIX)
@@ -738,35 +695,6 @@ class QtInteractiveInterface(QtInterface):
 
         lockaction = PackagesAction(pkgs)
 
-        #image = gtk.Image()
-        #if thislocked:
-        #    item = gtk.ImageMenuItem(_("Unlock this version"))
-        #    if not hasnoninstalled:
-        #        image.set_from_pixbuf(getPixbuf("package-installed"))
-        #    else:
-        #        image.set_from_pixbuf(getPixbuf("package-available"))
-        #    def unlock_this(x):
-        #        for pkg in pkgs:
-        #            pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
-        #        #self._pv.queue_draw()
-        #        #self._pi.setPackage(pkgs[0])
-        #    item.connect("activate", unlock_this)
-        #else:
-        #    item = gtk.ImageMenuItem(_("Lock this version"))
-        #    if not hasnoninstalled:
-        #        image.set_from_pixbuf(getPixbuf("package-installed-locked"))
-        #    else:
-        #        image.set_from_pixbuf(getPixbuf("package-available-locked"))
-        #    def lock_this(x):
-        #        for pkg in pkgs:
-        #            pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
-        #        #self._pv.queue_draw()
-        #        #self._pi.setPackage(pkgs[0])
-        #    item.connect("activate", lock_this)
-        #item.set_image(image)
-        #if inconsistent:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         if thislocked:
             if not hasnoninstalled:
                 iconset = qt.QIconSet(getPixmap("package-installed"))
@@ -786,35 +714,6 @@ class QtInteractiveInterface(QtInterface):
 
         lockallaction = PackagesAction(pkgs)
 
-        #image = gtk.Image()
-        #if alllocked:
-        #    item = gtk.ImageMenuItem(_("Unlock all versions"))
-        #    if not hasnoninstalled:
-        #        image.set_from_pixbuf(getPixbuf("package-installed"))
-        #    else:
-        #        image.set_from_pixbuf(getPixbuf("package-available"))
-        #    def unlock_all(x):
-        #        for pkg in pkgs:
-        #            pkgconf.clearFlag("lock", pkg.name)
-        #        #self._pv.queue_draw()
-        #        #self._pi.setPackage(pkgs[0])
-        #    item.connect("activate", unlock_all)
-        #else:
-        #    item = gtk.ImageMenuItem(_("Lock all versions"))
-        #    if not hasnoninstalled:
-        #        image.set_from_pixbuf(getPixbuf("package-installed-locked"))
-        #    else:
-        #       image.set_from_pixbuf(getPixbuf("package-available-locked"))
-        #    def lock_all(x):
-        #        for pkg in pkgs:
-        #           pkgconf.setFlag("lock", pkg.name)
-        #        #self._pv.queue_draw()
-        #        #self._pi.setPackage(pkgs[0])
-        #    item.connect("activate", lock_all)
-        #item.set_image(image)
-        #if inconsistent:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         if alllocked:
             if not hasnoninstalled:
                 iconset = qt.QIconSet(getPixmap("package-installed"))
@@ -834,14 +733,6 @@ class QtInteractiveInterface(QtInterface):
 
         priorityaction = PackagesAction(pkgs)
         
-        #item = gtk.MenuItem(_("Priority"))
-        #def priority(x):
-        #    GtkSinglePriority(self._window).show(pkgs[0])
-        #    self._pi.setPackage(pkgs[0])
-        #item.connect("activate", priority)
-        #if len(pkgs) != 1:
-        #    item.set_sensitive(False)
-        #menu.append(item)
         item = menu.insertItem(_("Priority"), priorityaction.slot)
         priorityaction.connect(item, self.priorityPackages)
         if len(pkgs) != 1:
