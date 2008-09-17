@@ -439,21 +439,22 @@ class QtInteractiveInterface(QtInterface):
     # Non-standard interface methods:
 
     def saveState(self):
-        #sysconf.set("gtk-size", self._window.get_size())
-        #sysconf.set("gtk-position", self._window.get_position())
-        #sysconf.set("gtk-vpaned-position", self._vpaned.get_position())
+        # Note: qt.QSize and qt.QPoint are not pickleable, unfortunately
+        sysconf.set("qt-size", (self._window.width(),self._window.height()))
+        sysconf.set("qt-position", (self._window.x(),self._window.y()))
+        sysconf.set("qt-splitter-sizes", self._splitter.sizes())
         pass
 
     def loadState(self):
-        #var = sysconf.get("gtk-size")
-        #if var is not None:
-        #    self._window.set_size_request(*var)
-        #var = sysconf.get("gtk-position")
-        #if var is not None:
-        #    self._window.move(*var)
-        #var = sysconf.get("gtk-vpaned-position")
-        #if var is not None:
-        #    self._vpaned.set_position(var)
+        var = sysconf.get("qt-size")
+        if var is not None:
+            self._window.resize(*var)
+        var = sysconf.get("qt-position")
+        if var is not None:
+            self._window.move(*var)
+        var = sysconf.get("qt-splitter-sizes")
+        if var is not None:
+            self._splitter.setSizes(var)
         pass
 
     def getChangeSet(self):
