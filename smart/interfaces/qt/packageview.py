@@ -299,6 +299,6 @@ class QtPackageView(qt.QWidget):
         if item and hasattr(item._pkg, "name"):
             self.emit(qt.PYSIGNAL("packageSelected"), (item._pkg, ))
         else:
-            self.emit(qt.PYSIGNAL("packageSelected"), None)
+            self.emit(qt.PYSIGNAL("packageSelected"), (None, ))
 
 # vim:ts=4:sw=4:et
