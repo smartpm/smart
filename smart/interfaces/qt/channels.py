@@ -762,20 +762,19 @@ class MountPointSelector(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
 
     def show(self):
-        #self._mpvbox.foreach(self._mpvbox.remove)
+        for item in self._mpvbox.children():
+            if isinstance(item, qt.QWidget): 
+                self._mpvbox.removeChild(item)
+                del item
         self._mp = None
 
         group = qt.QButtonGroup(None, "mp")
-        #def mp_toggled(button, mp):
-        #    if button.get_active():
-        #        self._mp = mp
         n = 0
         for media in iface.getControl().getMediaSet():
             mp = media.getMountPoint()
             if not self._mp:
                 self._mp = mp
             qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
-            #radio.connect("toggled", mp_toggled, mp)
             radio = qt.QRadioButton(mp, self._mpvbox)
             group.insert(radio)
             act = RadioAction(radio, mp)
