@@ -33,7 +33,7 @@ class QtFlags(object):
         self._window = qt.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Flags"))
-        self._window.set_modal(True)
+        self._window.setModal(True)
         
         self._window.setMinimumSize(600, 400)
 
