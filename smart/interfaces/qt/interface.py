@@ -23,7 +23,6 @@ from smart.interfaces.qt.progress import QtProgress
 from smart.interfaces.qt.changes import QtChanges
 from smart.interfaces.qt.log import QtLog
 from smart.interface import Interface, getScreenWidth
-from smart.util.strtools import sizeToStr, printColumns
 from smart.fetcher import Fetcher
 from smart.const import DEBUG
 from smart import *
@@ -116,16 +115,20 @@ class QtInterface(Interface):
         else:
             return default
 
-    def askInput(self, prompt, message=None, widthchars=None, echo=True):
+    def askInput(self, prompt, message=None, widthchars=40, echo=True):
         if (message != None):
             stringToShow = message + "\n" + prompt
         else:
             stringToShow = prompt
+        if echo:
+            echoMode = qt.QLineEdit.Normal
+        else:
+            echoMode = qt.QLineEdit.Password
 
-        text, ok = qt.QInputDialog.getText( _("Input"), stringToShow)
+        text, ok = qt.QInputDialog.getText( _("Input"), stringToShow, echoMode)
                 
         if (ok and text != None):
-            return text
+            return text[0:widthchars]
         else:
             return ""
 
