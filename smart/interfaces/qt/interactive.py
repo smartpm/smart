@@ -443,19 +443,17 @@ class QtInteractiveInterface(QtInterface):
         sysconf.set("qt-size", (self._window.width(),self._window.height()))
         sysconf.set("qt-position", (self._window.x(),self._window.y()))
         sysconf.set("qt-splitter-sizes", self._splitter.sizes())
-        pass
 
     def loadState(self):
         var = sysconf.get("qt-size")
         if var is not None:
             self._window.resize(*var)
-        var = sysconf.get("qt-position")
-        if var is not None:
-            self._window.move(*var)
+        #var = sysconf.get("qt-position")
+        #if var is not None:
+        #    self._window.move(*var)
         var = sysconf.get("qt-splitter-sizes")
         if var is not None:
             self._splitter.setSizes(var)
-        pass
 
     def getChangeSet(self):
         return self._changeset
@@ -468,7 +466,6 @@ class QtInteractiveInterface(QtInterface):
 
     def updateChannels(self, selected=False, channels=None):
         if selected:
-            #aliases = GtkChannelSelector().show()
             aliases = QtChannelSelector().show()
             channels = [channel for channel in self._ctrl.getChannels()
                         if channel.getAlias() in aliases]
@@ -739,7 +736,6 @@ class QtInteractiveInterface(QtInterface):
             menu.setItemEnabled(item, False)
 
         menu.show()
-        #menu.popup(None, None, None, event.button, event.time)
         menu.exec_loop(packageview.mapToGlobal(pnt))
 
     def checkPackages(self, all=False, uninstalled=False):
@@ -811,7 +807,6 @@ class QtInteractiveInterface(QtInterface):
         if "hide-unmarked" in self._filters:
             self.refreshPackages()
         else:
-            #self._pv.queue_draw()
             self._pv.update()
         self._actions["exec-changes"].setEnabled(bool(self._changeset))
         self._actions["clear-changes"].setEnabled(bool(self._changeset))
@@ -826,7 +821,6 @@ class QtInteractiveInterface(QtInterface):
         self.refreshPackages()
         if visible:
             self._searchentry.setFocus()
-            pass
 
     def refreshPackages(self):
         if not self._ctrl:
@@ -985,7 +979,7 @@ class QtInteractiveInterface(QtInterface):
         website = "http://labix.org/smart"    
 
         qt.QMessageBox.about(self._window, "About " + "Smart Package Manager",
-            "<h2>Smart Package Manager " + VERSION + "</h2>" + \
+            "<h2>" + "Smart Package Manager" + " " + VERSION + "</h2>" + \
             "<p>Copyright &copy; " + "2006 Canonical, 2004 Conectiva, Inc." + \
             "<p><small>" + license + "</small>" + \
             "<p><h3>Credits</h3>" + "<br>".join(credits) + \
