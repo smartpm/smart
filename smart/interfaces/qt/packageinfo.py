@@ -23,7 +23,6 @@ from smart.interfaces.qt.packageview import QtPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
 import qt
-import subprocess
 
 class QtPackageInfo(qt.QWidget):
     def __init__(self, parent):
