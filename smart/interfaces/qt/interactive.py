@@ -261,9 +261,6 @@ class QtInteractiveInterface(QtInterface):
         self._undo = []
         self._redo = []
 
-        self._central = qt.QWidget(self._window)
-        self._window.setCentralWidget(self._central)
-
         globals = {"self": self, "qt": qt}
         group = qt.QActionGroup(self._window, "Actions")
         self._actions = compileActions(group, ACTIONS, globals)
@@ -388,14 +385,13 @@ class QtInteractiveInterface(QtInterface):
 
         # Packages and information
 
-        self._splitter = qt.QSplitter(qt.Qt.Vertical, self._central)
-        self._splitter.setMinimumSize(640,440) # HACK
+        self._splitter = qt.QSplitter(qt.Qt.Vertical, self._window)
+        self._window.setCentralWidget(self._splitter)
         
         self._pv = QtPackageView(self._splitter)
         self._pv.show()
 
         self._pi = QtPackageInfo(self._splitter)
-        self._pi.setMinimumSize(640,220) # HACK
         self._pi.show()
         qt.QObject.connect(self._pv, qt.PYSIGNAL("packageSelected"), self._pi.setPackage)
         qt.QObject.connect(self._pv, qt.PYSIGNAL("packageActivated"), self.actOnPackages)
