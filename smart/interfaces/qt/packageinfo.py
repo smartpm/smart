@@ -24,25 +24,24 @@ from smart.util.strtools import sizeToStr
 from smart import *
 import qt
 
-class QtPackageInfo(qt.QWidget):
+class QtPackageInfo(qt.QTabWidget):
     def __init__(self, parent):
-        qt.QWidget.__init__(self, parent)
+        qt.QTabWidget.__init__(self, parent)
 
         self._pkg = None
         self._changeset = None
 
-        self._tabwidget = qt.QTabWidget(self)
-        self._tabwidget.setMinimumSize(640,200) #HACK
+        self._tabwidget = self
         self._tabwidget.show()
 
-        sv = qt.QScrollView(self)
-        #sv.setMinimumSize(640,200) #HACK
+        sv = qt.QScrollView(self._tabwidget)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QVBox(sv)
-        bg.setMinimumSize(640,200) #HACK
-        bg.show()
+        bg = qt.QVBox(sv.viewport())
+        bg.setSizePolicy(
+            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+        sv.addChild(bg)
 
         grid = qt.QGrid(2, bg)
         grid.setSpacing(5)
@@ -66,56 +65,58 @@ class QtPackageInfo(qt.QWidget):
             setattr(self._info, attr, label)
             row += 1
         
-        grid.adjustSize()
         self._grid = grid
-        
+
+        self._grid.adjustSize()
+        bg.adjustSize()
+
         self._tabwidget.addTab(sv, _("General"))
 
-        sv = qt.QScrollView(None)
+        sv = qt.QScrollView(self._tabwidget)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QVBox(sv)
-        bg.setMinimumSize(600, 200) # HACK
-        bg.show()
+        bg = qt.QVBox(sv.viewport())
+        bg.setSizePolicy(
+            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+        sv.addChild(bg)
 
         self._descr = qt.QLabel(bg)
-        self._descr.setMinimumSize(600, 200) #HACK
         self._descr.setAlignment(qt.Qt.AlignTop)
-        self._descr.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._descr.show()
+
+        self._descr.adjustSize()
+        bg.adjustSize()
 
         self._tabwidget.addTab(sv, _("Description"))
 
-        sv = qt.QScrollView(self)
-        #sv.setMinimumSize(600, 400) # HACK
+        sv = qt.QScrollView(self._tabwidget)
         sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QVBox(sv)
-        bg.setMinimumSize(600, 400) # HACK
-        bg.show()
+        bg = qt.QVBox(sv.viewport())
+        bg.setSizePolicy(
+            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+        sv.addChild(bg)
 
         self._cont = qt.QLabel(bg)
         self._cont.setAlignment(qt.Qt.AlignTop)
         self._cont.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._cont.show()
 
+        self._cont.adjustSize()
+        bg.adjustSize()
+
         self._tabwidget.addTab(sv, _("Content"))
 
-        self._relations = QtPackageView()
+        self._relations = QtPackageView(self._tabwidget)
         self._relations.getTreeView().header().hide()
         self._relations.show()
 
         self._tabwidget.addTab(self._relations, _("Relations"))
 
-        sv = qt.QScrollView(self)
-        sv.setMargin(5)
-        sv.show()
-
-        self._urls = qt.QListView(sv)
-        self._urls.setMinimumSize(600, 200)
+        self._urls = qt.QListView(self._tabwidget)
         self._urls.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._urls.setAllColumnsShowFocus(True)
         self._urls.header().hide()
@@ -124,8 +125,9 @@ class QtPackageInfo(qt.QWidget):
         self._urls.addColumn(_("Size"))
         self._urls.addColumn(_("URL"))
         
-        self._tabwidget.addTab(sv, _("URLs"))
+        self._tabwidget.addTab(self._urls, _("URLs"))
 
+        self._tabwidget.adjustSize()
         qt.QObject.connect(self._tabwidget, qt.SIGNAL("currentChanged(QWidget *)"), self._currentChanged)
          
     def _currentChanged(self, widget):
