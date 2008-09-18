@@ -512,7 +512,7 @@ class ChannelEditor(object):
                     if ftype == str:
                         newchannel[key] = str(widget.text()).strip()
                     elif ftype == int:
-                        newchannel[key] = int(widget.text())
+                        newchannel[key] = int(str(widget.text()))
                     elif ftype == bool:
                         newchannel[key] = widget.isChecked()
                     else:
