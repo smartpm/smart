@@ -315,7 +315,7 @@ class QtChannelSelector(object):
         self._window.setCaption(_("Select Channels"))
         self._window.setModal(True)
 
-        #self._window.setMinimumSize(600, 400)
+        self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -323,10 +323,11 @@ class QtChannelSelector(object):
         vbox.show()
 
         self._scrollview = qt.QScrollView(vbox)
+        self._scrollview.setMinimumSize(400,200) # HACK
         self._scrollview.show()
 
         self._treeview = qt.QListView(self._scrollview)
-        self._treeview.setMinimumSize(400,200)
+        self._treeview.setMinimumSize(400,200) # HACK
         self._treeview.show()
 
         self._treeview.addColumn("")
