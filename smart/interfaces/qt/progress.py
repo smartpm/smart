@@ -195,7 +195,7 @@ class QtProgress(Progress, qt.QDialog):
                 iter.setText(3, speed)
                 iter.setText(4, eta)
                 subtopic = self._shorturl.get(subtopic)
-            iter.setText(0, str(subpercent))
+            iter.setText(0, str(subpercent) + "%")
             iter.setText(5, subtopic)
             iter.widthChanged(self._desccolumn)
             self._listview.insertItem(iter)
