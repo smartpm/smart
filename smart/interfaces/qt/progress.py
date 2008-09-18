@@ -155,7 +155,7 @@ class QtProgress(Progress, qt.QDialog):
         qt.QDialog.hide(self)
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
-        if self._mainthread != qt.QThread.currentThread():
+        if qt.QThread.currentThread() != self._mainthread:
             # Note: it's NOT safe to use Qt from threads other than main
             return
             
