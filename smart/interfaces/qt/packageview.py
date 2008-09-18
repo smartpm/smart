@@ -68,7 +68,7 @@ class QtPackageView(qt.QWidget):
         self._Rpixbuf = getPixmap("package-remove")
         self._rpixbuf = getPixmap("package-reinstall")
 
-    def _setPixmap(self, pkg):
+    def _getPixmap(self, pkg):
             
             if not hasattr(pkg, "name"):
                     return self._fpixbuf
@@ -95,6 +95,9 @@ class QtPackageView(qt.QWidget):
                             else:
                                     return self._apixbuf
             return self._fpixbuf #default
+
+    def _setPixmap(self, iter, pkg):
+        iter.setPixmap(0, self._getPixmap(pkg))
 
     def _setNameVersion(self, iter, pkg):
         if hasattr(pkg, "name"):
@@ -220,6 +223,19 @@ class QtPackageView(qt.QWidget):
         else:
             self._changeset = changeset
 
+    def updatePackages(self, packages, changeset=None):
+        treeview = self._treeview
+        for pkg in packages:
+            if hasattr(pkg, "name"):
+                name = pkg.name
+            else:
+                name = str(pkg)
+            iter = treeview.findItem(name, 1)
+            if iter:
+                if iter._pkg == pkg:
+                    self._setNameVersion(iter, pkg)
+                    self._setPixmap(iter, pkg)
+
     def setPackages(self, packages, changeset=None, keepstate=False):
         treeview = self._treeview
         if not packages:
@@ -261,7 +277,7 @@ class QtPackageView(qt.QWidget):
                 iter = PackageListViewItem(parent, item)
             #iter.setText(0, str(item))
             self._setNameVersion(iter, item)
-            iter.setPixmap(0, self._setPixmap(item))
+            self._setPixmap(iter, item)
             
             return iter
 

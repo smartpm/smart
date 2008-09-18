@@ -563,7 +563,7 @@ class QtInteractiveInterface(QtInterface):
         if self.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
-            self.changedMarks()
+            self.changedMarks(pkgs)
 
     def lockPackages(self, pkgs, lock):
         if not lock:
@@ -787,10 +787,11 @@ class QtInteractiveInterface(QtInterface):
         else:
             qt.QApplication.restoreOverrideCursor()
 
-    def changedMarks(self):
+    def changedMarks(self, pkgs=[]):
         if "hide-unmarked" in self._filters:
             self.refreshPackages()
         else:
+            self._pv.updatePackages(pkgs, self._changeset)
             self._pv.update()
         self._actions["exec-changes"].setEnabled(bool(self._changeset))
         self._actions["clear-changes"].setEnabled(bool(self._changeset))
