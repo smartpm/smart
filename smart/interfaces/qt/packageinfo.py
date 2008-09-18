@@ -180,7 +180,7 @@ class QtPackageInfo(qt.QWidget):
                 flags = ""
 
             def bold(text):
-                return "<b>"+qt.QStyleSheet.escape(text)+"</b>"
+                return "<b>"+str(qt.QStyleSheet.escape(text))+"</b>"
             
             status = pkg.installed and _("Installed") or _("Available")
             self._info.status.setText(bold(status+flags))
@@ -214,7 +214,7 @@ class QtPackageInfo(qt.QWidget):
                 info = loader.getInfo(pkg)
                 summary = info.getSummary()
                 if summary:
-                    text += "<b>"+qt.QStyleSheet.escape(summary)+"</b><br><br>"
+                    text += "<b>"+unicode(qt.QStyleSheet.escape(summary))+"</b><br><br>"
                     description = info.getDescription()
                     if description != summary:
                          text += description+"\n\n"
