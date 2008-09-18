@@ -38,7 +38,9 @@ class QtInterface(Interface):
         Interface.__init__(self, ctrl)
         self._log = QtLog()
         self._progress = QtProgress(False)
+        self._progress.setMainThread(qt.QThread.currentThread())
         self._hassubprogress = QtProgress(True)
+        self._hassubprogress.setMainThread(qt.QThread.currentThread())
         self._changes = QtChanges()
         self._window = None
         self._sys_excepthook = sys.excepthook

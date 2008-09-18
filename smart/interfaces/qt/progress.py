@@ -42,6 +42,7 @@ class QtProgress(Progress, qt.QDialog):
         self._fetcher = None
 
         self._beenshown = False
+        self._mainthread = None
 
         if hassub:
             self.setMinimumSize(500, 400)
@@ -111,6 +112,9 @@ class QtProgress(Progress, qt.QDialog):
         if self._fetcher:
             self._fetcher.cancel()
 
+    def setMainThread(self, main):
+        self._mainthread = main
+
     def tick(self):
         while not self._stopticking:
             self.lock()
@@ -151,6 +155,10 @@ class QtProgress(Progress, qt.QDialog):
         qt.QDialog.hide(self)
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
+        if self._mainthread != qt.QThread.currentThread():
+            # Note: it's NOT safe to use Qt from threads other than main
+            return
+            
         qt.QDialog.show(self)
         if not self._beenshown:
             centerWindow(self)
@@ -196,6 +204,9 @@ class QtProgress(Progress, qt.QDialog):
             self._progressbar.setProgress(percent, 100)
             if self._hassub:
                 self._listview.update()
+
+        while qt.QApplication.eventLoop().hasPendingEvents():
+            qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
 
 def test():
     import sys, time
