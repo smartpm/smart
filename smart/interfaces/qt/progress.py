@@ -50,6 +50,7 @@ class QtProgress(Progress, qt.QDialog):
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Operation Progress"))
+        self.setModal(True)
 
         vbox = qt.QVBoxLayout(self, 10, 10)
         vbox.setMargin(10)
