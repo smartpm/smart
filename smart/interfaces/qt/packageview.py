@@ -241,7 +241,7 @@ class QtPackageView(qt.QWidget):
         #if keepstate:
             #self.setExpanded(expanded)
             #self.setCursor(cursor)
-        #treeview.queue_draw()
+        treeview.update()
 
     def _setPackage(self, report, parent, item):
         if type(item) is list:
