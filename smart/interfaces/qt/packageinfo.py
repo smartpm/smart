@@ -24,6 +24,21 @@ from smart.util.strtools import sizeToStr
 from smart import *
 import qt
 
+class BackgroundScrollView(qt.QScrollView):
+    def __init__(self, parent):
+        qt.QScrollView.__init__(self, parent)
+        self.setSizePolicy(
+            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+
+    def drawContents(self, *args):
+        if len(args)==1:
+            return apply(qt.QFrame.drawContents, (self,)+args)
+        else:
+            painter, clipx, clipy, clipw, cliph = args
+        color = self.eraseColor()
+        painter.fillRect(clipx, clipy, clipw, cliph, qt.QBrush(color))
+        qt.QScrollView.drawContents(self, painter, clipx, clipy, clipw, cliph)
+
 class QtPackageInfo(qt.QTabWidget):
     def __init__(self, parent):
         qt.QTabWidget.__init__(self, parent)
@@ -34,19 +49,15 @@ class QtPackageInfo(qt.QTabWidget):
         self._tabwidget = self
         self._tabwidget.show()
 
-        sv = qt.QScrollView(self._tabwidget)
+        sv = BackgroundScrollView(self._tabwidget)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QVBox(sv.viewport())
-        bg.setSizePolicy(
-            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
-        sv.addChild(bg)
-
-        grid = qt.QGrid(2, bg)
+        grid = qt.QGrid(2, sv.viewport())
         grid.setSpacing(5)
         grid.setMargin(5)
         grid.show()
+        sv.addChild(grid)
 
         self._info = type("Info", (), {})()
 
@@ -68,46 +79,32 @@ class QtPackageInfo(qt.QTabWidget):
         self._grid = grid
 
         self._grid.adjustSize()
-        bg.adjustSize()
-
         self._tabwidget.addTab(sv, _("General"))
 
-        sv = qt.QScrollView(self._tabwidget)
+        sv = BackgroundScrollView(self._tabwidget)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QVBox(sv.viewport())
-        bg.setSizePolicy(
-            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
-        sv.addChild(bg)
-
-        self._descr = qt.QLabel(bg)
+        self._descr = qt.QLabel(sv.viewport())
         self._descr.setAlignment(qt.Qt.AlignTop)
         self._descr.show()
+        sv.addChild(self._descr)
 
         self._descr.adjustSize()
-        bg.adjustSize()
-
         self._tabwidget.addTab(sv, _("Description"))
 
-        sv = qt.QScrollView(self._tabwidget)
+        sv = BackgroundScrollView(self._tabwidget)
         sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         sv.setMargin(5)
         sv.show()
 
-        bg = qt.QVBox(sv.viewport())
-        bg.setSizePolicy(
-            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
-        sv.addChild(bg)
-
-        self._cont = qt.QLabel(bg)
+        self._cont = qt.QLabel(sv.viewport())
         self._cont.setAlignment(qt.Qt.AlignTop)
         self._cont.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._cont.show()
+        sv.addChild(self._cont)
 
         self._cont.adjustSize()
-        bg.adjustSize()
-
         self._tabwidget.addTab(sv, _("Content"))
 
         self._relations = QtPackageView(self._tabwidget)
