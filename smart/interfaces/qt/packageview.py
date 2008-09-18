@@ -50,7 +50,7 @@ class QtPackageView(qt.QWidget):
         self._treeview.show()
         self._vbox.addWidget(self._treeview)
         
-        self._treeview.setSelectionMode(qt.QListView.Multi)
+        self._treeview.setSelectionMode(qt.QListView.Extended)
         
         self._treeview.addColumn("") # pixmap
         self._treeview.addColumn(_("Package"))
