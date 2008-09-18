@@ -41,6 +41,8 @@ class QtProgress(Progress, qt.QDialog):
         self._stopticking = False
         self._fetcher = None
 
+        self._beenshown = False
+
         if hassub:
             self.setMinimumSize(500, 400)
         else:
@@ -150,7 +152,9 @@ class QtProgress(Progress, qt.QDialog):
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         qt.QDialog.show(self)
-        centerWindow(self)
+        if not self._beenshown:
+            centerWindow(self)
+            self._beenshown = True
         self.raiseW()
         
         if self._hassub and subkey:
