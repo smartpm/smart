@@ -66,8 +66,7 @@ class QtPackageInfo(qt.QTabWidget):
                            ("priority", _("Priority:")),
                            ("group", _("Group:")),
                            ("installedsize", _("Installed Size:")),
-                           ("channels", _("Channels:")),
-                           ("reference", _("Reference URLs:"))]:
+                           ("channels", _("Channels:"))]:
             label = qt.QLabel(text, grid)
             label.show()
             setattr(self._info, attr+"_label", label)
@@ -158,7 +157,6 @@ class QtPackageInfo(qt.QTabWidget):
             group = None
             installedsize = None
             channels = []
-            urls = []
             for loader in pkg.loaders:
                 info = loader.getInfo(pkg)
                 if group is None:
@@ -169,7 +167,6 @@ class QtPackageInfo(qt.QTabWidget):
                 channels.append("%s (%s)" %
                                 (channel.getName() or channel.getAlias(),
                                  channel.getAlias()))
-                urls.extend(info.getReferenceURLs())
 
             flags = pkgconf.testAllFlags(pkg)
             if flags:
@@ -186,8 +183,6 @@ class QtPackageInfo(qt.QTabWidget):
             self._info.group.setText(bold(group or _("Unknown")))
             self._info.priority.setText(bold(str(pkg.getPriority())))
             self._info.channels.setText(bold("\n".join(channels)))
-            for url in urls:
-                pass
 
             if installedsize:
                 self._info.installedsize.setText(bold(sizeToStr(installedsize)))
