@@ -98,7 +98,8 @@ class PackageChannel(Channel):
     def removeLoaders(self):
         for loader in self._loaders:
             cache = loader.getCache()
-            cache.removeLoader(loader)
+            if cache is not None:
+                cache.removeLoader(loader)
         del self._loaders[:]
         self._digest = object()
 

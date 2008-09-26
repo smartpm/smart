@@ -2,14 +2,16 @@
 This test will execute the 'nothing' command. That command should
 just build the cache, and return.
 
+  >>> from tests import *
   >>> process = smart_process("nothing")
   >>> process.wait()
   0
 
-  >>> print process.stdout.read()
+  >>> print "Output:\n\n" + process.stdout.read()
+  Output:
+  ...
   Updating cache...               ######################################## [100%]
   <BLANKLINE>
-  Saving cache...
   <BLANKLINE>
   <BLANKLINE>
 

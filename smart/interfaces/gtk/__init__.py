@@ -49,7 +49,13 @@ def getPixbuf(name):
     if name not in _pixbuf:
         filename = getImagePath(name)
         if os.path.isfile(filename):
-            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            icon_size = sysconf.get("gtk-icon-size")
+            if icon_size:
+                pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(filename,
+                                                              icon_size,
+                                                              icon_size)
+            else:
+                pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
             _pixbuf[name] = pixbuf
         else:
             raise Error, _("Image '%s' not found") % name

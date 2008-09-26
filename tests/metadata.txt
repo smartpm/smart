@@ -1,6 +1,7 @@
 
 Create the channel.
 
+  >>> from tests import *
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "rpm-md",
@@ -100,6 +101,9 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   '781a4605a429eb27846f0234657f84f1a5831696'
   >>> info.getSize(url)
   2160
+
+  >>> info.getReferenceURLs()
+  ['http://example.com/name1']
 
 
 vim:ft=doctest

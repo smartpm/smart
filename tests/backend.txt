@@ -4,6 +4,7 @@ package system is working.
 
 We want everything from the cache.
 
+  >>> from tests import *
   >>> from smart.cache import *
 
   >>> class TestPackage(Package): pass

@@ -36,4 +36,7 @@ fields = [("baseurl", _("Base URL"), str, None,
           ("components", _("Components"), str, "",
            _("Space separated list of components.")),
           ("fingerprint", _("Fingerprint"), str, "",
-           _("GPG fingerprint of key signing the channel."))]
+           _("GPG fingerprint of key signing the channel.")),
+          ("keyring", _("Keyring"), str, "",
+           _("If provided, channel must necessarily be signed by a key "
+             "in the GPG keyring at the given path."))]
