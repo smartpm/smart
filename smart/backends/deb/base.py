@@ -33,7 +33,17 @@ __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebRequires", "DebUpgrades", "DebConflicts", "DebBreaks",
            "DebOrRequires", "DebOrPreRequires", "DEBARCH"]
 
+def getPlatformPrefix():
+    platform = sys.platform
+    if platform != "linux2":
+        return platform + "-"
+    else:
+        return "" # no prefix
+
 def getArchitecture():
+    arch = sysconf.get("deb-arch")
+    if arch is not None:
+        return arch
     arch = os.uname()[-1]
     result = {"pentium": "i386",
               "sparc64": "sparc",
@@ -42,26 +52,18 @@ def getArchitecture():
               "shel": "sh",
               "x86_64": "amd64"}.get(arch)
     if result:
-        return result
+        arch = result
     elif len(arch) == 4 and arch[0] == "i" and arch.endswith("86"):
-        return "i386"
+        arch = "i386"
     elif arch.startswith("arm"):
-        return "arm"
+        arch = "arm"
     elif arch.startswith("hppa"):
-        return "hppa"
+        arch = "hppa"
     elif arch.startswith("alpha"):
-        return "alpha"
-    else:
-        return arch
+        arch = "alpha"
+    return getPlatformPrefix() + arch
 
-def getPlatformPrefix():
-    platform = sys.platform
-    if platform != "linux2":
-        return platform + "-"
-    else:
-        return "" # no prefix
-
-DEBARCH = sysconf.get("deb-arch", getPlatformPrefix() + getArchitecture())
+DEBARCH = getArchitecture()
 
 class DebPackage(Package):
 
