@@ -1,8 +1,9 @@
 
 Set up the loader.
 
+  >>> from tests import *
   >>> from smart.backends.deb.fink_virtual_pkgs import FinkVirtualPkgsLoader
-  >>> localpath = "%s/deb/fink-virtual-pkgs" % TESTDATADIR
+  >>> localpath = "%s/aptdeb/fink-virtual-pkgs" % TESTDATADIR
   >>> loader = FinkVirtualPkgsLoader(localpath)
   
 Let's create a cache to put the loader in, so that we can test it.
