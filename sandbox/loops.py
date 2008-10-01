@@ -1,5 +1,5 @@
 import sys
-sys.argv = ["./smart.py", "test"]
+sys.argv = ["./smart.py", "nothing"]
 execfile('./smart.py')
 
 from smart.cache import *

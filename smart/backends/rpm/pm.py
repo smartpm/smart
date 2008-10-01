@@ -22,7 +22,7 @@
 #
 from smart.backends.rpm.rpmver import splitarch
 from smart.util.filetools import setCloseOnExec
-from smart.sorter import ChangeSetSorter, LoopError
+from smart.sorter import ChangeSetSorter
 from smart.const import INSTALL, REMOVE, BLOCKSIZE
 from smart.pm import PackageManager
 from smart import *
@@ -125,22 +125,8 @@ class RPMPackageManager(PackageManager):
                 raise Error, "%s: %s" % (rpmlogfile, unicode(e))
 
         # Let's help RPM, since it doesn't do a good
-        # ordering job on erasures.
-        try:
-            sorter = ChangeSetSorter(changeset)
-            sorted = sorter.getSorted()
-            forcerpmorder = False
-        except LoopError:
-            lines = [_("Found unbreakable loops:")]
-            for path in sorter.getLoopPaths(sorter.getLoops()):
-                path = ["%s [%s]" % (pkg, op is INSTALL and "I" or "R")
-                        for pkg, op in path]
-                lines.append("    "+" -> ".join(path))
-            lines.append(_("Will ask RPM to order it."))
-            iface.error("\n".join(lines))
-            sys.exit(1)
-            forcerpmorder = True
-        del sorter
+        # ordering job on removals.
+        sorted = ChangeSetSorter(changeset).getSorted()
 
         packages = 0
         reinstall = False
