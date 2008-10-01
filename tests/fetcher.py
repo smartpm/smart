@@ -73,3 +73,17 @@ class FetcherTest(MockerTestCase):
         self.fetcher.run(progress=Progress())
         item = self.fetcher.getItem(URL)
         self.assertEquals(item.getFailedReason(), u"File not found")
+
+    def test_local_error(self):
+        #headers = []
+        #def handler(request):
+        #    request.send_response(200, "There it goes!")
+        #    request.send_header("Content-Length", "6")
+        #    request.wfile.write("Hello!")
+        #self.start_server(handler)
+        self.fetcher.setLocalPathPrefix("/some/non-existent/path")
+        self.fetcher.enqueue(URL)
+        self.fetcher.run(progress=Progress())
+        item = self.fetcher.getItem(URL)
+        reason = item.getFailedReason()
+        self.assertTrue("No such file" in reason, reason)
