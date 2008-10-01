@@ -8,6 +8,10 @@ class ElementSorterTest(unittest.TestCase):
     def setUp(self):
         self.sorter = ElementSorter()
 
+    def test_addElement(self):
+        self.sorter.addElement(1)
+        self.assertEquals(self.sorter.getSorted(), [1])
+
     def test_disableRelation_fails_with_non_existing_relation(self):
         self.assertRaises(DisableError, self.sorter.disableRelation, (0, 1))
 

@@ -213,7 +213,7 @@ class ElementSorter(object):
     def addElement(self, elem):
         if elem not in self._successors:
             self._successors[elem] = set()
-            self._predcount[succ] = 0
+            self._predcount[elem] = 0
 
     def addPredecessor(self, succ, pred, priority=0):
         self.addSuccessor(pred, succ, priority)
