@@ -30,6 +30,21 @@ try:
 except locale.Error:
     ENCODING = "C"
 
+class BackgroundScrollView(qt.QScrollView):
+    def __init__(self, parent):
+        qt.QScrollView.__init__(self, parent)
+        self.setSizePolicy(
+            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+
+    def drawContents(self, *args):
+        if len(args)==1:
+            return apply(qt.QFrame.drawContents, (self,)+args)
+        else:
+            painter, clipx, clipy, clipw, cliph = args
+        color = self.eraseColor()
+        painter.fillRect(clipx, clipy, clipw, cliph, qt.QBrush(color))
+        qt.QScrollView.drawContents(self, painter, clipx, clipy, clipw, cliph)
+
 class QtLog(qt.QDialog):
 
     def __init__(self, parent=None):
@@ -40,26 +55,28 @@ class QtLog(qt.QDialog):
         self.setMinimumSize(400, 300)
         #self.setModal(True)
 
+        layout = qt.QVBoxLayout(self)
+        layout.setResizeMode(qt.QLayout.FreeResize)
+
         self._vbox = qt.QVBox(self)
-        self._vbox.setMinimumSize(400, 300) # HACK
         self._vbox.setMargin(10)
         self._vbox.setSpacing(10)
         self._vbox.show()
 
-        self._scrollview = qt.QScrollView(self._vbox)
+        layout.add(self._vbox)
+
+        self._scrollview = BackgroundScrollView(self._vbox)
         self._scrollview.setVScrollBarMode(qt.QScrollView.AlwaysOn)
         self._scrollview.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
         self._scrollview.show()
 
-        bg = qt.QWidget(self._scrollview)
-        bg.setMinimumSize(400, 300) # HACK
-        bg.show()
-
-        self._textview = qt.QLabel(bg)
+        self._textview = qt.QLabel(self._scrollview.viewport())
         self._textview.setAlignment(qt.Qt.AlignTop)
         self._textview.setTextFormat(qt.Qt.LogText)
         self._textview.show()
         self._textview.adjustSize()
+        
+        self._textview.setEraseColor(self._scrollview.eraseColor())
 
         self._buttonbox = qt.QHBox(self._vbox)
         self._buttonbox.setSpacing(10)
