@@ -318,6 +318,7 @@ class QtChannelSelector(object):
         self._window.setMinimumSize(600, 400)
 
         layout = qt.QVBoxLayout(self._window)
+        layout.setResizeMode(qt.QLayout.FreeResize)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
