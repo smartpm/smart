@@ -29,6 +29,8 @@ class BackgroundScrollView(qt.QScrollView):
         qt.QScrollView.__init__(self, parent)
         self.setSizePolicy(
             qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+        self.viewport().setBackgroundMode(qt.Qt.PaletteBackground)
+        self.setPaletteBackgroundColor(self.viewport().paletteBackgroundColor())
 
     def drawContents(self, *args):
         if len(args)==1:
