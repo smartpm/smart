@@ -186,6 +186,12 @@ class ElementSorter(object):
         self._disabled.clear()
         loops = self.getLoops()
 
+        for i, (els, rels) in enumerate(loops):
+            print
+            print "LOOP %d" % i
+            for pred, succ in rels:
+                print "%r => %r" % (pred, succ)
+
         for loop_elements, loop_relations in loops:
             # Get our best guess of a good ordering to try reenabling
             # relations which are part of this loop later.
