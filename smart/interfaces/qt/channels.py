@@ -68,11 +68,7 @@ class QtChannels(object):
 
         layout.addWidget(vbox)
 
-        sv = qt.QScrollView(vbox)
-        sv.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
-        sv.show()
-
-        self._treeview = qt.QListView(sv)
+        self._treeview = qt.QListView(vbox)
         self._treeview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.setSelectionMode(qt.QListView.Single)
