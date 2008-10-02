@@ -77,6 +77,7 @@ class QtChannels(object):
         qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self.selectionChanged)
         qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self.doubleClicked)
 
+        self._treeview.addColumn("")
         self._treeview.addColumn(_("Pri"))
         self._treeview.addColumn(_("Alias"))
         self._treeview.addColumn(_("Type"))
@@ -120,18 +121,18 @@ class QtChannels(object):
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
-            item = qt.QCheckListItem(self._treeview, alias, qt.QCheckListItem.CheckBoxController)
+            item = qt.QCheckListItem(self._treeview, "", qt.QCheckListItem.CheckBoxController)
             item.setOn(not strToBool(channel.get("disabled")))
-            item.setText(0, channel.get("priority", "0"))
-            item.setText(1, alias)
-            item.setText(2, channel.get("type", ""))
-            item.setText(3, channel.get("name", ""))
+            item.setText(1, channel.get("priority", "0"))
+            item.setText(2, alias)
+            item.setText(3, channel.get("type", ""))
+            item.setText(4, channel.get("name", ""))
 
     def enableDisable(self):
         iter = qt.QListViewItemIterator(self._treeview)
         while iter.current():
             item = iter.current()
-            disabled = strToBool(sysconf.get(("channels", str(item.text(1)), "disabled")))
+            disabled = strToBool(sysconf.get(("channels", str(item.text(2)), "disabled")))
             if item.isOn():
                 if disabled:
                     sysconf.remove(("channels", str(item.text(1)), "disabled"))
@@ -272,7 +273,7 @@ class QtChannels(object):
     def editChannel(self):
         item = self._treeview.selectedItem()
         if item:
-            alias = str(item.text(1))
+            alias = str(item.text(2))
         else:
             return
         self.enableDisable()
@@ -287,7 +288,7 @@ class QtChannels(object):
     def delChannel(self):
         item = self._treeview.selectedItem()
         if item:
-            alias = item.text(1)
+            alias = item.text(2)
         else:
             return
         if sysconf.remove(("channels", alias)):
