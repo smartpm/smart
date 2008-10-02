@@ -53,6 +53,7 @@ class QtProgress(Progress, qt.QDialog):
         self.setCaption(_("Operation Progress"))
 
         vbox = qt.QVBoxLayout(self, 10, 10)
+        vbox.setResizeMode(qt.QLayout.FreeResize)
         vbox.setMargin(10)
         vbox.setSpacing(10)
 
