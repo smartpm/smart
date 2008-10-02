@@ -37,11 +37,15 @@ class QtFlags(object):
         
         self._window.setMinimumSize(600, 400)
 
+        layout = qt.QVBoxLayout(self._window)
+        layout.setResizeMode(qt.QLayout.FreeResize)
+
         topvbox = qt.QVBox(self._window)
-        topvbox.setMinimumSize(600, 400) # HACK
         topvbox.setMargin(10)
         topvbox.setSpacing(10)
         topvbox.show()
+
+        layout.addWidget(topvbox)
 
         tophbox = qt.QHBox(topvbox)
         tophbox.setSpacing(20)
@@ -52,11 +56,7 @@ class QtFlags(object):
         vbox.setInsideSpacing(10)
         vbox.show()
 
-        sv = qt.QScrollView(vbox)
-        sv.show()
-
-        self._flagsview = qt.QListView(sv)
-        self._flagsview.setMinimumSize(300, 400) # HACK
+        self._flagsview = qt.QListView(vbox)
         self._flagsview.show()
 
         qt.QObject.connect(self._flagsview, qt.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
@@ -87,11 +87,7 @@ class QtFlags(object):
         vbox.setInsideSpacing(10)
         vbox.show()
 
-        sv = qt.QScrollView(vbox)
-        sv.show()
-
-        self._targetsview = qt.QListView(sv)
-        self._targetsview.setMinimumSize(300, 400) # HACK
+        self._targetsview = qt.QListView(vbox)
         self._targetsview.show()
 
         qt.QObject.connect(self._targetsview, qt.SIGNAL("selectionChanged()"), self.targetSelectionChanged)

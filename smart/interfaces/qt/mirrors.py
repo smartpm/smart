@@ -49,17 +49,17 @@ class QtMirrors(object):
 
         self._window.setMinimumSize(600, 400)
 
+        layout = qt.QVBoxLayout(self._window)
+        layout.setResizeMode(qt.QLayout.FreeResize)
+
         vbox = qt.QVBox(self._window)
-        vbox.setMinimumSize(600, 400) # HACK
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        sv = qt.QScrollView(vbox)
-        sv.show()
+        layout.addWidget(vbox)
 
-        self._treeview = qt.QListView(sv)
-        self._treeview.setMinimumSize(600, 400) # HACK
+        self._treeview = qt.QListView(vbox)
         self._treeview.header().hide()
         self._treeview.show()
 
