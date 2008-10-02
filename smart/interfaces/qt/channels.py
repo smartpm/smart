@@ -317,10 +317,14 @@ class QtChannelSelector(object):
 
         self._window.setMinimumSize(600, 400)
 
+        layout = qt.QVBoxLayout(self._window)
+
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
+
+        layout.addWidget(vbox)
 
         self._treeview = qt.QListView(vbox)
         self._treeview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
@@ -344,8 +348,6 @@ class QtChannelSelector(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
         button.setDefault(True)
-        self._treeview.adjustSize()
-        vbox.adjustSize()
 
     def fill(self):
         self._treeview.clear()
