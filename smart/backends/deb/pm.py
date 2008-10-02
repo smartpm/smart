@@ -212,7 +212,6 @@ class DebPackageManager(PackageManager):
                         upgraded[upgpkg] = pkg
 
         sorter = DebSorter(changeset)
-        sorted = sorter.getSorted()
 
         f = open("test.dot", "w")
         f.write("digraph Foobar {\n")
@@ -237,6 +236,8 @@ class DebPackageManager(PackageManager):
                 f.write("%s -> %s;\n" % (get_repr(pred), get_repr(succ)))
         f.write("}\n")
         f.close()
+
+        sorted = sorter.getSorted()
 
         prog.set(0, len(sorted))
 
