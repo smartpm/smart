@@ -58,18 +58,22 @@ class QtChannels(object):
 
         self._window.setMinimumSize(600, 400)
 
+        layout = qt.QVBoxLayout(self._window)
+        layout.setResizeMode(qt.QLayout.FreeResize)
+
         vbox = qt.QVBox(self._window)
-        vbox.setMinimumSize(600, 400) # HACK
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
+
+        layout.addWidget(vbox)
 
         sv = qt.QScrollView(vbox)
         sv.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
         sv.show()
 
         self._treeview = qt.QListView(sv)
-        self._treeview.setMinimumSize(600, 400) # HACK
+        self._treeview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.setSelectionMode(qt.QListView.Single)
         self._treeview.show()
@@ -396,11 +400,15 @@ class ChannelEditor(object):
         self._window.setCaption(_("Edit Channel"))
         self._window.setModal(True)
 
+        layout = qt.QVBoxLayout(self._window)
+        layout.setResizeMode(qt.QLayout.FreeResize)
+
         vbox = qt.QVBox(self._window)
-        vbox.setMinimumSize(200,100) # HACK
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
+
+        layout.addWidget(vbox)
         self._vbox = vbox
 
         self._table = qt.QGrid(2, vbox)
