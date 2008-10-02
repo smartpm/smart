@@ -322,12 +322,8 @@ class QtChannelSelector(object):
         vbox.setSpacing(10)
         vbox.show()
 
-        self._scrollview = qt.QScrollView(vbox)
-        self._scrollview.setMinimumSize(400,200) # HACK
-        self._scrollview.show()
-
-        self._treeview = qt.QListView(self._scrollview)
-        self._treeview.setMinimumSize(400,200) # HACK
+        self._treeview = qt.QListView(vbox)
+        self._treeview.setAllColumnsShowFocus(True)
         self._treeview.show()
 
         self._treeview.addColumn("")
@@ -349,7 +345,6 @@ class QtChannelSelector(object):
         button.setDefault(True)
         vbox.adjustSize()
         self._treeview.adjustSize()
-        self._window.adjustSize()
 
     def fill(self):
         self._treeview.clear()
@@ -359,7 +354,7 @@ class QtChannelSelector(object):
         for alias in aliases:
             channel = channels[alias]
             if not channel.get("disabled"):
-                item = qt.QCheckListItem(self._treeview, alias)
+                item = qt.QCheckListItem(self._treeview, "", qt.QCheckListItem.CheckBox)
                 item.setOn(False)
                 item.setText(1, alias)
                 item.setText(2, channel.get("type", ""))
@@ -379,7 +374,7 @@ class QtChannelSelector(object):
             iter = qt.QListViewItemIterator(self._treeview)
             while iter.current():
                 item = iter.current()
-                if item.text(0):
+                if item.isOn():
                       result.append(item.text(1)) 
                 iter += 1
 
@@ -396,8 +391,6 @@ class ChannelEditor(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Edit Channel"))
         self._window.setModal(True)
-
-        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMinimumSize(200,100) # HACK
@@ -550,8 +543,6 @@ class TypeSelector(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
-
-        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -728,8 +719,6 @@ class MountPointSelector(object):
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
-
-        #self._window.setMinimumSize(600, 400)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
