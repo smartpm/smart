@@ -182,6 +182,7 @@ class QtProgress(Progress, qt.QDialog):
             if done:
                 speed = ""
                 eta = ""
+                subpercent = 100
             else:
                 speed = data.get("speed", "")
                 if speed:
