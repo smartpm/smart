@@ -130,6 +130,7 @@ class ElementSorter(object):
             if elem not in loop_elements:
                 data = self.getPathData(elem, elem)
                 if data[0]:
+                    print "Found loop with %s" % repr(elem)
                     loops.append(data)
                     loop_elements.update(data[0])
                     loop_relations.update(data[1])
