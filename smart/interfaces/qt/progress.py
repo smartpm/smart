@@ -57,7 +57,6 @@ class QtProgress(Progress, qt.QDialog):
         vbox.setSpacing(10)
 
         self._topic = qt.QLabel(self)
-        self._topic.setMinimumWidth(300) #HACK
         vbox.addWidget(self._topic)
 
         self._progressbar = qt.QProgressBar(self)
@@ -212,7 +211,8 @@ def test():
     import sys, time
 
     prog = QtProgress(True)
-
+    prog.setMainThread(qt.QThread.currentThread())
+        
     data = {"item-number": 0}
     total, subtotal = 100, 100
     prog.start()
