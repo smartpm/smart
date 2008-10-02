@@ -54,7 +54,6 @@ class QtPackageView(qt.QWidget):
         
         self._treeview.addColumn("") # pixmap
         self._treeview.addColumn(_("Package"))
-
         self._treeview.addColumn(_("Version"))
 
         self._ipixbuf = getPixmap("package-installed")
@@ -235,6 +234,7 @@ class QtPackageView(qt.QWidget):
                 if iter._pkg == pkg:
                     self._setNameVersion(iter, pkg)
                     self._setPixmap(iter, pkg)
+        treeview.adjustColumn(0)
 
     def setPackages(self, packages, changeset=None, keepstate=False):
         treeview = self._treeview
