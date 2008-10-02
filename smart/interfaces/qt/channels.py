@@ -323,6 +323,7 @@ class QtChannelSelector(object):
         vbox.show()
 
         self._treeview = qt.QListView(vbox)
+        self._treeview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.show()
 
@@ -343,8 +344,8 @@ class QtChannelSelector(object):
         qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
 
         button.setDefault(True)
-        vbox.adjustSize()
         self._treeview.adjustSize()
+        vbox.adjustSize()
 
     def fill(self):
         self._treeview.clear()
@@ -356,7 +357,7 @@ class QtChannelSelector(object):
             if not channel.get("disabled"):
                 item = qt.QCheckListItem(self._treeview, "", qt.QCheckListItem.CheckBox)
                 item.setOn(False)
-                item.setText(1, alias)
+                item.setText(1, str(alias))
                 item.setText(2, channel.get("type", ""))
                 item.setText(3, channel.get("name", ""))
 
