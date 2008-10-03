@@ -123,17 +123,25 @@ class ElementSorter(object):
         The result is the same as for L{getPathData()}, except that only
         elements and relations involved in loops will be returned.
         """
-        loop_elements = set()
-        loop_relations = set()
+        all_loop_elements = set()
         loops = []
         for elem in self._successors:
-            if elem not in loop_elements:
-                data = self.getPathData(elem, elem)
-                if data[0]:
-                    print "Found loop with %s" % repr(elem)
-                    loops.append(data)
-                    loop_elements.update(data[0])
-                    loop_relations.update(data[1])
+            if elem not in all_loop_elements:
+                loop_elements, loop_relations = self.getPathData(elem, elem)
+                if loop_elements:
+                    done = set([elem])
+                    todo = loop_elements - done
+                    while todo:
+                        loop_elem = todo.pop()
+                        more_elements, more_relations = \
+                            self.getPathData(loop_elem, loop_elem)
+                        loop_elements.update(more_elements)
+                        loop_relations.update(more_relations)
+                        done.add(loop_elem)
+                        more_elements.difference_update(done)
+                        todo.update(more_elements)
+                    loops.append((loop_elements, loop_relations))
+                    all_loop_elements.update(loop_elements)
         return loops
 
     def hasLoop(self, elements, relations):
@@ -186,12 +194,6 @@ class ElementSorter(object):
         # are computed, the logic below may not work in weird cases.
         self._disabled.clear()
         loops = self.getLoops()
-
-        for i, (els, rels) in enumerate(loops):
-            print
-            print "LOOP %d" % i
-            for pred, succ in rels:
-                print "%r => %r" % (pred, succ)
 
         for loop_elements, loop_relations in loops:
             # Get our best guess of a good ordering to try reenabling
