@@ -5,7 +5,8 @@ Create the channel.
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "arch-site",
-  ...                          "baseurl": "file://%s/arch" % TESTDATADIR})
+  ...                          "baseurl": "file://%s/arch" % TESTDATADIR,
+  ...                          "treename": "test"})
   >>> channel
   <smart.channels.arch_site.ArchSiteChannel object at ...>
 

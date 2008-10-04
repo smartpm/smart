@@ -32,4 +32,6 @@ Remote repository with archlinux packages.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
-           _("Base URL where *.db.tar.gz is located"))]
+           _("Base URL where *.db.tar.gz is located")),
+          ("treename", _("Tree name"), str, "",
+           _("The name of the <tree>.db.tar.gz file"))]

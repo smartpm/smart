@@ -32,9 +32,12 @@ siteDBRE = re.compile("^(.+) (.+\.db\.tar\.gz)?$")
 
 class ArchSiteChannel(PackageChannel):
 
-    def __init__(self, baseurl, *args):
+    def __init__(self, baseurl, treename, *args):
         super(ArchSiteChannel, self).__init__(*args)
         self._baseurl = baseurl
+        if not treename:
+            treename = "" # TODO, get part before /os/
+        self._treename = treename
 
     def getCacheCompareURLs(self):
         dbfile = getDBFile()
@@ -92,11 +95,12 @@ class ArchSiteChannel(PackageChannel):
 
 def create(alias, data):
     return ArchSiteChannel(data["baseurl"],
-                            data["type"],
-                            alias,
-                            data["name"],
-                            data["manual"],
-                            data["removable"],
-                            data["priority"])
+                           data["treename"],
+                           data["type"],
+                           alias,
+                           data["name"],
+                           data["manual"],
+                           data["removable"],
+                           data["priority"])
 
 # vim:ts=4:sw=4:et
