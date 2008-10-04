@@ -34,7 +34,7 @@ class ArchSysChannel(PackageChannel):
     def fetch(self, fetcher, progress):
         dir = os.path.join(sysconf.get("arch-root", "/"),
                            sysconf.get("arch-packages-dir",
-                                       "var/cache/pacman/pkg"))
+                                       "var/lib/pacman"))
         digest = os.path.getmtime(dir)
         if digest == self._digest:
             return True
