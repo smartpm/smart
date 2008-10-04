@@ -21,5 +21,11 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#
-#### NOTE THIS STILL DOESNT WORK ATM!!!!
+from smart import *
+import os
+
+def checkPackageFile(filename):
+    return os.path.isfile(filename) and filename.endswith(".pkg.tar.gz")
+
+hooks.register("check-package-file", checkPackageFile)
+
