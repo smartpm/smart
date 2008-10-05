@@ -213,14 +213,14 @@ class ArchSiteLoader(ArchLoader):
     def getInfoList(self):
         return parseSitePackageInfo(self._filename)
 
-    #def getLoadSteps(self):
-    #    file = open(self._filename)
-    #    total = 0
-    #    for line in file:
-    #        if line.startswith("PACKAGE NAME:"):
-    #            total += 1
-    #    file.close()
-    #    return total
+    def getLoadSteps(self):
+        file = tarfile.open(self._filename)
+        total = 0
+        for info in file.getmembers():
+            if info.isdir():
+                total += 1
+        file.close()
+        return total
 
 def enablePsyco(psyco):
     psyco.bind(parsePackageInfo)
