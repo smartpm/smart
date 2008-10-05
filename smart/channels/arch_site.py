@@ -38,40 +38,57 @@ class ArchSiteChannel(PackageChannel):
         if not treename:
             treename = "" # TODO, get part before /os/
         self._treename = treename
+        self._dbfile = treename + ".db.tar.gz"
 
     def getCacheCompareURLs(self):
-        dbfile = getDBFile()
+        dbfile = getDBFile2()
         return [posixpath.join(self._baseurl, dbfile)]
 
     def getDBFile(self):
         # Find the correct *.db.tar.gz file since its different for each repository
         try: 
-            response = urllib2.urlopen(self._baseurl) #This is able to handle all, http, https, and ftp protocols
+            dbfile = urllib2.urlopen(posixpath.join(self._baseurl, self._dbfile)) #This is able to handle all, http, https, and ftp protocols
         except HTTPError,  e:
             raise "HTTPERROR in smart/smart/channels/arch_site.py ==> %s" % e.reason
         except URLError,  e:
             raise "URLERROR in smart/smart/channels/arch_site.py ==> %s" % e.reason
         else:
-            html = response.readline(); m = ''; i=0
-            while not m:
-                m = siteDBRE.match(html.rstrip()).groups()[-1]
-                html = response.readline()
-                i+=1;
-                if i > 2000:
-                    raise "ERROR: *.db.tar.gz not found!"
-                    break # infinite loops are nasty...
-            dbfile = m
+            #html = response.readline(); m = ''; i=0
+            #while not m:
+            #    m = siteDBRE.match(html.rstrip())
+            #    html = response.readline()
+            #    i+=1;
+            #    if i > 2000:
+            #        raise "ERROR: *.db.tar.gz not found!"
+            #        break # infinite loops are nasty...
+            #dbfile = m.groups()[-1]
+            #iface.warning(_("Got DB file via getDBFile"))
             return dbfile
+    
+    def getDBFile2(self,  url):
+        spliturl = url.split('/')
+        dbtags = ["core", "current", "community", "extra", "testing", "unstable"]
+        for tag in dbtags:
+            if tag in spliturl:
+                dbfile = tag
+        if not dbfile:
+            iface.warning(_("Coudlnt find db.tar.gz in repo! Check to make sure the BaseURL is correct! BaseURL: %s") % self._baseurl)
+            dbfile = None
+        #self._filename = dbfile + ".db.tar.gz"
+        return dbfile + ".db.tar.gz"
 
     def getFetchSteps(self):
-        return 1
+        return 4 #1
 
     def fetch(self, fetcher, progress):
+        #iface.warning(_("Getting via getDBFile"))
+        self.getDBFile()
+        #iface.warning(_("Getting via builtin Fetch"))
         fetcher.reset()
-        dbfile = getDBFile()
+        #iface.warning(_("fetch: dbilfe = %s") % self._dbfile)
         # Fetch packages file
-        url = posixpath.join(self._baseurl, dbfile)
-        item = fetcher.enqueue(url)
+        url = posixpath.join(self._baseurl, self._dbfile)
+        item = fetcher.enqueue(url,  uncomp=False)
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
@@ -87,6 +104,7 @@ class ArchSiteChannel(PackageChannel):
                      u"%s: %s" % (item.getURL(), item.getFailedReason())]
             raise Error, "\n".join(lines)
         else:
+            #iface.warning(_("FAILED FETCH: else statement in fetch"))
             return False
 
         self._digest = digest
