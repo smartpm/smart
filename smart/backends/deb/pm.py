@@ -26,10 +26,11 @@ import signal
 import errno
 import shlex
 
-from smart.const import INSTALL, REMOVE, OPTIONAL, ENFORCE
+from smart.const import INSTALL, REMOVE
+from smart.sorter import ElementSorter
 from smart.pm import PackageManager
-from smart.sorter import *
-from smart import *
+from smart.cache import PreRequires
+from smart import sysconf, iface, _
 
 
 # Part of the logic in this file was based on information found in APT.
