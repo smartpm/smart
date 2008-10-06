@@ -107,7 +107,7 @@ class DebSorter(ElementSorter):
                                        for prvpkg in prv.packages])
                 for upgpkg in upgpkgs:
                     if changeset.get(upgpkg) is REMOVE:
-                        self.addSuccessor(config, (upgpkg, REMOVE), OPTIONAL)
+                        self.addSuccessor(unpack, (upgpkg, REMOVE), OPTIONAL)
 
                 # Conflicted packages being removed must go in
                 # before this package's installation.
@@ -202,6 +202,7 @@ class DebPackageManager(PackageManager):
             old_apt_lc_frontend = os.environ.get(APT_LISTCHANGES_FRONTEND)
             os.environ[DEBIAN_FRONTEND] = "noninteractive"
             os.environ[APT_LISTCHANGES_FRONTEND] = "none"
+            baseargs.append("--force-confold")
 
         if sysconf.get("pm-iface-output"):
             output = tempfile.TemporaryFile()

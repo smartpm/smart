@@ -115,13 +115,14 @@ class DebPackageManagerTest(unittest.TestCase):
         self.assertEquals(file_url[:7], "file://")
         file_path = file_url[7:]
 
-        environ = []
-        def check_environ(argv, output):
-            environ.append(os.environ.get("DEBIAN_FRONTEND"))
-            environ.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
+        check_results = []
+        def check(argv, output):
+            check_results.append(os.environ.get("DEBIAN_FRONTEND"))
+            check_results.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
+            check_results.append("--force-confold" in argv)
             return 0
 
-        self.pm.dpkg = check_environ
+        self.pm.dpkg = check
 
         sysconf.set("pm-iface-output", True, soft=True)
         sysconf.set("deb-non-interactive", True, soft=True)
@@ -129,5 +130,33 @@ class DebPackageManagerTest(unittest.TestCase):
         self.pm.commit({pkg: INSTALL}, {pkg: [file_path]})
 
         # One time for --unpack, one time for --configure.
-        self.assertEquals(environ,
-                          ["noninteractive", "none", "noninteractive", "none"])
+        self.assertEquals(check_results,
+                          ["noninteractive", "none", True,
+                           "noninteractive", "none", True])
+
+    def test_deb_non_interactive_false(self):
+        pkg = self.cache.getPackages()[0]
+        info = self.loader.getInfo(pkg)
+
+        file_url = info.getURLs()[0]
+        self.assertEquals(file_url[:7], "file://")
+        file_path = file_url[7:]
+
+        check_results = []
+        def check(argv, output):
+            check_results.append(os.environ.get("DEBIAN_FRONTEND"))
+            check_results.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
+            check_results.append("--force-confold" in argv)
+            return 0
+
+        self.pm.dpkg = check
+
+        sysconf.set("pm-iface-output", False, soft=True)
+        sysconf.set("deb-non-interactive", False, soft=True)
+
+        self.pm.commit({pkg: INSTALL}, {pkg: [file_path]})
+
+        # One time for --unpack, one time for --configure.
+        self.assertEquals(check_results,
+                          [None, None, False,
+                           None, None, False])
