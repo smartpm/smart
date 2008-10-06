@@ -91,9 +91,8 @@ class DebSorter(ElementSorter):
                                 # of the dependent must necessarily happen
                                 # after the config of the dependency.
                                 add_relation((prvpkg, UNPACK), config)
+                                add_relation((prvpkg, CONFIG), config)
                                 add_relation((prvpkg, CONFIG), unpack,
-                                             req_type_priority)
-                                add_relation((prvpkg, CONFIG), config,
                                              req_type_priority)
                             else:
                                 # reqpkg=REMOVE, prvpkg=INSTALL
