@@ -61,7 +61,7 @@ class ArchPackageManager(PackageManager):
             prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
-            status, output = commands.getstatusoutput("pacman -S %s" %
+            status, output = commands.getstatusoutput("pacman -U %s" %
                                                       pkgpaths[pkg][0])
             prog.setSubDone(pkg)
             prog.show()
@@ -75,7 +75,7 @@ class ArchPackageManager(PackageManager):
             prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
-            status, output = commands.getstatusoutput("pacman -S %s" %
+            status, output = commands.getstatusoutput("pacman -U %s" %
                                                       pkgpaths[pkg][0])
             prog.setSubDone(pkg)
             prog.show()
