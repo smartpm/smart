@@ -37,8 +37,9 @@ DEPENDSRE = re.compile("([\w.+-]+)([<=>]+)?([\w.+-]+)?")
 
 class ArchPackageInfo(PackageInfo):
 
-    def __init__(self, package, info):
+    def __init__(self, package, loader, info):
         PackageInfo.__init__(self, package)
+        self._loader = loader
         self._info = info
 
     def getGroup(self):
@@ -276,7 +277,7 @@ class ArchLoader(Loader):
             prog.show()
 
     def getInfo(self, pkg):
-        return ArchPackageInfo(pkg, pkg.loaders[self])
+        return ArchPackageInfo(pkg, self, pkg.loaders[self])
 
 class ArchDBLoader(ArchLoader):
 
