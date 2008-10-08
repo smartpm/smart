@@ -135,8 +135,28 @@ def parseFilePackageInfo(filename):
     file.close()
     return infolst
 
-def parseDBPackageInfo(filename):
+def parseDBPackageInfo(dirname):
     infolst = []
+    info = {}
+    for entry in os.listdir(dirname):
+        if entry.endswith("desc") or entry.endswith("depends"):
+            path = posixpath.join(dirname, entry)
+            file = open(path)
+            section = None
+            for line in file:
+                if not line or not line.strip():
+                    continue
+                m = SECTIONRE.match(line)
+                if m:
+                    section = m.group(1).lower()
+                    continue
+                if section and section in info:
+                    info[section] = info[section] + "\n" + line.rstrip()
+                else:
+                    info[section] = line.rstrip()
+            file.close()
+    if info:
+         infolst.append(info)
     return infolst
 
 def parseSitePackageInfo(dbpath):
@@ -267,7 +287,7 @@ class ArchDBLoader(ArchLoader):
             infolst = parseDBPackageInfo(os.path.join(self._dir, entry))
             if infolst:
                 info = infolst[0]
-                info["location"] = None
+                info["filename"] = None
                 yield info
 
     def getLoadSteps(self):
