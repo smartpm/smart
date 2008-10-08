@@ -1,9 +1,8 @@
 #
 # Copyright (c) 2004 Conectiva, Inc.
 #
-# Written by Gustavo Niemeyer <niemeyer@conectiva.com>
-#
-# Archlinux module written by Cody Lee (aka. platinummonkey) <platinummonkey@archlinux.us>
+# Written by Cody Lee <platinummonkey@archlinux.us>
+# and Anders F Bjorklund <afb@users.sourceforge.net>
 #
 # This file is part of Smart Package Manager.
 #
@@ -24,9 +23,15 @@
 from smart.cache import Loader, PackageInfo
 from smart.backends.arch.base import *
 from smart import *
-import os,  re,  tarfile
+import os
+import re
+import posixpath
+import tarfile
+import tempfile
 
-nameRE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(?:.pkg.tar.gz)?$")
+NAMERE = re.compile("^(.+)-([^-]+-[^-]+)$")
+
+SECTIONRE = re.compile("^%([A-Z0-9]+)%$")
 
 class ArchPackageInfo(PackageInfo):
 
@@ -35,20 +40,37 @@ class ArchPackageInfo(PackageInfo):
         self._info = info
 
     def getGroup(self):
-        return "Archlinux"
+        return self._info.get("groups", "Archlinux")
 
     def getSummary(self):
-        return self._info.get("summary", "")
+        return self._info.get("desc", "")
 
     def getDescription(self):
-        return self._info.get("description", "")
+        return ""
+
+    def getLicense(self):
+        return self._info.get("license", "")
 
     def getURLs(self):
         info = self._info
-        if "location" in info and "baseurl" in info:
+        if "filename" in info and "baseurl" in info:
             pkg = self._package
-            return [os.path.join(info["baseurl"], info["location"],
-                                 "%s-%s.pkg.tar.gz" % (pkg.name, pkg.version))]
+            return [os.path.join(info["baseurl"], info["filename"])]
+        return []
+
+    def getSize(self, url):
+        return long(self._info.get("csize", None))
+
+    def getMD5(self, url):
+        return self._info.get("md5sum", None)
+
+    def getInstalledSize(self):
+        return long(self._info.get("isize", None))
+
+    def getReferenceURLs(self):
+        info = self._info
+        if "url" in info:
+            return [info["url"]]
         return []
 
     def getPathList(self):
@@ -111,38 +133,50 @@ def parseDBPackageInfo(filename):
     file.close()
     return infolst
 
-def parseSitePackageInfo(desclist, dependlist):
-    # Open on *.db.tar.gz file and create a desclist and dependlist for each pkg
-    tar = tarfile.open
-    file_list = tar.getnames()
-    file_list_its = file_list / 3 # pkg dir > (desc, depends) --- 3 'files/names' per pkg
-    i, file_dict = 0, {}
-    # parse through desc file
-    while i < len(desclist):
-        if re.match("\%*\%",desclist[i]): # match definitions in file (ex. "%VERSION%" in human readable)
-            ftitle = desclist[i].lstrip('%').rstrip('%\n')
-            i+=1; finfo = ""
-            while desclist[i] != '\n':
-                finfo = finfo + desclist[i]
-                i+=1
-            i+=1
-            file_dict[ftitle] = finfo
-        else:
-            raise "iteration error at iteration %d in desclist" % i
-    # parse through depends file
-    i = 0
-    while i < len(dependlist):
-        if re.match("\%*\%",dependlist[i]): # match definitions in file (ex. "%DEPENDS%" in human readable)
-            ftitle = dependlist[i].lstrip('%').rstrip('%\n')
-            i+=1; finfo = ""
-            while dependlist[i] != '\n':
-                finfo = finfo + dependlist[i]
-                i+=1
-            i+=1
-            file_dict[ftitle] = finfo
-        else:
-            raise "iteration error at iteration %d in dependlist" % i
-    return file_dict
+def parseSitePackageInfo(dbpath):
+    infolst = []
+    info = None
+    tempdir = tempfile.mkdtemp()
+    pkgdir = None
+    tar = tarfile.open(dbpath)
+    for member in tar.getmembers():
+        if member.isdir():
+            if pkgdir:
+                temppath = posixpath.join(tempdir, pkgdir)
+                os.rmdir(temppath)
+            name = member.name.rstrip("/")
+            m = NAMERE.match(name)
+            if not m:
+                iface.error(_("Invalid package name: %s") % name)
+                continue
+            if info:
+                infolst.append(info)
+            info = {}
+        if member.name.endswith("desc") or member.name.endswith("depends"):
+            pkgdir = name
+            tar.extract(member, tempdir)
+            temppath = posixpath.join(tempdir, member.name)
+            file = open(temppath)
+            section = None
+            for line in file:
+                if not line or not line.strip():
+                    continue
+                m = SECTIONRE.match(line)
+                if m:
+                    section = m.group(1).lower()
+                    continue
+                if section and section in info:
+                    info[section] = info[section] + "\n" + line.rstrip()
+                else:
+                    info[section] = line.rstrip()
+            file.close()
+            os.unlink(temppath)
+    if pkgdir:
+         temppath = posixpath.join(tempdir, pkgdir)
+         os.rmdir(temppath)
+    if info:
+         infolst.append(info)
+    return infolst
     
 class ArchLoader(Loader):
 
@@ -162,7 +196,7 @@ class ArchLoader(Loader):
         for info in self.getInfoList():
 
             name = info["name"]
-            version = info["version"]
+            version = info["version"] + "-" + info["arch"]
 
             prvargs = [(ArchProvides, name, version)]
             upgargs = [(ArchUpgrades, name, "<", version)]
