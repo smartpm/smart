@@ -52,7 +52,7 @@ class ArchSiteChannel(PackageChannel):
 
         # Fetch packages file
         url = posixpath.join(self._baseurl, self._dbfile)
-        item = fetcher.enqueue(url, uncomp=False)
+        item = fetcher.enqueue(url, uncomp=True)
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
