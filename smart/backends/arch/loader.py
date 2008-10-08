@@ -33,7 +33,7 @@ NAMERE = re.compile("^(.+)-([^-]+-[^-]+)$")
 
 SECTIONRE = re.compile("^%([A-Z0-9]+)%$")
 
-DEPENDSRE = re.compile("([\w.-]+)([<=>]+)?([\w.-]+)?")
+DEPENDSRE = re.compile("([\w.+-]+)([<=>]+)?([\w.+-]+)?")
 
 class ArchPackageInfo(PackageInfo):
 
