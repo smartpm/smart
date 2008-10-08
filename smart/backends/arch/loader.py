@@ -201,6 +201,10 @@ class ArchLoader(Loader):
             prvargs = [(ArchProvides, name, version)]
             upgargs = [(ArchUpgrades, name, "<", version)]
 
+            if "provides" in info:
+                for prv in info["provides"].splitlines():
+                    prvargs.append((ArchProvides, prv, None))
+
             def parserelation(str):
                 m = DEPENDSRE.match(str.strip())
                 if m:
@@ -222,7 +226,7 @@ class ArchLoader(Loader):
 
             cnfargs = []
             if "conflicts" in info:
-                for req in parserelations(info["conflicts"]):
+                for cnf in parserelations(info["conflicts"]):
                     n, r, v = cnf
                     cnfargs.append((ArchConflicts, n, r, v))
 
