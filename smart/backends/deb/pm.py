@@ -26,7 +26,7 @@ import signal
 import errno
 import shlex
 
-from smart.const import INSTALL, REMOVE, OPTIONAL, ENFORCE
+from smart.const import Enum, INSTALL, REMOVE, OPTIONAL, ENFORCE
 from smart.pm import PackageManager
 from smart.sorter import *
 from smart import *
@@ -34,8 +34,8 @@ from smart import *
 
 # Part of the logic in this file was based on information found in APT.
 
-UNPACK = 10
-CONFIG = 11
+UNPACK = Enum("UNPACK")
+CONFIG = Enum("CONFIG")
 
 DEBIAN_FRONTEND = "DEBIAN_FRONTEND"
 APT_LISTCHANGES_FRONTEND = "APT_LISTCHANGES_FRONTEND"
@@ -71,6 +71,7 @@ class DebSorter(ElementSorter):
                         if changeset.get(prvpkg) is INSTALL:
                             if op is INSTALL:
                                 group.addSuccessor((prvpkg, CONFIG), unpack)
+                                group.addSuccessor((prvpkg, CONFIG), config)
                             else:
                                 group.addSuccessor((prvpkg, CONFIG), remove)
                         elif prvpkg.installed:
