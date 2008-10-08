@@ -201,10 +201,6 @@ class ArchLoader(Loader):
             prvargs = [(ArchProvides, name, version)]
             upgargs = [(ArchUpgrades, name, "<", version)]
 
-            if "provides" in info:
-                for prv in info["provides"].splitlines():
-                    prvargs.append((ArchProvides, prv, None))
-
             def parserelation(str):
                 m = DEPENDSRE.match(str.strip())
                 if m:
@@ -217,6 +213,11 @@ class ArchLoader(Loader):
                 for descr in str.strip().splitlines():
                     ret.append(parserelation(descr))
                 return ret
+
+            if "provides" in info:
+                for prv in parserelations(info["provides"]):
+                    n, r, v = prv
+                    prvargs.append((ArchProvides, n, v))
 
             reqargs = []
             if "depends" in info:
