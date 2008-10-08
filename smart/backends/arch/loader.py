@@ -82,7 +82,7 @@ class ArchPackageInfo(PackageInfo):
         return []
 
     def getPathList(self):
-        return self._info.get("filelist", [])
+        return []
 
 def parseFilePackageInfo(filename):
     infolst = []
