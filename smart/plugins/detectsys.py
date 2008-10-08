@@ -63,7 +63,7 @@ def detectSLACKSystem():
 def detectARCHSystem():
     dir = os.path.join(sysconf.get("arch-root", "/"),
                        sysconf.get("arch-packages-dir",
-                                   "var/cache/pacman/pkg"))
+                                   "var/lib/pacman"))
     if os.path.isdir(dir):
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "arch-sys":

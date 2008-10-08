@@ -78,7 +78,7 @@ class ArchPackageInfo(PackageInfo):
     def getPathList(self):
         return self._info.get("filelist", [])
 
-def parseDBPackageInfo(filename):
+def parseFilePackageInfo(filename):
     infolst = []
     info = None
     desctag = None
@@ -133,6 +133,10 @@ def parseDBPackageInfo(filename):
     if info:
         infolst.append(info)
     file.close()
+    return infolst
+
+def parseDBPackageInfo(filename):
+    infolst = []
     return infolst
 
 def parseSitePackageInfo(dbpath):
@@ -253,7 +257,8 @@ class ArchDBLoader(ArchLoader):
         if dir is None:
             dir = os.path.join(sysconf.get("Arch-root", "/"),
                                sysconf.get("Arch-packages-dir",
-                                           "/var/cache/pacman/pkg"))
+                                           "/var/lib/pacman"),
+                               "local")
         self._dir = dir
         self.setInstalled(True)
     
