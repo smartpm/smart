@@ -59,7 +59,7 @@ Let's inspect the package data.
   >>> pkg.name
   'name1'
   >>> pkg.version
-  'version1-noarch-release1'
+  'version1-release1-i686'
 
 
 Now let's ask the loader for a PackageInfo instance, and inspect it.
@@ -75,15 +75,16 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getSummary()
   'Summary1'
   >>> info.getDescription()
-  'Description1\n...'
+  'Summary1'
 
   >>> info.getURLs()
-  ['file:///.../data/arch/./name1-version1-release1-i686.pkg.tar.gz']
+  ['file:///.../data/arch/name1-version1-release1-i686.pkg.tar.gz']
   >>> url = info.getURLs()[0]
 
   >>> info.getMD5(url)
   '4a99cc85763ded06bad9474d39f4bc49'
   >>> info.getSize(url)
+  355L
 
   >>> info.getReferenceURLs()
   ['http://www.example.com/name1']
