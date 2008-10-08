@@ -61,6 +61,15 @@ Let's inspect the package data.
   >>> pkg.version
   'version1-release1-i686'
 
+  >>> sorted(pkg.provides)
+  [name1 = version1-release1-i686]
+  >>> [type(x).__name__ for x in sorted(pkg.provides)]
+  ['ArchProvides']
+  >>> sorted(pkg.requires)
+  [depend1]
+  >>> [type(x).__name__ for x in sorted(pkg.requires)]
+  ['ArchRequires']
+
 
 Now let's ask the loader for a PackageInfo instance, and inspect it.
 

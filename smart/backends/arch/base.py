@@ -29,7 +29,7 @@ import fnmatch
 import string
 import os, re
 
-__all__ = ["ArchPackage", "ArchProvides", "ArchUpgrades"]
+__all__ = ["ArchPackage", "ArchProvides", "ArchRequires", "ArchUpgrades"]
 
 class ArchPackage(Package):
 
@@ -82,6 +82,8 @@ class ArchDepends(Depends):
         if not self.version or not prv.version:
             return True
         return checkdep(prv.version, self.relation, self.version)
+
+class ArchRequires(ArchDepends,Requires): __slots__ = ()
 
 class ArchUpgrades(ArchDepends,Upgrades): __slots__ = ()
 

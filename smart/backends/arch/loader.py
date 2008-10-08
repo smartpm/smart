@@ -33,6 +33,8 @@ NAMERE = re.compile("^(.+)-([^-]+-[^-]+)$")
 
 SECTIONRE = re.compile("^%([A-Z0-9]+)%$")
 
+DEPENDSRE = re.compile("([\w.-]+)([<=>]+)?([\w.-]+)?")
+
 class ArchPackageInfo(PackageInfo):
 
     def __init__(self, package, info):
@@ -189,8 +191,6 @@ class ArchLoader(Loader):
 
     def load(self):
 
-        reqargs = cnfargs = []
-
         prog = iface.getProgress(self._cache)
 
         for info in self.getInfoList():
@@ -200,6 +200,27 @@ class ArchLoader(Loader):
 
             prvargs = [(ArchProvides, name, version)]
             upgargs = [(ArchUpgrades, name, "<", version)]
+
+            def parserelation(str):
+                m = DEPENDSRE.match(str.strip())
+                if m:
+                    return m.group(1), m.group(2), m.group(3)
+                else:
+                    return str.strip(), None, None
+
+            def parserelations(str):
+                ret = []
+                for descr in str.strip().splitlines():
+                    ret.append(parserelation(descr))
+                return ret
+
+            reqargs = []
+            if "depends" in info:
+                for req in parserelations(info["depends"]):
+                    n, r, v = req
+                    reqargs.append((ArchRequires, n, r, v))
+
+            cnfargs = []
 
             pkg = self.buildPackage((ArchPackage, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
