@@ -29,7 +29,8 @@ import fnmatch
 import string
 import os, re
 
-__all__ = ["ArchPackage", "ArchProvides", "ArchRequires", "ArchUpgrades"]
+__all__ = ["ArchPackage", "ArchProvides", "ArchRequires", "ArchUpgrades",
+           "ArchConflicts"]
 
 class ArchPackage(Package):
 
@@ -86,6 +87,8 @@ class ArchDepends(Depends):
 class ArchRequires(ArchDepends,Requires): __slots__ = ()
 
 class ArchUpgrades(ArchDepends,Upgrades): __slots__ = ()
+
+class ArchConflicts(ArchDepends,Conflicts): __slots__ = ()
 
 def enablePsyco(psyco):
     psyco.bind(ArchPackage.coexists)

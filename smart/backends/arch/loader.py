@@ -221,6 +221,11 @@ class ArchLoader(Loader):
                     reqargs.append((ArchRequires, n, r, v))
 
             cnfargs = []
+            if "conflicts" in info:
+                for req in parserelations(info["conflicts"]):
+                    n, r, v = cnf
+                    cnfargs.append((ArchConflicts, n, r, v))
+
 
             pkg = self.buildPackage((ArchPackage, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
