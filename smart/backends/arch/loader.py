@@ -61,13 +61,19 @@ class ArchPackageInfo(PackageInfo):
         return []
 
     def getSize(self, url):
-        return long(self._info.get("csize", None))
+        size = self._info.get("csize")
+        if size:
+            return long(size)
+        return None
 
     def getMD5(self, url):
         return self._info.get("md5sum", None)
 
     def getInstalledSize(self):
-        return long(self._info.get("isize", None))
+        size = self._info.get("isize")
+        if size:
+            return long(size)
+        return None
 
     def getReferenceURLs(self):
         info = self._info
