@@ -2,19 +2,23 @@
 name = Arch Linux Core (i686)
 type = arch-site
 baseurl = http://ftp.archlinux.org/core/os/i686/
+disabled = no
 
 [arch-core-x86_64]
 name = Arch Linux Core (x86_64)
 type = arch-site
 baseurl = http://ftp.archlinux.org/core/os/x86_64/
+disabled = yes
 
 [arch-extra-i686]
 name = Arch Linux Extra (i686)
 type = arch-site
 baseurl = http://ftp.archlinux.org/extra/os/i686/
+disabled = no
 
 [arch-extra-x86_64]
 name = Arch Linux Extra (x86_64)
 type = arch-site
 baseurl = http://ftp.archlinux.org/extra/os/x86_64/
+disabled = yes
 
