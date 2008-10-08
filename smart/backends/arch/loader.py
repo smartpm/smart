@@ -220,7 +220,9 @@ class ArchLoader(Loader):
         for info in self.getInfoList():
 
             name = info["name"]
-            version = info["version"] + "-" + info["arch"]
+            version = info["version"]
+            if "arch" in info:
+                version += "-" + info["arch"]
 
             prvargs = [(ArchProvides, name, version)]
             upgargs = [(ArchUpgrades, name, "<", version)]
