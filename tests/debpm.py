@@ -223,8 +223,6 @@ class DebSorterTest(unittest.TestCase):
         sorter = DebSorter(changeset)
         sorted = sorter.getSorted()
 
-        # XXX That's not yet stable.  The deb-ordering-fix branch
-        #     should bring it to stability.
-        #self.assertEquals(sorted,
-        #                  [(a_2, UNPACK), (a_1, REMOVE), (b_1, UNPACK),
-        #                   (b_1, CONFIG), (a_2, CONFIG)])
+        self.assertEquals(sorted,
+                          [(a_2, UNPACK), (a_1, REMOVE), (b_1, UNPACK),
+                           (b_1, CONFIG), (a_2, CONFIG)])
