@@ -26,11 +26,19 @@ import re
 
 VERRE = re.compile("([^-]+)(?:-([^-]+)(?:-(.+))?)?")
 
+def splitarch(v):
+    slash = v.rfind("-")
+    if slash == -1:
+        return v, None
+    toks = v.rsplit("-")
+    return toks[-1]
+
 def splitrelease(v):
     slash = v.rfind("-")
     if slash == -1:
         return v, None
-    return v[:slash], v[slash+1:]
+    toks = v.rsplit("-")
+    return toks[-2]
 
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)
