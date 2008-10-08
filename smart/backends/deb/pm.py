@@ -122,10 +122,7 @@ class DebSorter(ElementSorter):
                                 # for both dependencies and pre-dependencies
                                 # the removal must happen before the
                                 # configuration.
-                                #add_relation(config, (prvpkg, REMOVE))
-                                pass # XXX That's disabled for now.  Packages
-                                     #     most probably aren't build with this
-                                     #     expectation.
+                                add_relation(config, (prvpkg, REMOVE))
                             else:
                                 # reqpkg=REMOVE, prvpkg=REMOVE
                                 # ------------------------------
