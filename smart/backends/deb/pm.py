@@ -26,7 +26,7 @@ import signal
 import errno
 import shlex
 
-from smart.const import INSTALL, REMOVE
+from smart.const import Enum, INSTALL, REMOVE
 from smart.sorter import ElementSorter
 from smart.pm import PackageManager
 from smart.cache import PreRequires
@@ -35,8 +35,8 @@ from smart import sysconf, iface, _
 
 # Part of the logic in this file was based on information found in APT.
 
-UNPACK = 10
-CONFIG = 11
+UNPACK = Enum("UNPACK")
+CONFIG = Enum("CONFIG")
 
 DEBIAN_FRONTEND = "DEBIAN_FRONTEND"
 APT_LISTCHANGES_FRONTEND = "APT_LISTCHANGES_FRONTEND"
@@ -266,6 +266,7 @@ class DebPackageManager(PackageManager):
             old_apt_lc_frontend = os.environ.get(APT_LISTCHANGES_FRONTEND)
             os.environ[DEBIAN_FRONTEND] = "noninteractive"
             os.environ[APT_LISTCHANGES_FRONTEND] = "none"
+            baseargs.append("--force-confold")
 
         if sysconf.get("pm-iface-output"):
             output = tempfile.TemporaryFile()
