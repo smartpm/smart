@@ -1,0 +1,4 @@
+[slackware-patches]
+name=Slackware 12.1 Patches
+type=slack-site
+baseurl=http://ftp.sunet.se/pub/Linux/distributions/slackware/slackware-12.1/patches/

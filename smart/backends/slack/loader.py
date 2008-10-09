@@ -168,7 +168,7 @@ class SlackLoader(Loader):
     def __init__(self, baseurl=None):
         Loader.__init__(self)
         self._md5sums = {}
-        self._baseurl = baseurl
+        self._baseurl = None
 
     def getInfoList(self):
         return []
