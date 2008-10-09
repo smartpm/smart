@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.cache import Loader, PackageInfo
+from smart.channel import FileChannel
 from smart.backends.slack.base import *
 from smart import *
 import os
@@ -70,6 +71,12 @@ class SlackPackageInfo(PackageInfo):
 
     def getPathList(self):
         return self._info.get("filelist", [])
+
+def parsePackageFile(filename):
+    infolst = []
+    # TODO
+    # :-)
+    return infolst
 
 def parsePackageInfo(filename, checksum = None):
     md5sums = {}
@@ -158,10 +165,10 @@ def parsePackageInfo(filename, checksum = None):
 
 class SlackLoader(Loader):
 
-    def __init__(self):
+    def __init__(self, baseurl=None):
         Loader.__init__(self)
         self._md5sums = {}
-        self._baseurl = None
+        self._baseurl = baseurl
 
     def getInfoList(self):
         return []
@@ -224,6 +231,31 @@ class SlackLoader(Loader):
     def getInfo(self, pkg):
         return SlackPackageInfo(pkg, pkg.loaders[self])
 
+class SlackDirLoader(SlackLoader):
+
+    def __init__(self, dir, filename=None):
+        SlackLoader.__init__(self, "file:///")
+        self._dir = os.path.abspath(dir)
+        if filename:
+            self._filenames = [filename]
+        else:
+            self._filenames = [x for x in os.listdir(dir)
+                                      if filename.endswith(".tgz") \
+                                      or filename.endswith(".tbz") \
+                                      or filename.endswith(".tlz")]
+
+    def getInfoList(self):
+        for filename in self._filenames:
+            filepath = os.path.join(self._dir, filename)
+            infolst = parsePackageFile(filepath)
+            if infolst:
+                info = infolst[0]
+                info["location"] = filepath
+                yield info
+
+    def getLoadSteps(self):
+        return len(self._filenames)
+
 class SlackDBLoader(SlackLoader):
 
     def __init__(self, dir=None):
@@ -266,7 +298,31 @@ class SlackSiteLoader(SlackLoader):
         file.close()
         return total
 
+class SlackFileChannel(FileChannel):
+
+    def fetch(self, fetcher, progress):
+        digest = os.path.getmtime(self._filename)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        dirname, basename = os.path.split(self._filename)
+        loader = SlackDirLoader(dirname, basename)
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
+        return True
+
+def createFileChannel(filename):
+    if filename.endswith(".tgz") \
+    or filename.endswith(".tbz") \
+    or filename.endswith(".tlz"):
+        return SlackFileChannel(filename)
+    return None
+
+hooks.register("create-file-channel", createFileChannel)
+
 def enablePsyco(psyco):
+    psyco.bind(parsePackageFile)
     psyco.bind(parsePackageInfo)
     psyco.bind(SlackLoader.load)
     psyco.bind(SlackDBLoader.getInfoList)
