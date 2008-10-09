@@ -34,7 +34,7 @@ from smart import *
 import tests
 
 
-USAGE=_("test.py [options] [<test filename>, ...]")
+USAGE=_("test [options] [<test filename>, ...]")
 
 
 def find_tests(testpaths=()):
