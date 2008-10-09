@@ -1399,6 +1399,8 @@ Loader_init(LoaderObject *self, PyObject *args)
     self->_packages = PyList_New(0);
     Py_INCREF(Py_False);
     self->_installed = Py_False;
+    Py_INCREF(Py_None);
+    self->_cache = Py_None;
     return 0;
 }
 

@@ -10,7 +10,7 @@ from smart.progress import Progress
 from smart.fetcher import Fetcher
 from smart.cache import Cache
 from smart.const import INSTALL, REMOVE
-from smart import iface
+from smart import iface, sysconf
 
 from tests import TESTDATADIR, ctrl
 
