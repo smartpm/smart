@@ -21,6 +21,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.cache import Loader, PackageInfo
+from smart.channel import FileChannel
 from smart.backends.arch.base import *
 from smart import *
 import os
@@ -91,20 +92,15 @@ def parseFilePackageInfo(filename):
     desctag = None
     desctaglen = None
     filelist = False
-    #file = open(filename)
     tar = tarfile.open(filename)
     file = tar.extractfile('.PKGINFO')
     for line in file:
         if line.startswith("pkgname"):
             name = line[9:].strip()
-            #m = namere.match(name)
-            #if not m:
-            #    iface.warning(_("Invalid package name: %s") % name)
-            #    continue
             if info:
                 infolst.append(info)
             info = {}
-            info["name"] = name #, info["version"] = m.groups()
+            info["name"] = name
             desctag = None
             filelist = False
         elif info:
@@ -136,7 +132,6 @@ def parseFilePackageInfo(filename):
                         info["filelist"].append(line)
                     else:
                         info["filelist"] = [line]
-            ################################
     if info:
         infolst.append(info)
     file.close()
@@ -213,9 +208,9 @@ def parseSitePackageInfo(dbpath):
     
 class ArchLoader(Loader):
 
-    def __init__(self):
+    def __init__(self, baseurl=None):
         Loader.__init__(self)
-        self._baseurl = None
+        self._baseurl = baseurl
 
     def getInfoList(self):
         return []
@@ -279,6 +274,29 @@ class ArchLoader(Loader):
     def getInfo(self, pkg):
         return ArchPackageInfo(pkg, self, pkg.loaders[self])
 
+class ArchDirLoader(ArchLoader):
+
+    def __init__(self, dir, filename=None):
+        ArchLoader.__init__(self, "file:///")
+        self._dir = os.path.abspath(dir)
+        if filename:
+            self._filenames = [filename]
+        else:
+            self._filenames = [x for x in os.listdir(dir)
+                                  if x.endswith(".pkg.tar.gz")]
+
+    def getInfoList(self):
+        for filename in self._filenames:
+            filepath = os.path.join(self._dir, filename)
+            infolst = parseFilePackageInfo(filepath)
+            if infolst:
+                info = infolst[0]
+                info["filename"] = filename
+                yield info
+
+    def getLoadSteps(self):
+        return len(self._filenames)
+
 class ArchDBLoader(ArchLoader):
 
     def __init__(self, dir=None):
@@ -320,6 +338,27 @@ class ArchSiteLoader(ArchLoader):
                 total += 1
         file.close()
         return total
+
+class ArchFileChannel(FileChannel):
+
+    def fetch(self, fetcher, progress):
+        digest = os.path.getmtime(self._filename)
+        if digest == self._digest:
+            return True
+        self.removeLoaders()
+        dirname, basename = os.path.split(self._filename)
+        loader = ArchDirLoader(dirname, basename)
+        loader.setChannel(self)
+        self._loaders.append(loader)
+        self._digest = digest
+        return True
+
+def createFileChannel(filename):
+    if filename.endswith(".pkg.tar.gz"):
+        return ArchFileChannel(filename)
+    return None
+
+hooks.register("create-file-channel", createFileChannel)
 
 def enablePsyco(psyco):
     psyco.bind(parsePackageInfo)
