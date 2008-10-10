@@ -1259,6 +1259,9 @@ class URLLIBHandler(FetcherHandler):
             except urllib.addinfourl, remote:
                 if remote.errcode == 304: # Not modified
                     item.setSucceeded(localpath)
+                elif remote.errcode == 404:
+                    # Use a standard translatable error message.
+                    item.setFailed(_("File not found"))
                 else:
                     item.setFailed(remote.errmsg)
 

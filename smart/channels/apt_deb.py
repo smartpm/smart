@@ -217,7 +217,7 @@ class APTDEBChannel(PackageChannel):
                     packages_items.append(item)
                 else:
                     iface.warning(_("Component '%s' is not in Release file "
-                                    "for channel '%s'") % (comp, self))
+                                    "for channel '%s'") % (component, self))
 
         fetcher.run(progress=progress)
 
