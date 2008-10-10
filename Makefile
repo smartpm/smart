@@ -46,7 +46,7 @@ check-po:
 
 test:
 	./setup.py build_ext -i
-	LANG=C ./test.py $(TEST)
+	LANG=C ./test $(TEST)
 
 .PHONY: clean smart.pot update-po check-po test
 
