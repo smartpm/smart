@@ -84,7 +84,7 @@ class ArchPackageInfo(PackageInfo):
         return []
 
     def getPathList(self):
-        return []
+        return self._info.get("files", [])
 
 def parseFilePackageInfo(filename):
     infolst = []
@@ -161,8 +161,8 @@ def parseDBPackageInfo(dirname):
          infolst.append(info)
     return infolst
 
-def parseSitePackageInfo(dbpath):
-    infolst = []
+def parseSitePackageInfo(dbpath, flpath):
+    infolst = {}
     info = None
     tempdir = tempfile.mkdtemp()
     pkgdir = None
@@ -172,13 +172,13 @@ def parseSitePackageInfo(dbpath):
             if pkgdir:
                 temppath = posixpath.join(tempdir, pkgdir)
                 os.rmdir(temppath)
+            if info and name:
+                infolst[name] = info
             name = member.name.rstrip("/")
             m = NAMERE.match(name)
             if not m:
                 iface.error(_("Invalid package name: %s") % name)
                 continue
-            if info:
-                infolst.append(info)
             info = {}
         if member.name.endswith("desc") or member.name.endswith("depends"):
             pkgdir = name
@@ -202,13 +202,42 @@ def parseSitePackageInfo(dbpath):
     if pkgdir:
          temppath = posixpath.join(tempdir, pkgdir)
          os.rmdir(temppath)
-    if info:
-         infolst.append(info)
-    return infolst
+    if info and name:
+         infolst[name] = info
+    if flpath:
+        pkgdir = None
+        files = tarfile.open(flpath)
+        for member in files.getmembers():
+            if member.isdir():
+                if pkgdir:
+                    temppath = posixpath.join(tempdir, pkgdir)
+                    os.rmdir(temppath)
+                name = member.name.rstrip("/")
+                if name not in infolst:
+                    info = None
+                else:
+                    info = infolst[name]
+            if info and name and member.name.endswith("files"):
+                pkgdir = name
+                files.extract(member, tempdir)
+                temppath = posixpath.join(tempdir, member.name)
+                file = open(temppath)
+                section = None
+                for line in file:
+                    if not line or not line.strip():
+                        continue
+                    m = SECTIONRE.match(line)
+                    if m:
+                        section = m.group(1).lower()
+                        continue
+                    if section and section in info:
+                        info[section].append(line.rstrip())
+                    else:
+                        info[section] = [line.rstrip()]
+                file.close()
+                os.unlink(temppath)
+    return infolst.values()
     
-def parseSiteFilesInfo(dbpath):
-    return None
-
 class ArchLoader(Loader):
 
     def __init__(self, baseurl=None):
@@ -332,10 +361,7 @@ class ArchSiteLoader(ArchLoader):
         self._baseurl = baseurl
     
     def getInfoList(self):
-        return parseSitePackageInfo(self._filename)
-
-    def loadFileProvides(self, fndict):
-        return parseSiteFilesInfo(self._pathlist)
+        return parseSitePackageInfo(self._filename, self._pathlist)
 
     def getLoadSteps(self):
         file = tarfile.open(self._filename)
