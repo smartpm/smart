@@ -169,6 +169,7 @@ def parseSitePackageInfo(dbpath, flpath):
             if pkgdir:
                 temppath = posixpath.join(tempdir, pkgdir)
                 os.rmdir(temppath)
+                pkgdir = None
             if info and name:
                 infolst[name] = info
             name = member.name.rstrip("/")
@@ -196,9 +197,6 @@ def parseSitePackageInfo(dbpath, flpath):
                     info[section] = line.rstrip()
             file.close()
             os.unlink(temppath)
-    if pkgdir:
-         temppath = posixpath.join(tempdir, pkgdir)
-         os.rmdir(temppath)
     if info and name:
          infolst[name] = info
     if flpath:
@@ -209,6 +207,7 @@ def parseSitePackageInfo(dbpath, flpath):
                 if pkgdir:
                     temppath = posixpath.join(tempdir, pkgdir)
                     os.rmdir(temppath)
+                    pkgdir = None
                 name = member.name.rstrip("/")
                 if name not in infolst:
                     info = None
@@ -233,6 +232,10 @@ def parseSitePackageInfo(dbpath, flpath):
                         info[section] = [line.rstrip()]
                 file.close()
                 os.unlink(temppath)
+    if pkgdir:
+         temppath = posixpath.join(tempdir, pkgdir)
+         os.rmdir(temppath)
+         pkgdir = None
     return infolst.values()
     
 class ArchLoader(Loader):
