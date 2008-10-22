@@ -115,7 +115,7 @@ def parseFilePackageInfo(filename):
             elif line.startswith("packager"):
                 info["packager"]  = line[11:].strip()
             elif line.startswith("size"):
-                info["size"] = line[7:].strip()
+                info["isize"] = line[7:].strip()
             elif line.startswith("arch"):
                 info["arch"] = line[7:].strip()
             elif line.startswith("license"):
