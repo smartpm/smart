@@ -102,7 +102,6 @@ def parseFilePackageInfo(filename):
             info = {}
             info["name"] = name
             desctag = None
-            filelist = False
         elif info:
             if line.startswith("pkgver"):
                 info["version"] = line[8:].strip()
@@ -124,17 +123,15 @@ def parseFilePackageInfo(filename):
                 info["groups"] = line[8:].strip()
             elif line.startswith("depend"):
                 info["depend"] = line[9:].strip()
-            elif filelist:
-                line = line.rstrip()
-                if line != "./":
-                    line = "/"+line
-                    if "filelist" in info:
-                        info["filelist"].append(line)
-                    else:
-                        info["filelist"] = [line]
     if info:
         infolst.append(info)
     file.close()
+    for file in tar.getnames():
+        if file != '.PKGINFO':
+             if "files" in info:
+                 info["files"].append(file)
+             else:
+                 info["files"] = [file]
     return infolst
 
 def parseDBPackageInfo(dirname):
