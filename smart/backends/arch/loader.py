@@ -107,7 +107,7 @@ def parseFilePackageInfo(filename):
             if line.startswith("pkgver"):
                 info["version"] = line[8:].strip()
             elif line.startswith("pkgdesc"):
-                info["description"] = line[9:].strip()
+                info["desc"] = line[9:].strip()
             elif line.startswith("url"):
                 info["url"] = line[6:].strip()
             elif line.startswith("builddate"):
