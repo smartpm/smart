@@ -154,8 +154,14 @@ class QtProgress(Progress, qt.QDialog):
 
         qt.QDialog.hide(self)
 
+    def _currentThread(self):
+        if hasattr(qt, 'QThread'):
+            return qt.QThread.currentThread()
+        else:
+            return None
+
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
-        if qt.QThread.currentThread() != self._mainthread:
+        if self._currentThread() != self._mainthread:
             # Note: it's NOT safe to use Qt from threads other than main
             return
             
@@ -213,7 +219,8 @@ def test():
     import sys, time
 
     prog = QtProgress(True)
-    prog.setMainThread(qt.QThread.currentThread())
+    if hasattr(qt, 'QThread'):
+        prog.setMainThread(qt.QThread.currentThread())
         
     data = {"item-number": 0}
     total, subtotal = 100, 100
