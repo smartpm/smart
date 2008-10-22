@@ -121,7 +121,7 @@ def parseFilePackageInfo(filename):
             elif line.startswith("license"):
                 info["license"] = line[10:].strip()
             elif line.startswith("group"):
-                info["group"] = line[8:].strip()
+                info["groups"] = line[8:].strip()
             elif line.startswith("depend"):
                 info["depend"] = line[9:].strip()
             elif filelist:
