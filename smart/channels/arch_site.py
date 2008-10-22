@@ -39,12 +39,13 @@ class ArchSiteChannel(PackageChannel):
             treename = paths[-3] # get part before /os/
         self._treename = treename
         self._dbfile = treename + ".db.tar.gz"
+        self._flfile = treename + ".files.tar.gz"
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, self._dbfile)]
 
     def getFetchSteps(self):
-        return 1
+        return 2
 
     def fetch(self, fetcher, progress):
 
@@ -53,14 +54,24 @@ class ArchSiteChannel(PackageChannel):
         # Fetch packages file
         url = posixpath.join(self._baseurl, self._dbfile)
         item = fetcher.enqueue(url, uncomp=True)
+        flurl = posixpath.join(self._baseurl, self._flfile)
+        flitem = fetcher.enqueue(flurl, uncomp=True)
         fetcher.run(progress=progress)
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
             digest = getFileDigest(localpath)
             if digest == self._digest:
                 return True
+            if flitem.getStatus() == SUCCEEDED:
+                filespath = flitem.getTargetPath()
+            else:
+                iface.warning(_("Failed to download. You must fetch channel "
+                                "information to acquire needed filelists.\n"
+                                "%s: %s") % (flitem.getURL(),
+                                flitem.getFailedReason()))
+                filespath = None
             self.removeLoaders()
-            loader = ArchSiteLoader(localpath, self._baseurl)
+            loader = ArchSiteLoader(localpath, filespath, self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:

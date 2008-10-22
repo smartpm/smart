@@ -206,6 +206,9 @@ def parseSitePackageInfo(dbpath):
          infolst.append(info)
     return infolst
     
+def parseSiteFilesInfo(dbpath):
+    return None
+
 class ArchLoader(Loader):
 
     def __init__(self, baseurl=None):
@@ -322,13 +325,17 @@ class ArchDBLoader(ArchLoader):
 
 class ArchSiteLoader(ArchLoader):
 
-    def __init__(self, filename, baseurl):
+    def __init__(self, filename, pathlist, baseurl):
         ArchLoader.__init__(self)
         self._filename = filename
+        self._pathlist = pathlist
         self._baseurl = baseurl
     
     def getInfoList(self):
         return parseSitePackageInfo(self._filename)
+
+    def loadFileProvides(self, fndict):
+        return parseSiteFilesInfo(self._pathlist)
 
     def getLoadSteps(self):
         file = tarfile.open(self._filename)
