@@ -1109,7 +1109,7 @@ class URLLIBHandler(FetcherHandler):
         return bool(self._queue or self._active)
 
     def fetch(self):
-        import urllib, rfc822
+        import urllib, rfc822, calendar
 
         class Opener(urllib.FancyURLopener):
             user = None
@@ -1253,7 +1253,7 @@ class URLLIBHandler(FetcherHandler):
                         mtimes = info["last-modified"]
                         mtimet = rfc822.parsedate(mtimes)
                         if mtimet:
-                            mtime = time.mktime(mtimet)
+                            mtime = calendar.timegm(mtimet)
                             os.utime(localpath, (mtime, mtime))
 
             except urllib.addinfourl, remote:
