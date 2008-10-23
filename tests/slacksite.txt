@@ -81,7 +81,7 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> url = info.getURLs()[0]
 
   >>> info.getMD5(url)
-  '6cca7b11acf8f3919f9d3afcf362fb0f'
+  '9cccc5220c6b2d6afdf60d7ff6b800a4'
   >>> info.getSize(url)
 
   >>> info.getReferenceURLs()
