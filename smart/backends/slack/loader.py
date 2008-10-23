@@ -25,6 +25,9 @@ from smart.backends.slack.base import *
 from smart import *
 import os
 import re
+import posixpath
+import tarfile
+import tempfile
 
 NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(.t[gbl]z)?$")
 
@@ -74,11 +77,41 @@ class SlackPackageInfo(PackageInfo):
 
 def parsePackageFile(filename):
     infolst = []
-    # TODO
-    # :-)
+    info = {}
+    dirname, basename = os.path.split(filename)
+    package, type = basename.rsplit('.')
+    name, version = package.split('-', 1)
+    info["name"] = name
+    info["version"] = version
+    info["type"] = ".%s" % type
+    try:
+        tar = tarfile.open(filename)
+        file = tar.extractfile('install/slack-desc')
+        desctag = "%s:" % info["name"]
+        desctaglen = len(desctag)
+        for line in file:
+            if desctag and line.startswith(desctag):
+                line = line[desctaglen:].strip()
+                if "summary" not in info:
+                    info["summary"] = line
+                elif "description" not in info:
+                    if line:
+                        info["description"] = line
+                else:
+                    if line.startswith("License: "):
+                        info["license"] = line[9:]
+                    if line.startswith("Website: "):
+                        info["website"] = line[9:]
+                    info["description"] += "\n"
+                    info["description"] += line
+        os.unlink(file)
+    except:
+        pass
+    if info:
+        infolst.append(info)
     return infolst
 
-def parsePackageInfo(filename, checksum = None):
+def parsePackageInfo(filename, checksum=None):
     md5sums = {}
     infolst = []
     info = None
@@ -168,7 +201,7 @@ class SlackLoader(Loader):
     def __init__(self, baseurl=None):
         Loader.__init__(self)
         self._md5sums = {}
-        self._baseurl = None
+        self._baseurl = baseurl
 
     def getInfoList(self):
         return []
@@ -240,9 +273,9 @@ class SlackDirLoader(SlackLoader):
             self._filenames = [filename]
         else:
             self._filenames = [x for x in os.listdir(dir)
-                                      if filename.endswith(".tgz") \
-                                      or filename.endswith(".tbz") \
-                                      or filename.endswith(".tlz")]
+                                      if x.endswith(".tgz") \
+                                      or x.endswith(".tbz") \
+                                      or x.endswith(".tlz")]
 
     def getInfoList(self):
         for filename in self._filenames:
@@ -250,7 +283,7 @@ class SlackDirLoader(SlackLoader):
             infolst = parsePackageFile(filepath)
             if infolst:
                 info = infolst[0]
-                info["location"] = filepath
+                info["location"] = self._dir.lstrip('/')
                 yield info
 
     def getLoadSteps(self):
