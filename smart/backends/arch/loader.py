@@ -91,7 +91,6 @@ def parseFilePackageInfo(filename):
     info = None
     desctag = None
     desctaglen = None
-    filelist = False
     tar = tarfile.open(filename)
     file = tar.extractfile('.PKGINFO')
     for line in file:
