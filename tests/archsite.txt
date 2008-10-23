@@ -95,6 +95,8 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getSize(url)
   355L
 
+  >>> info.getPathList()
+  ['tmp/', 'tmp/file1']
   >>> info.getReferenceURLs()
   ['http://www.example.com/name1']
 

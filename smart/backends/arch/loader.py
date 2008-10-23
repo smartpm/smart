@@ -84,7 +84,14 @@ class ArchPackageInfo(PackageInfo):
         return []
 
     def getPathList(self):
-        return self._info.get("files", [])
+        self._paths = self._loader.getPaths(self)
+        return self._paths.keys()
+
+    def pathIsDir(self, path):
+        return self._paths[path] == "d"
+
+    def pathIsFile(self, path):
+        return self._paths[path] == "f"
 
 def parseFilePackageInfo(filename):
     infolst = []
@@ -125,13 +132,15 @@ def parseFilePackageInfo(filename):
     if info:
         infolst.append(info)
     file.close()
+    return infolst
+
+def parseFilePackageList(filename):
+    filelist = {}
+    tar = tarfile.open(filename)
     for file in tar.getnames():
         if file != '.PKGINFO':
-             if "files" in info:
-                 info["files"].append(file)
-             else:
-                 info["files"] = [file]
-    return infolst
+             filelist[file] = file.endswith('/') and "d" or "f"
+    return filelist
 
 def parseDBPackageInfo(dirname):
     infolst = []
@@ -157,7 +166,7 @@ def parseDBPackageInfo(dirname):
          infolst.append(info)
     return infolst
 
-def parseSitePackageInfo(dbpath, flpath):
+def parseSitePackageInfo(dbpath):
     infolst = {}
     info = None
     tempdir = tempfile.mkdtemp()
@@ -198,21 +207,33 @@ def parseSitePackageInfo(dbpath, flpath):
             os.unlink(temppath)
     if info and name:
          infolst[name] = info
+    if pkgdir:
+         temppath = posixpath.join(tempdir, pkgdir)
+         os.rmdir(temppath)
+         pkgdir = None
+    return infolst.values()
+
+def parseSitePackageList(flpath, dirname):
+    info = None
+    tempdir = tempfile.mkdtemp()
+    pkgdir = None
+    filelist = {}
     if flpath:
         pkgdir = None
         files = tarfile.open(flpath)
-        for member in files.getmembers():
+        #for member in files.getmembers():
+        member = files.getmember("%s/files" % dirname)
+        if member:
+            name = dirname
+            info = {}
             if member.isdir():
                 if pkgdir:
                     temppath = posixpath.join(tempdir, pkgdir)
                     os.rmdir(temppath)
                     pkgdir = None
                 name = member.name.rstrip("/")
-                if name not in infolst:
-                    info = None
-                else:
-                    info = infolst[name]
-            if info and name and member.name.endswith("files"):
+            #if info and name and member.name.endswith("files"):
+            if True:
                 pkgdir = name
                 files.extract(member, tempdir)
                 temppath = posixpath.join(tempdir, member.name)
@@ -231,12 +252,15 @@ def parseSitePackageInfo(dbpath, flpath):
                         info[section] = [line.rstrip()]
                 file.close()
                 os.unlink(temppath)
+            if info["files"]:
+                for file in info["files"]:
+                    filelist[file] = file.endswith('/') and "d" or "f"
     if pkgdir:
          temppath = posixpath.join(tempdir, pkgdir)
          os.rmdir(temppath)
          pkgdir = None
-    return infolst.values()
-    
+    return filelist
+
 class ArchLoader(Loader):
 
     def __init__(self, baseurl=None):
@@ -305,11 +329,14 @@ class ArchLoader(Loader):
     def getInfo(self, pkg):
         return ArchPackageInfo(pkg, self, pkg.loaders[self])
 
+    def getPaths(self, info):
+        return {}
+
 class ArchDirLoader(ArchLoader):
 
     def __init__(self, dir, filename=None):
-        ArchLoader.__init__(self, "file:///")
         self._dir = os.path.abspath(dir)
+        ArchLoader.__init__(self, "file:///" + self._dir)
         if filename:
             self._filenames = [filename]
         else:
@@ -323,10 +350,14 @@ class ArchDirLoader(ArchLoader):
             if infolst:
                 info = infolst[0]
                 info["filename"] = filename
+                info["csize"] = os.path.getsize(filepath)
                 yield info
 
     def getLoadSteps(self):
         return len(self._filenames)
+
+    def getPaths(self, info):
+        return parseFilePackageList(os.path.join(self._dir, info._info["filename"]))
 
 class ArchDBLoader(ArchLoader):
 
@@ -360,7 +391,7 @@ class ArchSiteLoader(ArchLoader):
         self._baseurl = baseurl
     
     def getInfoList(self):
-        return parseSitePackageInfo(self._filename, self._pathlist)
+        return parseSitePackageInfo(self._filename)
 
     def getLoadSteps(self):
         file = tarfile.open(self._filename)
@@ -370,6 +401,10 @@ class ArchSiteLoader(ArchLoader):
                 total += 1
         file.close()
         return total
+
+    def getPaths(self, info):
+        dirname = "%s-%s" % (info._info["name"], info._info["version"])
+        return parseSitePackageList(self._pathlist, dirname)
 
 class ArchFileChannel(FileChannel):
 
