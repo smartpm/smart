@@ -136,10 +136,30 @@ def parseFilePackageInfo(filename):
 
 def parseFilePackageList(filename):
     filelist = {}
-    tar = tarfile.open(filename)
-    for file in tar.getnames():
-        if file != '.PKGINFO':
-             filelist[file] = file.endswith('/') and "d" or "f"
+    if tarfile.is_tarfile(filename):
+        tar = tarfile.open(filename)
+        for file in tar.getnames():
+            if file != '.PKGINFO':
+                filelist[file] = file.endswith('/') and "d" or "f"
+    else:
+        file = open(filename)
+        if file:
+            info = {}
+            for line in file:
+                if not line or not line.strip():
+                    continue
+                m = SECTIONRE.match(line)
+                if m:
+                    section = m.group(1).lower()
+                    continue
+                if section and section in info:
+                    info[section].append(line.rstrip())
+                else:
+                    info[section] = [line.rstrip()]
+            file.close()
+        if info["files"]:
+            for file in info["files"]:
+                filelist[file] = file.endswith('/') and "d" or "f"
     return filelist
 
 def parseDBPackageInfo(dirname):
@@ -381,6 +401,10 @@ class ArchDBLoader(ArchLoader):
 
     def getLoadSteps(self):
         return len(os.listdir(self._dir))
+
+    def getPaths(self, info):
+        dirname = "%s-%s" % (info._info["name"], info._info["version"])
+        return parseFilePackageList(os.path.join(self._dir, dirname, "files"))
 
 class ArchSiteLoader(ArchLoader):
 
