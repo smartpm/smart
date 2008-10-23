@@ -122,7 +122,7 @@ def parseFilePackageInfo(filename):
             elif line.startswith("group"):
                 info["groups"] = line[8:].strip()
             elif line.startswith("depend"):
-                info["depend"] = line[9:].strip()
+                info["depends"] = line[9:].strip()
     if info:
         infolst.append(info)
     file.close()
