@@ -452,9 +452,11 @@ class ChannelEditor(object):
                 widget = qt.QLineEdit(self._table)
                 widget.setText(value)
                 if key in ("alias", "type"):
-                    widget.setMaxLength(20)
+                    #widget.setMaxLength(20)
+                    pass # "usually enough for about 15 to 20 characters"
                 else:
-                    widget.setMaxLength(40)
+                    widget.resize(qt.QSize(widget.sizeHint().width()*2,
+                                           widget.sizeHint().height()))
             else:
                 raise Error, _("Don't know how to handle %s fields") % ftype
 
