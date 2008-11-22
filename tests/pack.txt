@@ -1,0 +1,26 @@
+
+Create the channel.
+
+  >>> from tests import *
+  >>> smart = __import__("smart.backends.deb")
+  >>> smart = __import__("smart.backends.deb.loader")
+  >>> smart = __import__("smart.backends.rpm")
+  >>> smart = __import__("smart.backends.rpm.header")
+  >>> ctrl.addFileChannel("/%s/pack/debtest.tar" % TESTDATADIR)
+  >>> ctrl.addFileChannel("/%s/pack/rpmtest.pkg" % TESTDATADIR)
+
+The setup is ready. Now we can load the data into the cache.
+
+  >>> ctrl.reloadChannels()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+  True
+  >>> cache = ctrl.getCache()
+
+This should give us four packages with data we already know.
+
+  >>> len(cache.getPackages())
+  4
+
+
+vim:ft=doctest
