@@ -117,6 +117,11 @@ globdistance(const char *a, int al, const char *b, int bl,
             *ratio = 1.0;
         return 0;
     }
+    if (bl == 0) {
+        if (ratio)
+            *ratio = 0.0;
+        return al;
+    }
     for (; *a == '*'; a++, al--)
         wildstart = 1;
     maxl = al>bl?al:bl;
