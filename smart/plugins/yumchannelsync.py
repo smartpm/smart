@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import posixpath
+import md5
 import os
 import ConfigParser
 import re
@@ -102,6 +103,29 @@ def _findBaseUrl(mirrorlist, repo):
             break
     return baseurl
 
+def _searchComments(repofile, repo):
+    """
+    Hack to find the commented out baseurl line if mirrorlist is feeling sad.
+    """
+    iface.debug(_("Yum Sync: trying to locate baseurl from repo comments for " \
+                     "%s.") % repo)
+    section = None
+    baseurl = None
+    file = open(repofile)
+    while 1:
+        line = file.readline()
+        if not line:
+            break
+        line = line.strip()
+        if line.startswith("[") and line.endswith("]"):
+            section = line.strip("[]")
+            continue
+        elif section == repo and line.startswith("#baseurl="):
+            baseurl = _replaceStrings(line[9:])
+            break
+    file.close()
+    return baseurl
+
 def _loadRepoFile(filename):
     """
     Loads each repository file information.
@@ -134,6 +158,8 @@ def _loadRepoFile(filename):
         if repofile.has_option(repo, 'mirrorlist'):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
             baseurl = _findBaseUrl(mirrorlist, repo)
+            if not baseurl:
+                baseurl = _searchComments(filename, repo)
         if baseurl is None and mirrorlist is None:
             iface.warning(_("Yum channel %s does not contain baseurl or " \
                             "mirrorlist addresses. Not syncing.") % repo)
