@@ -226,6 +226,8 @@ class SlackLoader(Loader):
                     return str.strip(), None, None
 
             def parserelations(str):
+                if not str:
+                    return []
                 ret = []
                 for descr in str.strip().split(","):
                     group = descr.split("|")
