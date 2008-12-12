@@ -384,8 +384,11 @@ class Fetcher(object):
             else:
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:
