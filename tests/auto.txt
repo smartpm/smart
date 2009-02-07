@@ -1,7 +1,6 @@
 
 Import what we need.
 
-  >>> from tests import ctrl
   >>> from smart.cache import *
   >>> from smart.channel import *
   >>> from smart.transaction import *
@@ -68,7 +67,7 @@ cache just built, and the install policy.
   >>> transaction = Transaction(cache, PolicyInstall)
 
 
-Mark packages for upgrading.
+Mark packages for installation.
 
   >>> for pkg in cache.getPackages("A"):
   ...     transaction.enqueue(pkg, INSTALL)
