@@ -159,10 +159,13 @@ class ChangeSet(dict):
         # requested
         for pkg in self:
             if (self[pkg] is INSTALL and
-                not pkg in upgrade and
-                not self.getRequested(pkg)):
-                pkgconf.setFlag("auto",
-                                pkg.name, "=", pkg.version)
+                not pkg in upgrade):
+                if not self.getRequested(pkg):
+                    pkgconf.setFlag("auto",
+                                    pkg.name, "=", pkg.version)
+                else:
+                    pkgconf.clearFlag("auto",
+                                      pkg.name, "=", pkg.version)
 
     def getRequested(self, pkg):
         return pkg in self._requested

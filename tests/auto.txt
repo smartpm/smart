@@ -88,5 +88,11 @@ Does it work!? Does it work!?
   >>> pkgconf.getFlagTargets("auto")
   {'B': [('=', '1')]}
 
+  >>> for pkg in cache.getPackages("B"):
+  ...     transaction.enqueue(pkg, REINSTALL)
+  >>> transaction.run()
+  >>> transaction.getChangeSet().markPackagesAutoInstalled()
+  >>> pkgconf.getFlagTargets("auto")
+  {}
 
 vim:ft=doctest
