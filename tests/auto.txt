@@ -85,8 +85,8 @@ Does it work!? Does it work!?
   A-1 INSTALL
   B-1 INSTALL
   >>> transaction.getChangeSet().markPackagesAutoInstalled()
-  >>> pkgconf.getFlagTargets("auto").keys()
-  ['B']
+  >>> pkgconf.getFlagTargets("auto")
+  {'B': [('=', '1')]}
 
 
 vim:ft=doctest
