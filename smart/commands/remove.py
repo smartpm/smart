@@ -56,6 +56,9 @@ def parse_options(argv):
                              "when possible"))
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
+    parser.add_option("--auto", action="store_true",
+                      help=_("use the auto-install information to "
+                             "remove stuff."))
     parser.add_option("--dump", action="store_true",
                       help=_("dump package names and versions to stderr but "
                              "don't commit operation"))
@@ -72,6 +75,12 @@ def main(ctrl, opts):
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyRemove)
     policy = trans.getPolicy()
+
+    if opts.auto:
+        rmcs = ctrl.markAndSweep()
+        confirm = not opts.yes
+        ctrl.commitChangeSet(rmcs, confirm=confirm)
+    
     for arg in opts.args:
 
         ratio, results, suggestions = ctrl.search(arg)
