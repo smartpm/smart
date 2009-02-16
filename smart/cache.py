@@ -143,6 +143,9 @@ class PackageInfo(object):
     def getSummary(self):
         return ""
 
+    def getSource(self):
+        return ""
+
     def getGroup(self):
         return ""
 

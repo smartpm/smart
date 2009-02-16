@@ -86,6 +86,10 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info
   <smart.backends.rpm.header.RPMHeaderPackageInfo object at ...>
 
+  >>> str(info.getPackage())
+  'name1-version1-release1@noarch'
+  >>> str(info.getSource())
+  'name1-version1-release1@src'
   >>> info.getGroup()
   u'Group1'
   >>> info.getSummary()

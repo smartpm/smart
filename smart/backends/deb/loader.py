@@ -86,6 +86,10 @@ class DebPackageInfo(PackageInfo):
             return decode(description.split("\n", 1)[0])
         return u""
 
+    def getSource(self):
+        sourcename = self._dict.get("source") or self._package.name
+        return "%s_%s" % (sourcename, self._package.version)
+    
     def getGroup(self):
         return decode(self._loader.getSection(self._package))
 

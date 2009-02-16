@@ -87,6 +87,10 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info
   <smart.backends.deb.loader.DebPackageInfo object at ...>
 
+  >>> str(info.getPackage())
+  'name1_version1-release1'
+  >>> str(info.getSource())
+  'name1_version1-release1'
   >>> info.getGroup()
   u'Group1'
   >>> info.getSummary()
