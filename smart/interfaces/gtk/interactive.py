@@ -113,9 +113,9 @@ UI = """
 ACTIONS = [
     ("file", None, _("_File")),
     ("update-selected-channels", "gtk-refresh", _("Update _Selected Channels..."), None,
-     _("Update given channels"), "self.allChannels()"),
+     _("Update given channels"), "self.selectedChannels()"),
     ("update-channels", "gtk-refresh", _("_Update Channels"), None,
-     _("Update channels"), "self.selectedChannels()"),
+     _("Update channels"), "self.allChannels()"),
     ("rebuild-cache", None, _("_Rebuild Cache"), None,
      _("Reload package information"), "self.rebuildCache()"),
     ("exec-changes", "gtk-execute", _("_Execute Changes..."), "<control>c",
