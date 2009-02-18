@@ -299,11 +299,11 @@ gobject.type_register(ProgressCellRenderer)
 def test():
     import sys, time
 
-    prog = GtkProgress()
+    prog = GtkProgress(True)
 
     data = {"item-number": 0}
     total, subtotal = 100, 100
-    prog.start(True)
+    prog.start()
     prog.setTopic("Installing packages...")
     for n in range(1,total+1):
         data["item-number"] = n
