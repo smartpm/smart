@@ -113,9 +113,9 @@ UI = """
 ACTIONS = [
     ("file", None, _("_File")),
     ("update-selected-channels", "gtk-refresh", _("Update _Selected Channels..."), None,
-     _("Update given channels"), "self.updateChannels(True)"),
+     _("Update given channels"), "self.allChannels()"),
     ("update-channels", "gtk-refresh", _("_Update Channels"), None,
-     _("Update channels"), "self.updateChannels()"),
+     _("Update channels"), "self.selectedChannels()"),
     ("rebuild-cache", None, _("_Rebuild Cache"), None,
      _("Reload package information"), "self.rebuildCache()"),
     ("exec-changes", "gtk-execute", _("_Execute Changes..."), "<control>c",
@@ -154,13 +154,13 @@ ACTIONS = [
     ("view", None, _("_View")),
     ("tree-style", None, _("_Tree Style")),
     ("expand-all", "gtk-open", _("_Expand All"), None,
-     _("Expand all items in the tree"), "self._pv.getTreeView().expand_all()"),
+     _("Expand all items in the tree"), "expandPackages()"),
     ("collapse-all", "gtk-close", _("_Collapse All"), None,
-     _("Collapse all items in the tree"), "self._pv.getTreeView().collapse_all()"),
+     _("Collapse all items in the tree"), "collapsePackages()"),
     ("summary-window", None, _("_Summary Window"), "<control>s",
      _("Show summary window"), "self.showChanges()"),
     ("log-window", None, _("_Log Window"), None,
-     _("Show log window"), "self._log.show()"),
+     _("Show log window"), "showLog()"),
 
     ("help", None, _("_Help")),
     ("about", None, _("_About"), None,
@@ -400,6 +400,12 @@ class GtkInteractiveInterface(GtkInterface):
     def getChangeSet(self):
         return self._changeset
 
+    def selectedChannels(self):
+        self.updateChannels(selected=True)
+
+    def allChannels(self):
+        self.updateChannels(selected=False)
+
     def updateChannels(self, selected=False, channels=None):
         if selected:
             aliases = GtkChannelSelector().show()
@@ -439,6 +445,15 @@ class GtkInteractiveInterface(GtkInterface):
 
     def showChanges(self):
         return self._changes.showChangeSet(self._changeset)
+
+    def showLog(self):
+        return self._log.show()
+
+    def expandPackages(self):
+        self._pv.getTreeView().expand_all()
+
+    def collapsePackages(self):
+        self._pv.getTreeView().collapse_all()
 
     def toggleFilter(self, filter):
         if filter in self._filters:
@@ -507,6 +522,30 @@ class GtkInteractiveInterface(GtkInterface):
             self.saveUndo()
             self._changeset.setState(changeset)
             self.changedMarks()
+
+    def lockPackages(self, pkgs, lock):
+        if not lock:
+             for pkg in pkgs:
+                  pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
+             self._pv.queue_draw()
+             self._pi.setPackage(pkgs[0])
+        else:
+             for pkg in pkgs:
+                  pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
+             self._pv.queue_draw()
+             self._pi.setPackage(pkgs[0])
+
+    def lockAllPackages(self, pkgs, lock):
+        if not lock:
+             for pkg in pkgs:
+                  pkgconf.clearFlag("lock", pkg.name)
+             self._pv.queue_draw()
+             self._pi.setPackage(pkgs[0])
+        else:
+             for pkg in pkgs:
+                  pkgconf.setFlag("lock", pkg.name)
+             self._pv.queue_draw()
+             self._pi.setPackage(pkgs[0])
 
     def packagePopup(self, packageview, pkgs, event):
 
@@ -596,10 +635,7 @@ class GtkInteractiveInterface(GtkInterface):
             else:
                 image.set_from_pixbuf(getPixbuf("package-available"))
             def unlock_this(x):
-                for pkg in pkgs:
-                    pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                self.lockPackages(False)
             item.connect("activate", unlock_this)
         else:
             item = gtk.ImageMenuItem(_("Lock this version"))
@@ -608,10 +644,7 @@ class GtkInteractiveInterface(GtkInterface):
             else:
                 image.set_from_pixbuf(getPixbuf("package-available-locked"))
             def lock_this(x):
-                for pkg in pkgs:
-                    pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                self.lockPackages(False)
             item.connect("activate", lock_this)
         item.set_image(image)
         if inconsistent:
@@ -626,10 +659,7 @@ class GtkInteractiveInterface(GtkInterface):
             else:
                 image.set_from_pixbuf(getPixbuf("package-available"))
             def unlock_all(x):
-                for pkg in pkgs:
-                    pkgconf.clearFlag("lock", pkg.name)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                self.lockAllPackages(False)
             item.connect("activate", unlock_all)
         else:
             item = gtk.ImageMenuItem(_("Lock all versions"))
@@ -638,10 +668,7 @@ class GtkInteractiveInterface(GtkInterface):
             else:
                 image.set_from_pixbuf(getPixbuf("package-available-locked"))
             def lock_all(x):
-                for pkg in pkgs:
-                    pkgconf.setFlag("lock", pkg.name)
-                self._pv.queue_draw()
-                self._pi.setPackage(pkgs[0])
+                self.lockAllPackages(True)
             item.connect("activate", lock_all)
         item.set_image(image)
         if inconsistent:
