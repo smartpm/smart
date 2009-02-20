@@ -70,6 +70,9 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getSHA(self, url):
         return self._info.get("sha")
 
+    def getSHA256(self, url):
+        return self._info.get("sha256")
+
     def getDescription(self):
         return self._info.get("description", "")
 
