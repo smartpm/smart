@@ -1,0 +1,654 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY legal SYSTEM "gpl.xml">
+<!ENTITY app "Smart Package Manager">
+<!ENTITY appversion "1.1">
+]>
+
+<article id="index" lang="en">
+<articleinfo> 
+<title>&app; Manual</title>       
+
+<releaseinfo>
+	This manual describes version &appversion; of &app;.
+</releaseinfo> 
+
+<author>
+	<firstname>Gustavo</firstname>
+	<surname>Niemeyer</surname>
+	<email>gustavo@niemeyer.net</email>
+</author>
+
+    <revhistory>
+      <revision>
+	<revnumber>404</revnumber>
+	<date>2004-12-05</date>
+	<authorinitials>niemeyer</authorinitials>
+	<revdescription><para>README - Smart Package Manager.</para></revdescription>
+      </revision>
+      <revision>
+	<revnumber>0.1</revnumber>
+	<date>2008-11-11</date>
+	<authorinitials>afb</authorinitials>
+	<revdescription><para>Conversion from HTML to DocBook.</para></revdescription>
+      </revision>
+    </revhistory>
+
+<legalnotice>
+	<title>Legal Notice</title>	
+	<para> 
+		This document is distributed under the terms of the GNU General Public
+		License as published by the Free Software; either version 2 of the License, 
+		or (at your option) later version. A copy of this license can be found in
+		Appendix A, or in the file LICENSE included with 
+		the source code of this program. 
+	</para>
+</legalnotice>
+
+</articleinfo> 
+
+<indexterm zone="index"> 
+	<primary>Smart Package Manager</primary> 
+</indexterm> 
+
+<sect1 id="smart-overview"> 
+	<title>Overview</title> 
+
+<para>The &app; project has the ambitious objective of
+creating smart and portable algorithms for solving adequately the
+problem of managing software upgrading and installation. This tool
+works in all major distributions, and will bring notable advantages
+over native tools currently in use (APT, APT-RPM, YUM, URPMI, etc).</para>
+
+<para>Notice that this project is <emphasis role="strong">not</emphasis> a magical bridge between
+every distribution in the planet. Instead, this is software offering
+better package management for these distributions when working with
+their native packages. Using multiple packaging systems at the same
+time (like rpm and dpkg) is possible but would require packages from
+those systems to follow the same packaging guidelines. As this is not
+the case at the moment, mixing package systems is <emphasis role="strong">not</emphasis> recommended.</para>
+
+<para>From <ulink url="http://foldoc.org/">The Free On-line Dictionary of Computing</ulink>:</para>
+<blockquote>
+<literallayout>      smart
+            1. &lt;programming&gt; Said of a program that does the {Right Thing}
+               in a wide variety of complicated circumstances. (...) 
+</literallayout>
+</blockquote>
+</sect1>
+
+<sect1 id="smart-features"><title>Features</title>
+<para></para>
+<sect2 id="smart-backend"><title>Modular Backends</title>
+<para>Smart has been developed with modularity and flexibility in mind.
+It's completely backend-based, and package-manager-agnostic. Support is
+currently implemented for <emphasis>RPM</emphasis>,
+<emphasis>DPKG</emphasis>,
+and <emphasis>Slackware</emphasis>
+package management systems, and porting it to new systems should be very easy.
+Smart is written in Python with some C code in performance-critical areas.</para>
+</sect2>
+<sect2 id="smart-transaction"><title>Smart Transactions</title>
+<para>That's one of the most interesting aspects of Smart Package Manager,
+and the one who has motivated calling it <emphasis>smart</emphasis>. Computing
+transactions respecting the relations involved in the package
+management world may become an unpleasant task when thousands of
+packages and relations are being considered, or even when just
+a few complex relations turn the most obvious choice into the
+unwanted one.</para>
+</sect2>
+<sect2 id="smart-interface"><title>Multiple Interfaces</title>
+<para>Smart has multiple native and completely integrated interfaces:</para>
+<itemizedlist>
+<listitem><para>Command line interface, with several useful subcommands: update,
+install, reinstall, upgrade, remove, check, fix, download, search,
+and more.</para></listitem>
+<listitem><para>Shell interface, with command and argument completion, making it
+easy to perform multiple operations quickly using a local or
+remote terminal.</para></listitem>
+<listitem><para>Graphic interface, offering the friendliness of visual
+user interaction. It is available for the GTK+ graphic environment.</para></listitem>
+<listitem><para>Command line interface with graphic feedback, allowing one to
+integrate the power of command line with graphic environments.</para></listitem>
+</itemizedlist>
+<para>Besides these interfaces, ksmarttray is also included in the smart package.
+It notifies users about available updates using a KDE tray icon.</para>
+</sect2>
+<sect2 id="smart-distros"><title>Distribution Channels</title>
+<para>Channels are the way Smart becomes aware about external repositories
+of information. Many different channel types are supported, depending
+on the backend and kind of information desired:</para>
+<itemizedlist>
+<listitem><para>APT-DEB Repository</para></listitem>
+<listitem><para>APT-RPM Repository</para></listitem>
+<listitem><para>DPKG Installed Packages</para></listitem>
+<listitem><para>Mirror Information</para></listitem>
+<listitem><para>Red Carpet Channel</para></listitem>
+<listitem><para>RPM Directory</para></listitem>
+<listitem><para>RPM Header List</para></listitem>
+<listitem><para>RPM MetaData (YUM)</para></listitem>
+<listitem><para>RPM Installed Packages</para></listitem>
+<listitem><para>URPMI Repository</para></listitem>
+<listitem><para>Slackware Repository</para></listitem>
+<listitem><para>Slackware Installed Packages</para></listitem>
+</itemizedlist>
+</sect2>
+<sect2 id="smart-priority"><title>Priority Handling</title>
+<para>Priorities are a powerful way to easily handle integration
+of multiple channels and explicit user setups regarding
+preferred package versions.</para>
+<para>Basically, packages with higher priorities are considered a
+better option to be installed in the system, even when package
+versions state otherwise. Priorities may be individually
+assigned to all packages in given channels, to all packages
+with given names, and to packages with given names inside
+given channels.</para>
+<para>With custom priority setups, it becomes possible to avoid
+unwanted upgrades, force downgrades, select packages in given
+channels as preferential, and other kinds of interesting setups.</para>
+</sect2>
+<sect2 id="smart-mirror"><title>Autobalancing Mirror System</title>
+<para>Smart offers a very flexible mirror support. Mirrors are URLs
+that supposedly provide the same contents as are available in
+other URLs, named origins. There is no internal restriction on
+the kind of information which is mirrored. Once an origin URL
+is provided, and one or more mirror URLs are provided, these
+mirrors will be considered for any file which is going to be
+fetched from an URL starting with the origin URL.</para>
+<para>Mirror precedence is dynamically computed based on the history
+of downloads of all mirrors available for a given origin URL
+(including the origin site itself). The fastest mirrors and
+with less errors are chosen. When errors occur, the next
+mirror in the queue is tried.</para>
+<para>For instance, if a mirror <literal>http://mirror.url/path/</literal> is provided
+for the origin <literal>ftp://origin.url/other/path/</literal>, and a file in
+<literal>ftp://origin.url/other/path/subpath/somefile</literal> is going to be
+fetched, the mirror will be considered for being used, and the
+URL <literal>http://mirror.url/path/subpath/somefile</literal> will be used if
+the mirror is chosen. Notice that strings are compared and
+replaced without any pre-processing, so that it's possible to
+use different schemes (ftp, http, etc) in mirror entries, and
+even URLs ending in prefixes of directory entries.</para>
+</sect2>
+<sect2 id="smart-download"><title>Downloading Mechanism</title>
+<para>Smart has a fast parallel downloading mechanism, allowing multiple
+connections to be used for one or more sites. The mechanism
+supports:</para>
+<itemizedlist>
+<listitem><para>Resuming</para></listitem>
+<listitem><para>Timestamp checking</para></listitem>
+<listitem><para>Parallel uncompression</para></listitem>
+<listitem><para>Autodetection of FTP user limit</para></listitem>
+<listitem><para>Cached file validation</para></listitem>
+</itemizedlist>
+<para>and more.</para>
+<para>At that moment, the following schemes are natively supported:</para>
+<itemizedlist>
+<listitem><para>file</para></listitem>
+<listitem><para>ftp</para></listitem>
+<listitem><para>http</para></listitem>
+<listitem><para>https</para></listitem>
+<listitem><para>scp</para></listitem>
+</itemizedlist>
+<para>Additionally, the following schemes are supported when pycurl is
+available:</para>
+<itemizedlist>
+<listitem><para>ftps</para></listitem>
+<listitem><para>telnet</para></listitem>
+<listitem><para>dict</para></listitem>
+<listitem><para>ldap</para></listitem>
+</itemizedlist>
+</sect2>
+<sect2 id="smart-removable"><title>Removable Media Support</title>
+<para>Smart Package Manager implements builtin support for removable media
+(CDROMs, DVDs, etc) in most of the supported channel types. The
+following features are currently implemented:</para>
+<itemizedlist>
+<listitem><para>Mountpoint autodetection</para></listitem>
+<listitem><para>Support for multiple simultaneous media drives</para></listitem>
+<listitem><para>Medias may be inserted in any order</para></listitem>
+<listitem><para>Installed system is guaranted to maintain correct relations
+between media changes</para></listitem>
+<listitem><para>Remote removable media support using any of the supported schemes
+(ftp, http, scp, etc)</para></listitem>
+</itemizedlist>
+</sect2>
+</sect1>
+
+<sect1 id="smart-packages"><title>Packages</title>
+<para>Smart supports the following package manager file formats:</para>
+<sect2 id="smart-packages-rpm"><title>RPM</title>
+<para>RPM packages are used by e.g. Fedora and Red Hat (Enterprise) Linux.</para>
+</sect2>
+<sect2 id="smart-packages-deb"><title>DEB</title>
+<para>DEB packages (DPKG) are used by e.g. Ubuntu and Debian GNU/Linux.</para>
+</sect2>
+<sect2 id="smart-packages-slack"><title>Slack</title>
+<para>Slackware packages are used by e.g. Vector Linux and Slackware Linux.</para>
+</sect2>
+</sect1>
+
+<sect1 id="smart-channels"><title>Channels</title>
+<para>Smart supports the following repository formats as source channels: </para>
+<sect2 id="smart-channels-rpm"><title>RPM</title>
+<itemizedlist>
+<listitem><para>RPM System Database (locally installed packages)</para></listitem>
+<listitem><para>APT repositories for .rpm</para></listitem>
+<listitem><para>RPM-MD (used by YUM)</para></listitem>
+<listitem><para>Red Carpet (used by Ximian/Novell)</para></listitem>
+<listitem><para>RPM Header List (used by RedHat and Conectiva installation CDs, probably others)</para></listitem>
+<listitem><para>RPM Directory (a directory with a bunch of RPMs in it, no indexing required)</para></listitem>
+<listitem><para>URPMI (used by Mandriva)</para></listitem>
+</itemizedlist>
+</sect2>
+<sect2 id="smart-channels-apt"><title>DEB</title>
+<itemizedlist>
+<listitem><para>DEB System Database (locally installed packages)</para></listitem>
+<listitem><para>APT repositories for .deb</para></listitem>
+<listitem><para>DEB Directory (a directory with a bunch of DEBs in it, no indexing required)</para></listitem>
+</itemizedlist>
+</sect2>
+<sect2 id="smart-channels-slack"><title>Slack</title>
+<itemizedlist>
+<listitem><para>Slackware installed packages database</para></listitem>
+<listitem><para>Slackware repositories</para></listitem>
+</itemizedlist>
+</sect2>
+<sect2 id="smart-channels-mirror"><title>Mirrors</title>
+<itemizedlist>
+<listitem><para>up2date (used by RedHat/Fedora)</para></listitem>
+<listitem><para> Conectiva-style mirror description formats</para></listitem>
+</itemizedlist>
+</sect2>
+</sect1>
+
+<sect1 id="running-smart"><title>Running Smart</title>
+<para>&app; may be run in many different ways, depending
+on the interface in use and on the intended goal.</para>
+<para>The following command would install the <emphasis>foobar</emphasis> package, for instance:</para>
+<synopsis>
+smart install foobar
+</synopsis>
+<para>While the following command would install the <emphasis>foobar</emphasis> package, but with
+graphic output:</para>
+<synopsis>
+smart --gui install foobar
+</synopsis>
+<para>To open the graphic interface in interactive mode, one may simply run:</para>
+<synopsis>
+smart --gui
+</synopsis>
+<para>Similarly, the following command would open the shell interface:</para>
+<synopsis>
+smart --shell
+</synopsis>
+<para>Extensive help is available for all commands, by using the <option>--help</option>
+switch:</para>
+<synopsis>
+smart --help
+smart install --help
+smart channel --help
+...
+</synopsis>
+</sect1>
+
+<sect1 id="smart-gui"><title>Graphic Interface</title>
+<sect2 id="smart-gui-main"><title>Main Window</title>
+
+<para>When you start the &app; GUI, the following window is displayed:
+
+	<figure id="smart-gtk"> 
+		<title>&app; GTK+ GUI</title> 
+		<screenshot> 
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/smart-gtk.png" 
+					format="PNG"/> 
+				</imageobject>
+				<textobject> 
+					<phrase>
+					The &app; graphic interface for GTK+.
+					Shows the main window with titlebar,
+					menubar, toolbar, package list and package info.
+					Menubar contains File, Edit, View and Help menus.
+					</phrase> 
+				</textobject> 
+			  </mediaobject> 
+		</screenshot> 
+	</figure> 
+</para>
+
+<sect3 id="smart-gui-toolbar"><title>Toolbar</title>
+<para></para>
+<itemizedlist>
+<listitem><para>Update channels</para></listitem>
+<listitem><para>Apply marked changes</para></listitem>
+<listitem><para>Undo last change</para></listitem>
+<listitem><para>Redo last undone change</para></listitem>
+<listitem><para>Clear all changes</para></listitem>
+<listitem><para>Upgrade all packages</para></listitem>
+<listitem><para>Find all packages</para></listitem>
+</itemizedlist>
+</sect3>
+<sect3 id="smart-gui-list"><title>Package List</title>
+<itemizedlist>
+<listitem><para>Package</para></listitem>
+<listitem><para>Version</para></listitem>
+</itemizedlist>
+</sect3>
+<sect3 id="smart-gui-info"><title>Package Info</title>
+<itemizedlist>
+<listitem><para>General</para></listitem>
+<listitem><para>Description</para></listitem>
+<listitem><para>Content</para></listitem>
+<listitem><para>Relations</para></listitem>
+<listitem><para>URLs</para></listitem>
+</itemizedlist>
+</sect3>
+</sect2>
+<sect2 id="smart-gui-packages"><title>Managing Packages</title>
+<para></para>
+<sect3 id="smart-gui-install"><title>Install</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-remove"><title>Remove</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-apply"><title>Apply Marked Changes</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-undo"><title>Undo Marked Changes</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-upgrade"><title>Upgrade</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-update"><title>Update</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-check"><title>Check</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-fix"><title>Fix Broken Packages</title>
+<para></para>
+</sect3>
+</sect2>
+<sect2 id="smart-gui-find"><title>Finding Packages</title>
+<para></para>
+<sect3 id="smart-gui-automatic"><title>Automatic</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-description"><title>Description</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-hiding"><title>Hiding Packages</title>
+<para></para>
+<itemizedlist>
+<listitem><para>Non-upgrades</para></listitem>
+<listitem><para>Installed</para></listitem>
+<listitem><para>Uninstalled</para></listitem>
+<listitem><para>Unmarked</para></listitem>
+<listitem><para>Old</para></listitem>
+</itemizedlist>
+</sect3>
+<sect3 id="smart-gui-treestyle"><title>Tree Style</title>
+<para></para>
+<itemizedlist>
+<listitem><para>Groups</para></listitem>
+<listitem><para>Channels</para></listitem>
+<listitem><para>Groups &amp; Channels</para></listitem>
+<listitem><para>None</para></listitem>
+</itemizedlist>
+</sect3>
+</sect2>
+<sect2 id="smart-gui-config"><title>Editing Configuration</title>
+<para></para>
+<sect3 id="smart-gui-channels"><title>Channels</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-mirrors"><title>Mirrors</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-flags"><title>Flags</title>
+<para></para>
+</sect3>
+<sect3 id="smart-gui-priorities"><title>Priorities</title>
+<para></para>
+</sect3>
+</sect2>
+</sect1>
+
+<sect1 id="smart-text"><title>Text Interface</title>
+<para>Smart offers a command mode and a shell interface.</para>
+<para>Usage:</para>
+<cmdsynopsis>
+<command>smart</command><arg choice='plain'><replaceable>command</replaceable></arg>
+<arg><replaceable>options</replaceable></arg><arg><replaceable>arguments</replaceable></arg>
+</cmdsynopsis>
+<itemizedlist>
+<listitem><para><xref linkend="smart-action"/></para>
+<itemizedlist>
+<listitem><para><xref linkend="smart-text-update"/></para></listitem>
+<listitem><para><xref linkend="smart-text-install"/></para></listitem>
+<listitem><para><xref linkend="smart-text-reinstall"/></para></listitem>
+<listitem><para><xref linkend="smart-text-upgrade"/></para></listitem>
+<listitem><para><xref linkend="smart-text-remove"/></para></listitem>
+<listitem><para><xref linkend="smart-text-check"/></para></listitem>
+<listitem><para><xref linkend="smart-text-fix"/></para></listitem>
+<listitem><para><xref linkend="smart-text-download"/></para></listitem>
+<listitem><para><xref linkend="smart-text-clean"/></para></listitem>
+</itemizedlist></listitem>
+<listitem><para><xref linkend="smart-query"/></para>
+<itemizedlist>
+<listitem><para><xref linkend="smart-text-search"/></para></listitem>
+<listitem><para><xref linkend="smart-text-query"/></para></listitem>
+<listitem><para><xref linkend="smart-text-info"/></para></listitem>
+<listitem><para><xref linkend="smart-text-stats"/></para></listitem>
+</itemizedlist></listitem>
+<listitem><para><xref linkend="smart-setup"/></para>
+<itemizedlist>
+<listitem><para><xref linkend="smart-text-channel"/></para></listitem>
+<listitem><para><xref linkend="smart-text-priority"/></para></listitem>
+<listitem><para><xref linkend="smart-text-mirror"/></para></listitem>
+<listitem><para><xref linkend="smart-text-flag"/></para></listitem>
+</itemizedlist></listitem>
+</itemizedlist>
+<variablelist>
+<para>Options:</para>
+<varlistentry>
+<term><option>--help</option></term>
+<listitem><para>Show more help information and exit</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--version</option></term>
+<listitem><para>Show program's version number and exit</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--config-file=FILE</option></term>
+<listitem><para>Configuration file (default is &lt;data-dir&gt;/config)</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--data-dir=DIR</option></term>
+<listitem><para>Data directory (default is /var/lib/smart/)</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--log-level=LEVEL</option></term>
+<listitem><para>Set the log level to level (debug, info, warning, error)</para></listitem>
+</varlistentry>
+</variablelist>
+<para>Examples:</para>
+<synopsis>smart install --help</synopsis>
+<synopsis>smart install install pkgname</synopsis>
+<synopsis>smart install --gui</synopsis>
+<synopsis>smart install --gui install pkgname</synopsis>
+<synopsis>smart install --shell</synopsis>
+<sect2 id="smart-action" xreflabel="Action Commands"><title>Action Commands</title>
+<para></para>
+<sect3 id="smart-text-update" xreflabel="Update"><title>Update</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-install" xreflabel="Install"><title>Install</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-reinstall" xreflabel="Reinstall"><title>Reinstall</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-upgrade" xreflabel="Upgrade"><title>Upgrade</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-remove" xreflabel="Remove"><title>Remove</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-check" xreflabel="Check"><title>Check</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-fix" xreflabel="Fix"><title>Fix</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-download" xreflabel="Download"><title>Download</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-clean" xreflabel="Clean"><title>Clean</title>
+<para></para>
+</sect3>
+</sect2>
+<sect2 id="smart-query" xreflabel="Query Commands"><title>Query Commands</title>
+<para></para>
+<sect3 id="smart-text-search" xreflabel="Search"><title>Search</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-query" xreflabel="Query"><title>Query</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-info" xreflabel="Info"><title>Info</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-stats" xreflabel="Stats"><title>Stats</title>
+<para></para>
+</sect3>
+</sect2>
+<sect2 id="smart-setup" xreflabel="Setup Commands"><title>Setup Commands</title>
+<para></para>
+<sect3 id="smart-text-channel" xreflabel="Channel"><title>Channel</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-priority" xreflabel="Priority"><title>Priority</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-mirror" xreflabel="Mirror"><title>Mirror</title>
+<para></para>
+</sect3>
+<sect3 id="smart-text-flag" xreflabel="Flag"><title>Flag</title>
+<para></para>
+</sect3>
+</sect2>
+<sect2 id="smart-shell"><title>Shell Interface</title>
+<para></para>
+</sect2>
+</sect1>
+
+<sect1 id="building-smart"><title>Building Smart</title>
+<sect2 id="smart-build-deps"><title>Dependencies</title>
+<sect3 id="smart-deps-core"><title>Core</title>
+<para>Smart is written in Python, with some core modules rewritten as
+C extensions for memory savings and performance gains. With that
+in mind, the core system of Smart depends on Python 2.3 or
+higher, and a C compiler to build the extensions.</para>
+</sect3>
+<sect3 id="smart-deps-gui"><title>Graphic Interface</title>
+<para>The graphic interface depends on <emphasis>pygtk</emphasis> 2.4 or higher.</para>
+</sect3>
+<sect3 id="smart-deps-rpm"><title>RPM backend</title>
+<para>The RPM backend depends on the Python <emphasis>rpm</emphasis> module of RPM 4.4 or
+higher, due to a limitation which was present in previous versions
+of the <function>ts.dbMatch()</function> method, and the availability of the
+<function>readHeaderFromFD()</function> function.</para>
+<para>In the <filename class='directory'>contrib/patches/</filename> subdirectory there are patches for
+previous RPM versions including the missing functionality. There
+are also pre-packaged binary versions which include the patched
+module without requiring changes in other tools.</para>
+</sect3>
+<sect3 id="smart-deps-deb"><title>DEB backend</title>
+<para>There are no extra dependencies besides DPKG itself.</para>
+</sect3>
+<sect3 id="smart-deps-slack"><title>Slackware backend</title>
+<para>There are no extra dependencies besides the packaging scripts
+<command>installpkg</command>, <command>upgradepkg</command> and <command>removepkg</command>.</para>
+</sect3>
+</sect2>
+</sect1>
+
+<sect1 id="smart-credits"><title>Credits</title>
+<para>This is the credit section, where people and institutions that
+have somehow contributed to the project are mentioned.</para>
+<variablelist>
+<varlistentry><term>Conectiva, Inc.:</term>
+<listitem><para>Conectiva has funded Smart development as the author's employer.</para></listitem>
+</varlistentry>
+<varlistentry><term>Wanderlei Cavassin:</term>
+<listitem><para>Conectiva's research &amp; development coordinator, who belived
+the project was viable and encouraged the author to work on it.</para></listitem>
+</varlistentry>
+<varlistentry><term>Ednilson Miura &amp; Herton Ronaldo Krzesinski:</term>
+<listitem><para>Conectiva employees, helped setting up many distributions
+for tests whenever necessary.</para></listitem>
+</varlistentry>
+<varlistentry><term>Andreas Hasenack:</term>
+<listitem><para>Conectiva employee, helped as being the first brave pre-alpha
+tester, and contributed with many ideas, discussions, etc.</para></listitem>
+</varlistentry>
+<varlistentry><term>Arnaldo Carvalho de Melo:</term>
+<listitem><para>Conectiva board member, helped with the &quot;channel of mirrors&quot; idea
+and by encouraging the author to build a generic channel
+information method.</para></listitem>
+</varlistentry>
+<varlistentry><term>Others &#64; Conectiva:</term>
+<listitem><para>Many other people in Conectiva helped with ideas and
+alpha-testing in general during the pre-release period of
+Smart development.</para></listitem>
+</varlistentry>
+<varlistentry><term>Guilerme Manika &amp; Ruda Moura:</term>
+<listitem><para>Ancient Conectiva employees, now board members of the Haxent company,
+helped by testing Smart extensively in Fedora, reporting many
+bugs and suggesting changes. They have also created the Smart
+<ulink url="http://zorked.net/smart/FAQ.html">FAQ</ulink>.</para></listitem>
+</varlistentry>
+<varlistentry><term>APT-RPM &amp; Debian:</term>
+<listitem><para>Experience on packaging and ideas for a better framework were
+developed while the author of Smart worked as the <emphasis>APT-RPM</emphasis>
+maintainer.</para></listitem>
+</varlistentry>
+<varlistentry><term>Jeff Johnson:</term>
+<listitem><para>Maintainer of the <emphasis>RPM</emphasis> software, employed by RedHat, Inc.
+contributed as being the RPM maintainer itself, and in
+many discussions regarding packaging theory in general.</para></listitem>
+</varlistentry>
+<varlistentry><term>Seth Vidal:</term>
+<listitem><para>YUM author, and member of the Duke University, contributed
+to Smart with the development of the XML <emphasis>MetaData</emphasis> repository
+format and discussions about it.</para></listitem>
+</varlistentry>
+<varlistentry><term>Michael Vogt:</term>
+<listitem><para>Co-maintainer of the Synaptic project (<emphasis>the</emphasis> maintainer, lately),
+contributed by discussing ideas that could be/were implemented
+in Synaptic, and ended up being adopted by Smart as well.</para></listitem>
+</varlistentry>
+<varlistentry><term>Sebastian Heinlein:</term>
+<listitem><para>Author of the package icons for Synaptic, that were mercilessly
+stolen to be used in Smart's graphic interface.</para></listitem>
+</varlistentry>
+<varlistentry><term>TaQ/PiterPunk at #slackware-br:</term>
+<listitem><para>These guys helped Smart development by explaining details of
+Slackware practices regarding packaging.</para></listitem>
+</varlistentry>
+<varlistentry><term>Matt Zimmerman:</term>
+<listitem><para>Debian/Ubuntu developer and co-maintainer of the APT software,
+helped by shining some light regarding details of the <emphasis>DPKG</emphasis>
+pre-depends ordering expectations.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect1>
+
+&legal;
+</article>
