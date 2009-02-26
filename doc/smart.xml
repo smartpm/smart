@@ -263,7 +263,7 @@ between media changes</para></listitem>
 </sect2>
 </sect1>
 
-<sect1 id="running-smart"><title>Running Smart</title>
+<sect1 id="smart-running"><title>Running Smart</title>
 <para>&app; may be run in many different ways, depending
 on the interface in use and on the intended goal.</para>
 <para>The following command would install the <emphasis>foobar</emphasis> package, for instance:</para>
@@ -319,25 +319,64 @@ smart channel --help
 	</figure> 
 </para>
 
-<sect3 id="smart-gui-toolbar"><title>Toolbar</title>
-<para></para>
-<itemizedlist>
-<listitem><para>Update channels</para></listitem>
-<listitem><para>Apply marked changes</para></listitem>
-<listitem><para>Undo last change</para></listitem>
-<listitem><para>Redo last undone change</para></listitem>
-<listitem><para>Clear all changes</para></listitem>
-<listitem><para>Upgrade all packages</para></listitem>
-<listitem><para>Find all packages</para></listitem>
-</itemizedlist>
+<sect3 id="smart-gui-toolbar" xreflabel="Toolbar"><title>Toolbar</title>
+<para>The toolbar contains tools for the following actions:</para>
+<variablelist>
+<varlistentry>
+<term>Update channels</term>
+<listitem><para>Updates the information known about the channels.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Apply marked changes</term>
+<listitem><para>Commits the transaction with the marked changes.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Undo last change</term>
+<listitem><para>Removes the last change added to the transaction.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Redo last undone change</term>
+<listitem><para>Restores the transaction change previously removed.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Clear all changes</term>
+<listitem><para>Clears all marked changes from the transaction.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Upgrade all packages</term>
+<listitem><para>Upgrades all packages currently installed.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Find packages</term>
+<listitem><para>Shows the searchbar for finding packages.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect3>
+<sect3 id="smart-gui-searchbar" xreflabel="Searchbar"><title>Searchbar</title>
+<para>The searchbar allows you to find and show packages.</para>
+<variablelist>
+<varlistentry>
+<term>Automatic</term>
+<listitem><para>Searches through package fields automatically.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Description</term>
+<listitem><para>Searches the package summary and description.</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-gui-list"><title>Package List</title>
+<para>The package list shows the current list of packages, after any filtering:</para>
 <itemizedlist>
 <listitem><para>Package</para></listitem>
 <listitem><para>Version</para></listitem>
 </itemizedlist>
+<note>
+<para>Version might include the machine architecture ("arch") of the package.</para>
+</note>
 </sect3>
 <sect3 id="smart-gui-info"><title>Package Info</title>
+<para>The package info shows information about the currently selected package:</para>
 <itemizedlist>
 <listitem><para>General</para></listitem>
 <listitem><para>Description</para></listitem>
@@ -345,6 +384,9 @@ smart channel --help
 <listitem><para>Relations</para></listitem>
 <listitem><para>URLs</para></listitem>
 </itemizedlist>
+<note>
+<para>If you have several packages selected, only the first one is shown.</para>
+</note>
 </sect3>
 </sect2>
 <sect2 id="smart-gui-packages"><title>Managing Packages</title>
@@ -374,32 +416,28 @@ smart channel --help
 <para></para>
 </sect3>
 </sect2>
-<sect2 id="smart-gui-find"><title>Finding Packages</title>
-<para></para>
-<sect3 id="smart-gui-automatic"><title>Automatic</title>
-<para></para>
-</sect3>
-<sect3 id="smart-gui-description"><title>Description</title>
-<para></para>
-</sect3>
-<sect3 id="smart-gui-hiding"><title>Hiding Packages</title>
-<para></para>
+<sect2 id="smart-gui-display"><title>Showing Packages</title>
+<sect3 id="smart-gui-filters"><title>Filtering Packages</title>
+<para>You can hide packages from showing in the package list:</para>
 <itemizedlist>
-<listitem><para>Non-upgrades</para></listitem>
-<listitem><para>Installed</para></listitem>
-<listitem><para>Uninstalled</para></listitem>
-<listitem><para>Unmarked</para></listitem>
-<listitem><para>Old</para></listitem>
+<listitem><para>Hide Non-upgrades (Show Upgrades)</para></listitem>
+<listitem><para>Hide Installed (Show Available)</para></listitem>
+<listitem><para>Hide Uninstalled (Show Installed)</para></listitem>
+<listitem><para>Hide Unmarked (Show Marked)</para></listitem>
+<listitem><para>Hide Unlocked (Show Locked)</para></listitem>
+<listitem><para>Hide Old (Show New)</para></listitem>
 </itemizedlist>
+<para>You can also filter the packages by using the <xref linkend="smart-gui-searchbar"/>.</para>
 </sect3>
 <sect3 id="smart-gui-treestyle"><title>Tree Style</title>
-<para></para>
+<para>You can choose how the package list should be grouped:</para>
 <itemizedlist>
 <listitem><para>Groups</para></listitem>
 <listitem><para>Channels</para></listitem>
 <listitem><para>Groups &amp; Channels</para></listitem>
 <listitem><para>None</para></listitem>
 </itemizedlist>
+<para>Choosing <guimenuitem>None</guimenuitem> shows a flat list instead of a grouped tree.</para>
 </sect3>
 </sect2>
 <sect2 id="smart-gui-config"><title>Editing Configuration</title>
@@ -423,8 +461,11 @@ smart channel --help
 <para>Smart offers a command mode and a shell interface.</para>
 <para>Usage:</para>
 <cmdsynopsis>
-<command>smart</command><arg choice='plain'><replaceable>command</replaceable></arg>
-<arg><replaceable>options</replaceable></arg><arg><replaceable>arguments</replaceable></arg>
+<command>smart</command>
+<arg choice='plain'><replaceable>command</replaceable></arg>
+<arg><replaceable>options</replaceable></arg>
+<arg><replaceable>arguments</replaceable></arg>
+<arg choice='opt'>--shell</arg>
 </cmdsynopsis>
 <itemizedlist>
 <listitem><para><xref linkend="smart-action"/></para>
@@ -465,16 +506,37 @@ smart channel --help
 <listitem><para>Show program's version number and exit</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--config-file=FILE</option></term>
+<term><option>--config-file=<replaceable>FILE</replaceable></option></term>
 <listitem><para>Configuration file (default is &lt;data-dir&gt;/config)</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--data-dir=DIR</option></term>
+<term><option>--data-dir=<replaceable>DIR</replaceable></option></term>
 <listitem><para>Data directory (default is /var/lib/smart/)</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--log-level=LEVEL</option></term>
+<term><option>--log-level=<replaceable>LEVEL</replaceable></option></term>
 <listitem><para>Set the log level to level (debug, info, warning, error)</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--gui</option></term>
+<listitem><para>Use the default graphic interface</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--shell</option></term>
+<listitem><para>Use the default shell interface</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--interface=<replaceable>NAME</replaceable></option></term>
+<listitem><para>Use the given interface</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--ignore-locks</option></term>
+<listitem><para>Don't respect locking</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-o <replaceable>OPT</replaceable></option>
+      <option>--option=<replaceable>OPT</replaceable></option></term>
+<listitem><para>Set the option given by a name=value pair</para></listitem>
 </varlistentry>
 </variablelist>
 <para>Examples:</para>
@@ -483,8 +545,8 @@ smart channel --help
 <synopsis>smart install --gui</synopsis>
 <synopsis>smart install --gui install pkgname</synopsis>
 <synopsis>smart install --shell</synopsis>
+
 <sect2 id="smart-action" xreflabel="Action Commands"><title>Action Commands</title>
-<para></para>
 <sect3 id="smart-text-update" xreflabel="Update"><title>Update</title>
 <para></para>
 </sect3>
@@ -513,8 +575,8 @@ smart channel --help
 <para></para>
 </sect3>
 </sect2>
+
 <sect2 id="smart-query" xreflabel="Query Commands"><title>Query Commands</title>
-<para></para>
 <sect3 id="smart-text-search" xreflabel="Search"><title>Search</title>
 <para></para>
 </sect3>
@@ -528,8 +590,8 @@ smart channel --help
 <para></para>
 </sect3>
 </sect2>
+
 <sect2 id="smart-setup" xreflabel="Setup Commands"><title>Setup Commands</title>
-<para></para>
 <sect3 id="smart-text-channel" xreflabel="Channel"><title>Channel</title>
 <para></para>
 </sect3>
@@ -543,12 +605,35 @@ smart channel --help
 <para></para>
 </sect3>
 </sect2>
+
 <sect2 id="smart-shell"><title>Shell Interface</title>
-<para></para>
+<para>The &app; Shell Mode is an interactive text interface:</para>
+<synopsis>
+<prompt>smart&gt;</prompt> <userinput>help</userinput>
+</synopsis>
+<para>You can add package commands to a transaction,
+and then commit all marked package changes at once.
+It also helps with cache management by only updating
+when necessary to do so instead of for every command.</para>
 </sect2>
 </sect1>
 
-<sect1 id="building-smart"><title>Building Smart</title>
+<sect1 id="smart-building"><title>Building Smart</title>
+<sect2 id="smart-build-install"><title>Installing</title>
+<para>Smart uses regular <emphasis>Distutils</emphasis> installation:</para>
+<synopsis>
+python setup.py install
+</synopsis>
+<para>Or you can use the supplied <filename>Makefile</filename>:</para>
+<synopsis>
+make
+sudo make install
+</synopsis>
+<para>To run all tests in the integrated test suite:</para>
+<synopsis>
+make test
+</synopsis>
+</sect2>
 <sect2 id="smart-build-deps"><title>Dependencies</title>
 <sect3 id="smart-deps-core"><title>Core</title>
 <para>Smart is written in Python, with some core modules rewritten as
