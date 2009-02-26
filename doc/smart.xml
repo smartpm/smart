@@ -644,6 +644,98 @@ choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Priorities</guimenuitem><
 and then commit all marked package changes at once.
 It also helps with cache management by only updating
 when necessary to do so instead of for every command.</para>
+<para>Shell Commands:</para>
+<itemizedlist>
+<listitem><para><xref linkend="smart-shell-check"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-commit"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-download"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-exit"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-fix"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-flag"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-info"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-install"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-keep"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-ls"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-query"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-quit"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-redo"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-reinstall"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-remove"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-search"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-shell"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-stats"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-status"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-undo"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-update"/></para></listitem>
+<listitem><para><xref linkend="smart-shell-upgrade"/></para></listitem>
+</itemizedlist>
+
+<sect3 id="smart-shell-check" xreflabel="Check"><title>Check</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-commit" xreflabel="Commit"><title>Commit</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-download" xreflabel="Download"><title>Download</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-exit" xreflabel="Exit"><title>Exit</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-fix" xreflabel="Fix"><title>Fix</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-flag" xreflabel="Flag"><title>Flag</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-info" xreflabel="Info"><title>Info</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-install" xreflabel="Install"><title>Install</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-keep" xreflabel="Keep"><title>Keep</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-ls" xreflabel="Ls"><title>Ls</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-query" xreflabel="Query"><title>Query</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-quit" xreflabel="Quit"><title>Quit</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-redo" xreflabel="Redo"><title>Redo</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-reinstall" xreflabel="Reinstall"><title>Reinstall</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-remove" xreflabel="Remove"><title>Remove</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-search" xreflabel="Search"><title>Search</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-shell" xreflabel="Shell"><title>Shell</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-stats" xreflabel="Stats"><title>Stats</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-status" xreflabel="Status"><title>Status</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-undo" xreflabel="Undo"><title>Undo</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-update" xreflabel="Update"><title>Update</title>
+<para></para>
+</sect3>
+<sect3 id="smart-shell-upgrade" xreflabel="Upgrade"><title>Upgrade</title>
+<para></para>
+</sect3>
 </sect2>
 </sect1>
 
