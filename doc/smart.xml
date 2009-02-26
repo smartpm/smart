@@ -446,7 +446,6 @@ choose <guimenuitem>Fix All Problems</guimenuitem>.</para>
 <listitem><para>Hide Installed (Show Available)</para></listitem>
 <listitem><para>Hide Uninstalled (Show Installed)</para></listitem>
 <listitem><para>Hide Unmarked (Show Marked)</para></listitem>
-<listitem><para>Hide Unlocked (Show Locked)</para></listitem>
 <listitem><para>Hide Old (Show New)</para></listitem>
 </itemizedlist>
 <para>You can also filter the packages by using the <xref linkend="smart-gui-searchbar"/>.</para>
