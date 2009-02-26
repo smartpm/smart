@@ -368,8 +368,10 @@ smart channel --help
 <sect3 id="smart-gui-list"><title>Package List</title>
 <para>The package list shows the current list of packages, after any filtering:</para>
 <itemizedlist>
-<listitem><para>Package</para></listitem>
-<listitem><para>Version</para></listitem>
+<listitem><para>Package</para>
+<para>Package status and name</para></listitem>
+<listitem><para>Version</para>
+<para>Package version and release</para></listitem>
 </itemizedlist>
 <note>
 <para>Version might include the machine architecture ("arch") of the package.</para>
