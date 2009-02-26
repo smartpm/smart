@@ -394,31 +394,51 @@ smart channel --help
 <sect2 id="smart-gui-packages"><title>Managing Packages</title>
 <para></para>
 <sect3 id="smart-gui-install"><title>Install</title>
-<para></para>
+<para>To mark a package for installation, do one of the following:</para>
+<itemizedlist>
+<listitem><para>Select the status icon of the available package</para></listitem>
+<listitem><para>Double-click the available package in the list</para></listitem>
+<listitem><para>Right-click on the package and choose <guimenuitem>Install</guimenuitem></para></listitem>
+</itemizedlist>
+<para>The <guilabel>Change Summary</guilabel> window will be shown,
+choose <guibutton>OK</guibutton> to confirm the transaction.</para>
 </sect3>
 <sect3 id="smart-gui-remove"><title>Remove</title>
-<para></para>
+<para>To mark a package for uninstallation, do one of the following:</para>
+<itemizedlist>
+<listitem><para>Select the status icon of the installed package</para></listitem>
+<listitem><para>Double-click the installed package in the list</para></listitem>
+<listitem><para>Right-click on the package and choose <guimenuitem>Remove</guimenuitem></para></listitem>
+</itemizedlist>
+<para>The <guilabel>Change Summary</guilabel> window will be shown,
+choose <guibutton>OK</guibutton> to confirm the transaction.</para>
 </sect3>
-<sect3 id="smart-gui-apply"><title>Apply Marked Changes</title>
-<para></para>
+<sect3 id="smart-gui-apply"><title>Apply</title>
+<para>To apply marked changes and commit the transaction,
+choose <guimenuitem>Execute Changes</guimenuitem>.</para>
 </sect3>
-<sect3 id="smart-gui-undo"><title>Undo Marked Changes</title>
-<para></para>
-</sect3>
-<sect3 id="smart-gui-upgrade"><title>Upgrade</title>
-<para></para>
+<sect3 id="smart-gui-clear"><title>Clear</title>
+<para>To clear marked changes and empty the transaction,
+choose <guimenuitem>Clear Marked Changes</guimenuitem>.</para>
 </sect3>
 <sect3 id="smart-gui-update"><title>Update</title>
-<para></para>
+<para>To update the information known about channels,
+choose <guimenuitem>Update Channels</guimenuitem>.</para>
+</sect3>
+<sect3 id="smart-gui-upgrade"><title>Upgrade</title>
+<para>To upgrade packages currently installed in the system,
+choose <guimenuitem>Upgrade All</guimenuitem>.</para>
 </sect3>
 <sect3 id="smart-gui-check"><title>Check</title>
-<para></para>
+<para>To check relations between all packages,
+choose <guimenuitem>Check All Packages</guimenuitem>.</para>
 </sect3>
-<sect3 id="smart-gui-fix"><title>Fix Broken Packages</title>
-<para></para>
+<sect3 id="smart-gui-fix"><title>Fix</title>
+<para>To fix dependencies of installed packages,
+choose <guimenuitem>Fix All Problems</guimenuitem>.</para>
 </sect3>
 </sect2>
-<sect2 id="smart-gui-display"><title>Showing Packages</title>
+<sect2 id="smart-gui-display"><title>Displaying Packages</title>
 <sect3 id="smart-gui-filters"><title>Filtering Packages</title>
 <para>You can hide packages from showing in the package list:</para>
 <itemizedlist>
@@ -445,16 +465,24 @@ smart channel --help
 <sect2 id="smart-gui-config"><title>Editing Configuration</title>
 <para></para>
 <sect3 id="smart-gui-channels"><title>Channels</title>
-<para></para>
+<para>Channels are used as sources of information about installed and available packages.</para>
+<para>To view or edit the current channels,
+choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Channels</guimenuitem></menuchoice></para>
 </sect3>
 <sect3 id="smart-gui-mirrors"><title>Mirrors</title>
-<para></para>
+<para>Mirrors are URLs that provide the same contents as are available in other URLs.</para>
+<para>To view or edit the current mirrors,
+choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Mirrors</guimenuitem></menuchoice></para>
 </sect3>
 <sect3 id="smart-gui-flags"><title>Flags</title>
-<para></para>
+<para>Package flags are used to tune the behavior of some algorithms when dealing with the given packages.</para>
+<para>To view or edit the current package flags,
+choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Flags</guimenuitem></menuchoice></para>
 </sect3>
 <sect3 id="smart-gui-priorities"><title>Priorities</title>
-<para></para>
+<para>Packages with higher priorities are considered a better option even when package versions state otherwise.</para>
+<para>To view or edit the current package priorities,
+choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Priorities</guimenuitem></menuchoice></para>
 </sect3>
 </sect2>
 </sect1>
