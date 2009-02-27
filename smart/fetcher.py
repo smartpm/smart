@@ -39,7 +39,7 @@ MAXRETRIES = 30
 SPEEDDELAY = 1
 CANCELDELAY = 2
 MAXACTIVEDOWNLOADS = 10
-SOCKETTIMEOUT = 30
+SOCKETTIMEOUT = 600
 
 class FetcherCancelled(Error): pass
 
@@ -1649,6 +1649,7 @@ class PyCurlHandler(FetcherHandler):
 
                         handle.setopt(pycurl.URL, str(url))
                         handle.setopt(pycurl.OPT_FILETIME, 1)
+                        handle.setopt(pycurl.TIMEOUT, SOCKETTIMEOUT)
                         handle.setopt(pycurl.NOPROGRESS, 0)
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
                         handle.setopt(pycurl.WRITEDATA, local)
