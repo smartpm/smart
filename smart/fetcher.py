@@ -367,8 +367,11 @@ class Fetcher(object):
 
             filemd5 = item.getInfo(uncompprefix+"md5")
             if filemd5:
-                import md5
-                digest = md5.md5()
+                try:
+                    from hashlib import md5
+                except ImportError:
+                    from md5 import md5
+                digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
                 while data:
@@ -381,8 +384,11 @@ class Fetcher(object):
             else:
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:
