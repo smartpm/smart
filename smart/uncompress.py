@@ -19,6 +19,8 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import os
+
 from smart.const import BLOCKSIZE
 from smart import *
 
@@ -133,3 +135,76 @@ class GZipHandler(UncompressorHandler):
             raise Error, ("%s\nPossibly corrupted channel file.") % e
 
 Uncompressor.addHandler(GZipHandler)
+
+class ZipHandler(UncompressorHandler):
+
+    def query(self, localpath):
+        if localpath.endswith(".zip"):
+            return True
+
+    def getTargetPath(self, localpath, name=None):
+        import zipfile
+        try:
+            zip = zipfile.ZipFile(localpath, 'r')
+            members = zip.namelist()
+            zip.close()
+            if len(members) > 0:
+                if not name:
+                    name = members[0]
+                dir = os.path.dirname(localpath)
+                return os.path.join(dir, name)
+        except (IOError, OSError), e:
+            raise Error, "%s: %s" % (localpath, e)
+        return None
+
+    def uncompress(self, localpath, name=None):
+        import zipfile
+        try:
+            zip = zipfile.ZipFile(localpath, 'r')
+            members = zip.namelist()
+            if not name:
+                name = members[0]
+            output = open(self.getTargetPath(localpath), "w")
+            data = zip.read(name)
+            output.write(data)
+            zip.close()
+        except (IOError, OSError), e:
+            raise Error, "%s: %s" % (localpath, e)
+
+Uncompressor.addHandler(ZipHandler)
+
+class SevenZipHandler(UncompressorHandler):
+
+    def query(self, localpath):
+        if localpath.endswith(".7z"):
+            return True
+
+    def getTargetPath(self, localpath, name=None):
+        import py7zlib
+        try:
+            zip = py7zlib.Archive7z(open(localpath, 'r'))
+            members = zip.getnames()
+            if len(members) > 0:
+                if not name:
+                    name = members[0]
+                dir = os.path.dirname(localpath)
+                return os.path.join(dir, name)
+        except (IOError, OSError), e:
+            raise Error, "%s: %s" % (localpath, e)
+        return None
+
+    def uncompress(self, localpath, name=None):
+        import py7zlib
+        try:
+            zip = py7zlib.Archive7z(open(localpath, 'r'))
+            members = zip.getnames()
+            if not name:
+                name = members[0]
+            output = open(self.getTargetPath(localpath), "w")
+            input = zip.getmember(name)
+            data = input.read()
+            output.write(data)
+        except (IOError, OSError), e:
+            raise Error, "%s: %s" % (localpath, e)
+
+Uncompressor.addHandler(SevenZipHandler)

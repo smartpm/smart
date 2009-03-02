@@ -11,6 +11,10 @@ class UncompressorTest(unittest.TestCase):
         import filecmp
         return filecmp.cmp(file1, file2)
 
+    def tearDown(self):
+        path = "%s/uncompress/test" % TESTDATADIR
+        if os.path.exists(path): os.path.unlink(path)
+
     def uncompress_file(self, file):
         uncompressor = Uncompressor()
         handler = uncompressor.getHandler(file)
@@ -33,3 +37,10 @@ class UncompressorTest(unittest.TestCase):
 
     def test_xz(self):
         self.uncompress_file("%s/uncompress/test.xz" % TESTDATADIR)
+
+    def test_zip(self):
+        self.uncompress_file("%s/uncompress/test.zip" % TESTDATADIR)
+
+    def test_7zip(self):
+        self.uncompress_file("%s/uncompress/test.7z" % TESTDATADIR)
+
