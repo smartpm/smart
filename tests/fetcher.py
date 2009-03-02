@@ -35,11 +35,6 @@ class FetcherTest(MockerTestCase):
         self.fetcher = Fetcher()
         self.fetcher.setLocalPathPrefix(self.local_path + "/")
 
-        # Let's use an interface which doesn't output progress.
-        self.orig_iface_object = iface.object
-        from tests import ctrl
-        iface.object = Interface(ctrl)
-
         # Smart changes SIGPIPE handling due to a problem which otherwise
         # happens when running external scripts.  Check out smart/__init__.py.
         # We want the normal handling here because in some cases we may
@@ -47,8 +42,6 @@ class FetcherTest(MockerTestCase):
         signal.signal(signal.SIGPIPE, signal.SIG_IGN)
 
     def tearDown(self):
-        iface.object = self.orig_iface_object
-
         # See above.
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 

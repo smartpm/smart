@@ -72,8 +72,6 @@ We'll also create a cache, to include these loader into.
 Loading the cache should activate the loader.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 Create a new transaction to perform the upgrade operation, using the
