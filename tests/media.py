@@ -52,12 +52,6 @@ class FSTabTest(unittest.TestCase):
 
 class HALTest(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_dbus(self):
         result = discoverHalVolumeMedias()
         for media in result:
