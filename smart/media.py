@@ -369,25 +369,28 @@ hooks.register("discover-medias", discoverAutoMountMedias)
 def discoverHalVolumeMedias():
     result = []
     if dbus:
-        bus = dbus.SystemBus()
-        hal_object = bus.get_object('org.freedesktop.Hal',
-                                    '/org/freedesktop/Hal/Manager')
-        hal_manager = dbus.Interface(hal_object, 'org.freedesktop.Hal.Manager')
-        
-        volume_udi_list = hal_manager.FindDeviceByCapability('volume')
-        for udi in volume_udi_list:
-            dev_object = bus.get_object('org.freedesktop.Hal', udi)
-            volume = dbus.Interface(dev_object, 'org.freedesktop.Hal.Device')
-            device = volume.GetProperty('block.device')
-            fstype = volume.GetProperty('volume.fstype')
-            mount_point = volume.GetProperty('volume.mount_point')
-            storage_udi = volume.GetProperty('block.storage_device')
-            dev_object = bus.get_object('org.freedesktop.Hal', storage_udi)
-            storage = dbus.Interface(dev_object, 'org.freedesktop.Hal.Device')
-            drive_type = storage.GetProperty('storage.drive_type')
-            if mount_point and (fstype == "iso9660" or drive_type == "cdrom"):
-                result.append(AutoMountMedia(mount_point, device,
-                                                          removable=True))
+        try:
+            bus = dbus.SystemBus()
+            hal_object = bus.get_object('org.freedesktop.Hal',
+                                        '/org/freedesktop/Hal/Manager')
+            hal_manager = dbus.Interface(hal_object, 'org.freedesktop.Hal.Manager')
+            
+            volume_udi_list = hal_manager.FindDeviceByCapability('volume')
+            for udi in volume_udi_list:
+                dev_object = bus.get_object('org.freedesktop.Hal', udi)
+                volume = dbus.Interface(dev_object, 'org.freedesktop.Hal.Device')
+                device = volume.GetProperty('block.device')
+                fstype = volume.GetProperty('volume.fstype')
+                mount_point = volume.GetProperty('volume.mount_point')
+                storage_udi = volume.GetProperty('block.storage_device')
+                dev_object = bus.get_object('org.freedesktop.Hal', storage_udi)
+                storage = dbus.Interface(dev_object, 'org.freedesktop.Hal.Device')
+                drive_type = storage.GetProperty('storage.drive_type')
+                if mount_point and (fstype == "iso9660" or drive_type == "cdrom"):
+                    result.append(AutoMountMedia(mount_point, device,
+                                                              removable=True))
+        except:
+            pass
     return result
 
 hooks.register("discover-medias", discoverHalVolumeMedias)
