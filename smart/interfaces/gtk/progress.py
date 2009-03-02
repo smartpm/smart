@@ -298,6 +298,10 @@ gobject.type_register(ProgressCellRenderer)
 
 def test():
     import sys, time
+    import smart
+
+    # We need sysconf in the progress code.
+    ctrl = smart.init()
 
     prog = GtkProgress(True)
 

@@ -20,7 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import posixpath
-import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 import os
 
 # be compatible with 2.3
@@ -69,7 +72,7 @@ def _loadSourcesList(filename):
             continue # We don't deal with these yet.
 
         # Build a unique alias.
-        m = md5.new("%s|%s|%s|%s" % (type, uri, distro, comps))
+        m = md5("%s|%s|%s|%s" % (type, uri, distro, comps))
         alias = "aptsync-%s" % m.hexdigest()
         seen.add(alias)
 
