@@ -60,6 +60,29 @@ class LandscapePluginTest(MockerTestCase):
         self.assertEquals(sysconf.get("https-proxy"), "https://proxy.url")
         self.assertEquals(sysconf.get("ftp-proxy"), "ftp://proxy.url")
 
+    def test_plguin_sets_proxies_as_weak(self):
+        """
+        Settings are weak in the sysconf, which means that settings
+        performed explicitly will have precedence.
+        """
+        sysconf.set("http-proxy", "http-url")
+        sysconf.set("https-proxy", "https-url")
+        sysconf.set("ftp-proxy", "ftp-url")
+
+        sysconf.set("use-landscape-proxies", True)
+        landscape.run()
+
+        self.assertEquals(sysconf.get("http-proxy"), "http-url")
+        self.assertEquals(sysconf.get("https-proxy"), "https-url")
+        self.assertEquals(sysconf.get("ftp-proxy"), "ftp-url")
+
+        self.assertEquals(sysconf.get("http-proxy", weak=True),
+                          "http://proxy.url")
+        self.assertEquals(sysconf.get("https-proxy", weak=True),
+                          "https://proxy.url")
+        self.assertEquals(sysconf.get("ftp-proxy", weak=True),
+                          "ftp://proxy.url")
+
     def test_nothing_happens_if_there_are_no_proxy_settings(self):
         """
         The default settings won't be touched if there are no
@@ -89,9 +112,9 @@ class LandscapePluginTest(MockerTestCase):
         If there are existing settings, they won't be overriden if
         the Landscape client didn't provide any options.
         """
-        sysconf.set("http-proxy", "http-url")
-        sysconf.set("https-proxy", "https-url")
-        sysconf.set("ftp-proxy", "ftp-url")
+        sysconf.set("http-proxy", "http-url", weak=True)
+        sysconf.set("https-proxy", "https-url", weak=True)
+        sysconf.set("ftp-proxy", "ftp-url", weak=True)
 
         self.write_client_conf(EMPTY_CLIENT_CONF)
         sysconf.set("use-landscape-proxies", True)

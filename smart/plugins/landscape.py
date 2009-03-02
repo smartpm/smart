@@ -36,7 +36,7 @@ def run():
         for type in "http", "https", "ftp":
             if parser.has_option("client", "%s_proxy" % type):
                 setting = parser.get("client", "%s_proxy" % type)
-                sysconf.set("%s-proxy" % type, setting)
+                sysconf.set("%s-proxy" % type, setting, weak=True)
 
 
 run()
