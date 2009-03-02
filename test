@@ -89,7 +89,6 @@ def main():
 
     try:
         const.DISTROFILE = "/non-existent/file"
-        interface.getScreenWidth = lambda: 80
 
         tests.ctrl = init(datadir=datadir)
         opts = parse_options(sys.argv[1:])
