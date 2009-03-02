@@ -398,7 +398,6 @@ class Fetcher(object):
                         if lfilesha256 != filesha256:
                            raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
                                          (filesha256, lfilesha256)
-                        return
                     except ImportError:
                         pass
                 filesha = item.getInfo(uncompprefix+"sha")
