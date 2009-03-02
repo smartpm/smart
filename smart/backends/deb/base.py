@@ -20,13 +20,16 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import fnmatch
+import string
+import sys
+import os
+import re
+
 from smart.backends.deb.debver import vercmp, checkdep, splitrelease
 from smart.backends.deb.pm import DebPackageManager
 from smart.util.strtools import isGlob
 from smart.cache import *
-import fnmatch
-import string
-import os, re
 
 __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebRequires", "DebUpgrades", "DebConflicts", "DebBreaks",
@@ -44,17 +47,20 @@ def getArchitecture():
               "shel": "sh",
               "x86_64": "amd64"}.get(arch)
     if result:
-        return result
+        arch = result
     elif len(arch) == 4 and arch[0] == "i" and arch.endswith("86"):
-        return "i386"
+        arch = "i386"
     elif arch.startswith("arm"):
-        return "arm"
+        arch = "arm"
     elif arch.startswith("hppa"):
-        return "hppa"
+        arch = "hppa"
     elif arch.startswith("alpha"):
-        return "alpha"
-    else:
+        arch = "alpha"
+    
+    if sys.platform == "linux2":
         return arch
+    else:
+        return "%s-%s" % (sys.platform, arch)
 
 DEBARCH = getArchitecture()
 

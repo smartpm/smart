@@ -22,12 +22,15 @@
 from smart.const import BLOCKSIZE
 import resource
 import fcntl
-import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 import os
 
 def getFileDigest(path, digest=None):
     if not digest:
-        digest = md5.md5()
+        digest = md5()
     file = open(path)
     while True:
         data = file.read(BLOCKSIZE)
@@ -42,8 +45,8 @@ def compareFiles(path1, path2):
         return False
     if os.path.getsize(path1) != os.path.getsize(path2):
         return False
-    path1sum = md5.md5()
-    path2sum = md5.md5()
+    path1sum = md5()
+    path2sum = md5()
     for path, sum in [(path1, path1sum), (path2, path2sum)]:
         file = open(path)
         while True:
