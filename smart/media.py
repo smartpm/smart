@@ -369,6 +369,10 @@ hooks.register("discover-medias", discoverAutoMountMedias)
 def discoverHalVolumeMedias():
     result = []
     if dbus:
+        import sys
+        import StringIO
+        olderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
         try:
             bus = dbus.SystemBus()
             hal_object = bus.get_object('org.freedesktop.Hal',
@@ -391,6 +395,8 @@ def discoverHalVolumeMedias():
                                                               removable=True))
         except:
             pass
+        err = sys.stderr.getvalue()
+        sys.stderr = olderr
     return result
 
 hooks.register("discover-medias", discoverHalVolumeMedias)
