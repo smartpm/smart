@@ -1,18 +1,31 @@
 import BaseHTTPServer
 import threading
 import unittest
+import socket
+import signal
 import time
 import os
 
 from smart.progress import Progress
+from smart.interface import Interface
 from smart.fetcher import Fetcher
 from smart.const import VERSION
+from smart import fetcher, iface
 
 from tests.mocker import MockerTestCase
 
 
 PORT = 43543
 URL = "http://127.0.0.1:%d/filename.pkg" % PORT
+
+
+class HTTPServer(BaseHTTPServer.HTTPServer):
+
+    hide_errors = False
+
+    def handle_error(self, request, client_address):
+        if not self.hide_errors:
+            super(HTTPServer, self).handle_error(request, client_address)
 
 
 class FetcherTest(MockerTestCase):
@@ -22,16 +35,49 @@ class FetcherTest(MockerTestCase):
         self.fetcher = Fetcher()
         self.fetcher.setLocalPathPrefix(self.local_path + "/")
 
-    def start_server(self, handler):
+        # Let's use an interface which doesn't output progress.
+        self.orig_iface_object = iface.object
+        from tests import ctrl
+        iface.object = Interface(ctrl)
+
+        # Smart changes SIGPIPE handling due to a problem which otherwise
+        # happens when running external scripts.  Check out smart/__init__.py.
+        # We want the normal handling here because in some cases we may
+        # get SIGPIPE due to broken sockets on tests.
+        signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+
+    def tearDown(self):
+        iface.object = self.orig_iface_object
+
+        # See above.
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+    def start_server(self, handler, hide_errors=False):
+        startup_lock = threading.Lock()
+        startup_lock.acquire()
         def server():
             class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
                 def do_GET(self):
                     return handler(self)
-            httpd = BaseHTTPServer.HTTPServer(("127.0.0.1", PORT), Handler)
+                def log_message(self, format, *args):
+                    pass
+            while True:
+                try:
+                    httpd = HTTPServer(("127.0.0.1", PORT), Handler)
+                    break
+                except socket.error, error:
+                    if "Address already in use" not in str(error):
+                        raise
+                    time.sleep(1)
+            startup_lock.release()
+            httpd.hide_errors = hide_errors
             httpd.handle_request()
+
         self.server_thread = threading.Thread(target=server)
         self.server_thread.start()
-        time.sleep(0.5)
+
+        # Wait until thread is ready.
+        startup_lock.acquire()
 
     def wait_for_server(self):
         self.server_thread.join()
@@ -73,3 +119,30 @@ class FetcherTest(MockerTestCase):
         self.fetcher.run(progress=Progress())
         item = self.fetcher.getItem(URL)
         self.assertEquals(item.getFailedReason(), u"File not found")
+
+    def test_timeout(self):
+        timeout = 3
+        sleep_time = 6
+
+        def reset_timeout(timeout=fetcher.SOCKETTIMEOUT):
+            fetcher.SOCKETTIMEOUT = timeout
+        reset_timeout(timeout)
+        self.addCleanup(reset_timeout)
+
+        headers = []
+        def handler(request):
+            time.sleep(sleep_time)
+            request.send_error(404, "After timeout sleep")
+            request.send_header("Content-Length", "6")
+            request.wfile.write("Hello!")
+
+        started = time.time()
+
+        # We hide errors here because we know we'll get a broken pipe on
+        # the server side if the test succeeds.
+        self.start_server(handler, hide_errors=True)
+        self.fetcher.enqueue(URL)
+        self.fetcher.run(progress=Progress())
+        self.assertTrue(timeout <= (time.time() - started) < sleep_time-1)
+
+        item = self.fetcher.getItem(URL)

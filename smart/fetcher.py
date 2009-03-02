@@ -39,7 +39,7 @@ MAXRETRIES = 30
 SPEEDDELAY = 1
 CANCELDELAY = 2
 MAXACTIVEDOWNLOADS = 10
-SOCKETTIMEOUT = 30
+SOCKETTIMEOUT = 600
 
 class FetcherCancelled(Error): pass
 
@@ -369,8 +369,11 @@ class Fetcher(object):
 
             filemd5 = item.getInfo(uncompprefix+"md5")
             if filemd5:
-                import md5
-                digest = md5.md5()
+                try:
+                    from hashlib import md5
+                except ImportError:
+                    from md5 import md5
+                digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
                 while data:
@@ -400,8 +403,11 @@ class Fetcher(object):
                         pass
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:
@@ -1669,6 +1675,7 @@ class PyCurlHandler(FetcherHandler):
 
                         handle.setopt(pycurl.URL, str(url))
                         handle.setopt(pycurl.OPT_FILETIME, 1)
+                        handle.setopt(pycurl.TIMEOUT, SOCKETTIMEOUT)
                         handle.setopt(pycurl.NOPROGRESS, 0)
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
                         handle.setopt(pycurl.WRITEDATA, local)

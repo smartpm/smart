@@ -23,7 +23,6 @@ import cPickle
 import sys, os
 import copy
 import time
-import md5
 
 from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from smart.util.filetools import compareFiles, setCloseOnExecAll

@@ -18,12 +18,13 @@ if sys.version_info < (2, 4):
     from sets import Set as set # pragma: nocover
 
 
-__all__ = ["Mocker", "expect", "IS", "CONTAINS", "IN", "ANY", "ARGS", "KWARGS"]
+__all__ = ["Mocker", "expect", "IS", "CONTAINS", "IN", "MATCH",
+           "ANY", "ARGS", "KWARGS"]
 
 
 __author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
-__version__ = "0.9.3"
+__version__ = "0.10.1"
 
 
 ERROR_PREFIX = "[Mocker] "
@@ -98,20 +99,47 @@ class MockerTestCase(unittest.TestCase):
         if test_method is not None:
             def test_method_wrapper():
                 try:
-                    test_method()
+                    result = test_method()
                 except:
-                    self.__cleanup()
-                    self.mocker.restore()
                     raise
                 else:
-                    self.__cleanup()
-                    self.mocker.restore()
-                    self.mocker.verify()
-            test_method_wrapper.__doc__ = test_method.__doc__
+                    if (self.mocker.is_recording() and
+                        self.mocker.get_events()):
+                        raise RuntimeError("Mocker must be put in replay "
+                                           "mode with self.mocker.replay()")
+                    if (hasattr(result, "addCallback") and
+                        hasattr(result, "addErrback")):
+                        def verify(result):
+                            self.mocker.verify()
+                            return result
+                        result.addCallback(verify)
+                    else:
+                        self.mocker.verify()
+                        self.mocker.restore()
+                    return result
+            # Copy all attributes from the original method..
+            for attr in dir(test_method):
+                # .. unless they're present in our wrapper already.
+                if not hasattr(test_method_wrapper, attr) or attr == "__doc__":
+                    setattr(test_method_wrapper, attr,
+                            getattr(test_method, attr))
             setattr(self, methodName, test_method_wrapper)
+
+        # We could overload run() normally, but other well-known testing
+        # frameworks do it as well, and some of them won't call the super,
+        # which might mean that cleanup wouldn't happen.  With that in mind,
+        # we make integration easier by using the following trick.
+        run_method = self.run
+        def run_wrapper(*args, **kwargs):
+            try:
+                return run_method(*args, **kwargs)
+            finally:
+                self.__cleanup()
+        self.run = run_wrapper
 
         self.mocker = Mocker()
 
+        self.__cleanup_funcs = []
         self.__cleanup_paths = []
 
         super(MockerTestCase, self).__init__(methodName)
@@ -122,9 +150,15 @@ class MockerTestCase(unittest.TestCase):
                 os.unlink(path)
             elif os.path.isdir(path):
                 shutil.rmtree(path)
+        self.mocker.reset()
+        for func, args, kwargs in self.__cleanup_funcs:
+            func(*args, **kwargs)
+
+    def addCleanup(self, func, *args, **kwargs):
+        self.__cleanup_funcs.append((func, args, kwargs))
 
     def makeFile(self, content=None, suffix="", prefix="tmp", basename=None,
-                 dirname=None):
+                 dirname=None, path=None):
         """Create a temporary file and return the path to it.
 
         @param content: Initial content for the file.
@@ -135,22 +169,26 @@ class MockerTestCase(unittest.TestCase):
 
         The file is removed after the test runs.
         """
-        if basename is not None:
+        if path is not None:
+            self.__cleanup_paths.append(path)
+        elif basename is not None:
             if dirname is None:
                 dirname = tempfile.mkdtemp()
                 self.__cleanup_paths.append(dirname)
-            filename = os.path.join(dirname, basename)
+            path = os.path.join(dirname, basename)
         else:
-            fd, filename = tempfile.mkstemp(suffix, prefix, dirname)
-            self.__cleanup_paths.append(filename)
+            fd, path = tempfile.mkstemp(suffix, prefix, dirname)
+            self.__cleanup_paths.append(path)
             os.close(fd)
+            if content is None:
+                os.unlink(path)
         if content is not None:
-            file = open(filename, "w")
+            file = open(path, "w")
             file.write(content)
             file.close()
-        return filename
+        return path
 
-    def makeDir(self, suffix="", prefix="tmp", dirname=None):
+    def makeDir(self, suffix="", prefix="tmp", dirname=None, path=None):
         """Create a temporary directory and return the path to it.
 
         @param suffix: Suffix to be given to the file's basename.
@@ -159,9 +197,12 @@ class MockerTestCase(unittest.TestCase):
 
         The directory is removed after the test runs.
         """
-        dirname = tempfile.mkdtemp(suffix, prefix, dirname)
-        self.__cleanup_paths.append(dirname)
-        return dirname
+        if path is not None:
+            os.makedirs(path)
+        else:
+            path = tempfile.mkdtemp(suffix, prefix, dirname)
+        self.__cleanup_paths.append(path)
+        return path
 
     def failUnlessIs(self, first, second, msg=None):
         """Assert that C{first} is the same object as C{second}."""
@@ -234,7 +275,7 @@ class MockerTestCase(unittest.TestCase):
         """
         first_methods = dict(inspect.getmembers(first, inspect.ismethod))
         second_methods = dict(inspect.getmembers(second, inspect.ismethod))
-        for name, first_method in first_methods.items():
+        for name, first_method in first_methods.iteritems():
             first_argspec = inspect.getargspec(first_method)
             first_formatted = inspect.formatargspec(*first_argspec)
 
@@ -431,7 +472,7 @@ class MockerBase(object):
         """
         self._events.append(event)
         if self._ordering:
-            orderer = event.add_task(Orderer())
+            orderer = event.add_task(Orderer(event.path))
             if self._last_orderer:
                 orderer.add_dependency(self._last_orderer)
             self._last_orderer = orderer
@@ -629,7 +670,7 @@ class MockerBase(object):
         event.add_task(patcher)
         mock = Mock(self, object=object, patcher=patcher,
                     passthrough=True, spec=spec)
-        object.__mocker_mock__ = mock
+        patcher.patch_attr(object, '__mocker_mock__', mock)
         return mock
 
     def act(self, path):
@@ -644,15 +685,24 @@ class MockerBase(object):
                 recorder(self, event)
             return Mock(self, path)
         else:
-            satisfied = []
-            for event in self._events:
-                if event.satisfied():
-                    satisfied.append(event)
-                elif event.matches(path):
-                    return event.run(path)
-            for event in satisfied:
+            # First run events that may run, then run unsatisfied events, then
+            # ones not previously run. We put the index in the ordering tuple
+            # instead of the actual event because we want a stable sort
+            # (ordering between 2 events is undefined).
+            events = self._events
+            order = [(events[i].satisfied()*2 + events[i].has_run(), i)
+                     for i in range(len(events))]
+            order.sort()
+            postponed = None
+            for weight, i in order:
+                event = events[i]
                 if event.matches(path):
-                    return event.run(path)
+                    if event.may_run(path):
+                        return event.run(path)
+                    elif postponed is None:
+                        postponed = event
+            if postponed is not None:
+                return postponed.run(path)
             raise MatchError(ERROR_PREFIX + "Unexpected expression: %s" % path)
 
     def get_recorders(cls, self):
@@ -816,7 +866,7 @@ class MockerBase(object):
                             orderer = task
                             break
                     else:
-                        orderer = Orderer()
+                        orderer = Orderer(path)
                         event.add_task(orderer)
                     if last_orderer:
                         orderer.add_dependency(last_orderer)
@@ -1316,6 +1366,15 @@ class IN(SpecialArgument):
         return other in self.object
 
 
+class MATCH(SpecialArgument):
+
+    def matches(self, other):
+        return bool(self.object(other))
+
+    def __eq__(self, other):
+        return type(other) == type(self) and self.object is other.object
+
+
 def match_params(args1, kwargs1, args2, kwargs2):
     """Match the two sets of parameters, considering special parameters."""
 
@@ -1409,6 +1468,7 @@ class Event(object):
     def __init__(self, path=None):
         self.path = path
         self._tasks = []
+        self._has_run = False
 
     def add_task(self, task):
         """Add a new task to this taks."""
@@ -1428,8 +1488,24 @@ class Event(object):
                 return False
         return bool(self._tasks)
 
+    def has_run(self):
+        return self._has_run
+
+    def may_run(self, path):
+        """Verify if any task would certainly raise an error if run.
+
+        This will call the C{may_run()} method on each task and return
+        false if any of them returns false.
+        """
+        for task in self._tasks:
+            if not task.may_run(path):
+                return False
+        return True
+
     def run(self, path):
         """Run all tasks with the given action.
+
+        @param path: The path of the expression run.
 
         Running an event means running all of its tasks individually and in
         order.  An event should only ever be run if all of its tasks claim to
@@ -1438,6 +1514,7 @@ class Event(object):
         The result of this method will be the last result of a task
         which isn't None, or None if they're all None.
         """
+        self._has_run = True
         result = None
         errors = []
         for task in self._tasks:
@@ -1453,6 +1530,8 @@ class Event(object):
                     result = task_result
         if errors:
             message = [str(self.path)]
+            if str(path) != message[0]:
+                message.append("- Run: %s" % path)
             for error in errors:
                 lines = error.splitlines()
                 message.append("- " + lines.pop(0))
@@ -1499,6 +1578,7 @@ class Event(object):
 
     def replay(self):
         """Put all tasks in replay mode."""
+        self._has_run = False
         for task in self._tasks:
             task.replay()
 
@@ -1526,6 +1606,10 @@ class Task(object):
     def matches(self, path):
         """Return true if the task is supposed to be run for the given path.
         """
+        return True
+
+    def may_run(self, path):
+        """Return false if running this task would certainly raise an error."""
         return True
 
     def run(self, path):
@@ -1599,6 +1683,9 @@ class RunCounter(Task):
     def replay(self):
         self._runs = 0
 
+    def may_run(self, path):
+        return self._runs < self.max
+
     def run(self, path):
         self._runs += 1
         if self._runs > self.max:
@@ -1607,7 +1694,7 @@ class RunCounter(Task):
     def verify(self):
         if not self.min <= self._runs <= self.max:
             if self._runs < self.min:
-                raise AssertionError("Performed less times than expected.")
+                raise AssertionError("Performed fewer times than expected.")
             raise AssertionError("Performed more times than expected.")
 
 
@@ -1704,30 +1791,34 @@ class Orderer(Task):
     been run.
     """
 
-    def __init__(self):
+    def __init__(self, path):
+        self.path = path
         self._run = False 
         self._dependencies = []
 
     def replay(self):
         self._run = False
 
-    def run(self, path):
-        self._run = True
-
     def has_run(self):
         return self._run
+
+    def may_run(self, path):
+        for dependency in self._dependencies:
+            if not dependency.has_run():
+                return False
+        return True
+
+    def run(self, path):
+        for dependency in self._dependencies:
+            if not dependency.has_run():
+                raise AssertionError("Should be after: %s" % dependency.path)
+        self._run = True
 
     def add_dependency(self, orderer):
         self._dependencies.append(orderer)
 
     def get_dependencies(self):
         return self._dependencies
-
-    def matches(self, path):
-        for dependency in self._dependencies:
-            if not dependency.has_run():
-                return False
-        return True
 
 
 class SpecChecker(Task):
@@ -1758,6 +1849,17 @@ class SpecChecker(Task):
                                      self._varkwargs, self._defaults)
         raise AssertionError("Specification is %s%s: %s" %
                              (self._method.__name__, spec, message))
+
+    def verify(self):
+        if not self._method:
+            raise AssertionError("Method not found in real specification")
+
+    def may_run(self, path):
+        try:
+            self.run(path)
+        except AssertionError:
+            return False
+        return True
 
     def run(self, path):
         if not self._method:
@@ -1819,7 +1921,7 @@ def global_replace(remove, install):
     for referrer in gc.get_referrers(remove):
         if (type(referrer) is dict and
             referrer.get("__mocker_replace__", True)):
-            for key, value in referrer.items():
+            for key, value in list(referrer.iteritems()):
                 if value is remove:
                     referrer[key] = install
 
@@ -1915,7 +2017,22 @@ class Patcher(Task):
     def execute(self, action, object):
         attr = self._get_kind_attr(action.kind)
         unpatched = self.get_unpatched_attr(object, attr)
-        return unpatched(*action.args, **action.kwargs)
+        try:
+            return unpatched(*action.args, **action.kwargs)
+        except AttributeError:
+            type, value, traceback = sys.exc_info()
+            if action.kind == "getattr":
+                # The normal behavior of Python is to try __getattribute__,
+                # and if it raises AttributeError, try __getattr__.   We've
+                # tried the unpatched __getattribute__ above, and we'll now
+                # try __getattr__.
+                try:
+                    __getattr__ = unpatched("__getattr__")
+                except AttributeError:
+                    pass
+                else:
+                    return __getattr__(*action.args, **action.kwargs)
+            raise type, value, traceback
 
 
 class PatchedMethod(object):
@@ -1935,6 +2052,14 @@ class PatchedMethod(object):
             mock = object.__mocker_mock__
             return mock.__mocker_act__(self._kind, args, kwargs, object)
         return method
+
+    def __call__(self, obj, *args, **kwargs):
+        # At least with __getattribute__, Python seems to use *both* the
+        # descriptor API and also call the class attribute directly.  It
+        # looks like an interpreter bug, or at least an undocumented
+        # inconsistency.
+        return self.__get__(obj)(*args, **kwargs)
+
 
 def patcher_recorder(mocker, event):
     mock = event.path.root_mock

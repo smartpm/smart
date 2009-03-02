@@ -196,8 +196,11 @@ class PackageInfo(object):
 
             filemd5 = self.getMD5(url)
             if filemd5:
-                import md5
-                digest = md5.md5()
+                try:
+                    from hashlib import md5
+                except ImportError:
+                    from md5 import md5
+                digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
                 while data:
@@ -227,8 +230,11 @@ class PackageInfo(object):
                         pass
                 filesha = self.getSHA(url)
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:
