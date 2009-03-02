@@ -55,7 +55,7 @@ class HALTest(unittest.TestCase):
     def test_dbus(self):
         result = discoverHalVolumeMedias()
         for media in result:
-            self.assertEquals(media.isRemovable())
+            self.assertTrue(media.isRemovable())
             # TODO: check mountpoint and device ?
 
 
