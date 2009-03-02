@@ -1,0 +1,64 @@
+
+Create the channel.
+
+  >>> from tests import *
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "rpm-md",
+  ...                          "baseurl": "file://%s/yumrpm" % TESTDATADIR})
+  >>> channel
+  <smart.channels.rpm_md.RPMMetaDataChannel object at ...>
+
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.rpm.metadata.RPMMetaDataLoader object at ...>]
+
+
+Let's create a cache to put the loader in, so that we can test it.
+
+  >>> from smart.cache import Cache
+  >>> loader = channel.getLoaders()[0]
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+The setup is ready. Now we can load the data into the cache.
+
+  >>> cache.load()
+  Updating cache...               ######################################## [100%]
+  <BLANKLINE>
+
+
+This should give us one package with the data we already know.
+
+  >>> pkg = cache.getPackages("name1")[0]
+  >>> type(pkg)
+  <class 'smart.backends.rpm.base.RPMPackage'>
+
+  >>> pkg.name
+  'name1'
+
+Now let's ask the loader for a PackageInfo instance, and inspect it.
+
+  >>> info = loader.getInfo(pkg)
+  >>> type(info)
+  <class 'smart.backends.rpm.metadata.RPMMetaDataPackageInfo'>
+
+  >>> url = info.getURLs()[0]
+  >>> info.getSHA256(url)
+  '705cb36fe89d15f6e6aeacb6d80812d8deec2126b9c146ad4199a86fa919b82f'
+
+
+vim:ft=doctest
