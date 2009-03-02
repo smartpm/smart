@@ -157,7 +157,6 @@ def main(ctrl, opts, reloadchannels=True):
             paths.sort()
             for entry in paths:
                 print "", entry
-        print
 
         if opts.changelog:
             print "", _("Changelog:")
@@ -174,6 +173,7 @@ def main(ctrl, opts, reloadchannels=True):
                 print "       ", "%s" % changesplit[0]
                 for i in range(1, len(changesplit)):
                     print "         ", "%s" % changesplit[i]
-            print 
+
+        print
 
 # vim:ts=4:sw=4:et
