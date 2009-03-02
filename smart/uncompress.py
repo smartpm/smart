@@ -84,9 +84,14 @@ class LZMAHandler(UncompressorHandler):
     def query(self, localpath):
         if localpath.endswith(".lzma"):
             return True
+        if localpath.endswith(".xz"):
+            return True
 
     def getTargetPath(self, localpath):
-        return localpath[:-5]
+        if localpath.endswith(".lzma"):
+            return localpath[:-5]
+        if localpath.endswith(".xz"):
+            return localpath[:-3]
 
     def uncompress(self, localpath):
         import lzma

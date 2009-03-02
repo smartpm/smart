@@ -30,3 +30,6 @@ class UncompressorTest(unittest.TestCase):
 
     def test_lzma(self):
         self.uncompress_file("%s/uncompress/test.lzma" % TESTDATADIR)
+
+    def test_xz(self):
+        self.uncompress_file("%s/uncompress/test.xz" % TESTDATADIR)
