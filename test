@@ -28,7 +28,7 @@ import sys
 import os
 
 from smart.option import OptionParser
-from smart import init, const, interface
+from smart import init, const, interface, iface
 from smart import *
 
 import tests
@@ -93,6 +93,9 @@ def main():
         tests.ctrl = init(datadir=datadir)
         opts = parse_options(sys.argv[1:])
 
+        # Let's use an interface which doesn't output progress.
+        iface.object = interface.Interface(tests.ctrl)
+
         runner = unittest.TextTestRunner()
         loader = unittest.TestLoader()
         doctest_flags = doctest.ELLIPSIS
@@ -123,6 +126,9 @@ def main():
 
                 shutil.rmtree(datadir)
                 os.mkdir(datadir)
+                from smart import sysconf
+                if sysconf.get("channels"):
+                    print "GOT CHANNELS:", sysconf.get("channels")
 
         if doctests:
             print "Running doctests..."

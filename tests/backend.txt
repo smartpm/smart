@@ -67,8 +67,6 @@ We'll also create a cache, to include the loader into.
 Loading the cache should activate the loader.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 Let's see if our data got loaded correctly.
