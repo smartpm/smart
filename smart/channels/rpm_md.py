@@ -55,6 +55,32 @@ class RPMMetaDataChannel(PackageChannel):
     def getFetchSteps(self):
         return 3
 
+    def loadMetadata(self, metadatafile):
+        info = {}
+
+        try:
+            root = ElementTree.parse(metadatafile).getroot()
+        except expat.error, e:
+            raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
+                          (metadatafile, repomd, str(e))
+
+        for node in root.getchildren():
+            if node.tag != DATA:
+                continue
+            type = node.get("type")
+            info[type] = {}
+            for subnode in node.getchildren():
+                if subnode.tag == LOCATION:
+                    info[type]["url"] = \
+                        posixpath.join(self._baseurl, subnode.get("href"))
+                if subnode.tag == CHECKSUM:
+                    info[type][subnode.get("type")] = subnode.text
+                if subnode.tag == OPENCHECKSUM:
+                    info[type]["uncomp_"+subnode.get("type")] = \
+                        subnode.text
+        
+        return info
+        
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
@@ -76,27 +102,7 @@ class RPMMetaDataChannel(PackageChannel):
             return True
         self.removeLoaders()
 
-        info = {}
-        try:
-            root = ElementTree.parse(item.getTargetPath()).getroot()
-        except expat.error, e:
-            raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
-                          (item.getTargetPath(), repomd, str(e))
-
-        for node in root.getchildren():
-            if node.tag != DATA:
-                continue
-            type = node.get("type")
-            info[type] = {}
-            for subnode in node.getchildren():
-                if subnode.tag == LOCATION:
-                    info[type]["url"] = \
-                        posixpath.join(self._baseurl, subnode.get("href"))
-                if subnode.tag == CHECKSUM:
-                    info[type][subnode.get("type")] = subnode.text
-                if subnode.tag == OPENCHECKSUM:
-                    info[type]["uncomp_"+subnode.get("type")] = \
-                        subnode.text
+        info = self.loadMetadata(item.getTargetPath())
 
         if "primary" not in info:
             raise Error, _("Primary information not found in repository "
