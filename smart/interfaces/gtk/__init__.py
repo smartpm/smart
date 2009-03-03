@@ -49,10 +49,7 @@ def getPixbuf(name):
     if name not in _pixbuf:
         filename = getImagePath(name)
         if os.path.isfile(filename):
-            try:
-                icon_size = sysconf.get("gtk-icon-size")
-            except AttributeError:
-                icon_size = None
+            icon_size = sysconf.get("gtk-icon-size")
             if icon_size:
                 pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(filename,
                                                               icon_size,
