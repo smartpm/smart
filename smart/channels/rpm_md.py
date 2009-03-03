@@ -34,6 +34,7 @@ from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel
 from smart import *
 import posixpath
+import os
 
 from xml.parsers import expat
 
@@ -81,10 +82,25 @@ class RPMMetaDataChannel(PackageChannel):
         
         return info
         
+    def getLocalPath(self, fetcher, url):
+        from smart.fetcher import FetchItem
+        mirror = fetcher.getMirrorSystem().get(url)
+        item = FetchItem(fetcher, url, mirror)
+        return fetcher.getLocalPath(item)
+
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
+
+        oldinfo = {}
+        path = self.getLocalPath(fetcher, repomd)
+        if os.path.exists(path):
+            try:
+                oldinfo = self.loadMetadata(path)
+            except Error:
+                pass
+        
         item = fetcher.enqueue(repomd)
         fetcher.run(progress=progress)
 
@@ -149,6 +165,21 @@ class RPMMetaDataChannel(PackageChannel):
             raise Error, "\n".join(lines)
         else:
             return False
+
+        uncompressor = fetcher.getUncompressor()
+
+        # delete any old files, if the new ones have new names
+        for type in ["primary", "filelists", "other"]:
+            if type in oldinfo:
+                url = oldinfo[type]["url"]
+                if url and info[type]["url"] != oldinfo[type]["url"]:
+                    path = self.getLocalPath(fetcher, url)
+                    if os.path.exists(path):
+                       os.unlink(path)
+                    handler = uncompressor.getHandler(path)
+                    path = handler.getTargetPath(path)
+                    if os.path.exists(path):
+                       os.unlink(path)
 
         self._digest = digest
 
