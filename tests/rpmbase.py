@@ -2,7 +2,7 @@ import os
 
 from mocker import MockerTestCase
 
-from smart.backends.rpm.base import RPMPackage, Package, getTS
+from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
 from smart import sysconf
 
 
@@ -68,3 +68,13 @@ class RPMPackageTest(MockerTestCase):
         lst = [pkg1, pkg2, pkg3]
         lst.sort()
         self.assertEquals(lst, [pkg2, pkg3, pkg1])
+
+    def test_equals_with_provides_with_empty_name_doesnt_fail(self):
+        provides1 = Provides("", "1.0")
+        provides2 = Provides("/foo/bar", "1.0")
+        pkg1 = RPMPackage("name", "1.0")
+        pkg2 = RPMPackage("name", "1.0")
+        pkg1.provides = [provides1]
+        pkg2.provides = [provides1, provides2]
+        self.assertTrue(pkg1.equals(pkg2))
+        self.assertTrue(pkg2.equals(pkg1))

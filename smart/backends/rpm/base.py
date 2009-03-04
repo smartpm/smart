@@ -102,8 +102,8 @@ class RPMPackage(Package):
             len(self.conflicts) != len(other.conflicts) or
             fk(self.upgrades) != fk(other.upgrades) or
             fk(self.conflicts) != fk(other.conflicts) or
-            fk([x for x in self.provides if x.name[0] != "/"]) !=
-            fk([x for x in other.provides if x.name[0] != "/"])):
+            fk([x for x in self.provides if x.name and x.name[0] != "/"]) !=
+            fk([x for x in other.provides if x.name and x.name[0] != "/"])):
             return False
         sreqs = fk(self.requires)
         oreqs = fk(other.requires)
