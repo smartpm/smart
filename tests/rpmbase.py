@@ -1,6 +1,28 @@
+import os
+
 from mocker import MockerTestCase
 
-from smart.backends.rpm.base import RPMPackage, Package
+from smart.backends.rpm.base import RPMPackage, Package, getTS
+from smart import sysconf
+
+
+class getTSTest(MockerTestCase):
+
+    def test_wb_rpm_root_path_must_be_absolute(self):
+        """
+        Somewhat of a weak test.  I haven't managed to make the code
+        break when rpm root isn't absolute, so I decided to do a whitebox
+        test and verify that at least the fix which is mentioned in
+        #307386 is in place.
+        """
+        current_path = os.getcwd()
+        test_path = self.makeDir()
+        os.chdir(test_path)
+        self.addCleanup(lambda: os.chdir(current_path))
+        sysconf.set("rpm-root", "relative-rpm-root")
+        ts = getTS()
+        self.assertEquals(getTS.root, "%s/relative-rpm-root" % test_path)
+
 
 
 class RPMPackageTest(MockerTestCase):
