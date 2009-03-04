@@ -16,7 +16,9 @@ class getTSTest(MockerTestCase):
         #307386 is in place.
         """
         current_path = os.getcwd()
-        test_path = self.makeDir()
+        # Using abspath here because if it happens to be a link, the
+        # assertion below will fail.
+        test_path = os.path.abspath(self.makeDir())
         os.chdir(test_path)
         self.addCleanup(lambda: os.chdir(current_path))
         sysconf.set("rpm-root", "relative-rpm-root")
