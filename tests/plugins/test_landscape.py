@@ -152,9 +152,9 @@ class LandscapePluginTest(MockerTestCase):
         environ_snapshot = EnvironSnapshot()
         self.addCleanup(environ_snapshot.restore)
         
-        os.environ["HTTP_PROXY"] = "http_from_environ"
-        os.environ["HTTPS_PROXY"] = "https_from_environ"
-        os.environ["FTP_PROXY"] = "ftp_from_environ"
+        os.environ["http_proxy"] = "http_from_environ"
+        os.environ["https_proxy"] = "https_from_environ"
+        os.environ["ftp_proxy"] = "ftp_from_environ"
 
         sysconf.set("use-landscape-proxies", True)
         landscape.run()
