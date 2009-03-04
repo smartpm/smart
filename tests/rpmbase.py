@@ -1,5 +1,7 @@
 import os
 
+import rpm
+
 from mocker import MockerTestCase
 
 from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
@@ -19,8 +21,11 @@ class getTSTest(MockerTestCase):
         # Using abspath here because if it happens to be a link, the
         # assertion below will fail.
         test_path = os.path.abspath(self.makeDir())
+        def cleanup():
+            os.chdir(current_path)
+            sysconf.remove("rpm-root")
+        self.addCleanup(cleanup)
         os.chdir(test_path)
-        self.addCleanup(lambda: os.chdir(current_path))
         sysconf.set("rpm-root", "relative-rpm-root")
         ts = getTS()
         self.assertEquals(getTS.root, "%s/relative-rpm-root" % test_path)

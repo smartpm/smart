@@ -48,8 +48,9 @@ __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "rpm", "getTS", "system_provides"]
 
 def getTS(new=False):
-    if not hasattr(getTS, "ts"):
-        getTS.root = os.path.abspath(sysconf.get("rpm-root", "/"))
+    rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
+    if not hasattr(getTS, "ts") or getTS.root != rpm_root:
+        getTS.root = rpm_root
         getTS.ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
             getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
