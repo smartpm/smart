@@ -48,6 +48,7 @@ KMySystemTray::KMySystemTray()
 {
     hasActions = false;
     checkAction.setText("Check");
+    startSmartAction.setText("Start Smart...");
     stopAction.setText("Stop");
     stopAction.setIcon("stop");
     stopAction.setEnabled(false);
@@ -58,6 +59,7 @@ void KMySystemTray::contextMenuAboutToShow(KPopupMenu *menu)
     if (!hasActions) {
         hasActions = true;
         checkAction.plug(menu, 1);
+        startSmartAction.plug(menu, 2);
         //stopAction.plug(menu, 2);
     }
 }
@@ -94,6 +96,8 @@ KSmartTray::KSmartTray()
 
     connect(&sysTray.checkAction, SIGNAL(activated()),
             this, SLOT(manualCheckUpgrades()));
+    connect(&sysTray.startSmartAction, SIGNAL(activated()),
+            this, SLOT(startSmart()));
     connect(&sysTray.stopAction, SIGNAL(activated()),
             this, SLOT(stopChecking()));
     connect(&sysTray, SIGNAL(quitSelected()),
@@ -112,6 +116,7 @@ void KSmartTray::internalCheckUpgrades(bool manual)
         return;
     if (state == StateWaiting) {
         sysTray.checkAction.setEnabled(false);
+        sysTray.startSmartAction.setEnabled(false);
         sysTray.stopAction.setEnabled(true);
         process.resetAll();
         if (manual)
@@ -145,6 +150,7 @@ void KSmartTray::runUpgrades()
                              "There is a running process.");
     } else {
         sysTray.checkAction.setEnabled(false);
+        sysTray.startSmartAction.setEnabled(false);
         sysTray.stopAction.setEnabled(false);
         process.resetAll();
         process << "kdesu" << "-d" << "-c" << "smart --gui upgrade";
@@ -153,6 +159,28 @@ void KSmartTray::runUpgrades()
                                  "Couldn't run 'smart upgrade'.");
         } else {
             state = StateUpgrading;
+            QToolTip::remove(&sysTray);
+            QToolTip::add(&sysTray, "Running Smart Package Manager...");
+        }
+    }
+}
+
+void KSmartTray::startSmart()
+{
+    if (state != StateWaiting) {
+        KNotifyClient::event(sysTray.winId(), "fatalerror",
+                             "There is a running process.");
+    } else {
+        sysTray.checkAction.setEnabled(false);
+        sysTray.startSmartAction.setEnabled(false);
+        sysTray.stopAction.setEnabled(false);
+        process.resetAll();
+        process << "kdesu" << "-d" << "-c" << "smart --gui";
+        if (!process.start()) {
+            KNotifyClient::event(sysTray.winId(), "fatalerror",
+                                 "Couldn't run 'smart'.");
+        } else {
+            state = StateRunningSmart;
             QToolTip::remove(&sysTray);
             QToolTip::add(&sysTray, "Running Smart Package Manager...");
         }
@@ -223,6 +251,11 @@ void KSmartTray::processDone(KProcess *)
             lastKnownStatus = "";
             break;
 
+        case StateRunningSmart:
+            state = StateWaiting;
+            lastKnownStatus = "";
+            break;
+
         default:
             /* Error! */
             break;
@@ -231,6 +264,7 @@ void KSmartTray::processDone(KProcess *)
     if (state == StateWaiting) {
         updateFailed = false;
         sysTray.checkAction.setEnabled(true);
+        sysTray.startSmartAction.setEnabled(true);
         sysTray.stopAction.setEnabled(false);
         if (!lastKnownStatus.isEmpty())
         {

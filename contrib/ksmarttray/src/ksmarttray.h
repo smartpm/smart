@@ -43,6 +43,7 @@ class KMySystemTray : public KSystemTray
 
     KAction checkAction;
     KAction stopAction;
+    KAction startSmartAction;
 
     protected:
 
@@ -69,6 +70,7 @@ class KSmartTray : public QObject
         StateUpdating,
         StateChecking,
         StateUpgrading,
+        StateRunningSmart,
     };
     
     State state;
@@ -105,6 +107,7 @@ class KSmartTray : public QObject
     void checkUpgrades();
     void manualCheckUpgrades();
     void runUpgrades();
+    void startSmart();
 
     public:
     

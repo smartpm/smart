@@ -1,13 +1,16 @@
 recursive-include smart *.py *.c *.h *.png
 include smart setup.cfg MANIFEST.in HACKING IDEAS TODO LICENSE README Makefile
-include doc/README.html doc/default.css doc/smart.8
+include doc/README.html doc/default.css doc/smart.8 doc/sysconf-index
+include smart/backends/rpm/README
 
 recursive-include tests *.py *.txt
 recursive-include tests/data *
-include test.py
+include test
 
 recursive-include contrib/ksmarttray *.png *.cc *.h *.am *.in.in
-recursive-include contrib/ksmarttray LICENSE eventsrc
+recursive-include contrib/ksmarttray LICENSE eventsrc AUTHORS build.sh
+recursive-include contrib/ksmarttray ChangeLog COPYING INSTALL NEWS README
+recursive-include contrib/ksmarttray ksmarttray.desktop
 graft contrib/ksmarttray/admin
 
 recursive-include contrib/smart-update *.c Makefile
@@ -17,5 +20,7 @@ recursive-include contrib/patches *
 recursive-include contrib/rpmhelper *
 
 recursive-include contrib/servicemenus *
+
+recursive-include contrib/bash-completion *
 
 recursive-include locale *.pot *.po *.mo

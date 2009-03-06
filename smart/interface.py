@@ -153,8 +153,13 @@ def getScreenWidth():
     try:
         x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
     except IOError:
-        return 80
-    return struct.unpack('HHHH', x)[1]
+        width = 80
+    else:
+        width = struct.unpack('HHHH', x)[1]
+        if width == 0:
+            width = 80
+    return width
+
 
 def createInterface(name, ctrl, command=None, argv=None):
     try:
