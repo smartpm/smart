@@ -1,3 +1,4 @@
+import pickle
 import sys
 import os
 
@@ -18,10 +19,10 @@ class DetectSysPluginTest(MockerTestCase):
         sysconf.set("deb-root", self.deb_root)
         sysconf.set("slack-root", self.slack_root)
 
-        self.sysconf_state = sysconf.__getstate__()
+        self.old_sysconf = pickle.dumps(sysconf.object)
 
     def tearDown(self):
-        sysconf.__setstate__(self.sysconf_state)
+        sysconf.object = pickle.loads(self.old_sysconf)
 
     def make_rpm(self):
         os.makedirs(os.path.join(self.rpm_root, "var/lib/rpm"))

@@ -1,6 +1,35 @@
+import os
+
+import rpm
+
 from mocker import MockerTestCase
 
-from smart.backends.rpm.base import RPMPackage, Package
+from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
+from smart import sysconf
+
+
+class getTSTest(MockerTestCase):
+
+    def test_wb_rpm_root_path_must_be_absolute(self):
+        """
+        Somewhat of a weak test.  I haven't managed to make the code
+        break when rpm root isn't absolute, so I decided to do a whitebox
+        test and verify that at least the fix which is mentioned in
+        #307386 is in place.
+        """
+        current_path = os.getcwd()
+        # Using abspath here because if it happens to be a link, the
+        # assertion below will fail.
+        test_path = os.path.abspath(self.makeDir())
+        def cleanup():
+            os.chdir(current_path)
+            sysconf.remove("rpm-root")
+        self.addCleanup(cleanup)
+        os.chdir(test_path)
+        sysconf.set("rpm-root", "relative-rpm-root")
+        ts = getTS()
+        self.assertEquals(getTS.root, "%s/relative-rpm-root" % test_path)
+
 
 
 class RPMPackageTest(MockerTestCase):
@@ -44,3 +73,13 @@ class RPMPackageTest(MockerTestCase):
         lst = [pkg1, pkg2, pkg3]
         lst.sort()
         self.assertEquals(lst, [pkg2, pkg3, pkg1])
+
+    def test_equals_with_provides_with_empty_name_doesnt_fail(self):
+        provides1 = Provides("", "1.0")
+        provides2 = Provides("/foo/bar", "1.0")
+        pkg1 = RPMPackage("name", "1.0")
+        pkg2 = RPMPackage("name", "1.0")
+        pkg1.provides = [provides1]
+        pkg2.provides = [provides1, provides2]
+        self.assertTrue(pkg1.equals(pkg2))
+        self.assertTrue(pkg2.equals(pkg1))
