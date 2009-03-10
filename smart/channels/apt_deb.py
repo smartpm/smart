@@ -131,13 +131,15 @@ class APTDEBChannel(PackageChannel):
     def _parseRelease(self, release_item):
         checksum = {}
         insidemd5sum = False
+        insidesha1= False
+        insidesha256= False
         for line in open(release_item.getTargetPath()):
             if not insidemd5sum:
                 if line.startswith("MD5Sum:"):
                     insidemd5sum = True
             elif not line.startswith(" "):
                 insidemd5sum = False
-            else:
+            elif insidemd5sum:
                 try:
                     md5, size, path = line.split()
                 except ValueError:
@@ -146,6 +148,36 @@ class APTDEBChannel(PackageChannel):
                     if not path in checksum:
                         checksum[path] = {}
                     checksum[path]["md5"] = md5
+                    checksum[path]["size"] = int(size)
+            if not insidesha1:
+                if line.startswith("SHA1:"):
+                    insidesha1 = True
+            elif not line.startswith(" "):
+                insidesha1 = False
+            elif insidesha1:
+                try:
+                    sha1, size, path = line.split()
+                except ValueError:
+                    pass
+                else:
+                    if not path in checksum:
+                        checksum[path] = {}
+                    checksum[path]["sha1"] = sha1
+                    checksum[path]["size"] = int(size)
+            if not insidesha256:
+                if line.startswith("SHA256:"):
+                    insidesha256 = True
+            elif not line.startswith(" "):
+                insidesha256 = False
+            elif insidesha256:
+                try:
+                    sha256, size, path = line.split()
+                except ValueError:
+                    pass
+                else:
+                    if not path in checksum:
+                        checksum[path] = {}
+                    checksum[path]["sha256"] = sha256
                     checksum[path]["size"] = int(size)
         return checksum
 
@@ -167,12 +199,18 @@ class APTDEBChannel(PackageChannel):
             if compressed_subpath:
                 info["uncomp"] = True
                 info["md5"] = checksum[compressed_subpath]["md5"]
+                info["sha1"] = checksum[compressed_subpath].get("sha1", None)
+                info["sha256"] = checksum[compressed_subpath].get("sha256", None)
                 info["size"] = checksum[compressed_subpath]["size"]
                 if subpath in checksum:
                     info["uncomp_md5"] = checksum[subpath]["md5"]
+                    info["uncomp_sha1"] = checksum[subpath].get("sha1", None)
+                    info["uncomp_sha256"] = checksum[subpath].get("sha256", None)
                     info["uncomp_size"] = checksum[subpath]["size"]
             else:
                 info["md5"] = checksum[subpath]["md5"]
+                info["sha1"] = checksum[subpath].get("sha1", None)
+                info["sha256"] = checksum[subpath].get("sha256", None)
                 info["size"] =  checksum[subpath]["size"]
         else:
             # Default to Packages.gz when we can't find out.
