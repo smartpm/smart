@@ -85,6 +85,12 @@ def parse_options(argv):
 
 def main():
 
+    # We don't want to use proxies for the local tests.
+    for proxy_type in "http", "https", "ftp":
+        variable_name = proxy_type + "_proxy"
+        if variable_name in os.environ:
+            del os.environ[variable_name]
+
     datadir = tempfile.mkdtemp()
 
     try:

@@ -34,9 +34,10 @@ def run():
         parser = ConfigParser()
         parser.read(CLIENT_CONF_PATH)
         for type in "http", "https", "ftp":
-            if parser.has_option("client", "%s_proxy" % type):
-                setting = parser.get("client", "%s_proxy" % type)
-                sysconf.set("%s-proxy" % type, setting, weak=True)
+            option = "%s_proxy" % type
+            if parser.has_option("client", option) and option not in os.environ:
+                setting = parser.get("client", option)
+                sysconf.set(option.replace("_", "-"), setting, weak=True)
 
 
 run()
