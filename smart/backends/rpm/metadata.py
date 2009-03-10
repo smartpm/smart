@@ -261,7 +261,7 @@ class RPMMetaDataLoader(Loader):
                                 Prv = RPMNameProvides
                             else:
                                 Prv = RPMProvides
-                            prvdict[(Prv, ename, eversion)] = True
+                            prvdict[(Prv, ename.encode('utf-8'), eversion)] = True
 
                     elif lasttag == OBSOLETES:
                         tup = (RPMObsoletes, ename, erelation, eversion)
