@@ -143,7 +143,10 @@ class APTDEBChannel(PackageChannel):
                 except ValueError:
                     pass
                 else:
-                    checksum[path] = (md5, int(size))
+                    if not path in checksum:
+                        checksum[path] = {}
+                    checksum[path]["md5"] = md5
+                    checksum[path]["size"] = int(size)
         return checksum
 
     def _enqueuePackages(self, fetcher, checksum=None, component=None):
@@ -163,11 +166,14 @@ class APTDEBChannel(PackageChannel):
                 return None
             if compressed_subpath:
                 info["uncomp"] = True
-                info["md5"], info["size"] = checksum[compressed_subpath]
+                info["md5"] = checksum[compressed_subpath]["md5"]
+                info["size"] = checksum[compressed_subpath]["size"]
                 if subpath in checksum:
-                    info["uncomp_md5"], info["uncomp_size"] = checksum[subpath]
+                    info["uncomp_md5"] = checksum[subpath]["md5"]
+                    info["uncomp_size"] = checksum[subpath]["size"]
             else:
-                info["md5"], info["size"] = checksum[subpath]
+                info["md5"] = checksum[subpath]["md5"]
+                info["size"] =  checksum[subpath]["size"]
         else:
             # Default to Packages.gz when we can't find out.
             info["uncomp"] = True
