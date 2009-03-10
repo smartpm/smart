@@ -20,6 +20,18 @@ EMPTY_CLIENT_CONF = """
 """
 
 
+class EnvironSnapshot(object):
+
+    def __init__(self):
+        self._snapshot = os.environ.copy()
+
+    def restore(self):
+        os.environ.update(self._snapshot)
+        for key in list(os.environ):
+            if key not in self._snapshot:
+                del os.environ[key]
+
+
 class LandscapePluginTest(MockerTestCase):
 
     def setUp(self):
@@ -131,3 +143,23 @@ class LandscapePluginTest(MockerTestCase):
         self.assertEquals(sysconf.get("http-proxy"), None)
         self.assertEquals(sysconf.get("https-proxy"), None)
         self.assertEquals(sysconf.get("ftp-proxy"), None)
+
+    def test_do_not_override_environment_variable(self):
+        """
+        If the environment variable is set for some variable, do not
+        import the setting from Landscape.
+        """
+        environ_snapshot = EnvironSnapshot()
+        self.addCleanup(environ_snapshot.restore)
+        
+        os.environ["http_proxy"] = "http_from_environ"
+        os.environ["https_proxy"] = "https_from_environ"
+        os.environ["ftp_proxy"] = "ftp_from_environ"
+
+        sysconf.set("use-landscape-proxies", True)
+        landscape.run()
+
+        self.assertEquals(sysconf.get("http-proxy"), None)
+        self.assertEquals(sysconf.get("https-proxy"), None)
+        self.assertEquals(sysconf.get("ftp-proxy"), None)
+

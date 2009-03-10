@@ -89,7 +89,7 @@ msgstr "Paketlista utan CRPMTAG_FILENAME-tagg"
 #: smart/backends/rpm/pm.py:139
 #: build/lib.linux-i686-2.5/smart/backends/rpm/pm.py:139
 msgid "Will ask RPM to order it."
-msgstr "Kommer att fråga RPM att beställa den."
+msgstr "Kommer att fråga RPM att ordna den."
 
 #: smart/backends/rpm/pm.py:201
 #: build/lib.linux-i686-2.5/smart/backends/rpm/pm.py:201
