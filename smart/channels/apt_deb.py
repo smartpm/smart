@@ -129,7 +129,7 @@ class APTDEBChannel(PackageChannel):
                 raise Error, _("Channel '%s' signed with unknown key") % self
 
     def _parseRelease(self, release_item):
-        md5sum = {}
+        checksum = {}
         insidemd5sum = False
         for line in open(release_item.getTargetPath()):
             if not insidemd5sum:
@@ -143,31 +143,31 @@ class APTDEBChannel(PackageChannel):
                 except ValueError:
                     pass
                 else:
-                    md5sum[path] = (md5, int(size))
-        return md5sum
+                    checksum[path] = (md5, int(size))
+        return checksum
 
-    def _enqueuePackages(self, fetcher, md5sum=None, component=None):
+    def _enqueuePackages(self, fetcher, checksum=None, component=None):
         info = {}
         url = self._getURL("Packages", component)
         subpath = self._getURL("Packages", component, subpath=True)
-        if md5sum is not None:
-            if subpath+".bz2" in md5sum:
+        if checksum is not None:
+            if subpath+".bz2" in checksum:
                 compressed_subpath = subpath+".bz2"
                 url += ".bz2"
-            elif subpath+".gz" in md5sum:
+            elif subpath+".gz" in checksum:
                 compressed_subpath = subpath+".gz"
                 url += ".gz"
-            elif subpath in md5sum:
+            elif subpath in checksum:
                 compressed_subpath = None
             else:
                 return None
             if compressed_subpath:
                 info["uncomp"] = True
-                info["md5"], info["size"] = md5sum[compressed_subpath]
-                if subpath in md5sum:
-                    info["uncomp_md5"], info["uncomp_size"] = md5sum[subpath]
+                info["md5"], info["size"] = checksum[compressed_subpath]
+                if subpath in checksum:
+                    info["uncomp_md5"], info["uncomp_size"] = checksum[subpath]
             else:
-                info["md5"], info["size"] = md5sum[subpath]
+                info["md5"], info["size"] = checksum[subpath]
         else:
             # Default to Packages.gz when we can't find out.
             info["uncomp"] = True
@@ -200,19 +200,19 @@ class APTDEBChannel(PackageChannel):
                 progress.show()
                 return True
             self.removeLoaders()
-            md5sum = self._parseRelease(release_item)
+            checksum = self._parseRelease(release_item)
         else:
             digest = None
-            md5sum = None
+            checksum = None
 
         fetcher.reset()
 
         if not self._comps:
-            packages_items = [self._enqueuePackages(fetcher, md5sum)]
+            packages_items = [self._enqueuePackages(fetcher, checksum)]
         else:
             packages_items = []
             for component in self._comps:
-                item = self._enqueuePackages(fetcher, md5sum, component)
+                item = self._enqueuePackages(fetcher, checksum, component)
                 if item:
                     packages_items.append(item)
                 else:
