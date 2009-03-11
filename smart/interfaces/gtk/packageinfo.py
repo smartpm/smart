@@ -267,9 +267,12 @@ class GtkPackageInfo(gtk.Alignment):
         for browser in ['xdg-open', 'gnome-open', 'exo-open', \
                         'x-www-browser', 'firefox', 'open']:
             command = [browser, url]
-            retcode = subprocess.call(command)
-            if retcode == 0:
-                break
+            try:
+                retcode = subprocess.call(command)
+                if retcode == 0:
+                    break
+            except OSError:
+                pass
 
     def _switchPage(self, notebook, page, pagenum):
         self.setPackage(self._pkg, _pagenum=pagenum)
