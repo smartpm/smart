@@ -264,7 +264,8 @@ class GtkPackageInfo(gtk.Alignment):
 
     def open_url(self, url):
         ''' Open the specified URL in a browser (try a few alternatives) '''
-        for browser in ['gnome-open', 'x-www-browser', 'firefox']:
+        for browser in ['xdg-open', 'gnome-open', 'exo-open', \
+                        'x-www-browser', 'firefox', 'open']:
             command = [browser, url]
             retcode = subprocess.call(command)
             if retcode == 0:
