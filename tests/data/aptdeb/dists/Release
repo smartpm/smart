@@ -1,0 +1,12 @@
+Origin: Smart
+Codename: smart
+Date: Wed, 03 Sep 2008 22:31:29 UTC
+Label: Test Packages
+Architectures: all
+Components: component
+MD5Sum:
+ 384ccb05e3f6da02312b6e383b211777              571 component/binary-i386/Packages.gz
+SHA1:
+ 1b795920940dbe025615e63c1e7326e4df606161              571 component/binary-all/Packages.gz
+SHA256:
+ beaa1d25b3102980dfa118841c9c569d7988f52f3c29aff044fc187a68a8891f              571 component/binary-i386/Packages.gz

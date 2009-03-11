@@ -4,6 +4,7 @@ package system is working.
 
 We want everything from the cache.
 
+  >>> from tests import *
   >>> from smart.cache import *
 
   >>> class TestPackage(Package): pass
@@ -66,8 +67,6 @@ We'll also create a cache, to include the loader into.
 Loading the cache should activate the loader.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 Let's see if our data got loaded correctly.

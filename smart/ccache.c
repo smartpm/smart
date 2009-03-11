@@ -1399,6 +1399,8 @@ Loader_init(LoaderObject *self, PyObject *args)
     self->_packages = PyList_New(0);
     Py_INCREF(Py_False);
     self->_installed = Py_False;
+    Py_INCREF(Py_None);
+    self->_cache = Py_None;
     return 0;
 }
 
@@ -1974,14 +1976,14 @@ Loader_buildFileProvides(LoaderObject *self, PyObject *args)
             /* pkg.requires.remove(req) */
             PyList_SetSlice(pkgobj->requires, i, i+1, NULL);
             /* req.packages.remove(pkg) */
-            for (j = PyList_GET_SIZE(reqobj->packages); j != -1; j--) {
+            for (j = PyList_GET_SIZE(reqobj->packages)-1; j != -1; j--) {
                 if (PyList_GET_ITEM(reqobj->packages, j) == pkg)
                     PyList_SetSlice(reqobj->packages, j, j+1, NULL);
             }
             /* if not req.packages: */
             if (PyList_GET_SIZE(reqobj->packages) == 0) {
                 /* cache._requires.remove(req) */
-                for (j = PyList_GET_SIZE(cache->_requires); j != -1; j--) {
+                for (j = PyList_GET_SIZE(cache->_requires)-1; j != -1; j--) {
                     if (PyList_GET_ITEM(cache->_requires, j) == req)
                         PyList_SetSlice(cache->_requires, j, j+1, NULL);
                 }

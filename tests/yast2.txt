@@ -1,6 +1,7 @@
 
 Create the channel.
 
+  >>> from tests import *
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "yast2",
@@ -36,16 +37,15 @@ Let's create a cache to put the loader in, so that we can test it.
 The setup is ready. Now we can load the data into the cache.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 This should give us one package with the data we already know.
 
-  >>> cache.getPackages()
+  >>> packages = sorted(cache.getPackages())
+  >>> packages
   [name1-version1-release1@noarch, name2-version2-release2@noarch]
 
-  >>> pkg = cache.getPackages()[0]
+  >>> pkg = packages[0]
   >>> type(pkg)
   <class 'smart.backends.rpm.base.RPMPackage'>
 

@@ -4,7 +4,7 @@ include doc/README.html doc/default.css doc/smart.8
 
 recursive-include tests *.py *.txt
 recursive-include tests/data *
-include test.py
+include test
 
 recursive-include contrib/ksmarttray *.png *.cc *.h *.am *.in.in
 recursive-include contrib/ksmarttray LICENSE eventsrc

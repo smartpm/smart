@@ -180,9 +180,6 @@ def initPlugins():
     from smart import plugins
     from smart import backends
     pluginsdir = os.path.dirname(plugins.__file__)
-    entries = os.listdir(pluginsdir)
-    if os.path.isdir(PLUGINSDIR):
-        entries.extend(os.listdir(PLUGINSDIR))
     for entry in os.listdir(pluginsdir):
         if entry != "__init__.py" and entry.endswith(".py"):
             __import__("smart.plugins."+entry[:-3])
@@ -192,6 +189,10 @@ def initPlugins():
                 initpath = os.path.join(entrypath, "__init__.py")
                 if os.path.isfile(initpath):
                     __import__("smart.plugins."+entry)
+    if os.path.isdir(PLUGINSDIR):
+        for entry in os.listdir(PLUGINSDIR):
+            entrypath = os.path.join(PLUGINSDIR, entry)
+            execfile(entrypath)
     backendsdir = os.path.dirname(backends.__file__)
     for entry in os.listdir(backendsdir):
         entrypath = os.path.join(backendsdir, entry)

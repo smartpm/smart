@@ -57,11 +57,13 @@ def globdistance(a, b, cutoff=None, ignorecase=False):
     if a == b:
         return 0, 1.0
     wildstart = False
-    while a.startswith("*"):
+    if a.startswith("*"):
         wildstart = True
-        a = a[1:]
+        a = a.lstrip("*")
     al = len(a)
     bl = len(b)
+    if bl == 0:
+        return al, 0.0
     maxl = al > bl and al or bl
     if cutoff and type(cutoff) is float:
         cutoff = int(maxl-cutoff*maxl)

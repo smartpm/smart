@@ -20,7 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import posixpath
-import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 import os
 
 # be compatible with 2.3
@@ -37,6 +40,10 @@ APT_SOURCES = "/etc/apt/sources.list"
 
 
 def _loadSourcesList(filename):
+
+    keyring_path = sysconf.get("sync-apt-keyring", "/etc/apt/trusted.gpg")
+    if not os.path.isfile(keyring_path):
+        keyring_path = None
 
     file = open(filename)
 
@@ -61,8 +68,11 @@ def _loadSourcesList(filename):
             (type, uri, distro) = line.split(None, 2)
             comps = ""
 
+        if uri.startswith("cdrom:"):
+            continue # We don't deal with these yet.
+
         # Build a unique alias.
-        m = md5.new("%s%s%s%s" % (type, uri, distro,comps))
+        m = md5("%s|%s|%s|%s" % (type, uri, distro, comps))
         alias = "aptsync-%s" % m.hexdigest()
         seen.add(alias)
 
@@ -77,15 +87,22 @@ def _loadSourcesList(filename):
                     "name": "%s - %s" % (distro, comps),
                     "baseurl": posixpath.join(uri, distro),
                     "components": comps}
-            
+
         # See if creating a channel works.
         try:
             createChannel(alias, data)
         except Error, e:
             iface.error(_("While using %s: %s") % (file.name, e))
         else:
-            # Store it persistently.
-            sysconf.set(("channels", alias), data)
+            # Store it persistently, without destroying existing setttings.
+            channel = sysconf.get(("channels", alias))
+            if channel is not None:
+                channel.update(data)
+            else:
+                channel = data
+                if keyring_path:
+                    channel["keyring"] = keyring_path
+            sysconf.set(("channels", alias), channel)
 
     file.close()
 

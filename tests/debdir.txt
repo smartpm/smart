@@ -1,6 +1,7 @@
 
 Create the channel.
 
+  >>> from tests import *
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "deb-dir",
@@ -36,16 +37,15 @@ Let's create a cache to put the loader in, so that we can test it.
 The setup is ready. Now we can load the data into the cache.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 This should give us one package with the data we already know.
 
-  >>> cache.getPackages()
+  >>> packages = sorted(cache.getPackages())
+  >>> packages
   [name1_version1-release1, name2_version2-release2]
 
-  >>> pkg = cache.getPackages()[0]
+  >>> pkg = packages[0]
   >>> type(pkg)
   <class 'smart.backends.deb.base.DebPackage'>
 
@@ -98,8 +98,8 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> url = info.getURLs()[0]
 
   >>> info.getSHA(url)
-  >>> info.getSize(url)
-  1038L
+  >>> int(info.getSize(url))
+  1038
 
 
 vim:ft=doctest

@@ -39,7 +39,7 @@ MAXRETRIES = 30
 SPEEDDELAY = 1
 CANCELDELAY = 2
 MAXACTIVEDOWNLOADS = 10
-SOCKETTIMEOUT = 30
+SOCKETTIMEOUT = 600
 
 class FetcherCancelled(Error): pass
 
@@ -367,8 +367,11 @@ class Fetcher(object):
 
             filemd5 = item.getInfo(uncompprefix+"md5")
             if filemd5:
-                import md5
-                digest = md5.md5()
+                try:
+                    from hashlib import md5
+                except ImportError:
+                    from md5 import md5
+                digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
                 while data:
@@ -381,8 +384,11 @@ class Fetcher(object):
             else:
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:
@@ -1109,7 +1115,7 @@ class URLLIBHandler(FetcherHandler):
         return bool(self._queue or self._active)
 
     def fetch(self):
-        import urllib, rfc822
+        import urllib, rfc822, calendar
 
         class Opener(urllib.FancyURLopener):
             user = None
@@ -1161,6 +1167,8 @@ class URLLIBHandler(FetcherHandler):
                 size = item.getInfo("size")
 
                 del opener.addheaders[:]
+
+                opener.addheader("User-Agent", "smart/" + VERSION)
 
                 if (os.path.isfile(localpath) and
                     fetcher.validate(item, localpath)):
@@ -1251,12 +1259,15 @@ class URLLIBHandler(FetcherHandler):
                         mtimes = info["last-modified"]
                         mtimet = rfc822.parsedate(mtimes)
                         if mtimet:
-                            mtime = time.mktime(mtimet)
+                            mtime = calendar.timegm(mtimet)
                             os.utime(localpath, (mtime, mtime))
 
             except urllib.addinfourl, remote:
                 if remote.errcode == 304: # Not modified
                     item.setSucceeded(localpath)
+                elif remote.errcode == 404:
+                    # Use a standard translatable error message.
+                    item.setFailed(_("File not found"))
                 else:
                     item.setFailed(remote.errmsg)
 
@@ -1510,8 +1521,11 @@ class PyCurlHandler(FetcherHandler):
                 multi.remove_handle(handle)
                 self._lock.release()
 
-                if handle.getinfo(pycurl.SIZE_DOWNLOAD) == 0:
-                    # Not modified
+                http_code = handle.getinfo(pycurl.HTTP_CODE)
+
+                if (http_code == 404 or
+                    handle.getinfo(pycurl.SIZE_DOWNLOAD) == 0):
+                    # Not modified or not found
                     os.unlink(localpath+".part")
                 else:
                     if os.path.isfile(localpath):
@@ -1525,15 +1539,18 @@ class PyCurlHandler(FetcherHandler):
                 userhost = (url.user, url.host, url.port)
                 self._inactive[handle] = userhost
 
-                valid, reason = fetcher.validate(item, localpath,
-                                                 withreason=True)
-                if valid:
-                    fetchedsize = handle.getinfo(pycurl.SIZE_DOWNLOAD)
-                    item.setSucceeded(localpath, fetchedsize)
-                elif handle.partsize:
-                    self._queue.append(item)
+                if http_code == 404:
+                    item.setFailed(_("File not found"))
                 else:
-                    item.setFailed(reason)
+                    valid, reason = fetcher.validate(item, localpath,
+                                                     withreason=True)
+                    if valid:
+                        fetchedsize = handle.getinfo(pycurl.SIZE_DOWNLOAD)
+                        item.setSucceeded(localpath, fetchedsize)
+                    elif handle.partsize:
+                        self._queue.append(item)
+                    else:
+                        item.setFailed(reason)
 
             for handle, errno, errmsg in failed:
 
@@ -1638,11 +1655,14 @@ class PyCurlHandler(FetcherHandler):
 
                         handle.setopt(pycurl.URL, str(url))
                         handle.setopt(pycurl.OPT_FILETIME, 1)
+                        handle.setopt(pycurl.TIMEOUT, SOCKETTIMEOUT)
                         handle.setopt(pycurl.NOPROGRESS, 0)
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
                         handle.setopt(pycurl.WRITEDATA, local)
                         handle.setopt(pycurl.FOLLOWLOCATION, 1)
                         handle.setopt(pycurl.MAXREDIRS, 5)
+                        handle.setopt(pycurl.HTTPHEADER, ["Pragma:"])
+                        handle.setopt(pycurl.USERAGENT, "smart/" + VERSION)
 
                         # check if we have a valid local file and use I-M-S
                         if fetcher.validate(item, localpath):

@@ -1,16 +1,19 @@
 import unittest
-import copy
+import pickle
 import os
 
-from smart.backends.deb.pm import DebPackageManager
+from smart.backends.deb.base import (
+    DebPackage, DebProvides, DebNameProvides, DebPreRequires, DebRequires,
+    DebOrRequires, DebUpgrades, DebConflicts, DebBreaks)
+from smart.backends.deb.pm import DebPackageManager, DebSorter, UNPACK, CONFIG
 from smart.channel import createChannel
 from smart.sysconfig import SysConfig
 from smart.interface import Interface
 from smart.progress import Progress
 from smart.fetcher import Fetcher
-from smart.cache import Cache
+from smart.cache import Cache, Loader
 from smart.const import INSTALL, REMOVE
-from smart import iface
+from smart import iface, sysconf, cache
 
 from tests import TESTDATADIR, ctrl
 
@@ -41,11 +44,9 @@ class DebPackageManagerTest(unittest.TestCase):
         self.cache.addLoader(self.loader)
 
         self.old_iface = iface.object
-        self.old_sysconf = sysconf.object
+        self.old_sysconf = pickle.dumps(sysconf.object)
 
         iface.object = self.iface
-        sysconf.object = SysConfig()
-        sysconf.object.__setstate__(self.old_sysconf.__getstate__())
 
         self.cache.load()
 
@@ -53,7 +54,7 @@ class DebPackageManagerTest(unittest.TestCase):
 
     def tearDown(self):
         iface.object = self.old_iface
-        sysconf.object = self.old_sysconf
+        sysconf.object = pickle.loads(self.old_sysconf)
 
     def test_packages_are_there(self):
         self.assertEquals(len(self.cache.getPackages()), 2)
@@ -115,13 +116,14 @@ class DebPackageManagerTest(unittest.TestCase):
         self.assertEquals(file_url[:7], "file://")
         file_path = file_url[7:]
 
-        environ = []
-        def check_environ(argv, output):
-            environ.append(os.environ.get("DEBIAN_FRONTEND"))
-            environ.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
+        check_results = []
+        def check(argv, output):
+            check_results.append(os.environ.get("DEBIAN_FRONTEND"))
+            check_results.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
+            check_results.append("--force-confold" in argv)
             return 0
 
-        self.pm.dpkg = check_environ
+        self.pm.dpkg = check
 
         sysconf.set("pm-iface-output", True, soft=True)
         sysconf.set("deb-non-interactive", True, soft=True)
@@ -129,5 +131,99 @@ class DebPackageManagerTest(unittest.TestCase):
         self.pm.commit({pkg: INSTALL}, {pkg: [file_path]})
 
         # One time for --unpack, one time for --configure.
-        self.assertEquals(environ,
-                          ["noninteractive", "none", "noninteractive", "none"])
+        self.assertEquals(check_results,
+                          ["noninteractive", "none", True,
+                           "noninteractive", "none", True])
+
+    def test_deb_non_interactive_false(self):
+        pkg = self.cache.getPackages()[0]
+        info = self.loader.getInfo(pkg)
+
+        file_url = info.getURLs()[0]
+        self.assertEquals(file_url[:7], "file://")
+        file_path = file_url[7:]
+
+        check_results = []
+        def check(argv, output):
+            check_results.append(os.environ.get("DEBIAN_FRONTEND"))
+            check_results.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
+            check_results.append("--force-confold" in argv)
+            return 0
+
+        self.pm.dpkg = check
+
+        sysconf.set("pm-iface-output", False, soft=True)
+        sysconf.set("deb-non-interactive", False, soft=True)
+
+        self.pm.commit({pkg: INSTALL}, {pkg: [file_path]})
+
+        # One time for --unpack, one time for --configure.
+        self.assertEquals(check_results,
+                          [None, None, False,
+                           None, None, False])
+
+
+class DebSorterTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.packages_to_build = []
+        class MyLoader(Loader):
+            def load(loader):
+                for args in self.packages_to_build:
+                    loader.buildPackage(*args)
+        self.loader = MyLoader()
+        self.cache = Cache()
+        self.cache.addLoader(self.loader)
+
+    def build(self, *args):
+        map = {cache.Package: [],
+               cache.Provides: [],
+               cache.Requires: [],
+               cache.Upgrades: [],
+               cache.Conflicts: []}
+        for arg in args:
+            for cls, lst in map.iteritems():
+                if issubclass(arg[0], cls):
+                    lst.append(arg)
+                    break
+            else:
+                raise RuntimeError("%r is unknown" % type(arg[0]))
+        self.packages_to_build.append(
+                (map[cache.Package][0], map[cache.Provides],
+                 map[cache.Requires], map[cache.Upgrades],
+                 map[cache.Conflicts]))
+
+    def test_conflicts_order_remove_after_unpack_whenever_possible(self):
+        self.build((DebPackage, "a", "1"),
+                   (DebNameProvides, "a", "1"))
+        self.build((DebPackage, "a", "2"),
+                   (DebNameProvides, "a", "2"),
+                   (DebUpgrades, "a", "<", "2"),
+                   (DebRequires, "b", "=", "1"))
+        self.build((DebPackage, "b", "1"),
+                   (DebNameProvides, "b", "1"),
+                   (DebConflicts, "a", "<", "2"))
+        self.cache.load()
+        changeset = {}
+        for pkg in self.cache.getPackages():
+            if pkg.name == "a" and pkg.version == "1":
+                a_1 = pkg
+            elif pkg.name == "a":
+                a_2 = pkg
+            else:
+                b_1 = pkg
+
+        a_1.installed = True
+
+        changeset[a_1] = REMOVE
+        changeset[a_2] = INSTALL
+        changeset[b_1] = INSTALL
+
+        sorter = DebSorter(changeset)
+        sorted = sorter.getSorted()
+
+        # XXX That's not yet stable.  The deb-ordering-fix branch
+        #     should bring it to stability.
+        #self.assertEquals(sorted,
+        #                  [(a_2, UNPACK), (a_1, REMOVE), (b_1, UNPACK),
+        #                   (b_1, CONFIG), (a_2, CONFIG)])
