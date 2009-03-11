@@ -51,6 +51,26 @@ CRPMTAG_UPDATE_URL        = 1000023
 
 ENCODINGS = ["utf8", "iso-8859-1"]
 
+
+def get_header_filenames(header):
+    filenames = header[rpm.RPMTAG_OLDFILENAMES]
+    if not filenames and header[rpm.RPMTAG_BASENAMES]:
+        dirindexes = header[rpm.RPMTAG_DIRINDEXES]
+        if type(dirindexes) != list:
+            dirindexes = [dirindexes]
+        dirnames = header[rpm.RPMTAG_DIRNAMES]
+        if type(dirnames) != list:
+            dirnames = [dirnames]
+        basenames = header[rpm.RPMTAG_BASENAMES]
+        if type(basenames) != list:
+            basenames = [basenames]
+        filenames = [dirnames[dirindexes[i]] + basename
+                     for i, basename in enumerate(basenames)]
+    elif type(filenames) != list:
+        filenames = [filenames]
+    return filenames
+
+
 class RPMHeaderPackageInfo(PackageInfo):
 
     class LazyHeader(object):
@@ -123,9 +143,7 @@ class RPMHeaderPackageInfo(PackageInfo):
 
     def getPathList(self):
         if self._path is None:
-            paths = self._h[rpm.RPMTAG_OLDFILENAMES]
-            if type(paths) != list:
-                paths = [paths]
+            paths = get_header_filenames(self._h)
             modes = self._h[rpm.RPMTAG_FILEMODES]
             if modes:
                 if type(modes) != list:
@@ -326,10 +344,8 @@ class RPMHeaderLoader(Loader):
                 searcher.addResult(pkg, ratio)
                 continue
             if searcher.path:
-                paths = h[rpm.RPMTAG_OLDFILENAMES]
+                paths = get_header_filenames(h)
                 if paths:
-                    if type(paths) != list:
-                        paths = [paths]
                     for spath, cutoff in searcher.path:
                         for path in paths:
                             _, newratio = globdistance(spath, path, cutoff, ic)
@@ -477,10 +493,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         h, offset = rpm.readHeaderFromFD(file.fileno())
         bfp = self.buildFileProvides
         while h:
-            fnlst = h[1027] # RPMTAG_OLDFILENAMES
-            if type(fnlst) != list:
-                fnlst = [fnlst]
-            for fn in fnlst:
+            for fn in get_header_filenames(h):
                 fn = fndict.get(fn)
                 if fn and offset in self._offsets:
                     bfp(self._offsets[offset], (RPMProvides, fn, None))
@@ -490,10 +503,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
     def loadFileProvidesHDL(self, fndict):
         bfp = self.buildFileProvides
         for offset, h in enumerate(self._hdl):
-            fnlst = h[1027] # RPMTAG_OLDFILENAMES
-            if type(fnlst) != list:
-                fnlst = [fnlst]
-            for fn in fnlst:
+            for fn in get_header_filenames(h):
                 fn = fndict.get(fn)
                 if fn and offset in self._offsets:
                     bfp(self._offsets[offset], (RPMProvides, fn, None))
@@ -680,10 +690,7 @@ class RPMDirLoader(RPMHeaderLoader):
                 iface.error("%s: %s" % (os.path.basename(filepath), e))
             else:
                 file.close()
-                fnlst = h[1027] # RPMTAG_OLDFILENAMES
-                if type(fnlst) != list:
-                    fnlst = [fnlst]
-                for fn in fnlst:
+                for fn in get_header_filenames(h):
                     fn = fndict.get(fn)
                     if fn:
                         bfp(self._offsets[i], (RPMProvides, fn, None))

@@ -1,4 +1,5 @@
 import unittest
+import pickle
 import os
 
 from smart.backends.deb.base import (
@@ -43,11 +44,9 @@ class DebPackageManagerTest(unittest.TestCase):
         self.cache.addLoader(self.loader)
 
         self.old_iface = iface.object
-        self.old_sysconf = sysconf.object
+        self.old_sysconf = pickle.dumps(sysconf.object)
 
         iface.object = self.iface
-        sysconf.object = SysConfig()
-        sysconf.object.__setstate__(self.old_sysconf.__getstate__())
 
         self.cache.load()
 
@@ -55,7 +54,7 @@ class DebPackageManagerTest(unittest.TestCase):
 
     def tearDown(self):
         iface.object = self.old_iface
-        sysconf.object = self.old_sysconf
+        sysconf.object = pickle.loads(self.old_sysconf)
 
     def test_packages_are_there(self):
         self.assertEquals(len(self.cache.getPackages()), 2)
