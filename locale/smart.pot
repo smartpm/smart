@@ -3035,10 +3035,6 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:167
-msgid "Reference"
-msgstr ""
-
 #: smart/interfaces/gtk/packageinfo.py:217
 #: build/lib.linux-i686-2.5/smart/interfaces/gtk/packageinfo.py:217
 msgid "Installed"
