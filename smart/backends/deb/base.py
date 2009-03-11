@@ -41,6 +41,7 @@ def getArchitecture():
         return arch
     arch = os.uname()[-1]
     result = {"pentium": "i386",
+              "i86pc": "i386",
               "sparc64": "sparc",
               "ppc": "powerpc",
               "mipseb":	"mips",
@@ -59,6 +60,8 @@ def getArchitecture():
     
     if sys.platform == "linux2":
         return arch
+    elif sys.platform == "sunos5":
+        return "%s-%s" % ("solaris", arch)
     else:
         return "%s-%s" % (sys.platform, arch)
 
