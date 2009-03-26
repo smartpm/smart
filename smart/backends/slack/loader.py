@@ -123,7 +123,7 @@ def parsePackageInfo(filename, checksum=None):
         for line in file:
             if line.find(" ./") == -1:
                 continue
-            (md5, path) = line.split()
+            (md5, path) = line.split(None, 1)
             md5sums[path] = md5
         file.close()
     file = open(filename)
