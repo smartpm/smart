@@ -1,0 +1,5 @@
+[linuxpackages]
+name=Slackware 12.2 Linux Packages
+type=slack-site
+baseurl=http://linuxpackages.inode.at/Slackware/Slackware-12.2/
+compressed=yes
