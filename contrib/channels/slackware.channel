@@ -1,4 +1,7 @@
 [slackware]
-name=Slackware 12.1
+name=Slackware 12.2
 type=slack-site
-baseurl=http://ftp.sunet.se/pub/Linux/distributions/slackware/slackware-12.1/slackware/
+baseurl=http://ftp.sunet.se/pub/Linux/distributions/slackware/slackware-12.2/slackware/
+fingerprint=EC56 49DA 401E 22AB FA67  36EF 6A44 63C0 4010 2233
+## use this baseurl for dependency support: see http://www.stabellini.net/depslack.html
+#baseurl=http://www.stabellini.net/filesystem/index.php?dir=slackware-12.2/&file=

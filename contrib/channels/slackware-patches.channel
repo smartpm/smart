@@ -1,4 +1,5 @@
 [slackware-patches]
-name=Slackware 12.1 Patches
+name=Slackware 12.2 Patches
 type=slack-site
-baseurl=http://ftp.sunet.se/pub/Linux/distributions/slackware/slackware-12.1/patches/
+baseurl=http://ftp.sunet.se/pub/Linux/distributions/slackware/slackware-12.2/patches/
+fingerprint=EC56 49DA 401E 22AB FA67  36EF 6A44 63C0 4010 2233
