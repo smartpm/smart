@@ -29,10 +29,19 @@ import commands
 
 class SlackSiteChannel(PackageChannel):
 
-    def __init__(self, baseurl, compressed, *args):
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _fingerprint = None
+
+    def __init__(self, baseurl, compressed, fingerprint, *args):
         super(SlackSiteChannel, self).__init__(*args)
         self._baseurl = baseurl
         self._compressed = compressed
+        if fingerprint:
+            self._fingerprint = "".join([x for x in fingerprint
+                                         if not x.isspace()])
+        else:
+            self._fingerprint = None
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "PACKAGES.TXT")]
@@ -55,7 +64,6 @@ class SlackSiteChannel(PackageChannel):
         url = posixpath.join(self._baseurl, PACKAGES_TXT)
         item = fetcher.enqueue(url, uncomp=self._compressed)
         fetcher.run(progress=progress)
-        checksig = True # TODO: config this
         if item.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
             digest = getFileDigest(localpath)
@@ -71,7 +79,7 @@ class SlackSiteChannel(PackageChannel):
                 checksumpath = item.getTargetPath()
             else:
                 checksumpath = None
-            if checksig:
+            if self._fingerprint:
                 if gpgitem.getStatus() is SUCCEEDED:
                     try:
                         status, output = commands.getstatusoutput(
@@ -94,7 +102,7 @@ class SlackSiteChannel(PackageChannel):
                                     badsig = True
                         if badsig:
                             raise Error, _("Channel '%s' has bad signature") % self
-                        if not goodsig:
+                        if not goodsig or validsig != self._fingerprint:
                             raise Error, _("Channel '%s' signed with unknown key") \
                                          % self
                     except Error, e:
@@ -122,6 +130,7 @@ class SlackSiteChannel(PackageChannel):
 def create(alias, data):
     return SlackSiteChannel(data["baseurl"],
                             data["compressed"],
+                            data["fingerprint"],
                             data["type"],
                             alias,
                             data["name"],
