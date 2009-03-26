@@ -1,4 +1,4 @@
 [vector]
-name = Vector Linux 5.9
+name = Vector Linux 6.0
 type = slack-site
-baseurl = http://distro.ibiblio.org/pub/linux/distributions/vectorlinux/veclinux-5.9/packages/
+baseurl = http://distro.ibiblio.org/pub/linux/distributions/vectorlinux/veclinux-6.0/packages/

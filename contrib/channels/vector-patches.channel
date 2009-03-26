@@ -1,4 +1,4 @@
 [vector-patches]
-name = Vector Linux 5.9 Patches
+name = Vector Linux 6.0 Patches
 type = slack-site
-baseurl = http://distro.ibiblio.org/pub/linux/distributions/vectorlinux/veclinux-5.9/patches/
+baseurl = http://distro.ibiblio.org/pub/linux/distributions/vectorlinux/veclinux-6.0/patches/
