@@ -47,7 +47,10 @@ class SlackSiteChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "PACKAGES.TXT")]
 
     def getFetchSteps(self):
-        return 3
+        if self._fingerprint:
+            return 3
+        else:
+            return 2
 
     def fetch(self, fetcher, progress):
 
@@ -72,8 +75,9 @@ class SlackSiteChannel(PackageChannel):
             fetcher.reset()
             url = posixpath.join(self._baseurl, CHECKSUMS_md5)
             item = fetcher.enqueue(url, uncomp=self._compressed)
-            gpgurl = posixpath.join(self._baseurl, CHECKSUMS_md5 + ".asc")
-            gpgitem = fetcher.enqueue(gpgurl)
+            if self._fingerprint:
+                gpgurl = posixpath.join(self._baseurl, CHECKSUMS_md5 + ".asc")
+                gpgitem = fetcher.enqueue(gpgurl)
             fetcher.run(progress=progress)
             if item.getStatus() == SUCCEEDED:
                 checksumpath = item.getTargetPath()
