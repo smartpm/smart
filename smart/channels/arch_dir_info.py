@@ -26,7 +26,7 @@ kind = "package"
 name = _("Archlinux Directory")
 
 description = _("""
-Local directory with archlinux packages.
+Local directory with Archlinux packages.
 """)
 
 fields = [("path", _("Directory Path"), str, None,
