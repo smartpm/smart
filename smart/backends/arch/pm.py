@@ -35,45 +35,24 @@ class ArchPackageManager(PackageManager):
         prog.setTopic(_("Committing transaction..."))
         prog.show()
 
-        install = {}
+        upgrade = {}
         remove = {}
         for pkg in changeset:
             if changeset[pkg] is INSTALL:
-                install[pkg] = True
+                upgrade[pkg] = True
             else:
                 remove[pkg] = True
-        upgrade = {}
-        packages = {}
-        for pkg in install:
-            packages[pkg] = True
-        for pkg in packages:
+        for pkg in upgrade:
             for upg in pkg.upgrades:
                 for prv in upg.providedby:
                     for prvpkg in prv.packages:
                         if prvpkg.installed:
                             if prvpkg in remove:
                                 del remove[prvpkg]
-                            if pkg in install:
-                                del install[pkg]
-                            upgrade[pkg] = True
 
-        total = len(install)+len(upgrade)+len(remove)
+        total = len(upgrade)+len(remove)
         prog.set(0, total)
 
-        for pkg in install:
-            prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
-            prog.setSub(pkg, 0, 1, 1)
-            prog.show()
-            status, output = commands.getstatusoutput("pacman -U %s" %
-                                                      pkgpaths[pkg][0])
-            prog.setSubDone(pkg)
-            prog.show()
-            if status != 0:
-                iface.warning(_("Got status %d installing %s:") % (status, pkg))
-                iface.warning(output)
-            else:
-                iface.debug(_("Installing %s:") % pkg)
-                iface.debug(output)
         for pkg in upgrade:
             prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
