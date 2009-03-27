@@ -41,7 +41,7 @@ class SlackPackageInfo(PackageInfo):
         self._info = info
 
     def getGroup(self):
-        return "Slackware"
+        return self._info.get("group", "Slackware")
 
     def getLicense(self):
         return self._info.get("license", "Unknown")
