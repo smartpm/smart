@@ -138,7 +138,7 @@ class RPMPackageManager(PackageManager):
                 lines.append("    "+" -> ".join(path))
             lines.append(_("Will ask RPM to order it."))
             iface.error("\n".join(lines))
-            sys.exit(1)
+            sorted = [(pkg, changeset[pkg]) for pkg in changeset]
             forcerpmorder = True
         del sorter
 

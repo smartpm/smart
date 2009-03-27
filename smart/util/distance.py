@@ -62,6 +62,8 @@ def globdistance(a, b, cutoff=None, ignorecase=False):
         a = a.lstrip("*")
     al = len(a)
     bl = len(b)
+    if bl == 0:
+        return al, 0.0
     maxl = al > bl and al or bl
     if cutoff and type(cutoff) is float:
         cutoff = int(maxl-cutoff*maxl)

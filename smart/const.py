@@ -21,7 +21,7 @@
 #
 import sys
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 RECURSIONLIMIT = sys.getrecursionlimit()
 
@@ -36,7 +36,7 @@ class Enum(object):
     def __new__(klass, name):
         instance = klass._registry.get(name)
         if not instance:
-            instance = klass._registry[name] = object.__new__(klass, name)
+            instance = klass._registry[name] = object.__new__(klass)
         return instance
 
 INSTALL   = Enum("INSTALL")

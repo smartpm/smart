@@ -8,7 +8,7 @@ from smart.progress import Progress
 from smart.fetcher import Fetcher
 from smart.const import NEVER
 from smart.cache import Cache
-from smart import Error, sysconf
+from smart import Error, sysconf, iface
 
 from tests.mocker import MockerTestCase
 from tests import TESTDATADIR
@@ -341,3 +341,17 @@ class AptDebChannelTest(MockerTestCase):
             self.assertTrue(str(error).endswith(error_message), str(error))
         else:
             self.fail("Fetch worked with a bad signature! :-(")
+
+    def test_fetch_with_component_missing_in_release_file(self):
+        iface_mock = self.mocker.patch(iface.object)
+        iface_mock.warning("Component 'non-existent' is not in Release file "
+                           "for channel 'alias'")
+        self.mocker.replay()
+
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % TESTDATADIR,
+                                 "distribution": "./",
+                                 "components": "non-existent"})
+
+        self.assertEquals(channel.fetch(self.fetcher, self.progress), True)

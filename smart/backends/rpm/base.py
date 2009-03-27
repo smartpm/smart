@@ -48,8 +48,9 @@ __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "rpm", "getTS", "system_provides"]
 
 def getTS(new=False):
-    if not hasattr(getTS, "ts"):
-        getTS.root = sysconf.get("rpm-root", "/")
+    rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
+    if not hasattr(getTS, "ts") or getTS.root != rpm_root:
+        getTS.root = rpm_root
         getTS.ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
             getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
@@ -102,8 +103,8 @@ class RPMPackage(Package):
             len(self.conflicts) != len(other.conflicts) or
             fk(self.upgrades) != fk(other.upgrades) or
             fk(self.conflicts) != fk(other.conflicts) or
-            fk([x for x in self.provides if x.name[0] != "/"]) !=
-            fk([x for x in other.provides if x.name[0] != "/"])):
+            fk([x for x in self.provides if x.name and x.name[0] != "/"]) !=
+            fk([x for x in other.provides if x.name and x.name[0] != "/"])):
             return False
         sreqs = fk(self.requires)
         oreqs = fk(other.requires)

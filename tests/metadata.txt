@@ -37,8 +37,6 @@ Let's create a cache to put the loader in, so that we can test it.
 The setup is ready. Now we can load the data into the cache.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 This should give us one package with the data we already know.
