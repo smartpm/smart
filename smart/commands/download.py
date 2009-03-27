@@ -45,7 +45,7 @@ smart download --from-urls pkgname-url.txt
 smart download --from-urls http://some.url/some/path/somefile
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -58,6 +58,10 @@ def parse_options(argv):
     parser.add_option("--from-urls", action="callback", callback=append_all,
                       help=_("download files from the given urls and/or from "
                              "the given files with lists of urls"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     if not os.path.isdir(opts.target):

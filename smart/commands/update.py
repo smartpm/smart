@@ -41,13 +41,17 @@ smart update mychannel
 smart update mychannel1 mychannel2
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.add_option("--after", metavar="MIN", type="int",
                       help=_("only update if the last successful update "
                              "happened before the given delay"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

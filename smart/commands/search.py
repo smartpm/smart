@@ -39,6 +39,9 @@ Examples:
   smart search 'pkgn*e'
 """)
 
+def option_parser():
+    return query.option_parser(help=HELP)
+
 def parse_options(argv):
     opts = query.parse_options(argv, help=HELP)
     opts.name = opts.args

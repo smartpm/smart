@@ -40,7 +40,7 @@ smart config --show someoption
 smart config --show
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -55,6 +55,10 @@ def parse_options(argv):
                       help=_("remove given options"))
     parser.add_option("--force", action="store_true",
                       help=_("ignore problems"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

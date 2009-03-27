@@ -77,7 +77,7 @@ EDITEXAMPLE=_("""\
 #
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -109,6 +109,10 @@ def parse_options(argv):
     parser.add_option("--show-penalities", action="store_true",
                       help=_("show current penalities for origins/mirrors, "
                              "based on the history information"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

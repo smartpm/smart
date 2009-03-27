@@ -54,7 +54,7 @@ smart flag --set lock 'pkgname >= 1.0'
 smart flag --remove lock 'pkgname >= 1.0'
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -76,6 +76,10 @@ def parse_options(argv):
                              "or all flags if no argument was given"))
     parser.add_option("--force", action="store_true",
                       help=_("ignore problems"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

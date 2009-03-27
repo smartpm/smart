@@ -47,7 +47,7 @@ smart query --installed
 smart query --summary ldap
 """)
 
-def parse_options(argv, help=None):
+def option_parser(help=None):
     if help:
         parser = OptionParser(help=help)
     else:
@@ -115,6 +115,10 @@ def parse_options(argv, help=None):
                       metavar="FMT", help=_("change output format"))
     parser.add_option("--output", action="store", metavar="FILE",
                       help=_("redirect output to given filename"))
+    return parser
+
+def parse_options(argv, help=None):
+    parser = option_parser(help)
     opts, args = parser.parse_args(argv)
     opts.args = args
     if opts.show_all:

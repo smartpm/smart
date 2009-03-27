@@ -25,8 +25,12 @@ import re
 
 USAGE=_("smart test [options]")
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE)
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

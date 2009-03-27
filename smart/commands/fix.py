@@ -44,7 +44,7 @@ smart fix pkgname-1.0-1
 smart fix pkgname1 pkgname2
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -59,6 +59,10 @@ def parse_options(argv):
                              "when possible"))
     parser.add_option("-y", "--yes", action="store_true",
                       help=_("do not ask for confirmation"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
