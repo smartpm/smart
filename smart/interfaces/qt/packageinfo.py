@@ -178,7 +178,7 @@ class QtPackageInfo(qt.QTabWidget):
                 flags = ""
 
             def bold(text):
-                return "<b>"+str(qt.QStyleSheet.escape(text))+"</b>"
+                return "<b>"+unicode(qt.QStyleSheet.escape(text))+"</b>"
             
             status = pkg.installed and _("Installed") or _("Available")
             self._info.status.setText(bold(status+flags))
