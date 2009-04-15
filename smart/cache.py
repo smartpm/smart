@@ -211,7 +211,7 @@ class PackageInfo(object):
                     raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
             else:
-                filesha256 = item.getInfo(uncompprefix+"sha256")
+                filesha256 = self.getSHA256(url)
                 if filesha256:
                     try:
                         from hashlib import sha256
