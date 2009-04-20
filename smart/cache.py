@@ -225,7 +225,6 @@ class PackageInfo(object):
                         if lfilesha256 != filesha256:
                            raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
                                          (filesha256, lfilesha256)
-                        return
                     except ImportError:
                         pass
                 filesha = self.getSHA(url)
