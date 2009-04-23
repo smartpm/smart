@@ -23,6 +23,7 @@
 #
 from smart.const import INSTALL, REMOVE
 from smart.pm import PackageManager
+from smart.sorter import ChangeSetSorter, LoopError
 from smart import *
 import commands
 
@@ -33,56 +34,92 @@ class ArchPackageManager(PackageManager):
         prog = iface.getProgress(self, True)
         prog.start()
         prog.setTopic(_("Committing transaction..."))
+        prog.set(0, len(changeset))
         prog.show()
 
-        upgrade = {}
-        remove = {}
-        for pkg in changeset:
-            if changeset[pkg] is INSTALL:
-                upgrade[pkg] = True
-            else:
-                remove[pkg] = True
-        for pkg in upgrade:
-            for upg in pkg.upgrades:
-                for prv in upg.providedby:
-                    for prvpkg in prv.packages:
-                        if prvpkg.installed:
-                            if prvpkg in remove:
-                                del remove[prvpkg]
+        upgrades = {}
+        for pkg in changeset.keys():
+            if changeset.get(pkg) is INSTALL:
+                upgpkgs = [upgpkg for prv in pkg.provides
+                                  for upg in prv.upgradedby
+                                  for upgpkg in upg.packages
+                                  if upgpkg.installed]
+                upgpkgs.extend([prvpkg for upg in pkg.upgrades
+                                       for prv in upg.providedby
+                                       for prvpkg in prv.packages
+                                       if prvpkg.installed])
+                if upgpkgs:
+                    for upgpkg in upgpkgs:
+                        # For each package that is to be upgraded
+                        # Check for remove operations and delete them
+                        if changeset.get(upgpkg) is not REMOVE:
+                            break
+                    else:
+                        upgrades[pkg] = True
+                        for upgpkg in upgpkgs:
+                            if upgpkg in changeset:
+                                del changeset[upgpkg]
 
-        total = len(upgrade)+len(remove)
-        prog.set(0, total)
+        try:
+            sorter = ChangeSetSorter(changeset)
+            sorted = sorter.getSorted()
+        except LoopError:
+            lines = [_("Found unbreakable loops:")]
+            for path in sorter.getLoopPaths(sorter.getLoops()):
+                path = ["%s [%s]" % (pkg, op is INSTALL and "I" or "R")
+                        for pkg, op in path]
+                lines.append("    "+" -> ".join(path))
+            iface.error("\n".join(lines))
+            sys.exit(1)
+        del sorter
 
-        for pkg in upgrade:
-            prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
-            prog.setSub(pkg, 0, 1, 1)
-            prog.show()
-            status, output = commands.getstatusoutput("pacman -U %s" %
-                                                      pkgpaths[pkg][0])
-            prog.setSubDone(pkg)
-            prog.show()
-            if status != 0:
-                iface.warning(_("Got status %d upgrading %s:") % (status, pkg))
-                iface.warning(output)
-            else:
-                iface.debug(_("Upgrading %s:") % pkg)
-                iface.debug(output)
-        for pkg in remove:
-            prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
-            prog.setSub(pkg, 0, 1, 1)
-            prog.show()
-            status, output = commands.getstatusoutput("pacman -R %s" %
-                                                      pkg.name)
-            prog.setSubDone(pkg)
-            prog.show()
-            if status != 0:
-                iface.warning(_("Got status %d removing %s:") % (status, pkg))
-                iface.warning(output)
-            else:
-                iface.debug(_("Removing %s:") % pkg)
-                iface.debug(output)
+        for pkg, op in sorted:
+            if op == INSTALL and upgrades.get(pkg):
+                prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
+                prog.setSub(pkg, 0, 1, 1)
+                prog.show()
+                status, output = commands.getstatusoutput("pacman -U %s" %
+                                                          pkgpaths[pkg][0])
+                prog.setSubDone(pkg)
+                prog.show()
+                if status != 0:
+                    iface.warning(_("Got status %d upgrading %s:") % (status, pkg))
+                    iface.warning(output)
+                else:
+                    iface.debug(_("Upgrading %s:") % pkg)
+                    iface.debug(output)
+            elif op == INSTALL:
+                prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
+                prog.setSub(pkg, 0, 1, 1)
+                prog.show()
+                status, output = commands.getstatusoutput("pacman -U %s" %
+                                                          pkgpaths[pkg][0])
+                prog.setSubDone(pkg)
+                prog.show()
+                if status != 0:
+                    iface.warning(_("Got status %d installing %s:") % (status, pkg))
+                    iface.warning(output)
+                else:
+                    iface.debug(_("Installing %s:") % pkg)
+                    iface.debug(output)
+            elif op == REMOVE:
+                prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
+                prog.setSub(pkg, 0, 1, 1)
+                prog.show()
+                status, output = commands.getstatusoutput("pacman -R %s" %
+                                                          pkg.name)
+                prog.setSubDone(pkg)
+                prog.show()
+                if status != 0:
+                    iface.warning(_("Got status %d removing %s:") % (status, pkg))
+                    iface.warning(output)
+                else:
+                    iface.debug(_("Removing %s:") % pkg)
+                    iface.debug(output)
+             else:
+                 iface.warning(_("Operation ( %s ) not handled on package ( %s )"
+                               % (op, pkg.name)))
 
         prog.setDone()
         prog.stop()
-
 # vim:ts=4:sw=4:et
