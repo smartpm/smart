@@ -116,10 +116,11 @@ class ArchPackageManager(PackageManager):
                 else:
                     iface.debug(_("Removing %s:") % pkg)
                     iface.debug(output)
-             else:
+            else:
                  iface.warning(_("Operation ( %s ) not handled on package ( %s )"
                                % (op, pkg.name)))
 
         prog.setDone()
         prog.stop()
+
 # vim:ts=4:sw=4:et
