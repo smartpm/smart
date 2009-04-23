@@ -79,12 +79,13 @@ class ArchPackageManager(PackageManager):
         del sorter
 
         for pkg, op in sorted:
+            depchk = depchkoff.get(pkg) and "d" or ""            
             if op == INSTALL and upgrades.get(pkg):
                 prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -U %s" %
-                                                          pkgpaths[pkg][0])
+                status, output = commands.getstatusoutput("pacman -U%s %s" %
+                                                          (depchk, pkgpaths[pkg][0]))
                 prog.setSubDone(pkg)
                 prog.show()
                 if status != 0:
@@ -97,8 +98,8 @@ class ArchPackageManager(PackageManager):
                 prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -U %s" %
-                                                          pkgpaths[pkg][0])
+                status, output = commands.getstatusoutput("pacman -U%s %s" %
+                                                          (depchk, pkgpaths[pkg][0]))
                 prog.setSubDone(pkg)
                 prog.show()
                 if status != 0:
@@ -107,26 +108,12 @@ class ArchPackageManager(PackageManager):
                 else:
                     iface.debug(_("Installing %s:") % pkg)
                     iface.debug(output)
-            elif op == REMOVE and depchkoff.get(pkg):
-                prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
-                prog.setSub(pkg, 0, 1, 1)
-                prog.show()
-                status, output = commands.getstatusoutput("pacman -Rd %s" %
-                                                          pkg.name)
-                prog.setSubDone(pkg)
-                prog.show()
-                if status != 0:
-                    iface.warning(_("Got status %d removing %s:") % (status, pkg))
-                    iface.warning(output)
-                else:
-                    iface.debug(_("Removing %s:") % pkg)
-                    iface.debug(output)
             elif op == REMOVE:
                 prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -R %s" %
-                                                          pkg.name)
+                status, output = commands.getstatusoutput("pacman -R%s %s" %
+                                                          (depchk, pkg.name))
                 prog.setSubDone(pkg)
                 prog.show()
                 if status != 0:
