@@ -38,6 +38,7 @@ class ArchPackageManager(PackageManager):
         prog.show()
 
         upgrades = {}
+        depchkoff = {}
         for pkg in changeset.keys():
             if changeset.get(pkg) is INSTALL:
                 upgpkgs = [upgpkg for prv in pkg.provides
@@ -57,7 +58,11 @@ class ArchPackageManager(PackageManager):
                     else:
                         upgrades[pkg] = True
                         for upgpkg in upgpkgs:
-                            if upgpkg in changeset:
+                            if upgpkg in changeset and pkg.name != upgpkg.name:
+                                # pacman doesn't remove pkgs of a different name
+                                # during an upgrade even if one provides the other
+                                depchkoff[upgpkg] = True
+                            elif upgpkg in changeset:
                                 del changeset[upgpkg]
 
         try:
@@ -102,6 +107,20 @@ class ArchPackageManager(PackageManager):
                 else:
                     iface.debug(_("Installing %s:") % pkg)
                     iface.debug(output)
+            elif op == REMOVE and depchkoff.get(pkg):
+                prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
+                prog.setSub(pkg, 0, 1, 1)
+                prog.show()
+                status, output = commands.getstatusoutput("pacman -Rd %s" %
+                                                          pkg.name)
+                prog.setSubDone(pkg)
+                prog.show()
+                if status != 0:
+                    iface.warning(_("Got status %d removing %s:") % (status, pkg))
+                    iface.warning(output)
+                else:
+                    iface.debug(_("Removing %s:") % pkg)
+                    iface.debug(output)
             elif op == REMOVE:
                 prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
@@ -117,10 +136,9 @@ class ArchPackageManager(PackageManager):
                     iface.debug(_("Removing %s:") % pkg)
                     iface.debug(output)
             else:
-                 iface.warning(_("Operation ( %s ) not handled on package ( %s )"
-                               % (op, pkg.name)))
+                iface.warning(_("Operation ( %s ) not handled on package ( %s )"
+                              % (op, pkg.name)))
 
         prog.setDone()
         prog.stop()
-
 # vim:ts=4:sw=4:et
