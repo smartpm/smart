@@ -25,7 +25,6 @@ from smart.util.distance import *
 
 import posixpath
 import string
-import md5
 import sys
 
 class ShortURL(object):

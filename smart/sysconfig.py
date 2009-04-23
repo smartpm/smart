@@ -49,13 +49,6 @@ class SysConfig(object):
         self._modified = False
         self._config = self
 
-    def __getstate__(self):
-        return self._hardmap
-
-    def __setstate__(self, state):
-        self._hardmap.clear()
-        self._hardmap.update(state)
-
     def getReadOnly(self):
         return self._readonly
 

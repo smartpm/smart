@@ -20,7 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import cPickle
-import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 
 def getObjectDigest(obj):
     return ObjectDigest(obj).getDigest()
@@ -31,7 +34,7 @@ def getObjectHexDigest(obj):
 class ObjectDigest(object):
 
     def __init__(self, obj=None):
-        self._digest = md5.md5()
+        self._digest = md5()
         if obj:
             self.addObject(obj)
 

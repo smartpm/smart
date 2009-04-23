@@ -28,7 +28,7 @@ kind = "package"
 name = _("Archlinux Installed Packages")
 
 description = _("""
-Installed packages in a archlinux system.
+Installed packages in a Archlinux system.
 """)
 
 fields = []

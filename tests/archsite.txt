@@ -40,8 +40,6 @@ The setup is ready. Now we can load the data into the cache.
   >>> loader.getLoadSteps()
   2
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 This should give us two packages with the data we already know.

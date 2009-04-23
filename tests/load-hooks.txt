@@ -71,8 +71,6 @@ Let's link them effectively.
 Loading the cache should run these hooks.
 
   >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
 
 
 Let's see if our hooks got called correctly.

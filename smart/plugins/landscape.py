@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2004 Conectiva, Inc.
+# Copyright (c) 2009 Canonical
 #
-# Written by Gustavo Niemeyer <niemeyer@conectiva.com>
+# Written by Gustavo Niemeyer <gustavo@niemeyer.net>
 #
 # This file is part of Smart Package Manager.
 #
@@ -19,17 +19,25 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart import _
+from ConfigParser import ConfigParser
+import os
 
-kind = "package"
+from smart import sysconf
 
-name = _("Archlinux Directory")
 
-description = _("""
-Local directory with Archlinux packages.
-""")
+CLIENT_CONF_PATH = "/etc/landscape/client.conf"
 
-fields = [("path", _("Directory Path"), str, None,
-           _("Path of directory containing *.pkg.tar.gz packages.")),
-          ("recursive", _("Recursive"), bool, False,
-           _("Search for files recursively."))]
+
+def run():
+    if (sysconf.get("use-landscape-proxies", False) and
+        os.path.isfile(CLIENT_CONF_PATH)):
+        parser = ConfigParser()
+        parser.read(CLIENT_CONF_PATH)
+        for type in "http", "https", "ftp":
+            option = "%s_proxy" % type
+            if parser.has_option("client", option) and option not in os.environ:
+                setting = parser.get("client", option)
+                sysconf.set(option.replace("_", "-"), setting, weak=True)
+
+
+run()
