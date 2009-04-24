@@ -30,14 +30,8 @@ import commands
 class ArchPackageManager(PackageManager):
 
     def commit(self, changeset, pkgpaths):
-
-        prog = iface.getProgress(self, True)
-        prog.start()
-        prog.setTopic(_("Committing transaction..."))
-        prog.set(0, len(changeset))
-        prog.show()
-
         upgrades = {}
+        depchkoff = {}
         for pkg in changeset.keys():
             if changeset.get(pkg) is INSTALL:
                 upgpkgs = [upgpkg for prv in pkg.provides
@@ -57,8 +51,18 @@ class ArchPackageManager(PackageManager):
                     else:
                         upgrades[pkg] = True
                         for upgpkg in upgpkgs:
-                            if upgpkg in changeset:
+                            if upgpkg in changeset and pkg.name != upgpkg.name:
+                                # pacman doesn't remove pkgs of a different name
+                                # during an upgrade even if one provides the other
+                                depchkoff[upgpkg] = True
+                            elif upgpkg in changeset:
                                 del changeset[upgpkg]
+
+        prog = iface.getProgress(self, True)
+        prog.start()
+        prog.setTopic(_("Committing transaction..."))
+        prog.set(0, len(changeset))
+        prog.show()
 
         try:
             sorter = ChangeSetSorter(changeset)
@@ -74,12 +78,13 @@ class ArchPackageManager(PackageManager):
         del sorter
 
         for pkg, op in sorted:
+            depchk = depchkoff.get(pkg) and "d" or ""            
             if op == INSTALL and upgrades.get(pkg):
                 prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -U %s" %
-                                                          pkgpaths[pkg][0])
+                status, output = commands.getstatusoutput("pacman -U%s %s" %
+                                                          (depchk, pkgpaths[pkg][0]))
                 prog.setSubDone(pkg)
                 prog.show()
                 if status != 0:
@@ -92,8 +97,8 @@ class ArchPackageManager(PackageManager):
                 prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -U %s" %
-                                                          pkgpaths[pkg][0])
+                status, output = commands.getstatusoutput("pacman -U%s %s" %
+                                                          (depchk, pkgpaths[pkg][0]))
                 prog.setSubDone(pkg)
                 prog.show()
                 if status != 0:
@@ -106,8 +111,8 @@ class ArchPackageManager(PackageManager):
                 prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -R %s" %
-                                                          pkg.name)
+                status, output = commands.getstatusoutput("pacman -R%s %s" %
+                                                          (depchk, pkg.name))
                 prog.setSubDone(pkg)
                 prog.show()
                 if status != 0:
@@ -117,10 +122,9 @@ class ArchPackageManager(PackageManager):
                     iface.debug(_("Removing %s:") % pkg)
                     iface.debug(output)
             else:
-                 iface.warning(_("Operation ( %s ) not handled on package ( %s )"
-                               % (op, pkg.name)))
+                iface.warning(_("Operation ( %s ) not handled on package ( %s )"
+                              % (op, pkg.name)))
 
         prog.setDone()
         prog.stop()
-
 # vim:ts=4:sw=4:et
