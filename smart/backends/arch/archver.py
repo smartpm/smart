@@ -56,7 +56,7 @@ def vercmp(s1, s2):
 # return 1: first is newer than second
 #        0: first and second are the same version
 #       -1: second is newer than first
-def vercmpparts(v1, a1, b1, v2, a2, b2):
+def vercmpparts(v1, b1, a1, v2, b2, a2):
     rc = vercmppart(v1, v2)
     if rc:
         return rc
