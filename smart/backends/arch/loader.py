@@ -384,9 +384,9 @@ class ArchDBLoader(ArchLoader):
     def __init__(self, dir=None):
         ArchLoader.__init__(self)
         if dir is None:
-            dir = os.path.join(sysconf.get("Arch-root", "/"),
-                               sysconf.get("Arch-packages-dir",
-                                           "/var/lib/pacman"),
+            dir = os.path.join(sysconf.get("arch-root", "/"),
+                               sysconf.get("arch-packages-dir",
+                                           "var/lib/pacman"),
                                "local")
         self._dir = dir
         self.setInstalled(True)
