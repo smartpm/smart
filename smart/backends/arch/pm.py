@@ -30,13 +30,6 @@ import commands
 class ArchPackageManager(PackageManager):
 
     def commit(self, changeset, pkgpaths):
-
-        prog = iface.getProgress(self, True)
-        prog.start()
-        prog.setTopic(_("Committing transaction..."))
-        prog.set(0, len(changeset))
-        prog.show()
-
         upgrades = {}
         depchkoff = {}
         for pkg in changeset.keys():
@@ -64,6 +57,12 @@ class ArchPackageManager(PackageManager):
                                 depchkoff[upgpkg] = True
                             elif upgpkg in changeset:
                                 del changeset[upgpkg]
+
+        prog = iface.getProgress(self, True)
+        prog.start()
+        prog.setTopic(_("Committing transaction..."))
+        prog.set(0, len(changeset))
+        prog.show()
 
         try:
             sorter = ChangeSetSorter(changeset)
