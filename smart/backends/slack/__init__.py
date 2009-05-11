@@ -24,7 +24,8 @@ import os
 
 def checkPackageFile(filename):
     return os.path.isfile(filename) and filename.endswith(".tgz") or \
-           filename.endswith(".tbz") or filename.endswith(".tlz")
+           filename.endswith(".tbz") or filename.endswith(".tlz") or \
+           filename.endswith(".txz")
 
 hooks.register("check-package-file", checkPackageFile)
 

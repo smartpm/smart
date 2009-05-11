@@ -157,6 +157,8 @@ def parsePackageInfo(filename, checksum=None):
                     info["type"] = ".tbz"
                 if location.endswith(".tlz"):
                     info["type"] = ".tlz"
+                if location.endswith(".txz"):
+                    info["type"] = ".txz"
                 info["location"] = location
             elif line.startswith("PACKAGE REQUIRED:"):
                 required = line[17:].strip()
@@ -277,7 +279,8 @@ class SlackDirLoader(SlackLoader):
             self._filenames = [x for x in os.listdir(dir)
                                       if x.endswith(".tgz") \
                                       or x.endswith(".tbz") \
-                                      or x.endswith(".tlz")]
+                                      or x.endswith(".tlz") \
+                                      or x.endswith(".txz")]
 
     def getInfoList(self):
         for filename in self._filenames:
@@ -350,7 +353,8 @@ class SlackFileChannel(FileChannel):
 def createFileChannel(filename):
     if filename.endswith(".tgz") \
     or filename.endswith(".tbz") \
-    or filename.endswith(".tlz"):
+    or filename.endswith(".tlz") \
+    or filename.endswith(".txz"):
         return SlackFileChannel(filename)
     return None
 
