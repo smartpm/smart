@@ -21,16 +21,17 @@
 #
 from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 
-class TextListViewItem(qt.QListViewItem):
+class TextListViewItem(QtGui.QTreeWidgetItem):
     def __init__(self, parent):
-        qt.QListViewItem.__init__(self, parent)
+        QtGui.QTreeWidgetItem.__init__(self, parent)
         self._text = {}
         self._oldtext = {}
 
     def setText(self, col, text):
-        qt.QListViewItem.setText(self, col, text)
+        QtGui.QTreeWidgetItem.setText(self, col, text)
         if col in self._text:
             self._oldtext[col] = self._text[col]
         self._text[col] = text
@@ -42,15 +43,15 @@ class QtMirrors(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(None)
+        self._window = QtGui.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Mirrors"))
         self._window.setModal(True)
 
         self._window.setMinimumSize(600, 400)
 
-        layout = qt.QVBoxLayout(self._window)
-        layout.setResizeMode(qt.QLayout.FreeResize)
+        layout = QtGui.QVBoxLayout(self._window)
+        layout.setResizeMode(QtGui.QLayout.FreeResize)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -59,13 +60,13 @@ class QtMirrors(object):
 
         layout.addWidget(vbox)
 
-        self._treeview = qt.QListView(vbox)
+        self._treeview = QtGui.QTreeWidget(vbox)
         self._treeview.header().hide()
         self._treeview.show()
 
         self._treeview.addColumn(_("Mirror"))
-        qt.QObject.connect(self._treeview, qt.SIGNAL("itemRenamed(QListViewItem *, int, const QString &)"), self.itemRenamed)
-        qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self.selectionChanged)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemRenamed(QListViewItem *, int, const QString &)"), self.itemRenamed)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self.selectionChanged)
 
         bbox = qt.QHBox(vbox)
         bbox.setSpacing(10)
@@ -74,20 +75,20 @@ class QtMirrors(object):
 
         button = qt.QPushButton(_("New"), bbox)
         button.setEnabled(True)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-add")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newMirror)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newMirror)
         self._newmirror = button
 
-        button = qt.QPushButton(_("Delete"), bbox)
+        button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-delete")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delMirror)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delMirror)
         self._delmirror = button
 
-        button = qt.QPushButton(_("Close"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("Close"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
         
         button.setDefault(True)
 
@@ -168,7 +169,7 @@ class MirrorCreator(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Mirror"))
         self._window.setModal(True)
@@ -184,34 +185,34 @@ class MirrorCreator(object):
         table.setSpacing(10)
         table.show()
         
-        label = qt.QLabel(_("Origin URL:"), table)
+        label = QtGui.QLabel(_("Origin URL:"), table)
         label.show()
 
-        self._origin = qt.QLineEdit(table)
+        self._origin = QtGui.QLineEdit(table)
         self._origin.setMaxLength(40)
         self._origin.show()
 
-        label = qt.QLabel(_("Mirror URL:"), table)
+        label = QtGui.QLabel(_("Mirror URL:"), table)
         label.show()
 
-        self._mirror = qt.QLineEdit(table)
+        self._mirror = QtGui.QLineEdit(table)
         self._mirror.setMaxLength(40)
         self._mirror.show()
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameStyle(qt.QFrame.HLine)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameStyle(QtGui.QFrame.HLine)
         sep.show()
 
-        bbox = qt.QHBox(vbox)
+        bbox = QtGui.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
-        button = qt.QPushButton(_("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(_("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
         
         vbox.adjustSize()
         self._window.adjustSize()
@@ -227,7 +228,7 @@ class MirrorCreator(object):
 
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 origin = str(self._origin.text()).strip()
                 if not origin:
                     iface.error(_("No origin provided!"))

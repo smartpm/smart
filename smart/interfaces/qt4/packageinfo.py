@@ -22,28 +22,29 @@
 from smart.interfaces.qt4.packageview import QtPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 
-class BackgroundScrollView(qt.QScrollView):
+class BackgroundScrollView(QtGui.QScrollArea):
     def __init__(self, parent):
-        qt.QScrollView.__init__(self, parent)
+        QtGui.QScrollArea.__init__(self, parent)
         self.setSizePolicy(
-            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
-        self.viewport().setBackgroundMode(qt.Qt.PaletteBackground)
+            QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
+        self.viewport().setBackgroundMode(QtGui.Qt.PaletteBackground)
         self.setPaletteBackgroundColor(self.viewport().paletteBackgroundColor())
 
     def drawContents(self, *args):
         if len(args)==1:
-            return apply(qt.QFrame.drawContents, (self,)+args)
+            return apply(QtGui.QFrame.drawContents, (self,)+args)
         else:
             painter, clipx, clipy, clipw, cliph = args
         color = self.eraseColor()
-        painter.fillRect(clipx, clipy, clipw, cliph, qt.QBrush(color))
-        qt.QScrollView.drawContents(self, painter, clipx, clipy, clipw, cliph)
+        painter.fillRect(clipx, clipy, clipw, cliph, QtGui.Brush(color))
+        QtGui.QScrollArea.drawContents(self, painter, clipx, clipy, clipw, cliph)
 
-class QtPackageInfo(qt.QTabWidget):
+class QtPackageInfo(QtGui.QTabWidget):
     def __init__(self, parent):
-        qt.QTabWidget.__init__(self, parent)
+        QtGui.QTabWidget.__init__(self, parent)
 
         self._pkg = None
         self._changeset = None
@@ -69,10 +70,10 @@ class QtPackageInfo(qt.QTabWidget):
                            ("group", _("Group:")),
                            ("installedsize", _("Installed Size:")),
                            ("channels", _("Channels:"))]:
-            label = qt.QLabel(text, grid)
+            label = QtGui.QLabel(text, grid)
             label.show()
             setattr(self._info, attr+"_label", label)
-            label = qt.QLabel("", grid)
+            label = QtGui.QLabel("", grid)
             label.show()
             setattr(self._info, attr, label)
             row += 1
@@ -86,8 +87,8 @@ class QtPackageInfo(qt.QTabWidget):
         sv.setMargin(5)
         sv.show()
 
-        self._descr = qt.QLabel(sv.viewport())
-        self._descr.setAlignment(qt.Qt.AlignTop)
+        self._descr = QtGui.QLabel(sv.viewport())
+        self._descr.setAlignment(QtCore.Qt.AlignTop)
         self._descr.show()
         sv.addChild(self._descr)
 
@@ -95,13 +96,13 @@ class QtPackageInfo(qt.QTabWidget):
         self._tabwidget.addTab(sv, _("Description"))
 
         sv = BackgroundScrollView(self._tabwidget)
-        sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
+        sv.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         sv.setMargin(5)
         sv.show()
 
-        self._cont = qt.QLabel(sv.viewport())
-        self._cont.setAlignment(qt.Qt.AlignTop)
-        self._cont.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
+        self._cont = QtGui.QLabel(sv.viewport())
+        self._cont.setAlignment(QtCore.Qt.AlignTop)
+        self._cont.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         self._cont.show()
         sv.addChild(self._cont)
 
@@ -114,8 +115,8 @@ class QtPackageInfo(qt.QTabWidget):
 
         self._tabwidget.addTab(self._relations, _("Relations"))
 
-        self._urls = qt.QListView(self._tabwidget)
-        self._urls.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
+        self._urls = QtGui.QTableWidget(self._tabwidget)
+        self._urls.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         self._urls.setAllColumnsShowFocus(True)
         self._urls.header().hide()
         self._urls.show()
@@ -126,10 +127,10 @@ class QtPackageInfo(qt.QTabWidget):
         self._tabwidget.addTab(self._urls, _("URLs"))
 
         self._tabwidget.adjustSize()
-        qt.QObject.connect(self._tabwidget, qt.SIGNAL("currentChanged(QWidget *)"), self._currentChanged)
+        QtCore.QObject.connect(self._tabwidget, QtCore.SIGNAL("currentChanged(QWidget *)"), self._currentChanged)
          
     def _currentChanged(self, widget):
-        pagenum = qt.QTabWidget.indexOf(self._tabwidget, widget)
+        pagenum = QtGui.QTabWidget.indexOf(self._tabwidget, widget)
         self.setPackage(self._pkg, pagenum)
 
     def setChangeSet(self, changeset):
@@ -178,7 +179,7 @@ class QtPackageInfo(qt.QTabWidget):
                 flags = ""
 
             def bold(text):
-                return "<b>"+unicode(qt.QStyleSheet.escape(text))+"</b>"
+                return "<b>"+unicode(QtCore.Qt.escape(text))+"</b>"
             
             status = pkg.installed and _("Installed") or _("Available")
             self._info.status.setText(bold(status+flags))
@@ -210,7 +211,7 @@ class QtPackageInfo(qt.QTabWidget):
                 info = loader.getInfo(pkg)
                 summary = info.getSummary()
                 if summary:
-                    text += "<b>"+unicode(qt.QStyleSheet.escape(summary))+"</b><br><br>"
+                    text += "<b>"+unicode(QtCore.Qt.escape(summary))+"</b><br><br>"
                     description = info.getDescription()
                     if description != summary:
                          text += description+"\n\n"
@@ -275,7 +276,7 @@ class QtPackageInfo(qt.QTabWidget):
             for item in items:
                 if item != lastitem:
                     lastitem = item
-                    listitem = qt.QListViewItem(self._urls)
+                    listitem = QtGui.QTableViewItem(self._urls)
                     listitem.setText(0, item[0])
                     listitem.setText(1, item[1])
                     listitem.setText(2, item[2])

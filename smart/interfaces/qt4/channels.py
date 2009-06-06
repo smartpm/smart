@@ -24,14 +24,15 @@ from smart.util.strtools import strToBool
 from smart.const import NEVER
 from smart.channel import *
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import textwrap
 import os
 
-class RadioAction(qt.QAction):
+class RadioAction(QtGui.QAction):
 
     def __init__(self, radio, name, label=None):
-        qt.QAction.__init__(self, radio, name)
+        QtGui.QAction.__init__(self, radio, name)
         self._radio = radio
     
     def connect(self, object, field, userdata):
@@ -39,7 +40,7 @@ class RadioAction(qt.QAction):
         self._field = field
         self._userdata = userdata
         signal = "stateChanged(int)"
-        qt.QObject.connect(self._radio, qt.SIGNAL(signal), self.slot)
+        QtCore.QObject.connect(self._radio, QtCore.SIGNAL(signal), self.slot)
     
     def slot(self, state):
         if state == qt.QButton.On:
@@ -51,14 +52,14 @@ class QtChannels(object):
 
         self._changed = False
 
-        self._window = qt.QDialog(None)
+        self._window = QtGui.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Channels"))
         self._window.setModal(True)
 
         self._window.setMinimumSize(600, 400)
 
-        layout = qt.QVBoxLayout(self._window)
+        layout = QtGui.QVBoxLayout(self._window)
         layout.setResizeMode(qt.QLayout.FreeResize)
 
         vbox = qt.QVBox(self._window)
@@ -68,14 +69,14 @@ class QtChannels(object):
 
         layout.addWidget(vbox)
 
-        self._treeview = qt.QListView(vbox)
-        self._treeview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
+        self._treeview = QtGui.QTreeWidget(vbox)
+        self._treeview.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         self._treeview.setAllColumnsShowFocus(True)
-        self._treeview.setSelectionMode(qt.QListView.Single)
+        self._treeview.setSelectionMode(QtGui.QListView.Single)
         self._treeview.show()
 
-        qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self.selectionChanged)
-        qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self.doubleClicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self.selectionChanged)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self.doubleClicked)
 
         self._treeview.addColumn("")
         self._treeview.addColumn(_("Pri"))
@@ -88,28 +89,28 @@ class QtChannels(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("New"), bbox)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
+        button = QtGui.QPushButton(_("New"), bbox)
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-add")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newChannel)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newChannel)
         self._newchannel = button
 
-        button = qt.QPushButton(_("Delete"), bbox)
+        button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-delete")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delChannel)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delChannel)
         self._delchannel = button
 
-        button = qt.QPushButton(_("Edit"), bbox)
+        button = QtGui.QPushButton(_("Edit"), bbox)
         button.setEnabled(False)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-edit")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-edit")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.editChannel)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.editChannel)
         self._editchannel = button
 
-        button = qt.QPushButton(_("Close"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("Close"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
         button.setDefault(True)
         vbox.adjustSize()
@@ -185,7 +186,7 @@ class QtChannels(object):
         elif method in ("descriptionpath", "descriptionurl"):
 
             if method == "descriptionpath":
-                filename = qt.QFileDialog.getOpenFileName("", "",
+                filename = QtGui.QFileDialog.getOpenFileName("", "",
                      self._window, "", _("Select Channel Description"))
                 if not filename:
                     return
@@ -230,7 +231,7 @@ class QtChannels(object):
                 if not path:
                     return
             elif method == "detectpath":
-                path = qt.QFileDialog.getExistingDirectory("",
+                path = QtGui.QFileDialog.getExistingDirectory("",
                      self._window, "", _("Select Path"), True)
                 if not path:
                     return
@@ -311,14 +312,14 @@ class QtChannelSelector(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Select Channels"))
         self._window.setModal(True)
 
         self._window.setMinimumSize(600, 400)
 
-        layout = qt.QVBoxLayout(self._window)
+        layout = QtGui.QVBoxLayout(self._window)
         layout.setResizeMode(qt.QLayout.FreeResize)
 
         vbox = qt.QVBox(self._window)
@@ -328,8 +329,8 @@ class QtChannelSelector(object):
 
         layout.addWidget(vbox)
 
-        self._treeview = qt.QListView(vbox)
-        self._treeview.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
+        self._treeview = QtGui.QTableWidget(vbox)
+        self._treeview.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.show()
 
@@ -343,11 +344,11 @@ class QtChannelSelector(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(_("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
-        button = qt.QPushButton(_("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
         button.setDefault(True)
 
@@ -375,7 +376,7 @@ class QtChannelSelector(object):
         self._window.hide()
 
         result = []
-        if self._result == qt.QDialog.Accepted:
+        if self._result == QtGui.QDialog.Accepted:
             iter = qt.QListViewItemIterator(self._treeview)
             while iter.current():
                 item = iter.current()
@@ -392,13 +393,13 @@ class ChannelEditor(object):
         self._fields = {}
         self._fieldn = 0
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Edit Channel"))
         self._window.setModal(True)
 
-        layout = qt.QVBoxLayout(self._window)
-        layout.setResizeMode(qt.QLayout.FreeResize)
+        layout = QtGui.QVBoxLayout(self._window)
+        layout.setResizeMode(QtGui.QLayout.FreeResize)
 
         vbox = qt.QVBox(self._window)
         vbox.setMargin(10)
@@ -412,9 +413,9 @@ class ChannelEditor(object):
         self._table.setSpacing(10)
         self._table.show()
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
         bbox = qt.QHBox(vbox)
@@ -422,11 +423,11 @@ class ChannelEditor(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(_("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
-        button = qt.QPushButton(_("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
         button.setDefault(True)
 
@@ -434,29 +435,29 @@ class ChannelEditor(object):
                  editable=True, tip=None, needed=False):
 
         if ftype is bool:
-            spacer = qt.QWidget(self._table)
+            spacer = QtGui.QWidget(self._table)
             spacer.show()
-            widget = qt.QCheckBox(label, self._table)
+            widget = QtGui.QCheckBox(label, self._table)
             widget.setChecked(value)
         else:
-            _label = qt.QLabel("%s:" % label, self._table)
+            _label = QtGui.QLabel("%s:" % label, self._table)
             _label.show()
             if tip:
                 qt.QToolTip.add(_label, tip)
             if ftype is int:
-                widget = qt.QSpinBox(self._table)
+                widget = QtGui.QSpinBox(self._table)
                 widget.setSteps(1, 10)
                 widget.setRange(-100000,+100000)
                 widget.setValue(value)
             elif ftype is str:
-                widget = qt.QLineEdit(self._table)
+                widget = QtGui.QLineEdit(self._table)
                 widget.setText(value)
                 if key in ("alias", "type"):
                     #widget.setMaxLength(20)
                     pass # "usually enough for about 15 to 20 characters"
                 else:
-                    widget.resize(qt.QSize(widget.sizeHint().width()*2,
-                                           widget.sizeHint().height()))
+                    widget.resize(QtCore.QSize(widget.sizeHint().width()*2,
+                                               widget.sizeHint().height()))
             else:
                 raise Error, _("Don't know how to handle %s fields") % ftype
 
@@ -472,7 +473,7 @@ class ChannelEditor(object):
     def show(self, alias, oldchannel, editalias=False):
         # reset the dialog fields
         for item in self._table.children():
-            if isinstance(item, qt.QWidget): 
+            if isinstance(item, QtGui.QWidget): 
                 self._table.removeChild(item)
                 del item
         
@@ -509,7 +510,7 @@ class ChannelEditor(object):
 
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 newchannel = {}
                 for key, label, ftype, default, descr in info.fields:
                     widget = self._fields[key]
@@ -534,7 +535,7 @@ class ChannelEditor(object):
                             alias = value
                     createChannel(alias, newchannel)
                 except Error, e:
-                    self._result == qt.QDialog.Rejected
+                    self._result == QtGui.QDialog.Rejected
                     iface.error(unicode(e))
                     continue
                 else:
@@ -550,7 +551,7 @@ class TypeSelector(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
@@ -566,15 +567,15 @@ class TypeSelector(object):
         table.show()
         self._table = table
         
-        label = qt.QLabel(_("Type:"), table)
+        label = QtGui.QLabel(_("Type:"), table)
 
-        self._typevbox = qt.QVButtonGroup(table)
-        self._typevbox.setFrameStyle(qt.QFrame.NoFrame)
+        self._typevbox = QtGui.QVButtonGroup(table)
+        self._typevbox.setFrameStyle(QtGui.QFrame.NoFrame)
         self._typevbox.show()
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
         bbox = qt.QHBox(vbox)
@@ -582,18 +583,18 @@ class TypeSelector(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(_("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
-        button = qt.QPushButton(_("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
         self._ok = button
         self._ok.setEnabled(False)
 
     def show(self):
         for item in self._typevbox.children():
-            if isinstance(item, qt.QWidget): 
+            if isinstance(item, QtGui.QWidget): 
                 self._typevbox.removeChild(item)
                 del item
         self._type = None
@@ -604,8 +605,8 @@ class TypeSelector(object):
         for name, type in infos:
             if not self._type:
                 self._type = type
-            radio = qt.QRadioButton(name, self._typevbox, type)
-            qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
+            radio = QtGui.QRadioButton(name, self._typevbox, type)
+            QtCore.QObject.connect(radio, QtCore.SIGNAL("clicked()"), self.ok)
             act = RadioAction(radio, type, name)
             act.connect(self, "_type", type)
             radio.show()
@@ -621,7 +622,7 @@ class TypeSelector(object):
         type = None
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 type = self._type
                 break
             type = None
@@ -639,7 +640,7 @@ class MethodSelector(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
@@ -653,14 +654,14 @@ class MethodSelector(object):
         table.setSpacing(10)
         table.show()
         
-        label = qt.QLabel(_("Method:"), table)
+        label = QtGui.QLabel(_("Method:"), table)
 
         methodvbox = qt.QVButtonGroup(table)
         methodvbox.show()
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
         bbox = qt.QHBox(vbox)
@@ -668,11 +669,11 @@ class MethodSelector(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(_("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
-        button = qt.QPushButton(_("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
         self._ok = button
         self._ok.setEnabled(False)
@@ -690,8 +691,8 @@ class MethodSelector(object):
                                _("Detect channel in local path"))]:
             if not self._method:
                 self._method = method
-            radio = qt.QRadioButton(descr, methodvbox, method)
-            qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
+            radio = QtGui.QRadioButton(descr, methodvbox, method)
+            QtCore.QObject.connect(radio, QtCore.SIGNAL("clicked()"), self.ok)
             act = RadioAction(radio, method, descr)
             act.connect(self, "_method", method)
             radio.show()
@@ -708,7 +709,7 @@ class MethodSelector(object):
         method = None
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 method = self._method
                 break
             method = None
@@ -726,7 +727,7 @@ class MountPointSelector(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Channel"))
         self._window.setModal(True)
@@ -740,15 +741,15 @@ class MountPointSelector(object):
         table.setSpacing(10)
         table.show()
         
-        label = qt.QLabel(_("Media path:"), table)
+        label = QtGui.QLabel(_("Media path:"), table)
 
         self._mpvbox = qt.QVBox(table)
         self._mpvbox.setSpacing(10)
         self._mpvbox.show()
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
         bbox = qt.QHBox(vbox)
@@ -756,27 +757,27 @@ class MountPointSelector(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(_("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
-        button = qt.QPushButton(_("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(_("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
     def show(self):
         for item in self._mpvbox.children():
-            if isinstance(item, qt.QWidget): 
+            if isinstance(item, QtGui.QWidget): 
                 self._mpvbox.removeChild(item)
                 del item
         self._mp = None
 
-        group = qt.QButtonGroup(None, "mp")
+        group = QtGui.QButtonGroup(None, "mp")
         n = 0
         for media in iface.getControl().getMediaSet():
             mp = media.getMountPoint()
             if not self._mp:
                 self._mp = mp
-            qt.QObject.connect(radio, qt.SIGNAL("clicked()"), self.ok)
-            radio = qt.QRadioButton(mp, self._mpvbox)
+            QtCore.QObject.connect(radio, QtCore.SIGNAL("clicked()"), self.ok)
+            radio = QtGui.QRadioButton(mp, self._mpvbox)
             group.insert(radio)
             act = RadioAction(radio, mp)
             act.connect(self, "_mp", mp)
@@ -795,7 +796,7 @@ class MountPointSelector(object):
         mp = None
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 mp = self._mp
                 break
             mp = None

@@ -21,7 +21,8 @@
 #
 from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import re
 
 TARGETRE = re.compile(r"^\s*(\S+?)\s*(?:([<>=]+)\s*(\S+))?\s*$")
@@ -30,15 +31,15 @@ class QtFlags(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(None)
+        self._window = QtGui.QDialog(None)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("Flags"))
         self._window.setModal(True)
         
         self._window.setMinimumSize(600, 400)
 
-        layout = qt.QVBoxLayout(self._window)
-        layout.setResizeMode(qt.QLayout.FreeResize)
+        layout = QtGui.QVBoxLayout(self._window)
+        layout.setResizeMode(QtGui.QLayout.FreeResize)
 
         topvbox = qt.QVBox(self._window)
         topvbox.setMargin(10)
@@ -56,10 +57,10 @@ class QtFlags(object):
         vbox.setInsideSpacing(10)
         vbox.show()
 
-        self._flagsview = qt.QListView(vbox)
+        self._flagsview = QtGui.QTableWidget(vbox)
         self._flagsview.show()
 
-        qt.QObject.connect(self._flagsview, qt.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
+        QtCore.QObject.connect(self._flagsview, QtCore.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
 
         self._flagsview.addColumn(_("Flags"))
 
@@ -70,16 +71,16 @@ class QtFlags(object):
 
         button = qt.QPushButton(_("New"), bbox)
         button.setEnabled(True)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-add")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newFlag)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newFlag)
         self._newflag = button
 
-        button = qt.QPushButton(_("Delete"), bbox)
+        button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-delete")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delFlag)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delFlag)
         self._delflag = button
 
         # Right side
@@ -87,10 +88,10 @@ class QtFlags(object):
         vbox.setInsideSpacing(10)
         vbox.show()
 
-        self._targetsview = qt.QListView(vbox)
+        self._targetsview = QtGui.QTableWidget(vbox)
         self._targetsview.show()
 
-        qt.QObject.connect(self._targetsview, qt.SIGNAL("selectionChanged()"), self.targetSelectionChanged)
+        QtCore.QObject.connect(self._targetsview, QtCore.SIGNAL("selectionChanged()"), self.targetSelectionChanged)
 
         self._targetsview.addColumn(_("Targets"))
 
@@ -99,25 +100,25 @@ class QtFlags(object):
         bbox.setSpacing(10)
         bbox.show()
 
-        button = qt.QPushButton(_("New"), bbox)
+        button = QtGui.QPushButton(_("New"), bbox)
         button.setEnabled(False)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-add")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-add")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.newTarget)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newTarget)
         self._newtarget = button
 
-        button = qt.QPushButton(_("Delete"), bbox)
+        button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
-        button.setIconSet(qt.QIconSet(getPixmap("crystal-delete")))
+        button.setIcon(QtGui.QIcon(getPixmap("crystal-delete")))
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.delTarget)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delTarget)
         self._deltarget = button
 
 
         # Bottom
-        sep = qt.QFrame(topvbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(topvbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
         bbox = qt.QHBox(topvbox)
@@ -125,9 +126,9 @@ class QtFlags(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(_("Close"), bbox)
+        button = QtGui.QPushButton(_("Close"), bbox)
         button.show()
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
         
         button.setDefault(True)
 
@@ -147,10 +148,10 @@ class QtFlags(object):
             for name in namelst:
                 for relation, version in names[name]:
                     if relation and version:
-                        item = qt.QListViewItem(self._targetsview)
+                        item = QtGui.QTableWidgetItem(self._targetsview)
                         item.setText(0, "%s %s %s" % (name, relation, version))
                     else:
-                        qt.QListViewItem(self._targetsview).setText(0, name)
+                        QtGui.QTableWidgetItem(self._targetsview).setText(0, name)
 
     def show(self):
         self.fillFlags()
@@ -254,7 +255,7 @@ class FlagCreator(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Flag"))
         self._window.setModal(True)
@@ -269,27 +270,27 @@ class FlagCreator(object):
         table = qt.QGrid(2, vbox)
         table.setSpacing(10)
         
-        label = qt.QLabel(_("Name:"), table)
+        label = QtGui.QLabel(_("Name:"), table)
 
-        self._flag = qt.QLineEdit(table)
+        self._flag = QtGui.QLineEdit(table)
         self._flag.setMaxLength(20)
         self._flag.show()
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
-        bbox = qt.QHBox(vbox)
+        bbox = QtGui.QHBox(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(bbox.tr("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(bbox.tr("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
-        button = qt.QPushButton(bbox.tr("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(bbox.tr("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
         vbox.adjustSize()
         self._window.adjustSize()
@@ -302,7 +303,7 @@ class FlagCreator(object):
 
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 flag = str(self._flag.text()).strip()
                 if not flag:
                     iface.error(_("No flag name provided!"))
@@ -319,7 +320,7 @@ class TargetCreator(object):
 
     def __init__(self, parent=None):
 
-        self._window = qt.QDialog(parent)
+        self._window = QtGui.QDialog(parent)
         self._window.setIcon(getPixmap("smart"))
         self._window.setCaption(_("New Target"))
         self._window.setModal(True)
@@ -335,20 +336,20 @@ class TargetCreator(object):
         table.setSpacing(10)
         table.show()
         
-        label = qt.QLabel(_("Target:"), table)
+        label = QtGui.QLabel(_("Target:"), table)
 
-        self._target = qt.QLineEdit(table)
+        self._target = QtGui.QLineEdit(table)
         self._target.setMaxLength(40)
         self._target.show()
 
-        blank = qt.QWidget(table)
+        blank = QtGui.QWidget(table)
 
-        label = qt.QLabel(_("Examples: \"pkgname\", \"pkgname = 1.0\" or "
+        label = QtGui.QLabel(_("Examples: \"pkgname\", \"pkgname = 1.0\" or "
                             "\"pkgname <= 1.0\""), table)
 
-        sep = qt.QFrame(vbox)
-        sep.setFrameShape(qt.QFrame.HLine)
-        sep.setFrameShadow(qt.QFrame.Sunken)
+        sep = QtGui.QFrame(vbox)
+        sep.setFrameShape(QtGui.QFrame.HLine)
+        sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
         bbox = qt.QHBox(vbox)
@@ -356,11 +357,11 @@ class TargetCreator(object):
         bbox.layout().addStretch(1)
         bbox.show()
 
-        button = qt.QPushButton(bbox.tr("OK"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("accept()"))
+        button = QtGui.QPushButton(bbox.tr("OK"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
 
-        button = qt.QPushButton(bbox.tr("Cancel"), bbox)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._window, qt.SLOT("reject()"))
+        button = QtGui.QPushButton(bbox.tr("Cancel"), bbox)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
 
         vbox.adjustSize()
         self._window.adjustSize()
@@ -373,7 +374,7 @@ class TargetCreator(object):
 
         while True:
             self._result = self._window.exec_loop()
-            if self._result == qt.QDialog.Accepted:
+            if self._result == QtGui.QDialog.Accepted:
                 target = str(self._target.text()).strip()
                 if not target:
                     iface.error(_("No target provided!"))

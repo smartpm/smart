@@ -22,7 +22,8 @@
 from smart.const import ERROR, WARNING, DEBUG
 from smart.interfaces.qt4 import getPixmap
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import locale
 
 try:
@@ -30,33 +31,33 @@ try:
 except locale.Error:
     ENCODING = "C"
 
-class BackgroundScrollView(qt.QScrollView):
+class BackgroundScrollView(QtGui.QScrollArea):
     def __init__(self, parent):
-        qt.QScrollView.__init__(self, parent)
+        QtGui.QScrollArea.__init__(self, parent)
         self.setSizePolicy(
-            qt.QSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Expanding))
+            QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
 
     def drawContents(self, *args):
         if len(args)==1:
-            return apply(qt.QFrame.drawContents, (self,)+args)
+            return apply(QtGui.QFrame.drawContents, (self,)+args)
         else:
             painter, clipx, clipy, clipw, cliph = args
         color = self.eraseColor()
-        painter.fillRect(clipx, clipy, clipw, cliph, qt.QBrush(color))
-        qt.QScrollView.drawContents(self, painter, clipx, clipy, clipw, cliph)
+        painter.fillRect(clipx, clipy, clipw, cliph, QtGui.QBrush(color))
+        QtGui.QScrollArea.drawContents(self, painter, clipx, clipy, clipw, cliph)
 
-class QtLog(qt.QDialog):
+class QtLog(QtGui.QDialog):
 
     def __init__(self, parent=None):
-        qt.QDialog.__init__(self, parent)
+        QtGui.QDialog.__init__(self, parent)
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Log"))
         self.setMinimumSize(400, 300)
         #self.setModal(True)
 
-        layout = qt.QVBoxLayout(self)
-        layout.setResizeMode(qt.QLayout.FreeResize)
+        layout = QtGui.QVBoxLayout(self)
+        layout.setResizeMode(QtGui.QLayout.FreeResize)
 
         self._vbox = qt.QVBox(self)
         self._vbox.setMargin(10)
@@ -66,13 +67,13 @@ class QtLog(qt.QDialog):
         layout.add(self._vbox)
 
         self._scrollview = BackgroundScrollView(self._vbox)
-        self._scrollview.setVScrollBarMode(qt.QScrollView.AlwaysOn)
-        self._scrollview.setFrameStyle(qt.QFrame.StyledPanel | qt.QFrame.Sunken)
+        self._scrollview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self._scrollview.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
         self._scrollview.show()
 
-        self._textview = qt.QLabel(self._scrollview.viewport())
-        self._textview.setAlignment(qt.Qt.AlignTop)
-        self._textview.setTextFormat(qt.Qt.LogText)
+        self._textview = QtGui.QLabel(self._scrollview.viewport())
+        self._textview.setAlignment(QtCore.Qt.AlignTop)
+        self._textview.setTextFormat(QtCore.Qt.LogText)
         self._textview.show()
         self._textview.adjustSize()
         
@@ -83,13 +84,13 @@ class QtLog(qt.QDialog):
         self._buttonbox.layout().addStretch(1)
         self._buttonbox.show()
 
-        self._clearbutton = qt.QPushButton(_("Clear"), self._buttonbox)
+        self._clearbutton = QtGui.QPushButton(_("Clear"), self._buttonbox)
         self._clearbutton.show()
-        qt.QObject.connect(self._clearbutton, qt.SIGNAL("clicked()"), self.clearText)
+        QtCore.QObject.connect(self._clearbutton, QtCore.SIGNAL("clicked()"), self.clearText)
 
-        self._closebutton = qt.QPushButton(_("Close"), self._buttonbox)
+        self._closebutton = QtGui.QPushButton(_("Close"), self._buttonbox)
         self._closebutton.show()
-        qt.QObject.connect(self._closebutton, qt.SIGNAL("clicked()"), self, qt.SLOT("hide()"))
+        QtCore.QObject.connect(self._closebutton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("hide()"))
 
         self._closebutton.setDefault(True)
 
@@ -97,7 +98,7 @@ class QtLog(qt.QDialog):
         self._textview.clear()
     
     def isVisible(self):
-        return qt.QDialog.isVisible(self)
+        return QtGui.QDialog.isVisible(self)
 
     def message(self, level, msg):
         prefix = {ERROR: _("error"), WARNING: _("warning"),
@@ -115,6 +116,6 @@ class QtLog(qt.QDialog):
         self._textview.adjustSize()
 
         if level == ERROR:
-            response = qt.QMessageBox.critical(self, "", msg)
+            response = QtGui.QMessageBox.critical(self, "", msg)
         else:
             self.show()

@@ -36,7 +36,8 @@ from smart.cache import Package
 from smart import *
 import shlex, re
 import fnmatch
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 
 MENUBAR = [
     ( "file", [
@@ -182,64 +183,64 @@ def compileActions(group, actions, globals):
         #        globals["action"] = action
         #        exec code in globals
         #    action[5] = callback
-        act = qt.QAction(group, action[0])
+        act = QtGui.QAction(group, action[0])
         act.setText(action[0])
         act.setMenuText(action[2].replace("_","&"))
         if len(action) > 4:
             act.setToolTip(action[4])
         if len(action) > 5 and type(action[5]) is not str:
-            qt.QObject.connect(act, qt.SIGNAL("activated()") , action[5])
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()") , action[5])
         if action[0] == "find": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.toggleSearch)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.toggleSearch)
         if action[0] == "update-selected-channels": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.selectedChannels)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.selectedChannels)
         if action[0] == "update-channels": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.allChannels)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.allChannels)
         if action[0] == "rebuild-cache": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.rebuildCache)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.rebuildCache)
         if action[0] == "upgrade-all": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.upgradeAll)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.upgradeAll)
         if action[0] == "exec-changes": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.applyChanges)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.applyChanges)
         if action[0] == "clear-changes": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.clearChanges)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.clearChanges)
         if action[0] == "expand-all": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.expandPackages)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.expandPackages)
         if action[0] == "collapse-all": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.collapsePackages)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.collapsePackages)
         if action[0] == "edit-channels": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editChannels)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.editChannels)
         if action[0] == "edit-mirrors": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editMirrors)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.editMirrors)
         if action[0] == "edit-flags": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editFlags)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.editFlags)
         if action[0] == "edit-priorities": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.editPriorities)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.editPriorities)
         if action[0] == "summary-window": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showChanges)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.showChanges)
         if action[0] == "log-window": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showLog)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.showLog)
         if action[0] == "about": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showAbout)
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.showAbout)
         if action[0] == "quit": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), app, qt.SLOT("quit()"))
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), app, QtCore.SLOT("quit()"))
         group.add(act)
         #newactions[action[0]] = tuple(action)
         newactions[action[0]] = act
@@ -252,23 +253,23 @@ class QtInteractiveInterface(QtInterface):
 
         self._changeset = None
 
-        self._window = qt.QMainWindow()
+        self._window = QtGui.QMainWindow()
         self._window.setCaption("Smart Package Manager %s" % VERSION)
         centerWindow(self._window)
         self._window.setMinimumSize(640, 480)
-        app.connect(app, qt.SIGNAL('lastWindowClosed()'), app, qt.SLOT('quit()'))
+        app.connect(app, QtCore.SIGNAL('lastWindowClosed()'), app, QtCore.SLOT('quit()'))
 
         self._undo = []
         self._redo = []
 
-        globals = {"self": self, "qt": qt}
-        group = qt.QActionGroup(self._window, "Actions")
+        globals = {"self": self, "QtGui": QtGui, "QtCore": QtCore}
+        group = QtGui.QActionGroup(self._window, "Actions")
         self._actions = compileActions(group, ACTIONS, globals)
 
-        class ToggleAction(qt.QAction):
+        class ToggleAction(QtGui.QAction):
         
             def __init__(self, group, name, label):
-                qt.QAction.__init__(self, group, name)
+                QtGui.QAction.__init__(self, group, name)
                 self.setToggleAction(True)
                 self.setMenuText(label.replace("&","&&"))
                 self._name = name
@@ -276,7 +277,7 @@ class QtInteractiveInterface(QtInterface):
             def connect(self, signal, callback, userdata):
                 self._callback = callback
                 self._userdata = userdata
-                qt.QObject.connect(self, qt.SIGNAL(signal), self.slot)
+                QtCore.QObject.connect(self, QtCore.SIGNAL(signal), self.slot)
             
             def slot(self):
                 self._callback(self._userdata)
@@ -307,7 +308,7 @@ class QtInteractiveInterface(QtInterface):
              def insertmenu(menubar, menu):
                 item = menu[0]
                 action = self._actions[item]
-                m = qt.QPopupMenu(menubar)
+                m = QtGui.QMenu(menubar)
                 text = action.menuText()
                 menubar.insertItem(text, m)
                 for item in menu[1]:
@@ -315,7 +316,7 @@ class QtInteractiveInterface(QtInterface):
                         insertmenu(m, item)
                     elif item:
                         action = self._actions[item]
-                        #i = qt.QPopupMenu(m)
+                        #i = QtGui.QMenu(m)
                         #text = action.menuText()
                         #m.insertItem(text, i)
                         action.addTo(m)
@@ -323,16 +324,13 @@ class QtInteractiveInterface(QtInterface):
                         m.insertSeparator()
              insertmenu(self._menubar, MENU)
 
-        self._toolbar = qt.QToolBar(self._window)
+        self._toolbar = QtGui.QToolBar(self._window)
         for TOOL in TOOLBAR:
             def inserttool(toolbar, tool):
                 if tool:
                     action = self._actions[tool]
-                    #b = qt.QToolButton(toolbar, TOOL)
-                    #b.setTextLabel(action.toolTip())
                     pixmap = getPixmap(TOOLBARICONS[tool])
-                    #b.setIconSet(qt.QIconSet(pixmap))
-                    action.setIconSet(qt.QIconSet(pixmap))
+                    action.setIcon(QtGui.QIcon(pixmap))
                     action.addTo(toolbar)
                 else:
                     toolbar.addSeparator()
@@ -340,11 +338,11 @@ class QtInteractiveInterface(QtInterface):
 
         #self._window.add_accel_group(self._ui.get_accel_group())
 
-        self._actions["exec-changes"].setAccel(qt.QKeySequence("Ctrl+C"))
-        self._actions["find"].setAccel(qt.QKeySequence("Ctrl+F"))
-        self._actions["expand-all"].setAccel(qt.QKeySequence("Ctrl+O"))
-        self._actions["collapse-all"].setAccel(qt.QKeySequence("Ctrl+W"))
-        self._actions["summary-window"].setAccel(qt.QKeySequence("Ctrl+S"))
+        self._actions["exec-changes"].setShortcut(QtGui.QKeySequence("Ctrl+C"))
+        self._actions["find"].setShortcut(QtGui.QKeySequence("Ctrl+F"))
+        self._actions["expand-all"].setShortcut(QtGui.QKeySequence("Ctrl+O"))
+        self._actions["collapse-all"].setShortcut(QtGui.QKeySequence("Ctrl+W"))
+        self._actions["summary-window"].setShortcut(QtGui.QKeySequence("Ctrl+S"))
 
         self._actions["exec-changes"].setEnabled(False)
         self._actions["clear-changes"].setEnabled(False)
@@ -353,39 +351,39 @@ class QtInteractiveInterface(QtInterface):
 
         # Search bar
 
-        self._searchbar = qt.QToolBar(self._window)
+        self._searchbar = QtGui.QToolBar(self._window)
         self._searchbar.hide()
        
-        label = qt.QLabel(_("Search:"), self._searchbar)
+        label = QtGui.QLabel(_("Search:"), self._searchbar)
         label.show()
-
-        self._searchentry = qt.QLineEdit(self._searchbar)
-        qt.QObject.connect(self._searchentry, qt.SIGNAL("returnPressed()"), self.refreshPackages)
+  
+        self._searchentry = QtGui.QLineEdit(self._searchbar)
+        QtCore.QObject.connect(self._searchentry, QtCore.SIGNAL("returnPressed()"), self.refreshPackages)
         self._searchentry.show()
 
-        button = qt.QPushButton(self._searchbar)
-        qt.QObject.connect(button, qt.SIGNAL("clicked()"), self.refreshPackages)
+        button = QtGui.QPushButton(self._searchbar)
+        QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.refreshPackages)
         pixmap = getPixmap("crystal-search")
-        button.setIconSet(qt.QIconSet(pixmap))
+        button.setIcon(QtGui.QIcon(pixmap))
         button.show()
 
-        buttongroup = qt.QButtonGroup(self._searchbar)
+        buttongroup = QtGui.QButtonGroup(self._searchbar)
         buttongroup.hide()
         
-        self._searchname = qt.QRadioButton(_("Automatic"), self._searchbar)
+        self._searchname = QtGui.QRadioButton(_("Automatic"), self._searchbar)
         self._searchname.setChecked(True)
-        qt.QObject.connect(self._searchname, qt.SIGNAL("clicked()"), self.refreshPackages)
+        QtCore.QObject.connect(self._searchname, QtCore.SIGNAL("clicked()"), self.refreshPackages)
         buttongroup.insert(self._searchname)
         self._searchname.show()
-        self._searchdesc = qt.QRadioButton(_("Description"), self._searchbar)
+        self._searchdesc = QtGui.QRadioButton(_("Description"), self._searchbar)
         self._searchdesc.setChecked(False)
-        qt.QObject.connect(self._searchdesc, qt.SIGNAL("clicked()"), self.refreshPackages)
+        QtCore.QObject.connect(self._searchdesc, QtCore.SIGNAL("clicked()"), self.refreshPackages)
         self._searchdesc.show()
         buttongroup.insert(self._searchdesc)
 
         # Packages and information
 
-        self._splitter = qt.QSplitter(qt.Qt.Vertical, self._window)
+        self._splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self._window)
         self._window.setCentralWidget(self._splitter)
         
         self._pv = QtPackageView(self._splitter)
@@ -393,9 +391,9 @@ class QtInteractiveInterface(QtInterface):
 
         self._pi = QtPackageInfo(self._splitter)
         self._pi.show()
-        qt.QObject.connect(self._pv, qt.PYSIGNAL("packageSelected"), self._pi.setPackage)
-        qt.QObject.connect(self._pv, qt.PYSIGNAL("packageActivated"), self.actOnPackages)
-        qt.QObject.connect(self._pv, qt.PYSIGNAL("packagePopup"), self.packagePopup)
+        QtCore.QObject.connect(self._pv, QtCore.SIGNAL("packageSelected"), self._pi.setPackage)
+        QtCore.QObject.connect(self._pv, QtCore.SIGNAL("packageActivated"), self.actOnPackages)
+        QtCore.QObject.connect(self._pv, QtCore.SIGNAL("packagePopup"), self.packagePopup)
 
         self._status = self._window.statusBar()
         self._status.show()
@@ -423,7 +421,7 @@ class QtInteractiveInterface(QtInterface):
     # Non-standard interface methods:
 
     def saveState(self):
-        # Note: qt.QSize and qt.QPoint are not pickleable, unfortunately
+        # Note: QtCore.QSize and QtCore.QPoint are not pickleable, unfortunately
         sysconf.set("qt-size", (self._window.width(),self._window.height()))
         sysconf.set("qt-position", (self._window.x(),self._window.y()))
         sysconf.set("qt-splitter-sizes", self._splitter.sizes())
@@ -595,7 +593,7 @@ class QtInteractiveInterface(QtInterface):
 
     def packagePopup(self, packageview, pkgs, pnt):
         
-        menu = qt.QPopupMenu(packageview)
+        menu = QtGui.QMenu(packageview)
         menu.move(pnt)
         
         hasinstalled = bool([pkg for pkg in pkgs if pkg.installed
@@ -619,34 +617,34 @@ class QtInteractiveInterface(QtInterface):
 
         action = PackagesAction(pkgs)
 
-        iconset = qt.QIconSet(getPixmap("package-install"))
+        iconset = QtGui.QIcon(getPixmap("package-install"))
         item = menu.insertItem(iconset, _("Install"), action.slot)
         action.connect(item, self.actOnPackages, INSTALL)
         if not hasnoninstalled:
             menu.setItemEnabled(item, False)
 
-        iconset = qt.QIconSet(getPixmap("package-reinstall"))
+        iconset = QtGui.QIcon(getPixmap("package-reinstall"))
         item = menu.insertItem(iconset, _("Reinstall"), action.slot)
         action.connect(item, self.actOnPackages, REINSTALL)
         if not hasinstalled:
             menu.setItemEnabled(item, False)
 
-        iconset = qt.QIconSet(getPixmap("package-remove"))
+        iconset = QtGui.QIcon(getPixmap("package-remove"))
         item = menu.insertItem(iconset, _("Remove"), action.slot)
         action.connect(item, self.actOnPackages, REMOVE)
         if not hasinstalled:
             menu.setItemEnabled(item, False)
 
         if not hasinstalled:
-            iconset = qt.QIconSet(getPixmap("package-available"))
+            iconset = QtGui.QIcon(getPixmap("package-available"))
         else:
-            iconset = qt.QIconSet(getPixmap("package-installed"))
+            iconset = QtGui.QIcon(getPixmap("package-installed"))
         item = menu.insertItem(iconset, _("Keep"), action.slot)
         action.connect(item, self.actOnPackages, KEEP)
         if not [pkg for pkg in pkgs if pkg in self._changeset]:
             menu.setItemEnabled(item, False)
 
-        iconset = qt.QIconSet(getPixmap("package-broken"))
+        iconset = QtGui.QIcon(getPixmap("package-broken"))
         item = menu.insertItem(iconset, _("Fix problems"), action.slot)
         action.connect(item, self.actOnPackages, FIX)
         if not hasinstalled:
@@ -678,16 +676,16 @@ class QtInteractiveInterface(QtInterface):
 
         if thislocked:
             if not hasnoninstalled:
-                iconset = qt.QIconSet(getPixmap("package-installed"))
+                iconset = QtGui.QIcon(getPixmap("package-installed"))
             else:
-                iconset = qt.QIconSet(getPixmap("package-available"))
+                iconset = QtGui.QIcon(getPixmap("package-available"))
             item = menu.insertItem(iconset, _("Unlock this version"), lockaction.slot)
             lockaction.connect(item, self.lockPackages, False)
         else:
             if not hasnoninstalled:
-                iconset = qt.QIconSet(getPixmap("package-installed-locked"))
+                iconset = QtGui.QIcon(getPixmap("package-installed-locked"))
             else:
-                iconset = qt.QIconSet(getPixmap("package-available-locked"))
+                iconset = QtGui.QIcon(getPixmap("package-available-locked"))
             item = menu.insertItem(iconset, _("Lock this version"), lockaction.slot)
             lockaction.connect(item, self.lockPackages, True)
         if inconsistent:
@@ -697,16 +695,16 @@ class QtInteractiveInterface(QtInterface):
 
         if alllocked:
             if not hasnoninstalled:
-                iconset = qt.QIconSet(getPixmap("package-installed"))
+                iconset = QtGui.QIcon(getPixmap("package-installed"))
             else:
-                iconset = qt.QIconSet(getPixmap("package-available"))
+                iconset = QtGui.QIcon(getPixmap("package-available"))
             item = menu.insertItem(iconset, _("Unlock all versions"), lockallaction.slot)
             lockallaction.connect(item, self.lockAllPackages, False)
         else:
             if not hasnoninstalled:
-                iconset = qt.QIconSet(getPixmap("package-installed-locked"))
+                iconset = QtGui.QIcon(getPixmap("package-installed-locked"))
             else:
-                iconset = qt.QIconSet(getPixmap("package-available-locked"))
+                iconset = QtGui.QIcon(getPixmap("package-available-locked"))
             item = menu.insertItem(iconset, _("Lock all versions"), lockallaction.slot)
             lockallaction.connect(item, self.lockAllPackages, True)
         if inconsistent:
@@ -781,11 +779,11 @@ class QtInteractiveInterface(QtInterface):
 
     def setBusy(self, flag):
         if flag:
-            qt.QApplication.setOverrideCursor( qt.QCursor(qt.Qt.WaitCursor) )
-            while qt.QApplication.eventLoop().hasPendingEvents():
-                qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+            QtGui.QApplication.setOverrideCursor( QtGui.QCursor(QtCore.Qt.WaitCursor) )
+            while QtGui.QApplication.eventLoop().hasPendingEvents():
+                QtGui.QApplication.eventLoop().processEvents(QtGui.QEventLoop.AllEvents)
         else:
-            qt.QApplication.restoreOverrideCursor()
+            QtGui.QApplication.restoreOverrideCursor()
 
     def changedMarks(self, pkgs=[]):
         if "hide-unmarked" in self._filters:
@@ -963,7 +961,7 @@ class QtInteractiveInterface(QtInterface):
             ]
         website = "http://labix.org/smart"    
 
-        qt.QMessageBox.about(self._window, "About " + "Smart Package Manager",
+        QtGui.QMessageBox.about(self._window, "About " + "Smart Package Manager",
             "<h2>" + "Smart Package Manager" + " " + VERSION + "</h2>" + \
             "<p>Copyright &copy; " + "2006 Canonical, 2004 Conectiva, Inc." + \
             "<p><small>" + license + "</small>" + \

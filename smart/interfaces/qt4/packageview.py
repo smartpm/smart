@@ -22,35 +22,36 @@
 from smart.interfaces.qt4 import getPixmap
 from smart.const import INSTALL, REMOVE
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 
-class PackageListViewItem(qt.QListViewItem):
+class PackageListViewItem(QtGui.QTreeWidgetItem):
     def __init__(self, parent, package = None):
-        qt.QListViewItem.__init__(self, parent)
+        QtGui.QTreeWidgetItem.__init__(self, parent)
         self._pkg = package
 
-class QtPackageView(qt.QWidget):
+class QtPackageView(QtGui.QWidget):
 
     def __init__(self, parent=None):
-        qt.QWidget.__init__(self, parent)
+        QtGui.QWidget.__init__(self, parent)
 
         self.show()
         self._expandpackage = False
 
         self._changeset = {}
-        self._vbox = qt.QVBoxLayout(self)
+        self._vbox = QtGui.QVBoxLayout(self)
         
-        self._treeview = qt.QListView(self)
-        qt.QObject.connect(self._treeview, qt.SIGNAL("clicked(QListViewItem *, const QPoint &, int)"), self._clicked)
-        qt.QObject.connect(self._treeview, qt.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self._doubleClicked)
-        qt.QObject.connect(self._treeview, qt.SIGNAL("rightButtonPressed(QListViewItem *, const QPoint &, int)"), self._rightButtonPressed)
-        qt.QObject.connect(self._treeview, qt.SIGNAL("selectionChanged()"), self._selectionChanged)
+        self._treeview = QtGui.QTreeWidget(self)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("clicked(QListViewItem *, const QPoint &, int)"), self._clicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self._doubleClicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("rightButtonPressed(QListViewItem *, const QPoint &, int)"), self._rightButtonPressed)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self._selectionChanged)
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.setRootIsDecorated(True)
         self._treeview.show()
         self._vbox.addWidget(self._treeview)
         
-        self._treeview.setSelectionMode(qt.QListView.Extended)
+        self._treeview.setSelectionMode(QtGui.QTreeView.Extended)
         
         self._treeview.addColumn("") # pixmap
         self._treeview.addColumn(_("Package"))
@@ -288,9 +289,9 @@ class QtPackageView(qt.QWidget):
          if not self._expandpackage and hasattr(value, "name"):
              pkgs = self.getSelectedPkgs()
              if len(pkgs) > 1:
-                 self.emit(qt.PYSIGNAL("packageActivated"), (pkgs, ))
+                 self.emit(QtCore.SIGNAL("packageActivated"), pkgs)
              else:
-                 self.emit(qt.PYSIGNAL("packageActivated"), ([value], ))
+                 self.emit(QtCore.SIGNAL("packageActivated"), [value])
 
     def _rightButtonPressed(self, item, pnt, c):
          if not item:
@@ -299,22 +300,22 @@ class QtPackageView(qt.QWidget):
          if item and hasattr(value, "name"):
              pkgs = self.getSelectedPkgs()
              if len(pkgs) > 1:
-                 self.emit(qt.PYSIGNAL("packagePopup"), (self, pkgs, pnt))
+                 self.emit(QtCore.SIGNAL("packagePopup"), self, pkgs, pnt)
              else:
-                 self.emit(qt.PYSIGNAL("packagePopup"), (self, [value], pnt))
+                 self.emit(QtCore.SIGNAL("packagePopup"), self, [value], pnt)
 
     def _clicked(self, item, pnt, c):
         if not item:
             return
         value = item._pkg
         if c == 0 and hasattr(value, "name"):
-            self.emit(qt.PYSIGNAL("packageActivated"), ([value], ))
+            self.emit(QtCore.SIGNAL("packageActivated"), [value])
 
     def _selectionChanged(self):
         item = self._treeview.currentItem()
         if item and hasattr(item._pkg, "name"):
-            self.emit(qt.PYSIGNAL("packageSelected"), (item._pkg, ))
+            self.emit(QtCore.SIGNAL("packageSelected"), item._pkg)
         else:
-            self.emit(qt.PYSIGNAL("packageSelected"), (None, ))
+            self.emit(QtCore.SIGNAL("packageSelected"), None)
 
 # vim:ts=4:sw=4:et

@@ -26,27 +26,20 @@ from smart.interface import Interface, getScreenWidth
 from smart.fetcher import Fetcher
 from smart.const import DEBUG
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import sys
 
 
-app = qt.QApplication(sys.argv)
+app = QtGui.QApplication(sys.argv)
 
 class QtInterface(Interface):
-
-    def _currentThread(self):
-        if hasattr(qt, 'QThread'):
-            return qt.QThread.currentThread()
-        else:
-            return None
 
     def __init__(self, ctrl, argv):
         Interface.__init__(self, ctrl)
         self._log = QtLog()
         self._progress = QtProgress(False)
-        self._progress.setMainThread(self._currentThread())
         self._hassubprogress = QtProgress(True)
-        self._hassubprogress.setMainThread(self._currentThread())
         self._changes = QtChanges()
         self._window = None
         self._sys_excepthook = sys.excepthook
@@ -58,10 +51,10 @@ class QtInterface(Interface):
         return result
 
     def eventsPending(self):
-        return qt.QApplication.eventLoop().hasPendingEvents()
+        return QtGui.QApplication.eventLoop().hasPendingEvents()
     
     def processEvents(self):
-        qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+        QtGui.QApplication.eventLoop().processEvents(QtGui.QEventLoop.AllEvents)
 
     def getProgress(self, obj, hassub=False):
         if hassub:
@@ -77,22 +70,22 @@ class QtInterface(Interface):
         return self._hassubprogress
 
     def askYesNo(self, question, default=False):
-        response = qt.QMessageBox.question(self._window,
+        response = QtGui.QMessageBox.question(self._window,
                                         _("Question..."),
                                         question,
-                                        qt.QMessageBox.Yes,
-                                        qt.QMessageBox.No)
+                                        QtGui.QMessageBox.Yes,
+                                        QtGui.QMessageBox.No)
 
 
-        if response == qt.QMessageBox.Yes:
+        if response == QtGui.QMessageBox.Yes:
             return True
-        elif response == qt.QMessageBox.No:
+        elif response == QtGui.QMessageBox.No:
             return False
         else:
             return default
 
     def askContCancel(self, question, default=False):
-        response = qt.QMessageBox.question(self._window,
+        response = QtGui.QMessageBox.question(self._window,
                                    _("Question..."),
                                    question,
                                    _("Continue"),
@@ -109,16 +102,16 @@ class QtInterface(Interface):
             return default
 
     def askOkCancel(self, question, default=False):
-        response = qt.QMessageBox.question(self._window,
+        response = QtGui.QMessageBox.question(self._window,
                                    _("Question..."),
                                    question,
-                                   qt.QMessageBox.Ok,
-                                   qt.QMessageBox.Cancel)
+                                   QtGui.QMessageBox.Ok,
+                                   QtGui.QMessageBox.Cancel)
 
         
-        if response == qt.QMessageBox.Ok:
+        if response == QtGui.QMessageBox.Ok:
             return True
-        elif response == qt.QMessageBox.Cancel:
+        elif response == QtGui.QMessageBox.Cancel:
             return False
         else:
             return default
@@ -129,11 +122,11 @@ class QtInterface(Interface):
         else:
             stringToShow = prompt
         if echo:
-            echoMode = qt.QLineEdit.Normal
+            echoMode = QtGui.QLineEdit.Normal
         else:
-            echoMode = qt.QLineEdit.Password
+            echoMode = QtGui.QLineEdit.Password
 
-        text, ok = qt.QInputDialog.getText( _("Input"), stringToShow, echoMode)
+        text, ok = QtGui.QInputDialog.getText(None, _("Input"), stringToShow, echoMode)
                 
         if (ok and text != None):
             return text[0:widthchars]

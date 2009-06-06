@@ -24,12 +24,13 @@ from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart.util.strtools import sizeToStr
 from smart.report import Report
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 
-class QtChanges(qt.QDialog):
+class QtChanges(QtGui.QDialog):
 
     def __init__(self, parent=None):
-        qt.QDialog.__init__(self, parent)
+        QtGui.QDialog.__init__(self, parent)
 
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Change Summary"))
@@ -37,11 +38,11 @@ class QtChanges(qt.QDialog):
         self.setMinimumSize(600, 400)
         centerWindow(self)
         
-        self._vbox = qt.QVBoxLayout(self)
+        self._vbox = QtGui.QVBoxLayout(self)
         self._vbox.setMargin(10)
         self._vbox.setSpacing(10)
 
-        self._label = qt.QLabel(self)
+        self._label = QtGui.QLabel(self)
         self._vbox.addWidget(self._label)
 
         self._pv = QtPackageView(self)
@@ -50,7 +51,7 @@ class QtChanges(qt.QDialog):
         self._pv.show()
         self._vbox.addWidget(self._pv)
 
-        self._sizelabel = qt.QLabel("", self)
+        self._sizelabel = QtGui.QLabel("", self)
         self._vbox.addWidget(self._sizelabel)
 
         self._confirmbbox = qt.QHBox(self)
@@ -58,18 +59,18 @@ class QtChanges(qt.QDialog):
         self._confirmbbox.layout().addStretch(1)
         self._vbox.addWidget(self._confirmbbox)
 
-        self._cancelbutton = qt.QPushButton(_("Cancel"), self._confirmbbox)
-        qt.QObject.connect( self._cancelbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("reject()"))
-        self._okbutton = qt.QPushButton(_("OK"), self._confirmbbox)
-        qt.QObject.connect( self._okbutton, qt.SIGNAL("clicked()"), self, qt.SLOT("accept()"))
+        self._cancelbutton = QtGui.QPushButton(_("Cancel"), self._confirmbbox)
+        QtCore.QObject.connect( self._cancelbutton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("reject()"))
+        self._okbutton = QtGui.QPushButton(_("OK"), self._confirmbbox)
+        QtCore.QObject.connect( self._okbutton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("accept()"))
 
         self._closebbox = qt.QHBox(self)
         self._closebbox.setSpacing(10)
         self._closebbox.layout().addStretch(1)
         self._vbox.addWidget(self._closebbox)
 
-        self._closebutton = qt.QPushButton(_("Close"), self._closebbox)
-        qt.QObject.connect( self._closebutton, qt.SIGNAL("clicked()"), self, qt.SLOT("close()"))
+        self._closebutton = QtGui.QPushButton(_("Close"), self._closebbox)
+        QtCore.QObject.connect( self._closebutton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("close()"))
         
     def showChangeSet(self, changeset, keep=None, confirm=False, label=None):
 
@@ -206,7 +207,7 @@ class QtChanges(qt.QDialog):
         self._result = False
         self.show()
         dialogResult = self.exec_loop()
-        self._result = (dialogResult == qt.QDialog.Accepted)
+        self._result = (dialogResult == QtGui.QDialog.Accepted)
 
         return self._result
 

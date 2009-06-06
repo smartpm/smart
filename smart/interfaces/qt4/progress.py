@@ -23,17 +23,18 @@ from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
 from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart import *
-import PyQt4 
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import posixpath
 import thread
 import time
 import sys
 
-class QtProgress(Progress, qt.QDialog):
+class QtProgress(Progress, QtGui.QDialog):
 
     def __init__(self, hassub, parent=None):
         Progress.__init__(self)
-        qt.QDialog.__init__(self, parent)
+        QtGui.QDialog.__init__(self, parent)
 
         self._hassub = hassub
         self._shorturl = ShortURL(50)
@@ -42,7 +43,6 @@ class QtProgress(Progress, qt.QDialog):
         self._fetcher = None
 
         self._beenshown = False
-        self._mainthread = None
 
         if hassub:
             self.setMinimumSize(500, 400)
@@ -52,28 +52,28 @@ class QtProgress(Progress, qt.QDialog):
         self.setIcon(getPixmap("smart"))
         self.setCaption(_("Operation Progress"))
 
-        vbox = qt.QVBoxLayout(self, 10, 10)
-        vbox.setResizeMode(qt.QLayout.FreeResize)
+        vbox = QtGui.QVBoxLayout(self, 10, 10)
+        vbox.setResizeMode(QtGui.QLayout.FreeResize)
         vbox.setMargin(10)
         vbox.setSpacing(10)
 
-        self._topic = qt.QLabel(self)
+        self._topic = QtGui.QLabel(self)
         vbox.addWidget(self._topic)
 
-        self._progressbar = qt.QProgressBar(self)
+        self._progressbar = QtGui.QProgressBar(self)
         self._progressbar.setPercentageVisible(True)
         self._progressbar.show()
         vbox.addWidget(self._progressbar)
 
         if hassub:
-            self._listview = qt.QListView(self)
+            self._listview = QtGui.QTableWidget(self)
             self._listview.setSorting(-1, False);
-            self._listview.setSelectionMode(qt.QListView.NoSelection )
+            self._listview.setSelectionMode(QtGui.QTableView.NoSelection )
             self._listview.show()
             vbox.addWidget(self._listview)
 
             column = self._listview.addColumn(_("Progress"))
-            self._listview.setColumnWidthMode(column, qt.QListView.Manual)
+            self._listview.setColumnWidthMode(column, QtGui.QTableView.Manual)
             self._listview.setColumnWidth(column, 55)
             column = self._listview.addColumn(_("Current"))
             self._currentcolumn = column
@@ -84,7 +84,7 @@ class QtProgress(Progress, qt.QDialog):
             column = self._listview.addColumn(_("ETA"))
             self._etacolumn = column
             column = self._listview.addColumn(_("Description"))
-            self._listview.setColumnWidthMode(column, qt.QListView.Manual)
+            self._listview.setColumnWidthMode(column, QtGui.QTableView.Manual)
             self._listview.setColumnWidth(column, 165)
             self._desccolumn = column
 
@@ -96,9 +96,9 @@ class QtProgress(Progress, qt.QDialog):
             self._bbox.layout().addStretch(1)
             vbox.addWidget(self._bbox)
             
-            button = qt.QPushButton(_("Cancel"), self._bbox)
+            button = QtGui.QPushButton(_("Cancel"), self._bbox)
             button.show()
-            qt.QObject.connect(button, qt.SIGNAL("clicked()"), self._cancel)
+            QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._cancel)
 
     def setFetcher(self, fetcher):
         if fetcher:
@@ -112,15 +112,11 @@ class QtProgress(Progress, qt.QDialog):
         if self._fetcher:
             self._fetcher.cancel()
 
-    def setMainThread(self, main):
-        self._mainthread = main
-
     def tick(self):
         while not self._stopticking:
             self.lock()
-            ## Note: it's NOT safe to call processEvents from threads other than main
-            #while qt.QApplication.eventLoop().hasPendingEvents():
-            #    qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+            #while QtGui.QApplication.instance().hasPendingEvents():
+            #    QtGui.QApplication.instance().processEvents()
             self.unlock()
             time.sleep(INTERVAL)
         self._ticking = False
@@ -152,20 +148,11 @@ class QtProgress(Progress, qt.QDialog):
 
         self._shorturl.reset()
 
-        qt.QDialog.hide(self)
-
-    def _currentThread(self):
-        if hasattr(qt, 'QThread'):
-            return qt.QThread.currentThread()
-        else:
-            return None
+        QtGui.QDialog.hide(self)
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
-        if self._currentThread() != self._mainthread:
-            # Note: it's NOT safe to use Qt from threads other than main
-            return
             
-        qt.QDialog.show(self)
+        QtGui.QDialog.show(self)
         if not self._beenshown:
             centerWindow(self)
             self._beenshown = True
@@ -212,15 +199,10 @@ class QtProgress(Progress, qt.QDialog):
             if self._hassub:
                 self._listview.update()
 
-        while qt.QApplication.eventLoop().hasPendingEvents():
-            qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
-
 def test():
     import sys, time
 
     prog = QtProgress(True)
-    if hasattr(qt, 'QThread'):
-        prog.setMainThread(qt.QThread.currentThread())
         
     data = {"item-number": 0}
     total, subtotal = 100, 100
@@ -233,14 +215,14 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            while qt.QApplication.eventLoop().hasPendingEvents():
-                qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+            while QtGui.QApplication.instance().hasPendingEvents():
+                QtGui.QApplication.instance().processEvents()
             time.sleep(0.01)
     prog.stop()
 
 
 if __name__ == "__main__":
-    app = qt.QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
     test()
 
 # vim:ts=4:sw=4:et
