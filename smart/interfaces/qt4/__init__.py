@@ -48,7 +48,7 @@ def getPixmap(name):
     if name not in _pixmap:
         filename = getImagePath(name)
         if os.path.isfile(filename):
-            pixmap = qt.QPixmap(filename)
+            pixmap = PyQt4.QtGui.QPixmap(filename)
             _pixmap[name] = pixmap
         else:
             raise Error, _("Image '%s' not found") % name
@@ -57,12 +57,12 @@ def getPixmap(name):
 def centerWindow(window):
     w = window.topLevelWidget()
     if w:
-        scrn = qt.QApplication.desktop().screenNumber(w)
-    elif qt.QApplication.desktop().isVirtualDesktop():
-        scrn = qt.QApplication.desktop().screenNumber(qt.QCursor.pos())
+        scrn = PyQt4.QtGui.QApplication.desktop().screenNumber(w)
+    elif PyQt4.QtGui.QApplication.desktop().isVirtualDesktop():
+        scrn = PyQt4.QtGui.QApplication.desktop().screenNumber(PyQt4.QtGui.QCursor.pos())
     else:
-        scrn = qt.QApplication.desktop().screenNumber(window)
-    desk = qt.QApplication.desktop().availableGeometry(scrn)
+        scrn = PyQt4.QtGui.QApplication.desktop().screenNumber(window)
+    desk = PyQt4.QtGui.QApplication.desktop().availableGeometry(scrn)
     window.move((desk.width() - window.frameGeometry().width()) / 2, \
                 (desk.height() - window.frameGeometry().height()) / 2)
 
