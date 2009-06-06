@@ -21,9 +21,9 @@
 #
 from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
-from smart.interfaces.qt import getPixmap, centerWindow
+from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart import *
-import qt
+import PyQt4 
 import posixpath
 import thread
 import time

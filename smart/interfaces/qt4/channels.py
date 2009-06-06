@@ -19,12 +19,12 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt import getPixmap, centerWindow
+from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart.util.strtools import strToBool
 from smart.const import NEVER
 from smart.channel import *
 from smart import *
-import qt
+import PyQt4 
 import textwrap
 import os
 

@@ -19,9 +19,9 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt import getPixmap, centerWindow
+from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart import *
-import qt
+import PyQt4 
 import re
 
 TARGETRE = re.compile(r"^\s*(\S+?)\s*(?:([<>=]+)\s*(\S+))?\s*$")

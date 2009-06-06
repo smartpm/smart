@@ -19,10 +19,10 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt4 import getPixmap
 from smart.const import INSTALL, REMOVE
 from smart import *
-import qt
+import PyQt4 
 
 class PackageListViewItem(qt.QListViewItem):
     def __init__(self, parent, package = None):

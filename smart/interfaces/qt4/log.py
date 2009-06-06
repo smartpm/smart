@@ -20,9 +20,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.const import ERROR, WARNING, DEBUG
-from smart.interfaces.qt import getPixmap
+from smart.interfaces.qt4 import getPixmap
 from smart import *
-import qt
+import PyQt4 
 import locale
 
 try:

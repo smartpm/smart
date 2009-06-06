@@ -19,10 +19,10 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt.packageview import QtPackageView
+from smart.interfaces.qt4.packageview import QtPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
-import qt
+import PyQt4 
 
 class BackgroundScrollView(qt.QScrollView):
     def __init__(self, parent):

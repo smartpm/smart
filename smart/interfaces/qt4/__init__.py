@@ -25,7 +25,7 @@ from smart import *
 import os
 
 try:
-    import qt
+    import PyQt4 
 except ImportError:
     from smart.const import DEBUG
     if sysconf.get("log-level") == DEBUG:
@@ -35,10 +35,10 @@ except ImportError:
 
 def create(ctrl, command=None, argv=None):
     if command:
-        from smart.interfaces.qt.command import QtCommandInterface
+        from smart.interfaces.qt4.command import QtCommandInterface
         return QtCommandInterface(ctrl)
     else:
-        from smart.interfaces.qt.interactive import QtInteractiveInterface
+        from smart.interfaces.qt4.interactive import QtInteractiveInterface
         return QtInteractiveInterface(ctrl)
 
 

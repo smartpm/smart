@@ -19,14 +19,14 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.interfaces.qt.progress import QtProgress
-from smart.interfaces.qt.changes import QtChanges
-from smart.interfaces.qt.log import QtLog
+from smart.interfaces.qt4.progress import QtProgress
+from smart.interfaces.qt4.changes import QtChanges
+from smart.interfaces.qt4.log import QtLog
 from smart.interface import Interface, getScreenWidth
 from smart.fetcher import Fetcher
 from smart.const import DEBUG
 from smart import *
-import qt
+import PyQt4 
 import sys
 
 

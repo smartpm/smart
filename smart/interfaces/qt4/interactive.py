@@ -22,21 +22,21 @@
 from smart.transaction import INSTALL, REMOVE, UPGRADE, REINSTALL, KEEP, FIX
 from smart.transaction import Transaction, ChangeSet, checkPackagesSimple
 from smart.transaction import PolicyInstall, PolicyRemove, PolicyUpgrade
-from smart.interfaces.qt.channels import QtChannels, QtChannelSelector
-from smart.interfaces.qt.mirrors import QtMirrors
-from smart.interfaces.qt.flags import QtFlags
-from smart.interfaces.qt.priorities import QtPriorities, QtSinglePriority
-from smart.interfaces.qt.packageview import QtPackageView
-from smart.interfaces.qt.packageinfo import QtPackageInfo
-from smart.interfaces.qt.interface import QtInterface, app
-from smart.interfaces.qt import getPixmap, centerWindow
+from smart.interfaces.qt4.channels import QtChannels, QtChannelSelector
+from smart.interfaces.qt4.mirrors import QtMirrors
+from smart.interfaces.qt4.flags import QtFlags
+from smart.interfaces.qt4.priorities import QtPriorities, QtSinglePriority
+from smart.interfaces.qt4.packageview import QtPackageView
+from smart.interfaces.qt4.packageinfo import QtPackageInfo
+from smart.interfaces.qt4.interface import QtInterface, app
+from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart.const import NEVER, VERSION
 from smart.searcher import Searcher
 from smart.cache import Package
 from smart import *
 import shlex, re
 import fnmatch
-import qt
+import PyQt4 
 
 MENUBAR = [
     ( "file", [
