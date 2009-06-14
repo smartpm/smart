@@ -161,7 +161,7 @@ class QtProgress(Progress, QtGui.QDialog):
         if not self._beenshown:
             centerWindow(self)
             self._beenshown = True
-        self.raiseW()
+        self.raise_()
         
         if self._hassub and subkey:
             if subkey in self._subiters:

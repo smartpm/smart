@@ -117,8 +117,8 @@ class QtMirrors(object):
         self.fill()
         self._window.show()
         centerWindow(self._window)
-        self._window.raiseW()
-        self._window.exec_loop()
+        self._window.raise_()
+        self._window.exec_()
         self._window.hide()
 
     def newMirror(self):
@@ -246,10 +246,10 @@ class MirrorCreator(object):
         origin = mirror = None
 
         self._window.show()
-        self._window.raiseW()
+        self._window.raise_()
 
         while True:
-            self._result = self._window.exec_loop()
+            self._result = self._window.exec_()
             if self._result == QtGui.QDialog.Accepted:
                 origin = str(self._origin.text()).strip()
                 if not origin:

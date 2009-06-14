@@ -157,9 +157,9 @@ class QtChannels(object):
         self.fill()
         self._window.show()
         centerWindow(self._window)
-        self._window.raiseW()
-        self._window.setActiveWindow()
-        self._window.exec_loop()
+        self._window.raise_()
+        self._window.activateWindow()
+        self._window.exec_()
         self._window.hide()
         self.enableDisable()
         return self._changed
@@ -400,8 +400,8 @@ class QtChannelSelector(object):
         self._result = False
         self._window.show()
         centerWindow(self._window)
-        self._window.raiseW()
-        self._result = self._window.exec_loop()
+        self._window.raise_()
+        self._result = self._window.exec_()
         self._window.hide()
 
         result = []
@@ -550,10 +550,10 @@ class ChannelEditor(object):
         self._window.adjustSize()
 
         self._window.show()
-        self._window.raiseW()
+        self._window.raise_()
 
         while True:
-            self._result = self._window.exec_loop()
+            self._result = self._window.exec_()
             if self._result == QtGui.QDialog.Accepted:
                 newchannel = {}
                 for key, label, ftype, default, descr in info.fields:
@@ -680,11 +680,11 @@ class TypeSelector(object):
         self._window.adjustSize()
 
         self._window.show()
-        self._window.raiseW()
+        self._window.raise_()
 
         type = None
         while True:
-            self._result = self._window.exec_loop()
+            self._result = self._window.exec_()
             if self._result == QtGui.QDialog.Accepted:
                 type = self._type
                 break
@@ -782,11 +782,11 @@ class MethodSelector(object):
     def show(self):
 
         self._window.show()
-        self._window.raiseW()
+        self._window.raise_()
 
         method = None
         while True:
-            self._result = self._window.exec_loop()
+            self._result = self._window.exec_()
             if self._result == QtGui.QDialog.Accepted:
                 method = self._method
                 break
@@ -874,11 +874,11 @@ class MountPointSelector(object):
             return self._mp
 
         self._window.show()
-        self._window.raiseW()
+        self._window.raise_()
 
         mp = None
         while True:
-            self._result = self._window.exec_loop()
+            self._result = self._window.exec_()
             if self._result == QtGui.QDialog.Accepted:
                 mp = self._mp
                 break

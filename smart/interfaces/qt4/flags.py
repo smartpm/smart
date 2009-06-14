@@ -185,8 +185,8 @@ class QtFlags(object):
         self.fillFlags()
         self._window.show()
         centerWindow(self._window)
-        self._window.raiseW()
-        self._window.exec_loop()
+        self._window.raise_()
+        self._window.exec_()
         self._window.hide()
 
     def newFlag(self):
@@ -326,11 +326,11 @@ class FlagCreator(object):
     def show(self):
 
         self._window.show()
-        self._window.raiseW()
-        self._window.setActiveWindow()
+        self._window.raise_()
+        self._window.activate()
 
         while True:
-            self._result = self._window.exec_loop()
+            self._result = self._window.exec_()
             if self._result == QtGui.QDialog.Accepted:
                 flag = str(self._flag.text()).strip()
                 if not flag:
@@ -397,8 +397,8 @@ class TargetCreator(object):
     def show(self):
 
         self._window.show()
-        self._window.raiseW()
-        self._window.setActiveWindow()
+        self._window.raise_()
+        self._window.activateWindow()
 
         while True:
             self._result = self._window.exec_loop()

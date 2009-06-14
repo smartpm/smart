@@ -208,7 +208,7 @@ class QtChanges(QtGui.QDialog):
 
         self._result = False
         self.show()
-        dialogResult = self.exec_loop()
+        dialogResult = self.exec_()
         self._result = (dialogResult == QtGui.QDialog.Accepted)
 
         return self._result

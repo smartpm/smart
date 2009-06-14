@@ -428,7 +428,7 @@ class QtInteractiveInterface(QtInterface):
         self._pi.setChangeSet(self._changeset)
         self._progress.hide()
         self.refreshPackages()
-        app.exec_loop()
+        app.exec_()
         self.saveState()
         self.setCatchExceptions(False)
 
@@ -732,7 +732,7 @@ class QtInteractiveInterface(QtInterface):
             item.setEnabled(False)
 
         menu.show()
-        menu.exec_loop(packageview.mapToGlobal(pnt))
+        menu.exec_(packageview.mapToGlobal(pnt))
 
     def checkPackages(self, all=False, uninstalled=False):
         installed = not uninstalled
