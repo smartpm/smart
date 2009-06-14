@@ -124,7 +124,7 @@ class QtPackageInfo(QtGui.QTabWidget):
 
         self._tabwidget.addTab(self._relations, _("Relations"))
 
-        self._urls = QtGui.QTableWidget(self._tabwidget)
+        self._urls = QtGui.QTreeWidget(self._tabwidget)
         self._urls.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         #self._urls.setAllColumnsShowFocus(True)
         #self._urls.header().hide()
@@ -132,7 +132,7 @@ class QtPackageInfo(QtGui.QTabWidget):
         #self._urls.addColumn(_("Channel"))
         #self._urls.addColumn(_("Size"))
         #self._urls.addColumn(_("URL"))
-        self._urls.setHorizontalHeaderLabels([_("Channel"), _("Size"), _("URL")])
+        self._urls.setHeaderLabels([_("Channel"), _("Size"), _("URL")])
         
         self._tabwidget.addTab(self._urls, _("URLs"))
 
@@ -286,10 +286,11 @@ class QtPackageInfo(QtGui.QTabWidget):
             for item in items:
                 if item != lastitem:
                     lastitem = item
-                    listitem = QtGui.QTableViewItem(self._urls)
+                    listitem = QtGui.QTreeWidgetItem()
                     listitem.setText(0, item[0])
                     listitem.setText(1, item[1])
                     listitem.setText(2, item[2])
+                    self._urls.addTopLevelItem(listitem)
 
     def _setRelations(self, pkg):
 
