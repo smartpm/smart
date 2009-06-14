@@ -32,8 +32,8 @@ class QtChanges(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
 
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("Change Summary"))
+        self.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self.setWindowTitle(_("Change Summary"))
         self.setModal(True)
         self.setMinimumSize(600, 400)
         centerWindow(self)
@@ -54,9 +54,10 @@ class QtChanges(QtGui.QDialog):
         self._sizelabel = QtGui.QLabel("", self)
         self._vbox.addWidget(self._sizelabel)
 
-        self._confirmbbox = qt.QHBox(self)
-        self._confirmbbox.setSpacing(10)
-        self._confirmbbox.layout().addStretch(1)
+        self._confirmbbox = QtGui.QWidget(self)
+        layout = QtGui.QHBoxLayout(self._confirmbbox)
+        layout.setSpacing(10)
+        layout.addStretch(1)
         self._vbox.addWidget(self._confirmbbox)
 
         self._cancelbutton = QtGui.QPushButton(_("Cancel"), self._confirmbbox)
@@ -64,9 +65,10 @@ class QtChanges(QtGui.QDialog):
         self._okbutton = QtGui.QPushButton(_("OK"), self._confirmbbox)
         QtCore.QObject.connect( self._okbutton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("accept()"))
 
-        self._closebbox = qt.QHBox(self)
-        self._closebbox.setSpacing(10)
-        self._closebbox.layout().addStretch(1)
+        self._closebbox = QtGui.QWidget(self)
+        layout = QtGui.QHBoxLayout(self._closebbox)
+        layout.setSpacing(10)
+        layout.addStretch(1)
         self._vbox.addWidget(self._closebbox)
 
         self._closebutton = QtGui.QPushButton(_("Close"), self._closebbox)

@@ -183,9 +183,11 @@ def compileActions(group, actions, globals):
         #        globals["action"] = action
         #        exec code in globals
         #    action[5] = callback
-        act = QtGui.QAction(group, action[0])
-        act.setText(action[0])
-        act.setMenuText(action[2].replace("_","&"))
+        #act = QtGui.QAction(group, action[0])
+        act = QtGui.QAction(group)
+        #act.setText(action[0])
+        #act.setMenuText(action[2].replace("_","&"))
+        act.setText(action[2].replace("_","&"))
         if len(action) > 4:
             act.setToolTip(action[4])
         if len(action) > 5 and type(action[5]) is not str:
@@ -241,7 +243,7 @@ def compileActions(group, actions, globals):
         if action[0] == "quit": #HACK
             self = globals["self"]
             QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), app, QtCore.SLOT("quit()"))
-        group.add(act)
+        group.addAction(act)
         #newactions[action[0]] = tuple(action)
         newactions[action[0]] = act
     return newactions
@@ -254,7 +256,7 @@ class QtInteractiveInterface(QtInterface):
         self._changeset = None
 
         self._window = QtGui.QMainWindow()
-        self._window.setCaption("Smart Package Manager %s" % VERSION)
+        self._window.setWindowTitle("Smart Package Manager %s" % VERSION)
         centerWindow(self._window)
         self._window.setMinimumSize(640, 480)
         app.connect(app, QtCore.SIGNAL('lastWindowClosed()'), app, QtCore.SLOT('quit()'))
@@ -263,15 +265,17 @@ class QtInteractiveInterface(QtInterface):
         self._redo = []
 
         globals = {"self": self, "QtGui": QtGui, "QtCore": QtCore}
-        group = QtGui.QActionGroup(self._window, "Actions")
+        #group = QtGui.QActionGroup(self._window, "Actions")
+        group = QtGui.QActionGroup(self._window)
         self._actions = compileActions(group, ACTIONS, globals)
 
         class ToggleAction(QtGui.QAction):
         
             def __init__(self, group, name, label):
-                QtGui.QAction.__init__(self, group, name)
-                self.setToggleAction(True)
-                self.setMenuText(label.replace("&","&&"))
+                QtGui.QAction.__init__(self, name, group)
+                #self.setToggleAction(True)
+                self.setCheckable(True)
+                self.setText(label.replace("&","&&"))
                 self._name = name
             
             def connect(self, signal, callback, userdata):
@@ -299,7 +303,7 @@ class QtInteractiveInterface(QtInterface):
                             ("none", _("None"))]:
             act = ToggleAction(group, "tree-style-"+name, label)
             if name == treestyle:
-                act.setOn(True)
+                act.setChecked(True)
             act.connect("activated()", self.setTreeStyle, name)
             self._actions["tree-style-"+name] = act
 
@@ -309,19 +313,22 @@ class QtInteractiveInterface(QtInterface):
                 item = menu[0]
                 action = self._actions[item]
                 m = QtGui.QMenu(menubar)
-                text = action.menuText()
-                menubar.insertItem(text, m)
+                m.setTitle(action.text())
+                menubar.addMenu(m)
                 for item in menu[1]:
                     if isinstance(item, tuple):
                         insertmenu(m, item)
                     elif item:
                         action = self._actions[item]
-                        #i = QtGui.QMenu(m)
+                        #i = QtGui.QPopupMenu(m)
+                        i = QtGui.QMenu(m)
                         #text = action.menuText()
+                        i.setTitle(action.text())
                         #m.insertItem(text, i)
-                        action.addTo(m)
+                        #action.addTo(m)
+                        m.addAction(action)
                     else:
-                        m.insertSeparator()
+                        m.addSeparator()
              insertmenu(self._menubar, MENU)
 
         self._toolbar = QtGui.QToolBar(self._window)
@@ -331,10 +338,11 @@ class QtInteractiveInterface(QtInterface):
                     action = self._actions[tool]
                     pixmap = getPixmap(TOOLBARICONS[tool])
                     action.setIcon(QtGui.QIcon(pixmap))
-                    action.addTo(toolbar)
+                    toolbar.addAction(action)
                 else:
                     toolbar.addSeparator()
             inserttool(self._toolbar, TOOL)
+            self._window.addToolBar( self._toolbar)
 
         #self._window.add_accel_group(self._ui.get_accel_group())
 
@@ -353,33 +361,39 @@ class QtInteractiveInterface(QtInterface):
 
         self._searchbar = QtGui.QToolBar(self._window)
         self._searchbar.hide()
+        self._window.addToolBar(self._searchbar)
        
         label = QtGui.QLabel(_("Search:"), self._searchbar)
         label.show()
-  
+        self._searchbar.addWidget(label)
+
         self._searchentry = QtGui.QLineEdit(self._searchbar)
         QtCore.QObject.connect(self._searchentry, QtCore.SIGNAL("returnPressed()"), self.refreshPackages)
         self._searchentry.show()
+        self._searchbar.addWidget(self._searchentry)
 
         button = QtGui.QPushButton(self._searchbar)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.refreshPackages)
         pixmap = getPixmap("crystal-search")
         button.setIcon(QtGui.QIcon(pixmap))
         button.show()
+        self._searchbar.addWidget(button)
 
         buttongroup = QtGui.QButtonGroup(self._searchbar)
-        buttongroup.hide()
+        #buttongroup.hide()
         
         self._searchname = QtGui.QRadioButton(_("Automatic"), self._searchbar)
         self._searchname.setChecked(True)
         QtCore.QObject.connect(self._searchname, QtCore.SIGNAL("clicked()"), self.refreshPackages)
-        buttongroup.insert(self._searchname)
+        buttongroup.addButton(self._searchname)
+        self._searchbar.addWidget(self._searchname)
         self._searchname.show()
         self._searchdesc = QtGui.QRadioButton(_("Description"), self._searchbar)
         self._searchdesc.setChecked(False)
         QtCore.QObject.connect(self._searchdesc, QtCore.SIGNAL("clicked()"), self.refreshPackages)
         self._searchdesc.show()
-        buttongroup.insert(self._searchdesc)
+        buttongroup.addButton(self._searchdesc)
+        self._searchbar.addWidget(self._searchdesc)
 
         # Packages and information
 
@@ -399,15 +413,15 @@ class QtInteractiveInterface(QtInterface):
         self._status.show()
 
     def showStatus(self, msg):
-        self._status.message(msg)
+        self._status.showMessage(msg)
 
     def hideStatus(self):
-        self._status.clear()
+        self._status.clearMessage()
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
         self.loadState()
-        self._window.setIcon(getPixmap("smart"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
         self._window.show()
         self._ctrl.reloadChannels()
         self._changeset = ChangeSet(self._ctrl.getCache())
@@ -618,37 +632,37 @@ class QtInteractiveInterface(QtInterface):
         action = PackagesAction(pkgs)
 
         iconset = QtGui.QIcon(getPixmap("package-install"))
-        item = menu.insertItem(iconset, _("Install"), action.slot)
+        item = menu.addAction(iconset, _("Install"), action.slot)
         action.connect(item, self.actOnPackages, INSTALL)
         if not hasnoninstalled:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         iconset = QtGui.QIcon(getPixmap("package-reinstall"))
-        item = menu.insertItem(iconset, _("Reinstall"), action.slot)
+        item = menu.addAction(iconset, _("Reinstall"), action.slot)
         action.connect(item, self.actOnPackages, REINSTALL)
         if not hasinstalled:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         iconset = QtGui.QIcon(getPixmap("package-remove"))
-        item = menu.insertItem(iconset, _("Remove"), action.slot)
+        item = menu.addAction(iconset, _("Remove"), action.slot)
         action.connect(item, self.actOnPackages, REMOVE)
         if not hasinstalled:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         if not hasinstalled:
             iconset = QtGui.QIcon(getPixmap("package-available"))
         else:
             iconset = QtGui.QIcon(getPixmap("package-installed"))
-        item = menu.insertItem(iconset, _("Keep"), action.slot)
+        item = menu.addAction(iconset, _("Keep"), action.slot)
         action.connect(item, self.actOnPackages, KEEP)
         if not [pkg for pkg in pkgs if pkg in self._changeset]:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         iconset = QtGui.QIcon(getPixmap("package-broken"))
-        item = menu.insertItem(iconset, _("Fix problems"), action.slot)
+        item = menu.addAction(iconset, _("Fix problems"), action.slot)
         action.connect(item, self.actOnPackages, FIX)
         if not hasinstalled:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         inconsistent = False
         thislocked = None
@@ -679,17 +693,17 @@ class QtInteractiveInterface(QtInterface):
                 iconset = QtGui.QIcon(getPixmap("package-installed"))
             else:
                 iconset = QtGui.QIcon(getPixmap("package-available"))
-            item = menu.insertItem(iconset, _("Unlock this version"), lockaction.slot)
+            item = menu.addAction(iconset, _("Unlock this version"), lockaction.slot)
             lockaction.connect(item, self.lockPackages, False)
         else:
             if not hasnoninstalled:
                 iconset = QtGui.QIcon(getPixmap("package-installed-locked"))
             else:
                 iconset = QtGui.QIcon(getPixmap("package-available-locked"))
-            item = menu.insertItem(iconset, _("Lock this version"), lockaction.slot)
+            item = menu.addAction(iconset, _("Lock this version"), lockaction.slot)
             lockaction.connect(item, self.lockPackages, True)
         if inconsistent:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         lockallaction = PackagesAction(pkgs)
 
@@ -698,24 +712,24 @@ class QtInteractiveInterface(QtInterface):
                 iconset = QtGui.QIcon(getPixmap("package-installed"))
             else:
                 iconset = QtGui.QIcon(getPixmap("package-available"))
-            item = menu.insertItem(iconset, _("Unlock all versions"), lockallaction.slot)
+            item = menu.addAction(iconset, _("Unlock all versions"), lockallaction.slot)
             lockallaction.connect(item, self.lockAllPackages, False)
         else:
             if not hasnoninstalled:
                 iconset = QtGui.QIcon(getPixmap("package-installed-locked"))
             else:
                 iconset = QtGui.QIcon(getPixmap("package-available-locked"))
-            item = menu.insertItem(iconset, _("Lock all versions"), lockallaction.slot)
+            item = menu.addAction(iconset, _("Lock all versions"), lockallaction.slot)
             lockallaction.connect(item, self.lockAllPackages, True)
         if inconsistent:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         priorityaction = PackagesAction(pkgs)
         
-        item = menu.insertItem(_("Priority"), priorityaction.slot)
+        item = menu.addAction(_("Priority"), priorityaction.slot)
         priorityaction.connect(item, self.priorityPackages)
         if len(pkgs) != 1:
-            menu.setItemEnabled(item, False)
+            item.setEnabled(False)
 
         menu.show()
         menu.exec_loop(packageview.mapToGlobal(pnt))
@@ -780,8 +794,8 @@ class QtInteractiveInterface(QtInterface):
     def setBusy(self, flag):
         if flag:
             QtGui.QApplication.setOverrideCursor( QtGui.QCursor(QtCore.Qt.WaitCursor) )
-            while QtGui.QApplication.eventLoop().hasPendingEvents():
-                QtGui.QApplication.eventLoop().processEvents(QtGui.QEventLoop.AllEvents)
+            #while QtGui.QApplication.eventLoop().hasPendingEvents():
+            #    QtGui.QApplication.eventLoop().processEvents(QtGui.QEventLoop.AllEvents)
         else:
             QtGui.QApplication.restoreOverrideCursor()
 

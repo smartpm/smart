@@ -54,10 +54,10 @@ class QtStatus(object):
 
     def __init__(self):
         self._window = QtGui.QDialog()
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("Status"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("Status"))
         self._window.setModal(True)
-        self._vbox = qt.QVBox(self._window)
+        self._vbox = QtGui.QWidget(self._window)
         self._vbox.setMargin(20)
 
         self._label = QtGui.QLabel(self._vbox)

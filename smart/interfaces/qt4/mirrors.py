@@ -44,41 +44,47 @@ class QtMirrors(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(None)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("Mirrors"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("Mirrors"))
         self._window.setModal(True)
 
         self._window.setMinimumSize(600, 400)
 
         layout = QtGui.QVBoxLayout(self._window)
-        layout.setResizeMode(QtGui.QLayout.FreeResize)
+        #layout.setResizeMode(QtGui.QLayout.FreeResize)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        vbox = QtGui.QWidget(self._window)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setMargin(10)
+        vbox.layout().setSpacing(10)
         vbox.show()
 
         layout.addWidget(vbox)
 
         self._treeview = QtGui.QTreeWidget(vbox)
-        self._treeview.header().hide()
+        self._treeview.setHeaderHidden(True)
         self._treeview.show()
+        vbox.layout().addWidget(self._treeview)
 
-        self._treeview.addColumn(_("Mirror"))
+        #self._treeview.addColumn(_("Mirror"))
+        self._treeview.setHeaderLabels([_("Mirror")])
         QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemRenamed(QListViewItem *, int, const QString &)"), self.itemRenamed)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self.selectionChanged)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemSelectionChanged()"), self.selectionChanged)
 
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(vbox)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
+        vbox.layout().addWidget(bbox)
 
-        button = qt.QPushButton(_("New"), bbox)
+        button = QtGui.QPushButton(_("New"), bbox)
         button.setEnabled(True)
         button.setIcon(QtGui.QIcon(getPixmap("crystal-add")))
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newMirror)
         self._newmirror = button
+        bbox.layout().addWidget(button)
 
         button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
@@ -86,9 +92,11 @@ class QtMirrors(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delMirror)
         self._delmirror = button
+        bbox.layout().addWidget(button)
 
         button = QtGui.QPushButton(_("Close"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        bbox.layout().addWidget(button)
         
         button.setDefault(True)
 
@@ -98,12 +106,12 @@ class QtMirrors(object):
         for origin in mirrors:
              parent = TextListViewItem(self._treeview)
              parent.setText(0, origin)
-             parent.setRenameEnabled(0, True)
+             #parent.setRenameEnabled(0, True)
              for mirror in mirrors[origin]:
                  item = TextListViewItem(parent)
                  item.setText(0, mirror)
-                 item.setRenameEnabled(0, True)
-             parent.setOpen(True)
+                 #item.setRenameEnabled(0, True)
+             parent.setExpanded(True)
         
     def show(self):
         self.fill()
@@ -114,8 +122,9 @@ class QtMirrors(object):
         self._window.hide()
 
     def newMirror(self):
-        item = self._treeview.selectedItem()
+        item = self._treeview.selectedItems()
         if item:
+            item = item[0]
             if item.childCount() == 2:
                 item = item.parent()
             origin = str(item.text(0))
@@ -128,9 +137,10 @@ class QtMirrors(object):
 
 
     def delMirror(self):
-        item = self._treeview.selectedItem()
+        item = self._treeview.selectedItems()
         if not item:
             return
+        item = item[0]
         if item.parent() is None:
             origin = str(item.text(0))
             sysconf.remove(("mirrors", origin))
@@ -143,7 +153,7 @@ class QtMirrors(object):
         self.fill()
 
     def selectionChanged(self):
-        item = self._treeview.selectedItem()
+        item = self._treeview.selectedItems()
         self._delmirror.setEnabled(bool(item))
 
     def itemRenamed(self, item, col, newtext):
@@ -170,49 +180,61 @@ class MirrorCreator(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("New Mirror"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("New Mirror"))
         self._window.setModal(True)
 
         #self._window.setMinimumSize(600, 400)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        vbox = QtGui.QWidget(self._window)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setMargin(10)
+        vbox.layout().setSpacing(10)
         vbox.show()
 
-        table = qt.QGrid(2, vbox)
-        table.setSpacing(10)
+        table = QtGui.QWidget(vbox)
+        QtGui.QGridLayout(table)
+        table.layout().setSpacing(10)
         table.show()
+        vbox.layout().addWidget(table)
         
         label = QtGui.QLabel(_("Origin URL:"), table)
         label.show()
+        table.layout().addWidget(label)
 
         self._origin = QtGui.QLineEdit(table)
         self._origin.setMaxLength(40)
         self._origin.show()
+        table.layout().addWidget(self._origin)
 
         label = QtGui.QLabel(_("Mirror URL:"), table)
         label.show()
+        table.layout().addWidget(label)
 
         self._mirror = QtGui.QLineEdit(table)
         self._mirror.setMaxLength(40)
         self._mirror.show()
+        table.layout().addWidget(self._mirror)
 
         sep = QtGui.QFrame(vbox)
         sep.setFrameStyle(QtGui.QFrame.HLine)
         sep.show()
+        vbox.layout().addWidget(sep)
 
-        bbox = QtGui.QHBox(vbox)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(self._window)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
+        vbox.layout().addWidget(bbox)
 
         button = QtGui.QPushButton(_("OK"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        bbox.layout().addWidget(button)
 
         button = QtGui.QPushButton(_("Cancel"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
+        bbox.layout().addWidget(button)
         
         vbox.adjustSize()
         self._window.adjustSize()

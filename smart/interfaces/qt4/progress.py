@@ -49,11 +49,11 @@ class QtProgress(Progress, QtGui.QDialog):
         else:
             self.setMinimumSize(300, 80)
 
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("Operation Progress"))
+        self.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self.setWindowTitle(_("Operation Progress"))
 
-        vbox = QtGui.QVBoxLayout(self, 10, 10)
-        vbox.setResizeMode(QtGui.QLayout.FreeResize)
+        vbox = QtGui.QVBoxLayout(self)
+        #vbox.setResizeMode(QtGui.QLayout.FreeResize)
         vbox.setMargin(10)
         vbox.setSpacing(10)
 
@@ -61,44 +61,48 @@ class QtProgress(Progress, QtGui.QDialog):
         vbox.addWidget(self._topic)
 
         self._progressbar = QtGui.QProgressBar(self)
-        self._progressbar.setPercentageVisible(True)
+        #self._progressbar.setPercentageVisible(True)
         self._progressbar.show()
         vbox.addWidget(self._progressbar)
 
         if hassub:
             self._listview = QtGui.QTableWidget(self)
-            self._listview.setSorting(-1, False);
+            #self._listview.setSorting(-1, False);
             self._listview.setSelectionMode(QtGui.QTableView.NoSelection )
             self._listview.show()
             vbox.addWidget(self._listview)
 
-            column = self._listview.addColumn(_("Progress"))
-            self._listview.setColumnWidthMode(column, QtGui.QTableView.Manual)
-            self._listview.setColumnWidth(column, 55)
-            column = self._listview.addColumn(_("Current"))
-            self._currentcolumn = column
-            column = self._listview.addColumn(_("Total"))
-            self._totalcolumn = column
-            column = self._listview.addColumn(_("Speed"))
-            self._speedcolumn = column
-            column = self._listview.addColumn(_("ETA"))
-            self._etacolumn = column
-            column = self._listview.addColumn(_("Description"))
-            self._listview.setColumnWidthMode(column, QtGui.QTableView.Manual)
-            self._listview.setColumnWidth(column, 165)
-            self._desccolumn = column
+            #column = self._listview.addColumn(_("Progress"))
+            #self._listview.setColumnWidthMode(column, QtGui.QTableView.Manual)
+            #self._listview.setColumnWidth(column, 55)
+            #column = self._listview.addColumn(_("Current"))
+            #self._currentcolumn = column
+            #column = self._listview.addColumn(_("Total"))
+            #self._totalcolumn = column
+            #column = self._listview.addColumn(_("Speed"))
+            #self._speedcolumn = column
+            #column = self._listview.addColumn(_("ETA"))
+            #self._etacolumn = column
+            #column = self._listview.addColumn(_("Description"))
+            #self._listview.setColumnWidthMode(column, QtGui.QTableView.Manual)
+            #self._listview.setColumnWidth(column, 165)
+            #self._desccolumn = column
+            self._listview.setHorizontalHeaderLabels([_("Progress"),
+                _("Current"), _("Total"), _("Speed"), _("ETA"), _("Description")])
 
             self._subiters = {}
             self._subindex = 0
 
-            self._bbox = qt.QHBox(self)
-            self._bbox.setSpacing(10)
+            self._bbox = QtGui.QWidget(self)
+            QtGui.QHBoxLayout(self._bbox)
+            self._bbox.layout().setSpacing(10)
             self._bbox.layout().addStretch(1)
             vbox.addWidget(self._bbox)
             
             button = QtGui.QPushButton(_("Cancel"), self._bbox)
             button.show()
             QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._cancel)
+            self._bbox.layout().addWidget(button)
 
     def setFetcher(self, fetcher):
         if fetcher:
@@ -128,10 +132,11 @@ class QtProgress(Progress, QtGui.QDialog):
         self._ticking = True
         self._stopticking = False
         if self._hassub:
-            self._listview.hideColumn(self._currentcolumn) 
-            self._listview.hideColumn(self._totalcolumn) 
-            self._listview.hideColumn(self._speedcolumn) 
-            self._listview.hideColumn(self._etacolumn) 
+            #self._listview.hideColumn(self._currentcolumn) 
+            #self._listview.hideColumn(self._totalcolumn) 
+            #self._listview.hideColumn(self._speedcolumn) 
+            #self._listview.hideColumn(self._etacolumn) 
+            pass
 
         thread.start_new_thread(self.tick, ())
 
@@ -162,9 +167,23 @@ class QtProgress(Progress, QtGui.QDialog):
             if subkey in self._subiters:
                 iter = self._subiters[subkey]
             else:
-                iter = qt.QListViewItem(self._listview)
+                row = self._listview.rowCount()
+                self._listview.insertRow(row)
+                iter = []
+                iter.append(QtGui.QTableWidgetItem())
+                self._listview.setItem(row, 0, iter[0])
+                iter.append(QtGui.QTableWidgetItem())
+                self._listview.setItem(row, 1, iter[1])
+                iter.append(QtGui.QTableWidgetItem())
+                self._listview.setItem(row, 2, iter[2])
+                iter.append(QtGui.QTableWidgetItem())
+                self._listview.setItem(row, 3, iter[3])
+                iter.append(QtGui.QTableWidgetItem())
+                self._listview.setItem(row, 4, iter[4])
+                iter.append(QtGui.QTableWidgetItem())
+                self._listview.setItem(row, 5, iter[5])
                 self._subiters[subkey] = iter
-                self._listview.ensureItemVisible(iter)
+                #self._listview.ensureItemVisible(iter)
 
             current = data.get("current", "")
             if current:
@@ -184,18 +203,17 @@ class QtProgress(Progress, QtGui.QDialog):
                 if eta:
                     self._listview.setColumnWidth(self._etacolumn, 110)
             if current or total or speed or eta:
-                iter.setText(1, current)
-                iter.setText(2, total)
-                iter.setText(3, speed)
-                iter.setText(4, eta)
+                iter[1].setText(current)
+                iter[2].setText(total)
+                iter[3].setText(speed)
+                iter[4].setText(eta)
                 subtopic = self._shorturl.get(subtopic)
-            iter.setText(0, str(subpercent) + "%")
-            iter.setText(5, subtopic)
-            iter.widthChanged(self._desccolumn)
-            self._listview.insertItem(iter)
+            iter[0].setText(str(subpercent) + "%")
+            iter[5].setText(subtopic)
+            #iter.widthChanged(self._desccolumn)
         else:
             self._topic.setText('<b>'+topic+'</b>')
-            self._progressbar.setProgress(percent, 100)
+            self._progressbar.setValue(percent)
             if self._hassub:
                 self._listview.update()
 
@@ -215,7 +233,8 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            while QtGui.QApplication.instance().hasPendingEvents():
+            #while QtGui.QApplication.instance().hasPendingEvents():
+            if True:
                 QtGui.QApplication.instance().processEvents()
             time.sleep(0.01)
     prog.stop()

@@ -32,49 +32,61 @@ class QtFlags(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(None)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("Flags"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("Flags"))
         self._window.setModal(True)
         
         self._window.setMinimumSize(600, 400)
 
         layout = QtGui.QVBoxLayout(self._window)
-        layout.setResizeMode(QtGui.QLayout.FreeResize)
+        #layout.setResizeMode(QtGui.QLayout.FreeResize)
 
-        topvbox = qt.QVBox(self._window)
-        topvbox.setMargin(10)
-        topvbox.setSpacing(10)
+        topvbox = QtGui.QWidget(self._window)
+        QtGui.QVBoxLayout(topvbox)
+        topvbox.layout().setMargin(10)
+        topvbox.layout().setSpacing(10)
         topvbox.show()
 
         layout.addWidget(topvbox)
 
-        tophbox = qt.QHBox(topvbox)
-        tophbox.setSpacing(20)
+        tophbox = QtGui.QWidget(topvbox)
+        QtGui.QHBoxLayout(tophbox)
+        tophbox.layout().setSpacing(20)
         tophbox.show()
+        topvbox.layout().addWidget(tophbox)
 
         # Left side
-        vbox = qt.QVGroupBox(tophbox)
-        vbox.setInsideSpacing(10)
+        vbox = QtGui.QGroupBox(tophbox)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setSpacing(10)
         vbox.show()
+        tophbox.layout().addWidget(vbox)
 
         self._flagsview = QtGui.QTableWidget(vbox)
         self._flagsview.show()
+        vbox.layout().addWidget(self._flagsview)
 
         QtCore.QObject.connect(self._flagsview, QtCore.SIGNAL("selectionChanged()"), self.flagSelectionChanged)
 
-        self._flagsview.addColumn(_("Flags"))
+        #self._flagsview.addColumn(_("Flags"))
+        self._flagsview.setHorizontalHeaderLabels([_("Flags")])
+        self._flagsview.horizontalHeader().show()
 
-        bbox = qt.QHBox(vbox)
-        bbox.setMargin(5)
-        bbox.setSpacing(10)
+        #bbox = QtGui.QHBox(vbox)
+        bbox = QtGui.QWidget(vbox)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setMargin(5)
+        bbox.layout().setSpacing(10)
         bbox.show()
+        vbox.layout().addWidget(bbox)
 
-        button = qt.QPushButton(_("New"), bbox)
+        button = QtGui.QPushButton(_("New"), bbox)
         button.setEnabled(True)
         button.setIcon(QtGui.QIcon(getPixmap("crystal-add")))
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newFlag)
         self._newflag = button
+        bbox.layout().addWidget(button)
 
         button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
@@ -82,23 +94,31 @@ class QtFlags(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delFlag)
         self._delflag = button
+        bbox.layout().addWidget(button)
 
         # Right side
-        vbox = qt.QVGroupBox(tophbox)
-        vbox.setInsideSpacing(10)
+        vbox = QtGui.QGroupBox(tophbox)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setSpacing(10)
         vbox.show()
+        tophbox.layout().addWidget(vbox)
 
         self._targetsview = QtGui.QTableWidget(vbox)
         self._targetsview.show()
+        vbox.layout().addWidget(self._targetsview)
 
         QtCore.QObject.connect(self._targetsview, QtCore.SIGNAL("selectionChanged()"), self.targetSelectionChanged)
 
-        self._targetsview.addColumn(_("Targets"))
+        #self._targetsview.addColumn(_("Targets"))
+        self._targetsview.setHorizontalHeaderLabels([_("Targets")])
+        self._targetsview.horizontalHeader().show()
 
-        bbox = qt.QHBox(vbox)
-        bbox.setMargin(5)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(vbox)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setMargin(5)
+        bbox.layout().setSpacing(10)
         bbox.show()
+        vbox.layout().addWidget(bbox)
 
         button = QtGui.QPushButton(_("New"), bbox)
         button.setEnabled(False)
@@ -106,6 +126,7 @@ class QtFlags(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newTarget)
         self._newtarget = button
+        bbox.layout().addWidget(button)
 
         button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
@@ -113,6 +134,7 @@ class QtFlags(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delTarget)
         self._deltarget = button
+        bbox.layout().addWidget(button)
 
 
         # Bottom
@@ -120,15 +142,19 @@ class QtFlags(object):
         sep.setFrameShape(QtGui.QFrame.HLine)
         sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
+        topvbox.layout().addWidget(sep)
 
-        bbox = qt.QHBox(topvbox)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(topvbox)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
+        topvbox.layout().addWidget(bbox)
 
         button = QtGui.QPushButton(_("Close"), bbox)
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        bbox.layout().addWidget(button)
         
         button.setDefault(True)
 
@@ -137,7 +163,9 @@ class QtFlags(object):
         flaglst = pkgconf.getFlagNames()
         flaglst.sort()
         for flag in flaglst:
-            qt.QListViewItem(self._flagsview).setText(0, flag)
+            item = QtGui.QTableWidgetItem()
+            item.setText(flag)
+            self._flagsview.setItem(self._flagsview.rowCount(), 0, item)
     
     def fillTargets(self):
         self._targetsview.clear()
@@ -256,18 +284,18 @@ class FlagCreator(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("New Flag"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("New Flag"))
         self._window.setModal(True)
 
         #self._window.setMinimumSize(600, 400)
 
-        vbox = qt.QVBox(self._window)
+        vbox = QtGui.QWidget(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        table = qt.QGrid(2, vbox)
+        table = QtGui.QWidget(vbox) # 2
         table.setSpacing(10)
         
         label = QtGui.QLabel(_("Name:"), table)
@@ -321,18 +349,18 @@ class TargetCreator(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("New Target"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("New Target"))
         self._window.setModal(True)
 
         #self._window.setMinimumSize(600, 400)
 
-        vbox = qt.QVBox(self._window)
+        vbox = QtGui.QWidget(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        table = qt.QGrid(2, vbox)
+        table = QtGui.QWidget(vbox) # 2
         table.setSpacing(10)
         table.show()
         
@@ -352,7 +380,7 @@ class TargetCreator(object):
         sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
-        bbox = qt.QHBox(vbox)
+        bbox = QtGui.QWidget(vbox)
         bbox.setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()

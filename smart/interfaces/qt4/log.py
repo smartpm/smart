@@ -51,46 +51,56 @@ class QtLog(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
 
-        self.setIcon(getPixmap("smart"))
-        self.setCaption(_("Log"))
+        self.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self.setWindowTitle(_("Log"))
         self.setMinimumSize(400, 300)
         #self.setModal(True)
 
         layout = QtGui.QVBoxLayout(self)
-        layout.setResizeMode(QtGui.QLayout.FreeResize)
+        #layout.setResizeMode(QtGui.QLayout.FreeResize)
 
-        self._vbox = qt.QVBox(self)
-        self._vbox.setMargin(10)
-        self._vbox.setSpacing(10)
+        self._vbox = QtGui.QWidget(self)
+        QtGui.QVBoxLayout(self._vbox)
+        self._vbox.layout().setMargin(10)
+        self._vbox.layout().setSpacing(10)
         self._vbox.show()
 
-        layout.add(self._vbox)
+        layout.addWidget(self._vbox)
 
         self._scrollview = BackgroundScrollView(self._vbox)
+        self._scrollview.setWidgetResizable(True)
         self._scrollview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self._scrollview.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
         self._scrollview.show()
+        self._vbox.layout().addWidget(self._scrollview)
 
         self._textview = QtGui.QLabel(self._scrollview.viewport())
         self._textview.setAlignment(QtCore.Qt.AlignTop)
         self._textview.setTextFormat(QtCore.Qt.LogText)
+        self._textview.setAutoFillBackground(True)
+        self._textview.setBackgroundRole(QtGui.QPalette.Base)
         self._textview.show()
         self._textview.adjustSize()
         
-        self._textview.setEraseColor(self._scrollview.eraseColor())
+        #self._textview.setEraseColor(self._scrollview.eraseColor())
+        self._scrollview.setWidget(self._textview)
 
-        self._buttonbox = qt.QHBox(self._vbox)
-        self._buttonbox.setSpacing(10)
+        self._buttonbox = QtGui.QWidget(self._vbox)
+        QtGui.QHBoxLayout(self._buttonbox)
+        self._buttonbox.layout().setSpacing(10)
         self._buttonbox.layout().addStretch(1)
         self._buttonbox.show()
+        self._vbox.layout().addWidget(self._buttonbox)
 
         self._clearbutton = QtGui.QPushButton(_("Clear"), self._buttonbox)
         self._clearbutton.show()
         QtCore.QObject.connect(self._clearbutton, QtCore.SIGNAL("clicked()"), self.clearText)
+        self._buttonbox.layout().addWidget(self._clearbutton)
 
         self._closebutton = QtGui.QPushButton(_("Close"), self._buttonbox)
         self._closebutton.show()
         QtCore.QObject.connect(self._closebutton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("hide()"))
+        self._buttonbox.layout().addWidget(self._closebutton)
 
         self._closebutton.setDefault(True)
 

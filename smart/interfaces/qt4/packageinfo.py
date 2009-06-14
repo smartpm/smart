@@ -30,8 +30,8 @@ class BackgroundScrollView(QtGui.QScrollArea):
         QtGui.QScrollArea.__init__(self, parent)
         self.setSizePolicy(
             QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
-        self.viewport().setBackgroundMode(QtGui.Qt.PaletteBackground)
-        self.setPaletteBackgroundColor(self.viewport().paletteBackgroundColor())
+        #self.viewport().setBackgroundMode(QtGui.Qt.PaletteBackground)
+        #self.setPaletteBackgroundColor(self.viewport().paletteBackgroundColor())
 
     def drawContents(self, *args):
         if len(args)==1:
@@ -53,27 +53,30 @@ class QtPackageInfo(QtGui.QTabWidget):
         self._tabwidget.show()
 
         sv = BackgroundScrollView(self._tabwidget)
-        sv.setMargin(5)
+        #sv.setMargin(5)
         sv.show()
 
-        grid = qt.QGrid(2, sv.viewport())
-        grid.setSpacing(5)
-        grid.setMargin(5)
+        grid = QtGui.QWidget(sv.viewport())
+        layout = QtGui.QGridLayout(grid)
+        layout.setSpacing(5)
+        layout.setMargin(5)
         grid.show()
-        sv.addChild(grid)
+        #sv.addChild(grid)
 
         self._info = type("Info", (), {})()
 
-        row = 1
+        row = 0
         for attr, text in [("status", _("Status:")),
                            ("priority", _("Priority:")),
                            ("group", _("Group:")),
                            ("installedsize", _("Installed Size:")),
                            ("channels", _("Channels:"))]:
             label = QtGui.QLabel(text, grid)
+            layout.addWidget(label, row, 0)
             label.show()
             setattr(self._info, attr+"_label", label)
             label = QtGui.QLabel("", grid)
+            layout.addWidget(label, row, 1)
             label.show()
             setattr(self._info, attr, label)
             row += 1
@@ -84,27 +87,33 @@ class QtPackageInfo(QtGui.QTabWidget):
         self._tabwidget.addTab(sv, _("General"))
 
         sv = BackgroundScrollView(self._tabwidget)
-        sv.setMargin(5)
+        sv.setWidgetResizable(True)
+        #sv.setMargin(5)
         sv.show()
 
         self._descr = QtGui.QLabel(sv.viewport())
         self._descr.setAlignment(QtCore.Qt.AlignTop)
         self._descr.show()
-        sv.addChild(self._descr)
+        #sv.addChild(self._descr)
+        sv.setWidget(self._descr)
 
         self._descr.adjustSize()
         self._tabwidget.addTab(sv, _("Description"))
 
         sv = BackgroundScrollView(self._tabwidget)
+        sv.setWidgetResizable(True)
         sv.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        sv.setMargin(5)
+        #sv.setMargin(5)
         sv.show()
 
         self._cont = QtGui.QLabel(sv.viewport())
         self._cont.setAlignment(QtCore.Qt.AlignTop)
+        self._cont.setAutoFillBackground(True)
+        self._cont.setBackgroundRole(QtGui.QPalette.Base)
         self._cont.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         self._cont.show()
-        sv.addChild(self._cont)
+        #sv.addChild(self._cont)
+        sv.setWidget(self._cont)
 
         self._cont.adjustSize()
         self._tabwidget.addTab(sv, _("Content"))
@@ -117,12 +126,13 @@ class QtPackageInfo(QtGui.QTabWidget):
 
         self._urls = QtGui.QTableWidget(self._tabwidget)
         self._urls.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
-        self._urls.setAllColumnsShowFocus(True)
-        self._urls.header().hide()
+        #self._urls.setAllColumnsShowFocus(True)
+        #self._urls.header().hide()
         self._urls.show()
-        self._urls.addColumn(_("Channel"))
-        self._urls.addColumn(_("Size"))
-        self._urls.addColumn(_("URL"))
+        #self._urls.addColumn(_("Channel"))
+        #self._urls.addColumn(_("Size"))
+        #self._urls.addColumn(_("URL"))
+        self._urls.setHorizontalHeaderLabels([_("Channel"), _("Size"), _("URL")])
         
         self._tabwidget.addTab(self._urls, _("URLs"))
 
@@ -143,7 +153,7 @@ class QtPackageInfo(QtGui.QTabWidget):
         if _pagenum is not None:
             num = _pagenum
         else:
-            num = self._tabwidget.currentPageIndex()
+            num = self._tabwidget.currentIndex()
 
         if num == 0:
 

@@ -42,20 +42,21 @@ class QtPackageView(QtGui.QWidget):
         self._vbox = QtGui.QVBoxLayout(self)
         
         self._treeview = QtGui.QTreeWidget(self)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("clicked(QListViewItem *, const QPoint &, int)"), self._clicked)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self._doubleClicked)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("rightButtonPressed(QListViewItem *, const QPoint &, int)"), self._rightButtonPressed)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self._selectionChanged)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *, int)"), self._clicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemDoubleClicked(QTreeWidgetItem *, int)"), self._doubleClicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemPressed(QTreeWidgetItem *, int)"), self._pressed)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemSelectionChanged()"), self._selectionChanged)
         self._treeview.setAllColumnsShowFocus(True)
         self._treeview.setRootIsDecorated(True)
         self._treeview.show()
         self._vbox.addWidget(self._treeview)
         
-        self._treeview.setSelectionMode(QtGui.QTreeView.Extended)
+        #self._treeview.setSelectionMode(QtGui.QTreeView.Extended)
         
-        self._treeview.addColumn("") # pixmap
-        self._treeview.addColumn(_("Package"))
-        self._treeview.addColumn(_("Version"))
+        #self._treeview.addColumn("") # pixmap
+        #self._treeview.addColumn(_("Package"))
+        #self._treeview.addColumn(_("Version"))
+        self._treeview.setHeaderLabels(["", _("Package"), _("Version")])
 
         self._ipixbuf = getPixmap("package-installed")
         self._ilpixbuf = getPixmap("package-installed-locked")
@@ -97,7 +98,7 @@ class QtPackageView(QtGui.QWidget):
             return self._fpixbuf #default
 
     def _setPixmap(self, iter, pkg):
-        iter.setPixmap(0, self._getPixmap(pkg))
+        iter.setIcon(0, QtGui.QIcon(self._getPixmap(pkg)))
 
     def _setNameVersion(self, iter, pkg):
         if hasattr(pkg, "name"):
@@ -112,23 +113,30 @@ class QtPackageView(QtGui.QWidget):
     def getTreeView(self):
         return self._treeview
 
-    def expandAll(self):
-        iter = qt.QListViewItemIterator(self._treeview)
-        while iter.current():
-            iter.current().setOpen(True)
+    def _doItem(self, item, what):
+        what(item)
+        iter = 0
+        while iter < item.childCount():
+            self._doItem(item.child(iter), what)
             iter += 1
+
+    def _doTree(self, tree, what):
+        iter = 0
+        while iter < tree.topLevelItemCount():
+            self._doItem(tree.topLevelItem(iter), what)
+            iter += 1
+    
+    def expandAll(self):
+        self._doTree(self._treeview, self._treeview.expandItem)
 
     def collapseAll(self):
-        iter = qt.QListViewItemIterator(self._treeview)
-        while iter.current():
-            iter.current().setOpen(False)
-            iter += 1
+        self._doTree(self._treeview, self._treeview.collapseItem)
 
     def getSelectedPkgs(self):
-        iter = qt.QListViewItemIterator(self._treeview)
+        iter = 0
         lst = []
-        while iter.current():
-            item = iter.current()
+        while iter < self._treeview.topLevelItemCount():
+            item = self._treeview.topLevelItem(iter)
             if item.isSelected():
                 value = item._pkg
                 if hasattr(value, "name"):
@@ -230,12 +238,14 @@ class QtPackageView(QtGui.QWidget):
                 name = pkg.name
             else:
                 name = str(pkg)
-            iter = treeview.findItem(name, 1)
+            #iter = treeview.findItems(name, QtCore.Qt.MatchFixedString, 1)
+            iter = treeview.selectedItems()
             if iter:
+                iter = iter[0]
                 if iter._pkg == pkg:
                     self._setNameVersion(iter, pkg)
                     self._setPixmap(iter, pkg)
-        treeview.adjustColumn(0)
+        #treeview.adjustColumn(0)
 
     def setPackages(self, packages, changeset=None, keepstate=False):
         treeview = self._treeview
@@ -282,7 +292,7 @@ class QtPackageView(QtGui.QWidget):
             
             return iter
 
-    def _doubleClicked(self, item, pnt, c):
+    def _doubleClicked(self, item, c):
          if not item:
              return
          value = item._pkg
@@ -292,6 +302,12 @@ class QtPackageView(QtGui.QWidget):
                  self.emit(QtCore.SIGNAL("packageActivated"), pkgs)
              else:
                  self.emit(QtCore.SIGNAL("packageActivated"), [value])
+
+    def _pressed(self, item, c):
+        btn = QtGui.QApplication.instance().mouseButtons()
+        if bool(btn & QtCore.Qt.RightButton):
+            pnt = QtCore.QPoint(item.treeWidget().pos())
+            return self._rightButtonPressed(item, pnt, c)
 
     def _rightButtonPressed(self, item, pnt, c):
          if not item:
@@ -304,7 +320,7 @@ class QtPackageView(QtGui.QWidget):
              else:
                  self.emit(QtCore.SIGNAL("packagePopup"), self, [value], pnt)
 
-    def _clicked(self, item, pnt, c):
+    def _clicked(self, item, c):
         if not item:
             return
         value = item._pkg

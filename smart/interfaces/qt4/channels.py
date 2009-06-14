@@ -32,18 +32,18 @@ import os
 class RadioAction(QtGui.QAction):
 
     def __init__(self, radio, name, label=None):
-        QtGui.QAction.__init__(self, radio, name)
+        QtGui.QAction.__init__(self, name, radio)
         self._radio = radio
     
     def connect(self, object, field, userdata):
         self._object = object
         self._field = field
         self._userdata = userdata
-        signal = "stateChanged(int)"
+        signal = "toggled(bool)"
         QtCore.QObject.connect(self._radio, QtCore.SIGNAL(signal), self.slot)
     
     def slot(self, state):
-        if state == qt.QButton.On:
+        if state:
             setattr(self._object, self._field, self._userdata)
          
 class QtChannels(object):
@@ -53,39 +53,43 @@ class QtChannels(object):
         self._changed = False
 
         self._window = QtGui.QDialog(None)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("Channels"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("Channels"))
         self._window.setModal(True)
 
         self._window.setMinimumSize(600, 400)
 
-        layout = QtGui.QVBoxLayout(self._window)
-        layout.setResizeMode(qt.QLayout.FreeResize)
+        vbox = QtGui.QWidget(self._window)
+        layout = QtGui.QVBoxLayout(vbox) 
+        #layout.setResizeMode(QtGui.QLayout.FreeResize)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        #vbox = QtGui.QVBox(self._window)
+        layout.setMargin(10)
+        layout.setSpacing(10)
         vbox.show()
-
-        layout.addWidget(vbox)
 
         self._treeview = QtGui.QTreeWidget(vbox)
         self._treeview.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
-        self._treeview.setAllColumnsShowFocus(True)
-        self._treeview.setSelectionMode(QtGui.QListView.Single)
+        #self._treeview.setAllColumnsShowFocus(True)
+        #self._treeview.setSelectionMode(QtGui.QListView.Single)
         self._treeview.show()
+        layout.addWidget(self._treeview)
 
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self.selectionChanged)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("doubleClicked(QListViewItem *, const QPoint &, int)"), self.doubleClicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemSelectionChanged ()"), self.selectionChanged)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemDoubleClicked (QListViewItem *, int)"), self.doubleClicked)
 
-        self._treeview.addColumn("")
-        self._treeview.addColumn(_("Pri"))
-        self._treeview.addColumn(_("Alias"))
-        self._treeview.addColumn(_("Type"))
-        self._treeview.addColumn(_("Name"))
+        #self._treeview.addColumn("")
+        #self._treeview.addColumn(_("Pri"))
+        #self._treeview.addColumn(_("Alias"))
+        #self._treeview.addColumn(_("Type"))
+        #self._treeview.addColumn(_("Name"))
+        self._treeview.setHeaderLabels(["", _("Pri"), _("Alias"), _("Type"), _("Name")])
         
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        #bbox = QtGui.QHBox(vbox)
+        bbox = QtGui.QWidget(vbox)
+        layout.addWidget(bbox)
+        layout = QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
@@ -94,6 +98,7 @@ class QtChannels(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.newChannel)
         self._newchannel = button
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("Delete"), bbox)
         button.setEnabled(False)
@@ -101,6 +106,7 @@ class QtChannels(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.delChannel)
         self._delchannel = button
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("Edit"), bbox)
         button.setEnabled(False)
@@ -108,9 +114,11 @@ class QtChannels(object):
         button.show()
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self.editChannel)
         self._editchannel = button
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("Close"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        layout.addWidget(button)
 
         button.setDefault(True)
         vbox.adjustSize()
@@ -122,19 +130,20 @@ class QtChannels(object):
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
-            item = qt.QCheckListItem(self._treeview, "", qt.QCheckListItem.CheckBoxController)
-            item.setOn(not strToBool(channel.get("disabled")))
+            #item = QtGui.QCheckListItem(self._treeview, "", QtGui.QCheckListItem.CheckBoxController)
+            item = QtGui.QTreeWidgetItem(self._treeview)
+            item.setCheckState(0, not strToBool(channel.get("disabled")) and QtCore.Qt.Checked or QtCore.Qt.Unchecked)
             item.setText(1, channel.get("priority", "0"))
             item.setText(2, alias)
             item.setText(3, channel.get("type", ""))
             item.setText(4, channel.get("name", ""))
 
     def enableDisable(self):
-        iter = qt.QListViewItemIterator(self._treeview)
-        while iter.current():
-            item = iter.current()
+        iter = 0
+        while iter < self._treeview.topLevelItemCount():
+            item = self._treeview.topLevelItem(iter)
             disabled = strToBool(sysconf.get(("channels", str(item.text(2)), "disabled")))
-            if item.isOn():
+            if item.checkState(0) == QtCore.Qt.Checked:
                 if disabled:
                     sysconf.remove(("channels", str(item.text(1)), "disabled"))
                     self._changed = True
@@ -186,8 +195,8 @@ class QtChannels(object):
         elif method in ("descriptionpath", "descriptionurl"):
 
             if method == "descriptionpath":
-                filename = QtGui.QFileDialog.getOpenFileName("", "",
-                     self._window, "", _("Select Channel Description"))
+                filename = QtGui.QFileDialog.getOpenFileName(self._window,
+                    _("Select Channel Description"), "", "", "")
                 if not filename:
                     return
                 if not os.path.isfile(filename):
@@ -231,8 +240,8 @@ class QtChannels(object):
                 if not path:
                     return
             elif method == "detectpath":
-                path = QtGui.QFileDialog.getExistingDirectory("",
-                     self._window, "", _("Select Path"), True)
+                path = QtGui.QFileDialog.getExistingDirectory(self._window,
+                     _("Select Path"), "", QtGui.QFileDialog.ShowDirsOnly)
                 if not path:
                     return
                 if not os.path.isdir(path):
@@ -272,8 +281,9 @@ class QtChannels(object):
             self.fill()
 
     def editChannel(self):
-        item = self._treeview.selectedItem()
+        item = self._treeview.selectedItems()
         if item:
+            item = item[0]
             alias = str(item.text(2))
         else:
             return
@@ -287,8 +297,9 @@ class QtChannels(object):
             self.fill()
 
     def delChannel(self):
-        item = self._treeview.selectedItem()
+        item = self._treeview.selectedItems()
         if item:
+            item = item[0]
             alias = item.text(2)
         else:
             return
@@ -297,15 +308,16 @@ class QtChannels(object):
             self.fill()
 
     def selectionChanged(self):
-        item = self._treeview.selectedItem()
+        item = self._treeview.selectedItems()
         if item:
+            item = item[0]
             self._editchannel.setEnabled(True)
             self._delchannel.setEnabled(True)
         else:
             self._editchannel.setEnabled(False)
             self._delchannel.setEnabled(False)
 
-    def doubleClicked(self, item, pnt, c):
+    def doubleClicked(self, item, c):
         self.editChannel()
 
 class QtChannelSelector(object):
@@ -313,42 +325,49 @@ class QtChannelSelector(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("Select Channels"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("Select Channels"))
         self._window.setModal(True)
 
         self._window.setMinimumSize(600, 400)
 
         layout = QtGui.QVBoxLayout(self._window)
-        layout.setResizeMode(qt.QLayout.FreeResize)
+        #layout.setResizeMode(QtGui.QLayout.FreeResize)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
-        vbox.show()
-
+        #vbox = QtGui.QVBox(self._window)
+        vbox = QtGui.QWidget(self._window)
         layout.addWidget(vbox)
+        layout = QtGui.QVBoxLayout(vbox) 
+        layout.setMargin(10)
+        layout.setSpacing(10)
+        vbox.show()
 
         self._treeview = QtGui.QTableWidget(vbox)
         self._treeview.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
-        self._treeview.setAllColumnsShowFocus(True)
+        #self._treeview.setAllColumnsShowFocus(True)
         self._treeview.show()
+        layout.addWidget(self._treeview)
 
-        self._treeview.addColumn("")
-        self._treeview.addColumn(_("Alias"))
-        self._treeview.addColumn(_("Type"))
-        self._treeview.addColumn(_("Name"))
-
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        #self._treeview.addColumn("")
+        #self._treeview.addColumn(_("Alias"))
+        #self._treeview.addColumn(_("Type"))
+        #self._treeview.addColumn(_("Name"))
+        self._treeview.setHorizontalHeaderLabels(["", _("Alias"), _("Type"), _("Name")])
+        
+        bbox = QtGui.QWidget(vbox)
+        layout.addWidget(bbox)
+        layout = QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
         button = QtGui.QPushButton(_("Cancel"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("OK"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        layout.addWidget(button)
 
         button.setDefault(True)
 
@@ -360,11 +379,21 @@ class QtChannelSelector(object):
         for alias in aliases:
             channel = channels[alias]
             if not channel.get("disabled"):
-                item = qt.QCheckListItem(self._treeview, "", qt.QCheckListItem.CheckBox)
-                item.setOn(False)
-                item.setText(1, str(alias))
-                item.setText(2, channel.get("type", ""))
-                item.setText(3, channel.get("name", ""))
+                row = self._treeview.rowCount()
+                #item = QtGui.QCheckListItem(self._treeview, "", QtCore.QCheckListItem.CheckBox)
+                item = QtGui.QTreeWidgetItem()
+                #item.setOn(False)
+                item.setCheckState(QtCore.Qt.Unchecked)
+                self._treeview.setItem(row, 0, item)
+                item = QtGui.QTreeWidgetItem()
+                item.setText(str(alias))
+                self._treeview.setItem(row, 1, item)
+                item = QtGui.QTreeWidgetItem()
+                item.setText(channel.get("type", ""))
+                self._treeview.setItem(row, 2, item)
+                item = QtGui.QTreeWidgetItem()
+                item.setText(channel.get("name", ""))
+                self._treeview.setItem(row, 3, item)
 
     def show(self):
         self.fill()
@@ -377,10 +406,10 @@ class QtChannelSelector(object):
 
         result = []
         if self._result == QtGui.QDialog.Accepted:
-            iter = qt.QListViewItemIterator(self._treeview)
-            while iter.current():
-                item = iter.current()
-                if item.isOn():
+            iter = 0
+            while iter < self._treeview.rowCount():
+                item = self._treeview.itemAt(iter, 0)
+                if item.checkState() == QtCore.Qt.Checked:
                       result.append(item.text(1)) 
                 iter += 1
 
@@ -394,59 +423,73 @@ class ChannelEditor(object):
         self._fieldn = 0
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("Edit Channel"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("Edit Channel"))
         self._window.setModal(True)
 
         layout = QtGui.QVBoxLayout(self._window)
-        layout.setResizeMode(QtGui.QLayout.FreeResize)
+        #layout.setResizeMode(QtGui.QLayout.FreeResize)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        vbox = QtGui.QWidget(self._window)
+        layout.addWidget(vbox)
+        layout = QtGui.QVBoxLayout(vbox) 
+        layout.setMargin(10)
+        layout.setSpacing(10)
         vbox.show()
 
-        layout.addWidget(vbox)
+        #layout.addWidget(vbox)
         self._vbox = vbox
 
-        self._table = qt.QGrid(2, vbox)
-        self._table.setSpacing(10)
+        #self._table = QtGui.QGrid(2, vbox)
+        self._table = QtGui.QWidget(vbox)
+        QtGui.QGridLayout(self._table)
+        self._table.layout().setSpacing(10)
         self._table.show()
+        layout.addWidget(self._table)
 
         sep = QtGui.QFrame(vbox)
         sep.setFrameShape(QtGui.QFrame.HLine)
         sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
+        layout.addWidget(sep)
 
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        #bbox = QtGui.QHBox(vbox)
+        bbox = QtGui.QWidget(vbox)
+        layout.addWidget(bbox)
+        layout = QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
         button = QtGui.QPushButton(_("Cancel"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("OK"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        layout.addWidget(button)
 
         button.setDefault(True)
 
     def addField(self, key, label, value, ftype,
                  editable=True, tip=None, needed=False):
 
+        row = self._table.layout().rowCount()
         if ftype is bool:
             spacer = QtGui.QWidget(self._table)
             spacer.show()
+            self._table.layout().addWidget(spacer, row, 0)
             widget = QtGui.QCheckBox(label, self._table)
             widget.setChecked(value)
         else:
             _label = QtGui.QLabel("%s:" % label, self._table)
             _label.show()
             if tip:
-                qt.QToolTip.add(_label, tip)
+                _label.setToolTip(tip)
+            self._table.layout().addWidget(_label, row, 0)
             if ftype is int:
                 widget = QtGui.QSpinBox(self._table)
-                widget.setSteps(1, 10)
+                widget.setSingleStep(1)
                 widget.setRange(-100000,+100000)
                 widget.setValue(value)
             elif ftype is str:
@@ -462,10 +505,11 @@ class ChannelEditor(object):
                 raise Error, _("Don't know how to handle %s fields") % ftype
 
         widget.show()
+        self._table.layout().addWidget(widget, row, 1)
 
         widget.setEnabled(bool(editable))
         if tip:
-            qt.QToolTip.add(widget, tip)
+            widget.setToolTip(tip)
 
         self._fields[key] = widget
         self._fieldn += 1
@@ -552,42 +596,59 @@ class TypeSelector(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("New Channel"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("New Channel"))
         self._window.setModal(True)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        layout = QtGui.QVBoxLayout(self._window) 
+        
+        #vbox = QtGui.QVBox(self._window)
+        vbox = QtGui.QWidget(self._window)
+        layout.addWidget(vbox)
+        layout = QtGui.QVBoxLayout(vbox) 
+        layout.setMargin(10)
+        layout.setSpacing(10)
         vbox.show()
         self._vbox = vbox
 
-        table = qt.QGrid(2, vbox)
-        table.setSpacing(10)
+        #table = QtGui.QGrid(2, vbox)
+        table = QtGui.QWidget(vbox)
+        layout.addWidget(table)
+        QtGui.QGridLayout(table)
+        table.layout().setSpacing(10)
         table.show()
         self._table = table
         
         label = QtGui.QLabel(_("Type:"), table)
+        table.layout().addWidget(label)
 
-        self._typevbox = QtGui.QVButtonGroup(table)
-        self._typevbox.setFrameStyle(QtGui.QFrame.NoFrame)
+        self._typevbox = QtGui.QGroupBox(table)
+        QtGui.QVBoxLayout(self._typevbox)
+        #self._typevbox.setFrameStyle(QtGui.QFrame.NoFrame)
         self._typevbox.show()
+        table.layout().addWidget(self._typevbox)
 
         sep = QtGui.QFrame(vbox)
         sep.setFrameShape(QtGui.QFrame.HLine)
         sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
+        layout.addWidget(sep)
 
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        #bbox = QtGui.QHBox(vbox)
+        bbox = QtGui.QWidget(vbox)
+        layout.addWidget(bbox)
+        layout = QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
         button = QtGui.QPushButton(_("Cancel"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("OK"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        layout.addWidget(button)
 
         self._ok = button
         self._ok.setEnabled(False)
@@ -605,7 +666,9 @@ class TypeSelector(object):
         for name, type in infos:
             if not self._type:
                 self._type = type
-            radio = QtGui.QRadioButton(name, self._typevbox, type)
+            radio = QtGui.QRadioButton(name, self._typevbox)
+            radio.setObjectName(type)
+            self._typevbox.layout().addWidget(radio)
             QtCore.QObject.connect(radio, QtCore.SIGNAL("clicked()"), self.ok)
             act = RadioAction(radio, type, name)
             act.connect(self, "_type", type)
@@ -641,44 +704,56 @@ class MethodSelector(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("New Channel"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("New Channel"))
         self._window.setModal(True)
 
-        vbox = qt.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        vbox = QtGui.QWidget(self._window)
+        layout = QtGui.QVBoxLayout(vbox) 
+        vbox.layout().setMargin(10)
+        vbox.layout().setSpacing(10)
         vbox.show()
 
-        table = qt.QGrid(1, vbox)
-        table.setSpacing(10)
+        table = QtGui.QWidget(vbox)
+        QtGui.QGridLayout(table) 
+        table.layout().setSpacing(10)
         table.show()
+        layout.addWidget(table)
         
         label = QtGui.QLabel(_("Method:"), table)
-
-        methodvbox = qt.QVButtonGroup(table)
+        table.layout().addWidget(label)
+ 
+        methodvbox = QtGui.QGroupBox(table)
+        QtGui.QVBoxLayout(methodvbox) 
         methodvbox.show()
-
+        table.layout().addWidget(methodvbox)
+ 
         sep = QtGui.QFrame(vbox)
         sep.setFrameShape(QtGui.QFrame.HLine)
         sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
+        vbox.layout().addWidget(sep)
 
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(vbox)
+        layout = QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
+        vbox.layout().addWidget(bbox)
 
         button = QtGui.QPushButton(_("Cancel"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
+        layout.addWidget(button)
 
         button = QtGui.QPushButton(_("OK"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        layout.addWidget(button)
 
         self._ok = button
         self._ok.setEnabled(False)
         
         self._method = None
+        #group = QtGui.QButtonGroup(methodvbox)
         for method, descr in [("manual",
                                _("Provide channel information")),
                               ("descriptionpath",
@@ -691,7 +766,10 @@ class MethodSelector(object):
                                _("Detect channel in local path"))]:
             if not self._method:
                 self._method = method
-            radio = QtGui.QRadioButton(descr, methodvbox, method)
+            radio = QtGui.QRadioButton(method, methodvbox)
+            radio.setText(descr)
+            methodvbox.layout().addWidget(radio)
+            #group.addButton(radio)
             QtCore.QObject.connect(radio, QtCore.SIGNAL("clicked()"), self.ok)
             act = RadioAction(radio, method, descr)
             act.connect(self, "_method", method)
@@ -728,23 +806,25 @@ class MountPointSelector(object):
     def __init__(self, parent=None):
 
         self._window = QtGui.QDialog(parent)
-        self._window.setIcon(getPixmap("smart"))
-        self._window.setCaption(_("New Channel"))
+        self._window.setWindowIcon(QtGui.QIcon(getPixmap("smart")))
+        self._window.setWindowTitle(_("New Channel"))
         self._window.setModal(True)
 
-        vbox = qt.QVBox(self._window)
+        vbox = QtGui.QVBox(self._window)
         vbox.setMargin(10)
         vbox.setSpacing(10)
         vbox.show()
 
-        table = qt.QGrid(2, vbox)
-        table.setSpacing(10)
+        table = QtGui.QWidget(vbox)
+        QtGui.QGridLayout(table) 
+        table.layout().setSpacing(10)
         table.show()
         
         label = QtGui.QLabel(_("Media path:"), table)
 
-        self._mpvbox = qt.QVBox(table)
-        self._mpvbox.setSpacing(10)
+        self._mpvbox = QtGui.QWidget(table)
+        QtGui.QVBoxLayout(self._mpvbox) 
+        self._mpvbox.layout().setSpacing(10)
         self._mpvbox.show()
 
         sep = QtGui.QFrame(vbox)
@@ -752,16 +832,19 @@ class MountPointSelector(object):
         sep.setFrameShadow(QtGui.QFrame.Sunken)
         sep.show()
 
-        bbox = qt.QHBox(vbox)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(vbox)
+        QtGui.QHBoxLayout(bbox) 
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
         button = QtGui.QPushButton(_("OK"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("accept()"))
+        bbox.layout().addWidget(button)
 
         button = QtGui.QPushButton(_("Cancel"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("reject()"))
+        bbox.layout().addWidget(button)
 
     def show(self):
         for item in self._mpvbox.children():
