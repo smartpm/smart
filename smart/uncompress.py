@@ -86,12 +86,35 @@ class LZMAHandler(UncompressorHandler):
     def query(self, localpath):
         if localpath.endswith(".lzma"):
             return True
-        if localpath.endswith(".xz"):
-            return True
 
     def getTargetPath(self, localpath):
         if localpath.endswith(".lzma"):
             return localpath[:-5]
+
+    def uncompress(self, localpath):
+        import lzma
+        try:
+            input = lzma.LZMAFile(localpath)
+            output = open(self.getTargetPath(localpath), "w")
+            data = input.read(BLOCKSIZE)
+            while data:
+                output.write(data)
+                data = input.read(BLOCKSIZE)
+        except (IOError, OSError), e:
+            raise Error, "%s: %s" % (localpath, e)
+        except EOFError, e:
+            raise Error, ("%s\nPossibly corrupted channel file.") % e
+
+Uncompressor.addHandler(LZMAHandler)
+
+
+class XZHandler(UncompressorHandler):
+
+    def query(self, localpath):
+        if localpath.endswith(".xz"):
+            return True
+
+    def getTargetPath(self, localpath):
         if localpath.endswith(".xz"):
             return localpath[:-3]
 
@@ -109,7 +132,7 @@ class LZMAHandler(UncompressorHandler):
         except EOFError, e:
             raise Error, ("%s\nPossibly corrupted channel file.") % e
 
-Uncompressor.addHandler(LZMAHandler)
+Uncompressor.addHandler(XZHandler)
 
 class GZipHandler(UncompressorHandler):
 
