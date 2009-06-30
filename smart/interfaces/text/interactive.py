@@ -794,4 +794,15 @@ class Interpreter(Cmd):
         except SystemExit:
             pass
 
+    def do_newer(self, line):
+        from smart.commands import newer
+        try:
+            try:
+                opts = newer.parse_options(shlex.split(line))
+            except ValueError, e:
+                raise Error, str(e)
+            newer.main(self._ctrl, opts, reloadchannels=False)
+        except SystemExit:
+            pass
+
 # vim:ts=4:sw=4:et
