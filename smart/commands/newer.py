@@ -112,12 +112,18 @@ def main(ctrl, opts, reloadchannels=True):
             ch = loader.getChannel()
 
             if len(upgraded) > 0:
-                (uversion, uarch) = upgraded[0].version.split('@')
+                if str.find(upgraded[0].version, '@') != -1 :
+                    (uversion, uarch) = upgraded[0].version.split('@')
+                else:
+                    (uversion, uarch) = (upgraded[0].version, "")
             else:
                 uversion = '(not installed)'
                 uarch = ''
                 pass
-            (iversion, iarch) = pkg.version.split('@')
+            if str.find(pkg.version, '@') != -1 :
+                (iversion, iarch) = pkg.version.split('@')
+            else:
+                (iversion, iarch) = (pkg.version, "")
             entry = [pkg.name, uversion, uarch, iversion, iarch, ch.getAlias(), size]
             report.append(entry)
             pass
