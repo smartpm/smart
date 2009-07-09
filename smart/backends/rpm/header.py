@@ -133,9 +133,10 @@ class RPMHeaderPackageInfo(PackageInfo):
             if type(change) != list:
                 change = [change]
             self._change = {}
-            for i in range(len(change)):
-                self._change[2*i] = datetime.fromtimestamp(logtime[i]).strftime("%Y-%m-%d")+"  "+ logname[i]
-                self._change[2*i+1] = "  " + change[i]
+            if len(logtime) > 0:
+                for i in range(len(change)):
+                    self._change[2*i] = datetime.fromtimestamp(logtime[i]).strftime("%Y-%m-%d")+"  "+ logname[i]
+                    self._change[2*i+1] = "  " + change[i]
         return self._change
 
     def getPathList(self):
