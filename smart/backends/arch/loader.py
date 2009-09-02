@@ -23,6 +23,7 @@
 from smart.cache import Loader, PackageInfo
 from smart.channel import FileChannel
 from smart.backends.arch.base import *
+from smart.const import BLOCKSIZE
 from smart import *
 import os
 import re
@@ -101,7 +102,30 @@ def parseFilePackageInfo(filename):
     info = None
     desctag = None
     desctaglen = None
-    tar = tarfile.open(filename)
+    tempname = None
+    if filename.endswith(".tar.xz"):
+        (output, tempname) = tempfile.mkstemp(".tar")
+        try:
+            import lzma
+            input = lzma.LZMAFile(filename)
+            data = input.read(BLOCKSIZE)
+            while data:
+                os.write(output, data)
+                data = input.read(BLOCKSIZE)
+            os.close(output)
+        except ImportError:
+            import commands
+            if not os.path.exists(filename):
+                raise IOError("File not found: '%s'" % filename)
+            else:
+                filename = os.path.abspath(filename)
+            (status, output) = commands.getstatusoutput(
+                               "unxz <'%s' >%s" % (filename, tempname))
+            if (status != 0):
+                iface.error(output)
+        tar = tarfile.open(tempname)
+    else:
+        tar = tarfile.open(filename)
     file = tar.extractfile('.PKGINFO')
     for line in file:
         if line.startswith("pkgname"):
@@ -134,6 +158,8 @@ def parseFilePackageInfo(filename):
                 info["depends"] = line[9:].strip()
     if info:
         infolst.append(info)
+    if tempname:
+        os.unlink(tempname)
     file.close()
     return infolst
 
@@ -364,7 +390,8 @@ class ArchDirLoader(ArchLoader):
             self._filenames = [filename]
         else:
             self._filenames = [x for x in os.listdir(dir)
-                                  if x.endswith(".pkg.tar.gz")]
+                                  if x.endswith(".pkg.tar.gz") \
+                                  or x.endswith(".pkg.tar.xz")]
 
     def getInfoList(self):
         for filename in self._filenames:
@@ -448,7 +475,7 @@ class ArchFileChannel(FileChannel):
         return True
 
 def createFileChannel(filename):
-    if filename.endswith(".pkg.tar.gz"):
+    if filename.endswith(".pkg.tar.gz") or filename.endswith(".pkg.tar.xz"):
         return ArchFileChannel(filename)
     return None
 

@@ -25,7 +25,8 @@ from smart import *
 import os
 
 def checkPackageFile(filename):
-    return os.path.isfile(filename) and filename.endswith(".pkg.tar.gz")
+    return os.path.isfile(filename) and filename.endswith(".pkg.tar.gz") or \
+           filename.endswith(".pkg.tar.xz")
 
 hooks.register("check-package-file", checkPackageFile)
 
