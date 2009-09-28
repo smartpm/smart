@@ -184,7 +184,7 @@ class NullSystemProvides(object):
 class FinkVirtualPkgs(object):
 
     def __init__(self, path):
-        self._provides = []
+        self._provides = {}
 
         pkgs = []
         info = {}
@@ -203,16 +203,18 @@ class FinkVirtualPkgs(object):
         for info in pkgs:
             name = info["Package"]
             version = info["Version"]
-            self._provides.append(DebProvides(name, version))
+            self._provides.setdefault(name, DebNameProvides(name, version))
             provides = string.split(info.get("provides", ""), ', ')
             for provide in provides:
                if provide:
-                   self._provides.append(DebNameProvides(provide, None))
+                   self._provides.setdefault(provide, DebProvides(provide, None))
 
     def matches(self, requires):
-        for prv in self._provides:
-            if requires.matches(prv):
-                return True
+        for name in requires.getMatchNames():
+            if name in self._provides:
+                prv = self._provides.get(name)
+                if requires.matches(prv):
+                    return True
         return False
 
 system_provides = NullSystemProvides()
