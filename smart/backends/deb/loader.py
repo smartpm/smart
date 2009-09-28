@@ -199,6 +199,11 @@ class DebTagLoader(Loader):
                     n, r, v = relation
                     cnfargs.append((Brk, n, r, v))
 
+            for args in reqargs:
+                req = args[0](*args[1:])
+                if system_provides.matches(req):
+                    reqargs.remove(req)
+
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset

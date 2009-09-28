@@ -33,7 +33,7 @@ from smart.cache import *
 
 __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebRequires", "DebUpgrades", "DebConflicts", "DebBreaks",
-           "DebOrRequires", "DebOrPreRequires", "DEBARCH"]
+           "DebOrRequires", "DebOrPreRequires", "DEBARCH", "system_provides"]
 
 def getArchitecture():
     arch = sysconf.get("deb-arch")
@@ -175,6 +175,50 @@ class DebUpgrades(DebDepends,Upgrades):
 
 class DebConflicts(DebDepends,Conflicts): __slots__ = ()
 class DebBreaks(DebDepends,Conflicts): __slots__ = ()
+
+class NullSystemProvides(object):
+
+    def matches(self, requires):
+        return False
+
+class FinkVirtualPkgs(object):
+
+    def __init__(self, path):
+        self._provides = []
+
+        pkgs = []
+        info = {}
+
+        output = os.popen(path).readlines()
+        for line in output:
+            line = string.rstrip(line)
+            keyval = string.split(line, ':', 1)
+            if len(keyval) > 1:
+               val = string.lstrip(keyval[1])
+               info[keyval[0]] = val
+            else:
+               pkgs.append(info)
+               info = {}
+
+        for info in pkgs:
+            name = info["Package"]
+            version = info["Version"]
+            self._provides.append(DebProvides(name, version))
+            provides = string.split(info.get("provides", ""), ', ')
+            for provide in provides:
+               if provide:
+                   self._provides.append(DebNameProvides(provide, None))
+
+    def matches(self, requires):
+        for prv in self._provides:
+            if requires.matches(prv):
+                return True
+        return False
+
+system_provides = NullSystemProvides()
+fink = sysconf.get("fink-virtual-pkgs", "/sw/bin/fink-virtual-pkgs")
+if os.path.exists(fink):
+    system_provides = FinkVirtualPkgs(fink)
 
 def enablePsyco(psyco):
     psyco.bind(DebPackage.coexists)

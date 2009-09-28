@@ -1,32 +1,14 @@
 
-Set up the loader.
+Set up the system provides.
 
   >>> from tests import *
-  >>> from smart.backends.deb.fink_virtual_pkgs import FinkVirtualPkgsLoader
+  >>> from smart.backends.deb.base import FinkVirtualPkgs, DebRequires
   >>> localpath = "%s/aptdeb/fink-virtual-pkgs" % TESTDATADIR
-  >>> loader = FinkVirtualPkgsLoader(localpath)
+  >>> pkgs = FinkVirtualPkgs(localpath)
   
-Let's create a cache to put the loader in, so that we can test it.
+Check for virtual package.
 
-  >>> from smart.cache import Cache
-  >>> cache = Cache()
-  >>> cache.addLoader(loader)
-
-The setup is ready. Now we can load the data into the cache.
-
-  >>> cache.load()
-  Updating cache...               ######################################## [100%]
-  <BLANKLINE>
-
-This should give us one test pkg with data we already know.
-
-  >>> cache.getPackages()
-  [macosx...]
-  >>> pkg = cache.getPackages()[0]
-  >>> info = loader.getInfo(pkg)
-
-  >>> pkg.installed
+  >>> depends = DebRequires("macosx", ">" , "10.0")
+  >>> pkgs.matches(depends)
   True
-  >>> info.getSummary()
-  '[virtual package representing the system]'
 
