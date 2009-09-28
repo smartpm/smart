@@ -19,6 +19,11 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import cPickle
+import sys, os
+import copy
+import time
+
 from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from smart.util.filetools import compareFiles, setCloseOnExecAll
 from smart.util.objdigest import getObjectDigest
@@ -33,11 +38,11 @@ from smart.channel import *
 from smart.cache import *
 from smart.const import *
 from smart import *
-import cPickle
-import sys, os
-import copy
-import time
-import md5
+
+
+if sys.version_info < (2, 4):
+    from sets import Set as set
+
 
 class Control(object):
 

@@ -26,7 +26,7 @@ import signal
 import errno
 import shlex
 
-from smart.const import INSTALL, REMOVE, OPTIONAL, ENFORCE
+from smart.const import Enum, INSTALL, REMOVE, OPTIONAL, ENFORCE
 from smart.pm import PackageManager
 from smart.sorter import *
 from smart import *
@@ -34,8 +34,8 @@ from smart import *
 
 # Part of the logic in this file was based on information found in APT.
 
-UNPACK = 10
-CONFIG = 11
+UNPACK = Enum("UNPACK")
+CONFIG = Enum("CONFIG")
 
 DEBIAN_FRONTEND = "DEBIAN_FRONTEND"
 APT_LISTCHANGES_FRONTEND = "APT_LISTCHANGES_FRONTEND"
@@ -71,6 +71,7 @@ class DebSorter(ElementSorter):
                         if changeset.get(prvpkg) is INSTALL:
                             if op is INSTALL:
                                 group.addSuccessor((prvpkg, CONFIG), unpack)
+                                group.addSuccessor((prvpkg, CONFIG), config)
                             else:
                                 group.addSuccessor((prvpkg, CONFIG), remove)
                         elif prvpkg.installed:
@@ -107,7 +108,7 @@ class DebSorter(ElementSorter):
                                        for prvpkg in prv.packages])
                 for upgpkg in upgpkgs:
                     if changeset.get(upgpkg) is REMOVE:
-                        self.addSuccessor(config, (upgpkg, REMOVE), OPTIONAL)
+                        self.addSuccessor(unpack, (upgpkg, REMOVE), OPTIONAL)
 
                 # Conflicted packages being removed must go in
                 # before this package's installation.
@@ -202,6 +203,7 @@ class DebPackageManager(PackageManager):
             old_apt_lc_frontend = os.environ.get(APT_LISTCHANGES_FRONTEND)
             os.environ[DEBIAN_FRONTEND] = "noninteractive"
             os.environ[APT_LISTCHANGES_FRONTEND] = "none"
+            baseargs.append("--force-confold")
 
         if sysconf.get("pm-iface-output"):
             output = tempfile.TemporaryFile()

@@ -20,25 +20,20 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import fnmatch
+import string
+import sys
+import os
+import re
+
 from smart.backends.deb.debver import vercmp, checkdep, splitrelease
 from smart.backends.deb.pm import DebPackageManager
 from smart.util.strtools import isGlob
 from smart.cache import *
-import fnmatch
-import string
-import os, re
-import sys
 
 __all__ = ["DebPackage", "DebProvides", "DebNameProvides", "DebPreRequires",
            "DebRequires", "DebUpgrades", "DebConflicts", "DebBreaks",
            "DebOrRequires", "DebOrPreRequires", "DEBARCH"]
-
-def getPlatformPrefix():
-    platform = sys.platform
-    if platform != "linux2":
-        return platform + "-"
-    else:
-        return "" # no prefix
 
 def getArchitecture():
     arch = sysconf.get("deb-arch")
@@ -46,6 +41,7 @@ def getArchitecture():
         return arch
     arch = os.uname()[-1]
     result = {"pentium": "i386",
+              "i86pc": "i386",
               "sparc64": "sparc",
               "ppc": "powerpc",
               "mipseb":	"mips",
@@ -61,7 +57,13 @@ def getArchitecture():
         arch = "hppa"
     elif arch.startswith("alpha"):
         arch = "alpha"
-    return getPlatformPrefix() + arch
+    
+    if sys.platform == "linux2":
+        return arch
+    elif sys.platform == "sunos5":
+        return "%s-%s" % ("solaris", arch)
+    else:
+        return "%s-%s" % (sys.platform, arch)
 
 DEBARCH = getArchitecture()
 
