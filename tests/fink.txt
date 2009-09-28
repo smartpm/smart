@@ -8,7 +8,10 @@ Set up the system provides.
   
 Check for virtual package.
 
-  >>> depends = DebRequires("macosx", ">" , "10.0")
+  >>> depends = DebRequires("macosx", None, None)
+  >>> pkgs.matches(depends)
+  True
+  >>> depends = DebRequires("darwin", ">=" , "8-1")
   >>> pkgs.matches(depends)
   True
 

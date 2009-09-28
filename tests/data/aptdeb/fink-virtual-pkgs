@@ -1,6 +1,13 @@
 #!/bin/sh
 
 cat <<__EOF__
+Package: darwin
+Status: install ok installed
+Version: 8.11.1-1
+description: [virtual package representing the kernel]
+homepage: http://www.finkproject.org/faq/usage-general.php#virtpackage
+provides: kernel
+
 Package: macosx
 Status: install ok installed
 Version: 10.4.11-1
