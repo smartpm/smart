@@ -199,10 +199,12 @@ class DebTagLoader(Loader):
                     n, r, v = relation
                     cnfargs.append((Brk, n, r, v))
 
+            newargs = []
             for args in reqargs:
                 req = args[0](*args[1:])
-                if system_provides.matches(req):
-                    reqargs.remove(req)
+                if not system_provides.matches(req):
+                    newargs.append(args)
+            reqargs = newargs
 
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
