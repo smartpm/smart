@@ -201,6 +201,8 @@ class FinkVirtualPkgs(object):
                info = {}
 
         for info in pkgs:
+            if info["Status"].endswith("not-installed"):
+                continue
             name = info["Package"]
             version = info["Version"]
             self._provides.setdefault(name, DebNameProvides(name, version))
