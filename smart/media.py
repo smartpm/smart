@@ -26,6 +26,11 @@ import commands
 import stat
 import os
 
+try:
+    import dbus
+except ImportError:
+    dbus = None
+
 class MediaSet(object):
 
     def __init__(self):
@@ -360,6 +365,34 @@ def discoverAutoMountMedias(filename="/etc/auto.master"):
     return result
 
 hooks.register("discover-medias", discoverAutoMountMedias)
+
+def discoverDeviceKitVolumeMedias():
+    result = []
+    if dbus:
+        try:
+            bus = dbus.SystemBus()
+            dk_object = bus.get_object('org.freedesktop.DeviceKit.Disks',
+                                       '/org/freedesktop/DeviceKit/Disks')
+            dk_interface = dbus.Interface(dk_object, 'org.freedesktop.DeviceKit.Disks')
+            
+            for path in dk_interface.EnumerateDevices():
+                dev_object = bus.get_object('org.freedesktop.DeviceKit.Disks', path)
+                interface = 'org.freedesktop.DeviceKit.Disks.Device'
+                volume = dbus.Interface(dev_object, 'org.freedesktop.DBus.Properties')
+                device = str(volume.Get(interface, 'DeviceFile'))
+                fstype = str(volume.Get(interface, 'IdType'))
+                mount_paths = volume.Get(interface, 'DeviceMountPaths')
+                optical_disc = bool(volume.Get(interface, 'DeviceIsOpticalDisc'))
+                is_removable = bool(volume.Get(interface, 'DeviceIsRemovable'))
+                if mount_paths and (fstype == "iso9660" or optical_disc):
+                    mount_point = unicode(mount_paths.pop())
+                    result.append(AutoMountMedia(mount_point, device,
+                                                              removable=is_removable))
+        except:
+            pass
+    return result
+
+hooks.register("discover-medias", discoverDeviceKitVolumeMedias)
 
 def discoverDeviceMedia(path):
     mntdir = os.path.join(sysconf.get("data-dir"), "mnt")

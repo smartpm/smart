@@ -1,4 +1,5 @@
-from smart.media import discoverAutoMountMedias, discoverFstabMedias
+from smart.media import discoverAutoMountMedias, discoverFstabMedias, \
+                        discoverDeviceKitVolumeMedias
 from tempfile import NamedTemporaryFile
 import unittest
 
@@ -47,6 +48,13 @@ class FSTabTest(unittest.TestCase):
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0].getMountPoint(), "/media/cdrom0")
 
+class DeviceKitTest(unittest.TestCase):
+
+    def test_devkit(self):
+        result = discoverDeviceKitVolumeMedias()
+        for media in result:
+            self.assertTrue(media.isRemovable())
+            # TODO: check mountpoint and device ?
 
 
 AUTO_MASTER = """
