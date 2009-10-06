@@ -13,7 +13,7 @@ class UncompressorTest(unittest.TestCase):
 
     def tearDown(self):
         path = "%s/uncompress/test" % TESTDATADIR
-        if os.path.exists(path): os.path.unlink(path)
+        if os.path.exists(path): os.unlink(path)
 
     def uncompress_file(self, file):
         uncompressor = Uncompressor()
