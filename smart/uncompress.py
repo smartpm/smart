@@ -92,7 +92,13 @@ class LZMAHandler(UncompressorHandler):
             return localpath[:-5]
 
     def uncompress(self, localpath):
-        import lzma
+        try:
+            import lzma
+        except ImportError:
+            unlzma = sysconf.get("unlzma", "unlzma")
+            localpath = os.path.abspath(localpath)
+            return os.system("%s <%s >%s" % (unlzma, localpath,
+                             self.getTargetPath(localpath)))
         try:
             input = lzma.LZMAFile(localpath)
             output = open(self.getTargetPath(localpath), "w")
