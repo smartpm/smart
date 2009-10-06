@@ -3,7 +3,7 @@
 #
 
 DESTDIR=/
-PYTHON=python
+PYTHON?=python
 
 prefix=/usr
 bindir=$(prefix)/bin
@@ -45,7 +45,7 @@ check-po:
 	done
 
 test:
-	./setup.py build_ext -i
+	$(PYTHON) setup.py build_ext -i
 	LANG=C ./test $(TEST)
 
 .PHONY: clean smart.pot update-po check-po test
