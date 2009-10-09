@@ -40,3 +40,47 @@ fields = [("baseurl", _("Base URL"), str, None,
           ("keyring", _("Keyring"), str, "",
            _("If provided, channel must necessarily be signed by a key "
              "in the GPG keyring at the given path."))]
+
+def detectLocalChannels(path, media):
+    import os
+    channels = []
+    distspath = os.path.join(path, "dists")
+    if not os.path.isdir(distspath):
+        return []
+    for dist in [None] + os.listdir(distspath):
+        if dist:
+            distpath = os.path.join(distspath, dist)
+        else:
+            distpath = distspath
+        if not os.path.isfile(os.path.join(distpath, "Release")):
+            continue
+
+        components = {}
+        for entry in open(os.path.join(distpath, "Release")):
+            if entry.startswith("Components: "):
+                entry = entry[12:]
+                for component in entry.strip().split(" "):
+                    components[component] = True
+        for component in components.keys():
+            if not os.path.isdir(os.path.join(distpath, component)):
+                del components[component]
+        if components:
+            if media:
+                baseurl = "localmedia://"
+                baseurl += path[len(media.getMountPoint()):]
+            else:
+                baseurl = "file://"
+                baseurl += path
+            components = " ".join(components.keys())
+            channel = {"baseurl": baseurl, "components": components}
+            if dist:
+                channel["distribution"] = dist
+            if media:
+                infofile = os.path.join(media.getMountPoint(), ".disk/info")
+                if os.path.isfile(infofile):
+                    file = open(infofile)
+                    channel["name"] = file.read().strip()
+                    file.close()
+            channels.append(channel)
+    return channels
+
