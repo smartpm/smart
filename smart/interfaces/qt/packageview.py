@@ -102,7 +102,7 @@ class QtPackageView(qt.QWidget):
         if hasattr(pkg, "name"):
             iter.setText(1, pkg.name)
         else:
-            iter.setText(1, str(pkg))
+            iter.setText(1, unicode(pkg))
 
         if hasattr(pkg, "version"):
             iter.setText(2, pkg.version)
