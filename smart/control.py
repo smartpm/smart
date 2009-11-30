@@ -659,6 +659,7 @@ class Control(object):
                 pkgitems[pkg].append(fetcher.enqueue(url, media=media,
                                                      md5=info.getMD5(url),
                                                      sha=info.getSHA(url),
+                                                     sha256=info.getSHA256(url),
                                                      size=info.getSize(url),
                                                      validate=info.validate))
         if targetdir:

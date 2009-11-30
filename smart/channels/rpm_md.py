@@ -130,12 +130,16 @@ class RPMMetaDataChannel(PackageChannel):
                                uncomp_md5=info["primary"].get("uncomp_md5"),
                                sha=info["primary"].get("sha"),
                                uncomp_sha=info["primary"].get("uncomp_sha"),
+                               sha256=info["primary"].get("sha256"),
+                               uncomp_sha256=info["primary"].get("uncomp_sha256"),
                                uncomp=True)
         flitem = fetcher.enqueue(info["filelists"]["url"],
                                  md5=info["filelists"].get("md5"),
                                  uncomp_md5=info["filelists"].get("uncomp_md5"),
                                  sha=info["filelists"].get("sha"),
                                  uncomp_sha=info["filelists"].get("uncomp_sha"),
+                                 sha256=info["filelists"].get("sha256"),
+                                 uncomp_sha256=info["filelists"].get("uncomp_sha256"),
                                  uncomp=True)
         fetcher.run(progress=progress)
  
