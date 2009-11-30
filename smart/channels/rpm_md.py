@@ -62,8 +62,8 @@ class RPMMetaDataChannel(PackageChannel):
         try:
             root = ElementTree.parse(metadatafile).getroot()
         except expat.error, e:
-            raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
-                          (metadatafile, repomd, str(e))
+            raise Error, _("Invalid XML file:\n  %s\n  %s") % \
+                          (metadatafile, str(e))
 
         for node in root.getchildren():
             if node.tag != DATA:
