@@ -51,6 +51,12 @@ def parserelations(str):
             ret.append([parserelation(x) for x in group])
     return ret
 
+def splitrelease(v):
+    slash = v.rfind("-")
+    if slash == -1:
+        return v, None
+    return v[:slash], v[slash+1:]
+
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)
     if cmp == 0:
