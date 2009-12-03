@@ -34,6 +34,7 @@ from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel
 from smart import *
 import posixpath
+import os
 
 from xml.parsers import expat
 
@@ -55,10 +56,51 @@ class RPMMetaDataChannel(PackageChannel):
     def getFetchSteps(self):
         return 3
 
+    def loadMetadata(self, metadatafile):
+        info = {}
+
+        try:
+            root = ElementTree.parse(metadatafile).getroot()
+        except expat.error, e:
+            raise Error, _("Invalid XML file:\n  %s\n  %s") % \
+                          (metadatafile, str(e))
+
+        for node in root.getchildren():
+            if node.tag != DATA:
+                continue
+            type = node.get("type")
+            info[type] = {}
+            for subnode in node.getchildren():
+                if subnode.tag == LOCATION:
+                    info[type]["url"] = \
+                        posixpath.join(self._baseurl, subnode.get("href"))
+                if subnode.tag == CHECKSUM:
+                    info[type][subnode.get("type")] = subnode.text
+                if subnode.tag == OPENCHECKSUM:
+                    info[type]["uncomp_"+subnode.get("type")] = \
+                        subnode.text
+        
+        return info
+        
+    def getLocalPath(self, fetcher, url):
+        from smart.fetcher import FetchItem
+        mirror = fetcher.getMirrorSystem().get(url)
+        item = FetchItem(fetcher, url, mirror)
+        return fetcher.getLocalPath(item)
+
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
+
+        oldinfo = {}
+        path = self.getLocalPath(fetcher, repomd)
+        if os.path.exists(path):
+            try:
+                oldinfo = self.loadMetadata(path)
+            except Error:
+                pass
+        
         item = fetcher.enqueue(repomd)
         fetcher.run(progress=progress)
 
@@ -76,27 +118,7 @@ class RPMMetaDataChannel(PackageChannel):
             return True
         self.removeLoaders()
 
-        info = {}
-        try:
-            root = ElementTree.parse(item.getTargetPath()).getroot()
-        except expat.error, e:
-            raise Error, _("Invalid XML file:\n  %s\n  %s\n  %s") % \
-                          (item.getTargetPath(), repomd, str(e))
-
-        for node in root.getchildren():
-            if node.tag != DATA:
-                continue
-            type = node.get("type")
-            info[type] = {}
-            for subnode in node.getchildren():
-                if subnode.tag == LOCATION:
-                    info[type]["url"] = \
-                        posixpath.join(self._baseurl, subnode.get("href"))
-                if subnode.tag == CHECKSUM:
-                    info[type][subnode.get("type")] = subnode.text
-                if subnode.tag == OPENCHECKSUM:
-                    info[type]["uncomp_"+subnode.get("type")] = \
-                        subnode.text
+        info = self.loadMetadata(item.getTargetPath())
 
         if "primary" not in info:
             raise Error, _("Primary information not found in repository "
@@ -108,12 +130,16 @@ class RPMMetaDataChannel(PackageChannel):
                                uncomp_md5=info["primary"].get("uncomp_md5"),
                                sha=info["primary"].get("sha"),
                                uncomp_sha=info["primary"].get("uncomp_sha"),
+                               sha256=info["primary"].get("sha256"),
+                               uncomp_sha256=info["primary"].get("uncomp_sha256"),
                                uncomp=True)
         flitem = fetcher.enqueue(info["filelists"]["url"],
                                  md5=info["filelists"].get("md5"),
                                  uncomp_md5=info["filelists"].get("uncomp_md5"),
                                  sha=info["filelists"].get("sha"),
                                  uncomp_sha=info["filelists"].get("uncomp_sha"),
+                                 sha256=info["filelists"].get("sha256"),
+                                 uncomp_sha256=info["filelists"].get("uncomp_sha256"),
                                  uncomp=True)
         fetcher.run(progress=progress)
  
@@ -143,6 +169,21 @@ class RPMMetaDataChannel(PackageChannel):
             raise Error, "\n".join(lines)
         else:
             return False
+
+        uncompressor = fetcher.getUncompressor()
+
+        # delete any old files, if the new ones have new names
+        for type in ["primary", "filelists", "other"]:
+            if type in oldinfo:
+                url = oldinfo[type]["url"]
+                if url and info[type]["url"] != oldinfo[type]["url"]:
+                    path = self.getLocalPath(fetcher, url)
+                    if os.path.exists(path):
+                       os.unlink(path)
+                    handler = uncompressor.getHandler(path)
+                    path = handler.getTargetPath(path)
+                    if os.path.exists(path):
+                       os.unlink(path)
 
         self._digest = digest
 

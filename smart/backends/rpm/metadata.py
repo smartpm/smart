@@ -70,6 +70,9 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getSHA(self, url):
         return self._info.get("sha")
 
+    def getSHA256(self, url):
+        return self._info.get("sha256")
+
     def getDescription(self):
         return self._info.get("description", "")
 
@@ -261,7 +264,7 @@ class RPMMetaDataLoader(Loader):
                                 Prv = RPMNameProvides
                             else:
                                 Prv = RPMProvides
-                            prvdict[(Prv, ename, eversion)] = True
+                            prvdict[(Prv, ename.encode('utf-8'), eversion)] = True
 
                     elif lasttag == OBSOLETES:
                         tup = (RPMObsoletes, ename, erelation, eversion)

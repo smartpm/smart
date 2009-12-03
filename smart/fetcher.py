@@ -336,7 +336,9 @@ class Fetcher(object):
             prefix = "uncomp_"
         else:
             prefix = ""
-        return bool(item.getInfo(prefix+"md5") or item.getInfo(prefix+"sha"))
+        return bool(item.getInfo(prefix+"md5") or
+                    item.getInfo(prefix+"sha") or
+                    item.getInfo(prefix+"sha256"))
 
     def validate(self, item, localpath, withreason=False, uncomp=False):
         try:
@@ -382,6 +384,22 @@ class Fetcher(object):
                     raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
             else:
+                filesha256 = item.getInfo(uncompprefix+"sha256")
+                if filesha256:
+                    try:
+                        from hashlib import sha256
+                        digest = sha256()
+                        file = open(localpath)
+                        data = file.read(BLOCKSIZE)
+                        while data:
+                            digest.update(data)
+                            data = file.read(BLOCKSIZE)
+                        lfilesha256 = digest.hexdigest()
+                        if lfilesha256 != filesha256:
+                           raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
+                                         (filesha256, lfilesha256)
+                    except ImportError:
+                        pass
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
                     try:
@@ -489,12 +507,13 @@ class FetchItem(object):
         #             or just 'valid', depending on 'withreason'. 'valid'
         #             may be None, True, or False. If it's True or False,
         #             no other information will be checked.
-        # - md5, sha: file digest
+        # - md5, sha, sha256: file digest
         # - size: file size
         # - uncomp: whether to uncompress or not
-        # - uncomp_{md5,sha,size}: uncompressed equivalents
+        # - uncomp_{md5,sha,sha256,size}: uncompressed equivalents
         #
-        for kind in ("md5", "sha", "uncomp_md5", "uncomp_sha"):
+        for kind in ("md5", "sha", "sha256",
+                     "uncomp_md5", "uncomp_sha", "uncomp_sha256"):
             value = info.get(kind)
             if value:
                 info[kind] = value.lower()
