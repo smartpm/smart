@@ -111,6 +111,8 @@ def parse_options(argv, help=None):
                       help=_("show channels that include this package"))
     parser.add_option("--show-all", action="store_true",
                       help=_("enable all --show-* options"))
+    parser.add_option("--show-format", action="store", default=None,
+                      metavar="TMPL", help=_("show using string template"))
     parser.add_option("--format", action="store", default="text",
                       metavar="FMT", help=_("change output format"))
     parser.add_option("--output", action="store", metavar="FILE",
@@ -119,8 +121,11 @@ def parse_options(argv, help=None):
     opts.args = args
     if opts.show_all:
         for attr in dir(opts):
-            if attr.startswith("show_") and attr != "show_prerequires":
+            if attr.startswith("show_") and attr != "show_prerequires" \
+                                        and attr != "show_format":
                 setattr(opts, attr, True)
+    if opts.show_format:
+        opts.show_format = string.Template(opts.show_format)
     return opts
 
 def main(ctrl, opts, reloadchannels=True):
@@ -487,6 +492,13 @@ class TextOutput(NullOutput):
         print
 
     def showPackage(self, pkg):
+        if self.opts.show_format:
+            info = pkg.loaders.keys()[0].getInfo(pkg)
+            tags = dict(name=pkg.name, version=pkg.version)
+            fmt = self.opts.show_format.safe_substitute(tags)
+            fmt = fmt.replace('\\t', "\t").replace('\\n', "\n")
+            sys.stdout.write(fmt)
+            return
         if self.opts.hide_version:
             print pkg.name,
         else:
