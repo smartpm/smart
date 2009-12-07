@@ -492,6 +492,17 @@ class TextOutput(NullOutput):
         print
 
     def showPackage(self, pkg):
+        self._firstprovides = True
+        self._firstrequiredby = True
+        self._firstupgradedby = True
+        self._firstconflictedby = True
+        self._firstrequires = True
+        self._firstrequiresprovidedby = True
+        self._firstupgrades = True
+        self._firstupgradesprovidedby = True
+        self._firstconflicts = True
+        self._firstconflictsprovidedby = True
+
         if self.opts.show_format:
             info = pkg.loaders.keys()[0].getInfo(pkg)
             tags = dict(name=pkg.name, version=pkg.version)
@@ -515,17 +526,6 @@ class TextOutput(NullOutput):
             info = pkg.loaders.keys()[0].getInfo(pkg)
             print "-", info.getSummary(),
         print
-
-        self._firstprovides = True
-        self._firstrequiredby = True
-        self._firstupgradedby = True
-        self._firstconflictedby = True
-        self._firstrequires = True
-        self._firstrequiresprovidedby = True
-        self._firstupgrades = True
-        self._firstupgradesprovidedby = True
-        self._firstconflicts = True
-        self._firstconflictsprovidedby = True
 
     def showProvides(self, pkg, prv):
         self._firstrequiredby = True
