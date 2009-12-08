@@ -146,6 +146,8 @@ class RPMMetaDataLoader(Loader):
         PROVIDES    = nstag(NS_RPM, "provides")
         CONFLICTS   = nstag(NS_RPM, "conflicts")
         OBSOLETES   = nstag(NS_RPM, "obsoletes")
+        DISTTAG     = nstag(NS_RPM, "disttag")
+        DISTEPOCH   = nstag(NS_RPM, "distepoch")
 
         COMPMAP = { "EQ":"=", "LT":"<", "LE":"<=", "GT":">", "GE":">="}
 
@@ -158,6 +160,8 @@ class RPMMetaDataLoader(Loader):
         name = None
         version = None
         arch = None
+        disttag = None
+        distepoch = None
         info = {}
         reqdict = {}
         prvdict = {}
@@ -206,6 +210,12 @@ class RPMMetaDataLoader(Loader):
                     else:
                         version = "%s-%s" % \
                                   (elem.get("ver"), elem.get("rel"))
+
+                elif tag == DISTTAG:
+                    disttag = elem.text
+
+                elif tag == DISTEPOCH:
+                    distepoch = elem.text
 
                 elif tag == SUMMARY:
                     if elem.text:
@@ -320,6 +330,12 @@ class RPMMetaDataLoader(Loader):
                     cnfargs = cnfdict.keys()
                     upgargs = upgdict.keys()
 
+                    if disttag:
+                        version += "-%s" % disttag
+                        if distepoch:
+                            version += distepoch
+                        versionarch = "%s@%s" % (version, arch)
+
                     pkg = self.buildPackage((RPMPackage, name, versionarch),
                                             prvargs, reqargs, upgargs, cnfargs)
                     pkg.loaders[self] = info
@@ -340,6 +356,8 @@ class RPMMetaDataLoader(Loader):
                     name = None
                     version = None
                     arch = None
+                    disttag = None
+                    distepoch = None
                     pkgid = None
                     reqdict.clear()
                     prvdict.clear()

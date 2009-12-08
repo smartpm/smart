@@ -356,6 +356,14 @@ class RPMHeaderLoader(Loader):
             else:
                 upgargs = [obstup]
 
+            disttag = h[1155] # RPMTAG_DISTTAG
+            distepoch = h[1218] # RPMTAG_DISTEPOCH
+            if disttag:
+                version += "-%s" % disttag
+                if distepoch:
+                    version += distepoch
+                versionarch = "%s@%s" % (version, arch)
+
             pkg = self.buildPackage((Pkg, name, versionarch),
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
