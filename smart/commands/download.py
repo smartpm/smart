@@ -41,6 +41,7 @@ smart download pkgname-1.0
 smart download pkgname-1.0-1
 smart download pkgname1 pkgname2
 smart download pkgname --urls 2> pkgname-url.txt
+smart download pkgname --metalink 2> pkgname.metalink
 smart download --from-urls pkgname-url.txt
 smart download --from-urls http://some.url/some/path/somefile
 """)
@@ -55,6 +56,8 @@ def parse_options(argv):
                       help=_("packages will be saved in given directory"))
     parser.add_option("--urls", action="store_true",
                       help=_("dump needed urls and don't download packages"))
+    parser.add_option("--metalink", action="store_true",
+                      help=_("dump metalink xml and don't download packages"))
     parser.add_option("--from-urls", action="callback", callback=append_all,
                       help=_("download files from the given urls and/or from "
                              "the given files with lists of urls"))
@@ -130,6 +133,8 @@ def main(ctrl, opts):
 
         if opts.urls:
             ctrl.dumpURLs(packages)
+        elif opts.metalink:
+            ctrl.dumpMetalink(packages)
         else:
             ctrl.downloadPackages(packages, targetdir=opts.target)
     elif opts.from_urls:

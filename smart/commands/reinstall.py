@@ -50,6 +50,8 @@ def parse_options(argv):
                       help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
                       help=_("dump needed urls and don't commit operation"))
+    parser.add_option("--metalink", action="store_true",
+                      help=_("dump metalink xml and don't download packages"))
     parser.add_option("--download", action="store_true",
                       help=_("download packages and don't commit operation"))
     parser.add_option("--explain", action="store_true",
@@ -126,6 +128,8 @@ def main(ctrl, opts):
         confirm = not opts.yes
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
+        elif opts.metalink:
+            ctrl.dumpTransactionMetalink(trans)
         elif opts.download:
             ctrl.downloadTransaction(trans, confirm=confirm)
         elif opts.stepped:
