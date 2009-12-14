@@ -1,0 +1,35 @@
+
+Create the channel.
+
+  >>> from tests import *
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "rpm-md",
+  ...                          "baseurl": "file://%s/rpm" % TESTDATADIR,
+  ...                          "mirrorlist": "file://%s/rpm/mirrorlist.txt" % TESTDATADIR})
+  >>> channel
+  <smart.channels.rpm_md.RPMMetaDataChannel object at ...>
+
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.rpm.metadata.RPMMetaDataLoader object at ...>]
+
+
+Now let's test for the mirror information.
+
+  >>> channel.getMirrors()
+  {...: ['http://url1.tld/path', 'ftp://url2.tld/path']}
+
+vim:ft=doctest
