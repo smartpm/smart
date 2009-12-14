@@ -23,6 +23,8 @@ Fetch channel data.
 
   >>> channel.fetch(fetcher, progress)
   True
+  >>> channel.getMirrors()
+  {...: ['http://url1.tld/path', 'ftp://url2.tld/path']}
   >>> channel.getLoaders()
   [<smart.backends.rpm.metadata.RPMMetaDataLoader object at ...>]
 
@@ -104,9 +106,5 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getReferenceURLs()
   ['http://example.com/name1']
 
-Now let's test for the mirror information.
-
-  >>> channel.getMirrors()
-  {...: ['http://url1.tld/path', 'ftp://url2.tld/path']}
 
 vim:ft=doctest
