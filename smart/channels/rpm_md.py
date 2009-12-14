@@ -46,6 +46,11 @@ OPENCHECKSUM = NS+"open-checksum"
 
 class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _mirrors = {}
+    _mirrorlist = ""
+
     def __init__(self, baseurl, mirrorlist=None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
