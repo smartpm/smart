@@ -31,7 +31,7 @@ except ImportError:
         from smart.util.elementtree import ElementTree
 
 from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
-from smart.channel import PackageChannel
+from smart.channel import PackageChannel, MirrorsChannel
 from smart import *
 import posixpath
 import os
@@ -44,7 +44,7 @@ LOCATION = NS+"location"
 CHECKSUM = NS+"checksum"
 OPENCHECKSUM = NS+"open-checksum"
 
-class RPMMetaDataChannel(PackageChannel):
+class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
     def __init__(self, baseurl, mirrorlist=None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)

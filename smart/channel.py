@@ -32,7 +32,6 @@ class Channel(object):
         self._manualupdate = manualupdate
         self._removable = removable
         self._digest = object()
-        self._mirrors = {}
 
     def getType(self):
         return self._type
@@ -76,9 +75,6 @@ class Channel(object):
         on the caching mode of the fetcher.
         """
         return True
-
-    def getMirrors(self):
-        return self._mirrors
 
     def __str__(self):
         return self._name or self._alias
@@ -128,6 +124,10 @@ class MirrorsChannel(Channel):
                  manualupdate=False, removable=False):
         super(MirrorsChannel, self).__init__(type, alias, name,
                                              manualupdate, removable)
+        self._mirrors = {}
+
+    def getMirrors(self):
+        return self._mirrors
 
 # (key, label, needed, type, description)
 DEFAULTFIELDS = [("alias", _("Alias"), str, None,
