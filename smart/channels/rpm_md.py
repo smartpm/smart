@@ -130,6 +130,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
                 self.loadMirrors(item.getTargetPath())
 
             fetcher.reset()
+        else:
+            progress.add(1)
 
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
 
