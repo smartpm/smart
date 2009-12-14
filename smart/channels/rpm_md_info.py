@@ -30,5 +30,7 @@ Repository created with the rpm-metadata project.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
-           _("URL where repodata/ subdirectory is found"))]
+           _("URL where repodata/ subdirectory is found")),
+          ("mirrorlist", _("Mirror list URL"), str, "",
+           _("URL which provides list of mirrors for baseurl"))]
 

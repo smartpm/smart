@@ -5,7 +5,8 @@ Create the channel.
   >>> from smart.channel import createChannel
   >>> channel = createChannel("alias",
   ...                         {"type": "rpm-md",
-  ...                          "baseurl": "file://%s/rpm" % TESTDATADIR})
+  ...                          "baseurl": "file://%s/rpm" % TESTDATADIR,
+  ...                          "mirrorlist": "file://%s/rpm/mirrorlist.txt" % TESTDATADIR})
   >>> channel
   <smart.channels.rpm_md.RPMMetaDataChannel object at ...>
 
@@ -22,6 +23,8 @@ Fetch channel data.
 
   >>> channel.fetch(fetcher, progress)
   True
+  >>> channel.getMirrors()
+  {...: ['http://url1.tld/path', 'ftp://url2.tld/path']}
   >>> channel.getLoaders()
   [<smart.backends.rpm.metadata.RPMMetaDataLoader object at ...>]
 

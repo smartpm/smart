@@ -255,7 +255,7 @@ def main(ctrl, opts):
         for arg in opts.set:
             if "=" not in arg:
                 raise Error, _("Argument '%s' has no '='") % arg
-            key, value = arg.split("=")
+            key, value = arg.split("=", 1)
             key = key.strip()
             if key == "type":
                 raise Error, _("Can't change the channel type")
