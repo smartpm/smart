@@ -44,6 +44,12 @@ LOCATION = NS+"location"
 CHECKSUM = NS+"checksum"
 OPENCHECKSUM = NS+"open-checksum"
 
+ML = "{http://www.metalinker.org/}"
+FILES = ML+"files"
+FILE = ML+"file"
+RESOURCES = ML+"resources"
+URL = ML+"url"
+
 class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
     # It's important for the default to be here so that old pickled
@@ -62,6 +68,41 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
     def getFetchSteps(self):
         return 4
 
+    def loadMetalink(self, metalinkfile):
+        self._mirrors.clear()
+
+        try:
+            root = ElementTree.parse(metalinkfile).getroot()
+        except expat.error, e:
+            iface.warning(_("Could not load meta link. Continuing with base URL only."))
+            iface.debug(e)
+
+        filename = None
+        for node in root.getiterator():
+            if node.tag == FILE:
+                filename = node.get("name")
+                continue
+            elif node.tag != RESOURCES:
+                continue
+            for subnode in node.getchildren():
+                if subnode.tag != URL:
+                    continue
+                type = subnode.get("type")
+                preference = subnode.get("preference")
+                if type != "http" and type != "ftp" and type != "file":
+                    continue
+                mirror = subnode.text
+                if mirror:
+                    if mirror.endswith("/repodata/repomd.xml"):
+                        mirror = mirror.replace("/repodata/repomd.xml", "")
+                    elif filename and mirror.endswith("/"+filename):
+                        mirror = mirror.replace("/"+filename, "")
+                    if self._baseurl in self._mirrors:
+                        if mirror not in self._mirrors[self._baseurl]:
+                            self._mirrors[self._baseurl].append(mirror)
+                    else:
+                        self._mirrors[self._baseurl] = [mirror]
+
     def loadMirrors(self, mirrorlistfile):
         self._mirrors.clear()
 
@@ -72,6 +113,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             iface.debug(e)
 
         for line in file:
+            if line == '<?xml version="1.0" encoding="utf-8"?>\n':
+                return self.loadMetalink(mirrorlistfile)
             if line[0] != "#":
                 mirror = line.strip()
                 if mirror:
