@@ -46,15 +46,35 @@ OPENCHECKSUM = NS+"open-checksum"
 
 class RPMMetaDataChannel(PackageChannel):
 
-    def __init__(self, baseurl, *args):
+    def __init__(self, baseurl, mirrorlist=None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
+        self._mirrorlist = mirrorlist
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 3
+        return 4
+
+    def loadMirrors(self, mirrorlistfile):
+        self._mirrors.clear()
+
+        try:
+            file = open(mirrorlistfile, 'r')
+        except IOError, e:
+            iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            iface.debug(e)
+
+        for line in file:
+            if line[0] != "#":
+                mirror = line.strip()
+                if mirror:
+                    if self._baseurl in self._mirrors:
+                        if mirror not in self._mirrors[self._baseurl]:
+                            self._mirrors[self._baseurl].append(mirror)
+                    else:
+                        self._mirrors[self._baseurl] = [mirror]
 
     def loadMetadata(self, metadatafile):
         info = {}
@@ -91,6 +111,21 @@ class RPMMetaDataChannel(PackageChannel):
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
+
+        if self._mirrorlist:
+            mirrorlist = self._mirrorlist
+            item = fetcher.enqueue(mirrorlist)
+            fetcher.run(progress=progress)
+
+            if item.getStatus() is FAILED:
+                progress.add(self.getFetchSteps()-1)
+                if fetcher.getCaching() is NEVER:
+                    iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            else:
+                self.loadMirrors(item.getTargetPath())
+
+            fetcher.reset()
+
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
 
         oldinfo = {}
@@ -191,6 +226,7 @@ class RPMMetaDataChannel(PackageChannel):
 
 def create(alias, data):
     return RPMMetaDataChannel(data["baseurl"],
+                              data["mirrorlist"],
                               data["type"],
                               alias,
                               data["name"],
