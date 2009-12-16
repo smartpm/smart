@@ -441,8 +441,8 @@ class Control(object):
             if not info.getURLs():
                 raise Error, _("Package %s is not available for downloading") \
                              % pkg
-            metafile = Metafile(pkg.name, pkg.version, info.getSummary())
             for url in info.getURLs():
+                metafile = Metafile(pkg.name, pkg.version, info.getSummary())
                 mirror = msys.get(url)
                 mirrorurls = []
                 mirrorurl = mirror.getNext()
@@ -454,7 +454,7 @@ class Control(object):
                                 md5=info.getMD5(url),
                                 sha=info.getSHA(url),
                                 sha256=info.getSHA256(url))
-            metalink.append(metafile)
+                metalink.append(metafile)
         if packages:
             metalink.write(output)
 
