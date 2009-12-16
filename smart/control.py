@@ -29,7 +29,7 @@ from smart.util.filetools import compareFiles, setCloseOnExecAll
 from smart.util.objdigest import getObjectDigest
 from smart.util.pathlocks import PathLocks
 from smart.util.strtools import strToBool
-from smart.util.metalink import Metalink
+from smart.util.metalink import Metalink, Metafile
 from smart.searcher import Searcher
 from smart.media import MediaSet
 from smart.progress import Progress
@@ -430,7 +430,8 @@ class Control(object):
     def dumpMetalink(self, packages, output=None):
         if output is None:
             output = sys.stderr
-        metalink = Metalink(self._fetcher.getMirrorSystem())
+        metalink = Metalink()
+        msys = self._fetcher.getMirrorSystem()
         for pkg in packages:
             loaders = [x for x in pkg.loaders if not x.getInstalled()]
             if not loaders:
@@ -440,7 +441,20 @@ class Control(object):
             if not info.getURLs():
                 raise Error, _("Package %s is not available for downloading") \
                              % pkg
-            metalink.append(info)
+            metafile = Metafile(pkg.name, pkg.version, info.getSummary())
+            for url in info.getURLs():
+                mirror = msys.get(url)
+                mirrorurls = []
+                mirrorurl = mirror.getNext()
+                while mirrorurl:
+                    mirrorurls.append(mirrorurl)
+                    mirrorurl = mirror.getNext()
+                metafile.append(mirrorurls,
+                                size=info.getSize(url),
+                                md5=info.getMD5(url),
+                                sha=info.getSHA(url),
+                                sha256=info.getSHA256(url))
+            metalink.append(metafile)
         if packages:
             metalink.write(output)
 
