@@ -135,8 +135,8 @@ def main(ctrl, opts):
                 if value is marker:
                     iface.warning(_("Option '%s' not found.") % opt)
                 else:
-                    print yaml.dump(value)
+                    print yaml.safe_dump(value, explicit_end=True)
         else:
-            print yaml.dump(sysconf.get((), hard=True))
+            print yaml.safe_dump(sysconf.get((), hard=True))
 
 # vim:ts=4:sw=4:et
