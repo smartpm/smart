@@ -317,7 +317,10 @@ class DebPackageManager(PackageManager):
                 os.dup2(output_fd, 1)
                 os.dup2(output_fd, 2)
             #print >>output, " ".join(argv)
-            os.execvp(argv[0], argv)
+            try:
+                os.execvp(argv[0], argv)
+            except OSError, e:
+                output.write("%s: %s\n" % (argv[0], str(e)))
             os._exit(1)
 
         output.flush()
