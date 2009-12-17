@@ -61,6 +61,8 @@ def parse_options(argv):
                       help=_("unset priority"))
     parser.add_option("--show", action="store_true",
                       help=_("show priorities"))
+    parser.add_option("--yaml", action="store_true",
+                      help=_("show priorities in YAML format"))
     parser.add_option("--force", action="store_true",
                       help=_("ignore problems"))
     opts, args = parser.parse_args(argv)
@@ -109,5 +111,13 @@ def main(ctrl, opts):
                 priority = pkgpriorities[alias]
                 print "%-30s %-20s %d" % (name, alias or "*", priority)
         print
+
+    elif opts.yaml:
+        import yaml
+        yamlpriorities = {}
+        priorities = sysconf.get("package-priorities", {})
+        for name in opts.args or priorities:
+            yamlpriorities[name] = priorities.get(name)
+        print yaml.dump(yamlpriorities)
 
 # vim:ts=4:sw=4:et

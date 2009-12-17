@@ -87,6 +87,8 @@ def parse_options(argv):
     parser.defaults["clear_history"] = None
     parser.add_option("--show", action="store_true",
                       help=_("show current mirrors"))
+    parser.add_option("--yaml", action="store_true",
+                      help=_("show current mirrors in YAML format"))
     parser.add_option("--add", action="callback", callback=append_all,
                       help=_("add to the given origin URL the given mirror "
                              "URL, provided either in pairs, or in a given "
@@ -210,6 +212,14 @@ def main(ctrl, opts):
             for mirror in mirrors[origin]:
                 print "   ", mirror
             print
+
+    if opts.yaml:
+        import yaml
+        yamlmirrors = {}
+        mirrors = sysconf.get("mirrors", ())
+        for origin in mirrors:
+            yamlmirrors[origin] = mirrors[origin]
+        print yaml.dump(yamlmirrors)
 
     if opts.edit:
         sysconf.assertWritable()

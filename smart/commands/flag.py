@@ -61,6 +61,7 @@ def parse_options(argv):
     parser.defaults["set"] = []
     parser.defaults["remove"] = []
     parser.defaults["show"] = None
+    parser.defaults["yaml"] = None
     parser.add_option("--set", action="callback", callback=append_all,
                       help=_("set flags given in pairs of flag name/target, "
                              "where targets may use just the package "
@@ -74,6 +75,8 @@ def parse_options(argv):
     parser.add_option("--show", action="callback", callback=append_all,
                       help=_("show packages with the flags given as arguments "
                              "or all flags if no argument was given"))
+    parser.add_option("--yaml", action="callback", callback=append_all,
+                      help=_("show given flags in YAML format"))
     parser.add_option("--force", action="store_true",
                       help=_("ignore problems"))
     opts, args = parser.parse_args(argv)
@@ -117,5 +120,18 @@ def main(ctrl, opts):
                     else:
                         print "   ", name
             print
+
+    if opts.yaml is not None:
+        import yaml
+        yamlflags = {}
+        for flag in opts.yaml or pkgconf.getFlagNames():
+            flag = flag.strip()
+            names = pkgconf.getFlagTargets(flag)
+            for name, relvers in names.iteritems():
+                targets = []
+                for relation, version in relvers:
+                    targets += [relation, version]
+                yamlflags[flag] = { name: targets }
+        print yaml.dump(yamlflags)
 
 # vim:ts=4:sw=4:et

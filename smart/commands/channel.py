@@ -97,6 +97,7 @@ def parse_options(argv):
     parser.defaults["enable"] = None
     parser.defaults["disable"] = None
     parser.defaults["show"] = None
+    parser.defaults["yaml"] = None
     parser.add_option("--add", action="callback", callback=append_all,
                       help=_("argument is an alias and one or more "
                              "key=value pairs defining a channel, or a "
@@ -114,6 +115,8 @@ def parse_options(argv):
     parser.add_option("--show", action="callback", callback=append_all,
                       help=_("show channels with given aliases, or all "
                            "channels if no arguments were given"))
+    parser.add_option("--yaml", action="callback", callback=append_all,
+                      help=_("show given channels in YAML format"))
     parser.add_option("--edit", action="store_true",
                       help=_("edit channels in editor set by $EDITOR"))
     parser.add_option("--enable", action="callback", callback=append_all,
@@ -143,7 +146,8 @@ def main(ctrl, opts):
         print
         sys.exit(0)
 
-    if sysconf.getReadOnly() is True and opts.show is None:
+    if sysconf.getReadOnly() is True and opts.show is None \
+                                     and opts.yaml is None:
         iface.warning(_("Can't edit channels information."))
         raise Error, _("Configuration is in readonly mode.")
     
@@ -308,6 +312,18 @@ def main(ctrl, opts):
                 if desc:
                     print desc
                     print
+
+    if opts.yaml is not None:
+        import yaml
+        yamlchannels = {}
+        for alias in (opts.yaml or sysconf.get("channels", ())):
+            channel = sysconf.get(("channels", alias))
+            if not channel:
+                iface.warning(_("Channel '%s' not found.") % alias)
+            else:
+                data = parseChannelData(channel)
+                yamlchannels[alias] = data    
+        print yaml.dump(yamlchannels)
 
     if opts.edit:
         sysconf.assertWritable()
