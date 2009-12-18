@@ -56,6 +56,8 @@ def parse_options(argv, help=None):
                               examples=EXAMPLES)
     parser.add_option("--installed", action="store_true",
                       help=_("consider only installed packages"))
+    parser.add_option("--newest", action="store_true",
+                       help=_("consider only the newest package"))
     parser.add_option("--dupes", action="store_true",
                       help=_("consider only installed packages that are duplicated"))
     parser.add_option("--leaves", action="store_true",
@@ -203,6 +205,16 @@ def main(ctrl, opts, reloadchannels=True):
             if orphan:
                 orphans.append(pkg)
         packages = orphans
+
+    if opts.newest:
+        newest = {}
+        for pkg in packages:
+            if pkg.name in newest:
+                if pkg > newest[pkg.name]:
+                    newest[pkg.name] = pkg
+            else:
+                newest[pkg.name] = pkg
+        packages = [pkg for pkg in packages if pkg == newest[pkg.name]]
 
     whoprovides = []
     for name in opts.provides:
