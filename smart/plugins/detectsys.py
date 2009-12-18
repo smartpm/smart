@@ -23,7 +23,8 @@ from smart import *
 import os
 
 def detectRPMSystem():
-    file = os.path.join(sysconf.get("rpm-root", "/"), "var/lib/rpm/Packages")
+    dir = os.path.join(sysconf.get("rpm-root", "/"), "var/lib/rpm")
+    file = os.path.join(dir, "Packages")
     if os.path.exists(file):
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "rpm-sys":
@@ -35,7 +36,8 @@ def detectRPMSystem():
                         })
 
 def detectDEBSystem():
-    file = os.path.join(sysconf.get("deb-root", "/"), "var/lib/dpkg/status")
+    dir = os.path.join(sysconf.get("deb-root", "/"), "var/lib/dpkg")
+    file = os.path.join(dir, "status")
     if os.path.exists(file):
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "deb-sys":
