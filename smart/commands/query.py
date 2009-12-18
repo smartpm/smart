@@ -56,6 +56,12 @@ def parse_options(argv, help=None):
                               examples=EXAMPLES)
     parser.add_option("--installed", action="store_true",
                       help=_("consider only installed packages"))
+    parser.add_option("--dupes", action="store_true",
+                      help=_("consider only installed packages that are duplicated"))
+    parser.add_option("--leaves", action="store_true",
+                      help=_("consider only installed packages not required by others"))
+    parser.add_option("--orphans", action="store_true",
+                      help=_("consider only installed packages not in other channels"))
     parser.add_option("--provides", action="append", default=[], metavar="DEP",
                       help=_("show only packages providing the given "
                              "dependency"))
@@ -160,8 +166,43 @@ def main(ctrl, opts, reloadchannels=True):
                         packages.update(dict.fromkeys(obj.packages, True))
         packages = packages.keys()
 
-    if opts.installed:
+    if opts.installed or opts.dupes or opts.leaves or opts.orphans:
         packages = [pkg for pkg in packages if pkg.installed]
+    if opts.dupes:
+        dupes = []
+        for pkg in packages:
+            dupe = False
+            for prv in cache.getProvides(pkg.name):
+                for prvpkg in prv.packages:
+                    if prvpkg == pkg:
+                        continue
+                    if prvpkg.installed:
+                        dupe = True
+            if dupe:
+                dupes.append(pkg)
+        packages = dupes
+    if opts.leaves:
+        leaves = []
+        for pkg in packages:
+            leaf = True
+            for prv in pkg.provides:
+                for req in prv.requiredby:
+                    for reqpkg in req.packages:
+                        if reqpkg.installed:
+                            leaf = False
+            if leaf:
+                leaves.append(pkg)
+        packages = leaves
+    if opts.orphans:
+        orphans = []
+        for pkg in packages:
+            orphan = True
+            for loader in pkg.loaders:
+                if not loader.getInstalled():
+                    orphan = False
+            if orphan:
+                orphans.append(pkg)
+        packages = orphans
 
     whoprovides = []
     for name in opts.provides:
