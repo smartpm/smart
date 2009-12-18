@@ -29,6 +29,7 @@ from smart.util.filetools import compareFiles, setCloseOnExecAll
 from smart.util.objdigest import getObjectDigest
 from smart.util.pathlocks import PathLocks
 from smart.util.strtools import strToBool
+from smart.util.metalink import Metalink, Metafile
 from smart.searcher import Searcher
 from smart.media import MediaSet
 from smart.progress import Progress
@@ -421,6 +422,41 @@ class Control(object):
             urls.extend(info.getURLs())
         for url in urls:
             print >>output, url
+
+    def dumpTransactionMetalink(self, trans, output=None):
+        changeset = trans.getChangeSet()
+        self.dumpMetalink([x for x in changeset if changeset[x] is INSTALL])
+
+    def dumpMetalink(self, packages, output=None):
+        if output is None:
+            output = sys.stderr
+        metalink = Metalink()
+        msys = self._fetcher.getMirrorSystem()
+        for pkg in packages:
+            loaders = [x for x in pkg.loaders if not x.getInstalled()]
+            if not loaders:
+                raise Error, _("Package %s is not available for downloading") \
+                             % pkg
+            info = loaders[0].getInfo(pkg)
+            if not info.getURLs():
+                raise Error, _("Package %s is not available for downloading") \
+                             % pkg
+            for url in info.getURLs():
+                metafile = Metafile(pkg.name, pkg.version, info.getSummary())
+                mirror = msys.get(url)
+                mirrorurls = []
+                mirrorurl = mirror.getNext()
+                while mirrorurl:
+                    mirrorurls.append(mirrorurl)
+                    mirrorurl = mirror.getNext()
+                metafile.append(mirrorurls,
+                                size=info.getSize(url),
+                                md5=info.getMD5(url),
+                                sha=info.getSHA(url),
+                                sha256=info.getSHA256(url))
+                metalink.append(metafile)
+        if packages:
+            metalink.write(output)
 
     def dumpTransactionPackages(self, trans, install=False, remove=False,
                                 output=None):
