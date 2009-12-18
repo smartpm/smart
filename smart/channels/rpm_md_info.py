@@ -34,3 +34,26 @@ fields = [("baseurl", _("Base URL"), str, None,
           ("mirrorlist", _("Mirror list URL"), str, "",
            _("URL which provides list of mirrors for baseurl"))]
 
+def detectLocalChannels(path, media):
+    import os
+    channels = []
+    if os.path.isfile(os.path.join(path, "repodata/repomd.xml")):
+        if media:
+            baseurl = "localmedia://"
+            baseurl += path[len(media.getMountPoint()):]
+        else:
+            baseurl = "file://"
+            baseurl += path
+        channel = {"baseurl": str(baseurl)}
+        if media:
+            infofile = os.path.join(media.getMountPoint(), ".discinfo")
+            if os.path.isfile(infofile):
+                file = open(infofile)
+                skip = file.readline().rstrip()
+                name = file.readline().rstrip()
+                arch = file.readline().rstrip()
+                file.close()
+                channel["name"] = "%s - %s - Media" % (name, arch)
+        channels.append(channel)
+    return channels
+
