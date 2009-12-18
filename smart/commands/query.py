@@ -303,6 +303,7 @@ def main(ctrl, opts, reloadchannels=True):
     else:
         raise Error, "Output format unknown"
 
+    output.setPackageCount(len(packages))
     output.startGrabOutput()
 
     output.start()
@@ -423,6 +424,7 @@ class NullOutput(object):
         self.opts = opts
         self.output = None
         self.__sys_stdout = None
+        self._count = 0
 
     def start(self):
         pass
@@ -446,6 +448,12 @@ class NullOutput(object):
             if self.output is not sys.stdout:
                 self.output.close()
         self.output = None
+
+    def getPackageCount(self):
+        return self._count
+
+    def setPackageCount(self, count):
+        self._count = count
 
     def showPackage(self, pkg):
         pass
