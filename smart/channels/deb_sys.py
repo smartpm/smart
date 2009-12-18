@@ -32,7 +32,8 @@ class DebSysChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         path = os.path.join(sysconf.get("deb-root", "/"),
-                            "var/lib/dpkg/status")
+                            sysconf.get("deb-admindir", "var/lib/dpkg"),
+                            "status"))
         digest = os.path.getmtime(path)
         if digest == self._digest:
             return True

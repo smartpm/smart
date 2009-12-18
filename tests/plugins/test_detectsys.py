@@ -15,9 +15,16 @@ class DetectSysPluginTest(MockerTestCase):
         self.deb_root = self.makeDir()
         self.slack_root = self.makeDir()
 
+        self.rpm_dbpath = "var/lib/rpm"
+        self.deb_admindir = "var/lib/dpkg"
+        self.slack_packages_dir = "var/log/packages"
+
         sysconf.set("rpm-root", self.rpm_root)
+        sysconf.set("rpm-dbpath", self.rpm_dbpath)
         sysconf.set("deb-root", self.deb_root)
+        sysconf.set("deb-admindir", self.deb_admindir)
         sysconf.set("slack-root", self.slack_root)
+        sysconf.set("slack-packages-dir", self.slack_packages_dir)
 
         self.old_sysconf = pickle.dumps(sysconf.object)
 
@@ -26,20 +33,20 @@ class DetectSysPluginTest(MockerTestCase):
 
     def make_rpm(self):
         self.make_rpmdir()
-        open(os.path.join(self.rpm_root, "var/lib/rpm", "Packages"), 'w')
+        open(os.path.join(self.rpm_root, self.rpm_dbpath, "Packages"), 'w')
 
     def make_rpmdir(self):
-        os.makedirs(os.path.join(self.rpm_root, "var/lib/rpm"))
+        os.makedirs(os.path.join(self.rpm_root, self.rpm_dbpath))
 
     def make_deb(self):
         self.make_debdir()
-        open(os.path.join(self.deb_root, "var/lib/dpkg", "status"), 'w')
+        open(os.path.join(self.deb_root, self.deb_admindir, "status"), 'w')
 
     def make_debdir(self):
-        os.makedirs(os.path.join(self.deb_root, "var/lib/dpkg"))
+        os.makedirs(os.path.join(self.deb_root, self.deb_admindir))
 
     def make_slack(self):
-        os.makedirs(os.path.join(self.slack_root, "var/log/packages"))
+        os.makedirs(os.path.join(self.slack_root, self.slack_packages_dir))
 
     def rerun_plugin(self):
         sys.modules.pop("smart.plugins.detectsys", None)
@@ -61,6 +68,13 @@ class DetectSysPluginTest(MockerTestCase):
                           {"rpm-sys":
                            {"type": "rpm-sys", "name": "RPM System"}})
 
+    def test_rpm_database_not_detected_with_different_config(self):
+        self.make_rpm()
+        self.rpm_dbpath = "random/path/rpm"
+        sysconf.set("rpm-dbpath", self.rpm_dbpath)
+        self.rerun_plugin()
+        self.assertEquals(sysconf.get("channels"), None)
+
     def test_rpm_database_detected_with_individual_setting(self):
         self.make_rpm()
         self.make_deb()
@@ -81,6 +95,13 @@ class DetectSysPluginTest(MockerTestCase):
         self.assertEquals(sysconf.get("channels"),
                           {"deb-sys":
                            {"type": "deb-sys", "name": "DEB System"}})
+
+    def test_deb_database_not_detected_with_different_config(self):
+        self.make_deb()
+        self.deb_admindir = "random/path/dpkg"
+        sysconf.set("deb-admindir", self.deb_admindir)
+        self.rerun_plugin()
+        self.assertEquals(sysconf.get("channels"), None)
 
     def test_deb_database_detected_with_individual_setting(self):
         self.make_rpm()
