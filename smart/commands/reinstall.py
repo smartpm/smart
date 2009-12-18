@@ -51,7 +51,7 @@ def parse_options(argv):
     parser.add_option("--urls", action="store_true",
                       help=_("dump needed urls and don't commit operation"))
     parser.add_option("--metalink", action="store_true",
-                      help=_("dump metalink xml and don't download packages"))
+                      help=_("dump metalink xml and don't commit operation"))
     parser.add_option("--download", action="store_true",
                       help=_("download packages and don't commit operation"))
     parser.add_option("--explain", action="store_true",
