@@ -31,12 +31,14 @@ except ImportError:
         from smart.util.elementtree import ElementTree
 
 class Metafile:
-    def __init__(self, name, version, summary=None):
+    def __init__(self, name=None, version=None, summary=None):
         self._file = ElementTree.Element("file")
-        identityelem = ElementTree.SubElement(self._file, "identity")
-        identityelem.text = name
-        versionelem = ElementTree.SubElement(self._file, "version")
-        versionelem.text = version
+        if name:
+            identityelem = ElementTree.SubElement(self._file, "identity")
+            identityelem.text = name
+        if version:
+            versionelem = ElementTree.SubElement(self._file, "version")
+            versionelem.text = version
         if summary:
             descelem = ElementTree.SubElement(self._file, "description")
             descelem.text = summary.encode('utf-8')
