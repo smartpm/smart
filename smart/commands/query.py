@@ -70,6 +70,10 @@ def parse_options(argv, help=None):
                              "dependency"))
     parser.add_option("--name", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given name"))
+    parser.add_option("--group", action="append", default=[], metavar="STR",
+                      help=_("show only packages which match given group"))
+    parser.add_option("--channel", action="append", default=[], metavar="STR",
+                      help=_("show only packages from the given channel"))
     parser.add_option("--summary", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given summary"))
     parser.add_option("--description", action="append", default=[], metavar="STR",
@@ -245,6 +249,14 @@ def main(ctrl, opts, reloadchannels=True):
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
         hasname.append(re.compile(token, re.I))
+    hasgroup = []
+    for token in opts.group:
+        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
+        token = r"\s+".join(token.split())
+        hasgroup.append(re.compile(token, re.I))
+    haschannel = []
+    for token in opts.channel:
+        haschannel.append(token)
     hassummary = []
     for token in opts.summary:
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
@@ -264,9 +276,9 @@ def main(ctrl, opts, reloadchannels=True):
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         hasurl.append(re.compile(token, re.I))
 
-    if hasname or hassummary or hasdescription or haspath:
+    if hasname or hasgroup or hassummary or hasdescription or haspath or hasurl:
         newpackages = {}
-        needsinfo = hassummary or hasdescription or haspath or hasurl
+        needsinfo = hasgroup or hassummary or hasdescription or haspath or hasurl
         for pkg in cache.getPackages():
             if hasname:
                 for pattern in hasname:
@@ -274,6 +286,10 @@ def main(ctrl, opts, reloadchannels=True):
                         newpackages[pkg] = True
             if needsinfo:
                 info = pkg.loaders.keys()[0].getInfo(pkg)
+                if hasgroup:
+                    for pattern in hasgroup:
+                        if pattern.search(info.getGroup()):
+                            newpackages[pkg] = True
                 if hassummary:
                     for pattern in hassummary:
                         if pattern.search(info.getSummary()):
@@ -294,7 +310,15 @@ def main(ctrl, opts, reloadchannels=True):
                                 newpackages[pkg] = True
         packages = newpackages.keys()
 
-    
+    if haschannel:
+        newpackages = {}
+        for pkg in packages:
+            for loader in pkg.loaders:
+                alias = loader.getChannel().getAlias()
+                if alias in haschannel:
+                    newpackages[pkg] = True
+        packages = newpackages.keys()
+
     format = opts.format.lower()+"output"
     for attr, value in globals().items():
         if attr.lower() == format:
