@@ -68,7 +68,12 @@ def main(ctrl, opts):
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
 
-    ctrl.reloadChannels()
+    if sysconf.get("auto-update"):
+        from smart.commands import update
+        updateopts = update.parse_options([])
+        update.main(ctrl, updateopts)
+    else:
+        ctrl.reloadChannels()
     cache = ctrl.getCache()
     trans = Transaction(cache, PolicyInstall)
     for arg in opts.args:

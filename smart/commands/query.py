@@ -137,8 +137,13 @@ def parse_options(argv, help=None):
 
 def main(ctrl, opts, reloadchannels=True):
 
-    if reloadchannels:
-        ctrl.reloadChannels()
+    if sysconf.get("auto-update"):
+        from smart.commands import update
+        updateopts = update.parse_options([])
+        update.main(ctrl, updateopts)
+    else:
+        if reloadchannels:
+            ctrl.reloadChannels()
 
     cache = ctrl.getCache()
     if not opts.args:

@@ -82,7 +82,7 @@ def main(ctrl, opts):
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
 
-    if opts.update:
+    if opts.update or sysconf.get("auto-update"):
         from smart.commands import update
         updateopts = update.parse_options([])
         update.main(ctrl, updateopts)
