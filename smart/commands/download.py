@@ -44,6 +44,7 @@ smart download pkgname --urls 2> pkgname-url.txt
 smart download pkgname --metalink 2> pkgname.metalink
 smart download --from-urls pkgname-url.txt
 smart download --from-urls http://some.url/some/path/somefile
+smart download --from-metalink pkgname.metalink
 """)
 
 def parse_options(argv):
@@ -51,6 +52,7 @@ def parse_options(argv):
                           description=DESCRIPTION,
                           examples=EXAMPLES)
     parser.defaults["from_urls"] = []
+    parser.defaults["from_metalink"] = []
     parser.defaults["target"] = os.getcwd()
     parser.add_option("--target", action="store", metavar="DIR",
                       help=_("packages will be saved in given directory"))
@@ -61,6 +63,8 @@ def parse_options(argv):
     parser.add_option("--from-urls", action="callback", callback=append_all,
                       help=_("download files from the given urls and/or from "
                              "the given files with lists of urls"))
+    parser.add_option("--from-metalink", action="callback", callback=append_all,
+                      help=_("download files from the given metalink file"))
     opts, args = parser.parse_args(argv)
     opts.args = args
     if not os.path.isdir(opts.target):
@@ -143,9 +147,17 @@ def main(ctrl, opts):
             if ":/" in arg:
                 urls.append(arg)
             elif os.path.isfile(arg):
+                line = open(arg).readline()
+                if line.startswith('<?xml'): # assume XML is metalink
+                    ctrl.downloadMetalink(arg, _("Metalink"), targetdir=opts.target)
+                    continue
                 urls.extend([x.strip() for x in open(arg)])
             else:
                 raise Error, _("Argument is not a file nor url: %s") % arg
-        ctrl.downloadURLs(urls, _("URLs"), targetdir=opts.target)
+        if urls:
+            ctrl.downloadURLs(urls, _("URLs"), targetdir=opts.target)
+    elif opts.from_metalink:
+        for arg in opts.from_metalink:
+            ctrl.downloadMetalink(arg, _("Metalink"), targetdir=opts.target)
 
 # vim:ts=4:sw=4:et

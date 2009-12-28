@@ -30,6 +30,11 @@ except ImportError:
     except ImportError:
         from smart.util.elementtree import ElementTree
 
+NS_METALINKER = "http://www.metalinker.org/"
+
+def nstag(ns, tag):
+    return "{%s}%s" % (ns, tag)
+
 class Metafile:
     def __init__(self, name=None, version=None, summary=None):
         self._file = ElementTree.Element("file")
@@ -43,8 +48,11 @@ class Metafile:
             descelem = ElementTree.SubElement(self._file, "description")
             descelem.text = summary.encode('utf-8')
         self._resources = ElementTree.SubElement(self._file, "resources")
+        self._info = {}
+        self._urls = []
 
     def append(self, urls, **info):
+        self._info = info
         if "size" in info and info["size"]:
             sizeelem = ElementTree.SubElement(self._file, "size")
             sizeelem.text = str(info["size"])
@@ -65,6 +73,7 @@ class Metafile:
             hashelem.text = info["sha256"]
             verification.append(hashelem)
 
+        self._urls = urls
         for url in urls:
             if url.startswith("/"):
                 scheme = "file"
@@ -87,18 +96,69 @@ class Metafile:
     def element(self):
         return self._file
 
+    def info(self):
+        return self._info
+
+    def urls(self):
+        return self._urls
+
 class Metalink:
     def __init__(self, generator="smart"):
         self._metalink = ElementTree.Element("metalink")
         self._metalink.attrib["version"] = "3.0"
-        self._metalink.attrib["xmlns"] = "http://www.metalinker.org/"
+        self._metalink.attrib["xmlns"] = NS_METALINKER
         self._metalink.attrib["generator"] = generator
         self._files = ElementTree.SubElement(self._metalink, "files")
+        self._metafiles = []
     
+    def parse(self, input):
+        metalink = Metalink()
+        for event, elem in ElementTree.iterparse(input, ("start", "end")):
+            tag = elem.tag
+            if event == "start":
+               if tag == nstag(NS_METALINKER, "file"):
+                  name = None
+                  version = None
+                  summary = None
+                  info = {}
+                  urls = []
+            elif event == "end":
+               if tag == nstag(NS_METALINKER, "file"):
+                  metafile = Metafile(name, version, summary)
+                  metafile.append(urls, **info)
+                  metalink.append(metafile)
+               elif tag == nstag(NS_METALINKER, "identity"):
+                  name = elem.text
+               elif tag == nstag(NS_METALINKER, "version"):
+                  version = elem.text
+               elif tag == nstag(NS_METALINKER, "description"):
+                  summary = unicode(elem.text)
+               elif tag == nstag(NS_METALINKER, "url"):
+                  urls.append(elem.text)
+               elif tag == nstag(NS_METALINKER, "size"):
+                  info["size"] = long(elem.text)
+               elif tag == nstag(NS_METALINKER, "hash"):
+                  type = elem.get("type")
+                  if type == "sha1":
+                      type = "sha"
+                  info[type] = elem.text
+                  
+        return metalink
+    parse = classmethod(parse)
+
     def append(self, file):
         self._files.append(file.element())
+        self._metafiles.append(file)
+    
+    def files(self):
+        return self._metafiles
     
     def write(self, output):
         if not output.isatty():
            output.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         ElementTree.ElementTree(self._metalink).write(output)
+
+if __name__ == "__main__":
+    import sys
+    Metalink.parse(open(sys.argv[1])).write(sys.stdout)
+
