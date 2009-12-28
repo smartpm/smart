@@ -404,6 +404,10 @@ hooks.register("discover-medias", discoverHalVolumeMedias)
 def discoverDeviceKitDisksMedias():
     result = []
     if dbus:
+        import sys
+        import StringIO
+        olderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
         try:
             bus = dbus.SystemBus()
             dk_object = bus.get_object('org.freedesktop.DeviceKit.Disks',
@@ -424,6 +428,8 @@ def discoverDeviceKitDisksMedias():
                                                               removable=is_removable))
         except:
             pass
+        err = sys.stderr.getvalue()
+        sys.stderr = olderr
     return result
 
 hooks.register("discover-medias", discoverDeviceKitDisksMedias)
