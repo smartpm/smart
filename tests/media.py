@@ -1,6 +1,7 @@
 from smart.media import discoverAutoMountMedias, \
                         discoverFstabMedias, \
-                        discoverHalVolumeMedias
+                        discoverHalVolumeMedias, \
+                        discoverDeviceKitDisksMedias
 from tempfile import NamedTemporaryFile
 import unittest
 
@@ -59,6 +60,13 @@ class HALTest(unittest.TestCase):
             # TODO: check mountpoint and device ?
 
 
+class DeviceKitTest(unittest.TestCase):
+
+    def test_devkit(self):
+        result = discoverDeviceKitDisksMedias()
+        for media in result:
+            self.assertTrue(media.isRemovable())
+            # TODO: check mountpoint and device ?
 
 
 AUTO_MASTER = """
