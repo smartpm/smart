@@ -44,7 +44,7 @@ class Metafile:
             descelem.text = summary.encode('utf-8')
         self._resources = ElementTree.SubElement(self._file, "resources")
 
-    def append(self, mirrorurls, **info):
+    def append(self, urls, **info):
         if "size" in info and info["size"]:
             sizeelem = ElementTree.SubElement(self._file, "size")
             sizeelem.text = str(info["size"])
@@ -65,14 +65,14 @@ class Metafile:
             hashelem.text = info["sha256"]
             verification.append(hashelem)
 
-        for mirrorurl in mirrorurls:
-            if mirrorurl.startswith("/"):
+        for url in urls:
+            if url.startswith("/"):
                 scheme = "file"
             else:
-                scheme = urllib.splittype(mirrorurl)[0]
+                scheme = urllib.splittype(url)[0]
             country = None # country code ("US")
             priority = None # priority (100-1)
-            filename = os.path.basename(mirrorurl)
+            filename = os.path.basename(url)
 
             urlelem = ElementTree.Element("url")
             urlelem.attrib["type"] = scheme
@@ -80,7 +80,7 @@ class Metafile:
                 urlelem.attrib["location"] = country
             if priority:
                 urlelem.attrib["preference"] = str(priority)
-            urlelem.text = mirrorurl
+            urlelem.text = url
             self._resources.append(urlelem)
             self._file.attrib["name"] = filename
       
