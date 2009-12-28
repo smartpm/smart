@@ -1,4 +1,6 @@
-from smart.media import discoverAutoMountMedias, discoverFstabMedias
+from smart.media import discoverAutoMountMedias, \
+                        discoverFstabMedias, \
+                        discoverHalVolumeMedias
 from tempfile import NamedTemporaryFile
 import unittest
 
@@ -46,6 +48,16 @@ class FSTabTest(unittest.TestCase):
         result = discoverFstabMedias(self.file.name)
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0].getMountPoint(), "/media/cdrom0")
+
+
+class HALTest(unittest.TestCase):
+
+    def test_dbus(self):
+        result = discoverHalVolumeMedias()
+        for media in result:
+            self.assertTrue(media.isRemovable())
+            # TODO: check mountpoint and device ?
+
 
 
 
