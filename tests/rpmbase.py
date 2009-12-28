@@ -18,9 +18,9 @@ class getTSTest(MockerTestCase):
         #307386 is in place.
         """
         current_path = os.getcwd()
-        # Using abspath here because if it happens to be a link, the
-        # assertion below will fail.
-        test_path = os.path.abspath(self.makeDir())
+        # Using realpath here because if it happens to be a link, the
+        # assertion below will fail. (and /tmp is a symlink on Darwin)
+        test_path = os.path.realpath(self.makeDir())
         def cleanup():
             os.chdir(current_path)
             sysconf.remove("rpm-root")
