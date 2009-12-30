@@ -492,6 +492,26 @@ class Control(object):
         fetcher.run(what=what)
         return fetcher.getSucceededSet(), fetcher.getFailedSet()
 
+    def downloadMetalink(self, metalink, what=None, caching=NEVER, targetdir=None):
+        fetcher = self._fetcher
+        fetcher.reset()
+        self.reloadMirrors()
+        if targetdir is None:
+            localdir = os.path.join(sysconf.get("data-dir"), "tmp/")
+            if not os.path.isdir(localdir):
+                os.makedirs(localdir)
+            fetcher.setLocalDir(localdir, mangle=True)
+        else:
+            fetcher.setLocalDir(targetdir, mangle=False)
+        fetcher.setCaching(caching)
+        for metafile in Metalink.parse(open(metalink)).files():
+            urls = metafile.urls()
+            info = metafile.info()
+            # TODO: use random url
+            fetcher.enqueue(urls[0], **info)
+        fetcher.run(what=what)
+        return fetcher.getSucceededSet(), fetcher.getFailedSet()
+
     def downloadTransaction(self, trans, caching=OPTIONAL, confirm=True):
         return self.downloadChangeSet(trans.getChangeSet(), caching,
                                       confirm=confirm)
