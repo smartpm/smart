@@ -98,7 +98,7 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> url = info.getURLs()[0]
 
   >>> info.getSHA(url)
-  >>> info.getSize(url)
+  >>> int(info.getSize(url))
   2160
 
 
