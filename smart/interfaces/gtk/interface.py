@@ -46,12 +46,6 @@ class GtkInterface(Interface):
         self.setCatchExceptions(False)
         return result
 
-    def eventsPending(self):
-        return gtk.events_pending()
-    
-    def processEvents(self):
-        gtk.main_iteration()
-
     def getProgress(self, obj, hassub=False):
         if hassub:
             self._progress.hide()

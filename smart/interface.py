@@ -53,12 +53,6 @@ class Interface(object):
             result = _command.main(self._ctrl, opts)
         return result
 
-    def eventsPending(self):
-        return False
-    
-    def processEvents(self):
-        pass
-
     def showStatus(self, msg):
         pass
 
