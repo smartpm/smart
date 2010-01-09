@@ -26,6 +26,11 @@ import commands
 import stat
 import os
 
+try:
+    import dbus
+except ImportError:
+    dbus = None
+
 class MediaSet(object):
 
     def __init__(self):
@@ -360,6 +365,74 @@ def discoverAutoMountMedias(filename="/etc/auto.master"):
     return result
 
 hooks.register("discover-medias", discoverAutoMountMedias)
+
+def discoverHalVolumeMedias():
+    result = []
+    if dbus:
+        import sys
+        import StringIO
+        olderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
+        try:
+            bus = dbus.SystemBus()
+            hal_object = bus.get_object('org.freedesktop.Hal',
+                                        '/org/freedesktop/Hal/Manager')
+            hal_manager = dbus.Interface(hal_object, 'org.freedesktop.Hal.Manager')
+            
+            volume_udi_list = hal_manager.FindDeviceByCapability('volume')
+            for udi in volume_udi_list:
+                dev_object = bus.get_object('org.freedesktop.Hal', udi)
+                volume = dbus.Interface(dev_object, 'org.freedesktop.Hal.Device')
+                device = volume.GetProperty('block.device')
+                fstype = volume.GetProperty('volume.fstype')
+                mount_point = volume.GetProperty('volume.mount_point')
+                storage_udi = volume.GetProperty('block.storage_device')
+                dev_object = bus.get_object('org.freedesktop.Hal', storage_udi)
+                storage = dbus.Interface(dev_object, 'org.freedesktop.Hal.Device')
+                drive_type = storage.GetProperty('storage.drive_type')
+                if mount_point and (fstype == "iso9660" or drive_type == "cdrom"):
+                    result.append(AutoMountMedia(mount_point, device,
+                                                              removable=True))
+        except:
+            pass
+        err = sys.stderr.getvalue()
+        sys.stderr = olderr
+    return result
+
+hooks.register("discover-medias", discoverHalVolumeMedias)
+
+def discoverDeviceKitDisksMedias():
+    result = []
+    if dbus:
+        import sys
+        import StringIO
+        olderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
+        try:
+            bus = dbus.SystemBus()
+            dk_object = bus.get_object('org.freedesktop.DeviceKit.Disks',
+                                       '/org/freedesktop/DeviceKit/Disks')
+            dk_interface = dbus.Interface(dk_object, 'org.freedesktop.DeviceKit.Disks')
+            for path in dk_interface.EnumerateDevices():
+                dev_object = bus.get_object('org.freedesktop.DeviceKit.Disks', path)
+                interface = 'org.freedesktop.DeviceKit.Disks.Device'
+                volume = dbus.Interface(dev_object, 'org.freedesktop.DBus.Properties')
+                device = str(volume.Get(interface, 'DeviceFile'))
+                fstype = str(volume.Get(interface, 'IdType'))
+                mount_paths = volume.Get(interface, 'DeviceMountPaths')
+                optical_disc = bool(volume.Get(interface, 'DeviceIsOpticalDisc'))
+                is_removable = bool(volume.Get(interface, 'DeviceIsRemovable'))
+                if mount_paths and (fstype == "iso9660" or optical_disc):
+                    mount_point = unicode(mount_paths.pop())
+                    result.append(AutoMountMedia(mount_point, device,
+                                                              removable=is_removable))
+        except:
+            pass
+        err = sys.stderr.getvalue()
+        sys.stderr = olderr
+    return result
+
+hooks.register("discover-medias", discoverDeviceKitDisksMedias)
 
 def discoverDeviceMedia(path):
     mntdir = os.path.join(sysconf.get("data-dir"), "mnt")

@@ -53,6 +53,8 @@ def parse_options(argv):
                       help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
                       help=_("dump needed urls and don't commit operation"))
+    parser.add_option("--metalink", action="store_true",
+                      help=_("dump metalink xml and don't commit operation"))
     parser.add_option("--download", action="store_true",
                       help=_("download packages and don't commit operation"))
     parser.add_option("--update", action="store_true",
@@ -80,7 +82,7 @@ def main(ctrl, opts):
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
 
-    if opts.update:
+    if opts.update or sysconf.get("auto-update"):
         from smart.commands import update
         updateopts = update.parse_options([])
         update.main(ctrl, updateopts)
@@ -177,6 +179,8 @@ def main(ctrl, opts):
         confirm = not opts.yes
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
+        elif opts.metalink:
+            ctrl.dumpTransactionMetalink(trans)
         elif opts.dump:
             ctrl.dumpTransactionPackages(trans, install=True)
         elif opts.download:

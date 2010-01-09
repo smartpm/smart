@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metalink version="3.0" xmlns="http://www.metalinker.org/">
+  <files>
+    <file name="repomd.xml">
+      <resources maxconnections="1">
+        <url protocol="http" type="http" location="SE" preference="100">http://url1.tld/path/repodata/repomd.xml</url>
+        <url protocol="ftp" type="ftp" location="SE" preference="100">ftp://url2.tld/path</url>
+      </resources>
+    </file>
+  </files>
+</metalink>

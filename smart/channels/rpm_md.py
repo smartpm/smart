@@ -31,7 +31,7 @@ except ImportError:
         from smart.util.elementtree import ElementTree
 
 from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
-from smart.channel import PackageChannel
+from smart.channel import PackageChannel, MirrorsChannel
 from smart import *
 import posixpath
 import os
@@ -44,17 +44,85 @@ LOCATION = NS+"location"
 CHECKSUM = NS+"checksum"
 OPENCHECKSUM = NS+"open-checksum"
 
-class RPMMetaDataChannel(PackageChannel):
+ML = "{http://www.metalinker.org/}"
+FILES = ML+"files"
+FILE = ML+"file"
+RESOURCES = ML+"resources"
+URL = ML+"url"
 
-    def __init__(self, baseurl, *args):
+class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
+
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _mirrors = {}
+    _mirrorlist = ""
+
+    def __init__(self, baseurl, mirrorlist=None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
+        self._mirrorlist = mirrorlist
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 3
+        return 4
+
+    def loadMetalink(self, metalinkfile):
+        self._mirrors.clear()
+
+        try:
+            root = ElementTree.parse(metalinkfile).getroot()
+        except expat.error, e:
+            iface.warning(_("Could not load meta link. Continuing with base URL only."))
+            iface.debug(e)
+
+        filename = None
+        for node in root.getiterator():
+            if node.tag == FILE:
+                filename = node.get("name")
+                continue
+            elif node.tag != RESOURCES:
+                continue
+            for subnode in node.getchildren():
+                if subnode.tag != URL:
+                    continue
+                type = subnode.get("type")
+                preference = subnode.get("preference")
+                if type != "http" and type != "ftp" and type != "file":
+                    continue
+                mirror = subnode.text
+                if mirror:
+                    if mirror.endswith("/repodata/repomd.xml"):
+                        mirror = mirror.replace("/repodata/repomd.xml", "")
+                    elif filename and mirror.endswith("/"+filename):
+                        mirror = mirror.replace("/"+filename, "")
+                    if self._baseurl in self._mirrors:
+                        if mirror not in self._mirrors[self._baseurl]:
+                            self._mirrors[self._baseurl].append(mirror)
+                    else:
+                        self._mirrors[self._baseurl] = [mirror]
+
+    def loadMirrors(self, mirrorlistfile):
+        self._mirrors.clear()
+
+        try:
+            file = open(mirrorlistfile, 'r')
+        except IOError, e:
+            iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            iface.debug(e)
+
+        for line in file:
+            if line == '<?xml version="1.0" encoding="utf-8"?>\n':
+                return self.loadMetalink(mirrorlistfile)
+            if line[0] != "#":
+                mirror = line.strip()
+                if mirror:
+                    if self._baseurl in self._mirrors:
+                        if mirror not in self._mirrors[self._baseurl]:
+                            self._mirrors[self._baseurl].append(mirror)
+                    else:
+                        self._mirrors[self._baseurl] = [mirror]
 
     def loadMetadata(self, metadatafile):
         info = {}
@@ -91,6 +159,23 @@ class RPMMetaDataChannel(PackageChannel):
     def fetch(self, fetcher, progress):
         
         fetcher.reset()
+
+        if self._mirrorlist:
+            mirrorlist = self._mirrorlist
+            item = fetcher.enqueue(mirrorlist)
+            fetcher.run(progress=progress)
+
+            if item.getStatus() is FAILED:
+                progress.add(self.getFetchSteps()-1)
+                if fetcher.getCaching() is NEVER:
+                    iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            else:
+                self.loadMirrors(item.getTargetPath())
+
+            fetcher.reset()
+        else:
+            progress.add(1)
+
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
 
         oldinfo = {}
@@ -191,6 +276,7 @@ class RPMMetaDataChannel(PackageChannel):
 
 def create(alias, data):
     return RPMMetaDataChannel(data["baseurl"],
+                              data["mirrorlist"],
                               data["type"],
                               alias,
                               data["name"],

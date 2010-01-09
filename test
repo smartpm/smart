@@ -56,6 +56,10 @@ def find_tests(testpaths=()):
             filepath = os.path.join(root, filename)
             relpath = filepath[len(topdir)+1:]
 
+            if filepath.startswith(tests.TESTDATADIR):
+                # Skip data dir.
+                continue
+
             if filename == "__init__.py" or filename.endswith(".pyc"):
                 # Skip non-tests.
                 continue
