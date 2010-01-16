@@ -92,6 +92,16 @@ class DebPackageInfo(PackageInfo):
             return decode(description.split("\n", 1)[0])
         return u""
 
+    def getSource(self):
+        import re
+        sourcename = self._dict.get("source") or self._package.name
+        m = re.match(r"([a-z0-9+-.]+)\s?\((.+)\)", sourcename)
+        if not m:
+            sourcename = "%s_%s" % (sourcename, self._package.version)
+        else:
+            sourcename = "%s_%s" % m.groups()
+        return sourcename
+    
     def getGroup(self):
         return decode(self._loader.getSection(self._package))
 

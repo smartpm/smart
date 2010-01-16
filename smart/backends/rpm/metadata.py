@@ -82,6 +82,12 @@ class RPMMetaDataPackageInfo(PackageInfo):
     def getReferenceURLs(self):
         return [self._info.get("url", "")]
 
+    def getSource(self):
+        sourcerpm = self._info.get("sourcerpm", "")
+        sourcerpm = sourcerpm.replace(".src", "")
+        sourcerpm = sourcerpm.replace(".nosrc", "")
+        return sourcerpm.replace(".rpm", "")
+    
     def getGroup(self):
         return self._info.get("group", "")
 
@@ -125,6 +131,7 @@ class RPMMetaDataLoader(Loader):
         FORMAT      = nstag(NS_COMMON, "format")
         CHECKSUM    = nstag(NS_COMMON, "checksum")
         FILE        = nstag(NS_COMMON, "file")
+        SOURCERPM   = nstag(NS_RPM, "sourcerpm")
         GROUP       = nstag(NS_RPM, "group")
         ENTRY       = nstag(NS_RPM, "entry")
         REQUIRES    = nstag(NS_RPM, "requires")
@@ -215,6 +222,10 @@ class RPMMetaDataLoader(Loader):
 
                 elif tag == LOCATION:
                     info["location"] = elem.get("href")
+
+                elif tag == SOURCERPM:
+                    if elem.text:
+                        info["sourcerpm"] = elem.text
 
                 elif tag == GROUP:
                     if elem.text:

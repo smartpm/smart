@@ -126,6 +126,12 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getSummary(self):
         return self._getHeaderString(rpm.RPMTAG_SUMMARY)
 
+    def getSource(self):
+        sourcerpm = self._getHeaderString(rpm.RPMTAG_SOURCERPM)
+        sourcerpm = sourcerpm.replace(".src", "")
+        sourcerpm = sourcerpm.replace(".nosrc", "")
+        return sourcerpm.replace(".rpm", "")
+    
     def getGroup(self):
         s = self._loader.getGroup(self._package)
         for encoding in ENCODINGS:
