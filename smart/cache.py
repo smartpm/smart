@@ -149,6 +149,9 @@ class PackageInfo(object):
     def getGroup(self):
         return ""
 
+    def getLicense(self):
+        return ""
+
     def getPathList(self):
         return []
 

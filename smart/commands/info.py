@@ -112,6 +112,7 @@ def main(ctrl, opts, reloadchannels=True):
         print _("Priority:"), pkg.getPriority()
         print _("Source:"), info.getSource()
         print _("Group:"), info.getGroup()
+        print _("License:"), info.getLicense()
         print _("Installed Size:"), sizeToStr(info.getInstalledSize())
         print _("Reference URLs:"), " ".join(info.getReferenceURLs())
 
