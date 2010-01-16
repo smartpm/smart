@@ -84,9 +84,9 @@ class RPMMetaDataPackageInfo(PackageInfo):
 
     def getSource(self):
         sourcerpm = self._info.get("sourcerpm", "")
-        sourcerpm = sourcerpm.replace(".rpm", "")
-        (version, arch) = sourcerpm.rsplit('.', 1)
-        return "%s@%s" % (version, arch)
+        sourcerpm = sourcerpm.replace(".src", "")
+        sourcerpm = sourcerpm.replace(".nosrc", "")
+        return sourcerpm.replace(".rpm", "")
     
     def getGroup(self):
         return self._info.get("group", "")

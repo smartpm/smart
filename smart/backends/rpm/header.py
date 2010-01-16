@@ -128,9 +128,9 @@ class RPMHeaderPackageInfo(PackageInfo):
 
     def getSource(self):
         sourcerpm = self._getHeaderString(rpm.RPMTAG_SOURCERPM)
-        sourcerpm = sourcerpm.replace(".rpm", "")
-        (version, arch) = sourcerpm.rsplit('.', 1)
-        return "%s@%s" % (version, arch)
+        sourcerpm = sourcerpm.replace(".src", "")
+        sourcerpm = sourcerpm.replace(".nosrc", "")
+        return sourcerpm.replace(".rpm", "")
     
     def getGroup(self):
         s = self._loader.getGroup(self._package)

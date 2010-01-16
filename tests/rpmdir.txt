@@ -87,7 +87,7 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> str(info.getPackage())
   'name1-version1-release1@noarch'
   >>> str(info.getSource())
-  'name1-version1-release1@src'
+  'name1-version1-release1'
   >>> info.getGroup()
   u'Group1'
   >>> info.getSummary()
