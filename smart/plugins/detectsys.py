@@ -24,7 +24,8 @@ import os
 
 def detectRPMSystem():
     dir = os.path.join(sysconf.get("rpm-root", "/"), "var/lib/rpm")
-    if os.path.isdir(dir):
+    file = os.path.join(dir, "Packages")
+    if os.path.exists(file):
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "rpm-sys":
                 break
@@ -36,7 +37,8 @@ def detectRPMSystem():
 
 def detectDEBSystem():
     dir = os.path.join(sysconf.get("deb-root", "/"), "var/lib/dpkg")
-    if os.path.isdir(dir):
+    file = os.path.join(dir, "status")
+    if os.path.exists(file):
         for alias in sysconf.keys("channels"):
             if sysconf.get(("channels", alias, "type")) == "deb-sys":
                 break
@@ -60,11 +62,12 @@ def detectSLACKSystem():
                             "name": "Slackware System"
                         })
 
-detect_sys_channels = sysconf.get("detect-sys-channels", True)
-if detect_sys_channels:
-    if detect_sys_channels == True or "rpm" in str(detect_sys_channels):
-        detectRPMSystem()
-    if detect_sys_channels == True or "deb" in str(detect_sys_channels):
-        detectDEBSystem()
-    if detect_sys_channels == True or "slack" in str(detect_sys_channels):
-        detectSLACKSystem()
+if not sysconf.getReadOnly():
+    detect_sys_channels = sysconf.get("detect-sys-channels", True)
+    if detect_sys_channels:
+        if detect_sys_channels == True or "rpm" in str(detect_sys_channels):
+            detectRPMSystem()
+        if detect_sys_channels == True or "deb" in str(detect_sys_channels):
+            detectDEBSystem()
+        if detect_sys_channels == True or "slack" in str(detect_sys_channels):
+            detectSLACKSystem()

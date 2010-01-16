@@ -182,6 +182,9 @@ class PackageInfo(object):
     def getSHA(self, url):
         return None
 
+    def getSHA256(self, url):
+        return None
+
     def validate(self, url, localpath, withreason=False):
         try:
             if not os.path.isfile(localpath):
@@ -196,8 +199,11 @@ class PackageInfo(object):
 
             filemd5 = self.getMD5(url)
             if filemd5:
-                import md5
-                digest = md5.md5()
+                try:
+                    from hashlib import md5
+                except ImportError:
+                    from md5 import md5
+                digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
                 while data:
@@ -208,10 +214,29 @@ class PackageInfo(object):
                     raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
             else:
+                filesha256 = self.getSHA256(url)
+                if filesha256:
+                    try:
+                        from hashlib import sha256
+                        digest = sha256()
+                        file = open(localpath)
+                        data = file.read(BLOCKSIZE)
+                        while data:
+                            digest.update(data)
+                            data = file.read(BLOCKSIZE)
+                        lfilesha256 = digest.hexdigest()
+                        if lfilesha256 != filesha256:
+                           raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
+                                         (filesha256, lfilesha256)
+                    except ImportError:
+                        pass
                 filesha = self.getSHA(url)
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:

@@ -39,7 +39,7 @@ MAXRETRIES = 30
 SPEEDDELAY = 1
 CANCELDELAY = 2
 MAXACTIVEDOWNLOADS = 10
-SOCKETTIMEOUT = 30
+SOCKETTIMEOUT = 600
 
 class FetcherCancelled(Error): pass
 
@@ -336,7 +336,9 @@ class Fetcher(object):
             prefix = "uncomp_"
         else:
             prefix = ""
-        return bool(item.getInfo(prefix+"md5") or item.getInfo(prefix+"sha"))
+        return bool(item.getInfo(prefix+"md5") or
+                    item.getInfo(prefix+"sha") or
+                    item.getInfo(prefix+"sha256"))
 
     def validate(self, item, localpath, withreason=False, uncomp=False):
         try:
@@ -367,8 +369,11 @@ class Fetcher(object):
 
             filemd5 = item.getInfo(uncompprefix+"md5")
             if filemd5:
-                import md5
-                digest = md5.md5()
+                try:
+                    from hashlib import md5
+                except ImportError:
+                    from md5 import md5
+                digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
                 while data:
@@ -379,10 +384,29 @@ class Fetcher(object):
                     raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
             else:
+                filesha256 = item.getInfo(uncompprefix+"sha256")
+                if filesha256:
+                    try:
+                        from hashlib import sha256
+                        digest = sha256()
+                        file = open(localpath)
+                        data = file.read(BLOCKSIZE)
+                        while data:
+                            digest.update(data)
+                            data = file.read(BLOCKSIZE)
+                        lfilesha256 = digest.hexdigest()
+                        if lfilesha256 != filesha256:
+                           raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
+                                         (filesha256, lfilesha256)
+                    except ImportError:
+                        pass
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
-                    import sha
-                    digest = sha.sha()
+                    try:
+                        from hashlib import sha1 as sha
+                    except ImportError:
+                        from sha import sha
+                    digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)
                     while data:
@@ -483,12 +507,13 @@ class FetchItem(object):
         #             or just 'valid', depending on 'withreason'. 'valid'
         #             may be None, True, or False. If it's True or False,
         #             no other information will be checked.
-        # - md5, sha: file digest
+        # - md5, sha, sha256: file digest
         # - size: file size
         # - uncomp: whether to uncompress or not
-        # - uncomp_{md5,sha,size}: uncompressed equivalents
+        # - uncomp_{md5,sha,sha256,size}: uncompressed equivalents
         #
-        for kind in ("md5", "sha", "uncomp_md5", "uncomp_sha"):
+        for kind in ("md5", "sha", "sha256",
+                     "uncomp_md5", "uncomp_sha", "uncomp_sha256"):
             value = info.get(kind)
             if value:
                 info[kind] = value.lower()
@@ -1649,6 +1674,8 @@ class PyCurlHandler(FetcherHandler):
 
                         handle.setopt(pycurl.URL, str(url))
                         handle.setopt(pycurl.OPT_FILETIME, 1)
+                        handle.setopt(pycurl.LOW_SPEED_LIMIT, 1)
+                        handle.setopt(pycurl.LOW_SPEED_TIME, SOCKETTIMEOUT)
                         handle.setopt(pycurl.NOPROGRESS, 0)
                         handle.setopt(pycurl.PROGRESSFUNCTION, progress)
                         handle.setopt(pycurl.WRITEDATA, local)

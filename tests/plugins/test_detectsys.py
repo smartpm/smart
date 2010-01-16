@@ -1,3 +1,4 @@
+import pickle
 import sys
 import os
 
@@ -18,15 +19,23 @@ class DetectSysPluginTest(MockerTestCase):
         sysconf.set("deb-root", self.deb_root)
         sysconf.set("slack-root", self.slack_root)
 
-        self.sysconf_state = sysconf.__getstate__()
+        self.old_sysconf = pickle.dumps(sysconf.object)
 
     def tearDown(self):
-        sysconf.__setstate__(self.sysconf_state)
+        sysconf.object = pickle.loads(self.old_sysconf)
 
     def make_rpm(self):
+        self.make_rpmdir()
+        open(os.path.join(self.rpm_root, "var/lib/rpm", "Packages"), 'w')
+
+    def make_rpmdir(self):
         os.makedirs(os.path.join(self.rpm_root, "var/lib/rpm"))
 
     def make_deb(self):
+        self.make_debdir()
+        open(os.path.join(self.deb_root, "var/lib/dpkg", "status"), 'w')
+
+    def make_debdir(self):
         os.makedirs(os.path.join(self.deb_root, "var/lib/dpkg"))
 
     def make_slack(self):
@@ -37,6 +46,11 @@ class DetectSysPluginTest(MockerTestCase):
         import smart.plugins.detectsys
 
     def test_nothing_detected(self):
+        self.rerun_plugin()
+        self.assertEquals(sysconf.get("channels"), None)
+
+    def test_rpm_database_not_detected_when_directory_empty(self):
+        self.make_rpmdir()
         self.rerun_plugin()
         self.assertEquals(sysconf.get("channels"), None)
 
@@ -55,6 +69,11 @@ class DetectSysPluginTest(MockerTestCase):
         self.assertEquals(sysconf.get("channels"),
                           {"rpm-sys":
                            {"type": "rpm-sys", "name": "RPM System"}})
+
+    def test_deb_database_not_detected_when_directory_empty(self):
+        self.make_debdir()
+        self.rerun_plugin()
+        self.assertEquals(sysconf.get("channels"), None)
 
     def test_deb_database_detected(self):
         self.make_deb()

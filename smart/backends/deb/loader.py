@@ -53,6 +53,12 @@ class DebPackageInfo(PackageInfo):
         PackageInfo.__init__(self, package)
         self._loader = loader
 
+    def getReferenceURLs(self):
+        homepage = self._dict.get("homepage")
+        if homepage:
+            return [homepage]
+        return []
+
     def getURLs(self):
         url = self._loader.getURL()
         if url:

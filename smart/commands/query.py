@@ -56,6 +56,14 @@ def parse_options(argv, help=None):
                               examples=EXAMPLES)
     parser.add_option("--installed", action="store_true",
                       help=_("consider only installed packages"))
+    parser.add_option("--newest", action="store_true",
+                       help=_("consider only the newest package"))
+    parser.add_option("--dupes", action="store_true",
+                      help=_("consider only installed packages that are duplicated"))
+    parser.add_option("--leaves", action="store_true",
+                      help=_("consider only installed packages not required by others"))
+    parser.add_option("--orphans", action="store_true",
+                      help=_("consider only installed packages not in other channels"))
     parser.add_option("--provides", action="append", default=[], metavar="DEP",
                       help=_("show only packages providing the given "
                              "dependency"))
@@ -70,6 +78,10 @@ def parse_options(argv, help=None):
                              "dependency"))
     parser.add_option("--name", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given name"))
+    parser.add_option("--group", action="append", default=[], metavar="STR",
+                      help=_("show only packages which match given group"))
+    parser.add_option("--channel", action="append", default=[], metavar="STR",
+                      help=_("show only packages from the given channel"))
     parser.add_option("--summary", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given summary"))
     parser.add_option("--description", action="append", default=[], metavar="STR",
@@ -125,8 +137,13 @@ def parse_options(argv, help=None):
 
 def main(ctrl, opts, reloadchannels=True):
 
-    if reloadchannels:
-        ctrl.reloadChannels()
+    if sysconf.get("auto-update"):
+        from smart.commands import update
+        updateopts = update.parse_options([])
+        update.main(ctrl, updateopts)
+    else:
+        if reloadchannels:
+            ctrl.reloadChannels()
 
     cache = ctrl.getCache()
     if not opts.args:
@@ -156,8 +173,53 @@ def main(ctrl, opts, reloadchannels=True):
                         packages.update(dict.fromkeys(obj.packages, True))
         packages = packages.keys()
 
-    if opts.installed:
+    if opts.installed or opts.dupes or opts.leaves or opts.orphans:
         packages = [pkg for pkg in packages if pkg.installed]
+    if opts.dupes:
+        dupes = []
+        for pkg in packages:
+            dupe = False
+            for prv in cache.getProvides(pkg.name):
+                for prvpkg in prv.packages:
+                    if prvpkg == pkg:
+                        continue
+                    if prvpkg.installed:
+                        dupe = True
+            if dupe:
+                dupes.append(pkg)
+        packages = dupes
+    if opts.leaves:
+        leaves = []
+        for pkg in packages:
+            leaf = True
+            for prv in pkg.provides:
+                for req in prv.requiredby:
+                    for reqpkg in req.packages:
+                        if reqpkg.installed:
+                            leaf = False
+            if leaf:
+                leaves.append(pkg)
+        packages = leaves
+    if opts.orphans:
+        orphans = []
+        for pkg in packages:
+            orphan = True
+            for loader in pkg.loaders:
+                if not loader.getInstalled():
+                    orphan = False
+            if orphan:
+                orphans.append(pkg)
+        packages = orphans
+
+    if opts.newest:
+        newest = {}
+        for pkg in packages:
+            if pkg.name in newest:
+                if pkg > newest[pkg.name]:
+                    newest[pkg.name] = pkg
+            else:
+                newest[pkg.name] = pkg
+        packages = [pkg for pkg in packages if pkg == newest[pkg.name]]
 
     whoprovides = []
     for name in opts.provides:
@@ -245,6 +307,14 @@ def main(ctrl, opts, reloadchannels=True):
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         token = r"\s+".join(token.split())
         hasname.append(re.compile(token, re.I))
+    hasgroup = []
+    for token in opts.group:
+        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
+        token = r"\s+".join(token.split())
+        hasgroup.append(re.compile(token, re.I))
+    haschannel = []
+    for token in opts.channel:
+        haschannel.append(token)
     hassummary = []
     for token in opts.summary:
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
@@ -264,9 +334,9 @@ def main(ctrl, opts, reloadchannels=True):
         token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
         hasurl.append(re.compile(token, re.I))
 
-    if hasname or hassummary or hasdescription or haspath:
+    if hasname or hasgroup or hassummary or hasdescription or haspath or hasurl:
         newpackages = {}
-        needsinfo = hassummary or hasdescription or haspath or hasurl
+        needsinfo = hasgroup or hassummary or hasdescription or haspath or hasurl
         for pkg in cache.getPackages():
             if hasname:
                 for pattern in hasname:
@@ -274,6 +344,10 @@ def main(ctrl, opts, reloadchannels=True):
                         newpackages[pkg] = True
             if needsinfo:
                 info = pkg.loaders.keys()[0].getInfo(pkg)
+                if hasgroup:
+                    for pattern in hasgroup:
+                        if pattern.search(info.getGroup()):
+                            newpackages[pkg] = True
                 if hassummary:
                     for pattern in hassummary:
                         if pattern.search(info.getSummary()):
@@ -294,7 +368,15 @@ def main(ctrl, opts, reloadchannels=True):
                                 newpackages[pkg] = True
         packages = newpackages.keys()
 
-    
+    if haschannel:
+        newpackages = {}
+        for pkg in packages:
+            for loader in pkg.loaders:
+                alias = loader.getChannel().getAlias()
+                if alias in haschannel:
+                    newpackages[pkg] = True
+        packages = newpackages.keys()
+
     format = opts.format.lower()+"output"
     for attr, value in globals().items():
         if attr.lower() == format:
@@ -303,6 +385,7 @@ def main(ctrl, opts, reloadchannels=True):
     else:
         raise Error, "Output format unknown"
 
+    output.setPackageCount(len(packages))
     output.startGrabOutput()
 
     output.start()
@@ -423,6 +506,7 @@ class NullOutput(object):
         self.opts = opts
         self.output = None
         self.__sys_stdout = None
+        self._count = 0
 
     def start(self):
         pass
@@ -446,6 +530,12 @@ class NullOutput(object):
             if self.output is not sys.stdout:
                 self.output.close()
         self.output = None
+
+    def getPackageCount(self):
+        return self._count
+
+    def setPackageCount(self, count):
+        self._count = count
 
     def showPackage(self, pkg):
         pass

@@ -1,5 +1,7 @@
 import unittest
+import pickle
 import os
+import tempfile
 
 from smart.backends.deb.base import (
     DebPackage, DebProvides, DebNameProvides, DebPreRequires, DebRequires,
@@ -43,19 +45,26 @@ class DebPackageManagerTest(unittest.TestCase):
         self.cache.addLoader(self.loader)
 
         self.old_iface = iface.object
-        self.old_sysconf = sysconf.object
+        self.old_sysconf = pickle.dumps(sysconf.object)
 
         iface.object = self.iface
-        sysconf.object = SysConfig()
-        sysconf.object.__setstate__(self.old_sysconf.__getstate__())
 
         self.cache.load()
 
         self.pm = DebPackageManager()
 
+        # skip test if dpkg is unavailable
+        dpkg = sysconf.get("dpkg", "dpkg")
+        output = tempfile.TemporaryFile()
+        status = self.pm.dpkg([dpkg, "--version"], output)
+        if not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0:
+            if not hasattr(self, 'skipTest'): # Python < 2.7
+                self.skipTest = self.fail # error
+            self.skipTest("%s not found" % dpkg)
+
     def tearDown(self):
         iface.object = self.old_iface
-        sysconf.object = self.old_sysconf
+        sysconf.object = pickle.loads(self.old_sysconf)
 
     def test_packages_are_there(self):
         self.assertEquals(len(self.cache.getPackages()), 2)

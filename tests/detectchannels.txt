@@ -1,0 +1,19 @@
+
+  >>> from tests import *
+
+Test APT (RPM and DEB).
+
+  >>> from smart.channels.apt_rpm_info import detectLocalChannels
+  >>> detectLocalChannels("%s/aptrpm" % TESTDATADIR, None)
+  [{'baseurl': 'file://.../aptrpm', 'components': 'main'}]
+
+  >>> from smart.channels.apt_deb_info import detectLocalChannels
+  >>> detectLocalChannels("%s/aptdeb" % TESTDATADIR, None)
+  [{'baseurl': 'file://.../aptdeb', 'components': 'component'}]
+
+Test RPM-MD repodata.
+
+  >>> from smart.channels.rpm_md_info import detectLocalChannels
+  >>> detectLocalChannels("%s/rpm" % TESTDATADIR, None)
+  [{'baseurl': 'file://.../rpm'}]
+
