@@ -185,6 +185,8 @@ class Media(object):
 
     def isMounted(self):
         if not os.path.isfile("/proc/mounts"):
+            if self._mountpoint:
+                return os.path.ismount(self._mountpoint)
             raise Error, _("/proc/mounts not found")
         for line in open("/proc/mounts"):
             device, mountpoint, type = line.split()[:3]
