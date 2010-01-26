@@ -142,10 +142,7 @@ def _loadRepoFile(filename):
     for repo in repofile.sections():
         # Iterate through each repo found in file
         alias = "yumsync-%s" % repo
-        name = re.sub("\$basearch", "%s" % BASEARCH,
-               repofile.get(repo, 'name'))
-        name = re.sub("\$releasever", "%s" % RELEASEVER,
-               name)
+        name = _replaceStrings(repofile.get(repo, 'name'))
         baseurl = None
         mirrorlist = None
 
