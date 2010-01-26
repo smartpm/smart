@@ -152,11 +152,13 @@ def _loadRepoFile(filename):
             if baseurl.find("\n") >= 0: baseurl = baseurl.splitlines()[1]
             if baseurl == "file:///media/cdrom/":  baseurl = "localmedia://"
             if baseurl == "file:///media/cdrecorder/": baseurl = "localmedia://"
+        else:
+            # baseurl is required for rpm-md channels
+            baseurl = _searchComments(filename, repo)
         if repofile.has_option(repo, 'mirrorlist'):
             mirrorlist = _replaceStrings(repofile.get(repo, 'mirrorlist'))
-            baseurl = _findBaseUrl(mirrorlist, repo)
             if not baseurl:
-                baseurl = _searchComments(filename, repo)
+                baseurl = _findBaseUrl(mirrorlist, repo)
         if baseurl is None and mirrorlist is None:
             iface.warning(_("Yum channel %s does not contain baseurl or " \
                             "mirrorlist addresses. Not syncing.") % repo)
