@@ -48,6 +48,9 @@ class ZyppRepoSyncTest(MockerTestCase):
         self.repos_dir = os.path.join(self.zypp_dir, "zypp.repos.d")
         os.mkdir(self.repos_dir)
 
+    def tearDown(self):
+        sysconf.remove("channels")
+
     def test_synchronize_repos_directory(self):
         self.makeFile(OPENSUSE_REPO, dirname=self.repos_dir, basename="opensuse.repo")
         syncZyppRepos(self.repos_dir)

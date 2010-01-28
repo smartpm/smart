@@ -50,6 +50,9 @@ class YumRepoSyncTest(MockerTestCase):
         self.repos_dir = os.path.join(self.yum_dir, "yum.repos.d")
         os.mkdir(self.repos_dir)
 
+    def tearDown(self):
+        sysconf.remove("channels")
+
     def test_synchronize_repos_directory(self):
         self.makeFile(FEDORA_BASE_REPO, dirname=self.repos_dir, basename="fedora-base.repo")
         syncYumRepos(self.repos_dir)
