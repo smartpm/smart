@@ -33,9 +33,6 @@ from smart import *
 
 ZYPP_REPOS_DIR = "/etc/zypp/repos.d/"
 
-BASEARCH = None
-RELEASEVER = None
-
 def _getbasearch():
     """
     Get system architecture (like libzypp's ZConfig does it)
@@ -63,20 +60,27 @@ def _getreleasever():
     """
     Get system release and version.
     """
-    import rpm
+    try:
+        import rpm
+    except ImportError:
+        return None
 
     rpmroot = sysconf.get("rpm-root", "/")
     ts = rpm.TransactionSet(rpmroot)
+    releasever = None
     idx = ts.dbMatch('provides', 'openSUSE-release')
     if idx.count() == 0:
         idx = ts.dbMatch('provides', 'distribution-release')
     if idx.count() != 0:
         hdr = idx.next()
-        releasever = hdr['version']
+        releasever = str(hdr['version'])
         del hdr
     del idx
     del ts
-    return str(releasever)
+    return releasever
+
+BASEARCH = _getbasearch()
+RELEASEVER = _getreleasever()
 
 def _replaceStrings(txt):
     """
@@ -94,13 +98,16 @@ def _findBaseUrl(mirrorlist, repo):
                      "%s.") % repo)
     import urllib
     list = urllib.urlopen(mirrorlist)
+    baseurl = None
     while 1:
         line = list.readline()
         if line.startswith("#"):
             continue
-        elif (line.startswith("http:") or
-            line.startswith("ftp:")):
+        elif (line.startswith("http:") or line.startswith("https:") or
+            line.startswith("ftp:") or line.startswith("file:")):
             baseurl = line
+            break
+        elif not line:
             break
     return baseurl
 
@@ -120,10 +127,9 @@ def _loadRepoFile(filename):
     for repo in repofile.sections():
         # Iterate through each repo found in file
         alias = "zyppsync-%s" % repo
-        name = re.sub("\$basearch", "%s" % BASEARCH,
-               repofile.get(repo, 'name'))
-        name = re.sub("\$releasever", "%s" % RELEASEVER,
-               name)
+        name = _replaceStrings(repofile.get(repo, 'name'))
+        baseurl = None
+        mirrorlist = None
 
         # Some repos have baseurl, some have mirrorlist
         if repofile.has_option(repo, 'baseurl'):
@@ -157,6 +163,8 @@ def _loadRepoFile(filename):
                 "name": name,
                 "baseurl": baseurl,
                 "disabled": enabled}
+        if mirrorlist:
+            data["mirrorlist"] = mirrorlist
         seen.add(alias)
  
         try:
@@ -195,8 +203,6 @@ if not sysconf.getReadOnly():
     if sysconf.get("sync-zypp-repos",False):
         # Sync is not enabled by default
         iface.debug(_("Trying to sync ZYpp channels..."))
-        BASEARCH = _getbasearch()
-        RELEASEVER = _getreleasever()
         syncZyppRepos(sysconf.get("zypp-repos-dir", ZYPP_REPOS_DIR))
 
 # vim:ts=4:sw=4:et
