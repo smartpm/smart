@@ -31,7 +31,7 @@ if sys.version_info < (2, 4):
 
 from smart.channel import *
 from smart import *
- 
+
 YUM_REPOS_DIR = "/etc/yum.repos.d/"
 
 def _getbasearch():
