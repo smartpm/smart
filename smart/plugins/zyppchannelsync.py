@@ -65,18 +65,21 @@ def _getreleasever():
     except ImportError:
         return None
 
-    rpmroot = sysconf.get("rpm-root", "/")
-    ts = rpm.TransactionSet(rpmroot)
     releasever = None
-    idx = ts.dbMatch('provides', 'openSUSE-release')
-    if idx.count() == 0:
-        idx = ts.dbMatch('provides', 'distribution-release')
-    if idx.count() != 0:
-        hdr = idx.next()
-        releasever = str(hdr['version'])
-        del hdr
-    del idx
-    del ts
+    try:
+        rpmroot = sysconf.get("rpm-root", "/")
+        ts = rpm.TransactionSet(rpmroot)
+        idx = ts.dbMatch('provides', 'openSUSE-release')
+        if idx.count() == 0:
+            idx = ts.dbMatch('provides', 'distribution-release')
+        if idx.count() != 0:
+            hdr = idx.next()
+            releasever = str(hdr['version'])
+            del hdr
+        del idx
+        del ts
+    except TypeError: # rpmdb open failed
+        pass
     return releasever
 
 BASEARCH = _getbasearch()
