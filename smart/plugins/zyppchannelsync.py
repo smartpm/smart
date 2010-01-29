@@ -46,14 +46,12 @@ def _getbasearch():
     # check for both flags in /proc/cpuinfo and downgrade
     # to i586 if either is missing (cf opensuse bug #18885)
     if architecture == "i686":
-       try:
+       if os.path.exists("/proc/cpuinfo"):
            cpuinfo = open("/proc/cpuinfo", "r")
            for line in cpuinfo.readlines():
                if line.startswith("flags"):
                    if line.find("cx8") == -1 or line.find("cmov") == -1:
                        architecture = "i586"
-       except:
-           pass
     return architecture
 
 def _getreleasever():
@@ -66,9 +64,9 @@ def _getreleasever():
         return None
 
     releasever = None
-    try:
-        rpmroot = sysconf.get("rpm-root", "/")
-        ts = rpm.TransactionSet(rpmroot)
+    rpmroot = sysconf.get("rpm-root", "/")
+    ts = rpm.TransactionSet(rpmroot)
+    if ts.openDB() == 0:
         idx = ts.dbMatch('provides', 'openSUSE-release')
         if idx.count() == 0:
             idx = ts.dbMatch('provides', 'distribution-release')
@@ -78,8 +76,6 @@ def _getreleasever():
             del hdr
         del idx
         del ts
-    except TypeError: # rpmdb open failed
-        pass
     return releasever
 
 BASEARCH = _getbasearch()
