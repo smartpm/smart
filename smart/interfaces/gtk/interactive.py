@@ -75,6 +75,7 @@ UI = """
         <menuitem action="hide-installed"/>
         <menuitem action="hide-uninstalled"/>
         <menuitem action="hide-unmarked"/>
+        <menuitem action="hide-unlocked"/>
         <menuitem action="hide-old"/>
         <separator/>
         <menuitem action="expand-all"/>
@@ -221,6 +222,7 @@ class GtkInteractiveInterface(GtkInterface):
                             ("hide-installed", _("Hide Installed")),
                             ("hide-uninstalled", _("Hide Uninstalled")),
                             ("hide-unmarked", _("Hide Unmarked")),
+                            ("hide-unlocked", _("Hide Unlocked")),
                             ("hide-old", _("Hide Old"))]:
             action = gtk.ToggleAction(name, label, "", "")
             action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
@@ -810,6 +812,8 @@ class GtkInteractiveInterface(GtkInterface):
                 packages = [x for x in packages if x in changeset]
             if "hide-installed" in filters:
                 packages = [x for x in packages if not x.installed]
+            if "hide-unlocked" in filters:
+                packages = pkgconf.filterByFlag("lock", packages)
             if "hide-old" in filters:
                 packages = pkgconf.filterByFlag("new", packages)
 
