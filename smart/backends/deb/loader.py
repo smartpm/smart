@@ -270,6 +270,11 @@ class DebTagLoader(Loader):
 
 class DebTagFileLoader(DebTagLoader):
 
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _filelistsname = None
+    _changelogname = None
+
     def __init__(self, filename, baseurl=None, filelistsname="", changelogname=""):
         DebTagLoader.__init__(self, baseurl)
         self._filename = filename
@@ -307,7 +312,10 @@ class DebTagFileLoader(DebTagLoader):
         return None
 
     def getChanges(self, info):
-        filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
+        if not self._changelogname:
+            return []
+        else:
+            filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
         changes = []
         if os.path.isfile(filename):
             if filename.endswith(".gz"):
@@ -329,7 +337,10 @@ class DebTagFileLoader(DebTagLoader):
         return changes
 
     def getPaths(self, info):
-        listname = os.path.join(self._filelistsname, info._package.name+".list")
+        if not self._filelistsname:
+            listname = os.path.join(os.path.dirname(self._filename), "info", info._package.name+".list")
+        else:
+            listname = os.path.join(self._filelistsname, info._package.name+".list")
         paths = {}
         if os.path.isfile(listname):
             md5name = listname[:-4]+"md5sums"
