@@ -217,8 +217,8 @@ class GtkProgress(Progress, gtk.Window):
             if total:
                 self._totalcolumn.set_visible(True)
             if done:
-                speed = "Done"
-                eta = "Done"
+                speed = _("Done")
+                eta = _("Done")
             else:
                 speed = data.get("speed", "")
                 if speed:

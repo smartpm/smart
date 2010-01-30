@@ -1,10 +1,27 @@
-from smart.media import discoverAutoMountMedias, \
+from smart.media import Media, \
+                        discoverAutoMountMedias, \
                         discoverFstabMedias, \
                         discoverHalVolumeMedias, \
                         discoverDeviceKitDisksMedias
+from smart import Error
 from tempfile import NamedTemporaryFile
 import unittest
 
+class MediaTest(unittest.TestCase):
+
+    def test_rootismounted(self):
+        try:
+            media = Media("/")
+        except Error, error:
+            self.fail("Error(%s)" % error)
+        self.assertTrue(media.isMounted())
+
+    def test_fakeisnotmounted(self):
+        try:
+            media = Media("/no/such/dir")
+        except Error, error:
+            self.fail("Error(%s)" % error)
+        self.assertFalse(media.isMounted())
 
 class AutoMountTest(unittest.TestCase):
 

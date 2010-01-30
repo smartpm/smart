@@ -143,10 +143,19 @@ class PackageInfo(object):
     def getSummary(self):
         return ""
 
+    def getSource(self):
+        return ""
+
     def getGroup(self):
         return ""
 
+    def getLicense(self):
+        return ""
+
     def getPathList(self):
+        return []
+
+    def getChangeLog(self):
         return []
 
     def pathIsDir(self, path):
