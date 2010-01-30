@@ -53,7 +53,7 @@ class RPMMetaDataChannel(PackageChannel):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 4
+        return 3
 
     def fetch(self, fetcher, progress):
         
@@ -115,21 +115,12 @@ class RPMMetaDataChannel(PackageChannel):
                                  sha=info["filelists"].get("sha"),
                                  uncomp_sha=info["filelists"].get("uncomp_sha"),
                                  uncomp=True)
-        clitem = fetcher.enqueue(info["other"]["url"],
-                                 md5=info["other"].get("md5"),
-                                 uncomp_md5=info["other"].get("uncomp_md5"),
-                                 sha=info["other"].get("sha"),
-                                 uncomp_sha=info["other"].get("uncomp_sha"),
-                                 uncomp=True)
         fetcher.run(progress=progress)
  
-        if (item.getStatus() == SUCCEEDED and
-            flitem.getStatus() == SUCCEEDED and
-            clitem.getStatus() == SUCCEEDED):
+        if item.getStatus() == SUCCEEDED and flitem.getStatus() == SUCCEEDED:
             localpath = item.getTargetPath()
             filelistspath = flitem.getTargetPath()
-            changelogpath = clitem.getTargetPath()
-            loader = RPMMetaDataLoader(localpath, filelistspath, changelogpath,
+            loader = RPMMetaDataLoader(localpath, filelistspath,
                                        self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
@@ -141,21 +132,11 @@ class RPMMetaDataChannel(PackageChannel):
                             "%s: %s") % (flitem.getURL(),
                             flitem.getFailedReason()))
             return False
-        elif (item.getStatus() == SUCCEEDED and
-              clitem.getStatus() == FAILED and
-              fetcher.getCaching() is ALWAYS):
-            iface.warning(_("Failed to download. You must fetch channel "
-                            "information to acquire needed changelogs.\n"
-                            "%s: %s") % (clitem.getURL(),
-                            clitem.getFailedReason()))
-            return False
         elif fetcher.getCaching() is NEVER:
             if item.getStatus() == FAILED:
                 faileditem = item
-            elif flitem.getStatus() == FAILED:
-                faileditem = flitem
             else:
-                faileditem = clitem
+                faileditem = flitem
             lines = [_("Failed acquiring information for '%s':") % self,
                        u"%s: %s" % (faileditem.getURL(),
                        faileditem.getFailedReason())]
