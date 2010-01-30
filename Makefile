@@ -29,7 +29,7 @@ clean:
 	find smart/ -name *.so -exec rm -f {} \;
 	find locale/ -name *.mo -exec rm -f {} \;
 
-POTFILES=`find . -name '*.c' -o -name '*.py' | grep -v ./build/`
+POTFILES=`find . -name '*.c' -o -name '*.py' | grep -v ./build/ | sort`
 
 smart.pot:
 	xgettext -o locale/smart.pot $(POTFILES)
