@@ -108,6 +108,10 @@ class DebPackageInfo(PackageInfo):
     def getLicense(self):
         return u""
 
+    def getChangeLog(self):
+        self._change = self._loader.getChanges(self)
+        return self._change
+
     def getPathList(self):
         self._paths = self._loader.getPaths(self)
         return self._paths.keys()
@@ -276,15 +280,25 @@ class DebTagLoader(Loader):
         raise TypeError, "Subclasses of DebTagLoader must " \
                          "implement the getFileName() method"
 
+    def getChanges(self, info):
+        return []
+
     def getPaths(self, info):
         return {}
 
 
 class DebTagFileLoader(DebTagLoader):
 
-    def __init__(self, filename, baseurl=None):
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _filelistsname = None
+    _changelogname = None
+
+    def __init__(self, filename, baseurl=None, filelistsname="", changelogname=""):
         DebTagLoader.__init__(self, baseurl)
         self._filename = filename
+        self._filelistsname = filelistsname
+        self._changelogname = changelogname
         self._tagfile = TagFile(self._filename)
 
     def getLoadSteps(self):
@@ -316,8 +330,36 @@ class DebTagFileLoader(DebTagLoader):
             return long(size)
         return None
 
+    def getChanges(self, info):
+        if not self._changelogname:
+            return []
+        else:
+            filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
+        changes = []
+        if os.path.isfile(filename):
+            if filename.endswith(".gz"):
+                import gzip
+                file = gzip.open(filename)
+            else:
+                file = open(filename)
+            line = file.readline()
+            while True:
+                if not line:
+                    break
+                changes.append(line.strip())
+                line = file.readline()
+                change = ""
+                while line.startswith(" ") or (line == "\n"):
+                    change += line
+                    line = file.readline()
+                changes.append(change)
+        return changes
+
     def getPaths(self, info):
-        listname = os.path.join(os.path.dirname(self._filename), "info", info._package.name+".list")
+        if not self._filelistsname:
+            listname = os.path.join(os.path.dirname(self._filename), "info", info._package.name+".list")
+        else:
+            listname = os.path.join(self._filelistsname, info._package.name+".list")
         paths = {}
         if os.path.isfile(listname):
             md5name = listname[:-4]+"md5sums"
