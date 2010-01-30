@@ -37,8 +37,10 @@ class DebSysChannel(PackageChannel):
         if digest == self._digest:
             return True
         self.removeLoaders()
-        filelistspath = os.path.join("/var", "lib/dpkg/info")
-        changelogpath = os.path.join("/usr", "share/doc")
+        filelistspath = os.path.join(sysconf.get("deb-root", "/"),
+                            "var/lib/dpkg/info")
+        changelogpath = os.path.join(sysconf.get("deb-root", "/"),
+                            "usr/share/doc")
         loader = DebTagFileLoader(path, None, filelistspath, changelogpath)
         loader.setInstalled(True)
         loader.setChannel(self)
