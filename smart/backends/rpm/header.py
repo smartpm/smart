@@ -142,13 +142,7 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getPathList(self):
         if self._path is None:
             paths = self._h[rpm.RPMTAG_OLDFILENAMES]
-            if not paths:
-                dirs = self._h[rpm.RPMTAG_DIRNAMES]
-                base = self._h[rpm.RPMTAG_BASENAMES]
-                paths = []
-                for i in range(0,len(dirs)):
-                    paths.append(dirs[i] + base[i])
-            elif type(paths) != list:
+            if type(paths) != list:
                 paths = [paths]
             modes = self._h[rpm.RPMTAG_FILEMODES]
             if modes:
