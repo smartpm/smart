@@ -29,10 +29,10 @@ clean:
 	find smart/ -name *.so -exec rm -f {} \;
 	find locale/ -name *.mo -exec rm -f {} \;
 
-POTFILES=`find . -name '*.c' -o -name '*.py' | grep -v ./build/ | sort`
+POTFILES=`find . -name '*.c' -o -name '*.py' | grep -v ./build/`
 
 smart.pot:
-	xgettext -o locale/smart.pot $(POTFILES)
+	xgettext --sort-by-file -o locale/smart.pot $(POTFILES)
 
 update-po: smart.pot
 	for po in locale/*/LC_MESSAGES/smart.po; do \
