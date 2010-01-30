@@ -159,7 +159,7 @@ def main(ctrl, opts, reloadchannels=True):
                 print "", entry
 
         if opts.changelog:
-            print "", _("Changelog:")
+            print _("Changelog:")
             for loader in pkg.loaders:
                 if loader.getInstalled():
                     break
