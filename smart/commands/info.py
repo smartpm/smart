@@ -151,6 +151,12 @@ def main(ctrl, opts, reloadchannels=True):
                         else:
                             print "   ", url
 
+        if opts.paths or opts.changelog:
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    info = loader.getInfo(pkg)
+                    break
+
         if opts.paths:
             print _("Paths:")
             paths = info.getPathList()
@@ -160,12 +166,6 @@ def main(ctrl, opts, reloadchannels=True):
 
         if opts.changelog:
             print _("Changelog:")
-            for loader in pkg.loaders:
-                if loader.getInstalled():
-                    break
-            else:
-                loader = pkg.loaders.keys()[0]
-            info = loader.getInfo(pkg)
             changelog = info.getChangeLog()
             for i in range(len(changelog)/2):
                 print "       ", "%s" % changelog[2*i]
