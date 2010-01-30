@@ -38,15 +38,13 @@ class APTDEBChannel(PackageChannel):
     _keyring = None
     _arch = None
 
-    def __init__(self, baseurl, distro, comps, filelists, changelog, fingerprint, keyring, *args):
+    def __init__(self, baseurl, distro, comps, fingerprint, keyring, *args):
         super(APTDEBChannel, self).__init__(*args)
 
         distro = distro.lstrip('/')
         self._baseurl = baseurl
         self._distro = distro
         self._comps = comps
-        self._filelists = filelists
-        self._changelog = changelog
         if fingerprint:
             self._fingerprint = "".join(fingerprint.split())
         if keyring:
@@ -227,8 +225,7 @@ class APTDEBChannel(PackageChannel):
         for item in packages_items:
             if item.getStatus() == SUCCEEDED:
                 localpath = item.getTargetPath()
-                loader = DebTagFileLoader(localpath, self._baseurl,
-                                          self._filelists, self._changelog)
+                loader = DebTagFileLoader(localpath, self._baseurl)
                 loader.setChannel(self)
                 self._loaders.append(loader)
             else:
@@ -252,8 +249,6 @@ def create(alias, data):
     return APTDEBChannel(data["baseurl"],
                          data["distribution"],
                          data["components"].split(),
-                         data["filelists"],
-                         data["changelog"],
                          data["fingerprint"],
                          data["keyring"],
                          data["type"],

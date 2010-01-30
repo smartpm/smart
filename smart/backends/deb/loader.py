@@ -32,7 +32,6 @@ from cStringIO import StringIO
 import locale
 import stat
 import os
-import tempfile
 
 
 def decode(s):
@@ -308,7 +307,6 @@ class DebTagFileLoader(DebTagLoader):
         return None
 
     def getChanges(self, info):
-        # TODO: if changelogname is an URL, we need to fetch the file first
         filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
         changes = []
         if os.path.isfile(filename):
@@ -331,7 +329,6 @@ class DebTagFileLoader(DebTagLoader):
         return changes
 
     def getPaths(self, info):
-        # TODO: if filelistsname is an URL, we need to fetch the file first
         listname = os.path.join(self._filelistsname, info._package.name+".list")
         paths = {}
         if os.path.isfile(listname):
