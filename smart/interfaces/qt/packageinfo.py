@@ -274,10 +274,9 @@ class QtPackageInfo(qt.QTabWidget):
             for i in range(len(changelog)/2):
                 text += "<b>"+unicode(qt.QStyleSheet.escape(changelog[2*i]))+"</b><br>"
                 changesplit = changelog[2*i+1].split("\n")
-                changedetails = changesplit[0] + "\n"
+                text += unicode(qt.QStyleSheet.escape(changesplit[0]))+"<br>"
                 for i in range(1, len(changesplit)):
-                    changedetails += "  " + changesplit[i] + "\n"
-                text += unicode(qt.QStyleSheet.escape(changedetails))+"<br>"
+                   text += "  " + unicode(qt.QStyleSheet.escape(changesplit[i]))+"<br>"
 
             self._change.setText(text)
             self._change.adjustSize()
