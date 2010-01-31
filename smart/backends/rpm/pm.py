@@ -40,6 +40,15 @@ try:
 except locale.Error:
     ENCODING = "ascii"
 
+
+def get_public_key(header):
+    return header.sprintf("%|DSAHEADER?{%{DSAHEADER:pgpsig}}:"
+                          "{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:"
+                          "{%|SIGGPG?{%{SIGGPG:pgpsig}}:"
+                          "{%|SIGPGP?{%{SIGPGP:pgpsig}}:"
+                          "{(none)}|}|}|}|").split()[-1]
+
+
 class RPMPackageManager(PackageManager):
 
     def commit(self, changeset, pkgpaths):
@@ -155,6 +164,9 @@ class RPMPackageManager(PackageManager):
                 fd = os.open(path, os.O_RDONLY)
                 try:
                     h = ts.hdrFromFdno(fd)
+                    if sysconf.get("rpm-check-signatures", False):
+                         if get_public_key(h) == '(none)':
+                             raise rpm.error('package is not signed')
                 except rpm.error, e:
                     os.close(fd)
                     raise Error, "%s: %s" % (os.path.basename(path), e)
