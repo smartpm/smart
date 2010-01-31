@@ -322,12 +322,12 @@ class QtPackageInfo(qt.QTabWidget):
 
     def _setRelations(self, pkg):
 
-        class Sorter(str):
+        class Sorter(unicode):
             ORDER = [_("Provides"), _("Upgrades"),
                      _("Requires"), _("Conflicts")]
             def __cmp__(self, other):
-                return cmp(self.ORDER.index(str(self)),
-                           self.ORDER.index(str(other)))
+                return cmp(self.ORDER.index(unicode(self)),
+                           self.ORDER.index(unicode(other)))
             def __lt__(self, other):
                 return cmp(self, other) < 0
 
