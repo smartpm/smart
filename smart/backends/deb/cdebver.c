@@ -29,6 +29,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef __sun
+#include <alloca.h>
+#endif
+
 static int ORDER[256];
 
 static void

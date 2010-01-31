@@ -29,6 +29,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef __sun
+#include <alloca.h>
+#endif
+
 /* Ripped from rpm. */
 static int
 vercmppart(const char *a, const char *b)
