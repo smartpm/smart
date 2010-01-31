@@ -108,6 +108,20 @@ class QtPackageInfo(qt.QTabWidget):
         self._cont.adjustSize()
         self._tabwidget.addTab(sv, _("Content"))
 
+        sv = BackgroundScrollView(self._tabwidget)
+        sv.setVScrollBarMode(qt.QScrollView.AlwaysOn)
+        sv.setMargin(5)
+        sv.show()
+
+        self._change = qt.QLabel(sv.viewport())
+        self._change.setAlignment(qt.Qt.AlignTop)
+        self._change.setSizePolicy(qt.QSizePolicy.Expanding,qt.QSizePolicy.Expanding)
+        self._change.show()
+        sv.addChild(self._change)
+
+        self._change.adjustSize()
+        self._tabwidget.addTab(sv, _("Changelog"))
+
         self._relations = QtPackageView(self._tabwidget)
         self._relations.getTreeView().header().hide()
         self._relations.show()
@@ -243,6 +257,32 @@ class QtPackageInfo(qt.QTabWidget):
             self._cont.adjustSize()
 
         elif num == 3:
+            # Update changelog
+
+            self._change.setText("")
+            if not pkg: return
+
+            text = ""
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    break
+            else:
+                loader = pkg.loaders.keys()[0]
+            info = loader.getInfo(pkg)
+            changelog = info.getChangeLog()
+
+            for i in range(len(changelog)/2):
+                text += "<b>"+unicode(qt.QStyleSheet.escape(changelog[2*i]))+"</b><br>"
+                changesplit = changelog[2*i+1].split("\n")
+                changedetails = changesplit[0] + "\n"
+                for i in range(1, len(changesplit)):
+                    changedetails += "  " + changesplit[i] + "\n"
+                text += unicode(qt.QStyleSheet.escape(changedetails))+"<br>"
+
+            self._change.setText(text)
+            self._change.adjustSize()
+
+        elif num == 4:
 
             # Update relations
 
@@ -252,7 +292,7 @@ class QtPackageInfo(qt.QTabWidget):
 
             self._setRelations(pkg)
 
-        elif num == 4:
+        elif num == 5:
 
             # Update URLs
 
