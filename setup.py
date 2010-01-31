@@ -85,6 +85,7 @@ packages = [
             "smart.interfaces",
             "smart.interfaces.gtk",
             "smart.interfaces.text",
+            "smart.interfaces.qt",
             "smart.interfaces.images",
             "smart.plugins",
             "smart.util"
