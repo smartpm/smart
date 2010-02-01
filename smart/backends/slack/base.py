@@ -27,7 +27,8 @@ import fnmatch
 import string
 import os, re
 
-__all__ = ["SlackPackage", "SlackProvides", "SlackUpgrades"]
+__all__ = ["SlackPackage", "SlackProvides", "SlackRequires", "SlackOrRequires",
+           "SlackUpgrades", "SlackConflicts"]
 
 class SlackPackage(Package):
 
@@ -81,7 +82,44 @@ class SlackDepends(Depends):
             return True
         return checkdep(prv.version, self.relation, self.version)
 
+class SlackRequires(SlackDepends,Requires): __slots__ = ()
+
+class SlackOrDepends(Depends):
+
+    __slots__ = ("_nrv",)
+
+    def __init__(self, nrv):
+        name = " | ".join([(x[2] and " ".join(x) or x[0]) for x in nrv])
+        Depends.__init__(self, name, None, None)
+        self._nrv = nrv
+
+    def getInitArgs(self):
+        return (self.__class__, self._nrv)
+
+    def getMatchNames(self):
+        return [x[0] for x in self._nrv]
+
+    def matches(self, prv):
+        if not isinstance(prv, SlackProvides) and type(prv) is not Provides:
+            return False
+        for name, relation, version in self._nrv:
+            if name == prv.name:
+                if not version:
+                    return True
+                if not prv.version:
+                    continue
+                if checkdep(prv.version, relation, version):
+                    return True
+        return False
+
+    def __reduce__(self):
+        return (self.__class__, (self._nrv,))
+
+class SlackOrRequires(SlackOrDepends,Requires): __slots__ = ()
+
 class SlackUpgrades(SlackDepends,Upgrades): __slots__ = ()
+
+class SlackConflicts(SlackDepends,Conflicts): __slots__ = ()
 
 def enablePsyco(psyco):
     psyco.bind(SlackPackage.coexists)

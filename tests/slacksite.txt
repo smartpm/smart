@@ -1,0 +1,89 @@
+
+Create the channel.
+
+  >>> from tests import *
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "slack-site",
+  ...                          "baseurl": "file://%s/slack" % TESTDATADIR})
+  >>> channel
+  <smart.channels.slack_site.SlackSiteChannel object at ...>
+
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.slack.loader.SlackSiteLoader object at ...>]
+
+
+Let's create a cache to put the loader in, so that we can test it.
+
+  >>> from smart.cache import Cache
+  >>> loader = channel.getLoaders()[0]
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+The setup is ready. Now we can load the data into the cache.
+
+  >>> loader.getLoadSteps()
+  2
+  >>> cache.load()
+
+
+This should give us two packages with the data we already know.
+
+  >>> cache.getPackages()
+  [name1-version1-noarch-release1, name2-version2-noarch-release2]
+
+  >>> pkg = cache.getPackages()[0]
+  >>> type(pkg)
+  <class 'smart.backends.slack.base.SlackPackage'>
+
+
+Let's inspect the package data.
+
+  >>> pkg.name
+  'name1'
+  >>> pkg.version
+  'version1-noarch-release1'
+
+
+Now let's ask the loader for a PackageInfo instance, and inspect it.
+
+  >>> info = loader.getInfo(pkg)
+  >>> info
+  <smart.backends.slack.loader.SlackPackageInfo object at ...>
+
+  >>> info.getGroup()
+  'Slackware'
+  >>> info.getLicense()
+  'License1'
+  >>> info.getSummary()
+  'Summary1'
+  >>> info.getDescription()
+  'Description1\n...'
+
+  >>> info.getURLs()
+  ['file:///.../data/slack/./name1-version1-noarch-release1.tgz']
+  >>> url = info.getURLs()[0]
+
+  >>> info.getMD5(url)
+  '9cccc5220c6b2d6afdf60d7ff6b800a4'
+  >>> info.getSize(url)
+
+  >>> info.getReferenceURLs()
+  ['http://www.example.com/name1']
+
+
+vim:ft=doctest

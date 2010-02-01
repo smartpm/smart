@@ -19,13 +19,17 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart import *
-import os
+from smart import _
 
-def checkPackageFile(filename):
-    return os.path.isfile(filename) and filename.endswith(".tgz") or \
-           filename.endswith(".tbz") or filename.endswith(".tlz") or \
-           filename.endswith(".txz")
+kind = "package"
 
-hooks.register("check-package-file", checkPackageFile)
+name = _("Slackware Directory")
 
+description = _("""
+Local directory with Slackware packages.
+""")
+
+fields = [("path", _("Directory Path"), str, None,
+           _("Path of directory containing Slackware packages.")),
+          ("recursive", _("Recursive"), bool, False,
+           _("Search for files recursively."))]

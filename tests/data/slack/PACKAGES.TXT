@@ -1,0 +1,32 @@
+PACKAGES.TXT;  Sun Aug  3 18:00:00 CEST 2008
+
+This file provides details on the Slackware packages found
+in the ./ directory.
+
+Total size of all packages (compressed):  0 MB
+Total size of all packages (uncompressed):  0 MB
+
+
+PACKAGE NAME:  name1-version1-noarch-release1.tgz
+PACKAGE LOCATION:  .
+PACKAGE SIZE (compressed):  0 K
+PACKAGE SIZE (uncompressed):  0 K
+PACKAGE DESCRIPTION:
+name1: Summary1
+name1:
+name1: Description1
+name1: License: License1
+name1: Authors: 
+name1: Website: http://www.example.com/name1
+
+PACKAGE NAME:  name2-version2-noarch-release2.tgz
+PACKAGE LOCATION:  .
+PACKAGE SIZE (compressed):  0 K
+PACKAGE SIZE (uncompressed):  0 K
+PACKAGE DESCRIPTION:
+name2: Summary2
+name2:
+name2: Description2
+name2: License: License2
+name2: Authors: 
+name2: Website: http://www.example.com/name2
