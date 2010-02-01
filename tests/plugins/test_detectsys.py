@@ -14,10 +14,12 @@ class DetectSysPluginTest(MockerTestCase):
         self.rpm_root = self.makeDir()
         self.deb_root = self.makeDir()
         self.slack_root = self.makeDir()
+        self.arch_root = self.makeDir()
 
         sysconf.set("rpm-root", self.rpm_root)
         sysconf.set("deb-root", self.deb_root)
         sysconf.set("slack-root", self.slack_root)
+        sysconf.set("arch-root", self.arch_root)
 
         self.old_sysconf = pickle.dumps(sysconf.object)
 
@@ -40,6 +42,9 @@ class DetectSysPluginTest(MockerTestCase):
 
     def make_slack(self):
         os.makedirs(os.path.join(self.slack_root, "var/log/packages"))
+
+    def make_arch(self):
+        os.makedirs(os.path.join(self.arch_root, "var/lib/pacman"))
 
     def rerun_plugin(self):
         sys.modules.pop("smart.plugins.detectsys", None)
@@ -107,10 +112,27 @@ class DetectSysPluginTest(MockerTestCase):
                           {"slack-sys":
                            {"type": "slack-sys", "name": "Slackware System"}})
 
+    def test_arch_database_detected(self):
+        self.make_arch()
+        self.rerun_plugin()
+        self.assertEquals(sysconf.get("channels"),
+                          {"arch-sys":
+                           {"type": "arch-sys", "name": "Archlinux System"}})
+
+    def test_arch_database_detected_with_individual_setting(self):
+        self.make_rpm()
+        self.make_arch()
+        sysconf.set("detect-sys-channels", "arch")
+        self.rerun_plugin()
+        self.assertEquals(sysconf.get("channels"),
+                          {"arch-sys":
+                           {"type": "arch-sys", "name": "Archlinux System"}})
+
     def test_detect_all(self):
         self.make_rpm()
         self.make_deb()
         self.make_slack()
+        self.make_arch()
         self.rerun_plugin()
         self.assertEquals(sysconf.get("channels"),
                           {"rpm-sys":
@@ -118,13 +140,16 @@ class DetectSysPluginTest(MockerTestCase):
                            "deb-sys":
                            {"type": "deb-sys", "name": "DEB System"},
                            "slack-sys":
-                           {"type": "slack-sys", "name": "Slackware System"}})
+                           {"type": "slack-sys", "name": "Slackware System"},
+                           "arch-sys":
+                           {"type": "arch-sys", "name": "Archlinux System"}})
 
     def test_detect_all_explicitly_enabled(self):
         self.make_rpm()
         self.make_deb()
         self.make_slack()
-        sysconf.set("detect-sys-channels", "rpm,deb,slack")
+        self.make_arch()
+        sysconf.set("detect-sys-channels", "rpm,deb,slack,arch")
         self.rerun_plugin()
         self.assertEquals(sysconf.get("channels"),
                           {"rpm-sys":
@@ -132,12 +157,15 @@ class DetectSysPluginTest(MockerTestCase):
                            "deb-sys":
                            {"type": "deb-sys", "name": "DEB System"},
                            "slack-sys":
-                           {"type": "slack-sys", "name": "Slackware System"}})
+                           {"type": "slack-sys", "name": "Slackware System"},
+                           "arch-sys":
+                           {"type": "arch-sys", "name": "Archlinux System"}})
 
     def test_detect_all_explicitly_enabled_with_true(self):
         self.make_rpm()
         self.make_deb()
         self.make_slack()
+        self.make_arch()
         sysconf.set("detect-sys-channels", True)
         self.rerun_plugin()
         self.assertEquals(sysconf.get("channels"),
@@ -146,12 +174,15 @@ class DetectSysPluginTest(MockerTestCase):
                            "deb-sys":
                            {"type": "deb-sys", "name": "DEB System"},
                            "slack-sys":
-                           {"type": "slack-sys", "name": "Slackware System"}})
+                           {"type": "slack-sys", "name": "Slackware System"},
+                           "arch-sys":
+                           {"type": "arch-sys", "name": "Archlinux System"}})
 
     def test_detect_none_when_disabled(self):
         self.make_rpm()
         self.make_deb()
         self.make_slack()
+        self.make_arch()
         sysconf.set("detect-sys-channels", "unknown")
         self.rerun_plugin()
         self.assertEquals(sysconf.get("channels"), None)
@@ -160,6 +191,7 @@ class DetectSysPluginTest(MockerTestCase):
         self.make_rpm()
         self.make_deb()
         self.make_slack()
+        self.make_arch()
         sysconf.set("detect-sys-channels", False)
         self.rerun_plugin()
         self.assertEquals(sysconf.get("channels"), None)

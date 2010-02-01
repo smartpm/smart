@@ -1,0 +1,102 @@
+
+Create the channel.
+
+  >>> from tests import *
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "arch-site",
+  ...                          "baseurl": "file://%s/arch" % TESTDATADIR,
+  ...                          "treename": "test"})
+  >>> channel
+  <smart.channels.arch_site.ArchSiteChannel object at ...>
+
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.arch.loader.ArchSiteLoader object at ...>]
+
+
+Let's create a cache to put the loader in, so that we can test it.
+
+  >>> from smart.cache import Cache
+  >>> loader = channel.getLoaders()[0]
+  >>> cache = Cache()
+  >>> cache.addLoader(loader)
+
+
+The setup is ready. Now we can load the data into the cache.
+
+  >>> loader.getLoadSteps()
+  2
+  >>> cache.load()
+
+
+This should give us two packages with the data we already know.
+
+  >>> cache.getPackages()
+  [name1-version1-release1-i686, name2-version2-release2-i686]
+
+  >>> pkg = cache.getPackages()[0]
+  >>> type(pkg)
+  <class 'smart.backends.arch.base.ArchPackage'>
+
+
+Let's inspect the package data.
+
+  >>> pkg.name
+  'name1'
+  >>> pkg.version
+  'version1-release1-i686'
+
+  >>> sorted(pkg.provides)
+  [name1 = version1-release1-i686]
+  >>> [type(x).__name__ for x in sorted(pkg.provides)]
+  ['ArchProvides']
+  >>> sorted(pkg.requires)
+  [depend1]
+  >>> [type(x).__name__ for x in sorted(pkg.requires)]
+  ['ArchRequires']
+
+
+Now let's ask the loader for a PackageInfo instance, and inspect it.
+
+  >>> info = loader.getInfo(pkg)
+  >>> info
+  <smart.backends.arch.loader.ArchPackageInfo object at ...>
+
+  >>> info.getGroup()
+  'Group1'
+  >>> info.getLicense()
+  'custom:License1'
+  >>> info.getSummary()
+  'Summary1'
+  >>> info.getDescription()
+  ''
+
+  >>> info.getURLs()
+  ['file:///.../data/arch/name1-version1-release1-i686.pkg.tar.gz']
+  >>> url = info.getURLs()[0]
+
+  >>> info.getMD5(url)
+  '4a99cc85763ded06bad9474d39f4bc49'
+  >>> info.getSize(url)
+  355L
+
+  >>> info.getPathList()
+  ['tmp/', 'tmp/file1']
+  >>> info.getReferenceURLs()
+  ['http://www.example.com/name1']
+
+
+vim:ft=doctest
