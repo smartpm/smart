@@ -30,6 +30,43 @@ try:
 except locale.Error:
     ENCODING = "C"
 
+LONG_MESSAGE_LENGTH = 1024
+LONG_MESSAGE_LINES = 8
+
+class LongMessageDialog(gtk.Dialog):
+    """Scrolling version of gtk.MessageDialog"""
+    def __init__(self, parent=None, flags=0,
+                 type=gtk.MESSAGE_INFO,
+                 buttons=gtk.BUTTONS_NONE,
+                 message_format=None):
+        icon = gtk.STOCK_DIALOG_INFO
+        if type == gtk.MESSAGE_ERROR:
+            icon = gtk.STOCK_DIALOG_ERROR
+        btns = None
+        if buttons == gtk.BUTTONS_OK:
+            btns = (gtk.STOCK_OK, gtk.RESPONSE_OK)
+        gtk.Dialog.__init__(self, None, parent, flags, btns)
+        hbox = gtk.HBox()
+        hbox.set_border_width(10)
+        hbox.set_spacing(10)
+        image = gtk.Image()
+        image.set_from_stock(icon, gtk.ICON_SIZE_DIALOG)
+        image.show()
+        hbox.pack_start(image, expand=False, fill=False)
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
+        text = gtk.TextView()
+        text.set_editable(False)
+        text.modify_base(gtk.STATE_NORMAL, self.style.bg[gtk.STATE_NORMAL])
+        text.set_wrap_mode(gtk.WRAP_WORD)
+        text.get_buffer().set_text(message_format)
+        text.show()
+        sw.add(text)
+        sw.show()
+        hbox.pack_start(sw, expand=True, fill=True)
+        hbox.show()
+        self.vbox.pack_start(hbox)
+
 class GtkLog(gtk.Window):
 
     def __init__(self):
@@ -96,7 +133,13 @@ class GtkLog(gtk.Window):
         buffer.insert(iter, "\n")
 
         if level == ERROR:
-            dialog = gtk.MessageDialog(self, flags=gtk.DIALOG_MODAL,
+            if (len(msg) > LONG_MESSAGE_LENGTH or
+                msg.count("\n") > LONG_MESSAGE_LINES):
+                gtk_MessageDialog = LongMessageDialog
+            else:
+                gtk_MessageDialog = gtk.MessageDialog
+                
+            dialog = gtk_MessageDialog(self, flags=gtk.DIALOG_MODAL,
                                        type=gtk.MESSAGE_ERROR,
                                        buttons=gtk.BUTTONS_OK,
                                        message_format=msg)
