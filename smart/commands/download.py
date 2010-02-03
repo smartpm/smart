@@ -56,6 +56,10 @@ def parse_options(argv):
     parser.defaults["target"] = os.getcwd()
     parser.add_option("--target", action="store", metavar="DIR",
                       help=_("packages will be saved in given directory"))
+    parser.add_option("--pack", action="store_true",
+                      help=_("pack all downloaded packages in a tarball"))
+    parser.add_option("--output", action="store", metavar="FILE",
+                      help=_("redirect tarball output to given filename"))
     parser.add_option("--urls", action="store_true",
                       help=_("dump needed urls and don't download packages"))
     parser.add_option("--metalink", action="store_true",
@@ -146,6 +150,10 @@ def main(ctrl, opts):
             ctrl.dumpMetalink(packages)
         else:
             ctrl.downloadPackages(packages, targetdir=opts.target)
+            if opts.pack:
+                ctrl.packPackages(packages, targetdir=opts.target, \
+                                            outputname=opts.output)
+
     elif opts.from_urls:
         urls = []
         for arg in opts.from_urls:

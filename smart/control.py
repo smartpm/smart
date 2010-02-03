@@ -23,6 +23,8 @@ import cPickle
 import sys, os
 import copy
 import time
+import tempfile
+import tarfile
 
 from smart.transaction import ChangeSet, ChangeSetSplitter, INSTALL, REMOVE
 from smart.util.filetools import compareFiles, setCloseOnExecAll
@@ -79,6 +81,14 @@ class Control(object):
         return [x for x in self._channels.values()
                 if isinstance(x, FileChannel)]
 
+    def checkPackageFile(self, arg):
+        if os.path.exists(arg):
+            if filter(None, hooks.call("check-package-file", arg)):
+                return True
+            if tarfile.is_tarfile(arg) and os.path.getsize(arg) > 0:
+                return True
+        return False
+
     def addFileChannel(self, filename):
         if not self._sysconfchannels:
             # Give a chance for backends to register
@@ -92,6 +102,23 @@ class Control(object):
                                  % channel.getAlias()
                 self._channels[channel.getAlias()] = channel
                 found = True
+        if not found and tarfile.is_tarfile(filename):
+            tempdir = tempfile.mkdtemp()
+            iface.debug("Extracting from %s to %s" % (filename, tempdir))
+            tarball = tarfile.open(filename, 'r')
+            names = tarball.getnames()
+            for name in names:
+                tarball.extract(name, path=tempdir)
+            tarball.close()
+            files = os.listdir(tempdir)
+            for file in files:
+                path = os.path.join(tempdir, file)
+                if os.path.isdir(path) and file == "RPMS":
+                    for rpm in os.listdir(path):
+                        files.append(os.path.join(path, rpm))
+                if os.path.isfile(path) and self.checkPackageFile(path):
+                    self.addFileChannel(path)
+                    found = True
         if not found:
             raise Error, _("Unable to create channel for file: %s") % filename
 
@@ -540,6 +567,52 @@ class Control(object):
             if fetched == len(packages):
                 break
         return True
+ 
+    def packPackages(self, packages, targetdir=None, outputname=None):
+        channels = getChannelsWithPackages(packages)
+        fetched = 0
+        pkgpaths = {}
+        while True:
+            self._achanset.setChannels(channels)
+            fetchpkgs = []
+            for channel in channels:
+                if self._achanset.isAvailable(channel):
+                    fetchpkgs.extend(channels[channel])
+            pkgpaths.update(self.fetchPackages(fetchpkgs, OPTIONAL, targetdir))
+            fetched += len(fetchpkgs)
+            if fetched == len(packages):
+                break
+        files = []
+        for pkg in pkgpaths:
+            files.append(pkgpaths[pkg][0])
+        self.packFiles(files, targetdir, outputname)
+
+    def packFiles(self, files, targetdir=None, outputname=None):
+        prog = iface.getProgress(self, True)
+        prog.start()
+        prog.setTopic(_("Creating pack..."))
+        if outputname:
+            filename = outputname
+        else:
+            filename = "pack.tar"
+        if not filename.startswith("/"):
+            filename = os.path.join(targetdir, filename)
+        tarball = tarfile.open(filename, 'w')
+        total = len(files)
+        current = 1
+        for file in files:
+            prog.set(current, total)
+            prog.setSubTopic(file, os.path.basename(file))
+            prog.setSub(file, 0, 1)
+            prog.show()
+            tarball.add(file, os.path.basename(file), False)
+            prog.setSubDone(file)
+            prog.show()
+            current += 1
+        tarball.close()
+        prog.setDone()
+        prog.show()
+        prog.stop()
 
     def writeCommitLog(self, changeset):
         """ writes the operations performed in the current changeset
