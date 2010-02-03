@@ -80,6 +80,8 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getSHA(url)
   >>> info.getSize(url)
 
+  >>> info.getPathList()
+  ['tmp', 'tmp/file1']
   >>> info.getReferenceURLs()
   ['http://www.example.com/name1']
 

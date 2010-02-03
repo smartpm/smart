@@ -83,12 +83,12 @@ def parsePackageFile(filename):
     info["name"] = name
     info["version"] = version
     info["type"] = ".%s" % type
-    try:
-        tar = tarfile.open(filename)
-        file = tar.extractfile('install/slack-desc')
+    tar = tarfile.open(filename)
+    file = tar.extractfile('install/slack-desc')
+    if file:
         desctag = "%s:" % info["name"]
         desctaglen = len(desctag)
-        for line in file:
+        for line in file.readlines():
             if desctag and line.startswith(desctag):
                 line = line[desctaglen:].strip()
                 if "summary" not in info:
@@ -103,9 +103,15 @@ def parsePackageFile(filename):
                         info["website"] = line[9:]
                     info["description"] += "\n"
                     info["description"] += line
-        os.unlink(file)
-    except:
-        pass
+    for member in tar.getmembers():
+        file = member.name
+        if file.endswith('/'):
+            file = file[:-1]
+        if file != "./" and not file.startswith("install"):
+            if "filelist" in info:
+                info["filelist"].append(file)
+            else:
+                info["filelist"] = [file]
     if info:
         infolst.append(info)
     return infolst

@@ -130,7 +130,7 @@ def parseFilePackageInfo(filename):
     else:
         tar = tarfile.open(filename)
     file = tar.extractfile('.PKGINFO')
-    for line in file:
+    for line in file.readlines():
         if line.startswith("pkgname"):
             name = line[9:].strip()
             if info:
@@ -170,9 +170,12 @@ def parseFilePackageList(filename):
     filelist = {}
     if tarfile.is_tarfile(filename):
         tar = tarfile.open(filename)
-        for file in tar.getnames():
+        for info in tar.getmembers():
+            file = info.name
             if file != '.PKGINFO':
-                filelist[file] = file.endswith('/') and "d" or "f"
+                if file.endswith('/'):
+                    file = file[:-1]
+                filelist[file] = info.isdir() and "d" or "f"
     else:
         file = open(filename)
         if file:
