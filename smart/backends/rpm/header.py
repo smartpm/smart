@@ -106,6 +106,9 @@ class RPMHeaderPackageInfo(PackageInfo):
     def getMD5(self, url):
         return self._loader.getMD5(self)
 
+    def getBuildTime(self):
+        return self._h[rpm.RPMTAG_BUILDTIME]
+
     def getInstalledSize(self):
         return self._h[rpm.RPMTAG_SIZE]
 

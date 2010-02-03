@@ -82,6 +82,9 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getDescription()
   ''
 
+  >>> info.getBuildTime()
+  0
+
   >>> info.getURLs()
   ['file:///.../data/arch/name1-version1-release1-i686.pkg.tar.gz']
   >>> url = info.getURLs()[0]

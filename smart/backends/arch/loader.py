@@ -73,7 +73,10 @@ class ArchPackageInfo(PackageInfo):
         return self._info.get("md5sum", None)
 
     def getBuildTime(self):
-        return self._info.get("builddate", None)
+        date = self._info.get("builddate")
+        if date:
+            return int(date)
+        return None
 
     def getInstalledSize(self):
         size = self._info.get("isize")

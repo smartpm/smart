@@ -58,6 +58,9 @@ class RPMMetaDataPackageInfo(PackageInfo):
             return [posixpath.join(self._loader._baseurl, url)]
         return []
 
+    def getBuildTime(self):
+        return self._info.get("build_time")
+
     def getInstalledSize(self):
         return self._info.get("installed_size")
 
@@ -129,6 +132,7 @@ class RPMMetaDataLoader(Loader):
         SUMMARY     = nstag(NS_COMMON, "summary")
         DESCRIPTION = nstag(NS_COMMON, "description")
         URL         = nstag(NS_COMMON, "url")
+        TIME        = nstag(NS_COMMON, "time")
         SIZE        = nstag(NS_COMMON, "size")
         LOCATION    = nstag(NS_COMMON, "location")
         FORMAT      = nstag(NS_COMMON, "format")
@@ -214,6 +218,10 @@ class RPMMetaDataLoader(Loader):
                 elif tag == URL:
                     if elem.text:
                         info["url"] = elem.text
+
+                elif tag == TIME:
+                    info["time"] = int(elem.get("file"))
+                    info["build_time"] = int(elem.get("build"))
 
                 elif tag == SIZE:
                     info["size"] = int(elem.get("package"))

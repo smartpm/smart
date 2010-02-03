@@ -91,6 +91,9 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getDescription()
   'Description1'
 
+  >>> info.getBuildTime()
+  1135342886
+
   >>> info.getURLs()
   ['file:///.../tests/data/rpm/name1-version1-release1.noarch.rpm']
   >>> url = info.getURLs()[0]

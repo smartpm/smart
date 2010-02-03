@@ -170,6 +170,9 @@ class PackageInfo(object):
     def pathIsSpecial(self, path):
         return None
 
+    def getBuildTime(self):
+        return None
+
     def getInstalledSize(self):
         return None
 
