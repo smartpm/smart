@@ -195,10 +195,10 @@ def compileActions(group, actions, globals):
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.toggleSearch)
         if action[0] == "update-selected-channels": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.selectedChannels)
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.updateSelected)
         if action[0] == "update-channels": #HACK
             self = globals["self"]
-            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.allChannels)
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.updateChannels)
         if action[0] == "rebuild-cache": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.rebuildCache)
@@ -444,11 +444,8 @@ class QtInteractiveInterface(QtInterface):
     def getChangeSet(self):
         return self._changeset
 
-    def selectedChannels(self):
+    def updateSelected(self):
         self.updateChannels(selected=True)
-
-    def allChannels(self):
-        self.updateChannels(selected=False)
 
     def updateChannels(self, selected=False, channels=None):
         if selected:

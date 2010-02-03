@@ -67,8 +67,7 @@ class GtkLog(gtk.Window):
         self._clearbutton = gtk.Button(stock="gtk-clear")
         self._clearbutton.show()
         self._clearbutton.connect("clicked",
-                                  lambda x: self._textview.get_buffer()
-                                                         .set_text(""))
+                                  lambda x: self.clearText())
         self._buttonbox.pack_start(self._clearbutton)
 
         self._closebutton = gtk.Button(stock="gtk-close")
@@ -76,6 +75,9 @@ class GtkLog(gtk.Window):
         self._closebutton.connect("clicked", lambda x: self.hide())
         self._buttonbox.pack_start(self._closebutton)
 
+    def clearText(self):
+        self._textview.get_buffer().set_text("")
+    
     def isVisible(self):
         return self.get_property("visible")
 
