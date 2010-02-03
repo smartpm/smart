@@ -623,7 +623,12 @@ class TypeSelector(object):
         table.set_row_spacings(10)
         table.set_col_spacings(10)
         table.show()
-        vbox.pack_start(table)
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        sw.set_size_request(-1, 300)
+        sw.add_with_viewport(table)
+        sw.show()
+        vbox.pack_start(sw)
         
         label = gtk.Label(_("Type:"))
         label.set_alignment(1.0, 0.0)
