@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: smart-0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-01 13:00+0100\n"
+"POT-Creation-Date: 2010-02-04 10:00+0100\n"
 "PO-Revision-Date: 2006-12-23 22:47+0800\n"
 "Last-Translator: swyear chen <swyear@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese team<zh-l10n@linux.org.tw>\n"
@@ -181,7 +181,7 @@ msgstr "未知的日誌層級"
 msgid "Can't use commands with shell interfaces"
 msgstr "無法在終端機介面使用命令"
 
-#: smart/backends/arch/loader.py:235 smart/backends/slack/loader.py:136
+#: smart/backends/arch/loader.py:241 smart/backends/slack/loader.py:142
 #, python-format
 msgid "Invalid package name: %s"
 msgstr "不適用的套件名稱: %s"
@@ -282,7 +282,7 @@ msgstr "無法在 %s 初始化 rpm 資料庫"
 msgid "Initialized new rpm database at %s"
 msgstr "在 %s 初始化 rpm 資料庫"
 
-#: smart/backends/rpm/header.py:445
+#: smart/backends/rpm/header.py:448
 msgid ""
 "Your rpm module has no support for readHeaderFromFD()!\n"
 "As a consequence, Smart will consume extra memory."
@@ -290,7 +290,7 @@ msgstr ""
 "您的 rpm 模組不支援 readHeaderFromFD()!\n"
 "因此 smart 將使用較多的記憶體。"
 
-#: smart/backends/rpm/header.py:544 smart/backends/rpm/header.py:572
+#: smart/backends/rpm/header.py:547 smart/backends/rpm/header.py:575
 msgid "Package list with no CRPMTAG_FILENAME tag"
 msgstr "套件列表(不使用 CRPMTAG_FILENAME 標籤)"
 
@@ -332,31 +332,31 @@ msgstr "清除 %s"
 msgid "Error parsing %s: %s"
 msgstr "解析 %s 發生錯誤: %s"
 
-#: smart/cache.py:197 smart/fetcher.py:1289 smart/fetcher.py:1562
+#: smart/cache.py:200 smart/fetcher.py:1289 smart/fetcher.py:1562
 msgid "File not found"
 msgstr "找不到檔案"
 
-#: smart/cache.py:203 smart/fetcher.py:367
+#: smart/cache.py:206 smart/fetcher.py:367
 #, python-format
 msgid "Unexpected size (expected %d, got %d)"
 msgstr "大小不正確(應為 %d,但得到 %d)"
 
-#: smart/cache.py:220 smart/fetcher.py:384
+#: smart/cache.py:223 smart/fetcher.py:384
 #, python-format
 msgid "Invalid MD5 (expected %s, got %s)"
 msgstr "MD5 不正確(應為 %s,但得到 %s)"
 
-#: smart/cache.py:235 smart/fetcher.py:399
+#: smart/cache.py:238 smart/fetcher.py:399
 #, fuzzy, python-format
 msgid "Invalid SHA256 (expected %s, got %s)"
 msgstr "SHA 不正確(應為 %s,但得到 %s)"
 
-#: smart/cache.py:253 smart/fetcher.py:417
+#: smart/cache.py:256 smart/fetcher.py:417
 #, python-format
 msgid "Invalid SHA (expected %s, got %s)"
 msgstr "SHA 不正確(應為 %s,但得到 %s)"
 
-#: smart/cache.py:665
+#: smart/cache.py:668
 msgid "Updating cache..."
 msgstr "更新快取..."
 
@@ -426,9 +426,9 @@ msgid ""
 msgstr "若此項被核取，表示此頻道是在可移除的媒體上(例如 cdrom)。"
 
 #: smart/channel.py:151 smart/commands/priority.py:98
-#: smart/interfaces/gtk/interactive.py:653
+#: smart/interfaces/gtk/interactive.py:677
 #: smart/interfaces/gtk/priorities.py:83
-#: smart/interfaces/qt/interactive.py:719 smart/interfaces/qt/priorities.py:72
+#: smart/interfaces/qt/interactive.py:716 smart/interfaces/qt/priorities.py:72
 msgid "Priority"
 msgstr "優先權值"
 
@@ -512,13 +512,13 @@ msgid "Download of Release.gpg failed for secure channel '%s': %s"
 msgstr "組件 '%s' 不在頻道 '%s' 的 Release 文件中"
 
 #: smart/channels/apt_deb.py:126 smart/channels/apt_rpm.py:131
-#: smart/channels/slack_site.py:108
+#: smart/channels/rpm_md.py:234 smart/channels/slack_site.py:108
 #, python-format
 msgid "Channel '%s' has bad signature"
 msgstr "頻道 '%s' 的簽名無效"
 
 #: smart/channels/apt_deb.py:129 smart/channels/apt_rpm.py:133
-#: smart/channels/slack_site.py:110
+#: smart/channels/rpm_md.py:237 smart/channels/slack_site.py:110
 #, python-format
 msgid "Channel '%s' signed with unknown key"
 msgstr "頻道 '%s' 使用了未知密鑰簽名"
@@ -531,7 +531,7 @@ msgstr "組件 '%s' 不在頻道 '%s' 的 Release 文件中"
 #: smart/channels/apt_deb.py:237 smart/channels/apt_rpm.py:62
 #: smart/channels/apt_rpm.py:212 smart/channels/arch_site.py:78
 #: smart/channels/mirrors.py:58 smart/channels/red_carpet.py:64
-#: smart/channels/rpm_hdl.py:60 smart/channels/rpm_md.py:251
+#: smart/channels/rpm_hdl.py:60 smart/channels/rpm_md.py:290
 #: smart/channels/slack_site.py:124 smart/channels/up2date_mirrors.py:61
 #: smart/channels/urpmi.py:107 smart/channels/yast2.py:53
 #, python-format
@@ -578,12 +578,12 @@ msgid "Space separated list of components."
 msgstr "用空白分隔的組件列表。"
 
 #: smart/channels/apt_deb_info.py:38 smart/channels/apt_rpm_info.py:36
-#: smart/channels/slack_site_info.py:36
+#: smart/channels/rpm_md_info.py:36 smart/channels/slack_site_info.py:36
 msgid "Fingerprint"
 msgstr "指紋"
 
 #: smart/channels/apt_deb_info.py:39 smart/channels/apt_rpm_info.py:37
-#: smart/channels/slack_site_info.py:37
+#: smart/channels/rpm_md_info.py:37 smart/channels/slack_site_info.py:37
 msgid "GPG fingerprint of key signing the channel."
 msgstr "頻道所使用的密鑰 GPG 指紋。"
 
@@ -671,7 +671,7 @@ msgstr "遞迴"
 msgid "Search for files recursively."
 msgstr "遞迴搜尋檔案。"
 
-#: smart/channels/arch_site.py:68 smart/channels/rpm_md.py:241
+#: smart/channels/arch_site.py:68 smart/channels/rpm_md.py:280
 #, fuzzy, python-format
 msgid ""
 "Failed to download. You must fetch channel information to acquire needed "
@@ -841,15 +841,15 @@ msgstr "檔頭列表 URL"
 msgid "URL for the header list"
 msgstr "檔頭列表 URL"
 
-#: smart/channels/rpm_md.py:77
+#: smart/channels/rpm_md.py:84
 msgid "Could not load meta link. Continuing with base URL only."
 msgstr ""
 
-#: smart/channels/rpm_md.py:112 smart/channels/rpm_md.py:171
+#: smart/channels/rpm_md.py:119 smart/channels/rpm_md.py:178
 msgid "Could not load mirror list. Continuing with base URL only."
 msgstr ""
 
-#: smart/channels/rpm_md.py:133
+#: smart/channels/rpm_md.py:140
 #, fuzzy, python-format
 msgid ""
 "Invalid XML file:\n"
@@ -861,12 +861,17 @@ msgstr ""
 "  %s\n"
 "  %s"
 
-#: smart/channels/rpm_md.py:195
+#: smart/channels/rpm_md.py:205
 #, python-format
 msgid "Failed acquiring release file for '%s':"
 msgstr "抓取 '%s' 的 release 檔案失敗："
 
-#: smart/channels/rpm_md.py:209
+#: smart/channels/rpm_md.py:213
+#, fuzzy, python-format
+msgid "Download of repomd.xml.asc failed for secure channel '%s': %s"
+msgstr "組件 '%s' 不在頻道 '%s' 的 Release 文件中"
+
+#: smart/channels/rpm_md.py:248
 #, python-format
 msgid "Primary information not found in repository metadata for '%s'"
 msgstr "'%s' 的服務站台未找到主要資訊"
@@ -1149,7 +1154,7 @@ msgstr "直接執行不需確認"
 msgid "show further information about given type"
 msgstr "顯示關於指定類型的進一步資訊"
 
-#: smart/commands/channel.py:135 smart/interfaces/gtk/channels.py:628
+#: smart/commands/channel.py:135 smart/interfaces/gtk/channels.py:633
 #: smart/interfaces/qt/channels.py:569
 msgid "Type:"
 msgstr "類型:"
@@ -1321,7 +1326,7 @@ msgstr "未發現頻道: %s"
 msgid "Channels are disabled: %s"
 msgstr "頻道已經停用: %s"
 
-#: smart/commands/check.py:134 smart/commands/download.py:98
+#: smart/commands/check.py:134 smart/commands/download.py:102
 #: smart/commands/fix.py:94 smart/commands/info.py:80
 #: smart/commands/install.py:124 smart/commands/query.py:163
 #: smart/commands/reinstall.py:97 smart/commands/remove.py:100
@@ -1335,7 +1340,7 @@ msgstr ""
 "沒有套件符合 '%s'。建議:\n"
 "%s"
 
-#: smart/commands/check.py:138 smart/commands/download.py:102
+#: smart/commands/check.py:138 smart/commands/download.py:106
 #: smart/commands/fix.py:98 smart/commands/info.py:84
 #: smart/commands/install.py:128 smart/commands/query.py:167
 #: smart/commands/reinstall.py:101 smart/commands/remove.py:104
@@ -1483,35 +1488,44 @@ msgid "packages will be saved in given directory"
 msgstr "套件將被存在指定的目錄"
 
 #: smart/commands/download.py:60
+msgid "pack all downloaded packages in a tarball"
+msgstr ""
+
+#: smart/commands/download.py:62
+#, fuzzy
+msgid "redirect tarball output to given filename"
+msgstr "重新導向輸出到指定的檔名"
+
+#: smart/commands/download.py:64
 msgid "dump needed urls and don't download packages"
 msgstr "傾印需要的 urls 且不下載套件"
 
-#: smart/commands/download.py:62
+#: smart/commands/download.py:66
 #, fuzzy
 msgid "dump metalink xml and don't download packages"
 msgstr "傾印需要的 urls 且不下載套件"
 
-#: smart/commands/download.py:64
+#: smart/commands/download.py:68
 msgid ""
 "download files from the given urls and/or from the given files with lists of "
 "urls"
 msgstr "下載檔案從指定的 urls 或 urls 的列表"
 
-#: smart/commands/download.py:67
+#: smart/commands/download.py:71
 #, fuzzy
 msgid "download files from the given metalink file"
 msgstr "下載檔案從指定的 urls 或 urls 的列表"
 
-#: smart/commands/download.py:71
+#: smart/commands/download.py:75
 msgid "Directory not found:"
 msgstr "沒有此目錄:"
 
-#: smart/commands/download.py:116 smart/commands/install.py:142
+#: smart/commands/download.py:120 smart/commands/install.py:142
 #, python-format
 msgid "%s (for %s) is already installed"
 msgstr "%s (適用於 %s) 已經安裝"
 
-#: smart/commands/download.py:129 smart/commands/install.py:155
+#: smart/commands/download.py:133 smart/commands/install.py:155
 #, python-format
 msgid ""
 "There are multiple matches for '%s':\n"
@@ -1520,16 +1534,16 @@ msgstr ""
 "有一個以上符合 '%s':\n"
 "%s"
 
-#: smart/commands/download.py:157 smart/commands/download.py:166
+#: smart/commands/download.py:165 smart/commands/download.py:174
 msgid "Metalink"
 msgstr ""
 
-#: smart/commands/download.py:161
+#: smart/commands/download.py:169
 #, python-format
 msgid "Argument is not a file nor url: %s"
 msgstr "引數不是一個檔案或 url: %s"
 
-#: smart/commands/download.py:163 smart/interfaces/gtk/packageinfo.py:182
+#: smart/commands/download.py:171 smart/interfaces/gtk/packageinfo.py:182
 #: smart/interfaces/qt/packageinfo.py:140
 msgid "URLs"
 msgstr "URLs"
@@ -1843,11 +1857,11 @@ msgstr ""
 msgid "dump package names and versions to stderr but don't commit operation"
 msgstr "傾印套件名稱與版本到 stderr 且不提交操作"
 
-#: smart/commands/install.py:87 smart/control.py:723
+#: smart/commands/install.py:87 smart/control.py:796
 msgid "packages"
 msgstr "套件"
 
-#: smart/commands/install.py:90 smart/control.py:727
+#: smart/commands/install.py:90 smart/control.py:800
 msgid "Failed to download packages:\n"
 msgstr "無法下載套件:\n"
 
@@ -2020,6 +2034,66 @@ msgstr "沒有原始站台: %s"
 msgid "Mirror not found: %s"
 msgstr "沒有鏡像: %s"
 
+#: smart/commands/newer.py:33
+msgid "smart newer"
+msgstr ""
+
+#: smart/commands/newer.py:35
+msgid ""
+"\n"
+"This command shows packages that have available upgrades.\n"
+msgstr ""
+
+#: smart/commands/newer.py:39
+msgid ""
+"\n"
+"smart newer\n"
+msgstr ""
+
+#: smart/commands/newer.py:73 smart/commands/newer.py:85
+#: smart/commands/upgrade.py:165 smart/commands/upgrade.py:176
+msgid "No interesting upgrades available."
+msgstr "沒有您感興趣的升級。"
+
+#: smart/commands/newer.py:81 smart/commands/upgrade.py:172
+msgid "There are pending upgrades!"
+msgstr "有尚待決定的升級！"
+
+#: smart/commands/newer.py:83 smart/commands/upgrade.py:174
+msgid "There are new upgrades available!"
+msgstr "有可用的升級！"
+
+#: smart/commands/newer.py:120
+#, fuzzy
+msgid "(not installed)"
+msgstr "(已安裝)"
+
+#: smart/commands/newer.py:133 smart/commands/priority.py:98
+#: smart/interfaces/gtk/packageinfo.py:174
+#: smart/interfaces/qt/packageinfo.py:136
+msgid "Channel"
+msgstr "頻道"
+
+#: smart/commands/newer.py:133 smart/interfaces/gtk/packageinfo.py:236
+#: smart/interfaces/qt/packageinfo.py:197
+msgid "Installed"
+msgstr "已安裝"
+
+#: smart/commands/newer.py:133 smart/interfaces/gtk/priorities.py:67
+#: smart/interfaces/qt/priorities.py:70
+msgid "Package Name"
+msgstr "套件名稱"
+
+#: smart/commands/newer.py:133 smart/interfaces/gtk/packageinfo.py:176
+#: smart/interfaces/qt/packageinfo.py:137
+msgid "Size"
+msgstr "大小"
+
+#: smart/commands/newer.py:133 smart/interfaces/gtk/changes.py:98
+#: smart/interfaces/qt/changes.py:81
+msgid "Upgrade"
+msgstr "升級"
+
 #: smart/commands/nothing.py:26
 msgid "smart test [options]"
 msgstr "smart test [選項]"
@@ -2092,11 +2166,6 @@ msgstr "不適用的優先權值"
 #: smart/commands/priority.py:95
 msgid "Priority not found"
 msgstr "沒有優先權值"
-
-#: smart/commands/priority.py:98 smart/interfaces/gtk/packageinfo.py:174
-#: smart/interfaces/qt/packageinfo.py:136
-msgid "Channel"
-msgstr "頻道"
 
 #: smart/commands/priority.py:98 smart/interfaces/gtk/packageview.py:132
 #: smart/interfaces/qt/packageview.py:56
@@ -2552,96 +2621,89 @@ msgstr "只檢查是否有可用的升級"
 msgid "check if there are upgrades to be done, and update the known upgrades"
 msgstr "檢查是否有可用的升級，並更新已知的升級"
 
-#: smart/commands/upgrade.py:165 smart/commands/upgrade.py:176
-msgid "No interesting upgrades available."
-msgstr "沒有您感興趣的升級。"
-
-#: smart/commands/upgrade.py:172
-msgid "There are pending upgrades!"
-msgstr "有尚待決定的升級！"
-
-#: smart/commands/upgrade.py:174
-msgid "There are new upgrades available!"
-msgstr "有可用的升級！"
-
-#: smart/control.py:91 smart/control.py:282
+#: smart/control.py:101 smart/control.py:309
 #, python-format
 msgid "There's another channel with alias '%s'"
 msgstr "已經有別的頻道使用別名 '%s'"
 
-#: smart/control.py:96
+#: smart/control.py:123
 #, python-format
 msgid "Unable to create channel for file: %s"
 msgstr "無法建立頻道: %s"
 
-#: smart/control.py:106
+#: smart/control.py:133
 #, python-format
 msgid "Channel not found for '%s'"
 msgstr "沒有此一頻道 %s"
 
-#: smart/control.py:139
+#: smart/control.py:166
 #, python-format
 msgid "Configuration file not found: %s"
 msgstr "沒有設定檔: %s"
 
-#: smart/control.py:154
+#: smart/control.py:181
 #, python-format
 msgid "Can't create datadir at %s"
 msgstr "無法在 %s 建立 datadir"
 
-#: smart/control.py:174
+#: smart/control.py:201
 msgid "Saving cache..."
 msgstr "儲存快取中..."
 
-#: smart/control.py:226
+#: smart/control.py:253
 msgid "Loading cache..."
 msgstr "載入快取中..."
 
-#: smart/control.py:307
+#: smart/control.py:334
 msgid "Unable to create channel directory."
 msgstr "無法建立頻道目錄。"
 
-#: smart/control.py:310
+#: smart/control.py:337
 msgid "The Smart library is already in use by another process."
 msgstr ""
 
-#: smart/control.py:312
+#: smart/control.py:339
 msgid "Configuration is in readonly mode!"
 msgstr "設定檔為唯讀模式!"
 
-#: smart/control.py:314
+#: smart/control.py:341
 msgid "Channel information is locked for writing."
 msgstr "頻道資訊被鎖定(正在寫入)。"
 
-#: smart/control.py:316
+#: smart/control.py:343
 msgid "Can't update channels in readonly mode."
 msgstr "在唯讀模式時無法更新頻道。"
 
-#: smart/control.py:318
+#: smart/control.py:345
 msgid "Can't update channels with active readers."
 msgstr "無法更新頻道"
 
-#: smart/control.py:354
+#: smart/control.py:381
 #, python-format
 msgid "Fetching information for '%s'..."
 msgstr "抓取資訊 '%s'..."
 
-#: smart/control.py:361 smart/control.py:365
+#: smart/control.py:388 smart/control.py:392
 #, python-format
 msgid "Failed fetching channel '%s'"
 msgstr "無法抓取頻道 '%s'"
 
-#: smart/control.py:419 smart/control.py:438 smart/control.py:442
+#: smart/control.py:446 smart/control.py:465 smart/control.py:469
 #, python-format
 msgid "Package %s is not available for downloading"
 msgstr "套件 %s 無法下載"
 
-#: smart/control.py:709
+#: smart/control.py:593
+#, fuzzy
+msgid "Creating pack..."
+msgstr "更新快取..."
+
+#: smart/control.py:782
 #, python-format
 msgid "No channel available for package %s"
 msgstr "沒有套件 %s"
 
-#: smart/control.py:904
+#: smart/control.py:977
 #, python-format
 msgid "%s is not available for downloading"
 msgstr "%s 無法下載"
@@ -2700,17 +2762,17 @@ msgstr "密碼"
 msgid "A password is needed for '%s'."
 msgstr "'%s' 需要密碼。"
 
-#: smart/interface.py:134 smart/interfaces/gtk/log.py:83
+#: smart/interface.py:134 smart/interfaces/gtk/log.py:122
 #: smart/interfaces/qt/log.py:103
 msgid "error"
 msgstr "錯誤"
 
-#: smart/interface.py:134 smart/interfaces/gtk/log.py:83
+#: smart/interface.py:134 smart/interfaces/gtk/log.py:122
 #: smart/interfaces/qt/log.py:103
 msgid "warning"
 msgstr "警告"
 
-#: smart/interface.py:135 smart/interfaces/gtk/log.py:84
+#: smart/interface.py:135 smart/interfaces/gtk/log.py:123
 #: smart/interfaces/qt/log.py:104
 msgid "debug"
 msgstr "偵錯"
@@ -2737,24 +2799,20 @@ msgstr "變更摘要"
 msgid "Downgrade"
 msgstr "降級"
 
-#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:533
-#: smart/interfaces/qt/changes.py:80 smart/interfaces/qt/interactive.py:631
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:569
+#: smart/interfaces/qt/changes.py:80 smart/interfaces/qt/interactive.py:628
 msgid "Reinstall"
 msgstr "重新安裝"
 
-#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:543
-#: smart/interfaces/qt/changes.py:80 smart/interfaces/qt/interactive.py:637
+#: smart/interfaces/gtk/changes.py:97 smart/interfaces/gtk/interactive.py:579
+#: smart/interfaces/qt/changes.py:80 smart/interfaces/qt/interactive.py:634
 msgid "Remove"
 msgstr "移除"
 
-#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:524
-#: smart/interfaces/qt/changes.py:81 smart/interfaces/qt/interactive.py:625
+#: smart/interfaces/gtk/changes.py:98 smart/interfaces/gtk/interactive.py:560
+#: smart/interfaces/qt/changes.py:81 smart/interfaces/qt/interactive.py:622
 msgid "Install"
 msgstr "安裝"
-
-#: smart/interfaces/gtk/changes.py:98 smart/interfaces/qt/changes.py:81
-msgid "Upgrade"
-msgstr "升級"
 
 #: smart/interfaces/gtk/changes.py:125 smart/interfaces/gtk/packageinfo.py:357
 #: smart/interfaces/gtk/packageinfo.py:409 smart/interfaces/qt/changes.py:108
@@ -2888,41 +2946,41 @@ msgstr "無效的別名!"
 msgid "Alias already in use!"
 msgstr "這個別名已經被使用了!"
 
-#: smart/interfaces/gtk/channels.py:607 smart/interfaces/gtk/channels.py:704
-#: smart/interfaces/gtk/channels.py:805 smart/interfaces/qt/channels.py:555
+#: smart/interfaces/gtk/channels.py:607 smart/interfaces/gtk/channels.py:709
+#: smart/interfaces/gtk/channels.py:810 smart/interfaces/qt/channels.py:555
 #: smart/interfaces/qt/channels.py:644 smart/interfaces/qt/channels.py:731
 msgid "New Channel"
 msgstr "新頻道"
 
-#: smart/interfaces/gtk/channels.py:724 smart/interfaces/qt/channels.py:656
+#: smart/interfaces/gtk/channels.py:729 smart/interfaces/qt/channels.py:656
 msgid "Method:"
 msgstr "方式:"
 
-#: smart/interfaces/gtk/channels.py:763 smart/interfaces/qt/channels.py:682
+#: smart/interfaces/gtk/channels.py:768 smart/interfaces/qt/channels.py:682
 msgid "Provide channel information"
 msgstr "提供頻道資訊"
 
-#: smart/interfaces/gtk/channels.py:765 smart/interfaces/qt/channels.py:684
+#: smart/interfaces/gtk/channels.py:770 smart/interfaces/qt/channels.py:684
 msgid "Read channel description from local path"
 msgstr "從本機路徑讀取頻道描述"
 
-#: smart/interfaces/gtk/channels.py:767 smart/interfaces/qt/channels.py:686
+#: smart/interfaces/gtk/channels.py:772 smart/interfaces/qt/channels.py:686
 msgid "Read channel description from URL"
 msgstr "從 URL 讀取頻道描述"
 
-#: smart/interfaces/gtk/channels.py:769 smart/interfaces/qt/channels.py:688
+#: smart/interfaces/gtk/channels.py:774 smart/interfaces/qt/channels.py:688
 msgid "Detect channel in media (CDROM, DVD, etc)"
 msgstr "由媒體中(CDROM、DVD 等)偵測頻道"
 
-#: smart/interfaces/gtk/channels.py:771 smart/interfaces/qt/channels.py:690
+#: smart/interfaces/gtk/channels.py:776 smart/interfaces/qt/channels.py:690
 msgid "Detect channel in local path"
 msgstr "在本機路徑中偵測頻道"
 
-#: smart/interfaces/gtk/channels.py:826 smart/interfaces/qt/channels.py:743
+#: smart/interfaces/gtk/channels.py:831 smart/interfaces/qt/channels.py:743
 msgid "Media path:"
 msgstr "媒體路徑:"
 
-#: smart/interfaces/gtk/channels.py:880 smart/interfaces/qt/channels.py:787
+#: smart/interfaces/gtk/channels.py:885 smart/interfaces/qt/channels.py:787
 msgid "No local media found!"
 msgstr "未找到本機媒體!"
 
@@ -3293,54 +3351,54 @@ msgstr "自動"
 msgid "Description"
 msgstr "描述"
 
-#: smart/interfaces/gtk/interactive.py:467
-#: smart/interfaces/qt/interactive.py:524
+#: smart/interfaces/gtk/interactive.py:479
+#: smart/interfaces/qt/interactive.py:521
 msgid "Apply marked changes now?"
 msgstr "現在套用標示的變更嗎？"
 
-#: smart/interfaces/gtk/interactive.py:470
-#: smart/interfaces/qt/interactive.py:527
+#: smart/interfaces/gtk/interactive.py:482
+#: smart/interfaces/qt/interactive.py:524
 #: smart/interfaces/text/interactive.py:370
 msgid "No interesting upgrades available!"
 msgstr "沒有可升級的套件!"
 
-#: smart/interfaces/gtk/interactive.py:555
-#: smart/interfaces/qt/interactive.py:646
+#: smart/interfaces/gtk/interactive.py:591
+#: smart/interfaces/qt/interactive.py:643
 msgid "Keep"
 msgstr "保留"
 
-#: smart/interfaces/gtk/interactive.py:564
-#: smart/interfaces/qt/interactive.py:652
+#: smart/interfaces/gtk/interactive.py:600
+#: smart/interfaces/qt/interactive.py:649
 msgid "Fix problems"
 msgstr "修復問題"
 
-#: smart/interfaces/gtk/interactive.py:595
-#: smart/interfaces/qt/interactive.py:686
+#: smart/interfaces/gtk/interactive.py:631
+#: smart/interfaces/qt/interactive.py:683
 msgid "Unlock this version"
 msgstr "解除鎖定此版本"
 
-#: smart/interfaces/gtk/interactive.py:607
-#: smart/interfaces/qt/interactive.py:693
+#: smart/interfaces/gtk/interactive.py:640
+#: smart/interfaces/qt/interactive.py:690
 msgid "Lock this version"
 msgstr "鎖定此版本"
 
-#: smart/interfaces/gtk/interactive.py:625
-#: smart/interfaces/qt/interactive.py:705
+#: smart/interfaces/gtk/interactive.py:655
+#: smart/interfaces/qt/interactive.py:702
 msgid "Unlock all versions"
 msgstr "解除鎖定所有版本"
 
-#: smart/interfaces/gtk/interactive.py:637
-#: smart/interfaces/qt/interactive.py:712
+#: smart/interfaces/gtk/interactive.py:664
+#: smart/interfaces/qt/interactive.py:709
 msgid "Lock all versions"
 msgstr "鎖定所有版本"
 
-#: smart/interfaces/gtk/interactive.py:668
-#: smart/interfaces/qt/interactive.py:730
+#: smart/interfaces/gtk/interactive.py:692
+#: smart/interfaces/qt/interactive.py:727
 msgid "Checking relations..."
 msgstr "正在檢查相依關係..."
 
-#: smart/interfaces/gtk/interactive.py:671
-#: smart/interfaces/qt/interactive.py:733
+#: smart/interfaces/gtk/interactive.py:695
+#: smart/interfaces/qt/interactive.py:730
 msgid "All checked packages have correct relations."
 msgstr "所有套件的相依關係均正確。"
 
@@ -3356,7 +3414,7 @@ msgstr "輸入"
 msgid "Insert one or more of the following removable channels:\n"
 msgstr "插入下列可移除裝置:\n"
 
-#: smart/interfaces/gtk/log.py:40 smart/interfaces/qt/log.py:54
+#: smart/interfaces/gtk/log.py:77 smart/interfaces/qt/log.py:54
 msgid "Log"
 msgstr "日誌"
 
@@ -3422,11 +3480,6 @@ msgstr "頻道"
 msgid "Relations"
 msgstr "相依關係"
 
-#: smart/interfaces/gtk/packageinfo.py:176
-#: smart/interfaces/qt/packageinfo.py:137
-msgid "Size"
-msgstr "大小"
-
 #: smart/interfaces/gtk/packageinfo.py:178
 #: smart/interfaces/qt/packageinfo.py:138
 msgid "URL"
@@ -3436,11 +3489,6 @@ msgstr "URL"
 #: smart/interfaces/qt/packageinfo.py:197
 msgid "Available"
 msgstr "可用"
-
-#: smart/interfaces/gtk/packageinfo.py:236
-#: smart/interfaces/qt/packageinfo.py:197
-msgid "Installed"
-msgstr "已安裝"
 
 #: smart/interfaces/gtk/packageinfo.py:238
 #: smart/interfaces/qt/packageinfo.py:199 smart/util/strtools.py:55
@@ -3473,10 +3521,6 @@ msgstr "版本"
 #: smart/interfaces/gtk/priorities.py:33 smart/interfaces/qt/priorities.py:48
 msgid "Priorities"
 msgstr "優先權值"
-
-#: smart/interfaces/gtk/priorities.py:67 smart/interfaces/qt/priorities.py:70
-msgid "Package Name"
-msgstr "套件名稱"
 
 #: smart/interfaces/gtk/priorities.py:75 smart/interfaces/qt/priorities.py:71
 msgid "Channel Alias"
