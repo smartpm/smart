@@ -32,7 +32,9 @@ Repository created with the rpm-metadata project.
 fields = [("baseurl", _("Base URL"), str, None,
            _("URL where repodata/ subdirectory is found")),
           ("mirrorlist", _("Mirror list URL"), str, "",
-           _("URL which provides list of mirrors for baseurl"))]
+           _("URL which provides list of mirrors for baseurl")),
+          ("fingerprint", _("Fingerprint"), str, "",
+           _("GPG fingerprint of key signing the channel."))]
 
 def detectLocalChannels(path, media):
     import os

@@ -34,6 +34,7 @@ from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel, MirrorsChannel
 from smart import *
 import posixpath
+import commands
 import os
 
 from xml.parsers import expat
@@ -56,17 +57,23 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
     # instances which don't have these attributes still work fine.
     _mirrors = {}
     _mirrorlist = ""
+    _fingerprint = None
 
-    def __init__(self, baseurl, mirrorlist=None, *args):
+    def __init__(self, baseurl, mirrorlist=None, fingerprint=None, *args):
         super(RPMMetaDataChannel, self).__init__(*args)
         self._baseurl = baseurl
         self._mirrorlist = mirrorlist
+        if fingerprint:
+            self._fingerprint = "".join(fingerprint.split())
 
     def getCacheCompareURLs(self):
         return [posixpath.join(self._baseurl, "repodata/repomd.xml")]
 
     def getFetchSteps(self):
-        return 4
+        if self._fingerprint:
+            return 5
+        else:
+            return 4
 
     def loadMetalink(self, metalinkfile):
         self._mirrors.clear()
@@ -177,6 +184,7 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             progress.add(1)
 
         repomd = posixpath.join(self._baseurl, "repodata/repomd.xml")
+        reposig = posixpath.join(self._baseurl, "repodata/repomd.xml.asc")
 
         oldinfo = {}
         path = self.getLocalPath(fetcher, repomd)
@@ -187,6 +195,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
                 pass
         
         item = fetcher.enqueue(repomd)
+        if self._fingerprint:
+            gpgitem = fetcher.enqueue(reposig)
         fetcher.run(progress=progress)
 
         if item.getStatus() is FAILED:
@@ -196,6 +206,35 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
                          u"%s: %s" % (item.getURL(), item.getFailedReason())]
                 raise Error, "\n".join(lines)
             return False
+
+        if self._fingerprint:
+            if gpgitem.getStatus() is FAILED:
+                raise Error, \
+                      _("Download of repomd.xml.asc failed for secure "
+                        "channel '%s': %s") % (self, gpgitem.getFailedReason())
+
+            status, output = commands.getstatusoutput(
+                "gpg --batch --no-secmem-warning --status-fd 1 --verify "
+                "%s %s" % (gpgitem.getTargetPath(), item.getTargetPath()))
+
+            badsig = False
+            goodsig = False
+            validsig = None
+            for line in output.splitlines():
+                if line.startswith("[GNUPG:]"):
+                    tokens = line[8:].split()
+                    first = tokens[0]
+                    if first == "VALIDSIG":
+                        validsig = tokens[1]
+                    elif first == "GOODSIG":
+                        goodsig = True
+                    elif first == "BADSIG":
+                        badsig = True
+            if badsig:
+                raise Error, _("Channel '%s' has bad signature") % self
+            if (not goodsig or
+                (self._fingerprint and validsig != self._fingerprint)):
+                raise Error, _("Channel '%s' signed with unknown key") % self
 
         digest = getFileDigest(item.getTargetPath())
         if digest == self._digest:
@@ -277,6 +316,7 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 def create(alias, data):
     return RPMMetaDataChannel(data["baseurl"],
                               data["mirrorlist"],
+                              data["fingerprint"],
                               data["type"],
                               alias,
                               data["name"],
