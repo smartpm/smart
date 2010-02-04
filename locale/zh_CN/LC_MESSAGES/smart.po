@@ -203,7 +203,7 @@ msgstr "升级 %s"
 #: smart/backends/arch/pm.py:91 smart/backends/slack/pm.py:84
 #, python-format
 msgid "Got status %d upgrading %s:"
-msgstr "升级 %(pkg)s 时得到了状态 %(status)d："
+msgstr ""
 
 #: smart/backends/arch/pm.py:94 smart/backends/slack/pm.py:87
 #, python-format
@@ -219,7 +219,7 @@ msgstr "安装 %s"
 #: smart/backends/arch/pm.py:105 smart/backends/slack/pm.py:70
 #, python-format
 msgid "Got status %d installing %s:"
-msgstr "安装 %(pkg)s 时得到了状态 %(status)d："
+msgstr ""
 
 #: smart/backends/arch/pm.py:108 smart/backends/slack/pm.py:73
 #, python-format
@@ -235,7 +235,7 @@ msgstr "删除 %s"
 #: smart/backends/arch/pm.py:119 smart/backends/slack/pm.py:98
 #, python-format
 msgid "Got status %d removing %s:"
-msgstr "删除 %(pkg)s 时得到了状态 %(status)d："
+msgstr ""
 
 #: smart/backends/arch/pm.py:122 smart/backends/slack/pm.py:101
 #, python-format
@@ -308,7 +308,7 @@ msgstr "%s 与 %s 冲突"
 #: smart/backends/rpm/pm.py:303
 #, python-format
 msgid "Processing %s in %s"
-msgstr "处理 %(path)s 中的 %(pkgstr)s"
+msgstr ""
 
 #: smart/backends/rpm/pm.py:304 smart/backends/rpm/pm.py:339
 #, python-format
