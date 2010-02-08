@@ -202,9 +202,21 @@ def compileActions(group, actions, globals):
         if action[0] == "rebuild-cache": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.rebuildCache)
+        if action[0] == "check-installed-packages": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.checkInstalledPackages)
+        if action[0] == "check-uninstalled-packages": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.checkUninstalledPackages)
+        if action[0] == "check-all-packages": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.checkAllPackages)
         if action[0] == "upgrade-all": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.upgradeAll)
+        if action[0] == "fix-all-problems": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.fixAllProblems)
         if action[0] == "exec-changes": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.applyChanges)
@@ -720,6 +732,15 @@ class QtInteractiveInterface(QtInterface):
 
         menu.show()
         menu.exec_loop(packageview.mapToGlobal(pnt))
+
+    def checkInstalledPackages(self):
+        self.checkPackages()
+
+    def checkUninstalledPackages(self):
+        self.checkPackages(uninstalled=True)
+
+    def checkAllPackages(self):
+        self.checkPackages(all=True)
 
     def checkPackages(self, all=False, uninstalled=False):
         installed = not uninstalled
