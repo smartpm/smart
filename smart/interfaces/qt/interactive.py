@@ -588,13 +588,13 @@ class QtInteractiveInterface(QtInterface):
         if not lock:
              for pkg in pkgs:
                   pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
-             self._pv.updatePackage(pkgs[0])
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
                   pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
-             self._pv.updatePackage(pkgs[0])
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
 
@@ -602,13 +602,13 @@ class QtInteractiveInterface(QtInterface):
         if not lock:
              for pkg in pkgs:
                   pkgconf.clearFlag("lock", pkg.name)
-             self._pv.updatePackage(pkgs[0])
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
                   pkgconf.setFlag("lock", pkg.name)
-             self._pv.updatePackage(pkgs[0])
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
 

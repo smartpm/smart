@@ -222,9 +222,6 @@ class QtPackageView(qt.QWidget):
         else:
             self._changeset = changeset
 
-    def updatePackage(self, package):
-        self.updatePackages([package])
-
     def updatePackages(self, packages, changeset=None):
         treeview = self._treeview
         for pkg in packages:
