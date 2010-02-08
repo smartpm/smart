@@ -485,16 +485,18 @@ class QtInteractiveInterface(QtInterface):
             del self._redo[:]
             self._actions["redo"].setEnabled(False)
             self._actions["undo"].setEnabled(False)
+            pkgs = self._changeset.copy()
             self._changeset.clear()
             self._ctrl.reloadChannels()
             self.refreshPackages()
-            self.changedMarks()
+            self.changedMarks(pkgs)
         self._progress.hide()
 
     def clearChanges(self):
         self.saveUndo()
+        pkgs = self._changeset.copy()
         self._changeset.clear()
-        self.changedMarks()
+        self.changedMarks(pkgs)
 
     def showChanges(self):
         return self._changes.showChangeSet(self._changeset)
@@ -765,8 +767,10 @@ class QtInteractiveInterface(QtInterface):
                 self._actions["undo"].setEnabled(False)
             self._redo.insert(0, self._changeset.getPersistentState())
             self._actions["redo"].setEnabled(True)
+            pkgs = self._changeset.copy()
             self._changeset.setPersistentState(state)
-            self.changedMarks()
+            pkgs.update(self._changeset)
+            self.changedMarks(pkgs)
 
     def redo(self):
         if self._redo:
@@ -775,8 +779,10 @@ class QtInteractiveInterface(QtInterface):
                 self._actions["redo"].setEnabled(False)
             self._undo.insert(0, self._changeset.getPersistentState())
             self._actions["undo"].setEnabled(True)
+            pkgs = self._changeset.copy()
             self._changeset.setPersistentState(state)
-            self.changedMarks()
+            pkgs.update(self._changeset)
+            self.changedMarks(pkgs)
 
     def saveUndo(self):
         self._undo.insert(0, self._changeset.getPersistentState())
