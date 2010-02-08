@@ -220,6 +220,12 @@ def compileActions(group, actions, globals):
         if action[0] == "exec-changes": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.applyChanges)
+        if action[0] == "undo": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.undo)
+        if action[0] == "redo": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.redo)
         if action[0] == "clear-changes": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.clearChanges)
