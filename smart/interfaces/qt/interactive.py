@@ -582,7 +582,7 @@ class QtInteractiveInterface(QtInterface):
         if self.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
-            pkgs.update(changeset)
+            pkgs.extend(changeset)
             self.changedMarks(pkgs)
 
     def lockPackages(self, pkgs, lock):
