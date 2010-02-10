@@ -8,19 +8,20 @@ msgstr ""
 "Project-Id-Version: smart package manager\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-04 10:00+0100\n"
-"PO-Revision-Date: 2007-01-07 22:27+0100\n"
-"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
-"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"PO-Revision-Date: 2010-02-04 23:09+0000\n"
+"Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
+"Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Country: SWEDEN\n"
+"X-Poedit-Language: Swedish\n"
 
 #: smart.py:37
 msgid "smart command [options] [arguments]"
 msgstr "smart kommando [flaggor] [argument]"
 
 #: smart.py:39
-#, fuzzy
 msgid ""
 "\n"
 "Action commands:\n"
@@ -68,6 +69,7 @@ msgstr ""
 "    stats\n"
 "\n"
 "Konfigurationskommandon:\n"
+"    config\n"
 "    channel\n"
 "    priority\n"
 "    mirror\n"
@@ -248,7 +250,7 @@ msgstr "Tar bort %s:"
 #: smart/backends/arch/pm.py:125
 #, python-format
 msgid "Operation ( %s ) not handled on package ( %s )"
-msgstr ""
+msgstr "Åtgärden ( %s ) hanteras ej för paketet (%s )"
 
 #: smart/backends/deb/pm.py:273
 #, python-format
@@ -350,9 +352,9 @@ msgid "Invalid MD5 (expected %s, got %s)"
 msgstr "Ogiltig MD5 (förväntade %s, fick %s)"
 
 #: smart/cache.py:238 smart/fetcher.py:399
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid SHA256 (expected %s, got %s)"
-msgstr "Ogiltig SHA (förväntade %s, fick %s)"
+msgstr "Ogiltig SHA256 (förväntade %s, fick %s)"
 
 #: smart/cache.py:256 smart/fetcher.py:417
 #, python-format
@@ -511,14 +513,14 @@ msgid "Invalid channel type '%s'"
 msgstr "Ogiltig kanaltyp \"%s\""
 
 #: smart/channels/apt_deb.py:88
-#, fuzzy, python-format
+#, python-format
 msgid "Download of Release failed for channel '%s': %s"
-msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
+msgstr "Hämtning av Release misslyckades för kanalen \"%s\": %s"
 
 #: smart/channels/apt_deb.py:95
-#, fuzzy, python-format
+#, python-format
 msgid "Download of Release.gpg failed for secure channel '%s': %s"
-msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
+msgstr "Hämtning av Release.gpg misslyckades för säkra kanalen \"%s\": %s"
 
 #: smart/channels/apt_deb.py:126 smart/channels/apt_rpm.py:131
 #: smart/channels/rpm_md.py:234 smart/channels/slack_site.py:108
@@ -598,13 +600,15 @@ msgstr "GPG-fingeravtryck för nyckelsignering av kanalen."
 
 #: smart/channels/apt_deb_info.py:40
 msgid "Keyring"
-msgstr ""
+msgstr "Nyckelring"
 
 #: smart/channels/apt_deb_info.py:41
 msgid ""
 "If provided, channel must necessarily be signed by a key in the GPG keyring "
 "at the given path."
 msgstr ""
+"Om angiven, måste kanalen tvunget signeras av en nyckel i GPG-nyckelringen "
+"med angiven sökväg."
 
 #: smart/channels/apt_rpm.py:102
 #, python-format
@@ -647,18 +651,16 @@ msgid "%s channels cannot be removable"
 msgstr "%s-kanaler kan inte vara flyttbara"
 
 #: smart/channels/arch_dir_info.py:26
-#, fuzzy
 msgid "Archlinux Directory"
-msgstr "DEB-katalog"
+msgstr "Archlinux-katalog"
 
 #: smart/channels/arch_dir_info.py:28
-#, fuzzy
 msgid ""
 "\n"
 "Local directory with Archlinux packages.\n"
 msgstr ""
 "\n"
-"Lokal katalog med DEB-paket.\n"
+"Lokal katalog med Archlinux-paket.\n"
 
 #: smart/channels/arch_dir_info.py:32 smart/channels/deb_dir_info.py:32
 #: smart/channels/rpm_dir_info.py:32 smart/channels/slack_dir_info.py:32
@@ -666,9 +668,8 @@ msgid "Directory Path"
 msgstr "Katalogsökväg"
 
 #: smart/channels/arch_dir_info.py:33
-#, fuzzy
 msgid "Path of directory containing *.pkg.tar.gz packages."
-msgstr "Sökväg till katalog som innehåller DEB-paket."
+msgstr "Sökväg till katalog som innehåller *.pkg.tar.gz-paket."
 
 #: smart/channels/arch_dir_info.py:34 smart/channels/deb_dir_info.py:34
 #: smart/channels/rpm_dir_info.py:34 smart/channels/slack_dir_info.py:34
@@ -693,46 +694,40 @@ msgstr ""
 "%s: %s"
 
 #: smart/channels/arch_site_info.py:28
-#, fuzzy
 msgid "Archlinux Repository"
-msgstr "APT-DEB-förråd"
+msgstr "Archlinux-förråd"
 
 #: smart/channels/arch_site_info.py:30
-#, fuzzy
 msgid ""
 "\n"
 "Remote repository with archlinux packages.\n"
 msgstr ""
 "\n"
-"Fjärrförråd med Slackware-paket.\n"
+"Fjärrförråd med Archlinux-paket.\n"
 
 #: smart/channels/arch_site_info.py:35
-#, fuzzy
 msgid "Base URL where *.db.tar.gz is located"
-msgstr "Bas-URL där PACKAGES.TXT finns"
+msgstr "Bas-URL där *.db.tar.gz finns"
 
 #: smart/channels/arch_site_info.py:36
-#, fuzzy
 msgid "Tree name"
-msgstr "_Trädstil"
+msgstr "Trädnamn"
 
 #: smart/channels/arch_site_info.py:37
 msgid "The name of the <tree>.db.tar.gz file"
-msgstr ""
+msgstr "Namnet på <träd>.db.tar.gz-filen"
 
 #: smart/channels/arch_sys_info.py:28
-#, fuzzy
 msgid "Archlinux Installed Packages"
-msgstr "Installerade paket:"
+msgstr "Archlinux installerade paket"
 
 #: smart/channels/arch_sys_info.py:30
-#, fuzzy
 msgid ""
 "\n"
 "Installed packages in a Archlinux system.\n"
 msgstr ""
 "\n"
-"Installerade paket på ett Slackware-system.\n"
+"Installerade paket på ett Archlinux-system.\n"
 
 #: smart/channels/deb_dir_info.py:26
 msgid "DEB Directory"
@@ -856,21 +851,20 @@ msgstr "URL för header-listan"
 
 #: smart/channels/rpm_md.py:84
 msgid "Could not load meta link. Continuing with base URL only."
-msgstr ""
+msgstr "Kunde inte läsa metalänk. Fortsätter med endast bas-URL."
 
 #: smart/channels/rpm_md.py:119 smart/channels/rpm_md.py:178
 msgid "Could not load mirror list. Continuing with base URL only."
-msgstr ""
+msgstr "Kunde inte läsa spegellista. Fortsätter med endast bas-URL."
 
 #: smart/channels/rpm_md.py:140
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Invalid XML file:\n"
 "  %s\n"
 "  %s"
 msgstr ""
 "Ogiltig XML-fil:\n"
-"  %s\n"
 "  %s\n"
 "  %s"
 
@@ -880,9 +874,9 @@ msgid "Failed acquiring release file for '%s':"
 msgstr "Misslyckades med att få tag på Release-filen för \"%s\":"
 
 #: smart/channels/rpm_md.py:213
-#, fuzzy, python-format
+#, python-format
 msgid "Download of repomd.xml.asc failed for secure channel '%s': %s"
-msgstr "Komponenten \"%s\" är inte i Release-filen för kanalen \"%s\""
+msgstr "Hämtning av repomd.xml.asc misslyckades för säkra kanalen \"%s\": %s"
 
 #: smart/channels/rpm_md.py:248
 #, python-format
@@ -906,13 +900,12 @@ msgid "URL where repodata/ subdirectory is found"
 msgstr "URL där underkatalogen repodata/ kan hittas"
 
 #: smart/channels/rpm_md_info.py:34
-#, fuzzy
 msgid "Mirror list URL"
-msgstr "URL till spegelfil"
+msgstr "URL till spegellista"
 
 #: smart/channels/rpm_md_info.py:35
 msgid "URL which provides list of mirrors for baseurl"
-msgstr ""
+msgstr "URL till lista på speglar för bas-url"
 
 #: smart/channels/rpm_sys_info.py:26
 msgid "RPM Installed Packages"
@@ -927,23 +920,20 @@ msgstr ""
 "Installerade paket från den lokala RPM-databasen.\n"
 
 #: smart/channels/slack_dir_info.py:26
-#, fuzzy
 msgid "Slackware Directory"
-msgstr "Slackware-förråd"
+msgstr "Slackware-katalog"
 
 #: smart/channels/slack_dir_info.py:28
-#, fuzzy
 msgid ""
 "\n"
 "Local directory with Slackware packages.\n"
 msgstr ""
 "\n"
-"Lokal katalog med DEB-paket.\n"
+"Lokal katalog med Slackware-paket.\n"
 
 #: smart/channels/slack_dir_info.py:33
-#, fuzzy
 msgid "Path of directory containing Slackware packages."
-msgstr "Sökväg till katalog som innehåller DEB-paket."
+msgstr "Sökväg till katalog som innehåller Slackware-paket."
 
 #: smart/channels/slack_site_info.py:26
 msgid "Slackware Repository"
@@ -962,14 +952,12 @@ msgid "Base URL where PACKAGES.TXT is located"
 msgstr "Bas-URL där PACKAGES.TXT finns"
 
 #: smart/channels/slack_site_info.py:34
-#, fuzzy
 msgid "Compressed"
-msgstr "Komponenter"
+msgstr "Komprimerad"
 
 #: smart/channels/slack_site_info.py:35
-#, fuzzy
 msgid "Whether PACKAGES.TXT is gzip compressed"
-msgstr "Bas-URL där PACKAGES.TXT finns"
+msgstr "Huruvida PACKAGES.TXT är gzip-komprimerad"
 
 #: smart/channels/slack_sys_info.py:26
 msgid "Slackware Installed Packages"
@@ -1033,9 +1021,9 @@ msgid "Base URL has invalid 'with' pattern"
 msgstr "Bas-URL innehåller ett ogiltigt \"with\"-mönster"
 
 #: smart/channels/yast2.py:132
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid package file header (%s)"
-msgstr "Ogiltigt paketnamn: %s"
+msgstr "Ogiltigt paketfilhuvud (%s)"
 
 #: smart/channels/yast2_info.py:26
 msgid "YaST2 Repository"
@@ -1055,11 +1043,11 @@ msgstr "Bas-URL för YaST2-förrådet, där filen \"content\" finns."
 
 #: smart/channels/yast2_info.py:34
 msgid "Compressed SuSETags"
-msgstr ""
+msgstr "Komprimerade SuSETags"
 
 #: smart/channels/yast2_info.py:35
 msgid "Use compressed SuSETags metadata."
-msgstr ""
+msgstr "Använd komprimerade SuSETags-metadata."
 
 #: smart/commands/channel.py:32
 msgid "smart channel [options]"
@@ -1189,9 +1177,8 @@ msgid "(*) These fields are necessary for this type."
 msgstr "(*) Dessa fält är nödvändiga för den här typen."
 
 #: smart/commands/channel.py:147
-#, fuzzy
 msgid "Can't edit channels information."
-msgstr "Ange kanalinformation"
+msgstr "Kan inte redigera kanalinformation."
 
 #: smart/commands/channel.py:148 smart/sysconfig.py:66
 msgid "Configuration is in readonly mode."
@@ -1487,7 +1474,6 @@ msgstr ""
 "Det här kommandot tillåter hämtning av ett eller flera angivna paket.\n"
 
 #: smart/commands/download.py:37
-#, fuzzy
 msgid ""
 "\n"
 "smart download pkgname\n"
@@ -1508,8 +1494,10 @@ msgstr ""
 "smart download paketnamn-1.0-1\n"
 "smart download paketnamn1 paketnamn2\n"
 "smart download paketnamn --urls 2> paketnamn-url.txt\n"
+"smart download pkgname --metalink 2> paketnamn.metalink\n"
 "smart download --from-urls paketnamn-url.txt\n"
 "smart download --from-urls http://någon.url/någon/sökväg/någonfil\n"
+"smart download --from-metalink paketnamn.metalink\n"
 
 #: smart/commands/download.py:58
 msgid "packages will be saved in given directory"
@@ -1517,21 +1505,19 @@ msgstr "paket kommer att sparas i angiven katalog"
 
 #: smart/commands/download.py:60
 msgid "pack all downloaded packages in a tarball"
-msgstr ""
+msgstr "packa alla hämtade paket i ett tar-arkiv"
 
 #: smart/commands/download.py:62
-#, fuzzy
 msgid "redirect tarball output to given filename"
-msgstr "omdirigera utdata till angivet filnamn"
+msgstr "omdirigera tar-arkiv utdata till angivet filnamn"
 
 #: smart/commands/download.py:64
 msgid "dump needed urls and don't download packages"
 msgstr "skriv ut nödvändiga url:er och hämta inga paket"
 
 #: smart/commands/download.py:66
-#, fuzzy
 msgid "dump metalink xml and don't download packages"
-msgstr "skriv ut nödvändiga url:er och hämta inga paket"
+msgstr "skriv ut metalänk-xml och hämta inga paket"
 
 #: smart/commands/download.py:68
 msgid ""
@@ -1542,11 +1528,9 @@ msgstr ""
 "listor av url:er"
 
 #: smart/commands/download.py:71
-#, fuzzy
 msgid "download files from the given metalink file"
 msgstr ""
-"hämta ner filer från angivna url:er och/eller från de angivna filerna med "
-"listor av url:er"
+"hämta ner filer från angivna metalänk-filer"
 
 #: smart/commands/download.py:75
 msgid "Directory not found:"
@@ -1568,7 +1552,7 @@ msgstr ""
 
 #: smart/commands/download.py:165 smart/commands/download.py:174
 msgid "Metalink"
-msgstr ""
+msgstr "Metalänk"
 
 #: smart/commands/download.py:169
 #, python-format
@@ -1631,9 +1615,8 @@ msgstr "skriv ut nödvändiga url:er och verkställ ingenting"
 #: smart/commands/fix.py:56 smart/commands/install.py:58
 #: smart/commands/reinstall.py:54 smart/commands/remove.py:53
 #: smart/commands/upgrade.py:57
-#, fuzzy
 msgid "dump metalink xml and don't commit operation"
-msgstr "skriv ut nödvändiga url:er och verkställ ingenting"
+msgstr "skriv ut metalänk-xml och verkställ ingenting"
 
 #: smart/commands/fix.py:58 smart/commands/install.py:60
 #: smart/commands/reinstall.py:56 smart/commands/remove.py:55
@@ -1788,9 +1771,8 @@ msgid "show path list"
 msgstr "visa sökvägslista"
 
 #: smart/commands/info.py:50
-#, fuzzy
 msgid "show change log"
-msgstr "visa paketprioritet"
+msgstr "visa ändringslogg"
 
 #: smart/commands/info.py:112 smart/interfaces/gtk/flags.py:314
 #: smart/interfaces/qt/flags.py:272
@@ -1809,7 +1791,7 @@ msgstr "Prioritet:"
 
 #: smart/commands/info.py:115
 msgid "Source:"
-msgstr ""
+msgstr "Källa:"
 
 #: smart/commands/info.py:116 smart/interfaces/gtk/packageinfo.py:67
 #: smart/interfaces/qt/packageinfo.py:69
@@ -1818,7 +1800,7 @@ msgstr "Grupp:"
 
 #: smart/commands/info.py:117
 msgid "License:"
-msgstr ""
+msgstr "Licens:"
 
 #: smart/commands/info.py:118 smart/interfaces/gtk/packageinfo.py:68
 #: smart/interfaces/qt/packageinfo.py:70
@@ -1855,9 +1837,8 @@ msgid "Paths:"
 msgstr "Sökvägar:"
 
 #: smart/commands/info.py:175
-#, fuzzy
 msgid "Changelog:"
-msgstr "Kanaler:"
+msgstr "Ändringslogg:"
 
 #: smart/commands/install.py:31
 msgid "smart install [options] package ..."
@@ -2095,19 +2076,23 @@ msgstr "Spegeln hittades inte: %s"
 
 #: smart/commands/newer.py:33
 msgid "smart newer"
-msgstr ""
+msgstr "smart newer"
 
 #: smart/commands/newer.py:35
 msgid ""
 "\n"
 "This command shows packages that have available upgrades.\n"
 msgstr ""
+"\n"
+"Det här kommandot visar paket som har tillgängliga uppgraderingar.\n"
 
 #: smart/commands/newer.py:39
 msgid ""
 "\n"
 "smart newer\n"
 msgstr ""
+"\n"
+"smart newer\n"
 
 #: smart/commands/newer.py:73 smart/commands/newer.py:85
 #: smart/commands/upgrade.py:165 smart/commands/upgrade.py:176
@@ -2123,9 +2108,8 @@ msgid "There are new upgrades available!"
 msgstr "Det finns nya uppgraderingar tillgängliga!"
 
 #: smart/commands/newer.py:120
-#, fuzzy
 msgid "(not installed)"
-msgstr "(installerat)"
+msgstr "(ej installerat)"
 
 #: smart/commands/newer.py:133 smart/commands/priority.py:98
 #: smart/interfaces/gtk/packageinfo.py:174
@@ -2275,24 +2259,20 @@ msgid "consider only installed packages"
 msgstr "endast installerade paket"
 
 #: smart/commands/query.py:60
-#, fuzzy
 msgid "consider only the newest package"
-msgstr "endast installerade paket"
+msgstr "endast det nyaste paketet"
 
 #: smart/commands/query.py:62
-#, fuzzy
 msgid "consider only installed packages that are duplicated"
-msgstr "endast installerade paket"
+msgstr "endast installerade paket som har dubletter"
 
 #: smart/commands/query.py:64
-#, fuzzy
 msgid "consider only installed packages not required by others"
-msgstr "endast installerade paket"
+msgstr "endast installerade paket som inte krävs av andra"
 
 #: smart/commands/query.py:66
-#, fuzzy
 msgid "consider only installed packages not in other channels"
-msgstr "endast installerade paket"
+msgstr "endast installerade paket inte i andra kanaler"
 
 #: smart/commands/query.py:68
 msgid "show only packages providing the given dependency"
@@ -2315,14 +2295,12 @@ msgid "show only packages which match given name"
 msgstr "visa endast paket som matchar angivet namn"
 
 #: smart/commands/query.py:82
-#, fuzzy
 msgid "show only packages which match given group"
-msgstr "visa endast paket som matchar angivet namn"
+msgstr "visa endast paket som matchar angiven grupp"
 
 #: smart/commands/query.py:84
-#, fuzzy
 msgid "show only packages from the given channel"
-msgstr "visa endast paket som matchar angivet namn"
+msgstr "visa endast paket som matchar angiven kanal"
 
 #: smart/commands/query.py:86
 msgid "show only packages which match given summary"
@@ -2738,7 +2716,7 @@ msgstr "Kunde inte skapa kanalkatalog."
 
 #: smart/control.py:337
 msgid "The Smart library is already in use by another process."
-msgstr ""
+msgstr "Smart-biblioteket används redan av en annan process."
 
 #: smart/control.py:339
 msgid "Configuration is in readonly mode!"
@@ -2772,9 +2750,8 @@ msgid "Package %s is not available for downloading"
 msgstr "Paketet %s är inte tillgängligt för hämtning"
 
 #: smart/control.py:593
-#, fuzzy
 msgid "Creating pack..."
-msgstr "Uppdaterar cache..."
+msgstr "Skapar pack..."
 
 #: smart/control.py:782
 #, python-format
@@ -3388,9 +3365,8 @@ msgstr "Dölj omarkerade"
 
 #: smart/interfaces/gtk/interactive.py:225
 #: smart/interfaces/qt/interactive.py:290
-#, fuzzy
 msgid "Hide Unlocked"
-msgstr "Dölj omarkerade"
+msgstr "Dölj olåsta"
 
 #: smart/interfaces/gtk/interactive.py:226
 #: smart/interfaces/qt/interactive.py:291
@@ -3550,9 +3526,8 @@ msgstr "Innehåll"
 
 #: smart/interfaces/gtk/packageinfo.py:148
 #: smart/interfaces/qt/packageinfo.py:123
-#, fuzzy
 msgid "Changelog"
-msgstr "Kanal"
+msgstr "Ändringslogg"
 
 #: smart/interfaces/gtk/packageinfo.py:156
 #: smart/interfaces/qt/packageinfo.py:129
@@ -3693,69 +3668,63 @@ msgid "ETA"
 msgstr "Klar om"
 
 #: smart/interfaces/gtk/progress.py:220 smart/interfaces/gtk/progress.py:221
-#, fuzzy
 msgid "Done"
-msgstr "Ingen"
+msgstr "Klar"
 
 #: smart/interfaces/qt/__init__.py:34
-#, fuzzy
 msgid "System has no support for qt python interface"
-msgstr "Systemet har inget stöd för gtk python-gränssnittet"
+msgstr "Systemet har inget stöd för qt python-gränssnittet"
 
 #: smart/interfaces/qt/changes.py:61 smart/interfaces/qt/channels.py:346
 #: smart/interfaces/qt/channels.py:425 smart/interfaces/qt/channels.py:585
 #: smart/interfaces/qt/channels.py:671 smart/interfaces/qt/channels.py:762
 #: smart/interfaces/qt/interface.py:93 smart/interfaces/qt/mirrors.py:213
 #: smart/interfaces/qt/priorities.py:237 smart/interfaces/qt/progress.py:99
-#, fuzzy
 msgid "Cancel"
-msgstr "avbryt"
+msgstr "Avbryt"
 
 #: smart/interfaces/qt/changes.py:63 smart/interfaces/qt/channels.py:349
 #: smart/interfaces/qt/channels.py:428 smart/interfaces/qt/channels.py:588
 #: smart/interfaces/qt/channels.py:674 smart/interfaces/qt/channels.py:759
 #: smart/interfaces/qt/mirrors.py:210 smart/interfaces/qt/priorities.py:240
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: smart/interfaces/qt/changes.py:71 smart/interfaces/qt/channels.py:111
 #: smart/interfaces/qt/flags.py:128 smart/interfaces/qt/log.py:90
 #: smart/interfaces/qt/mirrors.py:89 smart/interfaces/qt/priorities.py:93
 #: smart/interfaces/qt/priorities.py:299
-#, fuzzy
 msgid "Close"
-msgstr "falskt"
+msgstr "Stäng"
 
 #: smart/interfaces/qt/channels.py:91 smart/interfaces/qt/flags.py:71
 #: smart/interfaces/qt/flags.py:102 smart/interfaces/qt/mirrors.py:75
 #: smart/interfaces/qt/priorities.py:79
 msgid "New"
-msgstr ""
+msgstr "Ny"
 
 #: smart/interfaces/qt/channels.py:97 smart/interfaces/qt/flags.py:78
 #: smart/interfaces/qt/flags.py:109 smart/interfaces/qt/mirrors.py:82
 #: smart/interfaces/qt/priorities.py:86
 msgid "Delete"
-msgstr ""
+msgstr "Ta bort"
 
 #: smart/interfaces/qt/channels.py:104
-#, fuzzy
 msgid "Edit"
-msgstr "R_edigera"
+msgstr "Redigera"
 
 #: smart/interfaces/qt/interface.py:75 smart/interfaces/qt/interface.py:90
 #: smart/interfaces/qt/interface.py:107
 msgid "Question..."
-msgstr ""
+msgstr "Fråga..."
 
 #: smart/interfaces/qt/interface.py:92
-#, fuzzy
 msgid "Continue"
-msgstr "Fortsätt?"
+msgstr "Fortsätt"
 
 #: smart/interfaces/qt/log.py:86
 msgid "Clear"
-msgstr ""
+msgstr "Rensa"
 
 #: smart/interfaces/text/interactive.py:72
 msgid "Documented commands (type help <topic>):"
@@ -4259,27 +4228,29 @@ msgstr "Dynamisk RPM-katalog"
 #: smart/plugins/yumchannelsync.py:88
 #, python-format
 msgid "Yum Sync: trying to locate baseurl from mirrorlist for %s."
-msgstr ""
+msgstr "Yum Sync: försöker hitta bas-url i spegellistan för %s."
 
 #: smart/plugins/yumchannelsync.py:109
 #, python-format
 msgid "Yum Sync: trying to locate baseurl from repo comments for %s."
-msgstr ""
+msgstr "Yum Sync: försöker hitta bas-url i repokommentarer för %s."
 
 #: smart/plugins/yumchannelsync.py:162
 #, python-format
 msgid ""
 "Yum channel %s does not contain baseurl or mirrorlist addresses. Not syncing."
 msgstr ""
+"Yum-kanalen %s innehåller inte baseurl eller mirrorlist-addresser. "
+"Synkroniserar inte."
 
 #: smart/plugins/yumchannelsync.py:214
 msgid "Trying to sync Yum channels..."
-msgstr ""
+msgstr "Försöker synkronisera Yum-kanaler..."
 
 #: smart/plugins/zyppchannelsync.py:96
 #, python-format
 msgid "ZYpp Sync: trying to locate baseurl from mirrorlist for %s."
-msgstr ""
+msgstr "ZYpp Sync: försöker hitta bas-url i spegellistan för %s."
 
 #: smart/plugins/zyppchannelsync.py:141
 #, python-format
@@ -4287,10 +4258,12 @@ msgid ""
 "ZYpp channel %s does not contain baseurl or mirrorlist addresses. Not "
 "syncing."
 msgstr ""
+"ZYpp-kanalen %s innehåller inte baseurl eller mirrorlist-addresser. "
+"Synkroniserar inte."
 
 #: smart/plugins/zyppchannelsync.py:204
 msgid "Trying to sync ZYpp channels..."
-msgstr ""
+msgstr "Försöker synkronisera ZYpp-kanaler..."
 
 #: smart/searcher.py:172
 msgid "Invalid string"
@@ -4503,14 +4476,3 @@ msgstr "SSH frågade efter ett lösenord, men inget lösenord finns tillgänglig
 #: smart/util/strtools.py:65 smart/util/strtools.py:84
 msgid "Stalled"
 msgstr "Avstannad"
-
-#~ msgid "Channel '%s' has fingerprint but download of Release.gpg failed: %s"
-#~ msgstr ""
-#~ "Kanalen \"%s\" har ett fingeravtryck men hämtning av Release.gpg "
-#~ "misslyckades: %s"
-
-#~ msgid "test.py [options] [<test filename>, ...]"
-#~ msgstr "test.py [flaggor] [<testfilnamn>, ...]"
-
-#~ msgid "Invalid package file format. Invalid header found."
-#~ msgstr "Ogiltigt paketfilformat. Ogiltigt filhuvud hittades."
