@@ -202,12 +202,30 @@ def compileActions(group, actions, globals):
         if action[0] == "rebuild-cache": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.rebuildCache)
+        if action[0] == "check-installed-packages": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.checkInstalledPackages)
+        if action[0] == "check-uninstalled-packages": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.checkUninstalledPackages)
+        if action[0] == "check-all-packages": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.checkAllPackages)
         if action[0] == "upgrade-all": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.upgradeAll)
+        if action[0] == "fix-all-problems": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.fixAllProblems)
         if action[0] == "exec-changes": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.applyChanges)
+        if action[0] == "undo": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.undo)
+        if action[0] == "redo": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.redo)
         if action[0] == "clear-changes": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.clearChanges)
@@ -473,16 +491,18 @@ class QtInteractiveInterface(QtInterface):
             del self._redo[:]
             self._actions["redo"].setEnabled(False)
             self._actions["undo"].setEnabled(False)
+            pkgs = self._changeset.copy()
             self._changeset.clear()
             self._ctrl.reloadChannels()
             self.refreshPackages()
-            self.changedMarks()
+            self.changedMarks(pkgs)
         self._progress.hide()
 
     def clearChanges(self):
         self.saveUndo()
+        pkgs = self._changeset.copy()
         self._changeset.clear()
-        self.changedMarks()
+        self.changedMarks(pkgs)
 
     def showChanges(self):
         return self._changes.showChangeSet(self._changeset)
@@ -562,17 +582,20 @@ class QtInteractiveInterface(QtInterface):
         if self.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
+            pkgs.extend(changeset)
             self.changedMarks(pkgs)
 
     def lockPackages(self, pkgs, lock):
         if not lock:
              for pkg in pkgs:
                   pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
                   pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
 
@@ -580,11 +603,13 @@ class QtInteractiveInterface(QtInterface):
         if not lock:
              for pkg in pkgs:
                   pkgconf.clearFlag("lock", pkg.name)
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
                   pkgconf.setFlag("lock", pkg.name)
+             self._pv.updatePackages(pkgs)
              self._pv.update()
              self._pi.setPackage(pkgs[0])
 
@@ -721,6 +746,15 @@ class QtInteractiveInterface(QtInterface):
         menu.show()
         menu.exec_loop(packageview.mapToGlobal(pnt))
 
+    def checkInstalledPackages(self):
+        self.checkPackages()
+
+    def checkUninstalledPackages(self):
+        self.checkPackages(uninstalled=True)
+
+    def checkAllPackages(self):
+        self.checkPackages(all=True)
+
     def checkPackages(self, all=False, uninstalled=False):
         installed = not uninstalled
         available = all or uninstalled
@@ -740,8 +774,10 @@ class QtInteractiveInterface(QtInterface):
                 self._actions["undo"].setEnabled(False)
             self._redo.insert(0, self._changeset.getPersistentState())
             self._actions["redo"].setEnabled(True)
+            pkgs = self._changeset.copy()
             self._changeset.setPersistentState(state)
-            self.changedMarks()
+            pkgs.update(self._changeset)
+            self.changedMarks(pkgs)
 
     def redo(self):
         if self._redo:
@@ -750,8 +786,10 @@ class QtInteractiveInterface(QtInterface):
                 self._actions["redo"].setEnabled(False)
             self._undo.insert(0, self._changeset.getPersistentState())
             self._actions["undo"].setEnabled(True)
+            pkgs = self._changeset.copy()
             self._changeset.setPersistentState(state)
-            self.changedMarks()
+            pkgs.update(self._changeset)
+            self.changedMarks(pkgs)
 
     def saveUndo(self):
         self._undo.insert(0, self._changeset.getPersistentState())
