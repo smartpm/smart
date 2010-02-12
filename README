@@ -1,3 +1,4 @@
+
 =======================
  Smart Package Manager
 =======================
@@ -31,8 +32,7 @@ Project Status
 --------------
 
 The development of Smart Package Manager started on May 4th, 2004, and
-the project is currently under beta testing, since all core features
-are implemented.
+version 1.0 was released on Aug 14th, 2008, after extended beta testing.
 
 --------
 Features
@@ -668,7 +668,11 @@ This is the credit section, where people and institutions that
 have somehow contributed to the project are mentioned.
 
 :Conectiva, Inc.:
-	Conectiva has funded Smart development as the author's employer.
+	Funded the creation of Smart, and its development up to
+	August of 2005.
+
+:Canonical Ltd:
+	Is funding Smart development since September of 2005.
 
 :Wanderlei Cavassin:
 	Conectiva's research & development coordinator, who believed
@@ -704,8 +708,7 @@ have somehow contributed to the project are mentioned.
 	maintainer.
 
 :Jeff Johnson:
-	Maintainer of the `RPM` software, employed by Red Hat, Inc.
-	contributed as being the RPM maintainer itself, and in
+	Contributed as being the RPM maintainer itself, and in
 	many discussions regarding packaging theory in general.
 
 :Seth Vidal:
@@ -714,9 +717,9 @@ have somehow contributed to the project are mentioned.
 	format and discussions about it.
 
 :Michael Vogt:
-	Co-maintainer of the Synaptic project (*the* maintainer, lately),
-	contributed by discussing ideas that could be/were implemented
-	in Synaptic, and ended up being adopted by Smart as well.
+	Currently the maintainer of the Synaptic, used to co-maintain it
+	with the author of Smart. Many of his ideas ended up being adopted
+	in Smart as a consequence.
 
 :Sebastian Heinlein:
 	Author of the package icons for Synaptic, that were mercilessly
@@ -730,6 +733,13 @@ have somehow contributed to the project are mentioned.
 	Debian/Ubuntu developer and co-maintainer of the APT software,
 	helped by shining some light regarding details of the `DPKG`
 	pre-depends ordering expectations.
+
+:Mauricio Teixeira:
+    FAQ maintenance, YaST2 channel maintainer, "tracker cleaner",
+    general suggestions and code contributions.
+
+:Jonathan Rocker:
+	Documentation help.
 
 .. _FAQ: http://zorked.net/smart/FAQ.html
 

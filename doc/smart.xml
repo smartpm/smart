@@ -843,7 +843,10 @@ module without requiring changes in other tools.</para>
 have somehow contributed to the project are mentioned.</para>
 <variablelist>
 <varlistentry><term>Conectiva, Inc.:</term>
-<listitem><para>Conectiva has funded Smart development as the author's employer.</para></listitem>
+<listitem><para>Funded the creation of Smart, and its development up to August of 2005.</para></listitem>
+</varlistentry>
+<varlistentry><term>Canonical Ltd.:</term>
+<listitem><para>Is funding Smart development since September of 2005.</para></listitem>
 </varlistentry>
 <varlistentry><term>Wanderlei Cavassin:</term>
 <listitem><para>Conectiva's research &amp; development coordinator, who belived
@@ -879,9 +882,8 @@ developed while the author of Smart worked as the <emphasis>APT-RPM</emphasis>
 maintainer.</para></listitem>
 </varlistentry>
 <varlistentry><term>Jeff Johnson:</term>
-<listitem><para>Maintainer of the <emphasis>RPM</emphasis> software, employed by RedHat, Inc.
-contributed as being the RPM maintainer itself, and in
-many discussions regarding packaging theory in general.</para></listitem>
+<listitem><para>Contributed as being the <emphasis>RPM</emphasis> maintainer itself,
+and in many, and in many discussions regarding packaging theory in general.</para></listitem>
 </varlistentry>
 <varlistentry><term>Seth Vidal:</term>
 <listitem><para>YUM author, and member of the Duke University, contributed
@@ -889,9 +891,9 @@ to Smart with the development of the XML <emphasis>MetaData</emphasis> repositor
 format and discussions about it.</para></listitem>
 </varlistentry>
 <varlistentry><term>Michael Vogt:</term>
-<listitem><para>Co-maintainer of the Synaptic project (<emphasis>the</emphasis> maintainer, lately),
-contributed by discussing ideas that could be/were implemented
-in Synaptic, and ended up being adopted by Smart as well.</para></listitem>
+<listitem><para>Currently the maintainer of the Synaptic project, used to co-maintain it
+with the author of Smart. Many of his ideas ended up being adopted in Smart as
+a consequence.</para></listitem>
 </varlistentry>
 <varlistentry><term>Sebastian Heinlein:</term>
 <listitem><para>Author of the package icons for Synaptic, that were mercilessly
@@ -905,6 +907,13 @@ Slackware practices regarding packaging.</para></listitem>
 <listitem><para>Debian/Ubuntu developer and co-maintainer of the APT software,
 helped by shining some light regarding details of the <emphasis>DPKG</emphasis>
 pre-depends ordering expectations.</para></listitem>
+</varlistentry>
+<varlistentry><term>Mauricio Teixeira:</term>
+<listitem><para>FAQ maintenance, YaST2 channel maintainer, "tracker cleaner",
+general suggestions and code contributions</para></listitem>
+</varlistentry>
+<varlistentry><term>Jonathan Rocker:</term>
+<listitem><para>Documentation help. </para></listitem>
 </varlistentry>
 </variablelist>
 </sect1>
