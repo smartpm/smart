@@ -144,6 +144,15 @@ class MockerTestCase(unittest.TestCase):
 
         super(MockerTestCase, self).__init__(methodName)
 
+    # Python 2.3 uses __call__ rather than run, so overload it instead.
+    # (the run_wrapper above is not getting called with that unittest)
+    def __call__(self, result=None):
+        try:
+            return super(MockerTestCase, self).__call__(result)
+        finally:
+            if sys.version_info < (2, 4):
+                self.__cleanup()
+
     def __cleanup(self):
         for path in self.__cleanup_paths:
             if os.path.isfile(path):
