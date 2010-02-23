@@ -78,11 +78,11 @@ def parsePackageFile(filename):
     infolst = []
     info = {}
     dirname, basename = os.path.split(filename)
-    package, type = basename.rsplit('.')
+    package, type = os.path.splitext(basename)
     name, version = package.split('-', 1)
     info["name"] = name
     info["version"] = version
-    info["type"] = ".%s" % type
+    info["type"] = type
     tar = tarfile.open(filename)
     file = tar.extractfile('install/slack-desc')
     if file:
