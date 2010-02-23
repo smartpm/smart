@@ -8,14 +8,19 @@ Import what we need.
 
 Create a test environment.
 
-  >>> class TestPackage(Package): pass
-  >>> class TestProvides(Provides): pass
+  >>> class TestPackage(Package):
+  ...     pass
+  >>> class TestProvides(Provides):
+  ...     pass
   >>> class TestDepends(Depends):
   ...   def matches(self, prv):
   ...     return prv.name == self.name and prv.version == self.version
-  >>> class TestRequires(TestDepends, Requires): pass
-  >>> class TestUpgrades(TestDepends, Upgrades): pass
-  >>> class TestConflicts(TestDepends, Upgrades): pass
+  >>> class TestRequires(TestDepends, Requires):
+  ...     pass
+  >>> class TestUpgrades(TestDepends, Upgrades):
+  ...     pass
+  >>> class TestConflicts(TestDepends, Upgrades):
+  ...     pass
 
   >>> class TestInstalledLoader(Loader):
   ...
