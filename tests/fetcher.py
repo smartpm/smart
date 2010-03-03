@@ -25,7 +25,7 @@ class HTTPServer(BaseHTTPServer.HTTPServer):
 
     def handle_error(self, request, client_address):
         if not self.hide_errors:
-            super(HTTPServer, self).handle_error(request, client_address)
+            BaseHTTPServer.HTTPServer.handle_error(self, request, client_address)
 
 
 class FetcherTest(MockerTestCase):
