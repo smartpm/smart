@@ -61,7 +61,9 @@ class SlackPackageInfo(PackageInfo):
             pkg = self._package
             version = info.get("version", pkg.version)
             type = info.get("type", ".tgz")
-            return [os.path.join(info["baseurl"], info["location"],
+            baseurl = info["baseurl"]
+            location = info["location"]
+            return [os.path.join(baseurl, location,
                    "%s-%s%s" % (pkg.name, version, type))]
         return []
 
