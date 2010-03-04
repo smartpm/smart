@@ -22,6 +22,7 @@
 from smart.cache import Loader, PackageInfo
 from smart.channel import FileChannel
 from smart.backends.slack.base import *
+from smart.const import BLOCKSIZE
 from smart import *
 import os
 import re
@@ -91,12 +92,34 @@ def parsePackageFile(filename):
     infolst = []
     info = {}
     dirname, basename = os.path.split(filename)
-    package, type = basename.rsplit('.')
+    package, type = basename.rsplit('.', 1)
     name, version = package.split('-', 1)
     info["name"] = name
     info["version"] = version
     info["type"] = ".%s" % type
-    tar = tarfile.open(filename)
+    if type == "txz":
+        (output, tempname) = tempfile.mkstemp(".tar")
+        try:
+            import lzma
+            input = lzma.LZMAFile(filename)
+            data = input.read(BLOCKSIZE)
+            while data:
+                os.write(output, data)
+                data = input.read(BLOCKSIZE)
+            os.close(output)
+        except ImportError, e:
+            import commands
+            if not os.path.exists(filename):
+                raise IOError("File not found: '%s'" % filename)
+            else:
+                filename = os.path.abspath(filename)
+            (status, output) = commands.getstatusoutput(
+                               "unxz <'%s' >%s" % (filename, tempname))
+            if (status != 0):
+                raise Error, "%s, unxz helper could not be found" % e
+        tar = tarfile.open(tempname)
+    else:
+        tar = tarfile.open(filename)
     file = tar.extractfile('install/slack-desc')
     if file:
         desctag = "%s:" % info["name"]
