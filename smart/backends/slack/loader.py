@@ -29,10 +29,7 @@ import posixpath
 import tarfile
 import tempfile
 
-NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(.t[gbl]z)?$")
-
-# this RE is a fallback, for packages with periods in release :(
-NAMERE2 = re.compile("^(.+?)-([^-]+-[^-]+-[^-]+?)(.t[gbl]z)?$")
+NAMERE = re.compile("^(.+?)-([^-]+-[^-]+-[^-]+?)(.t[gblx]z)?$")
 
 class SlackPackageInfo(PackageInfo):
 
@@ -137,10 +134,8 @@ def parsePackageInfo(filename, checksum=None):
             name = line[13:].strip()
             m = NAMERE.match(name)
             if not m:
-                m = NAMERE2.match(name)
-                if not m:
-                    iface.warning(_("Invalid package name: %s") % name)
-                    continue
+                iface.warning(_("Invalid package name: %s") % name)
+                continue
             if info:
                 infolst.append(info)
             info = {}
