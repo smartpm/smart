@@ -63,7 +63,21 @@ class SlackPackageInfo(PackageInfo):
             type = info.get("type", ".tgz")
             baseurl = info["baseurl"]
             location = info["location"]
-            return [os.path.join(baseurl, location,
+            if baseurl.endswith('/'):
+                baseurl = baseurl[:-1]
+            if location.startswith("./"):
+                location = location[2:]
+            def mergepath(begin, end):
+                begin = begin.split('/')
+                end = end.split('/')
+                # strip end from begin
+                for dir in reversed(end):
+                    if dir == begin[-1]:
+                        begin = begin[:-1]
+                begin = '/'.join(begin)            
+                end = '/'.join(end)            
+                return posixpath.join(begin, end)
+            return [os.path.join(mergepath(baseurl, location),
                    "%s-%s%s" % (pkg.name, version, type))]
         return []
 
@@ -150,6 +164,7 @@ def parsePackageInfo(filename, checksum=None):
         elif info:
             if line.startswith("PACKAGE LOCATION:"):
                 location = line[17:].strip()
+                info["location"] = location
                 if location.startswith("./"):
                     location = location[2:]
                 path = "%s/%s" % (location, name)
@@ -161,7 +176,6 @@ def parsePackageInfo(filename, checksum=None):
                     info["type"] = ".tlz"
                 if location.endswith(".txz"):
                     info["type"] = ".txz"
-                info["location"] = location
             elif line.startswith("PACKAGE REQUIRED:"):
                 required = line[17:].strip()
                 info["required"] = required
@@ -273,8 +287,8 @@ class SlackLoader(Loader):
 class SlackDirLoader(SlackLoader):
 
     def __init__(self, dir, filename=None):
-        SlackLoader.__init__(self, "file:///")
         self._dir = os.path.abspath(dir)
+        SlackLoader.__init__(self, "file://" + self._dir)
         if filename:
             self._filenames = [filename]
         else:
