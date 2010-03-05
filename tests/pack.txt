@@ -20,5 +20,10 @@ This should give us four packages with data we already know.
   >>> len(cache.getPackages())
   4
 
+Checking directories is wrong but shouldn't raise IOExceptions.
+
+  >>> ctrl.checkPackageFile(TESTDATADIR)
+  False
+
 
 vim:ft=doctest

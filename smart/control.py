@@ -85,7 +85,8 @@ class Control(object):
         if os.path.exists(arg):
             if filter(None, hooks.call("check-package-file", arg)):
                 return True
-            if tarfile.is_tarfile(arg) and os.path.getsize(arg) > 0:
+            if (os.path.isfile(arg) and os.path.getsize(arg) > 0 and
+                tarfile.is_tarfile(arg)):
                 return True
         return False
 
