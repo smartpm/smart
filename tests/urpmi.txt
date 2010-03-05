@@ -10,6 +10,9 @@ Create the channel.
   >>> channel
   <smart.channels.urpmi.URPMIChannel object at ...>
 
+  >>> import pickle
+  >>> old_sysconf = pickle.dumps(sysconf.object)
+
 
 We need a progress and a fetcher.
 
@@ -96,5 +99,8 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> # There is no description with synthesis. Uncomment when using full hdlist.
   >>> # info.getDescription()
   >>> # 'Description1'
+
+  >>> # Make sure to restore SysConfChannels...
+  >>> sysconf.object = pickle.loads(old_sysconf)
 
 vim:ft=doctest
