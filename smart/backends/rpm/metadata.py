@@ -225,7 +225,8 @@ class RPMMetaDataLoader(Loader):
 
                 elif tag == SIZE:
                     info["size"] = int(elem.get("package"))
-                    info["installed_size"] = int(elem.get("installed"))
+                    if elem.get("installed"):
+                        info["installed_size"] = int(elem.get("installed"))
 
                 elif tag == CHECKSUM:
                     info[elem.get("type")] = elem.text

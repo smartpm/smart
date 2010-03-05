@@ -74,7 +74,10 @@ class DebPackageInfo(PackageInfo):
     def getInstalledSize(self):
         size = self._dict.get("installed-size")
         if size:
-            return long(size)*1024
+            try:
+                return long(size)*1024
+            except ValueError:
+                pass
         return None
 
     def getDescription(self):

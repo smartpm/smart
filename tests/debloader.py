@@ -33,6 +33,11 @@ class FakeLoader(DebTagLoader):
             tf.advanceSection()
             yield tf, offset
 
+    def getDict(self, pkg):
+        for offset, section in enumerate(self.fake_sections):
+            tf = TagFile(StringIO(section))
+            tf.advanceSection()
+            return tf.copy()
 
 class DebLoaderTest(unittest.TestCase):
 
@@ -78,3 +83,16 @@ class DebLoaderTest(unittest.TestCase):
         self.assertEquals(breaks.relation, "=")
         self.assertEquals(breaks.version, "1.0")
         self.assertEquals(type(breaks), DebBreaks)
+
+    def test_badsize(self):
+        section = SMARTPM_SECTION.replace("Installed-Size: 2116\n", \
+                                          "Installed-Size: 123M\n")
+        self.loader.fake_sections = [section]
+        self.loader.load()
+        packages = self.cache.getPackages()
+        info = self.loader.getInfo(packages[0])
+        try:
+            self.assertEquals(info.getInstalledSize(), None)
+        except ValueError, e:
+            self.fail(e)
+
