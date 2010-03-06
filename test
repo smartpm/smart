@@ -98,8 +98,6 @@ def main():
     datadir = tempfile.mkdtemp()
 
     try:
-        const.DISTROFILE = "/non-existent/file"
-
         tests.ctrl = init(datadir=datadir)
         opts = parse_options(sys.argv[1:])
 

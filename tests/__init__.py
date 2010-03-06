@@ -11,6 +11,7 @@ def smart_process(*argv):
             "--data-dir", sysconf.get("data-dir"),
             "-o", "detect-sys-channels=0",
             "-o", "channel-sync-dir=no-such-dir",
+            "-o", "distro-init-file=None"
             ] + list(argv)
     process = subprocess.Popen(args, stderr=subprocess.STDOUT,
                                stdout=subprocess.PIPE, stdin=subprocess.PIPE)
