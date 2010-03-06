@@ -34,12 +34,18 @@ import thread
 import time
 import os
 import re
+import signal
+import threading
 
 MAXRETRIES = 30
 SPEEDDELAY = 1
 CANCELDELAY = 2
 MAXACTIVEDOWNLOADS = 10
 SOCKETTIMEOUT = 600
+
+def quitIntHandler(signal, frame):
+    print '\nInterrupted\n'
+    sys.exit(0)
 
 class FetcherCancelled(Error): pass
 
@@ -180,6 +186,12 @@ class Fetcher(object):
             handler.runLocal()
 
     def run(self, what=None, progress=None):
+        thread_name = threading.currentThread().getName()
+        if thread_name == "MainThread":
+            old_quit_handler = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+            old_int_handler  = signal.signal(signal.SIGINT, signal.SIG_IGN)
+            signal.signal(signal.SIGQUIT, quitIntHandler)
+            signal.signal(signal.SIGINT, quitIntHandler)
         socket.setdefaulttimeout(sysconf.get("socket-timeout", SOCKETTIMEOUT))
         self._cancel = False
         self._activedownloads = 0
@@ -287,6 +299,9 @@ class Fetcher(object):
             prog.stop()
         if self._cancel:
             raise FetcherCancelled, _("Cancelled")
+        if thread_name == "MainThread":
+            signal.signal(signal.SIGQUIT, old_quit_handler)
+            signal.signal(signal.SIGINT, old_int_handler)
 
     def _uncompress(self, item, localpath, uncomphandler):
         try:
