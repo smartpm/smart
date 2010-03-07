@@ -9,7 +9,7 @@ import os
 from smart.progress import Progress
 from smart.interface import Interface
 from smart.fetcher import Fetcher
-from smart.const import VERSION
+from smart.const import VERSION, SUCCEEDED, FAILED
 from smart import fetcher, iface
 
 from tests.mocker import MockerTestCase
@@ -100,6 +100,18 @@ class FetcherTest(MockerTestCase):
             else:
                 del os.environ["http_proxy"]
         self.assertTrue("Pragma: no-cache\r\n" not in headers)
+
+    def test_401_handling(self):
+        headers = []
+        def handler(request):
+            request.send_error(401, "Authorization Required")
+            request.send_header("Content-Length", "17")
+            request.wfile.write("401 Unauthorized.")
+        self.start_server(handler)
+        self.fetcher.enqueue(URL)
+        self.fetcher.run(progress=Progress())
+        item = self.fetcher.getItem(URL)
+        self.assertEquals(item.getStatus(), FAILED)
 
     def test_404_handling(self):
         headers = []

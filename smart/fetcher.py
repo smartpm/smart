@@ -1585,6 +1585,8 @@ class PyCurlHandler(FetcherHandler):
                 multi.remove_handle(handle)
                 self._lock.release()
 
+                http_code = handle.getinfo(pycurl.HTTP_CODE)
+
                 del self._active[handle]
                 userhost = (url.user, url.host, url.port)
                 self._inactive[handle] = userhost
@@ -1598,6 +1600,9 @@ class PyCurlHandler(FetcherHandler):
                     self._queue.append(item)
                     self._activelimit[item.getURL().host] = handle.active
                     del self._inactive[handle]
+                elif http_code == 404:
+                    # Use a standard translatable error message.
+                    item.setFailed(_("File not found"))
                 else:
                     item.setFailed(errmsg)
 
@@ -1683,6 +1688,7 @@ class PyCurlHandler(FetcherHandler):
                         handle.setopt(pycurl.MAXREDIRS, 5)
                         handle.setopt(pycurl.HTTPHEADER, ["Pragma:"])
                         handle.setopt(pycurl.USERAGENT, "smart/" + VERSION)
+                        handle.setopt(pycurl.FAILONERROR, 1)
 
                         # check if we have a valid local file and use I-M-S
                         if fetcher.validate(item, localpath):
