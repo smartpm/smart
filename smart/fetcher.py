@@ -1713,7 +1713,7 @@ class PyCurlHandler(FetcherHandler):
             while res == mp:
                 res, num = multi.perform()
             self._lock.release()
-            time.sleep(0.2)
+            multi.select(1.0)
         # Keep in mind that even though the while above has exited due to
         # self._active being False, it may actually be true *here* due to
         # race conditions.
