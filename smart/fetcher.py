@@ -1658,6 +1658,8 @@ class PyCurlHandler(FetcherHandler):
                             local = open(localpathpart, openmode)
                         except (IOError, OSError), e:
                             item.setFailed("%s: %s" % (localpathpart, e))
+                            del self._active[handle]
+                            self.changeActiveDownloads(-1)
                             continue
 
                         handle.item = item
