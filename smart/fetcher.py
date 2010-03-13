@@ -1014,7 +1014,7 @@ class FTPHandler(FetcherHandler):
                 if resp[:3] == "213":
                     mtimes = resp[3:].strip()
                     mtime = time.mktime(time.strptime(mtimes, "%Y%m%d%H%M%S"))
-            except (ftplib.Error, ValueError):
+            except (ftplib.Error, ValueError, AttributeError):
                 pass
 
             try:
