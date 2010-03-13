@@ -336,26 +336,27 @@ class DebTagFileLoader(DebTagLoader):
     def getChanges(self, info):
         if not self._changelogname:
             return []
-        else:
-            filename = os.path.join(self._changelogname, info._package.name, "changelog.Debian.gz")
         changes = []
-        if os.path.isfile(filename):
-            if filename.endswith(".gz"):
-                import gzip
-                file = gzip.open(filename)
-            else:
-                file = open(filename)
-            line = file.readline()
-            while True:
-                if not line:
-                    break
-                changes.append(line.strip())
+        for basename in ["changelog.Debian.gz", "changelog.gz"]:
+            filename = os.path.join(self._changelogname, info._package.name, basename)
+            if os.path.isfile(filename):
+                if filename.endswith(".gz"):
+                    import gzip
+                    file = gzip.open(filename)
+                else:
+                    file = open(filename)
                 line = file.readline()
-                change = ""
-                while line.startswith(" ") or (line == "\n"):
-                    change += line
+                while True:
+                    if not line:
+                        break
+                    changes.append(line.strip())
                     line = file.readline()
-                changes.append(change)
+                    change = ""
+                    while line.startswith(" ") or (line == "\n"):
+                        change += line
+                        line = file.readline()
+                    changes.append(change)
+                break
         return changes
 
     def getPaths(self, info):
