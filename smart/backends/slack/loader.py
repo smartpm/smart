@@ -22,6 +22,7 @@
 from smart.cache import Loader, PackageInfo
 from smart.channel import FileChannel
 from smart.backends.slack.base import *
+from smart.const import BLOCKSIZE
 from smart import *
 import os
 import re
@@ -29,10 +30,7 @@ import posixpath
 import tarfile
 import tempfile
 
-NAMERE = re.compile("^(.+)-([^-]+-[^-]+-[^-.]+)(.t[gbl]z)?$")
-
-# this RE is a fallback, for packages with periods in release :(
-NAMERE2 = re.compile("^(.+?)-([^-]+-[^-]+-[^-]+?)(.t[gbl]z)?$")
+NAMERE = re.compile("^(.+?)-([^-]+-[^-]+-[^-]+?)(.t[gblx]z)?$")
 
 class SlackPackageInfo(PackageInfo):
 
@@ -64,7 +62,23 @@ class SlackPackageInfo(PackageInfo):
             pkg = self._package
             version = info.get("version", pkg.version)
             type = info.get("type", ".tgz")
-            return [os.path.join(info["baseurl"], info["location"],
+            baseurl = info["baseurl"]
+            location = info["location"]
+            if baseurl.endswith('/'):
+                baseurl = baseurl[:-1]
+            if location.startswith("./"):
+                location = location[2:]
+            def mergepath(begin, end):
+                begin = begin.split('/')
+                end = end.split('/')
+                # strip end from begin
+                for dir in reversed(end):
+                    if dir == begin[-1]:
+                        begin = begin[:-1]
+                begin = '/'.join(begin)            
+                end = '/'.join(end)            
+                return posixpath.join(begin, end)
+            return [os.path.join(mergepath(baseurl, location),
                    "%s-%s%s" % (pkg.name, version, type))]
         return []
 
@@ -83,7 +97,29 @@ def parsePackageFile(filename):
     info["name"] = name
     info["version"] = version
     info["type"] = type
-    tar = tarfile.open(filename)
+    if type == "txz":
+        (output, tempname) = tempfile.mkstemp(".tar")
+        try:
+            import lzma
+            input = lzma.LZMAFile(filename)
+            data = input.read(BLOCKSIZE)
+            while data:
+                os.write(output, data)
+                data = input.read(BLOCKSIZE)
+            os.close(output)
+        except ImportError, e:
+            import commands
+            if not os.path.exists(filename):
+                raise IOError("File not found: '%s'" % filename)
+            else:
+                filename = os.path.abspath(filename)
+            (status, output) = commands.getstatusoutput(
+                               "unxz <'%s' >%s" % (filename, tempname))
+            if (status != 0):
+                raise Error, "%s, unxz helper could not be found" % e
+        tar = tarfile.open(tempname)
+    else:
+        tar = tarfile.open(filename)
     file = tar.extractfile('install/slack-desc')
     if file:
         desctag = "%s:" % info["name"]
@@ -137,10 +173,8 @@ def parsePackageInfo(filename, checksum=None):
             name = line[13:].strip()
             m = NAMERE.match(name)
             if not m:
-                m = NAMERE2.match(name)
-                if not m:
-                    iface.warning(_("Invalid package name: %s") % name)
-                    continue
+                iface.warning(_("Invalid package name: %s") % name)
+                continue
             if info:
                 infolst.append(info)
             info = {}
@@ -153,6 +187,7 @@ def parsePackageInfo(filename, checksum=None):
         elif info:
             if line.startswith("PACKAGE LOCATION:"):
                 location = line[17:].strip()
+                info["location"] = location
                 if location.startswith("./"):
                     location = location[2:]
                 path = "%s/%s" % (location, name)
@@ -164,7 +199,6 @@ def parsePackageInfo(filename, checksum=None):
                     info["type"] = ".tlz"
                 if location.endswith(".txz"):
                     info["type"] = ".txz"
-                info["location"] = location
             elif line.startswith("PACKAGE REQUIRED:"):
                 required = line[17:].strip()
                 info["required"] = required
@@ -276,8 +310,8 @@ class SlackLoader(Loader):
 class SlackDirLoader(SlackLoader):
 
     def __init__(self, dir, filename=None):
-        SlackLoader.__init__(self, "file:///")
         self._dir = os.path.abspath(dir)
+        SlackLoader.__init__(self, "file://" + self._dir)
         if filename:
             self._filenames = [filename]
         else:
