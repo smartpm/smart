@@ -686,6 +686,8 @@ class Control(object):
                         pkgpaths[pkg] = copypkgpaths[pkg]
                         del copypkgpaths[pkg]
 
+                hooks.call("pre-commit")
+                
                 for pmclass in pmpkgs:
                     pmcs = ChangeSet(self._cache)
                     for pkg in pmpkgs[pmclass]:
@@ -695,6 +697,8 @@ class Control(object):
                         self.writeCommitLog(pmcs)
                         pmclass().commit(pmcs, pkgpaths)
 
+                hooks.call("post-commit")
+                
                 if sysconf.get("remove-packages", True):
                     for pkg in pkgpaths:
                         for path in pkgpaths[pkg]:
