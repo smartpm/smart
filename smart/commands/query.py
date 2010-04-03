@@ -302,37 +302,40 @@ def main(ctrl, opts, reloadchannels=True):
                             newpackages[pkg] = True
         packages = newpackages.keys()
 
+    def sh2re(pattern, stripeol=True, joinspace=True):
+        """ Convert the shell-style pattern to a regular expression. """
+        pattern = fnmatch.translate(pattern)
+        if stripeol:
+            if pattern.endswith("$"):
+                pattern = pattern[:-1]
+            elif pattern.endswith('\Z(?ms)'):
+                pattern = pattern[:-7]
+        pattern = pattern.replace(r"\ ", " ")
+        if joinspace:
+            pattern = r"\s+".join(pattern.split())
+        return re.compile(pattern, re.I)
+
     hasname = []
     for token in opts.name:
-        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
-        token = r"\s+".join(token.split())
-        hasname.append(re.compile(token, re.I))
+        hasname.append(sh2re(token))
     hasgroup = []
     for token in opts.group:
-        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
-        token = r"\s+".join(token.split())
-        hasgroup.append(re.compile(token, re.I))
+        hasgroup.append(sh2re(token))
     haschannel = []
     for token in opts.channel:
         haschannel.append(token)
     hassummary = []
     for token in opts.summary:
-        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
-        token = r"\s+".join(token.split())
-        hassummary.append(re.compile(token, re.I))
+        hassummary.append(sh2re(token))
     hasdescription = []
     for token in opts.description:
-        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
-        token = r"\s+".join(token.split())
-        hasdescription.append(re.compile(token, re.I))
+        hasdescription.append(sh2re(token))
     haspath = []
     for token in opts.path:
-        token = fnmatch.translate(token).replace(r"\ ", " ")
-        haspath.append(re.compile(token, re.I))
+        haspath.append(sh2re(token, stripeol=False, joinspace=False))
     hasurl = []
     for token in opts.url:
-        token = fnmatch.translate(token)[:-1].replace(r"\ ", " ")
-        hasurl.append(re.compile(token, re.I))
+        haspath.append(sh2re(token, joinspace=False))
 
     if hasname or hasgroup or hassummary or hasdescription or haspath or hasurl:
         newpackages = {}
