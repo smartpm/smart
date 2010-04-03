@@ -5,9 +5,9 @@ import rpm
 
 from mocker import MockerTestCase, expect, ANY
 
-from smart.backends.rpm.header import (
-    RPMHeaderPackageInfo, get_header_filenames,
-    RPMDirLoader, RPMHeaderListLoader)
+from smart.backends.rpm.header import \
+    RPMHeaderPackageInfo, get_header_filenames, \
+    RPMDirLoader, RPMHeaderListLoader
 from smart.backends.rpm.yast2 import YaST2PackageInfo
 from smart.searcher import Searcher
 from smart.cache import Cache

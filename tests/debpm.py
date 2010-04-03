@@ -3,9 +3,9 @@ import pickle
 import os
 import tempfile
 
-from smart.backends.deb.base import (
-    DebPackage, DebProvides, DebNameProvides, DebPreRequires, DebRequires,
-    DebOrRequires, DebUpgrades, DebConflicts, DebBreaks)
+from smart.backends.deb.base import \
+    DebPackage, DebProvides, DebNameProvides, DebPreRequires, DebRequires, \
+    DebOrRequires, DebUpgrades, DebConflicts, DebBreaks
 from smart.backends.deb.pm import DebPackageManager, DebSorter, UNPACK, CONFIG
 from smart.channel import createChannel
 from smart.sysconfig import SysConfig

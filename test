@@ -33,6 +33,25 @@ from smart import *
 
 import tests
 
+if sys.version_info < (2, 4):
+    from sets import Set as set
+
+    def sorted(iterable):
+       list = iterable[:]
+       list.sort()
+       return list
+    __builtins__.__dict__['sorted'] = sorted
+
+    class TestCase(unittest.TestCase):
+        # The following are missing in Python < 2.4.
+        assertTrue = unittest.TestCase.failUnless
+        assertFalse = unittest.TestCase.failIf
+    unittest.TestCase = TestCase
+
+    doctest.DONT_ACCEPT_BLANKLINE = 1 << 1
+    doctest.NORMALIZE_WHITESPACE = 1 << 2
+    doctest.ELLIPSIS = 1 << 3
+    doctest._run_examples_inner = tests.doctest_run_examples_inner
 
 USAGE=_("test [options] [<test filename>, ...]")
 
@@ -142,7 +161,12 @@ def main():
             print "Running doctests..."
             for filename in doctests:
                 print "[%s]" % filename
-                summary(*doctest.testfile(filename, optionflags=doctest_flags))
+                if hasattr(doctest, 'testfile'):
+                    summary(*doctest.testfile(filename,
+                                              optionflags=doctest_flags))
+                else:
+                    tester = doctest.Tester(globs={}, optionflags=doctest_flags)
+                    summary(*tester.runstring(open(filename).read(), filename))
                 print
 
                 shutil.rmtree(datadir)

@@ -7,14 +7,19 @@ We want everything from the cache.
   >>> from tests import *
   >>> from smart.cache import *
 
-  >>> class TestPackage(Package): pass
-  >>> class TestProvides(Provides): pass
+  >>> class TestPackage(Package):
+  ...     pass
+  >>> class TestProvides(Provides):
+  ...     pass
   >>> class TestDepends(Depends):
   ...   def matches(self, prv):
   ...     return prv.name == self.name and prv.version == self.version
-  >>> class TestRequires(Requires, TestDepends): pass
-  >>> class TestUpgrades(Requires, TestDepends): pass
-  >>> class TestConflicts(Requires, TestDepends): pass
+  >>> class TestRequires(Requires, TestDepends):
+  ...     pass
+  >>> class TestUpgrades(Requires, TestDepends):
+  ...     pass
+  >>> class TestConflicts(Requires, TestDepends):
+  ...     pass
 
   >>> class TestLoader(Loader):
   ...     def load(self):
