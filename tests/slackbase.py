@@ -3,6 +3,7 @@ import os
 from mocker import MockerTestCase
 
 from smart.backends.slack.base import SlackPackage, Package, Provides
+from smart.backends.slack.slackver import splitarch, splitrelease
 from smart import sysconf
 
 
@@ -31,4 +32,16 @@ class SlackPackageTest(MockerTestCase):
         lst = [pkg3, pkg1, pkg2]
         lst.sort()
         self.assertEquals(lst, [pkg1, pkg2, pkg3])
+
+class SlackVerSplitTest(MockerTestCase):
+
+    def test_splitarch(self):
+        version, arch = splitarch("1.0-i486-1")
+        self.assertEquals(version, "1.0-1")
+        self.assertEquals(arch, "i486")
+
+    def test_splitrelease(self):
+        version, release = splitrelease("1.0-1_slack13.0")
+        self.assertEquals(version, "1.0")
+        self.assertEquals(release, "1_slack13.0")
 

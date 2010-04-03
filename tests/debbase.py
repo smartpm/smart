@@ -3,6 +3,7 @@ import sys
 from tests.mocker import MockerTestCase
 
 from smart.backends.deb.base import getArchitecture
+from smart.backends.deb.debver import splitrelease
 
 
 class GetArchitectureTest(MockerTestCase):
@@ -46,3 +47,11 @@ class GetArchitectureTest(MockerTestCase):
     def test_get_architecture_with_i86pc_sunos5(self):
         self.set_arch_and_platform("i86pc", "sunos5")
         self.assertEquals(getArchitecture(), "solaris-i386")
+
+class DebVerSplitTest(MockerTestCase):
+
+    def test_splitrelease(self):
+        version, release = splitrelease("1.0-1_0ubuntu0.10.04")
+        self.assertEquals(version, "1.0")
+        self.assertEquals(release, "1_0ubuntu0.10.04")
+

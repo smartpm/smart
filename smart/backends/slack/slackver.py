@@ -24,6 +24,13 @@ import re
 
 VERRE = re.compile("([^-]+)(?:-([^-]+)(?:-(.+))?)?")
 
+def splitarch(v):
+    slash = v.rfind("-")
+    if slash == -1:
+        return v, None
+    toks = v.rsplit("-", 2)
+    return "%s-%s" % (toks[0], toks[2]), toks[1]
+
 def splitrelease(v):
     slash = v.rfind("-")
     if slash == -1:

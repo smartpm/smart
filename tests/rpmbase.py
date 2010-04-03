@@ -5,6 +5,7 @@ import rpm
 from mocker import MockerTestCase
 
 from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
+from smart.backends.rpm.rpmver import splitarch, splitrelease
 from smart import sysconf
 
 
@@ -83,3 +84,16 @@ class RPMPackageTest(MockerTestCase):
         pkg2.provides = [provides1, provides2]
         self.assertTrue(pkg1.equals(pkg2))
         self.assertTrue(pkg2.equals(pkg1))
+
+class RPMVerSplitTest(MockerTestCase):
+
+    def test_splitarch(self):
+        version, arch = splitarch("1.0-1@i686")
+        self.assertEquals(version, "1.0-1")
+        self.assertEquals(arch, "i686")
+
+    def test_splitrelease(self):
+        version, release = splitrelease("1.0-1.fc13")
+        self.assertEquals(version, "1.0")
+        self.assertEquals(release, "1.fc13")
+
