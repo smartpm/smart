@@ -51,12 +51,13 @@ try:
     if not os.path.isdir(localedir):
         localedir = None
     _ = translation("smart", localedir).ugettext
+    encoding = locale.getpreferredencoding()
 except IOError, e:
     _ = lambda s: unicode(s)
-else:
+    encoding = sys.stdout.encoding or "ascii"
+if encoding:
     import codecs
     try:
-        encoding = locale.getpreferredencoding()
         sys.stdout = codecs.getwriter(encoding)(sys.stdout, errors="replace")
         sys.stderr = codecs.getwriter(encoding)(sys.stderr, errors="replace")
         del encoding
