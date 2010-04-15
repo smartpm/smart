@@ -200,6 +200,23 @@ class AptDebChannelTest(MockerTestCase):
                                  "components": "component"})
         self.check_channel(channel)
 
+    def test_fetch_with_good_signature_but_no_home(self):
+        os.putenv("GNUPGHOME", "/no/such/dir")
+        channel = createChannel("alias",
+                                {"type": "apt-deb",
+                                 "baseurl": "file://%s/aptdeb" % TESTDATADIR,
+                                 "distribution": "./",
+                                 "fingerprint": FINGERPRINT,
+                                 "keyring": "%s/aptdeb/trusted.gpg" %
+                                            TESTDATADIR,
+                                 #"trustdb": "%s/aptdeb/trustdb.gpg" %
+                                 #           TESTDATADIR,
+                                 "components": "component"})
+        try:
+             self.check_channel(channel)
+        finally:
+             os.unsetenv("GNUPGHOME")
+
     def test_fetch_with_good_signature_without_component(self):
         channel = createChannel("alias",
                                 {"type": "apt-deb",

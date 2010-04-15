@@ -37,12 +37,15 @@ class APTChannelSyncTest(MockerTestCase):
         self.apt_dir = self.makeDir()
         self.sources_dir = os.path.join(self.apt_dir, "sources.list.d")
         self.keyring_file = os.path.join(self.apt_dir, "trusted.gpg")
+        self.trustdb_file = os.path.join(self.apt_dir, "trustdb.gpg")
         os.mkdir(self.sources_dir)
         sysconf.set("sync-apt-keyring", self.keyring_file)
+        sysconf.set("sync-apt-trustdb", self.trustdb_file)
 
     def tearDown(self):
         sysconf.remove("channels")
         sysconf.remove("sync-apt-keyring")
+        sysconf.remove("sync-apt-trustdb")
 
     def test_sychronize_sources_list(self):
         filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,
@@ -183,3 +186,19 @@ class APTChannelSyncTest(MockerTestCase):
                                "baseurl": "http://some/url/",
                                "keyring": "/a/different/keyring.gpg"},
                           })
+
+    def test_trustdb_is_set_when_present(self):
+        open(self.trustdb_file, "w").close()
+        filename = self.makeFile(SOURCES_LIST_2, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get("channels"),
+                          {"aptsync-a3ea5e5aa96019e33241318e7f87a3d1":
+                              {"type": "apt-deb",
+                               "name": "distro/name3 - comp1 comp2",
+                               "distribution": "distro/name3",
+                               "components": "comp1 comp2",
+                               "baseurl": "http://some/url/",
+                               "trustdb": self.trustdb_file}
+                           })
+

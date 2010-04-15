@@ -36,9 +36,10 @@ class APTDEBChannel(PackageChannel):
     # instances which don't have these attributes still work fine.
     _fingerprint = None
     _keyring = None
+    _trustdb = None
     _arch = None
 
-    def __init__(self, baseurl, distro, comps, fingerprint, keyring, *args):
+    def __init__(self, baseurl, distro, comps, fingerprint, keyring, trustdb, *args):
         super(APTDEBChannel, self).__init__(*args)
 
         distro = distro.lstrip('/')
@@ -49,6 +50,8 @@ class APTDEBChannel(PackageChannel):
             self._fingerprint = "".join(fingerprint.split())
         if keyring:
             self._keyring = keyring
+        if trustdb:
+            self._trustdb = trustdb
 
     def _getURL(self, filename="", component=None, subpath=False):
         if self._arch is None:
@@ -101,6 +104,9 @@ class APTDEBChannel(PackageChannel):
             if self._keyring:
                 arguments.extend(["--no-default-keyring",
                                   "--keyring", self._keyring])
+
+            if self._trustdb:
+                arguments.extend(["--trustdb-name", self._trustdb])
 
             arguments.extend(["--verify",
                               release_gpg_item.getTargetPath(),
@@ -251,6 +257,7 @@ def create(alias, data):
                          data["components"].split(),
                          data["fingerprint"],
                          data["keyring"],
+                         data["trustdb"],
                          data["type"],
                          alias,
                          data["name"],

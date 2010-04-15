@@ -39,7 +39,10 @@ fields = [("baseurl", _("Base URL"), str, None,
            _("GPG fingerprint of key signing the channel.")),
           ("keyring", _("Keyring"), str, "",
            _("If provided, channel must necessarily be signed by a key "
-             "in the GPG keyring at the given path."))]
+             "in the GPG keyring at the given path.")),
+          ("trustdb", _("Trustdb"), str, "",
+           _("If provided, channel will be checked for a key "
+             "in the GPG trust database at the given path."))]
 
 def detectLocalChannels(path, media):
     import os
