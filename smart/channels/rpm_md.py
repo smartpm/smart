@@ -82,7 +82,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             root = ElementTree.parse(metalinkfile).getroot()
         except expat.error, e:
             iface.warning(_("Could not load meta link. Continuing with base URL only."))
-            iface.debug(e)
+            iface.debug(unicode(e))
+            return
 
         filename = None
         for node in root.getiterator():
@@ -117,7 +118,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             file = open(mirrorlistfile, 'r')
         except IOError, e:
             iface.warning(_("Could not load mirror list. Continuing with base URL only."))
-            iface.debug(e)
+            iface.debug(unicode(e))
+            return
 
         for line in file:
             if line == '<?xml version="1.0" encoding="utf-8"?>\n':
