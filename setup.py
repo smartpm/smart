@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from distutils.command.install_data import install_data
-from distutils.sysconfig import get_python_lib
+from distutils.sysconfig import get_python_lib, get_config_var
 from distutils.core import setup, Extension
 from distutils.dep_util import newer
 from distutils.log import info
@@ -56,8 +56,10 @@ def copy_tree(*args, **kwargs):
 distutils.file_util.copy_file = copy_file
 distutils.dir_util.copy_tree = copy_tree
 
-PYTHONLIB = os.path.join(get_python_lib(plat_specific=1, standard_lib=1,
-                         prefix=""), "site-packages")
+# Some Python sysconfig use different directories for different prefixes
+EXEC_PREFIX = get_config_var('exec_prefix')
+PYTHONLIB = get_python_lib(plat_specific=1, standard_lib=0,
+                           prefix=EXEC_PREFIX).replace(EXEC_PREFIX+os.sep, "")
 
 config_h = sysconfig.get_config_h_filename()
 config_h_vars = sysconfig.parse_config_h(open(config_h))
