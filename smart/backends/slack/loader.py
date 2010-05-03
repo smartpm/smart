@@ -97,7 +97,7 @@ def parsePackageFile(filename):
     info["name"] = name
     info["version"] = version
     info["type"] = type
-    if type == "txz":
+    if type == ".txz":
         (output, tempname) = tempfile.mkstemp(".tar")
         try:
             import lzma
