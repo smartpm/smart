@@ -97,7 +97,7 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getDescription()
   u'Description1'
 
-  >>> info.getBuildTime()
+  >>> int(info.getBuildTime())
   1135342886
 
   >>> info.getURLs()
