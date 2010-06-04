@@ -44,6 +44,9 @@ def _loadSourcesList(filename):
     keyring_path = sysconf.get("sync-apt-keyring", "/etc/apt/trusted.gpg")
     if not os.path.isfile(keyring_path):
         keyring_path = None
+    trustdb_path = sysconf.get("sync-apt-trustdb", "/etc/apt/trustdb.gpg")
+    if not os.path.isfile(trustdb_path):
+        trustdb_path = None
 
     file = open(filename)
 
@@ -102,6 +105,8 @@ def _loadSourcesList(filename):
                 channel = data
                 if keyring_path:
                     channel["keyring"] = keyring_path
+                if trustdb_path:
+                    channel["trustdb"] = trustdb_path
             sysconf.set(("channels", alias), channel)
 
     file.close()
