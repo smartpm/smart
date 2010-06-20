@@ -26,10 +26,11 @@ import signal
 import errno
 import shlex
 
-from smart.const import Enum, INSTALL, REMOVE, OPTIONAL, ENFORCE
+from smart.const import Enum, INSTALL, REMOVE
+from smart.sorter import ElementSorter
 from smart.pm import PackageManager
-from smart.sorter import *
-from smart import *
+from smart.cache import PreRequires
+from smart import sysconf, iface, _
 
 
 # Part of the logic in this file was based on information found in APT.
@@ -49,50 +50,98 @@ class DebSorter(ElementSorter):
             self.setChangeSet(changeset)
 
     def setChangeSet(self, changeset):
+        # Set of priorities we use in this sorter.
+        HIGH, MEDIUM, LOW = range(3)
+
+        # XXX The organization here sucks a bit. :-(  We should clean this
+        #     up, perhaps by refactoring this code into separate methods.
         self.reset()
         for pkg in changeset:
             op = changeset[pkg]
-
             if op is INSTALL:
                 unpack = (pkg, UNPACK)
                 config = (pkg, CONFIG)
-                self.addSuccessor(unpack, config)
+                self.addSuccessor(unpack, config, HIGH)
             else:
                 remove = (pkg, REMOVE)
                 self.addElement(remove)
 
-            # Packages being installed or removed must go in
-            # before their dependencies are removed, or after
-            # their dependencies are reinstalled.
+            # Unpacking or unconfiguring of a package must happen after
+            # its pre-dependencies are configured, or before they are
+            # unconfigured.  We do the same for normal dependencies
+            # (non-pre) in an advisory fashion.
             for req in pkg.requires:
-                group = ElementOrGroup()
+                if isinstance(req, PreRequires):
+                    req_type_priority = MEDIUM
+                else:
+                    req_type_priority = LOW
+                relations = []
+                def add_relation(pred, succ, priority=MEDIUM):
+                    relations.append((pred, succ, priority))
                 for prv in req.providedby:
                     for prvpkg in prv.packages:
                         if changeset.get(prvpkg) is INSTALL:
                             if op is INSTALL:
-                                group.addSuccessor((prvpkg, CONFIG), unpack)
-                                group.addSuccessor((prvpkg, CONFIG), config)
+                                # reqpkg=INSTALL, prvpkg=INSTALL
+                                # ------------------------------
+                                # When the package requiring a dependency and
+                                # the package providing a dependency are both
+                                # being installed, the unpack of the dependency
+                                # must necessarily happen before the config of
+                                # the dependent, and in pre-depends the unpack
+                                # of the dependent must necessarily happen
+                                # after the config of the dependency.
+                                add_relation((prvpkg, UNPACK), config)
+                                add_relation((prvpkg, CONFIG), config)
+                                add_relation((prvpkg, CONFIG), unpack,
+                                             req_type_priority)
                             else:
-                                group.addSuccessor((prvpkg, CONFIG), remove)
+                                # reqpkg=REMOVE, prvpkg=INSTALL
+                                # -----------------------------
+                                # When the package requiring a dependency is
+                                # being removed, and the package providing the
+                                # dependency is being installed, the unpack
+                                # of the dependency must necessarily happen
+                                # before the unconfiguration of the dependent,
+                                # and on pre-requires the configuration of the
+                                # dependency must happen before the
+                                # unconfiguration of the dependent.
+                                add_relation((prvpkg, UNPACK), remove)
+                                add_relation((prvpkg, CONFIG), remove,
+                                             req_type_priority)
                         elif prvpkg.installed:
                             if changeset.get(prvpkg) is not REMOVE:
                                 break
                             if op is INSTALL:
-                                group.addSuccessor(config, (prvpkg, REMOVE))
+                                # reqpkg=INSTALL, prvpkg=REMOVE
+                                # ------------------------------
+                                # When the package providing the dependency
+                                # is being removed, it may only be used by
+                                # the dependent package before the former is
+                                # removed from the system.  This means that
+                                # for both dependencies and pre-dependencies
+                                # the removal must happen before the
+                                # configuration.
+                                add_relation(config, (prvpkg, REMOVE))
                             else:
-                                group.addSuccessor(remove, (prvpkg, REMOVE))
+                                # reqpkg=REMOVE, prvpkg=REMOVE
+                                # ------------------------------
+                                # When both the package requiring the dependency
+                                # and the one providing it are being removed,
+                                # the removal of pre-dependencies must
+                                # necessarily be done before the dependency
+                                # removal.  We can't enforce it for dependencies
+                                # because it would easily create a cycle.
+                                add_relation(remove, (prvpkg, REMOVE),
+                                             req_type_priority)
                     else:
                         continue
                     break
                 else:
-                    if isinstance(req, PreRequires):
-                        kind = ENFORCE
-                    else:
-                        kind = OPTIONAL
-                    self.addGroup(group, kind)
+                    for relation in relations:
+                        self.addSuccessor(*relation)
 
             if op is INSTALL:
-
                 # That's a nice trick. We put the removed package after
                 # the upgrading package installation. If this relation
                 # is broken, it means that some conflict has moved the
@@ -108,10 +157,10 @@ class DebSorter(ElementSorter):
                                        for prvpkg in prv.packages])
                 for upgpkg in upgpkgs:
                     if changeset.get(upgpkg) is REMOVE:
-                        self.addSuccessor(unpack, (upgpkg, REMOVE), OPTIONAL)
+                        self.addSuccessor(unpack, (upgpkg, REMOVE), MEDIUM)
 
                 # Conflicted packages being removed must go in
-                # before this package's installation.
+                # before this package's unpacking.
                 cnfpkgs = [prvpkg for cnf in pkg.conflicts
                                   for prv in cnf.providedby
                                   for prvpkg in prv.packages
@@ -122,7 +171,7 @@ class DebSorter(ElementSorter):
                                         if cnfpkg.name != pkg.name])
                 for cnfpkg in cnfpkgs:
                     if changeset.get(cnfpkg) is REMOVE:
-                        self.addSuccessor((cnfpkg, REMOVE), unpack, ENFORCE)
+                        self.addSuccessor((cnfpkg, REMOVE), unpack, HIGH)
 
 
 class DebPackageManager(PackageManager):
@@ -159,19 +208,33 @@ class DebPackageManager(PackageManager):
                                (pkg, upgraded[upgpkg], upgpkg)
                         upgraded[upgpkg] = pkg
 
-        try:
-            sorter = DebSorter(changeset)
-            sorted = sorter.getSorted()
-        except LoopError:
-            lines = [_("Found unbreakable loops:")]
-            opname = {REMOVE: "remove", CONFIG: "config", UNPACK: "unpack"}
-            for loop in sorter.getLoops():
-                for path in sorter.getLoopPaths(loop):
-                    path = ["%s [%s]" % (pkg, opname[op]) for pkg, op in path]
-                    lines.append("    "+" -> ".join(path))
-            iface.error("\n".join(lines))
-            return
-        del sorter
+        sorter = DebSorter(changeset)
+
+        f = open("test.dot", "w")
+        f.write("digraph Foobar {\n")
+        def get_repr(pair):
+            pkg, action = pair
+            action_name = {INSTALL: "INSTALL",
+                           REMOVE:  "REMOVE",
+                           UNPACK:  "UNPACK",
+                           CONFIG:  "CONFIG"}[action]
+            return '"%s %s"' % (pkg, action_name)
+        shown = set()
+        for pred in sorter._successors:
+            if pred not in shown:
+                shown.add(pred)
+                f.write(get_repr(pred) + " [];\n")
+            for succ in sorter._successors[pred]:
+                if (pred, succ) in sorter._disabled:
+                    continue
+                if succ not in shown:
+                    shown.add(succ)
+                    f.write(get_repr(pred) + " [];\n")
+                f.write("%s -> %s;\n" % (get_repr(pred), get_repr(succ)))
+        f.write("}\n")
+        f.close()
+
+        sorted = sorter.getSorted()
 
         prog.set(0, len(sorted))
 

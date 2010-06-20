@@ -23,7 +23,7 @@
 #
 from smart.const import INSTALL, REMOVE
 from smart.pm import PackageManager
-from smart.sorter import ChangeSetSorter, LoopError
+from smart.sorter import ChangeSetSorter
 from smart import *
 import commands
 
@@ -64,18 +64,7 @@ class ArchPackageManager(PackageManager):
         prog.set(0, len(changeset))
         prog.show()
 
-        try:
-            sorter = ChangeSetSorter(changeset)
-            sorted = sorter.getSorted()
-        except LoopError:
-            lines = [_("Found unbreakable loops:")]
-            for path in sorter.getLoopPaths(sorter.getLoops()):
-                path = ["%s [%s]" % (pkg, op is INSTALL and "I" or "R")
-                        for pkg, op in path]
-                lines.append("    "+" -> ".join(path))
-            iface.error("\n".join(lines))
-            sys.exit(1)
-        del sorter
+        sorted = ChangeSetSorter(changeset).getSorted()
 
         for pkg, op in sorted:
             depchk = depchkoff.get(pkg) and "d" or ""            

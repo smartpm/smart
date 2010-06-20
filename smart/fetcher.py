@@ -1626,13 +1626,11 @@ class PyCurlHandler(FetcherHandler):
                         for handle in self._inactive:
                             if self._inactive[handle] == userhost:
                                 del self._inactive[handle]
-                                self._active[handle] = schemehost
                                 break
                         else:
                             if len(self._inactive) > self.MAXINACTIVE:
                                 del self._inactive[handle]
                             handle = pycurl.Curl()
-                            self._active[handle] = schemehost
 
                         localpath = self.getLocalPath(item)
                         localpathpart = localpath+".part"
@@ -1705,6 +1703,7 @@ class PyCurlHandler(FetcherHandler):
                             handle.setopt(pycurl.TIMECONDITION,
                                           pycurl.TIMECONDITION_NONE)
 
+                        self._active[handle] = schemehost
                         self._lock.acquire()
                         multi.add_handle(handle)
                         self._lock.release()

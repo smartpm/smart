@@ -19,486 +19,260 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.const import ENFORCE, OPTIONAL, INSTALL, REMOVE, RECURSIONLIMIT
-from smart.cache import PreRequires
-from smart import *
 import os, sys
 
-MAXSORTERDEPTH = RECURSIONLIMIT-50
+from smart.const import INSTALL, REMOVE
+from smart.cache import PreRequires
+from smart import *
 
-class LoopError(Error): pass
+
+class DisableError(Error):
+    """Raised on a request to break a non-existent or unbreakable relation."""
+
+class EnableError(Error):
+    """Raised on a request to enable a non-disabled relation."""
+
 
 class ElementGroup(object):
 
     def __init__(self):
-        self._relations = {} # (pred, succ) -> True
+        self._relations = set()
 
     def getRelations(self):
-        return self._relations.keys()
+        return self._relations
 
     def addPredecessor(self, succ, pred):
-        self._relations[(pred, succ)] = True
+        self._relations.add((pred, succ))
 
     def addSuccessor(self, pred, succ):
-        self._relations[(pred, succ)] = True
+        self._relations.add((pred, succ))
 
-class ElementOrGroup(ElementGroup): pass
-class ElementAndGroup(ElementGroup): pass
 
 class ElementSorter(object):
 
     def __init__(self):
-        self._successors = {} # pred -> {(succ, kind): True}
-        self._predcount = {}  # succ -> n
-        self._groups = {}     # (pred, succ, kind) -> [group, ...]
-        self._disabled = {}   # (pred, succ, kind) -> True
+        self._successors = {}  # pred -> set([succ])
+        self._priorities = {}  # {(pred, succ): priority}
+        self._predcount = {}   # succ -> n
+        self._disabled = set() # set([(pred, succ)])
+        self._maximum_priority = 0
 
     def reset(self):
         self._successors.clear()
-        self._groups.clear()
+        self._priorities.clear()
+        self._predcount.clear()
+        self._disabled.clear()
+        self._maximum_priority = 0
 
-    def _getLoop(self, start, end=None):
-        if end is None:
-            end = start
+    def disableRelation(self, relation):
+        """Disable the optional ordering between C{pred} and C{succ}."""
+        priority = self._priorities.get(relation)
+        if priority is None:
+            raise DisableError("Ordering between %r and %r doesn't exist."
+                               % relation)
+        if relation in self._disabled:
+            raise DisableError("Ordering between %r and %r is already disabled."
+                               % relation)
+        self._disabled.add(relation)
+
+    def enableRelation(self, relation):
+        if relation not in self._disabled: # XXX UNTESTED
+            raise EnableError("Ordering between %r and %r is not disabled."
+                              % relation)
+        self._disabled.remove(relation)
+
+    def getPathData(self, start, end,
+                    follow_relations=None, maximum_priority=None):
+        """Return all elements and relations leading from C{start} to C{end}.
+
+        The result is a tuple where the first item is the set of elements
+        which are involved in paths from C{start} to C{end}, and the second
+        item is the relations involved in paths from C{start} to C{end}.
+        """
         successors = self._successors
         path = [start]
-        done = {}
-        loop = {}
+        seen = set()
+        elements = set()
+        relations = set()
         while path:
-            head = path[-1]
-            dct = successors.get(head)
-            if dct:
-                for succ, kind in dct:
-                    if (head, succ, kind) not in self._disabled:
-                        if succ in loop or succ == end:
-                            loop.update(dict.fromkeys(path, True))
-                            loop[end] = True # If end != start
-                        elif succ not in done:
-                            done[succ] = True
-                            path.append(succ)
-                            break
-                else:
-                    path.pop()
+            last = path[-1]
+            for succ in successors.get(last, ()):
+                relation = (last, succ)
+                if ((relation not in self._disabled) and
+                    (follow_relations is None or
+                     relation in follow_relations) and
+                    (maximum_priority is None or
+                     self._priorities[relation] <= maximum_priority)):
+                    if succ in elements or succ == end:
+                        path.append(succ)
+                        elements.update(path)
+                        relations.update((path[i], path[i+1])
+                                         for i in range(len(path)-1))
+                        path.pop()
+                    elif succ not in seen:
+                        seen.add(succ)
+                        path.append(succ)
+                        break
             else:
                 path.pop()
-        return loop
-
-    def _checkLoop(self, start, end=None):
-        if end is None:
-            end = start
-        successors = self._successors
-        queue = [start]
-        done = {}
-        while queue:
-            elem = queue.pop()
-            dct = successors.get(elem)
-            if dct:
-                for succ, kind in dct:
-                    if (elem, succ, kind) not in self._disabled:
-                        if succ == end:
-                            return True
-                        elif succ not in done:
-                            done[succ] = True
-                            queue.append(succ)
-        return False
+        return (elements, relations)
 
     def getLoops(self):
-        successors = self._successors
-        predcount = self._predcount
-        loops = {}
-        for elem in successors:
-            if predcount.get(elem) and elem not in loops:
-                loop = self._getLoop(elem)
-                if loop:
-                    loops.update(loop)
+        """Return all elements and relations participating in loops.
+
+        The result is the same as for L{getPathData()}, except that only
+        elements and relations involved in loops will be returned.
+        """
+        all_loop_elements = set()
+        loops = []
+        for elem in self._successors:
+            if elem not in all_loop_elements:
+                loop_elements, loop_relations = self.getPathData(elem, elem)
+                if loop_elements:
+                    done = set([elem])
+                    todo = loop_elements - done
+                    while todo:
+                        loop_elem = todo.pop()
+                        more_elements, more_relations = \
+                            self.getPathData(loop_elem, loop_elem)
+                        loop_elements.update(more_elements)
+                        loop_relations.update(more_relations)
+                        done.add(loop_elem)
+                        more_elements.difference_update(done)
+                        todo.update(more_elements)
+                    loops.append((loop_elements, loop_relations))
+                    all_loop_elements.update(loop_elements)
         return loops
 
-    def getLoopPaths(self, loops):
-        if not loops:
-            return []
-        successors = self._successors
-        paths = []
-        done = {}
-        for elem in loops:
-            if elem not in done:
-                path = [elem]
-                while path:
-                    head = path[-1]
-                    dct = successors.get(head)
-                    if dct:
-                        for succ, kind in dct:
-                            if (succ in loops and
-                                (head, succ, kind) not in self._disabled):
-                                done[succ] = True
-                                if succ == elem:
-                                    paths.append(path+[elem])
-                                else:
-                                    headsucc = (head, succ)
-                                    if headsucc not in done:
-                                        done[headsucc] = True
-                                        path.append(succ)
-                                        break
-                        else:
-                            path.pop()
-                    else:
-                        path.pop()
-        return paths
+    def hasLoop(self, elements, relations):
+        for elem in elements:
+            data = self.getPathData(elem, elem, follow_relations=relations)
+            if data[0]:
+                return True
+        return False
 
-    def _breakLoops(self, elem, loops, rellock, reclock, depth=0):
+    def countRelationsInLoop(self, elements, relations, maximum_priority=None):
+        loop_relations = 0
+        loop_elements = set()
+        for elem in elements:
+            if elem not in loop_elements:
+                data = self.getPathData(elem, elem,
+                                        follow_relations=relations,
+                                        maximum_priority=maximum_priority)
+                if data[0]:
+                    loop_elements.update(data[0])
+                    loop_relations += len(data[1])
+        return loop_relations
 
-        if depth > MAXSORTERDEPTH:
-            return False
-
-        result = True
-
-        dct = self._successors.get(elem)
-        if dct:
-            for succ, kind in dct.keys():
-                    
-                # Should we care about this relation?
-                if succ not in loops:
-                    continue
-                tup = (elem, succ, kind)
-                if tup in self._disabled:
-                    continue
-
-                # Check if the loop for this specific relation is still alive.
-                if not self._checkLoop(succ, elem):
-                    continue
-
-                # Some upper frame is already checking this. Protect
-                # from infinite recursion.
-                if tup in reclock:
-                    result = False
-                    break
-
-                # If this relation is locked, our only chance is breaking
-                # it forward.
-                if tup in rellock:
-                    reclock[tup] = True
-                    loop = self._getLoop(succ, elem)
-                    broke = self._breakLoops(succ, loop, rellock,
-                                             reclock, depth+1)
-                    del reclock[tup]
-                    if not broke:
-                        result = False
-                    continue
-
-                # If this relation is optional, break it now.
-                if kind is OPTIONAL:
-                    self._breakRelation(*tup)
-                    continue
-
-                # We have an enforced relation. Let's check if we
-                # have OR groups that could satisfy it. 
-                groups = self._groups.get(tup)
-                if groups:
-                    # Any enforced AND groups tell us we can't
-                    # break this relation.
-                    for group in groups:
-                        if type(group) is ElementAndGroup:
-                            groups = None
-                            break
-
-
-                if groups:
-
-                    # Check if we can remove the relation from all groups.
-                    reenable = {}
-                    for group in groups:
-                        reenable[group] = []
-                        active = 0
-                        for gpred, gsucc in group._relations:
-                            gtup = (gpred, gsucc, kind)
-                            if gtup in self._disabled:
-                                if gtup not in rellock:
-                                    reenable[group].append(gtup)
-                            else:
-                                active += 1
-                                if active > 1: break
-                        if active > 1:
-                            del reenable[group]
-                        elif not reenable[group]:
-                            break
-
-                    else:
-
-                        # These relations must not be reenabled in
-                        # the loop breaking steps below.
-                        relations = self._breakRelation(*tup)
-                        for rtup in relations:
-                            rellock[rtup] = True
-
-                        # Reenable the necessary relations, if possible.
-                        # Every group must have at least one active relation
-                        # so that we can disable our own relation.
-                        for group in reenable:
-                            succeeded = False
-                            # Check if some iteration of _breakLoop() below
-                            # already reenabled one relation with success.
-                            for gtup in reenable[group]:
-                                if gtup not in self._disabled:
-                                    succeeded = True
-                                    break
-                            if succeeded:
-                                continue
-                            # Nope. Let's try to do that here.
-                            for gtup in reenable[group]:
-                                erelations = self._enableRelation(*gtup)
-                                for etup in erelations:
-                                    rellock[etup] = True
-                                for epred, esucc, ekind in erelations:
-                                    eloop = self._getLoop(esucc, epred)
-                                    if (eloop and not
-                                        self._breakLoops(esucc, eloop, rellock,
-                                                         reclock, depth+1)):
-                                        break
-                                else:
-                                    succeeded = True
-                                for etup in erelations:
-                                    del rellock[etup]
-                                if succeeded:
-                                    break
-                                self._breakRelation(*gtup)
-                            if not succeeded:
-                                break
-                        else:
-                            # Done!
-                            for rtup in relations:
-                                del rellock[rtup]
-                            continue
-
-                        # Some OR group failed to exchange the relation,
-                        # so we can't break our own relation.
-                        for rtup in self._enableRelation(*tup):
-                            del rellock[rtup]
-
-                # Our last chance is breaking it forward.
-                reclock[tup] = True
-                loop = self._getLoop(succ, elem)
-                broke = self._breakLoops(succ, loop, rellock, reclock, depth+1)
-                del reclock[tup]
-                if not broke:
-                    result = False
-    
-        return result
-
-    def _breakRelation(self, pred, succ, kind):
-        tup = (pred, succ, kind)
-        self._disabled[tup] = True
-        relations = {tup: True}
-        groups = self._groups.get(tup)
-        if groups:
-            for group in groups:
-                if type(group) is ElementAndGroup:
-                    for gpred, gsucc in group._relations:
-                        gtup = (gpred, gsucc, kind)
-                        self._disabled[gtup] = True
-                        relations[gtup] = True
-        return relations
-
-    def _enableRelation(self, pred, succ, kind):
-        tup = (pred, succ, kind)
-        del self._disabled[tup]
-        relations = {tup: True}
-        groups = self._groups.get(tup)
-        if groups:
-            for group in groups:
-                if type(group) is ElementAndGroup:
-                    for gpred, gsucc in group._relations:
-                        if gpred != pred or gsucc != succ:
-                            gtup = (gpred, gsucc, kind)
-                            del self._disabled[gtup]
-                            relations[gtup] = True
-        return relations
-
-    def getSuccessors(self, elem):
-        succs = {}
-        for succ, kind in self._successors[elem]:
-            if (pred, succ, kind) not in self._disabled:
-                succs[succ] = True
-        return succs
-
-    def getPredecessors(self, elem):
-        preds = {}
-        for pred in self._successors:
-            for succ, kind in self._successors[pred]:
-                if succ == elem and (pred, succ, kind) not in self._disabled:
-                    preds[pred] = True
-        return preds
-
-    def getAllSuccessors(self, elem):
-        succs = {}
-        queue = [elem]
-        while queue:
-            elem = queue.pop()
-            for succ, kind in self._successors[elem]:
-                if (succ not in all and
-                    (elem, succ, kind) not in self._disabled):
-                    succs[succ] = True
-                    queue.append(succ)
-        return succs
-
-    def getAllPredecessors(self, elem):
-        preds = {}
-        queue = [elem]
-        while queue:
-            elem = queue.pop()
-            for pred in self._successors:
-                for succ, kind in self._successors[pred]:
-                    if (succ == elem and
-                        (pred, succ, kind) not in self._disabled):
-                        preds[elem] = True
-                        queue.append(elem)
-        return preds
+    def _getReenableOrder(self, elements, relations):
+        follow_relations = set(relations)
+        sort_key = {}
+        for relation in relations:
+            # Now we're going to produce the tuple which will be used to
+            # sort this specific relation.  If the priority of this relation
+            # is 1, and if we disable this relation we'll still have 5 other
+            # relations in the loop when considering only relatins of
+            # priority 0 in the loop, and also 4 relations when considering
+            # 0, 1, and 2, and the maximum priority number for all the
+            # relations this sorter knows about is 3, we want a tuple such
+            # as (1, -5, 0, -4, -4).
+            follow_relations.remove(relation)
+            sort_tuple = [self._priorities[relation]]
+            for priority in range(self._maximum_priority + 1):
+                sort_tuple.append(-self.countRelationsInLoop(elements,
+                                                             follow_relations,
+                                                             priority))
+            sort_key[relation] = tuple(sort_tuple)
+            follow_relations.add(relation)
+        return sorted(relations, key=sort_key.get)
 
     def breakLoops(self):
-        successors = self._successors
-        result = True
+        # Reenable all relations so that we identify all potential
+        # loops correctly, and retrieve data for all loops.  Note that
+        # with all relations enabled, any given element can only possibly
+        # be part of one loop.  If that assumption is broken before loops
+        # are computed, the logic below may not work in weird cases.
+        self._disabled.clear()
         loops = self.getLoops()
-        if loops:
-            for elem in successors:
-                if elem in loops:
-                    if not self._breakLoops(elem, loops, {}, {}):
-                        result = False
-        return result
+
+        for loop_elements, loop_relations in loops:
+            # Get our best guess of a good ordering to try reenabling
+            # relations which are part of this loop later.
+            reenable_order = self._getReenableOrder(loop_elements,
+                                                    loop_relations)
+
+            for relation in loop_relations:
+                # Disable all relations participating in this loop.
+                self.disableRelation(relation)
+
+            # Ok, the loop is gone. Now, reenable as many relations as
+            # possible, without recreating any loops.  Do that in an
+            # order which gives precedence for relations with higher
+            # priority, and for relations that are unlikely to
+            # recreate big loops.
+            for relation in reenable_order:
+                if relation in self._disabled:
+                    pred, succ = relation
+                    elements, relations = \
+                        self.getPathData(succ, pred,
+                                         follow_relations=loop_relations)
+                    if not elements:
+                        self.enableRelation(relation)
 
     def addElement(self, elem):
         if elem not in self._successors:
-            self._successors[elem] = ()
+            self._successors[elem] = set()
+            self._predcount[elem] = 0
 
-    def addPredecessor(self, succ, pred, kind=ENFORCE):
-        self.addSuccessor(pred, succ, kind)
+    def addPredecessor(self, succ, pred, priority=0):
+        self.addSuccessor(pred, succ, priority)
 
-    def addSuccessor(self, pred, succ, kind=ENFORCE):
+    def addSuccessor(self, pred, succ, priority=0):
+        pair = pred, succ
         successors = self._successors
         predcount = self._predcount
         if succ not in successors:
-            successors[succ] = ()
-        dct = successors.get(pred)
-        if not dct:
-            successors[pred] = {(succ, kind): True}
-            if succ not in predcount:
-                predcount[succ] = 1
-            else:
-                predcount[succ] += 1
-        elif (succ, kind) not in dct:
-            dct[(succ, kind)] = True
-            if succ not in predcount:
-                predcount[succ] = 1
-            else:
-                predcount[succ] += 1
-        groups = self._groups.get((pred, succ, kind))
-        if groups:
-            group = ElementAndGroup()
-            group.addPredecessor(succ, pred)
-            groups.append(group)
-
-    def addGroup(self, group, kind=ENFORCE):
-        if not group._relations:
-            return
-        if len(group._relations) == 1:
-            pred, succ = iter(group._relations).next()
-            self.addSuccessor(pred, succ, kind)
-            return
-        successors = self._successors
-        predcount = self._predcount
-        for pred, succ in group._relations:
-            groups = self._groups.get((pred, succ, kind))
-            if not groups:
-                groups = self._groups[(pred, succ, kind)] = []
-                dct = successors.get(pred)
-                if dct and (succ, kind) in dct:
-                    group = ElementAndGroup()
-                    group.addSuccessor(pred, succ)
-                    groups.append(group)
-            groups.append(group)
-            if succ not in successors:
-                successors[succ] = ()
-            dct = successors.get(pred)
-            if not dct:
-                successors[pred] = {(succ, kind): True}
-                if succ not in predcount:
-                    predcount[succ] = 1
-                else:
-                    predcount[succ] += 1
-            elif (succ, kind) not in dct:
-                dct[(succ, kind)] = True
-                if succ not in predcount:
-                    predcount[succ] = 1
-                else:
-                    predcount[succ] += 1
+            successors[succ] = set()
+            predcount[succ] = 0
+        if pred not in successors:
+            successors[pred] = set([succ])
+            predcount[pred] = 0
+            predcount[succ] += 1
+        elif succ not in successors[pred]:
+            successors[pred].add(succ)
+            predcount[succ] += 1
+        if pair not in self._priorities or self._priorities[pair] > priority:
+            self._priorities[pair] = priority
+        if priority > self._maximum_priority:
+            self._maximum_priority = priority
 
     def getSorted(self):
-
         successors = self._successors
         predcount = self._predcount.copy()
 
-        self._profile(1)
-        brokeall = self.breakLoops()
-        self._profile(2)
+        self.breakLoops()
 
-        if not brokeall:
-            raise LoopError, _("Unbreakable loops found while sorting")
-
-        for pred, succ, kind in self._disabled:
+        for pred, succ in self._disabled:
             predcount[succ] -= 1
 
         result = [x for x in successors if not predcount.get(x)]
 
         for elem in result:
-            dct = successors.get(elem)
-            if dct:
-                for succ, kind in dct:
-                    if (elem, succ, kind) in self._disabled:
-                        continue
+            for succ in successors.get(elem, ()):
+                if (elem, succ) not in self._disabled:
                     left = predcount.get(succ)
-                    if left is None:
-                        continue
-                    if left-1 == 0:
-                        del predcount[succ]
-                        result.append(succ)
-                    else:
-                        predcount[succ] -= 1
-
-        self._profile(3)
+                    if left is not None:
+                        if left-1 == 0:
+                            del predcount[succ]
+                            result.append(succ)
+                        else:
+                            predcount[succ] -= 1
 
         if len(result) != len(successors):
-            raise Error, _("Internal error: there are still loops (%d != %d)!")\
-                         % (len(result), len(successors))
+            raise RuntimeError("There are remaining loops")
 
         return result
 
-    def _profile(self, id):
-        if sysconf.get("sorter-profile"):
-            import time
-            if id == 1:
-                successors = self._successors
-                enforce = 0
-                optional = 0
-                ngroups = 0
-                for pred in self._successors:
-                    for succ, kind in successors[pred]:
-                        groups = self._groups.get((pred, succ, kind))
-                        if groups:
-                            ngroups += len(groups)
-                        if kind is ENFORCE:
-                            enforce += 1
-                        else:
-                            optional += 1
-                print "Number of elements:", len(successors)
-                print "Number of relations:", enforce+optional
-                print "Number of relation groups:", ngroups
-                print "Number of enforced relations:", enforce
-                print "Number of optional relations:", optional
-                
-                self._profile_start = time.clock()
-            elif id == 2:
-                print "Number of disabled relations:", len(self._disabled)
-                print "Break delay: %.2fs" % (time.clock()-self._profile_start)
-                self._profile_start = time.clock()
-            elif id == 3:
-                print "Sort delay: %.2fs" % (time.clock()-self._profile_start)
 
 class ChangeSetSorter(ElementSorter):
 
@@ -514,34 +288,31 @@ class ChangeSetSorter(ElementSorter):
             elem = (pkg, op)
             self.addElement(elem)
 
-            # Packages being installed or removed must go in
-            # before their dependencies are removed, or after
-            # their dependencies are reinstalled.
+            relations = []
+            def add_relation(pred, succ, priority):
+                relations.append((pred, succ, priority))
+
             for req in pkg.requires:
-                group = ElementOrGroup()
+                if isinstance(req, PreRequires):
+                    req_type_priority = 0
+                else:
+                    req_type_priority = 1
                 for prv in req.providedby:
                     for prvpkg in prv.packages:
                         if prvpkg is pkg:
                             continue
                         if changeset.get(prvpkg) is INSTALL:
-                            group.addSuccessor((prvpkg, INSTALL), elem)
+                            add_relation((prvpkg, INSTALL), elem,
+                                         req_type_priority)
                         elif prvpkg.installed:
                             if changeset.get(prvpkg) is not REMOVE:
                                 break
-                            group.addSuccessor(elem, (prvpkg, REMOVE))
                     else:
                         continue
                     break
                 else:
-                    relations = group.getRelations()
-                    if relations:
-                        # Should Requires of PreRequires become PreRequires
-                        # as well?
-                        if isinstance(req, PreRequires):
-                            kind = ENFORCE
-                        else:
-                            kind = OPTIONAL
-                        self.addGroup(group, kind)
+                    for args in relations:
+                        self.addSuccessor(*args)
 
             if op is INSTALL:
 
@@ -560,7 +331,7 @@ class ChangeSetSorter(ElementSorter):
                     if upgpkg is pkg:
                         continue
                     if changeset.get(upgpkg) is REMOVE:
-                        self.addSuccessor((upgpkg, REMOVE), elem, ENFORCE)
+                        self.addSuccessor((upgpkg, REMOVE), elem)
 
                 # Conflicted packages being removed must go in
                 # before this package's installation.
@@ -576,6 +347,6 @@ class ChangeSetSorter(ElementSorter):
                     if cnfpkg is pkg:
                         continue
                     if changeset.get(cnfpkg) is REMOVE:
-                        self.addSuccessor((cnfpkg, REMOVE), elem, ENFORCE)
+                        self.addSuccessor((cnfpkg, REMOVE), elem)
 
         assert len(self._successors) == len(changeset)

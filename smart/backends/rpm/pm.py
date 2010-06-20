@@ -20,20 +20,17 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.backends.rpm.rpmver import splitarch
-from smart.util.filetools import setCloseOnExec
-from smart.sorter import ChangeSetSorter, LoopError
-from smart.const import INSTALL, REMOVE, BLOCKSIZE
-from smart.pm import PackageManager
-from smart import *
 import tempfile
 import sys, os
 import codecs
 import locale
-import thread
-import errno
-import fcntl
-import time
+
+from smart.util.filetools import setCloseOnExec
+from smart.sorter import ChangeSetSorter
+from smart.const import INSTALL, REMOVE
+from smart.pm import PackageManager
+from smart import sysconf, iface, Error, _
+
 
 try:
     ENCODING = locale.getpreferredencoding()
@@ -215,7 +212,7 @@ class RPMPackageManager(PackageManager):
                         line = _("%s conflicts with %s") % (name1, name2)
                     problines.append(line)
                 raise Error, "\n".join(problines)
-        if forcerpmorder or sysconf.get("rpm-order"):
+        if sysconf.get("rpm-order"):
             ts.order()
         probfilter = rpm.RPMPROB_FILTER_OLDPACKAGE
         if force or reinstall:
