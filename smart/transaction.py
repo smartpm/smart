@@ -25,16 +25,31 @@ from smart import *
 
 class ChangeSet(dict):
 
-    def __init__(self, cache, state=None):
+    def __init__(self, cache, state=None, requested=None):
         self._cache = cache
+        self._requested = {}
         if state:
             self.update(state)
+        if requested:
+            self._requested.update(requested)
+
+    def clear(self):
+        dict.clear(self)
+        self._requested.clear()
+
+    def update(self, other):
+        dict.update(self, other)
+        if type(other) is ChangeSet:
+            self._requested.update(other._requested)
+
+    def copy(self):
+        return ChangeSet(self._cache, self, self._requested)
 
     def getCache(self):
         return self._cache
 
     def getState(self):
-        return self.copy()
+        return (self.copy(), self._requested.copy())
 
     def setState(self, state):
         if state is not self:
@@ -44,18 +59,69 @@ class ChangeSet(dict):
     def getPersistentState(self):
         state = {}
         for pkg in self:
-            state[(pkg.__class__, pkg.name, pkg.version)] = self[pkg]
+            req = pkg in self._requested
+            state[(pkg.__class__, pkg.name, pkg.version)] = self[pkg], req
         return state
 
     def setPersistentState(self, state):
         self.clear()
         for pkg in self._cache.getPackages():
-            op = state.get((pkg.__class__, pkg.name, pkg.version))
-            if op is not None:
+            tup = state.get((pkg.__class__, pkg.name, pkg.version))
+            if tup is not None:
+                op, req = tup
                 self[pkg] = op
+                if req:
+                    self._requested[pkg] = True
 
-    def copy(self):
-        return ChangeSet(self._cache, self)
+    def markPackagesAutoInstalled(self):
+        """ Mark all packages that have been auto-installed permanently
+            and reset the flag if the package was removed again. Also
+            make sure that the auto-flag is carried to the new pkg on
+            upgrades/downgrades.
+        """
+        # we need to take care of upgrades here, a changeset represents
+        # upgrades as a series of REMOVE old-version INSTALL new-version
+
+        upgrade = {}
+        # find out about the upgrades/downgrades
+        # FIXME: cover the downgrade case too
+        for pkg in self:
+            if self[pkg] is REMOVE:
+                # check if this remove is because the pkg is upgrades
+                # and if that is the case, move the "auto" flag to the
+                # (upgraded) package and rember that this was a upgraded
+                # pkg
+                for prv in pkg.provides:
+                    for upg in prv.upgradedby:
+                        for upgpkg in upg.packages:
+                            if self.get(upgpkg) is INSTALL:
+                                upgrade[upgpkg] = True
+                                if pkgconf.testFlag("auto", pkg):
+                                    pkgconf.setFlag("auto",
+                                                    upgpkg.name, "=",
+                                                    upgpkg.version)
+                pkgconf.clearFlag("auto", pkg.name)
+        # do the auto-marking on new installs that where not explicitly
+        # requested
+        for pkg in self:
+            if (self[pkg] is INSTALL and
+                not pkg in upgrade):
+                if not self.getRequested(pkg):
+                    pkgconf.setFlag("auto",
+                                    pkg.name, "=", pkg.version)
+                else:
+                    pkgconf.clearFlag("auto",
+                                      pkg.name, "=", pkg.version)
+
+    def getRequested(self, pkg):
+        return pkg in self._requested
+
+    def setRequested(self, pkg, flag):
+        assert pkg in self
+        if flag:
+            self._requested[pkg] = True
+        elif pkg in self._requested:
+            del self._requested[pkg]
 
     def set(self, pkg, op, force=False):
         if self.get(pkg) is op:
@@ -66,12 +132,16 @@ class ChangeSet(dict):
             else:
                 if pkg in self:
                     del self[pkg]
+                    if pkg in self._requested:
+                        del self._requested[pkg]
         else:
             if force or pkg.installed:
                 self[pkg] = REMOVE
             else:
                 if pkg in self:
                     del self[pkg]
+                    if pkg in self._requested:
+                        del self._requested[pkg]
 
     def installed(self, pkg):
         op = self.get(pkg)
@@ -83,6 +153,8 @@ class ChangeSet(dict):
             sop = self[pkg]
             if sop is not other.get(pkg):
                 diff[pkg] = sop
+                if pkg in self._requested:
+                    diff._requested[pkg] = True
         return diff
 
     def intersect(self, other):
@@ -91,6 +163,8 @@ class ChangeSet(dict):
             sop = self[pkg]
             if sop is other.get(pkg):
                 isct[pkg] = sop
+                if pkg in self._requested:
+                    isct._requested[pkg] = True
         return isct
 
     def __str__(self):
@@ -1092,6 +1166,8 @@ class Transaction(object):
                         op = REMOVE
                 if op is INSTALL or op is REINSTALL:
                     self._install(pkg, changeset, locked, pending)
+                    if pkg in changeset:
+                        changeset.setRequested(pkg, True)
                 elif op is REMOVE:
                     self._remove(pkg, changeset, locked, pending)
                 elif op is UPGRADE:

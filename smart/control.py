@@ -433,6 +433,43 @@ class Control(object):
         self._pathlocks.lock(channelsdir)
         return result
 
+    def markAndSweep(self, changeset=None):
+        if changeset==None:
+            changeset={}
+        # Mark ...
+        all = self._cache.getPackages()
+        auto = pkgconf.filterByFlag("auto", all)
+        marked = {}
+        for pkg in all:
+            if (pkg.installed and pkg not in auto and
+                changeset.get(pkg) != REMOVE):
+                marked[pkg] = True
+        queue = marked.keys()
+        while queue:
+            pkg = queue.pop(0)
+            for req in pkg.requires:
+                for prv in req.providedby:
+                    for prvpkg in prv.packages:
+                        if (prvpkg.installed and
+                            prvpkg not in marked and
+                            prvpkg not in changeset):
+                            marked[prvpkg] = True
+                            queue.append(prvpkg)
+        # see what is not marked
+        suggestions = ChangeSet(self._cache)
+        for pkg in all:
+            if pkg.installed and pkg not in marked:
+                suggestions[pkg] = REMOVE
+        # FIXME: we should probably check here is those suggestions
+        #        would break the relations in the cache and bail out
+        #        if that happens 
+
+        #if suggestions:
+        #    accepted = iface.suggestChanges(suggestions)
+        #    if accepted:
+        #        changeset.update(accepted)
+        return suggestions
+
     def dumpTransactionURLs(self, trans, output=None):
         changeset = trans.getChangeSet()
         self.dumpURLs([x for x in changeset if changeset[x] is INSTALL])
@@ -693,7 +730,9 @@ class Control(object):
                     for pkg in pmpkgs[pmclass]:
                         if pkg in cs:
                             pmcs[pkg] = cs[pkg]
+                            pmcs.setRequested(pkg, cs.getRequested(pkg))
                     if sysconf.get("commit", True):
+                        pmcs.markPackagesAutoInstalled()
                         self.writeCommitLog(pmcs)
                         pmclass().commit(pmcs, pkgpaths)
 

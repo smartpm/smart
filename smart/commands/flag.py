@@ -40,6 +40,10 @@ Currently known flags are:
                   in the repository when the last update was done.
                   This flag is automatically manipulated by the
                   system.
+  auto          - Flagged packages were automatically installed
+                  to satisfy dependencies.
+                  This flag is automatically manipulated by the
+                  system.
   multi-version - Flagged packages may have more than one version
                   installed in the system at the same time
                   (backend dependent).

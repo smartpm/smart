@@ -1,0 +1,96 @@
+
+Import what we need.
+
+  >>> from smart.cache import *
+  >>> from smart.channel import *
+  >>> from smart.transaction import *
+
+
+Create a test environment.
+
+  >>> class TestPackage(Package): pass
+  >>> class TestProvides(Provides): pass
+  >>> class TestDepends(Depends):
+  ...   def matches(self, prv):
+  ...     return prv.name == self.name and prv.version == self.version
+  >>> class TestRequires(TestDepends, Requires): pass
+
+  >>> class TestInstalledLoader(Loader):
+  ...
+  ...     def __init__(self):
+  ...         Loader.__init__(self)
+  ...         self._installed = True
+  ...
+  ...     def getChannel(self):
+  ...         return PackageChannel("dummy", "installed")
+
+  >>> class TestAvailableLoader(Loader):
+  ...
+  ...     def getChannel(self):
+  ...         return PackageChannel("dummy", "available")
+  ...
+  ...     def load(self):
+  ...         pkgA = self.buildPackage(
+  ...             (TestPackage, "A", "1"),
+  ...             [(TestProvides, "A", "1")],
+  ...             [(TestRequires, "B", "=", "1")], [], [])
+  ...         pkgA.loaders[self] = "A"
+  ...         pkgB = self.buildPackage(
+  ...             (TestPackage, "B", "1"),
+  ...             [(TestProvides, "B", "1")], [], [], [])
+  ...         pkgB.loaders[self] = "B"
+
+
+Then, we create instances of them.
+
+  >>> installed_loader = TestInstalledLoader()
+  >>> available_loader = TestAvailableLoader()
+
+
+We'll also create a cache, to include these loader into.
+
+  >>> cache = Cache()
+  >>> cache.addLoader(installed_loader)
+  >>> cache.addLoader(available_loader)
+
+
+Loading the cache should activate the loader.
+
+  >>> cache.load()
+
+
+Create a new transaction to perform the install operation, using the
+cache just built, and the install policy.
+
+  >>> transaction = Transaction(cache, PolicyInstall)
+
+
+Mark packages for installation.
+
+  >>> for pkg in cache.getPackages("A"):
+  ...     transaction.enqueue(pkg, INSTALL)
+
+
+And run!
+
+  >>> transaction.run()
+
+
+Does it work!? Does it work!?
+
+  >>> for pkg, op in sorted(transaction.getChangeSet().items()):
+  ...     print pkg, op
+  A-1 INSTALL
+  B-1 INSTALL
+  >>> transaction.getChangeSet().markPackagesAutoInstalled()
+  >>> pkgconf.getFlagTargets("auto")
+  {'B': [('=', '1')]}
+
+  >>> for pkg in cache.getPackages("B"):
+  ...     transaction.enqueue(pkg, REINSTALL)
+  >>> transaction.run()
+  >>> transaction.getChangeSet().markPackagesAutoInstalled()
+  >>> pkgconf.getFlagTargets("auto")
+  {}
+
+vim:ft=doctest
