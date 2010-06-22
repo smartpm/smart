@@ -74,6 +74,7 @@ MENUBAR = [
         "hide-uninstalled",
         "hide-unmarked",
         "hide-unlocked",
+        "hide-requested",
         "hide-old",
         None,
         "expand-all",
@@ -306,6 +307,7 @@ class QtInteractiveInterface(QtInterface):
                             ("hide-uninstalled", _("Hide Uninstalled")),
                             ("hide-unmarked", _("Hide Unmarked")),
                             ("hide-unlocked", _("Hide Unlocked")),
+                            ("hide-requested", _("Hide Requested")),
                             ("hide-old", _("Hide Old"))]:
             act = ToggleAction(None, name, label)
             act.connect("activated()", self.toggleFilter, name)
@@ -919,6 +921,8 @@ class QtInteractiveInterface(QtInterface):
                 packages = [x for x in packages if not x.installed]
             if "hide-unlocked" in filters:
                 packages = pkgconf.filterByFlag("lock", packages)
+            if "hide-requested" in filters:
+                packages = pkgconf.filterByFlag("auto", packages)
             if "hide-old" in filters:
                 packages = pkgconf.filterByFlag("new", packages)
 
