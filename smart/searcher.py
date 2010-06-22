@@ -25,6 +25,13 @@ from smart import *
 import fnmatch
 import re
 
+def _stripeol(pattern):
+    if pattern.endswith("$"):
+         pattern = pattern[:-1]
+    elif pattern.endswith('\Z(?ms)'):
+        pattern = pattern[:-7]
+    return pattern
+
 class Searcher(object):
     """
     The search mechanism is smart is accessed mainly by giving a
@@ -192,16 +199,16 @@ class Searcher(object):
         self.url.append((s, cutoff))
 
     def addGroup(self, s):
-        s = fnmatch.translate(s)[:-1].replace("\ ", " ")
+        s = _stripeol(fnmatch.translate(s)).replace("\ ", " ")
         p = re.compile("\s+".join(s.split()), self.ignorecase and re.I or 0)
         self.group.append(p)
 
     def addSummary(self, s):
-        s = fnmatch.translate(s)[:-1].replace("\ ", " ")
+        s = _stripeol(fnmatch.translate(s)).replace("\ ", " ")
         p = re.compile("\s+".join(s.split()), self.ignorecase and re.I or 0)
         self.summary.append(p)
 
     def addDescription(self, s):
-        s = fnmatch.translate(s)[:-1].replace("\ ", " ")
+        s = _stripeol(fnmatch.translate(s)).replace("\ ", " ")
         p = re.compile("\s+".join(s.split()), self.ignorecase and re.I or 0)
         self.description.append(p)
