@@ -4,11 +4,6 @@ Configuration file
 
 - Write YAML based config file?
 
-Commands
---------
-
-- Introduce a mixed-mode command, allowing to install/remove/upgrade.
-
 Guessing unused packages
 ------------------------
 

@@ -19,7 +19,8 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.transaction import Transaction, PolicyUpgrade, UPGRADE
+from smart.transaction import Transaction, PolicyUpgrade, \
+                              UPGRADE, INSTALL, REMOVE
 from smart.option import OptionParser
 from smart.cache import Package
 from smart import *
@@ -34,6 +35,10 @@ DESCRIPTION=_("""
 This command will upgrade one or more packages which
 are currently installed in the system. If no packages
 are given, all installed packages will be checked.
+
+If pkgname is prefixed by a '+', it will be installed
+even if it was not currently installed in the system.
+If pkgname is prefixed with a '-', it will be removed.
 """)
 
 EXAMPLES=_("""
@@ -49,6 +54,7 @@ def parse_options(argv):
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
+    parser.allow_interspersed_args = False
     parser.add_option("--stepped", action="store_true",
                       help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
@@ -96,6 +102,14 @@ def main(ctrl, opts):
 
         for arg in opts.args:
 
+            op = UPGRADE
+            if arg.startswith('+'):
+                arg = arg[1:]
+                op = INSTALL
+            if arg.startswith('-'):
+                arg = arg[1:]
+                op = REMOVE
+
             ratio, results, suggestions = ctrl.search(arg)
 
             if not results:
@@ -103,11 +117,11 @@ def main(ctrl, opts):
                     dct = {}
                     for r, obj in suggestions:
                         if isinstance(obj, Package):
-                            if obj.installed:
+                            if obj.installed or op == INSTALL:
                                 dct[obj] = True
                         else:
                             for pkg in obj.packages:
-                                if pkg.installed:
+                                if pkg.installed or op == INSTALL:
                                     dct[pkg] = True
                     if not dct:
                         del suggestions[:]
@@ -122,19 +136,19 @@ def main(ctrl, opts):
             foundinstalled = False
             for obj in results:
                 if isinstance(obj, Package):
-                    if obj.installed:
-                        trans.enqueue(obj, UPGRADE)
-                        foundinstalled = True
+                    if obj.installed or op == INSTALL:
+                        trans.enqueue(obj, op)
+                        foundinstalled = obj.installed
                     foundany = True
             if not foundany:
                 for obj in results:
                     if not isinstance(obj, Package):
                         for pkg in obj.packages:
-                            if pkg.installed:
-                                foundinstalled = True
-                                trans.enqueue(pkg, UPGRADE)
+                            if pkg.installed or op == INSTALL:
+                                foundinstalled = pkg.installed
+                                trans.enqueue(pkg, op)
                             foundany = True
-            if not foundinstalled:
+            if not foundinstalled and op != INSTALL:
                 iface.warning(_("'%s' matches no installed packages") % arg)
     else:
         for pkg in cache.getPackages():
