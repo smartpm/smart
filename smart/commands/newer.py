@@ -40,13 +40,17 @@ EXAMPLES=_("""
 smart newer
 """)
 
-def parse_options(argv, help=None):
+def option_parser(help=None):
     if help:
         parser = OptionParser(help=help)
     else:
         parser = OptionParser(usage=USAGE,
                               description=DESCRIPTION,
                               examples=EXAMPLES)
+    return parser
+
+def parse_options(argv, help=None):
+    parser = option_parser(help)
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

@@ -47,7 +47,7 @@ smart download --from-urls http://some.url/some/path/somefile
 smart download --from-metalink pkgname.metalink
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -69,6 +69,10 @@ def parse_options(argv):
                              "the given files with lists of urls"))
     parser.add_option("--from-metalink", action="callback", callback=append_all,
                       help=_("download files from the given metalink file"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     if not os.path.isdir(opts.target):

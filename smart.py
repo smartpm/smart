@@ -51,6 +51,7 @@ Action commands:
 Query commands:
     search
     query
+    newer
     info
     stats
 

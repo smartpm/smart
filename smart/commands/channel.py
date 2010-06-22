@@ -86,7 +86,7 @@ def format_fields(fields):
             result.append(line)
     return "\n".join(result)
 
-def parse_options(argv):
+def option_parser():
     description = DESCRIPTION % {"types": build_types()}
     parser = OptionParser(usage=USAGE,
                           description=description,
@@ -124,6 +124,10 @@ def parse_options(argv):
                       help=_("execute without asking"))
     parser.add_option("--help-type", action="store", metavar="TYPE",
                       help=_("show further information about given type"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

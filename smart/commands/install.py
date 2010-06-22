@@ -46,7 +46,7 @@ smart install ./somepackage.file
 smart install http://some.url/some/path/somepackage.file
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -66,6 +66,10 @@ def parse_options(argv):
     parser.add_option("--dump", action="store_true",
                       help=_("dump package names and versions to stderr but "
                              "don't commit operation"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts

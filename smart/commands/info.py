@@ -38,7 +38,7 @@ smart info pkgname-1.0
 smart info pkgname --urls --paths
 """)
 
-def parse_options(argv):
+def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
@@ -48,6 +48,10 @@ def parse_options(argv):
                       help=_("show path list"))
     parser.add_option("--changelog", action="store_true",
                       help=_("show change log"))
+    return parser
+
+def parse_options(argv):
+    parser = option_parser()
     opts, args = parser.parse_args(argv)
     opts.args = args
     return opts
