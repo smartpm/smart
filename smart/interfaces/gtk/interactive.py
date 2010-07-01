@@ -28,6 +28,7 @@ from smart.interfaces.gtk.flags import GtkFlags
 from smart.interfaces.gtk.priorities import GtkPriorities, GtkSinglePriority
 from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.interfaces.gtk.packageinfo import GtkPackageInfo
+from smart.interfaces.gtk.legend import GtkLegend
 from smart.interfaces.gtk.interface import GtkInterface
 from smart.interfaces.gtk import getPixbuf
 from smart.const import NEVER, VERSION
@@ -93,6 +94,7 @@ UI = """
         <menuitem action="log-window"/>
     </menu>
     <menu action="help">
+        <menuitem action="legend-window"/>
         <menuitem action="about"/>
     </menu>   
 </menubar>
@@ -165,6 +167,8 @@ ACTIONS = [
      _("Show log window"), "self.showLog()"),
 
     ("help", None, _("_Help")),
+    ("legend-window", None, _("_Icon Legend"), None,
+     _("Show icon legend"), "self.showLegend()"),
     ("about", None, _("_About"), None,
      _("Show about window"), "self.showAbout()"),
 
@@ -357,6 +361,8 @@ class GtkInteractiveInterface(GtkInterface):
         self._status = gtk.Statusbar()
         self._status.show()
         self._topvbox.pack_start(self._status, False)
+        
+        self._legend = GtkLegend()
 
     def showStatus(self, msg):
         self._status.pop(0)
@@ -449,6 +455,9 @@ class GtkInteractiveInterface(GtkInterface):
 
     def showLog(self):
         return self._log.show()
+
+    def showLegend(self):
+        return self._legend.show()
 
     def expandPackages(self):
         self._pv.getTreeView().expand_all()

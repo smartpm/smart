@@ -28,6 +28,7 @@ from smart.interfaces.qt.flags import QtFlags
 from smart.interfaces.qt.priorities import QtPriorities, QtSinglePriority
 from smart.interfaces.qt.packageview import QtPackageView
 from smart.interfaces.qt.packageinfo import QtPackageInfo
+from smart.interfaces.qt.legend import QtLegend
 from smart.interfaces.qt.interface import QtInterface, app
 from smart.interfaces.qt import getPixmap, centerWindow
 from smart.const import NEVER, VERSION
@@ -91,6 +92,7 @@ MENUBAR = [
         "log-window"
     ] ),
    ( "help", [
+        "legend-window",
         "about",
     ] )
 ]
@@ -170,6 +172,8 @@ ACTIONS = [
      _("Show log window"), "self._log.show()"),
 
     ("help", None, _("_Help")),
+    ("legend-window", None, _("_Icon Legend"), None,
+     _("Show icon legend"), "self._legend.show()"),
     ("about", None, _("_About"), None,
      _("Show about window"), "self.showAbout()"),
 ]
@@ -254,6 +258,9 @@ def compileActions(group, actions, globals):
         if action[0] == "log-window": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showLog)
+        if action[0] == "legend-window": #HACK
+            self = globals["self"]
+            qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showLegend)
         if action[0] == "about": #HACK
             self = globals["self"]
             qt.QObject.connect(act, qt.SIGNAL("activated()"), self.showAbout)
@@ -421,6 +428,8 @@ class QtInteractiveInterface(QtInterface):
 
         self._status = self._window.statusBar()
         self._status.show()
+        
+        self._legend = QtLegend(self._window)
 
     def showStatus(self, msg):
         self._status.message(msg)
@@ -511,6 +520,9 @@ class QtInteractiveInterface(QtInterface):
 
     def showLog(self):
         return self._log.show()
+
+    def showLegend(self):
+        return self._legend.show()
 
     def expandPackages(self):
         self._pv.expandAll()
