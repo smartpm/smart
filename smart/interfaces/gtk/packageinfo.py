@@ -23,8 +23,12 @@ from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk, pango
+import subprocess
 
 class GtkPackageInfo(gtk.Alignment):
+    hovering_over_link = False
+    hand_cursor = gtk.gdk.Cursor(gtk.gdk.HAND2)
+    regular_cursor = gtk.gdk.Cursor(gtk.gdk.XTERM)
 
     def __init__(self):
         gtk.Alignment.__init__(self, 0.5, 0.5, 1.0, 1.0)
@@ -61,12 +65,25 @@ class GtkPackageInfo(gtk.Alignment):
         attrsright = pango.AttrList()
         attrsright.insert(pango.AttrFontDesc(boldfont, 0, -1))
 
+        style = sw.get_style()
+        bgcolor = style.bg[gtk.STATE_NORMAL]
+        
+        self._reftv = gtk.TextView()
+        self._reftv.modify_base(gtk.STATE_NORMAL, bgcolor)
+        self._reftv.set_editable(False)
+        self._reftv.set_cursor_visible(False)
+        self._reftv.connect("motion-notify-event", self.motion_notify_event)
+        self._reftv.connect("event-after", self.event_after)
+        self._reftv.show()
+        self._reftv.get_buffer().create_tag("reference", font_desc=font)
+
         row = 0
         for attr, text in [("status", _("Status:")),
                            ("priority", _("Priority:")),
                            ("group", _("Group:")),
                            ("installedsize", _("Installed Size:")),
-                           ("channels", _("Channels:"))]:
+                           ("channels", _("Channels:")),
+                           ("reference", _("Reference URLs:"))]:
             label = gtk.Label(text)
             label.set_attributes(attrsleft)
             if attr == "channels":
@@ -76,9 +93,12 @@ class GtkPackageInfo(gtk.Alignment):
             label.show()
             table.attach(label, 0, 1, row, row+1, gtk.FILL, gtk.FILL)
             setattr(self._info, attr+"_label", label)
-            label = gtk.Label()
-            label.set_attributes(attrsright)
-            label.set_alignment(0.0, 0.5)
+            if attr == "reference":
+                label = self._reftv
+            else:
+                label = gtk.Label()
+                label.set_attributes(attrsright)
+                label.set_alignment(0.0, 0.5)
             label.show()
             table.attach(label, 1, 2, row, row+1, gtk.FILL, gtk.FILL)
             setattr(self._info, attr, label)
@@ -182,8 +202,96 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label(_("URLs"))
         self._notebook.append_page(sw, label)
 
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.set_border_width(5)
+        sw.show()
 
         self._notebook.connect("switch_page", self._switchPage)
+
+    '''
+    this motion_notify_event/event_after code was adopted from hypertext demo
+    '''
+
+    # Update the cursor image if the pointer moved.
+    def motion_notify_event(self, text_view, event):
+        x, y = text_view.window_to_buffer_coords(gtk.TEXT_WINDOW_WIDGET,
+            int(event.x), int(event.y))
+        self.set_cursor_if_appropriate(text_view, x, y)
+        text_view.window.get_pointer()
+        return False
+
+    # Looks at all tags covering the position (x, y) in the text view,
+    # and if one of them is a link, change the cursor to the "hands" cursor
+    # typically used by web browsers.
+    def set_cursor_if_appropriate(self, text_view, x, y):
+        hovering = False
+
+        buffer = text_view.get_buffer()
+        iter = text_view.get_iter_at_location(x, y)
+
+        tags = iter.get_tags()
+        for tag in tags:
+            url = tag.get_data("url")
+            if url:
+                hovering = True
+                break
+
+        if hovering != self.hovering_over_link:
+            self.hovering_over_link = hovering
+
+        if self.hovering_over_link:
+            text_view.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(self.hand_cursor)
+        else:
+            text_view.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(self.regular_cursor)
+
+    def event_after(self, text_view, event):
+        if event.type != gtk.gdk.BUTTON_RELEASE:
+            return False
+        if event.button != 1:
+            return False
+        buffer = text_view.get_buffer()
+
+        # we shouldn't follow a link if the user has selected something
+        try:
+            start, end = buffer.get_selection_bounds()
+        except ValueError:
+            # If there is nothing selected, None is return
+            pass
+        else:
+            if start.get_offset() != end.get_offset():
+                return False
+
+        x, y = text_view.window_to_buffer_coords(gtk.TEXT_WINDOW_WIDGET,
+            int(event.x), int(event.y))
+        iter = text_view.get_iter_at_location(x, y)
+
+        self.follow_if_link(text_view, iter)
+        return False
+
+    def follow_if_link(self, text_view, iter):
+        ''' Looks at all tags covering the position of iter in the text view,
+            and if one of them is a link, follow it by opening the url.
+        '''
+        tags = iter.get_tags()
+        for tag in tags:
+            url = tag.get_data("url")
+            if url:
+                self.open_url(url)
+                break
+
+    def open_url(self, url):
+        ''' Open the specified URL in a browser (try a few alternatives) '''
+        for browser in ['xdg-open', 'gnome-open', 'exo-open', \
+                        'x-www-browser', 'firefox', 'open']:
+            command = [browser, url]
+            try:
+                retcode = subprocess.call(command)
+                if retcode == 0:
+                    break
+            except OSError:
+                pass
 
     def _switchPage(self, notebook, page, pagenum):
         self.setPackage(self._pkg, _pagenum=pagenum)
@@ -210,11 +318,13 @@ class GtkPackageInfo(gtk.Alignment):
                 self._info.installedsize.set_text("")
                 self._info.priority.set_text("")
                 self._info.channels.set_text("")
+                self._info.reference.get_buffer().set_text("")
                 return
 
             group = None
             installedsize = None
             channels = []
+            urls = []
             for loader in pkg.loaders:
                 info = loader.getInfo(pkg)
                 if group is None:
@@ -225,6 +335,7 @@ class GtkPackageInfo(gtk.Alignment):
                 channels.append("%s (%s)" %
                                 (channel.getName() or channel.getAlias(),
                                  channel.getAlias()))
+                urls.extend(info.getReferenceURLs())
 
             flags = pkgconf.testAllFlags(pkg)
             if flags:
@@ -238,6 +349,13 @@ class GtkPackageInfo(gtk.Alignment):
             self._info.group.set_text(group or _("Unknown"))
             self._info.priority.set_text(str(pkg.getPriority()))
             self._info.channels.set_text("\n".join(channels))
+            self._info.reference.get_buffer().set_text("")
+            for url in urls:
+                refbuf = self._info.reference.get_buffer()
+                tag = refbuf.create_tag(None,
+                        foreground="blue", underline=pango.UNDERLINE_SINGLE)
+                tag.set_data("url", url)
+                refbuf.insert_with_tags(refbuf.get_end_iter(), url, tag)
 
             if installedsize:
                 self._info.installedsize.set_text(sizeToStr(installedsize))

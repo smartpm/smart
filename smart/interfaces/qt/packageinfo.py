@@ -68,7 +68,8 @@ class QtPackageInfo(qt.QTabWidget):
                            ("priority", _("Priority:")),
                            ("group", _("Group:")),
                            ("installedsize", _("Installed Size:")),
-                           ("channels", _("Channels:"))]:
+                           ("channels", _("Channels:")),
+                           ("reference", _("Reference URLs:"))]:
             label = qt.QLabel(text, grid)
             label.show()
             setattr(self._info, attr+"_label", label)
@@ -168,11 +169,13 @@ class QtPackageInfo(qt.QTabWidget):
                 self._info.installedsize.setText("")
                 self._info.priority.setText("")
                 self._info.channels.setText("")
+                self._info.reference.setText("")
                 return
 
             group = None
             installedsize = None
             channels = []
+            urls = []
             for loader in pkg.loaders:
                 info = loader.getInfo(pkg)
                 if group is None:
@@ -183,6 +186,7 @@ class QtPackageInfo(qt.QTabWidget):
                 channels.append("%s (%s)" %
                                 (channel.getName() or channel.getAlias(),
                                  channel.getAlias()))
+                urls.extend(info.getReferenceURLs())
 
             flags = pkgconf.testAllFlags(pkg)
             if flags:
@@ -193,12 +197,19 @@ class QtPackageInfo(qt.QTabWidget):
 
             def bold(text):
                 return "<b>"+unicode(qt.QStyleSheet.escape(text))+"</b>"
+
+            def link(text, url):
+                return "<a href=\""+url+"\">"+unicode(qt.QStyleSheet.escape(text))+"</a>"
             
             status = pkg.installed and _("Installed") or _("Available")
             self._info.status.setText(bold(status+flags))
             self._info.group.setText(bold(group or _("Unknown")))
             self._info.priority.setText(bold(str(pkg.getPriority())))
             self._info.channels.setText(bold("\n".join(channels)))
+            links = []
+            for url in urls:
+                links.append(link(url, url))
+            self._info.reference.setText(" ".join(links))
 
             if installedsize:
                 self._info.installedsize.setText(bold(sizeToStr(installedsize)))
