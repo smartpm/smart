@@ -227,18 +227,18 @@ class PackageInfo(object):
                 if filesha256:
                     try:
                         from hashlib import sha256
-                        digest = sha256()
-                        file = open(localpath)
-                        data = file.read(BLOCKSIZE)
-                        while data:
-                            digest.update(data)
-                            data = file.read(BLOCKSIZE)
-                        lfilesha256 = digest.hexdigest()
-                        if lfilesha256 != filesha256:
-                           raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
-                                         (filesha256, lfilesha256)
                     except ImportError:
-                        pass
+                        from smart.util.sha256 import sha256
+                    digest = sha256()
+                    file = open(localpath)
+                    data = file.read(BLOCKSIZE)
+                    while data:
+                        digest.update(data)
+                        data = file.read(BLOCKSIZE)
+                    lfilesha256 = digest.hexdigest()
+                    if lfilesha256 != filesha256:
+                       raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
+                                     (filesha256, lfilesha256)
                 filesha = self.getSHA(url)
                 if filesha:
                     try:
