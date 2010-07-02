@@ -129,6 +129,14 @@ except ImportError:
                    )
         packages.append("smart.util.elementtree")
 
+try:
+    from hashlib import sha256
+except ImportError:
+    ext_modules.append(
+      Extension("smart.util.sha256",
+                ["smart/util/sha256module.c"])
+               )
+
 
 setup(name="smart",
       version = VERSION,
