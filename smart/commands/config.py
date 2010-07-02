@@ -47,10 +47,13 @@ def option_parser():
     parser.defaults["set"] = []
     parser.defaults["remove"] = []
     parser.defaults["show"] = None
+    parser.defaults["yaml"] = None
     parser.add_option("--set", action="callback", callback=append_all,
                       help=_("set given key=value options"))
     parser.add_option("--show", action="callback", callback=append_all,
                       help=_("show given options"))
+    parser.add_option("--yaml", action="callback", callback=append_all,
+                      help=_("show given options in YAML format"))
     parser.add_option("--remove", action="callback", callback=append_all,
                       help=_("remove given options"))
     parser.add_option("--force", action="store_true",
@@ -126,5 +129,18 @@ def main(ctrl, opts):
                     pprint.pprint(value)
         else:
             pprint.pprint(sysconf.get((), hard=True))
+
+    if opts.yaml is not None:
+        import yaml
+        if opts.yaml:
+            marker = object()
+            for opt in opts.yaml:
+                value = sysconf.get(opt, marker)
+                if value is marker:
+                    iface.warning(_("Option '%s' not found.") % opt)
+                else:
+                    print yaml.safe_dump(value, explicit_end=True)
+        else:
+            print yaml.safe_dump(sysconf.get((), hard=True))
 
 # vim:ts=4:sw=4:et
