@@ -71,6 +71,12 @@ class DebPackageInfo(PackageInfo):
     def getMD5(self, url):
         return self._dict.get("md5sum")
 
+    def getSHA(self, url):
+        return self._dict.get("sha1")
+
+    def getSHA256(self, url):
+        return self._dict.get("sha256")
+
     def getInstalledSize(self):
         size = self._dict.get("installed-size")
         if size:
