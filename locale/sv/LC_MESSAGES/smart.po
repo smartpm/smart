@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: smart package manager\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-04 13:55+0200\n"
-"PO-Revision-Date: 2010-02-04 23:09+0000\n"
+"PO-Revision-Date: 2010-07-04 14:10+0000\n"
 "Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,6 @@ msgid "smart command [options] [arguments]"
 msgstr "smart kommando [flaggor] [argument]"
 
 #: smart.py:39
-#, fuzzy
 msgid ""
 "\n"
 "Action commands:\n"
@@ -67,6 +66,7 @@ msgstr ""
 "Frågekommandon:\n"
 "    search\n"
 "    query\n"
+"    newer\n"
 "    info\n"
 "    stats\n"
 "\n"
@@ -614,15 +614,14 @@ msgstr ""
 
 #: smart/channels/apt_deb_info.py:43
 msgid "Trustdb"
-msgstr ""
+msgstr "Tillitsdatabas"
 
 #: smart/channels/apt_deb_info.py:44
-#, fuzzy
 msgid ""
 "If provided, channel will be checked for a key in the GPG trust database at "
 "the given path."
 msgstr ""
-"Om angiven, måste kanalen tvunget signeras av en nyckel i GPG-nyckelringen "
+"Om angiven, kommer kanalen att kontrolleras mot en nyckel i GPG-tillitsdatabasen "
 "med angiven sökväg."
 
 #: smart/channels/apt_rpm.py:102
@@ -1159,9 +1158,8 @@ msgstr ""
 "visa kanaler med angivna alias, eller alla kanaler om inga argument angavs"
 
 #: smart/commands/channel.py:119
-#, fuzzy
 msgid "show given channels in YAML format"
-msgstr "Ange kanalinformation"
+msgstr "Ange kanalinformation i YAML-format"
 
 #: smart/commands/channel.py:121
 msgid "edit channels in editor set by $EDITOR"
@@ -1459,9 +1457,8 @@ msgid "show given options"
 msgstr "visa angivna flaggor"
 
 #: smart/commands/config.py:56
-#, fuzzy
 msgid "show given options in YAML format"
-msgstr "visa angivna flaggor"
+msgstr "visa angivna flaggor i YAML-format"
 
 #: smart/commands/config.py:58
 msgid "remove given options"
@@ -1677,7 +1674,6 @@ msgid "smart flag [options]"
 msgstr "smart flag [flaggor]"
 
 #: smart/commands/flag.py:29
-#, fuzzy
 msgid ""
 "\n"
 "This command allows one to set, remove, and show package flags.\n"
@@ -1713,6 +1709,9 @@ msgstr ""
 "                  för närvarande finns tillgängliga.\n"
 "  new           - Flaggade paket ansågs som nya paket i\n"
 "                  förrådet när senaste uppdateringen gjordes.\n"
+"                  Den här flaggan ändras automatiskt av systemet.\n"
+"  auto          - Flaggade paket installerades automatiskt\n"
+"                  för att uppfylla beroended.\n"
 "                  Den här flaggan ändras automatiskt av systemet.\n"
 "  multi-version - Flaggade paket kan ha fler än en version\n"
 "                  installerade i systemet samtidigt\n"
@@ -1766,7 +1765,7 @@ msgstr ""
 
 #: smart/commands/flag.py:83
 msgid "show given flags in YAML format"
-msgstr ""
+msgstr "visa angivna flaggor i YAML-format"
 
 #: smart/commands/flag.py:107
 #, python-format
@@ -2038,9 +2037,8 @@ msgid "show current mirrors"
 msgstr "visa aktuella speglar"
 
 #: smart/commands/mirror.py:91
-#, fuzzy
 msgid "show current mirrors in YAML format"
-msgstr "visa aktuella speglar"
+msgstr "visa aktuella speglar i YAML-format"
 
 #: smart/commands/mirror.py:93
 msgid ""
@@ -2250,9 +2248,8 @@ msgid "show priorities"
 msgstr "visa prioriteter"
 
 #: smart/commands/priority.py:65
-#, fuzzy
 msgid "show priorities in YAML format"
-msgstr "visa prioriteter"
+msgstr "visa prioriteter i YAML-format"
 
 #: smart/commands/priority.py:89
 msgid "Invalid priority"
@@ -2282,7 +2279,6 @@ msgstr ""
 "olika sätt. Se även kommandot \"search\".\n"
 
 #: smart/commands/query.py:40
-#, fuzzy
 msgid ""
 "\n"
 "smart query pkgname\n"
@@ -2303,6 +2299,7 @@ msgstr ""
 "smart query --requires libpkg.so --show-providedby\n"
 "smart query --installed\n"
 "smart query --summary ldap\n"
+"smart query --show-format='Name: $name\tVersion: $version\n"
 
 #: smart/commands/query.py:59
 msgid "consider only installed packages"
@@ -2434,7 +2431,7 @@ msgstr "aktivera alla --show-*-flaggor"
 
 #: smart/commands/query.py:128
 msgid "show using string template"
-msgstr ""
+msgstr "visa med användning av strängmall"
 
 #: smart/commands/query.py:130
 msgid "change output format"
@@ -2556,7 +2553,7 @@ msgstr ""
 
 #: smart/commands/remove.py:62
 msgid "use the auto-install information to remove stuff."
-msgstr ""
+msgstr "använd auto-install informationen för att ta bort saker."
 
 #: smart/commands/search.py:25
 msgid ""
@@ -2692,7 +2689,6 @@ msgid "smart upgrade [options] [package] ..."
 msgstr "smart upgrade [flaggor] [paket] ..."
 
 #: smart/commands/upgrade.py:34
-#, fuzzy
 msgid ""
 "\n"
 "This command will upgrade one or more packages which\n"
@@ -2707,6 +2703,10 @@ msgstr ""
 "Det här kommandot kommer att uppgradera ett eller flera\n"
 "paket som för närvarande är installerade på systemet. Om inga\n"
 "paket anges, kommer alla installerade paket att kontrolleras.\n"
+"\n"
+"Om paketnamnet föregås av ett '+', kommer det att installeras\n"
+"även om det inte var tidigare installerat på systemet.\n"
+"Om paketnamnet föregås av ett '-', kommer det att tas bort.\n"
 
 #: smart/commands/upgrade.py:44
 msgid ""
@@ -3399,12 +3399,12 @@ msgstr "_Hjälp"
 #: smart/interfaces/gtk/interactive.py:170
 #: smart/interfaces/qt/interactive.py:175
 msgid "_Icon Legend"
-msgstr ""
+msgstr "_Ikonförklaring"
 
 #: smart/interfaces/gtk/interactive.py:171
 #: smart/interfaces/qt/interactive.py:176
 msgid "Show icon legend"
-msgstr ""
+msgstr "Visa ikonförklaring"
 
 #: smart/interfaces/gtk/interactive.py:172
 #: smart/interfaces/qt/interactive.py:177
@@ -3443,9 +3443,8 @@ msgstr "Dölj olåsta"
 
 #: smart/interfaces/gtk/interactive.py:231
 #: smart/interfaces/qt/interactive.py:317
-#, fuzzy
 msgid "Hide Requested"
-msgstr "Dölj installerade"
+msgstr "Dölj begärda"
 
 #: smart/interfaces/gtk/interactive.py:232
 #: smart/interfaces/qt/interactive.py:318
@@ -3549,64 +3548,59 @@ msgstr "Lägg till en eller flera av följande flyttbara kanaler:\n"
 
 #: smart/interfaces/gtk/legend.py:33 smart/interfaces/qt/legend.py:32
 msgid "Icon Legend"
-msgstr ""
+msgstr "Ikonförklaring"
 
 #: smart/interfaces/gtk/legend.py:50 smart/interfaces/qt/legend.py:42
 msgid ""
 "The following icons are used to indicate\n"
 "the current status of a package:"
 msgstr ""
+"Följande ikoner används för att indikera\n"
+"den nuvarande statusen hos ett paket:"
 
 #: smart/interfaces/gtk/legend.py:64 smart/interfaces/qt/legend.py:51
-#, fuzzy
 msgid "Marked for installation"
-msgstr "Rensade installationen av %s"
+msgstr "Markerat för installation"
 
 #: smart/interfaces/gtk/legend.py:65 smart/interfaces/qt/legend.py:52
-#, fuzzy
 msgid "Marked for re-installation"
-msgstr "\"%s\" finns inte tillgängligt för ominstallation"
+msgstr "Markerat för ominstallation"
 
 #: smart/interfaces/gtk/legend.py:66 smart/interfaces/qt/legend.py:53
 msgid "Marked for upgrade"
-msgstr ""
+msgstr "Markerat för uppgradering"
 
 #: smart/interfaces/gtk/legend.py:67 smart/interfaces/qt/legend.py:54
 msgid "Marked for downgrade"
-msgstr ""
+msgstr "Markerat för nedgradering"
 
 #: smart/interfaces/gtk/legend.py:68 smart/interfaces/qt/legend.py:55
 msgid "Marked for removal"
-msgstr ""
+msgstr "Markerat för borttagning"
 
 #: smart/interfaces/gtk/legend.py:69 smart/interfaces/qt/legend.py:56
-#, fuzzy
 msgid "Not installed"
-msgstr "(ej installerat)"
+msgstr "Ej installerat"
 
 #: smart/interfaces/gtk/legend.py:70 smart/interfaces/qt/legend.py:57
-#, fuzzy
 msgid "Not installed (new)"
-msgstr "(ej installerat)"
+msgstr "Ej installerat (nytt)"
 
 #: smart/interfaces/gtk/legend.py:71 smart/interfaces/qt/legend.py:58
-#, fuzzy
 msgid "Not installed (locked)"
-msgstr "(ej installerat)"
+msgstr "Ej installerat (låst)"
 
 #: smart/interfaces/gtk/legend.py:73 smart/interfaces/qt/legend.py:60
-#, fuzzy
 msgid "Installed (upgradable)"
-msgstr "Installera (%d)"
+msgstr "Installerat (uppgraderingsbart)"
 
 #: smart/interfaces/gtk/legend.py:74 smart/interfaces/qt/legend.py:61
-#, fuzzy
 msgid "Installed (locked)"
-msgstr "Installera (%d)"
+msgstr "Installerat (låst)"
 
 #: smart/interfaces/gtk/legend.py:75 smart/interfaces/qt/legend.py:62
 msgid "Broken"
-msgstr ""
+msgstr "Trasigt"
 
 #: smart/interfaces/gtk/log.py:77 smart/interfaces/qt/log.py:54
 msgid "Log"
@@ -4460,9 +4454,9 @@ msgstr ""
 "%s"
 
 #: smart/transaction.py:888 smart/transaction.py:897
-#, fuzzy, python-format
+#, python-format
 msgid "Can't remove %s: requiring package %s is locked"
-msgstr "Kan inte ta bort %s: %s är låst"
+msgstr "Kan inte ta bort %s: beroende paketet %s är låst"
 
 #: smart/transaction.py:912 smart/transaction.py:917
 #, python-format
