@@ -28,6 +28,7 @@ from smart.interfaces.qt4.flags import QtFlags
 from smart.interfaces.qt4.priorities import QtPriorities, QtSinglePriority
 from smart.interfaces.qt4.packageview import QtPackageView
 from smart.interfaces.qt4.packageinfo import QtPackageInfo
+from smart.interfaces.qt4.legend import QtLegend
 from smart.interfaces.qt4.interface import QtInterface, app
 from smart.interfaces.qt4 import getPixmap, centerWindow
 from smart.const import NEVER, VERSION
@@ -74,6 +75,8 @@ MENUBAR = [
         "hide-installed",
         "hide-uninstalled",
         "hide-unmarked",
+        "hide-unlocked",
+        "hide-requested",
         "hide-old",
         None,
         "expand-all",
@@ -90,6 +93,7 @@ MENUBAR = [
         "log-window"
     ] ),
    ( "help", [
+        "legend-window",
         "about",
     ] )
 ]
@@ -169,6 +173,8 @@ ACTIONS = [
      _("Show log window"), "self._log.show()"),
 
     ("help", None, _("_Help")),
+    ("legend-window", None, _("_Icon Legend"), None,
+     _("Show icon legend"), "self._legend.show()"),
     ("about", None, _("_About"), None,
      _("Show about window"), "self.showAbout()"),
 ]
@@ -237,6 +243,9 @@ def compileActions(group, actions, globals):
         if action[0] == "log-window": #HACK
             self = globals["self"]
             QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.showLog)
+        if action[0] == "legend-window": #HACK
+            self = globals["self"]
+            QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.showLegend)
         if action[0] == "about": #HACK
             self = globals["self"]
             QtCore.QObject.connect(act, QtCore.SIGNAL("activated()"), self.showAbout)
@@ -291,6 +300,8 @@ class QtInteractiveInterface(QtInterface):
                             ("hide-installed", _("Hide Installed")),
                             ("hide-uninstalled", _("Hide Uninstalled")),
                             ("hide-unmarked", _("Hide Unmarked")),
+                            ("hide-unlocked", _("Hide Unlocked")),
+                            ("hide-requested", _("Hide Requested")),
                             ("hide-old", _("Hide Old"))]:
             act = ToggleAction(None, name, label)
             act.connect("activated()", self.toggleFilter, name)
@@ -412,6 +423,8 @@ class QtInteractiveInterface(QtInterface):
         self._status = self._window.statusBar()
         self._status.show()
 
+        self._legend = QtLegend(self._window)
+
     def showStatus(self, msg):
         self._status.showMessage(msg)
 
@@ -502,6 +515,9 @@ class QtInteractiveInterface(QtInterface):
 
     def showLog(self):
         return self._log.show()
+
+    def showLegend(self):
+        return self._legend.show()
 
     def expandPackages(self):
         self._pv.expandAll()
@@ -892,6 +908,10 @@ class QtInteractiveInterface(QtInterface):
                 packages = [x for x in packages if x in changeset]
             if "hide-installed" in filters:
                 packages = [x for x in packages if not x.installed]
+            if "hide-unlocked" in filters:
+                packages = pkgconf.filterByFlag("lock", packages)
+            if "hide-requested" in filters:
+                packages = pkgconf.filterByFlag("auto", packages)
             if "hide-old" in filters:
                 packages = pkgconf.filterByFlag("new", packages)
 
