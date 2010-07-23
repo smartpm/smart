@@ -209,8 +209,8 @@ class AptDebChannelTest(MockerTestCase):
                                  "fingerprint": FINGERPRINT,
                                  "keyring": "%s/aptdeb/trusted.gpg" %
                                             TESTDATADIR,
-                                 #"trustdb": "%s/aptdeb/trustdb.gpg" %
-                                 #           TESTDATADIR,
+                                 "trustdb": "%s/aptdeb/trustdb.gpg" %
+                                            TESTDATADIR,
                                  "components": "component"})
         try:
              self.check_channel(channel)
