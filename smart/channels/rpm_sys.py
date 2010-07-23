@@ -33,7 +33,8 @@ class RPMSysChannel(PackageChannel):
     def fetch(self, fetcher, progress):
         getTS() # Make sure the db exists.
         path = os.path.join(sysconf.get("rpm-root", "/"),
-                            "var/lib/rpm/Packages")
+                            sysconf.get("rpm-dbpath", "var/lib/rpm"),
+                            "Packages")
         digest = os.path.getmtime(path)
         if digest == self._digest:
             return True

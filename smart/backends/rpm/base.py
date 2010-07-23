@@ -54,7 +54,8 @@ def getTS(new=False):
         getTS.ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
             getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
-        dbdir = os.path.join(getTS.root, "var/lib/rpm")
+        rpm_dbpath = sysconf.get("rpm-dbpath", "var/lib/rpm")
+        dbdir = os.path.join(getTS.root, rpm_dbpath)
         if not os.path.isdir(dbdir):
             try:
                 os.makedirs(dbdir)

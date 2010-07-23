@@ -32,13 +32,15 @@ class DebSysChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         path = os.path.join(sysconf.get("deb-root", "/"),
-                            "var/lib/dpkg/status")
+                            sysconf.get("deb-admindir", "var/lib/dpkg"),
+                            "status")
         digest = os.path.getmtime(path)
         if digest == self._digest:
             return True
         self.removeLoaders()
         filelistspath = os.path.join(sysconf.get("deb-root", "/"),
-                            "var/lib/dpkg/info")
+                            sysconf.get("deb-admindir", "var/lib/dpkg"),
+                            "info")
         changelogpath = os.path.join(sysconf.get("deb-root", "/"),
                             "usr/share/doc")
         loader = DebTagFileLoader(path, None, filelistspath, changelogpath)
