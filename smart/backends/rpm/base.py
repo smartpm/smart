@@ -51,6 +51,8 @@ def getTS(new=False):
     rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
     if not hasattr(getTS, "ts") or getTS.root != rpm_root:
         getTS.root = rpm_root
+        if sysconf.get("rpm-dbpath"):
+            rpm.addMacro('_dbpath', "/" + sysconf.get("rpm-dbpath"))
         getTS.ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
             getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
@@ -78,6 +80,8 @@ def getTS(new=False):
             except OSError:
                 pass
     if new:
+        if sysconf.get("rpm-dbpath"):
+            rpm.addMacro('_dbpath', "/" + sysconf.get("rpm-dbpath"))
         ts = rpm.ts(getTS.root)
         if not sysconf.get("rpm-check-signatures", False):
             ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
