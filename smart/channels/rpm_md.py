@@ -80,7 +80,7 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
         try:
             root = ElementTree.parse(metalinkfile).getroot()
-        except expat.error, e:
+        except (expat.error, SyntaxError), e: # ElementTree.ParseError
             iface.warning(_("Could not load meta link. Continuing with base URL only."))
             iface.debug(unicode(e))
             return
@@ -138,7 +138,7 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
         try:
             root = ElementTree.parse(metadatafile).getroot()
-        except expat.error, e:
+        except (expat.error, SyntaxError), e: # ElementTree.ParseError
             raise Error, _("Invalid XML file:\n  %s\n  %s") % \
                           (metadatafile, str(e))
 
