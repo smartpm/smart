@@ -72,12 +72,13 @@ class YumRpmChannelTest(MockerTestCase):
                                  "baseurl": "file://%s/yumrpm" % TESTDATADIR,
                                  "mirrorlist": "file://%s/yumrpm/mirrorlist-broken.txt" % TESTDATADIR})
         try:
-             self.check_channel(channel)
-        except AttributeError, error:
-             # AttributeError: 'exceptions.IOError' object has no attribute 'split'
-             self.fail(error)
-        except IOError:
-             pass
+            try:
+                self.check_channel(channel)
+            except AttributeError, error:
+                # AttributeError: 'exceptions.IOError' object has no attribute 'split'
+                self.fail(error)
+            except IOError:
+                pass
         finally:
              __builtin__.open = old_open
 
