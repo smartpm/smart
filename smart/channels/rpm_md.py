@@ -250,22 +250,25 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             raise Error, _("Primary information not found in repository "
                            "metadata for '%s'") % self
 
+        primary = info["primary"]
+        filelists = info["filelists"]
+
         fetcher.reset()
-        item = fetcher.enqueue(info["primary"]["url"],
-                               md5=info["primary"].get("md5"),
-                               uncomp_md5=info["primary"].get("uncomp_md5"),
-                               sha=info["primary"].get("sha"),
-                               uncomp_sha=info["primary"].get("uncomp_sha"),
-                               sha256=info["primary"].get("sha256"),
-                               uncomp_sha256=info["primary"].get("uncomp_sha256"),
+        item = fetcher.enqueue(primary["url"],
+                               md5=primary.get("md5"),
+                               uncomp_md5=primary.get("uncomp_md5"),
+                               sha=primary.get("sha"),
+                               uncomp_sha=primary.get("uncomp_sha"),
+                               sha256=primary.get("sha256"),
+                               uncomp_sha256=primary.get("uncomp_sha256"),
                                uncomp=True)
-        flitem = fetcher.enqueue(info["filelists"]["url"],
-                                 md5=info["filelists"].get("md5"),
-                                 uncomp_md5=info["filelists"].get("uncomp_md5"),
-                                 sha=info["filelists"].get("sha"),
-                                 uncomp_sha=info["filelists"].get("uncomp_sha"),
-                                 sha256=info["filelists"].get("sha256"),
-                                 uncomp_sha256=info["filelists"].get("uncomp_sha256"),
+        flitem = fetcher.enqueue(filelists["url"],
+                                 md5=filelists.get("md5"),
+                                 uncomp_md5=filelists.get("uncomp_md5"),
+                                 sha=filelists.get("sha"),
+                                 uncomp_sha=filelists.get("uncomp_sha"),
+                                 sha256=filelists.get("sha256"),
+                                 uncomp_sha256=filelists.get("uncomp_sha256"),
                                  uncomp=True)
         fetcher.run(progress=progress)
  
