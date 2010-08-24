@@ -383,23 +383,24 @@ class Fetcher(object):
                 if lfilemd5 != filemd5:
                     raise Error, _("Invalid MD5 (expected %s, got %s)") % \
                                  (filemd5, lfilemd5)
-            else:
-                filesha256 = item.getInfo(uncompprefix+"sha256")
-                if filesha256:
-                    try:
-                        from hashlib import sha256
-                    except ImportError:
-                        from smart.util.sha256 import sha256
-                    digest = sha256()
-                    file = open(localpath)
+
+            filesha256 = item.getInfo(uncompprefix+"sha256")
+            if filesha256:
+                try:
+                    from hashlib import sha256
+                except ImportError:
+                    from smart.util.sha256 import sha256
+                digest = sha256()
+                file = open(localpath)
+                data = file.read(BLOCKSIZE)
+                while data:
+                    digest.update(data)
                     data = file.read(BLOCKSIZE)
-                    while data:
-                        digest.update(data)
-                        data = file.read(BLOCKSIZE)
-                    lfilesha256 = digest.hexdigest()
-                    if lfilesha256 != filesha256:
-                       raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
-                                     (filesha256, lfilesha256)
+                lfilesha256 = digest.hexdigest()
+                if lfilesha256 != filesha256:
+                   raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
+                                 (filesha256, lfilesha256)
+            else:
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
                     try:
