@@ -192,7 +192,10 @@ class APTDEBChannel(PackageChannel):
         url = self._getURL("Packages", component)
         subpath = self._getURL("Packages", component, subpath=True)
         if checksum is not None:
-            if subpath+".bz2" in checksum:
+            if subpath+".lzma" in checksum:
+                compressed_subpath = subpath+".lzma"
+                url += ".lzma"
+            elif subpath+".bz2" in checksum:
                 compressed_subpath = subpath+".bz2"
                 url += ".bz2"
             elif subpath+".gz" in checksum:

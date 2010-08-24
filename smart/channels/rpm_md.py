@@ -246,12 +246,18 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
         info = self.loadMetadata(item.getTargetPath())
 
-        if "primary" not in info:
+        if "primary" not in info and "primary_lzma" not in info:
             raise Error, _("Primary information not found in repository "
                            "metadata for '%s'") % self
 
-        primary = info["primary"]
-        filelists = info["filelists"]
+        if "primary_lzma" in info:
+            primary = info["primary_lzma"]
+        else:
+            primary = info["primary"]
+        if "filelists_lzma" in info:
+            filelists = info["filelists_lzma"]
+        else:
+            filelists = info["filelists"]
 
         fetcher.reset()
         item = fetcher.enqueue(primary["url"],
@@ -302,7 +308,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
         uncompressor = fetcher.getUncompressor()
 
         # delete any old files, if the new ones have new names
-        for type in ["primary", "filelists", "other"]:
+        for type in ["primary", "filelists", "other", 
+                     "primary_lzma", "filelists_lzma", "other_lzma"]:
             if type in oldinfo:
                 url = oldinfo[type]["url"]
                 if url and info[type]["url"] != oldinfo[type]["url"]:
