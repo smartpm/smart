@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2004-2005 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
 #            Michael Scherer <misc@mandrake.org>
+#            Per Øyvind Karlsen <peroyvind@mandriva.org>
 #
 # Adapted from slack/loader.py and metadata.py by Michael Scherer.
+# Support for xml metadata format by Per Øyvind Karlsen.
 #
 # This file is part of Smart Package Manager.
 #
@@ -25,6 +28,14 @@
 from smart.backends.rpm.rpmver import splitarch
 from smart.cache import PackageInfo, Loader
 from smart.backends.rpm.base import *
+try:
+    from xml.etree import cElementTree        
+except ImportError:
+    try:
+        import cElementTree
+    except ImportError:     
+        from smart.util import cElementTree
+
 from smart import *
 import posixpath
 import os
@@ -54,12 +65,17 @@ class URPMISynthesisPackageInfo(PackageInfo):
     def getGroup(self):
         return self._info.get("group", "")
 
+    def getDescription(self):
+        return self._info.get("description")
+
+    def getReferenceURLs(self):
+        return [self._info.get("url", "")]
 
 class URPMISynthesisLoader(Loader):
 
     __stateversion__ = Loader.__stateversion__+3
 
-    def __init__(self, filename, baseurl, listfile):
+    def __init__(self, filename, baseurl, listfile, infofile=None):
         Loader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
@@ -70,6 +86,7 @@ class URPMISynthesisLoader(Loader):
                     entry = entry[2:]
                 dirname, basename = os.path.split(entry.rstrip())
                 self._prefix[basename] = dirname
+        self._infofile = infofile
 
     def getInfo(self, pkg):
         return URPMISynthesisPackageInfo(pkg, self, pkg.loaders[self])
@@ -129,6 +146,11 @@ class URPMISynthesisLoader(Loader):
 
         prog = iface.getProgress(self._cache)
 
+        if self._infofile:
+            infoxml = cElementTree.parse(self._infofile).getroot()
+        else:
+            infoxml = None
+
         for line in open(self._filename):
 
             element = line[1:-1].split("@")
@@ -151,6 +173,26 @@ class URPMISynthesisLoader(Loader):
 
             elif id == "info":
 
+                description = ""
+                url = ""            
+
+                if infoxml:
+                    infoelement = infoxml[0]
+
+                    # info.xml should have the same order as synthesis, but if
+                    # they're not in sync, we try find the matching package
+                    if infoelement.get("fn") != element[0]:
+                        for elem in infoxml:
+                            if elem.get("fn") == element[0]:
+                                infoelement = elem
+                                break
+                    # Let's check again to be really sure that we have the
+                    # correct package
+                    if infoelement.get("fn") == element[0]:
+                        description = infoelement.text.strip()
+                        url = infoelement.get("url")
+                        infoxml.remove(infoelement)
+
                 rpmnameparts = element[0].split("-")
 
                 version = "-".join(rpmnameparts[-2:])
@@ -172,7 +214,9 @@ class URPMISynthesisLoader(Loader):
 
                 info = {"summary": summary,
                         "size"   : element[2],
-                        "group"  : element[3]}
+                        "group"  : element[3],
+                        "description" : description,
+                        "url"    : url}
 
                 prvdict = {}
                 for n, r, v, f in provides:

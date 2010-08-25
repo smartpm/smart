@@ -42,13 +42,15 @@ class URPMIChannel(PackageChannel):
                 self._hdlurl = hdlurl
         else:
             self._hdlurl = posixpath.join(self._baseurl, "hdlist.cz")
+        hdldir = posixpath.dirname(self._hdlurl)
+        self._infourl = posixpath.join(hdldir, "info.xml.lzma")
         self._compareurl = self._hdlurl
 
     def getCacheCompareURLs(self):
         return [self._compareurl]
 
     def getFetchSteps(self):
-        return 3
+        return 4
 
     def fetch(self, fetcher, progress):
 
@@ -57,11 +59,13 @@ class URPMIChannel(PackageChannel):
         self._compareurl = self._hdlurl
 
         hdlbaseurl, basename = os.path.split(self._hdlurl)
+        infoname = os.path.split(self._infourl)[1]
 
         md5url = posixpath.join(hdlbaseurl, "MD5SUM")
         item = fetcher.enqueue(md5url)
         fetcher.run(progress=progress)
         hdlmd5 = None
+        infomd5 = None
         failed = item.getFailedReason()
         if not failed:
             self._compareurl = md5url
@@ -71,16 +75,23 @@ class URPMIChannel(PackageChannel):
                 return True
 
             basename = posixpath.basename(self._hdlurl)
+            infoname = posixpath.basename(self._infourl)
             for line in open(item.getTargetPath()):
                 line = line.strip()
                 if line:
                     md5, name = line.split()
                     if name == basename:
                         hdlmd5 = md5
-                        break
+                    if name == infoname:
+                        infomd5 = md5
 
         fetcher.reset()
         hdlitem = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
+        if infomd5:
+            infoitem = fetcher.enqueue(self._infourl, md5=infomd5, uncomp=True)
+        else:
+            progress.add(1) 
+            infoitem = None
 
         if self._hdlurl.endswith("/list"):
             listitem = None
@@ -123,11 +134,13 @@ class URPMIChannel(PackageChannel):
                             sysconf.set(("channels", self.getAlias(), \
                                         "baseurl"), reconfpath)
                             self._hdlurl = os.path.join(reconfpath, basename)
+                            self._infourl = os.path.join(reconfpath, infoname)
                     return self.fetch(fetcher, progress)
             return False
         else:
             localpath = hdlitem.getTargetPath()
             digestpath = None
+            infopath = None
             if listitem and listitem.getStatus() == SUCCEEDED:
                 if self._compareurl == self._hdlurl:
                     self._compareurl = listurl
@@ -170,11 +183,17 @@ class URPMIChannel(PackageChannel):
                             raise
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
+            if infoitem and infoitem.getStatus() == SUCCEEDED:
+                infopath = infoitem.getTargetPath()
+            elif infoitem and infoitem.getStatus() == FAILED:
+                lines = [_("Failed acquiring information for '%s':") % self,
+                    u"%s: %s" % (infoitem.getURL(), infoitem.getFailedReason())]
+                raise Warning, "\n".join(lines)
 
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
                 loader = URPMILoader(localpath, self._baseurl, listpath)
             else:
-                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath)
+                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath, infopath)
                                 
             loader.setChannel(self)
             self._loaders.append(loader)
