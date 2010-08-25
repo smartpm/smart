@@ -71,6 +71,15 @@ class URPMISynthesisPackageInfo(PackageInfo):
     def getReferenceURLs(self):
         return [self._info.get("url", "")]
 
+    def getSource(self):
+        sourcerpm = self._info.get("sourcerpm", "")
+        sourcerpm = sourcerpm.replace(".src", "")
+        sourcerpm = sourcerpm.replace(".nosrc", "")
+        return sourcerpm.replace(".rpm", "")
+    
+    def getLicense(self):
+        return self._info.get("license", "")
+
 class URPMISynthesisLoader(Loader):
 
     __stateversion__ = Loader.__stateversion__+3
@@ -174,7 +183,9 @@ class URPMISynthesisLoader(Loader):
             elif id == "info":
 
                 description = ""
+                sourcerpm = ""
                 url = ""            
+                license = ""
 
                 if infoxml:
                     infoelement = infoxml[0]
@@ -190,7 +201,9 @@ class URPMISynthesisLoader(Loader):
                     # correct package
                     if infoelement.get("fn") == element[0]:
                         description = infoelement.text.strip()
+                        sourcerpm = infoelement.get("sourcerpm")
                         url = infoelement.get("url")
+                        license = infoelement.get("license")
                         infoxml.remove(infoelement)
 
                 rpmnameparts = element[0].split("-")
@@ -216,7 +229,9 @@ class URPMISynthesisLoader(Loader):
                         "size"   : element[2],
                         "group"  : element[3],
                         "description" : description,
-                        "url"    : url}
+                        "sourcerpm" : sourcerpm,
+                        "url"    : url,
+                        "license": license}
 
                 prvdict = {}
                 for n, r, v, f in provides:
