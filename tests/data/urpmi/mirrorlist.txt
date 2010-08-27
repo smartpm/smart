@@ -1,0 +1,6 @@
+continent=EU,zone=NO,country=Norway,city=Oslo,latitude=59.65,longitude=9.65,bw=1GB,version=2010.1,arch=x86_64,type=distrib,url=http://ftp.uio.no/linux/MandrivaLinux/official/2010.1/x86_64
+continent=EU,zone=NO,country=Norway,city=Oslo,latitude=59.65,longitude=9.65,bw=1GB,version=2010.1,arch=x86_64,type=iso,url=http://ftp.uio.no/linux/MandrivaLinux/official/iso/2010.1
+continent=EU,zone=NO,country=Norway,city=Oslo,latitude=59.65,longitude=9.65,bw=1GB,version=2010.1,arch=x86_64,type=distrib,url=rsync://ftp.uio.no/Mandrivalinux/official/2010.1/x86_64
+continent=EU,zone=SE,country=Sweden,city=Uppsala,latitude=59.85,longitude=17.63,bw=2GB,version=2010.1,arch=x86_64,type=distrib,url=http://ftp.sunet.se/pub/Linux/distributions/mandrakelinux/official/2010.1/x86_64
+continent=EU,zone=SE,country=Sweden,city=Uppsala,latitude=59.85,longitude=17.63,bw=2GB,version=2010.1,arch=x86_64,type=updates,url=http://ftp.sunet.se/pub/Linux/distributions/mandrakelinux/official/2010.1/x86_64
+continent=EU,zone=SE,country=Sweden,city=Uppsala,latitude=59.85,longitude=17.63,bw=2GB,version=2010.1,arch=x86_64,type=iso,url=http://ftp.sunet.se/pub/Linux/distributions/mandrakelinux/official/iso/2010.1

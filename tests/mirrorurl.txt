@@ -1,0 +1,44 @@
+
+Create the channel.
+
+  >>> from tests import *
+  >>> from smart.channel import createChannel
+  >>> channel = createChannel("alias",
+  ...                         {"type": "urpmi",
+  ...                          "baseurl": "file://%s/urpmi" % TESTDATADIR,
+  ...                          "mirrorurl": "file://%s/urpmi/mirrorlist.txt" % TESTDATADIR})
+  >>> channel
+  <smart.channels.urpmi.URPMIChannel object at ...>
+
+  >>> import pickle
+  >>> old_sysconf = pickle.dumps(sysconf.object)
+  >>> sysconf.set("clock", "%s/urpmi/clock" % TESTDATADIR)
+  >>> sysconf.set("zone-tab", "%s/urpmi/zone.tab" % TESTDATADIR)
+
+We need a progress and a fetcher.
+
+  >>> from smart.progress import Progress
+  >>> from smart.fetcher import Fetcher
+  >>> progress = Progress()
+  >>> fetcher = Fetcher()
+
+
+Fetch channel data.
+
+  >>> # Force cache to NEVER so we fetch reconfig.urpmi
+  >>> from smart.const import NEVER
+  >>> fetcher.setCaching(NEVER)
+  >>> channel.fetch(fetcher, progress)
+  True
+  >>> channel.getLoaders()
+  [<smart.backends.rpm.synthesis.URPMISynthesisLoader object at ...>]
+
+
+Now let's test for the mirror information.
+
+  >>> channel.getMirrors()
+  {...: ['http://ftp.sunet.se/pub/Linux/distributions/mandrakelinux/official/2010.1/x86_64', 'http://ftp.uio.no/linux/MandrivaLinux/official/2010.1/x86_64']}
+
+  >>> sysconf.object = pickle.loads(old_sysconf)
+
+vim:ft=doctest
