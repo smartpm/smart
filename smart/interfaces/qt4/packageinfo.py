@@ -119,6 +119,24 @@ class QtPackageInfo(QtGui.QTabWidget):
         self._cont.adjustSize()
         self._tabwidget.addTab(sv, _("Content"))
 
+        sv = BackgroundScrollView(self._tabwidget)
+        sv.setWidgetResizable(True)
+        sv.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        #sv.setMargin(5)
+        sv.show()
+
+        self._change = QtGui.QLabel(sv.viewport())
+        self._change.setAlignment(QtCore.Qt.AlignTop)
+        self._change.setAutoFillBackground(True)
+        self._change.setBackgroundRole(QtGui.QPalette.Base)
+        self._change.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        self._change.show()
+        #sv.addChild(self._change)
+        sv.setWidget(self._change)
+
+        self._change.adjustSize()
+        self._tabwidget.addTab(sv, _("Changelog"))
+
         self._relations = QtPackageView(self._tabwidget)
         self._relations.getTreeView().header().hide()
         self._relations.show()
@@ -265,6 +283,31 @@ class QtPackageInfo(QtGui.QTabWidget):
             self._cont.adjustSize()
 
         elif num == 3:
+            # Update changelog
+
+            self._change.setText("")
+            if not pkg: return
+
+            text = ""
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    break
+            else:
+                loader = pkg.loaders.keys()[0]
+            info = loader.getInfo(pkg)
+            changelog = info.getChangeLog()
+
+            for i in range(len(changelog)/2):
+                text += "<b>"+unicode(QtCore.Qt.escape(changelog[2*i]))+"</b><br>"
+                changesplit = changelog[2*i+1].split("\n")
+                text += unicode(QtCore.Qt.escape(changesplit[0]))+"<br>"
+                for i in range(1, len(changesplit)):
+                   text += "  " + unicode(QtCore.Qt.escape(changesplit[i]))+"<br>"
+
+            self._change.setText(text)
+            self._change.adjustSize()
+
+        elif num == 4:
 
             # Update relations
 
@@ -274,7 +317,7 @@ class QtPackageInfo(QtGui.QTabWidget):
 
             self._setRelations(pkg)
 
-        elif num == 4:
+        elif num == 5:
 
             # Update URLs
 
