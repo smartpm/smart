@@ -41,6 +41,8 @@ import posixpath
 import os
 import re
 
+from xml.parsers import expat
+
 DEPENDSRE = re.compile("^([^[]*)(\[\*\])?(\[.*\])?")
 OPERATIONRE = re.compile("\[([<>=]*) *(.+)?\]")
 EPOCHRE = re.compile("[0-9]+:")
@@ -156,7 +158,11 @@ class URPMISynthesisLoader(Loader):
         prog = iface.getProgress(self._cache)
 
         if self._infofile:
-            infoxml = cElementTree.parse(self._infofile).getroot()
+            try:
+                infoxml = cElementTree.parse(self._infofile).getroot()
+            except (expat.error, SyntaxError), e: # ElementTree.ParseError
+                raise Error, _("Invalid XML file:\n  %s\n  %s") % \
+                              (self._infofile, str(e))
         else:
             infoxml = None
 
