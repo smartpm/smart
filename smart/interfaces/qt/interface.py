@@ -57,6 +57,12 @@ class QtInterface(Interface):
         self.setCatchExceptions(False)
         return result
 
+    def eventsPending(self):
+        return qt.QApplication.eventLoop().hasPendingEvents()
+
+    def processEvents(self):
+        qt.QApplication.eventLoop().processEvents(qt.QEventLoop.AllEvents)
+
     def getProgress(self, obj, hassub=False):
         if hassub:
             self._progress.hide()
