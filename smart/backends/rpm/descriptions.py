@@ -29,40 +29,52 @@ class RPMDescriptions:
     def __init__(self, filename):
         self._filename = filename
         self._flagdict = {}
+        self._details = {}
 
     def load(self):
         try:
             flagdict = {}
             packages = []
             in_pre = in_description = False
-            update = importance = None
-            pre = description = ""
+            info = {}
             for line in open(self._filename):
                 if line.startswith("%package "):
                     if packages:
-                        # TODO save pre/description for packages
-                        pass
+                        for pkg in packages:
+                            self._details[pkg] = info
                     packages = line[(9):].rstrip("\n").split(" ")
                     in_pre = in_description = False
-                    update = importance = None
-                    pre = description = ""
-                if line.startswith("Update: "):
-                    update = line[8:].rstrip("\n")
-                if line.startswith("Importance: "):
-                    importance = line[12:].rstrip("\n")
-                    for pkg in packages:
-                        #iface.debug("%s: %s" % (pkg, importance))
-                        flagdict[pkg] = importance
+                    info = {}
+                elif not (in_pre or in_description):
+                    if line.startswith("Update: "):
+                        info["update"] = line[8:].rstrip("\n")
+                    if line.startswith("Importance: "):
+                        info["importance"] = line[12:].rstrip("\n")
+                        for pkg in packages:
+                            flagdict[pkg] = info["importance"]
+                    if line.startswith("ID: "):
+                        info["id"] = line[4:].rstrip("\n")
+                    if line.startswith("URL: "):
+                        info["url"] = line[5:].rstrip("\n")
                 if in_description:
-                    description = description + line
+                    if "description" in info:
+                        info["description"] += line
+                    else:
+                        info["description"] = line
                 if line.startswith("%description"):
                     in_description = True
                     in_pre = False
                 if in_pre:
-                    pre = pre + line
+                    if "pre" in info:
+                        info["pre"] += line
+                    else:
+                        info["pre"] = line
                 if line.startswith("%pre"):
                     in_pre = True
                     in_description = False
+            if packages:
+                for pkg in packages:
+                    self._details[pkg] = info
             self._flagdict = flagdict
         except (IOError):
             pass
@@ -77,6 +89,12 @@ class RPMDescriptions:
 
         for pkg, type in self._flagdict.iteritems():
             pkgconf.setFlag(type, pkg)
+
+    def getType(self, package):
+        return self._flagdict.get(package.name, None)
+
+    def getInfo(self, package):
+        return self._details.get(package.name, None)
 
 
 # vim:ts=4:sw=4:et

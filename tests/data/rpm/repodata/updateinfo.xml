@@ -5,7 +5,9 @@
     <title>update fixes bugs</title>
     <release>Smart</release>
     <issued date="2007-06-20 01:02:03"/>
-    <references/>
+    <references>
+      <reference href="http://www.example.com/test" type="bugzilla"/>
+    </references>
     <description></description>
     <pkglist>
       <collection short="smart">

@@ -178,8 +178,10 @@ class URPMIChannel(PackageChannel):
             flagdict = {}
             if descitem and descitem.getStatus() == SUCCEEDED:
                 descpath = descitem.getTargetPath()
-                descriptions = RPMDescriptions(descpath)
-                flagdict = descriptions.getDescriptionFlags()
+                errata = RPMDescriptions(descpath)
+                errata.load()
+                #errata.setErrataFlags() <-- done in loader
+                flagdict = errata.getErrataFlags()
             
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
                 loader = URPMILoader(localpath, self._baseurl, listpath, flagdict)

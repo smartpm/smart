@@ -46,13 +46,12 @@ NS_UPDATEINFO = "http://novell.com/package/metadata/suse/updateinfo"
 def nstag(ns, tag):
     return tag
 
-BYTESPERPKG = 3000
-
 class RPMUpdateInfo:
 
     def __init__(self, filename):
         self._filename = filename
         self._flagdict = {}
+        self._details = {}
 
     def load(self):
         UPDATES     = nstag(NS_UPDATEINFO, "updates")
@@ -61,6 +60,7 @@ class RPMUpdateInfo:
         TITLE       = nstag(NS_UPDATEINFO, "title")
         RELEASE     = nstag(NS_UPDATEINFO, "release")
         ISSUED      = nstag(NS_UPDATEINFO, "issued")
+        REBOOT      = nstag(NS_UPDATEINFO, "reboot_suggested")
         REFERENCES  = nstag(NS_UPDATEINFO, "references")
         REFERENCE   = nstag(NS_UPDATEINFO, "reference")
         DESCRIPTION = nstag(NS_UPDATEINFO, "description")
@@ -78,6 +78,7 @@ class RPMUpdateInfo:
         # Prepare data useful for the iteration
         skip = None
         packagelist = False
+        references = True
         queue = []
 
         file = open(self._filename)
@@ -87,16 +88,20 @@ class RPMUpdateInfo:
 
             if event == "start":
 
-                if tag == PKGLIST:
-                    packagelist = True
-
-                elif tag == UPDATE:
+                if tag == UPDATE:
 
                     # security
                     # bugfix
                     # enhancement
                     # recommended
                     type = elem.get("type")
+                    info["type"] = type
+
+                elif tag == REFERENCES:
+                    references = True
+
+                elif tag == PKGLIST:
+                    packagelist = True
 
                 queue.append(elem)
 
@@ -110,6 +115,7 @@ class RPMUpdateInfo:
 
                 elif tag == ID:
                     id = elem.text
+                    info["id"] = id
 
                 elif tag == TITLE:
                     info["title"] = elem.text
@@ -117,9 +123,24 @@ class RPMUpdateInfo:
                 elif tag == ISSUED:
                     info["issued_date"] = elem.get("date")
 
+                elif tag == REBOOT:
+                    info["reboot_suggested"] = bool(elem.text)
+
                 elif tag == DESCRIPTION:
                     if elem.text:
                         info["description"] = elem.text
+
+                elif tag == REFERENCES:
+                    references = False
+
+                elif tag == REFERENCE:
+
+                    href = elem.get("href")
+
+                    if "references" in info:
+                        info["references"].append(href)
+                    else:
+                        info["references"] = [href]
 
                 elif tag == PKGLIST:
                     packagelist = False
@@ -151,8 +172,8 @@ class RPMUpdateInfo:
                         pkg = "%s=%s" % (name, versionarch)
                         self._flagdict[pkg] = type
                     if info:
-                        # TODO save info for packages
-                        pass
+                        pkg = "%s=%s" % (name, versionarch)
+                        self._details[pkg] = info
 
                 elif tag == UPDATE:
 
@@ -178,6 +199,14 @@ class RPMUpdateInfo:
         for pkg, type in self._flagdict.iteritems():
             (name, version) = pkg.split("=")
             pkgconf.setFlag(type, name, "=", version)
+
+    def getType(self, package):
+        pkg = "%s=%s" % (package.name, package.version)
+        return self._flagdict.get(pkg, None)
+
+    def getInfo(self, package):
+        pkg = "%s=%s" % (package.name, package.version)
+        return self._details.get(pkg, None)
 
 
 # vim:ts=4:sw=4:et

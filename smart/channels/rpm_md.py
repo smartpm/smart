@@ -135,8 +135,9 @@ class RPMMetaDataChannel(PackageChannel):
             if "updateinfo" in info:
                 if uiitem.getStatus() == SUCCEEDED:
                     localpath = uiitem.getTargetPath()
-                    updateinfo = RPMUpdateInfo(localpath)
-                    updateinfo.load()
+                    errata = RPMUpdateInfo(localpath)
+                    errata.load()
+                    errata.setErrataFlags()
                 else:
                     iface.warning(_("Failed to download. You must fetch channel "
                         "information to acquire needed update information.\n"
