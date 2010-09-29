@@ -95,6 +95,8 @@ class RPMUpdateInfo:
                     # enhancement
                     # recommended
                     type = elem.get("type")
+                    if type == 'newpackage':
+                        skip = UPDATE
                     info["type"] = type
 
                 elif tag == REFERENCES:
