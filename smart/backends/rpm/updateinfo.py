@@ -161,7 +161,7 @@ class RPMUpdateInfo:
                         continue
 
                     version = v
-                    if e and e != "0":
+                    if e and e != "None" and e != "0":
                         version = "%s:%s" % (e, version)
                     if r:
                         version = "%s-%s" % (version, r)
