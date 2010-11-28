@@ -226,12 +226,15 @@ between media changes</para></listitem>
 <para>Smart supports the following package manager file formats:</para>
 <sect2 id="smart-packages-rpm"><title>RPM</title>
 <para>RPM packages are used by e.g. Fedora and Red Hat (Enterprise) Linux.</para>
+<para>Example: <filename>name-version-release.noarch.rpm</filename></para>
 </sect2>
 <sect2 id="smart-packages-deb"><title>DEB</title>
 <para>DEB packages (DPKG) are used by e.g. Ubuntu and Debian GNU/Linux.</para>
+<para>Example: <filename>name_version-release_all.deb</filename></para>
 </sect2>
 <sect2 id="smart-packages-slack"><title>Slack</title>
 <para>Slackware packages are used by e.g. Vector Linux and Slackware Linux.</para>
+<para>Example: <filename>name-version-noarch-release.tgz</filename></para>
 </sect2>
 </sect1>
 
