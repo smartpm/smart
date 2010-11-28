@@ -632,11 +632,13 @@ choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Priorities</guimenuitem><
 <itemizedlist>
 <listitem><para><xref linkend="smart-text-search"/></para></listitem>
 <listitem><para><xref linkend="smart-text-query"/></para></listitem>
+<listitem><para><xref linkend="smart-text-newer"/></para></listitem>
 <listitem><para><xref linkend="smart-text-info"/></para></listitem>
 <listitem><para><xref linkend="smart-text-stats"/></para></listitem>
 </itemizedlist></listitem>
 <listitem><para><xref linkend="smart-setup"/></para>
 <itemizedlist>
+<listitem><para><xref linkend="smart-text-config"/></para></listitem>
 <listitem><para><xref linkend="smart-text-channel"/></para></listitem>
 <listitem><para><xref linkend="smart-text-priority"/></para></listitem>
 <listitem><para><xref linkend="smart-text-mirror"/></para></listitem>
@@ -733,6 +735,9 @@ choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Priorities</guimenuitem><
 <sect3 id="smart-text-query" xreflabel="Query"><title>Query</title>
 <para></para>
 </sect3>
+<sect3 id="smart-text-newer" xreflabel="Newer"><title>Newer</title>
+<para></para>
+</sect3>
 <sect3 id="smart-text-info" xreflabel="Info"><title>Info</title>
 <para></para>
 </sect3>
@@ -743,6 +748,9 @@ choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Priorities</guimenuitem><
 
 <sect2 id="smart-setup" xreflabel="Setup Commands"><title>Setup Commands</title>
 
+<sect3 id="smart-text-config" xreflabel="Config"><title>Config</title>
+<para></para>
+</sect3>
 <sect3 id="smart-text-channel" xreflabel="Channel"><title>Channel</title>
 <para></para>
 </sect3>
