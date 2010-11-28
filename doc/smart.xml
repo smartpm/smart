@@ -801,70 +801,210 @@ when necessary to do so instead of for every command.</para>
 </itemizedlist>
 
 <sect3 id="smart-shell-check" xreflabel="Check"><title>Check</title>
-<para></para>
+<cmdsynopsis><command>check</command>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>pkgname</arg>
+</cmdsynopsis>
+<para>The check command verifies relations between packages,
+and accepts the same options available in the command
+line interface <xref linkend="smart-text-check"/>.</para>
 </sect3>
 <sect3 id="smart-shell-commit" xreflabel="Commit"><title>Commit</title>
-<para></para>
+<cmdsynopsis><command>commit</command>
+</cmdsynopsis>
+<para>The commit command applies marked changes in the system.</para>
 </sect3>
 <sect3 id="smart-shell-download" xreflabel="Download"><title>Download</title>
-<para></para>
+<cmdsynopsis><command>download</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The download command fetches the given packages
+to the local filesystem.</para>
 </sect3>
 <sect3 id="smart-shell-exit" xreflabel="Exit"><title>Exit</title>
-<para></para>
+<cmdsynopsis><command>exit</command>
+</cmdsynopsis>
+<para>The exit/quit/EOF command returns to the system.</para>
 </sect3>
 <sect3 id="smart-shell-fix" xreflabel="Fix"><title>Fix</title>
-<para></para>
+<cmdsynopsis><command>fix</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The fix command verifies relations of given packages
+and marks the necessary changes for fixing them.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about
+                  changes, when possible</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-shell-flag" xreflabel="Flag"><title>Flag</title>
-<para></para>
+<cmdsynopsis><command>flag</command>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+<para>The flag command allows configuring, removing and
+verifying package flags, and accepts the same options
+available in the command line interface
+<xref linkend="smart-text-flag"/>.</para>
 </sect3>
 <sect3 id="smart-shell-info" xreflabel="Info"><title>Info</title>
-<para></para>
+<cmdsynopsis><command>info</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The info command shows information about packages.</para>
 </sect3>
 <sect3 id="smart-shell-install" xreflabel="Install"><title>Install</title>
-<para></para>
+<cmdsynopsis><command>install</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The install command marks packages for installation.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about
+                  changes, when possible</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-shell-keep" xreflabel="Keep"><title>Keep</title>
-<para></para>
+<cmdsynopsis><command>keep</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The keep command unmarks currently marked packages.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about
+                  changes, when possible</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-shell-ls" xreflabel="Ls"><title>Ls</title>
-<para></para>
+<cmdsynopsis><command>ls</command>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>string</arg>
+</cmdsynopsis>
+<para>The ls command lists packages by name. Wildcards
+are accepted.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>-l</option> </term>
+  <listitem><para>List only installed packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-n</option> </term>
+  <listitem><para>List only new packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-v</option> </term>
+  <listitem><para>Show versions</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-s</option> </term>
+  <listitem><para>Show summaries</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-shell-query" xreflabel="Query"><title>Query</title>
-<para></para>
+<cmdsynopsis><command>query</command>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>pkgname</arg>
+</cmdsynopsis>
+<para>The query command allows querying package information,
+and accepts the same options available in the command
+line interface <xref linkend="smart-text-query"/>.</para>
 </sect3>
 <sect3 id="smart-shell-quit" xreflabel="Quit"><title>Quit</title>
-<para></para>
+<cmdsynopsis><command>quit</command>
+</cmdsynopsis>
+<para>The exit/quit/EOF command returns to the system.</para>
 </sect3>
 <sect3 id="smart-shell-redo" xreflabel="Redo"><title>Redo</title>
-<para></para>
+<cmdsynopsis><command>redo</command>
+</cmdsynopsis>
+<para>The redo command reapplies undone changes.</para>
 </sect3>
 <sect3 id="smart-shell-reinstall" xreflabel="Reinstall"><title>Reinstall</title>
-<para></para>
+<cmdsynopsis><command>reinstall</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The reinstall command marks packages for reinstallation.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about
+                  changes, when possible</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-shell-remove" xreflabel="Remove"><title>Remove</title>
-<para></para>
+<cmdsynopsis><command>remove</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The remove command marks packages for being removed.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about
+                  changes, when possible</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 <sect3 id="smart-shell-search" xreflabel="Search"><title>Search</title>
-<para></para>
+<cmdsynopsis><command>search</command>
+  <arg rep='repeat' choice='opt'>string</arg>
+</cmdsynopsis>
+<para>The search command allows searching for packages.</para>
 </sect3>
 <sect3 id="smart-shell-shell" xreflabel="Shell"><title>Shell</title>
-<para></para>
+<cmdsynopsis><command>shell</command>
+  <arg choice='opt'>cmd</arg>
+  <arg choice='opt'>!cmd</arg>
+</cmdsynopsis>
+<para>The shell command offers execution of system commands.</para>
 </sect3>
 <sect3 id="smart-shell-stats" xreflabel="Stats"><title>Stats</title>
-<para></para>
+<cmdsynopsis><command>stats</command>
+</cmdsynopsis>
+<para>The stats command shows some statistics.</para>
 </sect3>
 <sect3 id="smart-shell-status" xreflabel="Status"><title>Status</title>
-<para></para>
+<cmdsynopsis><command>status</command>
+</cmdsynopsis>
+<para>The status command shows currently marked changes.</para>
 </sect3>
 <sect3 id="smart-shell-undo" xreflabel="Undo"><title>Undo</title>
-<para></para>
+<cmdsynopsis><command>undo</command>
+</cmdsynopsis>
+<para>The undo command reverts marked changes.</para>
 </sect3>
 <sect3 id="smart-shell-update" xreflabel="Update"><title>Update</title>
-<para></para>
+<cmdsynopsis><command>update</command>
+  <arg rep='repeat' choice='opt'>alias</arg>
+</cmdsynopsis>
+<para>The update command will update channel information.</para>
 </sect3>
 <sect3 id="smart-shell-upgrade" xreflabel="Upgrade"><title>Upgrade</title>
-<para></para>
+<cmdsynopsis><command>upgrade</command>
+  <arg rep='repeat' choice='req'>pkgname</arg>
+</cmdsynopsis>
+<para>The upgrade command marks packages for upgrading.</para>
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about
+                  changes, when possible</para></listitem>
+</varlistentry>
+</variablelist>
 </sect3>
 </sect2>
 </sect1>
