@@ -33,6 +33,12 @@
 	<authorinitials>afb</authorinitials>
 	<revdescription><para>Conversion from HTML to DocBook.</para></revdescription>
       </revision>
+      <revision>
+	<revnumber>0.2</revnumber>
+	<date>2008-11-22</date>
+	<authorinitials>afb</authorinitials>
+	<revdescription><para>Added new section on authentication.</para></revdescription>
+      </revision>
     </revhistory>
 
 <legalnotice>
@@ -226,15 +232,19 @@ between media changes</para></listitem>
 <para>Smart supports the following package manager file formats:</para>
 <sect2 id="smart-packages-rpm"><title>RPM</title>
 <para>RPM packages are used by e.g. Fedora and Red Hat (Enterprise) Linux.</para>
+<para>Example: <filename>name-version-release.noarch.rpm</filename></para>
 </sect2>
 <sect2 id="smart-packages-deb"><title>DEB</title>
 <para>DEB packages (DPKG) are used by e.g. Ubuntu and Debian GNU/Linux.</para>
+<para>Example: <filename>name_version-release_all.deb</filename></para>
 </sect2>
 <sect2 id="smart-packages-slack"><title>Slack</title>
 <para>Slackware packages are used by e.g. Vector Linux and Slackware Linux.</para>
+<para>Example: <filename>name-version-noarch-release.tgz</filename></para>
 </sect2>
 <sect2 id="smart-packages-arch"><title>Arch</title>
 <para>Archlinux packages are used by Arch Linux with the Pacman system.</para>
+<para>Example: <filename>name-version-release-i686.pkg.tar.gz</filename></para>
 </sect2>
 </sect1>
 
@@ -308,6 +318,69 @@ smart install --help
 smart channel --help
 ...
 </synopsis>
+<sect2 id="smart-text-admin"><title>Administrative privileges</title>
+<para>Normally Smart is read-only, unless you have administrative privileges.</para>
+<para>You can use something like <emphasis>sudo</emphasis> to temporarily gain such rights:</para>
+<synopsis>
+sudo smart upgrade --update
+</synopsis>
+<para>Some systems require you to use <emphasis>su</emphasis> and the superuser account instead.</para>
+<para>There is a <emphasis>suid</emphasis> program called <literal>smart-update</literal> bundled with Smart:</para>
+<synopsis>
+smart-update
+</synopsis>
+<para>It allows you to update channel information without having privileges.</para>
+<note>
+<para>You need administrative privileges to install or remove packages.</para>
+</note>
+</sect2>
+<sect2 id="smart-gui-admin"><title>Graphic Authentication</title>
+<para>When using the graphic interface, you need a wrapper to authenticate.</para>
+<para>For Fedora there is a <emphasis>consolehelper</emphasis><footnote><para><ulink url="https://fedorahosted.org/usermode/">https://fedorahosted.org/usermode/</ulink></para></footnote> program
+called <literal>smart-root</literal>:</para>
+<synopsis>
+smart-root --gui
+</synopsis>
+	<figure id="smart-root"> 
+		<title>smart-root</title> 
+		<screenshot> 
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/smart-root.png" 
+					format="PNG"/> 
+				</imageobject>
+				<textobject> 
+					<phrase>
+					The &app; consolehelper (called smart-root) query window.
+					It has a Password entry field, and buttons Cancel and OK.
+					</phrase> 
+				</textobject> 
+			  </mediaobject> 
+		</screenshot> 
+	</figure> 
+<para>For Ubuntu you can use <emphasis>gksu</emphasis><footnote><para><ulink url="http://www.nongnu.org/gksu/">http://www.nongnu.org/gksu/</ulink></para></footnote> to
+authenticate with your password:</para>
+<synopsis>
+gksudo -- smart --gui
+</synopsis>
+	<figure id="smart-gksu"> 
+		<title>gksu/gksudo</title> 
+		<screenshot> 
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/smart-gksu.png" 
+					format="PNG"/> 
+				</imageobject>
+				<textobject> 
+					<phrase>
+					The &app; password authentication window using gksudo.
+					It has a Password entry field, and buttons Cancel and OK.
+					</phrase> 
+				</textobject> 
+			  </mediaobject> 
+		</screenshot> 
+	</figure> 
+</sect2>
 </sect1>
 
 <sect1 id="smart-gui"><title>Graphic Interface</title>
