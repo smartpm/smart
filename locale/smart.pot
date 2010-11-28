@@ -2195,22 +2195,24 @@ msgid "use the auto-install information to remove stuff."
 msgstr ""
 
 #: smart/commands/search.py:25
+msgid "smart search expression ..."
+msgstr ""
+
+#: smart/commands/search.py:27
 msgid ""
-"\n"
-"Usage: smart search expression ...\n"
 "\n"
 "This command allows searching for the given expressions\n"
 "in the name, summary, and description of known packages.\n"
+msgstr ""
+
+#: smart/commands/search.py:32
+msgid ""
 "\n"
-"Options:\n"
-"  -h, --help  Show this help message and exit\n"
-"\n"
-"Examples:\n"
-"  smart search ldap\n"
-"  smart search kernel module\n"
-"  smart search rpm 'package manager'\n"
-"  smart search pkgname\n"
-"  smart search 'pkgn*e'\n"
+"smart search ldap\n"
+"smart search kernel module\n"
+"smart search rpm 'package manager'\n"
+"smart search pkgname\n"
+"smart search 'pkgn*e'\n"
 msgstr ""
 
 #: smart/commands/stats.py:27

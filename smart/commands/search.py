@@ -22,28 +22,28 @@
 from smart.commands import query
 from smart import *
 
-HELP=_("""
-Usage: smart search expression ...
+USAGE=_("smart search expression ...")
 
+DESCRIPTION=_("""
 This command allows searching for the given expressions
 in the name, summary, and description of known packages.
+""")
 
-Options:
-  -h, --help  Show this help message and exit
-
-Examples:
-  smart search ldap
-  smart search kernel module
-  smart search rpm 'package manager'
-  smart search pkgname
-  smart search 'pkgn*e'
+EXAMPLES=_("""
+smart search ldap
+smart search kernel module
+smart search rpm 'package manager'
+smart search pkgname
+smart search 'pkgn*e'
 """)
 
 def option_parser():
-    return query.option_parser(help=HELP)
+    return query.option_parser(usage=USAGE, description=DESCRIPTION, \
+                               examples=EXAMPLES)
 
 def parse_options(argv):
-    opts = query.parse_options(argv, help=HELP)
+    opts = query.parse_options(argv, usage=USAGE, \
+                               description=DESCRIPTION, examples=EXAMPLES)
     opts.name = opts.args
     opts.summary = opts.args
     opts.description = opts.args

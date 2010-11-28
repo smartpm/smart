@@ -48,9 +48,9 @@ smart query --summary ldap
 smart query --show-format='Name: $name\tVersion: $version\n'
 """)
 
-def option_parser(help=None):
-    if help:
-        parser = OptionParser(help=help)
+def option_parser(**kwargs):
+    if kwargs:
+        parser = OptionParser(**kwargs)
     else:
         parser = OptionParser(usage=USAGE,
                               description=DESCRIPTION,
@@ -132,8 +132,8 @@ def option_parser(help=None):
                       help=_("redirect output to given filename"))
     return parser
 
-def parse_options(argv, help=None):
-    parser = option_parser(help)
+def parse_options(argv, **kwargs):
+    parser = option_parser(**kwargs)
     opts, args = parser.parse_args(argv)
     opts.args = args
     if opts.show_all:
