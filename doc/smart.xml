@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
 <!ENTITY legal SYSTEM "gpl.xml">
 <!ENTITY app "Smart Package Manager">
-<!ENTITY appversion "1.1">
+<!ENTITY appversion "1.4">
 ]>
 
 <article id="index" lang="en">
@@ -38,6 +38,13 @@
 	<date>2008-11-22</date>
 	<authorinitials>afb</authorinitials>
 	<revdescription><para>Added new section on authentication.</para></revdescription>
+      </revision>
+      <revision>
+	<revnumber>0.3</revnumber>
+	<date>2008-11-26</date>
+	<authorinitials>afb</authorinitials>
+	<revdescription><para>Auto-generated command options help.</para>
+	</revdescription>
       </revision>
     </revhistory>
 
@@ -697,71 +704,1289 @@ choose <menuchoice><guimenu>Edit</guimenu><guimenuitem>Priorities</guimenuitem><
 <synopsis>smart install --shell</synopsis>
 
 <sect2 id="smart-action" xreflabel="Action Commands"><title>Action Commands</title>
-
 <sect3 id="smart-text-update" xreflabel="Update"><title>Update</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>update</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>channelalias</arg>
+</cmdsynopsis>
+
+<para>
+This command will update the known information about the
+given channels. If no channels are given, all channels
+which are not disabled or setup for manual updates will
+be updated.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--after=<replaceable>MIN</replaceable></option> </term>
+  <listitem><para>                        Only update if the last successful update happened
+                        before the given delay</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart update
+    smart update mychannel
+    smart update mychannel1 mychannel2
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-install" xreflabel="Install"><title>Install</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>install</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='req'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will install one or more packages in the
+system. If a new version of an already installed package
+is available, it will be selected for installation.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--stepped</option> </term>
+  <listitem><para>Split operation in steps</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Dump needed urls and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--metalink</option> </term>
+  <listitem><para>Dump metalink xml and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--download</option> </term>
+  <listitem><para>Download packages and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about changes,when possible</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-y</option> <option>--yes</option> </term>
+  <listitem><para>Do not ask for confirmation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--dump</option> </term>
+  <listitem><para>Dump package names and versions to stderr but don't commit
+                operation</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart install pkgname
+    smart install '*kgna*'
+    smart install pkgname-1.0
+    smart install pkgname-1.0-1
+    smart install pkgname1 pkgname2
+    smart install ./somepackage.file
+    smart install http://some.url/some/path/somepackage.file
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-reinstall" xreflabel="Reinstall"><title>Reinstall</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>reinstall</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='req'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will reinstall one or more packages which
+are already installed in the system.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--stepped</option> </term>
+  <listitem><para>Split operation in steps</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Dump needed urls and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--metalink</option> </term>
+  <listitem><para>Dump metalink xml and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--download</option> </term>
+  <listitem><para>Download packages and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about changes,when possible</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-y</option> <option>--yes</option> </term>
+  <listitem><para>Do not ask for confirmation</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart reinstall pkgname
+    smart reinstall '*kgnam*'
+    smart reinstall pkgname-1.0
+    smart reinstall pkgname-1.0-1
+    smart reinstall pkgname1 pkgname2
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-upgrade" xreflabel="Upgrade"><title>Upgrade</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>upgrade</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will upgrade one or more packages which
+are currently installed in the system. If no packages
+are given, all installed packages will be checked.
+
+If pkgname is prefixed by a '+', it will be installed
+even if it was not currently installed in the system.
+If pkgname is prefixed with a '-', it will be removed.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--stepped</option> </term>
+  <listitem><para>Split operation in steps</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Dump needed urls and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--metalink</option> </term>
+  <listitem><para>Dump metalink xml and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--download</option> </term>
+  <listitem><para>Download packages and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--update</option> </term>
+  <listitem><para>Update channel information before trying to upgrade</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--check</option> </term>
+  <listitem><para>Just check if there are upgrades to be done</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--check-update</option> </term>
+  <listitem><para>Check if there are upgrades to be done, and update the
+                    known upgrades</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about changes,when possible</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-y</option> <option>--yes</option> </term>
+  <listitem><para>Do not ask for confirmation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--dump</option> </term>
+  <listitem><para>Dump package names and versions to stderr but don't commit
+                    operation</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart upgrade
+    smart upgrade pkgname
+    smart upgrade '*kgnam*'
+    smart upgrade pkgname-1.0
+    smart upgrade pkgname-1.0-1
+    smart upgrade pkgname1 pkgname2
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-remove" xreflabel="Remove"><title>Remove</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>remove</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='req'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will remove one or more packages which
+are currently installed in the system.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--stepped</option> </term>
+  <listitem><para>Split operation in steps</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Dump needed urls and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--metalink</option> </term>
+  <listitem><para>Dump metalink xml and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--download</option> </term>
+  <listitem><para>Download packages and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about changes,when possible</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-y</option> <option>--yes</option> </term>
+  <listitem><para>Do not ask for confirmation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--auto</option> </term>
+  <listitem><para>Use the auto-install information to remove stuff.</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--dump</option> </term>
+  <listitem><para>Dump package names and versions to stderr but don't commit
+                operation</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart remove pkgname
+    smart remove '*kgnam*'
+    smart remove pkgname-1.0
+    smart remove pkgname-1.0-1
+    smart remove pkgname1 pkgname2
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-check" xreflabel="Check"><title>Check</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>check</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will check relations between packages. If no
+packages are explicitly given, all packages in the selected
+channels will be checked. Relations of the checked packages
+will only match packages inside the selected channels.
+
+Use the 'fix' command to fix broken relations of
+installed packages.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--all</option> </term>
+  <listitem><para>Check packages in all channels</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--installed</option> </term>
+  <listitem><para>Check packages which are in at least one installed
+                        channel (default)</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--available</option> </term>
+  <listitem><para>Check packages which are in at least one non-installed
+                        channel</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--channels=<replaceable>ALIASES</replaceable></option> </term>
+  <listitem><para>                        Check packages which are inside the given channels
+                        (comma separated aliases)</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart check
+    smart check pkgname
+    smart check '*kgna*'
+    smart check pkgname-1.0
+    smart check pkgname-1.0-1
+    smart check pkgname1 pkgname2
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-fix" xreflabel="Fix"><title>Fix</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>fix</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will try to fix dependencies of installed packages
+which are related to the given packages. Notice that the given
+packages may be currently installed or not. If no packages are
+given, all installed packages will be checked.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--stepped</option> </term>
+  <listitem><para>Split operation in steps</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Dump needed urls and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--metalink</option> </term>
+  <listitem><para>Dump metalink xml and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--download</option> </term>
+  <listitem><para>Download packages and don't commit operation</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--explain</option> </term>
+  <listitem><para>Include additional information about changes,when possible</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-y</option> <option>--yes</option> </term>
+  <listitem><para>Do not ask for confirmation</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart fix
+    smart fix pkgname
+    smart fix '*kgna*'
+    smart fix pkgname-1.0
+    smart fix pkgname-1.0-1
+    smart fix pkgname1 pkgname2
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-download" xreflabel="Download"><title>Download</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>download</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='req'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command allows downloading one or more given packages.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--target=<replaceable>DIR</replaceable></option> </term>
+  <listitem><para>                        Packages will be saved in given directory</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--pack</option> </term>
+  <listitem><para>Pack all downloaded packages in a tarball</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--output=<replaceable>FILE</replaceable></option> </term>
+  <listitem><para>                        Redirect tarball output to given filename</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Dump needed urls and don't download packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--metalink</option> </term>
+  <listitem><para>Dump metalink xml and don't download packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--from-urls</option> </term>
+  <listitem><para>Download files from the given urls and/or from the
+                        given files with lists of urls</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--from-metalink</option> </term>
+  <listitem><para>Download files from the given metalink file</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart download pkgname
+    smart download '*kgna*'
+    smart download pkgname-1.0
+    smart download pkgname-1.0-1
+    smart download pkgname1 pkgname2
+    smart download pkgname --urls 2> pkgname-url.txt
+    smart download pkgname --metalink 2> pkgname.metalink
+    smart download --from-urls pkgname-url.txt
+    smart download --from-urls http://some.url/some/path/somefile
+    smart download --from-metalink pkgname.metalink
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-clean" xreflabel="Clean"><title>Clean</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>clean</arg>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+
+<para>
+This command cleans the package cache. You can use it to
+delete old unused files that were left behind because of
+an incomplete transaction.
+</para>
+
+
 </sect3>
 </sect2>
 
 <sect2 id="smart-query" xreflabel="Query Commands"><title>Query Commands</title>
-
 <sect3 id="smart-text-search" xreflabel="Search"><title>Search</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>search</arg>
+  <arg rep='repeat' choice='req'>expression</arg>
+</cmdsynopsis>
+
+<para>
+This command allows searching for the given expressions
+in the name, summary, and description of known packages.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--installed</option> </term>
+  <listitem><para>Consider only installed packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--newest</option> </term>
+  <listitem><para>Consider only the newest package</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--dupes</option> </term>
+  <listitem><para>Consider only installed packages that are duplicated</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--leaves</option> </term>
+  <listitem><para>Consider only installed packages not required by others</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--orphans</option> </term>
+  <listitem><para>Consider only installed packages not in other channels</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--provides=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages providing the given dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--requires=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages requiring the given dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--conflicts=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages conflicting with the given
+                        dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--upgrades=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages upgrading the given dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--name=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given name</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--group=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given group</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--channel=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages from the given channel</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--summary=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given summary</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--description=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given description</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--path=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which include the given path in the
+                        available meta information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--url=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which include the given reference
+                        url in the available meta information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--hide-version</option> </term>
+  <listitem><para>Hide package version</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-summary</option> </term>
+  <listitem><para>Show package summaries</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-provides</option> </term>
+  <listitem><para>Show provides for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-requires</option> </term>
+  <listitem><para>Show requires for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-prerequires</option> </term>
+  <listitem><para>Show requires selecting only pre-dependencies</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-upgrades</option> </term>
+  <listitem><para>Show upgrades for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-conflicts</option> </term>
+  <listitem><para>Show conflicts for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-providedby</option> </term>
+  <listitem><para>Show packages providing dependencies</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-requiredby</option> </term>
+  <listitem><para>Show packages requiring provided information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-upgradedby</option> </term>
+  <listitem><para>Show packages upgrading provided information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-conflictedby</option> </term>
+  <listitem><para>                        Show packages conflicting with provided information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-priority</option> </term>
+  <listitem><para>Show package priority</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-channels</option> </term>
+  <listitem><para>Show channels that include this package</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-all</option> </term>
+  <listitem><para>Enable all --show-* options</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-format=<replaceable>TMPL</replaceable></option> </term>
+  <listitem><para>                        Show using string template</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--format=<replaceable>FMT</replaceable></option> </term>
+  <listitem><para>                        Change output format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--output=<replaceable>FILE</replaceable></option> </term>
+  <listitem><para>                        Redirect output to given filename</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart search ldap
+    smart search kernel module
+    smart search rpm 'package manager'
+    smart search pkgname
+    smart search 'pkgn*e'
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-query" xreflabel="Query"><title>Query</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>query</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command allows querying the known packages in many
+different ways. Check also the 'search' command.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--installed</option> </term>
+  <listitem><para>Consider only installed packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--newest</option> </term>
+  <listitem><para>Consider only the newest package</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--dupes</option> </term>
+  <listitem><para>Consider only installed packages that are duplicated</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--leaves</option> </term>
+  <listitem><para>Consider only installed packages not required by others</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--orphans</option> </term>
+  <listitem><para>Consider only installed packages not in other channels</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--provides=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages providing the given dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--requires=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages requiring the given dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--conflicts=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages conflicting with the given
+                        dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--upgrades=<replaceable>DEP</replaceable></option> </term>
+  <listitem><para>                        Show only packages upgrading the given dependency</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--name=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given name</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--group=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given group</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--channel=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages from the given channel</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--summary=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given summary</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--description=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which match given description</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--path=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which include the given path in the
+                        available meta information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--url=<replaceable>STR</replaceable></option> </term>
+  <listitem><para>                        Show only packages which include the given reference
+                        url in the available meta information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--hide-version</option> </term>
+  <listitem><para>Hide package version</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-summary</option> </term>
+  <listitem><para>Show package summaries</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-provides</option> </term>
+  <listitem><para>Show provides for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-requires</option> </term>
+  <listitem><para>Show requires for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-prerequires</option> </term>
+  <listitem><para>Show requires selecting only pre-dependencies</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-upgrades</option> </term>
+  <listitem><para>Show upgrades for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-conflicts</option> </term>
+  <listitem><para>Show conflicts for the given packages</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-providedby</option> </term>
+  <listitem><para>Show packages providing dependencies</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-requiredby</option> </term>
+  <listitem><para>Show packages requiring provided information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-upgradedby</option> </term>
+  <listitem><para>Show packages upgrading provided information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-conflictedby</option> </term>
+  <listitem><para>                        Show packages conflicting with provided information</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-priority</option> </term>
+  <listitem><para>Show package priority</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-channels</option> </term>
+  <listitem><para>Show channels that include this package</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-all</option> </term>
+  <listitem><para>Enable all --show-* options</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-format=<replaceable>TMPL</replaceable></option> </term>
+  <listitem><para>                        Show using string template</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--format=<replaceable>FMT</replaceable></option> </term>
+  <listitem><para>                        Change output format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--output=<replaceable>FILE</replaceable></option> </term>
+  <listitem><para>                        Redirect output to given filename</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart query pkgname
+    smart query '*kgnam*'
+    smart query pkgname-1.0
+    smart query pkgname --show-requires
+    smart query --requires libpkg.so --show-providedby
+    smart query --installed
+    smart query --summary ldap
+    smart query --show-format='Name: $name	Version: $version
+    '
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-newer" xreflabel="Newer"><title>Newer</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>newer</arg>
+</cmdsynopsis>
+
+<para>
+This command shows packages that have available upgrades.
+</para>
+
+<para>Examples:</para>
+    <synopsis>
+    smart newer
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-info" xreflabel="Info"><title>Info</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>info</arg>
+  <arg choice='opt'>options</arg>
+  <arg rep='repeat' choice='opt'>package</arg>
+</cmdsynopsis>
+
+<para>
+This command will show information about the given packages.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--urls</option> </term>
+  <listitem><para>Show urls</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--paths</option> </term>
+  <listitem><para>Show path list</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--changelog</option> </term>
+  <listitem><para>Show change log</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart info pkgname
+    smart info pkgname-1.0
+    smart info pkgname --urls --paths
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-stats" xreflabel="Stats"><title>Stats</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>stats</arg>
+</cmdsynopsis>
+
+<para>
+This command will show some statistics.
+</para>
+
+<para>Examples:</para>
+    <synopsis>
+    smart stats 
+    </synopsis>
+
+
 </sect3>
 </sect2>
 
 <sect2 id="smart-setup" xreflabel="Setup Commands"><title>Setup Commands</title>
-
 <sect3 id="smart-text-config" xreflabel="Config"><title>Config</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>config</arg>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+
+<para>
+This command allows changing the internal configuration
+representation arbitrarily. This is supposed to be used
+by advanced users only, and is generally not needed.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--set</option> </term>
+  <listitem><para>Set given key=value options</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show</option> </term>
+  <listitem><para>Show given options</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--yaml</option> </term>
+  <listitem><para>Show given options in yaml format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove</option> </term>
+  <listitem><para>Remove given options</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--force</option> </term>
+  <listitem><para>Ignore problems</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart config --set someoption.suboption=10
+    smart config --remove someoption
+    smart config --show someoption
+    smart config --show
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-channel" xreflabel="Channel"><title>Channel</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>channel</arg>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+
+<para>
+This command allows one to manipulate channels. Channels are
+used as sources of information about installed and available
+packages. Depending on the channel type, a different backend
+is used to handle interactions with the operating system and
+extraction of information from the given channel.
+
+The following channel types are available:
+
+  apt-deb    - APT-DEB Repository
+  apt-rpm    - APT-RPM Repository
+  arch-dir   - Archlinux Directory
+  arch-site  - Archlinux Repository
+  arch-sys   - Archlinux Installed Packages
+  deb-dir    - DEB Directory
+  deb-sys    - DPKG Installed Packages
+  mirrors    - Mirror Information
+  red-carpet - Red Carpet Channel
+  rpm-dir    - RPM Directory
+  rpm-hdl    - RPM Header List
+  rpm-md     - RPM MetaData
+  rpm-sys    - RPM Installed Packages
+  slack-dir  - Slackware Directory
+  slack-site - Slackware Repository
+  slack-sys  - Slackware Installed Packages
+  up2date-mirrors - Mirror Information (up2date format)
+  urpmi      - URPMI Repository
+  yast2      - YaST2 Repository
+
+Use --help-type &lt;type&gt; for more information.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--add</option> </term>
+  <listitem><para>Argument is an alias and one or more key=value pairs
+                        defining a channel, or a filename/url pointing to a
+                        channel description in the same format used by --show,
+                        or a directory path where autodetection will be tried</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--set</option> </term>
+  <listitem><para>Argument is an alias, and one or more key=value pairs
+                        modifying a channel</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove</option> </term>
+  <listitem><para>Arguments are channel aliases to be removed</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove-all</option> </term>
+  <listitem><para>Remove all existent channels</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show</option> </term>
+  <listitem><para>Show channels with given aliases, or all channels if no
+                        arguments were given</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--yaml</option> </term>
+  <listitem><para>Show given channels in yaml format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--edit</option> </term>
+  <listitem><para>Edit channels in editor set by $editor</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--enable</option> </term>
+  <listitem><para>Enable channels with given aliases</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--disable</option> </term>
+  <listitem><para>Disable channels with given aliases</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>-y</option> <option>--yes</option> </term>
+  <listitem><para>Execute without asking</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--help-type=<replaceable>TYPE</replaceable></option> </term>
+  <listitem><para>                        Show further information about given type</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart channel --help-type apt-rpm
+    smart channel --add mydb type=rpm-sys name="RPM Database"
+    smart channel --add mychannel type=apt-rpm name="Some repository" \
+                      baseurl=http://somewhere.com/pub/repos components=extra
+    smart channel --set mychannel priority=-100
+    smart channel --disable mychannel
+    smart channel --remove mychannel
+    smart channel --show
+    smart channel --show mychannel > mychannel.txt
+    smart channel --add ./mychannel.txt
+    smart channel --add http://some.url/mychannel.txt
+    smart channel --add /mnt/cdrom
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-priority" xreflabel="Priority"><title>Priority</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>priority</arg>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+
+<para>
+This command allows changing the priority of given packages.
+Packages with higher priorities are considered a better option
+even when package versions state otherwise. Using priorities
+one may avoid unwanted upgrades, force downgrades, select
+packages in given channels as preferential, and other kinds
+of interesting setups. When a package has no explicit priority,
+the channel priority is used. The channel priority may be
+changed using the 'channel' command, and defaults to 0 when
+not set.
+
+Notice that negatives priorities must be preceded by '--' in
+the command line, otherwise they'll be interpreted as command
+line options.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--set</option> </term>
+  <listitem><para>Set priority</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove</option> </term>
+  <listitem><para>Unset priority</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show</option> </term>
+  <listitem><para>Show priorities</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--yaml</option> </term>
+  <listitem><para>Show priorities in yaml format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--force</option> </term>
+  <listitem><para>Ignore problems</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart priority --set pkgname 100
+    smart priority --set pkgname mychannel -- -200
+    smart priority --remove pkgname
+    smart priority --remove pkgname mychannel
+    smart priority --show
+    smart priority --show pkgname
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-mirror" xreflabel="Mirror"><title>Mirror</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>mirror</arg>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+
+<para>
+This command allows one to manipulate mirrors. Mirrors are URLs
+that supposedly provide the same contents as are available in
+other URLs, named origins in this help text. There is no internal
+restriction on the kind of information which is mirrored. Once
+an origin URL is provided, and one or more mirror URLs are
+provided, these mirrors will be considered for any file which
+is going to be fetched from an URL starting with the origin URL.
+Whether the mirror will be chosen or not will depend on the
+history of downloads from this mirror and from other mirrors for
+the same URL, since mirrors are automatically balanced so that
+the fastest mirror and with less errors is chosen. When errors
+occur, the next mirror is tried.
+
+For instance, if a mirror "http://mirror.url/path/" is provided
+for the origin "ftp://origin.url/other/path/", and a file in
+"ftp://origin.url/other/path/subpath/somefile" is going to be
+fetched, the mirror will be considered for being used, and the
+URL "http://mirror.url/path/subpath/somefile" will be used if
+the mirror is chosen. Notice that strings are compared and
+replaced without any pre-processing, so that it's possible to
+use URLs ending in prefixes of directory entries.
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--show</option> </term>
+  <listitem><para>Show current mirrors</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--yaml</option> </term>
+  <listitem><para>Show current mirrors in yaml format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--add</option> </term>
+  <listitem><para>Add to the given origin url the given mirror url,
+                        provided either in pairs, or in a given file/url in the
+                        format used by --show</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove</option> </term>
+  <listitem><para>Remove from the given origin url the given mirror url,
+                        provided either in pairs, or in a given file/url in the
+                        format used by --show</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove-all</option> </term>
+  <listitem><para>Remove all mirrors for the given origin urls</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--sync=<replaceable>FILE</replaceable></option> </term>
+  <listitem><para>                        Synchronize mirrors from the given file/url, so that
+                        origins in the given file will have exactly the
+                        specified mirrors</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--edit</option> </term>
+  <listitem><para>Edit mirrors in editor set by $editor</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--clear-history</option> </term>
+  <listitem><para>Clear history for the given origins/mirrors, or for all
+                        mirrors</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show-penalities</option> </term>
+  <listitem><para>Show current penalities for origins/mirrors, based on
+                        the history information</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart mirror --show
+    smart mirror --add ftp://origin.url/some/path/ http://mirror.url/path/
+    smart mirror --remove ftp://origin.url/some/path/ http://mirror.url/path/
+    smart mirror --add http://some.url/path/to/mirrors.txt
+    smart mirror --sync http://some.url/path/to/mirrors.txt
+    smart mirror --clear-history ftp://origin.url/some/path/
+    smart mirror --clear-history ftp://mirror.url/path/
+    smart mirror --clear-history
+    </synopsis>
+
+
 </sect3>
+
 <sect3 id="smart-text-flag" xreflabel="Flag"><title>Flag</title>
-<para></para>
+
+<cmdsynopsis><command>smart</command>
+  <arg choice='plain'>flag</arg>
+  <arg choice='opt'>options</arg>
+</cmdsynopsis>
+
+<para>
+This command allows one to set, remove, and show package flags.
+Package flags are used to tune the behavior of some algorithms
+when dealing with the given packages.
+
+Currently known flags are:
+
+  lock          - Flagged packages will not be removed, if they
+                  are currently installed, nor installed, if they
+                  are currently available.
+  new           - Flagged packages were considered new packages
+                  in the repository when the last update was done.
+                  This flag is automatically manipulated by the
+                  system.
+  auto          - Flagged packages were automatically installed
+                  to satisfy dependencies.
+                  This flag is automatically manipulated by the
+                  system.
+  multi-version - Flagged packages may have more than one version
+                  installed in the system at the same time
+                  (backend dependent).
+</para>
+
+
+<para>Options:</para>
+<variablelist>
+<varlistentry>
+  <term><option>--set</option> </term>
+  <listitem><para>Set flags given in pairs of flag name/target, where targets may
+              use just the package name, or the package name, relation, and
+              version, such as: lock 'python > 1.0'</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--remove</option> </term>
+  <listitem><para>Remove flags given in pairs of flag name/target, where targets
+              may use just the package name, or the package name, relation, and
+              version, such as: lock 'python > 1.0'</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--show</option> </term>
+  <listitem><para>Show packages with the flags given as arguments or all flags if
+              no argument was given</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--yaml</option> </term>
+  <listitem><para>Show given flags in yaml format</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term><option>--force</option> </term>
+  <listitem><para>Ignore problems</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Examples:</para>
+    <synopsis>
+    smart flag --show
+    smart flag --show new
+    smart flag --set lock pkgname
+    smart flag --remove lock pkgname
+    smart flag --set lock 'pkgname >= 1.0'
+    smart flag --remove lock 'pkgname >= 1.0'
+    </synopsis>
+
+
 </sect3>
 </sect2>
 
