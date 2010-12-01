@@ -211,6 +211,8 @@ class Fetcher(object):
                 topic = _("Fetching information...")
             prog.setTopic(topic)
             prog.show()
+            while iface.eventsPending():
+                iface.processEvents()
         for handler in handlers:
             handler.start()
         active = handlers[:]
@@ -218,6 +220,7 @@ class Fetcher(object):
         uncompchecked = {}
         self._speedupdated = self.time
         cancelledtime = None
+        seen = {}
         while active or self._uncompressing:
             self.time = time.time()
             if self._cancel:
@@ -258,12 +261,22 @@ class Fetcher(object):
                         if handler not in active:
                             active.append(handler)
                     continue
+                elif (item.getStatus() == RUNNING and
+                      item not in seen):
+                    while iface.eventsPending():
+                        iface.processEvents()
+                    seen[item] = True
+                    continue
                 elif (item.getStatus() != SUCCEEDED or
                       not item.getInfo("uncomp")):
                     if updatespeed:
                         item.updateSpeed()
                         item.updateETA()
                     continue
+                # make sure that progress is updated
+                # at least once for every fetch...
+                while iface.eventsPending():
+                    iface.processEvents()
                 localpath = item.getTargetPath()
                 if localpath in uncompchecked:
                     continue
@@ -522,7 +535,6 @@ class FetchItem(object):
 
     def start(self):
         if self._status is WAITING:
-            self._status = RUNNING
             self._starttime = self._fetcher.time
             prog = self._progress
             url = self._urlobj.original
@@ -531,6 +543,7 @@ class FetchItem(object):
                                          r"\1*\2", url))
             prog.setSub(url, 0, self._info.get("size") or 1, 1)
             prog.show()
+            self._status = RUNNING
 
     def progress(self, current, total):
         if self._status is RUNNING:
