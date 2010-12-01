@@ -86,8 +86,14 @@ class GtkProgress(Progress, gtk.Window):
             self._treeview.show()
             self._scrollwin.add(self._treeview)
 
-            renderer = ProgressCellRenderer()
-            column = gtk.TreeViewColumn(_("Progress"), renderer, percent=0)
+            if gtk.pygtk_version < (2,6,0):
+                renderer = ProgressCellRenderer()
+                column = gtk.TreeViewColumn(_("Progress"), renderer, percent=0)
+            else:
+                renderer = gtk.CellRendererProgress()
+                # don't display the percent label
+                renderer.set_property("text", "")
+                column = gtk.TreeViewColumn(_("Progress"), renderer, value=0)
             column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
             column.set_fixed_width(110)
             self._treeview.append_column(column)
