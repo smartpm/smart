@@ -104,6 +104,7 @@ def fetch_urpmi_cfg(filename):
             continue
         if line.find(": ") > 0:
             (key,value) = line.strip().split(": ")
+            config[-1][key.strip()] = value
             if key == "mirrorlist":
                 if mirrorscache:
                     if mirrorscache.has_key(value):
@@ -123,7 +124,6 @@ def fetch_urpmi_cfg(filename):
                                     config[-1]["url"] = mirror["url"]
                                 else:
                                     sysconf.add(("mirrors", config[-1]["url"]), mirror["url"], unique=True)
-            config[-1][key.strip()] = value
         else:
             config[-1][line.strip()] = True
     urpmi_cfg_f.close()
