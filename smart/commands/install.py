@@ -151,6 +151,13 @@ def main(ctrl, opts):
                 break
             if installed:
                 continue
+            if len(names) == 2 and sysconf.get("rpm-strict-multilib"):
+                from smart.backends.rpm.rpmver import splitarch
+                # two packages with the same version but different arch, pick best
+                if splitarch(pkgs[0].version)[0] == splitarch(pkgs[1].version)[0]:
+                    pkg = max(pkgs[0], pkgs[1])
+                    names.pop(pkg.name)
+                    pkgs.remove(pkg)
             if len(names) > 1:
                 raise Error, _("There are multiple matches for '%s':\n%s") % \
                               (arg, "\n".join(["    "+str(x) for x in pkgs]))
