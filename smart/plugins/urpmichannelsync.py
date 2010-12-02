@@ -55,7 +55,7 @@ def getProductID():
     return productid
 
 def getReleaseArch():
-    fp = open(sysconf.get("release", PRODUCT_ID))
+    fp = open(sysconf.get("release", RELEASE))
     line = fp.readline().strip()
     fp.close()
     match = re.match(r".*release (\d+\.\d+).*for (\w+)", line)
