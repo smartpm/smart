@@ -41,7 +41,7 @@ URPMI_MEDIA_DIR = "/var/lib/urpmi/"
 URPMI_MIRRORS_CACHE = "/var/cache/urpmi/mirrors.cache"
 
 # http://wiki.mandriva.com/en/Product_id
-PRODUCT_ID = "/etc/product_id"
+PRODUCT_ID = "/etc/product.id"
 RELEASE = "/etc/release"
 
 def getProductID():
