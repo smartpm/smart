@@ -122,13 +122,16 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                 return True
 
             basename = posixpath.basename(self._hdlurl)
-            for line in open(item.getTargetPath()):
-                line = line.strip()
-                if line:
-                    md5, name = line.split()
-                    if name == basename:
-                        hdlmd5 = md5
-                        break
+            try:
+                for line in open(item.getTargetPath()):
+                    line = line.strip()
+                    if line:
+                        md5, name = line.split()
+                        if name == basename:
+                            hdlmd5 = md5
+                            break
+            except ValueError:
+                pass
 
         fetcher.reset()
         hdlitem = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
