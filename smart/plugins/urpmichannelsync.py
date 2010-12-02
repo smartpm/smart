@@ -198,8 +198,8 @@ def _loadMediaList(filename):
                 baseurl += "/" + media["with-dir"] + "/"
             hdlurl += "media_info/synthesis.hdlist.cz"
 
-        if media.has_key("mirrorurl"):
-            mirrorurl = getMirrorListURL(media["mirrorurl"])
+        if media.has_key("mirrorlist"):
+            mirrorurl = getMirrorListURL(media["mirrorlist"])
 
         data = {"type": "urpmi",
                 "name": name,

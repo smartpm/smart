@@ -33,7 +33,7 @@ vendor=mandriva,distribution=mandriva linux,type=base,version=2010.1,branch=fina
 
 URPMI_CONFIG_MIRRORLIST = """\
 MirrorList http://ftp.sunet.se/pub/Linux/distributions/mandrakelinux/official/2010.1/x86_64 {
-  mirrorurl: $MIRRORLIST
+  mirrorlist: $MIRRORLIST
 }
 """
 
@@ -43,7 +43,7 @@ Mandriva Linux release 2010.1 (Official) for x86_64
 
 URPMI_CONFIG_VARIABLES = """\
 Variables http://ftp.sunet.se/pub/Linux/distributions/mandrakelinux/official/2010.1/x86_64 {
-  mirrorurl: $RELEASE/$ARCH
+  mirrorlist: $RELEASE/$ARCH
 }
 """
 
