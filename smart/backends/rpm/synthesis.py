@@ -159,7 +159,12 @@ class URPMISynthesisLoader(Loader):
 
         if self._infofile:
             try:
-                infoxml = cElementTree.parse(self._infofile).getroot()
+                infofile = self._infofile
+                # mandriva version didn't uncompress
+                if infofile.endswith(".lzma"):
+                    import lzma
+                    infofile = lzma.LZMAFile(infofile)
+                infoxml = cElementTree.parse(infofile).getroot()
             except (expat.error, SyntaxError), e: # ElementTree.ParseError
                 raise Error, _("Invalid XML file:\n  %s\n  %s") % \
                               (self._infofile, str(e))
