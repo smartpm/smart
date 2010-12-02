@@ -186,17 +186,17 @@ def _loadMediaList(filename):
         else:
             baseurl = find_urpmi_password(media["url"].replace("ssh://", "scp://"))
 
-        hdlurl = baseurl + "/"
+        hdlurl = None
+        directory = None
         
         if media.has_key("with_hdlist"):
-            hdlurl += media["with_hdlist"]
+            hdlurl = media["with_hdlist"]
         elif media.has_key("media_info_dir"):
-            hdlurl += media["media_info_dir"] + "/synthesis.hdlist.cz"
+            hdlurl = media["media_info_dir"] + "/synthesis.hdlist.cz"
         else:
             if media.has_key("with-dir"):
-                hdlurl += media["with-dir"] + "/"
-                baseurl += "/" + media["with-dir"] + "/"
-            hdlurl += "media_info/synthesis.hdlist.cz"
+                directory = media["with-dir"]
+            hdlurl = "media_info/synthesis.hdlist.cz"
 
         if media.has_key("mirrorlist"):
             mirrorurl = getMirrorListURL(media["mirrorlist"])
@@ -208,6 +208,8 @@ def _loadMediaList(filename):
                 "disabled": media.has_key("ignore"),
                 "removable": removable,
                 "priority": priority}
+        if directory:
+            data["directory"] = directory
         if mirrorurl:
             data["mirrorurl"] = mirrorurl
 

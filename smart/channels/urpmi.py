@@ -34,19 +34,23 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
     # It's important for the default to be here so that old pickled
     # instances which don't have these attributes still work fine.
     _mirrors = {}
+    _directory = None
     _mirrorurl = None
 
-    def __init__(self, baseurl, hdlurl, mirrorurl=None, *args):
+    def __init__(self, baseurl, hdlurl, directory=None, mirrorurl=None, *args):
         super(URPMIChannel, self).__init__(*args)
         self._baseurl = baseurl
+        self._directory = directory
         self._mirrorurl = mirrorurl
+        if directory:
+            baseurl += "/" + directory + "/"
         if hdlurl:
             if hdlurl[0] != "/" and ":/" not in hdlurl:
-                self._hdlurl = posixpath.join(self._baseurl, hdlurl)
+                self._hdlurl = posixpath.join(baseurl, hdlurl)
             else:
                 self._hdlurl = hdlurl
         else:
-            self._hdlurl = posixpath.join(self._baseurl, "hdlist.cz")
+            self._hdlurl = posixpath.join(baseurl, "hdlist.cz")
         self._compareurl = self._hdlurl
 
     def getCacheCompareURLs(self):
@@ -240,6 +244,7 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
 def create(alias, data):
     return URPMIChannel(data["baseurl"],
                         data["hdlurl"],
+                        data["directory"],
                         data["mirrorurl"],
                         data["type"],
                         alias,
