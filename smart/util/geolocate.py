@@ -65,7 +65,7 @@ class GeoLocate(object):
                 continue
             if len(fields) > 2:
                 if not coords and fields[0].isupper() and fields[2][0].isupper() and \
-                        (zone.find(fields[2]) != -1) or (fields[2].find(zone) != -1):
+                       ((zone.find(fields[2]) != -1) or (fields[2].find(zone) != -1)):
                     self._country = fields[0]
                     coords = fields[1]
                     self._latitude, self._longitude = _deg_min_sec_to_dec(coords)
