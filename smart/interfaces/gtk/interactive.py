@@ -38,6 +38,10 @@ from smart import *
 import shlex, re
 import fnmatch
 import gtk
+try:
+    import sexy
+except ImportError:
+    sexy = None
 
 UI = """
 <ui>
@@ -272,72 +276,140 @@ class GtkInteractiveInterface(GtkInterface):
 
         # Search bar
 
-        self._searchbar = gtk.Alignment()
-        self._searchbar.set(0, 0, 1, 1)
-        self._searchbar.set_padding(3, 3, 0, 0)
-        self._topvbox.pack_start(self._searchbar, False)
+        if gtk.gtk_version >= (2, 16, 0) or sexy:
+            self._searchbar = gtk.ToolItem()
+            self._searchbar.set_expand(True)
+            self._searchbar.set_homogeneous(False)
+            self._searchbar.show()
+            count = self._toolbar.get_n_items()
+            find = self._toolbar.get_nth_item(count - 1)
+            self._toolbar.remove(find)
+            self._toolbar.insert(self._searchbar, -1)
 
-        searchvp = gtk.Viewport()
-        searchvp.set_shadow_type(gtk.SHADOW_OUT)
-        searchvp.show()
-        self._searchbar.add(searchvp)
+            searchtable = gtk.Table(1, 1)
+            searchtable.set_row_spacings(5)
+            searchtable.set_col_spacings(5)
+            searchtable.set_border_width(5)
+            searchtable.show()
+            self._searchbar.add(searchtable)
 
-        searchtable = gtk.Table(1, 1)
-        searchtable.set_row_spacings(5)
-        searchtable.set_col_spacings(5)
-        searchtable.set_border_width(5)
-        searchtable.show()
-        searchvp.add(searchtable)
+            if gtk.gtk_version >= (2, 16, 0):
+                self._searchentry = gtk.Entry()
+                self._searchentry.set_property("primary-icon-name", "gtk-find")
+                self._searchentry.set_property("secondary-icon-name", "gtk-clear")
+                def press(entry, icon_pos, event):
+                    if int(icon_pos) == 0: # "primary"
+                        self._searchmenu.popup(None, None, None, event.button, event.time)
+                    elif int(icon_pos) == 1: # "secondary"
+                        self._searchentry.set_text("")
+                        self.refreshPackages()
+                self._searchentry.connect("icon-press", press)
+            elif sexy:
+                self._searchentry = sexy.IconEntry()
+                image = gtk.Image()
+                image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+                self._searchentry.set_icon(sexy.ICON_ENTRY_PRIMARY, image)
+                image = gtk.Image()
+                image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
+                self._searchentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
+                def pressed(entry, icon_pos, button):
+                    if icon_pos == 0: # "primary"
+                        self._searchmenu.popup(None, None, None, button, gtk.gdk.CURRENT_TIME)
+                    elif icon_pos == 1: # "secondary"
+                        self._searchentry.set_text("")
+                        self.refreshPackages()
+                self._searchentry.connect("icon-pressed", pressed)
+            self._searchentry.connect("activate", lambda x: self.refreshPackages())
+            self._searchentry.show()
+            searchtable.attach(self._searchentry, 0, 1, 0, 1)
 
-        label = gtk.Label(_("Search:"))
-        label.show()
-        searchtable.attach(label, 0, 1, 0, 1, 0, 0)
+            self._searchmenu = gtk.Menu()
+            self._searchname = gtk.CheckMenuItem(_("Automatic"))
+            self._searchname.set_draw_as_radio(True)
+            self._searchname.set_active(True)
+            def search_automatic(item):
+                self._searchdesc.set_active(not item.get_active())
+                self.refreshPackages()
+            self._searchname.connect("activate", search_automatic)
+            self._searchname.show()
+            self._searchmenu.append(self._searchname)
+            self._searchdesc = gtk.CheckMenuItem(_("Description"))
+            self._searchdesc.set_draw_as_radio(True)
+            self._searchdesc.set_active(False)
+            def search_description(item):
+                self._searchname.set_active(not item.get_active())
+                self.refreshPackages()
+            self._searchdesc.connect("activate", search_description)
+            self._searchdesc.show()
+            self._searchmenu.append(self._searchdesc)
+        else:
+            self._searchbar = gtk.Alignment()
+            self._searchbar.set(0, 0, 1, 1)
+            self._searchbar.set_padding(3, 3, 0, 0)
+            self._topvbox.pack_start(self._searchbar, False)
 
-        self._searchentry = gtk.Entry()
-        self._searchentry.connect("activate", lambda x: self.refreshPackages())
-        self._searchentry.show()
-        searchtable.attach(self._searchentry, 1, 2, 0, 1)
+            searchvp = gtk.Viewport()
+            searchvp.set_shadow_type(gtk.SHADOW_OUT)
+            searchvp.show()
+            self._searchbar.add(searchvp)
 
-        button = gtk.Button()
-        button.set_relief(gtk.RELIEF_NONE)
-        button.connect("clicked", lambda x: self.refreshPackages())
-        button.show()
-        searchtable.attach(button, 2, 3, 0, 1, 0, 0)
-        image = gtk.Image()
-        image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
-        image.show()
-        button.add(image)
+            searchtable = gtk.Table(1, 1)
+            searchtable.set_row_spacings(5)
+            searchtable.set_col_spacings(5)
+            searchtable.set_border_width(5)
+            searchtable.show()
+            searchvp.add(searchtable)
 
-        align = gtk.Alignment()
-        align.set(1, 0, 0, 0)
-        align.set_padding(0, 0, 10, 0)
-        align.show()
-        searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
-        button = gtk.Button()
-        button.set_size_request(20, 20)
-        button.set_relief(gtk.RELIEF_NONE)
-        button.connect("clicked", lambda x: self.toggleSearch())
-        button.show()
-        align.add(button)
-        image = gtk.Image()
-        image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
-        image.show()
-        button.add(image)
+            label = gtk.Label(_("Search:"))
+            label.show()
+            searchtable.attach(label, 0, 1, 0, 1, 0, 0)
 
-        hbox = gtk.HBox()
-        hbox.set_spacing(10)
-        hbox.show()
-        searchtable.attach(hbox, 1, 2, 1, 2)
+            self._searchentry = gtk.Entry()
+            self._searchentry.connect("activate", lambda x: self.refreshPackages())
+            self._searchentry.show()
+            searchtable.attach(self._searchentry, 1, 2, 0, 1)
 
-        self._searchname = gtk.RadioButton(None, _("Automatic"))
-        self._searchname.set_active(True)
-        self._searchname.connect("clicked", lambda x: self.refreshPackages())
-        self._searchname.show()
-        hbox.pack_start(self._searchname, False)
-        self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
-        self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
-        self._searchdesc.show()
-        hbox.pack_start(self._searchdesc, False)
+            button = gtk.Button()
+            button.set_relief(gtk.RELIEF_NONE)
+            button.connect("clicked", lambda x: self.refreshPackages())
+            button.show()
+            searchtable.attach(button, 2, 3, 0, 1, 0, 0)
+            image = gtk.Image()
+            image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+            image.show()
+            button.add(image)
+
+            align = gtk.Alignment()
+            align.set(1, 0, 0, 0)
+            align.set_padding(0, 0, 10, 0)
+            align.show()
+            searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
+            button = gtk.Button()
+            button.set_size_request(20, 20)
+            button.set_relief(gtk.RELIEF_NONE)
+            button.connect("clicked", lambda x: self.toggleSearch())
+            button.show()
+            align.add(button)
+            image = gtk.Image()
+            image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
+            image.show()
+            button.add(image)
+
+            hbox = gtk.HBox()
+            hbox.set_spacing(10)
+            hbox.show()
+            searchtable.attach(hbox, 1, 2, 1, 2)
+
+            self._searchmenu = None
+            self._searchname = gtk.RadioButton(None, _("Automatic"))
+            self._searchname.set_active(True)
+            self._searchname.connect("clicked", lambda x: self.refreshPackages())
+            self._searchname.show()
+            hbox.pack_start(self._searchname, False)
+            self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
+            self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
+            self._searchdesc.show()
+            hbox.pack_start(self._searchdesc, False)
 
         # Packages and information
 
@@ -771,8 +843,12 @@ class GtkInteractiveInterface(GtkInterface):
         self._clearmenuitem.set_property("sensitive", bool(self._changeset))
 
     def toggleSearch(self):
-        visible = not self._searchbar.get_property('visible')
-        self._searchbar.set_property('visible', visible)
+        if not isinstance(self._searchbar, gtk.ToolItem):
+            visible = not self._searchbar.get_property('visible')
+            self._searchbar.set_property('visible', visible)
+        else:
+            # always show the ToolItem
+            visible = True
         self.refreshPackages()
         if visible:
             self._searchentry.grab_focus()
@@ -819,6 +895,8 @@ class GtkInteractiveInterface(GtkInterface):
                         packages.append(obj)
                     else:
                         packages.extend(obj.packages)
+            elif isinstance(self._searchbar, gtk.ToolItem):
+                packages = ctrl.getCache().getPackages()
         else:
             packages = ctrl.getCache().getPackages()
 
