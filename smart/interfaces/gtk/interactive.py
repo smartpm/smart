@@ -37,7 +37,7 @@ from smart.cache import Package
 from smart import *
 import shlex, re
 import fnmatch
-import gtk
+import gobject, gtk
 try:
     import sexy
 except ImportError:
@@ -89,6 +89,7 @@ UI = """
         <separator/>
         <menu action="tree-style">
             <menuitem action="tree-style-groups"/>
+            <menuitem action="tree-style-separate-groups"/>
             <menuitem action="tree-style-channels"/>
             <menuitem action="tree-style-channels-groups"/>
             <menuitem action="tree-style-none"/>
@@ -241,6 +242,7 @@ class GtkInteractiveInterface(GtkInterface):
         treestyle = sysconf.get("package-tree")
         lastaction = None
         for name, label in [("groups", _("Groups")),
+                            ("separate-groups", _("Separate Groups")),
                             ("channels", _("Channels")),
                             ("channels-groups", _("Channels & Groups")),
                             ("none", _("None"))]:
@@ -413,9 +415,32 @@ class GtkInteractiveInterface(GtkInterface):
 
         # Packages and information
 
+        self._hpaned = gtk.HPaned()
+        self._hpaned.show()
+        self._topvbox.pack_start(self._hpaned)
+
+        scrollwin = gtk.ScrolledWindow()
+        scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        self._hpaned.pack1(scrollwin, True)
+
+        self._pg = gtk.TreeView()
+        def group_selected(treeview):
+            self.refreshPackages()
+        self._pg.connect("cursor_changed", group_selected)
+        self._pg.show()
+        scrollwin.add(self._pg)
+
+        selection = self._pg.get_selection()
+        selection.set_mode(gtk.SELECTION_MULTIPLE)
+
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn(_("Group"), renderer, text=0)
+        self._pg.append_column(column)
+
         self._vpaned = gtk.VPaned()
         self._vpaned.show()
-        self._topvbox.pack_start(self._vpaned)
+        self._hpaned.pack2(self._vpaned, True)
 
         self._pv = GtkPackageView()
         self._pv.show()
@@ -466,6 +491,7 @@ class GtkInteractiveInterface(GtkInterface):
     def saveState(self):
         sysconf.set("gtk-size", self._window.get_size())
         #sysconf.set("gtk-position", self._window.get_position())
+        sysconf.set("gtk-hpaned-position", self._hpaned.get_position())
         sysconf.set("gtk-vpaned-position", self._vpaned.get_position())
 
     def loadState(self):
@@ -475,6 +501,9 @@ class GtkInteractiveInterface(GtkInterface):
         #var = sysconf.get("gtk-position")
         #if var is not None:
         #    self._window.move(*var)
+        var = sysconf.get("gtk-hpaned-position")
+        if var is not None:
+            self._hpaned.set_position(var)
         var = sysconf.get("gtk-vpaned-position")
         if var is not None:
             self._vpaned.set_position(var)
@@ -863,6 +892,30 @@ class GtkInteractiveInterface(GtkInterface):
         ctrl = self._ctrl
         changeset = self._changeset
 
+        self._pg.parent.set_visible(tree == "separate-groups")
+        if self._pg.get_visible():
+            model = self._pg.get_model()
+            if not model:
+                packages = ctrl.getCache().getPackages()
+                packagegroups = {}
+                for pkg in packages:
+                    for loader in pkg.loaders:
+                        info = loader.getInfo(pkg)
+                        group = info.getGroup()
+                        packagegroups[group] = True
+                groups = packagegroups.keys()
+                groups.sort()
+                    
+                model = gtk.ListStore(gobject.TYPE_STRING)
+                self._pg.set_model(model)
+                iter = model.append()
+                model.set(iter, 0, _("All"))
+                self._pg.get_selection().select_iter(iter)
+                for group in groups:
+                    iter = model.append()
+                    model.set(iter, 0, group)
+                self._pg.queue_draw()
+
         if self._searchbar.get_property("visible"):
 
             searcher = Searcher()
@@ -947,6 +1000,26 @@ class GtkInteractiveInterface(GtkInterface):
                             groups[group].append(pkg)
                         else:
                             groups[group] = [pkg]
+
+        elif tree == "separate-groups":
+            showgroups = {}
+            selection = self._pg.get_selection()
+            model, paths = selection.get_selected_rows()
+            for path in paths:
+                iter = model.get_iter(path)
+                value = model.get_value(iter, 0)
+                showgroups[value] = True
+            if showgroups and _("All") not in showgroups:
+                newpackages = []
+                for pkg in packages:
+                    for loader in pkg.loaders:
+                        info = loader.getInfo(pkg)
+                        group = info.getGroup()
+                        if group in showgroups:
+                            newpackages.append(pkg)
+                groups = newpackages
+            else:
+                groups = packages
 
         elif tree == "channels":
             groups = {}
