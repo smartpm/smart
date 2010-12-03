@@ -54,7 +54,7 @@ class QtInterface(Interface):
         return QtGui.QApplication.instance().hasPendingEvents()
     
     def processEvents(self):
-        QtGui.QApplication.instance().processEvents(QtGui.QEventLoop.AllEvents)
+        QtGui.QApplication.instance().processEvents(QtCore.QEventLoop.AllEvents)
 
     def getProgress(self, obj, hassub=False):
         if hassub:
