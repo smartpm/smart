@@ -212,30 +212,6 @@ class DebPackageManager(PackageManager):
 
         sorter = DebSorter(changeset)
 
-        f = open("test.dot", "w")
-        f.write("digraph Foobar {\n")
-        def get_repr(pair):
-            pkg, action = pair
-            action_name = {INSTALL: "INSTALL",
-                           REMOVE:  "REMOVE",
-                           UNPACK:  "UNPACK",
-                           CONFIG:  "CONFIG"}[action]
-            return '"%s %s"' % (pkg, action_name)
-        shown = set()
-        for pred in sorter._successors:
-            if pred not in shown:
-                shown.add(pred)
-                f.write(get_repr(pred) + " [];\n")
-            for succ in sorter._successors[pred]:
-                if (pred, succ) in sorter._disabled:
-                    continue
-                if succ not in shown:
-                    shown.add(succ)
-                    f.write(get_repr(pred) + " [];\n")
-                f.write("%s -> %s;\n" % (get_repr(pred), get_repr(succ)))
-        f.write("}\n")
-        f.close()
-
         sorted = sorter.getSorted()
 
         prog.set(0, len(sorted))
