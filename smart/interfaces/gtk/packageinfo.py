@@ -24,6 +24,11 @@ from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk, pango
 import subprocess
+import fnmatch
+try:
+    import sexy
+except ImportError:
+    sexy = None
 
 class GtkPackageInfo(gtk.Alignment):
     hovering_over_link = False
@@ -128,6 +133,77 @@ class GtkPackageInfo(gtk.Alignment):
         label = gtk.Label(_("Description"))
         self._notebook.append_page(sw, label)
 
+        vbox = gtk.VBox()
+        vbox.show()
+
+        filtertable = gtk.Table(1, 1)
+        filtertable.set_row_spacings(5)
+        filtertable.set_col_spacings(5)
+        filtertable.set_border_width(5)
+        filtertable.show()
+        vbox.pack_start(filtertable, False)
+
+        label = gtk.Label(_("Filter:"))
+        label.show()
+        filtertable.attach(label, 0, 1, 0, 1, 0, 0)
+
+        if gtk.gtk_version >= (2, 16, 0) or not sexy:
+            self._filterentry = gtk.Entry()
+        else:
+            self._filterentry = sexy.IconEntry()
+        self._filterentry.connect("activate", lambda x: self.filterContent())
+        self._filterentry.show()
+        filtertable.attach(self._filterentry, 1, 2, 0, 1)
+
+        align = gtk.Alignment()
+        align.set(1, 0, 0, 0)
+        align.set_padding(0, 0, 10, 0)
+        align.show()
+        filtertable.attach(align, 2, 3, 0, 1, gtk.FILL, gtk.FILL)
+
+        if gtk.gtk_version >= (2, 16, 0):
+            self._filterentry.set_property("primary-icon-name", "gtk-find")
+            self._filterentry.set_property("secondary-icon-name", "gtk-clear")
+            def press(entry, icon_pos, event):
+                if int(icon_pos) == 0: # "primary"
+                    self.filterContent()
+                elif int(icon_pos) == 1: # "secondary"
+                    self.filterClear()
+            self._filterentry.connect("icon-press", press)
+        elif sexy:
+            image = gtk.Image()
+            image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+            self._filterentry.set_icon(sexy.ICON_ENTRY_PRIMARY, image)
+            image = gtk.Image()
+            image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
+            self._filterentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
+            def pressed(entry, icon_pos, button):
+                print type(icon_pos)
+                if icon_pos == 0: # "primary"
+                    self.filterContent()
+                elif icon_pos == 1: # "secondary"
+                    self.filterClear()
+            self._filterentry.connect("icon-pressed", pressed)
+        else:
+            button = gtk.Button()
+            button.set_relief(gtk.RELIEF_NONE)
+            button.connect("clicked", lambda x: self.filterContent())
+            button.show()
+            filtertable.attach(button, 3, 4, 0, 1, 0, 0)
+            image = gtk.Image()
+            image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+            image.show()
+            button.add(image)
+
+            button = gtk.Button()
+            button.set_relief(gtk.RELIEF_NONE)
+            button.connect("clicked", lambda x: self.filterClear())
+            button.show()
+            filtertable.attach(button, 4, 5, 0, 1, 0, 0)
+            image = gtk.Image()
+            image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
+            image.show()
+            button.add(image)
 
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
@@ -145,8 +221,10 @@ class GtkPackageInfo(gtk.Alignment):
         buffer.create_tag("content", font_desc=font)
         sw.add(self._conttv)
 
+        vbox.add(sw)
+
         label = gtk.Label(_("Content"))
-        self._notebook.append_page(sw, label)
+        self._notebook.append_page(vbox, label)
 
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
@@ -393,21 +471,12 @@ class GtkPackageInfo(gtk.Alignment):
 
             # Update contents
 
-            contbuf = self._conttv.get_buffer()
-            contbuf.set_text("")
-            if not pkg: return
+            if not pkg:
+                contbuf = self._conttv.get_buffer()
+                contbuf.set_text("")
+                return
 
-            iter = contbuf.get_end_iter()
-            for loader in pkg.loaders:
-                if loader.getInstalled():
-                    break
-            else:
-                loader = pkg.loaders.keys()[0]
-            info = loader.getInfo(pkg)
-            pathlist = info.getPathList()
-            pathlist.sort()
-            for path in pathlist:
-                contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
+            self._setContent(pkg)
 
         elif num == 3:
             # Update changelog
@@ -468,6 +537,34 @@ class GtkPackageInfo(gtk.Alignment):
                 if item != lastitem:
                     lastitem = item
                     model.append(item)
+
+    def filterContent(self):
+        if self._pkg:
+            self._setContent(self._pkg)
+
+    def filterClear(self):
+        self._filterentry.set_text("")
+        self.filterContent()
+
+    def _setContent(self, pkg):
+
+            contbuf = self._conttv.get_buffer()
+            contbuf.set_text("")
+
+            iter = contbuf.get_end_iter()
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    break
+            else:
+                loader = pkg.loaders.keys()[0]
+            info = loader.getInfo(pkg)
+            pathlist = info.getPathList()
+            filter = self._filterentry.get_text().strip()
+            if filter:
+                pathlist = fnmatch.filter(pathlist, filter)
+            pathlist.sort()
+            for path in pathlist:
+                contbuf.insert_with_tags_by_name(iter, path+"\n", "content")
 
     def _setRelations(self, pkg):
 
