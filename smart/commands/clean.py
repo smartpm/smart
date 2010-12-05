@@ -35,6 +35,8 @@ an incomplete transaction.
 def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION)
+    parser.add_option("--auto", action="store_true",
+                      help=_("remove packages not in other channels"))
     return parser
 
 def parse_options(argv):
@@ -52,8 +54,23 @@ def main(ctrl, opts):
 
     iface.info(_("Removing cached package files..."))
    
+    if opts.auto:
+        available = {}
+        ctrl.reloadChannels()
+        cache = ctrl.getCache()
+        for pkg in cache.getPackages():
+            for loader in pkg.loaders:
+                if loader.getInstalled():
+                    continue
+                info = loader.getInfo(pkg)
+                for url in info.getURLs():
+                    available[os.path.basename(url)] = pkg
+
     for root, dirs, files in os.walk(packagesdir):
         for cached_pkg in files:
+            if opts.auto:
+                if cached_pkg in available:
+                    continue
             try:
                 os.unlink(os.path.join(root, cached_pkg))
                 iface.debug(_("Removed %s") % cached_pkg)
