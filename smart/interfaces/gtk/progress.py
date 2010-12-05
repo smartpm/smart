@@ -43,7 +43,8 @@ class GtkProgress(Progress, gtk.Window):
         self._fetcher = None
 
         if hassub:
-            self.set_size_request(500, 400)
+            self.set_size_request(500, 100)
+            self.set_default_size(500, 400)
         else:
             self.set_size_request(300, 80)
 
@@ -69,12 +70,23 @@ class GtkProgress(Progress, gtk.Window):
         vbox.pack_start(self._progressbar, expand=False, fill=False)
 
         if hassub:
+            expander = gtk.Expander()
+            expander.set_expanded(True)
+            expander.show()
+            def toggle_window(expander, param_spec):
+                if expander.get_expanded():
+                    self.resize(500, 400)
+                else:
+                    self.resize(500, 100)
+            expander.connect("notify::expanded", toggle_window)
+            vbox.pack_start(expander)
+
             self._scrollwin = gtk.ScrolledWindow()
             self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC,
                                        gtk.POLICY_AUTOMATIC)
             self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
             self._scrollwin.show()
-            vbox.pack_start(self._scrollwin)
+            expander.add(self._scrollwin)
 
             self._treemodel = gtk.ListStore(gobject.TYPE_INT,
                                             gobject.TYPE_STRING,
