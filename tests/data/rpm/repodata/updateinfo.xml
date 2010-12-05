@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<updates>
+  <update from="info@example.com" type="bugfix" version="1.4">
+    <id>SMARTTEST-2008-001</id>
+    <title>update fixes bugs</title>
+    <release>Smart</release>
+    <issued date="2007-06-20 01:02:03"/>
+    <references>
+      <reference href="http://www.example.com/test" type="bugzilla"/>
+    </references>
+    <description></description>
+    <pkglist>
+      <collection short="smart">
+        <name>Smart</name>
+        <package arch="noarch" name="name1" release="release1" src="name1-version1-release1.noarch.rpm" version="version1">
+          <filename>name1-version1-release1.noarch.rpm</filename>
+        </package>
+        <package arch="noarch" name="name2" release="release2" src="name2-version2-release2.noarch.rpm" version="version2">
+          <filename>name2-version2-release2.noarch.rpm</filename>
+        </package>
+      </collection>
+    </pkglist>
+  </update>
+</updates>

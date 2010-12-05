@@ -21,6 +21,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.synthesis import URPMISynthesisLoader
+from smart.backends.rpm.descriptions import RPMDescriptions
 from smart.backends.rpm.header import URPMILoader
 from smart.util.filetools import getFileDigest
 from smart.const import SUCCEEDED, FAILED, ALWAYS, NEVER
@@ -48,7 +49,7 @@ class URPMIChannel(PackageChannel):
         return [self._compareurl]
 
     def getFetchSteps(self):
-        return 3
+        return 4
 
     def fetch(self, fetcher, progress):
 
@@ -67,7 +68,7 @@ class URPMIChannel(PackageChannel):
             self._compareurl = md5url
             digest = getFileDigest(item.getTargetPath())
             if digest == self._digest:
-                progress.add(2)
+                progress.add(3)
                 return True
 
             basename = posixpath.basename(self._hdlurl)
@@ -90,6 +91,14 @@ class URPMIChannel(PackageChannel):
             suffix = m and m.group(1) or ""
             listurl = posixpath.join(hdlbaseurl, "list%s" % suffix)
             listitem = fetcher.enqueue(listurl, uncomp=True)
+
+        # do not get "descriptions" on non "update" media
+        if self.getName().find("Updates") == -1:
+            progress.add(1)
+            descitem = None
+        else:
+            descurl = posixpath.join(hdlbaseurl, "descriptions")
+            descitem = fetcher.enqueue(descurl)
 
         fetcher.run(progress=progress)
 
@@ -171,10 +180,20 @@ class URPMIChannel(PackageChannel):
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
 
+            flagdict = {}
+            if descitem and descitem.getStatus() == SUCCEEDED:
+                descpath = descitem.getTargetPath()
+                errata = RPMDescriptions(descpath)
+                errata.load()
+                #errata.setErrataFlags() <-- done in loader
+                flagdict = errata.getErrataFlags()
+            
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
                 loader = URPMILoader(localpath, self._baseurl, listpath)
             else:
                 loader = URPMISynthesisLoader(localpath, self._baseurl, listpath)
+            # need to set flags while loading
+            loader.setErrataFlags(flagdict)
                                 
             loader.setChannel(self)
             self._loaders.append(loader)

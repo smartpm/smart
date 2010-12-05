@@ -20,6 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.metadata import RPMMetaDataLoader
+from smart.backends.rpm.updateinfo import RPMUpdateInfo
 from smart.util.filetools import getFileDigest
 
 try:
@@ -276,6 +277,13 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
                                  sha256=filelists.get("sha256"),
                                  uncomp_sha256=filelists.get("uncomp_sha256"),
                                  uncomp=True)
+        if "updateinfo" in info:
+            uiitem = fetcher.enqueue(info["updateinfo"]["url"],
+                                   md5=info["updateinfo"].get("md5"),
+                                   uncomp_md5=info["updateinfo"].get("uncomp_md5"),
+                                   sha=info["updateinfo"].get("sha"),
+                                   uncomp_sha=info["updateinfo"].get("uncomp_sha"),
+                                   uncomp=True)
         fetcher.run(progress=progress)
  
         if item.getStatus() == SUCCEEDED and flitem.getStatus() == SUCCEEDED:
@@ -285,6 +293,16 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
                                        self._baseurl)
             loader.setChannel(self)
             self._loaders.append(loader)
+            if "updateinfo" in info:
+                if uiitem.getStatus() == SUCCEEDED:
+                    localpath = uiitem.getTargetPath()
+                    errata = RPMUpdateInfo(localpath)
+                    errata.load()
+                    errata.setErrataFlags()
+                else:
+                    iface.warning(_("Failed to download. You must fetch channel "
+                        "information to acquire needed update information.\n"
+                        "%s: %s") % (uiitem.getURL(), uiitem.getFailedReason()))
         elif (item.getStatus() == SUCCEEDED and
               flitem.getStatus() == FAILED and
               fetcher.getCaching() is ALWAYS):

@@ -70,6 +70,17 @@ class URPMISynthesisLoader(Loader):
                     entry = entry[2:]
                 dirname, basename = os.path.split(entry.rstrip())
                 self._prefix[basename] = dirname
+        self._flagdict = None
+
+    def setErrataFlags(self, flagdict):
+        self._flagdict = flagdict
+    
+    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
+        pkg = Loader.buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs)
+        name = pkgargs[1]
+        if hasattr(self, '_flagdict') and self._flagdict and name in self._flagdict:
+            pkgconf.setFlag(self._flagdict[name], name, "=", pkgargs[2])
+        return pkg
 
     def getInfo(self, pkg):
         return URPMISynthesisPackageInfo(pkg, self, pkg.loaders[self])

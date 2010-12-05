@@ -1,0 +1,21 @@
+
+Set up the parser.
+
+  >>> from tests import *
+  >>> from smart.backends.rpm.descriptions import RPMDescriptions
+  >>> localpath = "%s/urpmi/media_info/descriptions" % TESTDATADIR
+  >>> baseurl = "file://%s" % localpath
+  >>> descriptions = RPMDescriptions(localpath)
+  >>> descriptions.load()
+  
+  >>> descriptions.getErrataFlags()
+  {'name2': 'bugfix', 'name1': 'bugfix'}
+  >>> descriptions.setErrataFlags()
+
+This should give us one test "update" with data we already know.
+
+  >>> pkgconf.getFlagNames()
+  ['bugfix']
+  >>> sorted(pkgconf.getFlagTargets('bugfix'))
+  ['name1', 'name2']
+

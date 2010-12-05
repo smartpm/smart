@@ -83,6 +83,8 @@ def option_parser(**kwargs):
                       help=_("show only packages which match given group"))
     parser.add_option("--channel", action="append", default=[], metavar="STR",
                       help=_("show only packages from the given channel"))
+    parser.add_option("--flag", action="append", default=[], metavar="STR",
+                      help=_("show only packages with the given flag set"))
     parser.add_option("--summary", action="append", default=[], metavar="STR",
                       help=_("show only packages which match given summary"))
     parser.add_option("--description", action="append", default=[], metavar="STR",
@@ -334,6 +336,9 @@ def main(ctrl, opts, reloadchannels=True):
     haschannel = []
     for token in opts.channel:
         haschannel.append(token)
+    hasflag = []
+    for token in opts.flag:
+        hasflag.append(token)
     hassummary = []
     for token in opts.summary:
         hassummary.append(sh2re(token))
@@ -379,6 +384,16 @@ def main(ctrl, opts, reloadchannels=True):
                         for url in info.getReferenceURLs():
                             if pattern.match(url):
                                 newpackages[pkg] = True
+            if hasflag and not (hasname or needsinfo):
+                for flag in hasflag:
+                    if pkgconf.testFlag(flag, pkg):
+                        newpackages[pkg] = True
+            elif hasflag and pkg in newpackages:
+                for flag in hasflag:
+                    if not pkgconf.testFlag(flag, pkg):
+                        del newpackages[pkg]
+                        break
+        
         packages = newpackages.keys()
 
     if haschannel:
@@ -387,6 +402,14 @@ def main(ctrl, opts, reloadchannels=True):
             for loader in pkg.loaders:
                 alias = loader.getChannel().getAlias()
                 if alias in haschannel:
+                    newpackages[pkg] = True
+        packages = newpackages.keys()
+
+    if hasflag:
+        newpackages = {}
+        for pkg in packages:
+            for flag in hasflag:
+                if pkgconf.testFlag(flag, pkg):
                     newpackages[pkg] = True
         packages = newpackages.keys()
 
