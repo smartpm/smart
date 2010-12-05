@@ -85,8 +85,6 @@ def _findBaseUrl(mirrorlist, repo):
     """
     Fetches the first suggested mirror from the mirrorlist and use as baseurl.
     """
-    iface.debug(_("Yum Sync: trying to locate baseurl from mirrorlist for " \
-                     "%s.") % repo)
     import urllib
     list = urllib.urlopen(mirrorlist)
     baseurl = None
@@ -106,8 +104,6 @@ def _searchComments(repofile, repo):
     """
     Hack to find the commented out baseurl line if mirrorlist is feeling sad.
     """
-    iface.debug(_("Yum Sync: trying to locate baseurl from repo comments for " \
-                     "%s.") % repo)
     section = None
     baseurl = None
     file = open(repofile)
@@ -210,8 +206,6 @@ def syncYumRepos(reposdir, force=None):
 
 if not sysconf.getReadOnly():
     if sysconf.get("sync-yum-repos",False):
-        # Sync is not enabled by default
-        iface.debug(_("Trying to sync Yum channels..."))
         syncYumRepos(sysconf.get("yum-repos-dir", YUM_REPOS_DIR))
 
 # vim:ts=4:sw=4:et

@@ -93,8 +93,6 @@ def _findBaseUrl(mirrorlist, repo):
     """
     Fetches the first suggested mirror from the mirrorlist and use as baseurl.
     """
-    iface.debug(_("ZYpp Sync: trying to locate baseurl from mirrorlist for " \
-                     "%s.") % repo)
     import urllib
     list = urllib.urlopen(mirrorlist)
     baseurl = None
@@ -200,8 +198,6 @@ def syncZyppRepos(reposdir, force=None):
 
 if not sysconf.getReadOnly():
     if sysconf.get("sync-zypp-repos",False):
-        # Sync is not enabled by default
-        iface.debug(_("Trying to sync ZYpp channels..."))
         syncZyppRepos(sysconf.get("zypp-repos-dir", ZYPP_REPOS_DIR))
 
 # vim:ts=4:sw=4:et
