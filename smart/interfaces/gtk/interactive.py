@@ -1079,16 +1079,18 @@ class GtkInteractiveInterface(GtkInterface):
             Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
             """
         credits=["""Gustavo Niemeyer - Original author and lead developer.""",
+           u"""Anders F Bj\u00f6rklund - Current maintainer and developer.""",
             """Conectiva Inc. - Original project funder up to August 2005.""",
-            """Canonical Ltd. - Funding Smart development since September of 2005.""",
+            """Canonical Ltd. - Funding Smart development up to November of 2009.""",
+            """Unity Linux - Smart development and deployment support.""",
             """And many others - Check our website for the complete list.""",
             ]
-        website = "http://labix.org/smart"    
+        website = "http://smartpm.org/"
 
         aboutdialog = gtk.AboutDialog()
         aboutdialog.set_name("Smart Package Manager")
         aboutdialog.set_version(VERSION)
-        aboutdialog.set_copyright("2006 Canonical, 2004 Conectiva, Inc.")
+        aboutdialog.set_copyright("2010 Smart Team, 2006 Canonical Ltd., 2004 Conectiva, Inc.")
         aboutdialog.set_authors(credits)
         aboutdialog.set_license(license)
         aboutdialog.set_website(website)
