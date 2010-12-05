@@ -126,6 +126,21 @@ class RPMHeaderPackageInfo(PackageInfo):
                 break
         return result
 
+    def _getHeaderArray(self, tag):
+        result = self._h and self._h[tag] or []
+        if result:
+            if type(result) != list:
+                result = [result]
+            for i in range(len(result)):
+                if type(result[i]) == str:
+                    for encoding in ENCODINGS:
+                        try:
+                            result[i] = result[i].decode(encoding)
+                        except UnicodeDecodeError:
+                            continue
+                        break
+        return result
+
     def getDescription(self):
         return self._getHeaderString(rpm.RPMTAG_DESCRIPTION)
 
@@ -155,17 +170,11 @@ class RPMHeaderPackageInfo(PackageInfo):
 
     def getChangeLog(self):
         if self._change is None:
-            logname = self._h[rpm.RPMTAG_CHANGELOGNAME]
-            logtime = self._h[rpm.RPMTAG_CHANGELOGTIME]
-            change = self._h[rpm.RPMTAG_CHANGELOGTEXT]
-            if type(logname) != list:
-                logname = [logname]
-            if type(logtime) != list:
-                logtime = [logtime]              
-            if type(change) != list:
-                change = [change]
+            logtime = self._getHeaderArray(rpm.RPMTAG_CHANGELOGTIME)
             self._change = []
             if len(logtime) > 0:
+                logname = self._getHeaderArray(rpm.RPMTAG_CHANGELOGNAME)
+                change = self._getHeaderArray(rpm.RPMTAG_CHANGELOGTEXT)
                 for i in range(len(change)):
                     self._change.append(datetime.fromtimestamp(logtime[i]).strftime("%Y-%m-%d")+"  "+ logname[i])
                     self._change.append("  " + change[i])
