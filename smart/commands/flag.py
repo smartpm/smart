@@ -102,6 +102,10 @@ TARGETRE = re.compile(r"^\s*(?P<name>\S+?)\s*"
 def main(ctrl, opts):
 
     for args in (opts.set, opts.remove):
+        if args is opts.remove and len(args) == 1:
+            flag = args[0]
+            pkgconf.clearFlag(flag)
+            continue
         if len(args) % 2 != 0:
             raise Error, _("Invalid arguments")
         for i in range(0, len(args), 2):
