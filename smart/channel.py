@@ -296,10 +296,12 @@ def getAllChannelInfos():
     from smart import channels
     filenames = os.listdir(os.path.dirname(channels.__file__))
     infos = {}
+    display_channels = sysconf.get("display-channels", True)
     for filename in filenames:
         if filename.endswith("_info.py"):
             type = filename[:-8].replace("_", "-")
-            infos[type] = getChannelInfo(type)
+            if display_channels == True or type in str(display_channels):
+                infos[type] = getChannelInfo(type)
     return infos
 
 def detectLocalChannels(path):
