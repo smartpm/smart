@@ -96,6 +96,7 @@ def option_parser():
     parser.defaults["remove"] = None
     parser.defaults["enable"] = None
     parser.defaults["disable"] = None
+    parser.defaults["list"] = None
     parser.defaults["show"] = None
     parser.defaults["yaml"] = None
     parser.add_option("--add", action="callback", callback=append_all,
@@ -112,6 +113,8 @@ def option_parser():
                       help=_("arguments are channel aliases to be removed"))
     parser.add_option("--remove-all", action="store_true",
                       help=_("remove all existent channels"))
+    parser.add_option("--list", action="callback", callback=append_all,
+                      help=_("list all known channel aliases"))
     parser.add_option("--show", action="callback", callback=append_all,
                       help=_("show channels with given aliases, or all "
                            "channels if no arguments were given"))
@@ -150,8 +153,8 @@ def main(ctrl, opts):
         print
         sys.exit(0)
 
-    if sysconf.getReadOnly() is True and opts.show is None \
-                                     and opts.yaml is None:
+    if (sysconf.getReadOnly() is True and opts.list is None and
+                              opts.show is None and opts.yaml is None):
         iface.warning(_("Can't edit channels information."))
         raise Error, _("Configuration is in readonly mode.")
     
@@ -304,6 +307,14 @@ def main(ctrl, opts):
                 iface.warning(_("Channel '%s' not found.") % alias)
             else:
                 sysconf.set(("channels", alias, "disabled"), "yes")
+
+    if opts.list is not None:
+        for alias in (opts.list or sysconf.get("channels", ())):
+            channel = sysconf.get(("channels", alias))
+            if not channel:
+                iface.warning(_("Channel '%s' not found.") % alias)
+            else:
+                print alias
 
     if opts.show is not None:
         for alias in (opts.show or sysconf.get("channels", ())):
