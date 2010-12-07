@@ -10,7 +10,7 @@ from smart.progress import Progress
 from smart.interface import Interface
 from smart.fetcher import Fetcher
 from smart.const import VERSION, SUCCEEDED, FAILED
-from smart import fetcher, iface
+from smart import fetcher, sysconf, iface
 
 from tests.mocker import MockerTestCase
 
@@ -151,3 +151,23 @@ class FetcherTest(MockerTestCase):
         self.assertTrue(timeout <= (time.time() - started) < sleep_time-1)
 
         item = self.fetcher.getItem(URL)
+
+    def test_ratelimit(self):
+        bytes = 30
+        rate_limit = 10
+        
+        sysconf.set("max-download-rate", rate_limit, soft=True)
+
+        def handler(request):
+            request.send_header("Content-Length", str(bytes))
+            request.wfile.write(" " * bytes)
+        
+        self.start_server(handler)
+        self.fetcher.enqueue(URL)
+        start = time.time()
+        self.fetcher.run(progress=Progress())
+        stop = time.time()
+        elapsed_time = stop - start
+        
+        self.assertTrue(elapsed_time >= bytes / rate_limit)
+    

@@ -185,6 +185,7 @@ class Fetcher(object):
         self._activedownloads = 0
         self._maxactivedownloads = sysconf.get("max-active-downloads",
                                                MAXACTIVEDOWNLOADS)
+        self._maxdownloadrate = sysconf.get("max-download-rate", 0)
         self.time = time.time()
         handlers = self._handlers.values()
         total = len(self._items)
@@ -1149,6 +1150,7 @@ class URLLIBHandler(FetcherHandler):
 
     def fetch(self):
         import urllib, rfc822, calendar
+        from time import time, sleep
 
         class Opener(urllib.FancyURLopener):
             user = None
@@ -1253,6 +1255,11 @@ class URLLIBHandler(FetcherHandler):
                 except (IOError, OSError), e:
                     raise IOError, "%s: %s" % (localpathpart, e)
 
+                rate_limit = self._fetcher._maxdownloadrate
+                if rate_limit:
+                    rate_limit /= self._active
+                    start = time()
+
                 try:
                     data = remote.read(BLOCKSIZE)
                     while data:
@@ -1261,6 +1268,14 @@ class URLLIBHandler(FetcherHandler):
                         local.write(data)
                         current += len(data)
                         item.progress(current, total)
+                        if rate_limit:
+                            elapsed_time = time() - start
+                            if elapsed_time != 0:
+                                rate = current / elapsed_time
+                                expected_time = current / rate_limit
+                                sleep_time = expected_time - elapsed_time
+                                if sleep_time > 0:
+                                    sleep(sleep_time)
                         data = remote.read(BLOCKSIZE)
                 finally:
                     local.close()
@@ -1716,6 +1731,11 @@ class PyCurlHandler(FetcherHandler):
                             # reset the I-M-S option 
                             handle.setopt(pycurl.TIMECONDITION,
                                           pycurl.TIMECONDITION_NONE)
+                                          
+                        rate_limit = self._fetcher._maxdownloadrate
+                        if rate_limit:
+                            rate_limit /= self._active
+                            handle.setopt(pycurl.MAX_RECV_SPEED_LARGE, rate_limit)
 
                         self._active[handle] = schemehost
                         self._lock.acquire()
