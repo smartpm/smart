@@ -77,6 +77,7 @@ UI = """
     </menu>
     <menu action="view">
         <menuitem action="hide-non-upgrades"/>
+        <menuitem action="hide-non-newest"/>
         <menuitem action="hide-installed"/>
         <menuitem action="hide-uninstalled"/>
         <menuitem action="hide-unmarked"/>
@@ -229,6 +230,7 @@ class GtkInteractiveInterface(GtkInterface):
 
         self._filters = {}
         for name, label in [("hide-non-upgrades", _("Hide Non-upgrades")),
+                            ("hide-non-newest", _("Hide Non-newest")),
                             ("hide-installed", _("Hide Installed")),
                             ("hide-uninstalled", _("Hide Uninstalled")),
                             ("hide-unmarked", _("Hide Unmarked")),
@@ -972,6 +974,15 @@ class GtkInteractiveInterface(GtkInterface):
                         else:
                             newpackages.update(upgpkgs)
                 packages = newpackages.keys()
+            if "hide-non-newest" in filters:
+                newest = {}
+                for pkg in packages:
+                    if pkg.name in newest:
+                        if pkg > newest[pkg.name]:
+                            newest[pkg.name] = pkg
+                    else:
+                        newest[pkg.name] = pkg
+                packages = [pkg for pkg in packages if pkg == newest[pkg.name]]
             if "hide-uninstalled" in filters:
                 packages = [x for x in packages if x.installed]
             if "hide-unmarked" in filters:
