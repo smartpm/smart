@@ -1011,12 +1011,16 @@ class GtkInteractiveInterface(GtkInterface):
                 showgroups[value] = True
             if showgroups and _("All") not in showgroups:
                 newpackages = []
+                done = {}
                 for pkg in packages:
                     for loader in pkg.loaders:
                         info = loader.getInfo(pkg)
                         group = info.getGroup()
-                        if group in showgroups:
-                            newpackages.append(pkg)
+                        donetuple = (group, pkg)
+                        if donetuple not in done:
+                            done[donetuple] = True
+                            if group in showgroups:
+                                newpackages.append(pkg)
                 groups = newpackages
             else:
                 groups = packages
