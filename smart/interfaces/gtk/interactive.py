@@ -841,7 +841,10 @@ class GtkInteractiveInterface(GtkInterface):
 
     def setTreeStyle(self, mode):
         if mode != sysconf.get("package-tree"):
-            sysconf.set("package-tree", mode)
+            if not sysconf.getReadOnly():
+                sysconf.set("package-tree", mode)
+            else:
+                sysconf.set("package-tree", mode, weak=True)
             self.refreshPackages()
 
     def editChannels(self):
