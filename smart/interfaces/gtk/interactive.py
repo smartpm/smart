@@ -932,6 +932,9 @@ class GtkInteractiveInterface(GtkInterface):
                     model.set(iter, 1, group)
                 self._pg.queue_draw()
 
+        columns = sysconf.get("package-columns", "name,version")
+        self._pv.setVisibleColumns(columns.split(","))
+
         if self._searchbar.get_property("visible"):
 
             searcher = Searcher()

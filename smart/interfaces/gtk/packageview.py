@@ -21,6 +21,7 @@
 #
 from smart.interfaces.gtk import getPixbuf
 from smart.const import INSTALL, REMOVE
+from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk
 
@@ -144,6 +145,18 @@ class GtkPackageView(gtk.Alignment):
         renderer = gtk.CellRendererText()
         self._treeview.insert_column_with_data_func(-1, _("Version"), renderer,
                                                     self._setVersion)
+        self._treeview.get_columns()[-1].set_visible(True)
+        self._treeview.insert_column_with_data_func(-1, _("Size"), renderer,
+                                                    self._setSize)
+        self._treeview.get_columns()[-1].set_visible(False)
+        self._treeview.insert_column_with_data_func(-1, _("Description"),
+                                          renderer, self._setDescription)
+        self._treeview.get_columns()[-1].set_visible(False)
+
+        self._columns = {"name": 0,
+                         "version": 1,
+                         "size": 2,
+                         "description": 3}
 
         self._ipixbuf = getPixbuf("package-installed")
         self._ilpixbuf = getPixbuf("package-installed-locked")
@@ -198,6 +211,34 @@ class GtkPackageView(gtk.Alignment):
         else:
             cell.set_property("text", "")
 
+    def _setDescription(self, treeview, cell, model, iter):
+        value = model.get_value(iter, 0)
+        if hasattr(value, "loaders"):
+            for loader in value.loaders:
+                info = loader.getInfo(value)
+                cell.set_property("text", info.getSummary())
+                break
+        else:
+            cell.set_property("text", "")
+
+    def _setSize(self, treeview, cell, model, iter):
+        value = model.get_value(iter, 0)
+        if hasattr(value, "loaders"):
+            for loader in value.loaders:
+                info = loader.getInfo(value)
+                if value.installed:
+                    if not loader.getInstalled():
+                        continue
+                    size = info.getInstalledSize()
+                else:
+                    size = 0L
+                    for url in info.getURLs():
+                        size += info.getSize(url)
+                cell.set_property("text", sizeToStr(size))
+                break
+        else:
+            cell.set_property("text", "")
+
     def getTreeView(self):
         return self._treeview
 
@@ -211,6 +252,16 @@ class GtkPackageView(gtk.Alignment):
             if hasattr(value, "name"):
                 lst.append(value)
         return lst
+
+    def setVisibleColumns(self, columns):
+        visible = {}
+        for colname in columns:
+            if colname in self._columns:
+                col = self._columns[colname]
+                column = self._treeview.get_column(col)
+                visible[column] = True
+        for column in self._treeview.get_columns():
+            column.set_visible(column in visible)
 
     def setExpandPackage(self, flag):
         self._expandpackage = flag
