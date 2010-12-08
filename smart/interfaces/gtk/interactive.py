@@ -437,7 +437,7 @@ class GtkInteractiveInterface(GtkInterface):
         selection.set_mode(gtk.SELECTION_MULTIPLE)
 
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn(_("Group"), renderer, text=0)
+        column = gtk.TreeViewColumn(_("Group"), renderer, text=1)
         self._pg.append_column(column)
 
         self._vpaned = gtk.VPaned()
@@ -904,18 +904,32 @@ class GtkInteractiveInterface(GtkInterface):
                     for loader in pkg.loaders:
                         info = loader.getInfo(pkg)
                         group = info.getGroup()
-                        packagegroups[group] = True
-                groups = packagegroups.keys()
+                        if group in packagegroups:
+                            packagegroups[group] += 1
+                        else:
+                            packagegroups[group] = 1
+
+                groups = []
+                names = {}
+                all = "%s (%d)" % (_("All"), len(packages))
+                for group, count in packagegroups.iteritems():
+                     displayicon = None
+                     displayname = "%s (%d)" % (group, count)
+                     groups.append(displayname)
+                     names[displayname] = group
                 groups.sort()
                     
-                model = gtk.ListStore(gobject.TYPE_STRING)
+                model = gtk.ListStore(gobject.TYPE_STRING,
+                                      gobject.TYPE_STRING)
                 self._pg.set_model(model)
                 iter = model.append()
-                model.set(iter, 0, _("All"))
+                model.set(iter, 0, None)
+                model.set(iter, 1, all)
                 self._pg.get_selection().select_iter(iter)
                 for group in groups:
                     iter = model.append()
-                    model.set(iter, 0, group)
+                    model.set(iter, 0, names[group])
+                    model.set(iter, 1, group)
                 self._pg.queue_draw()
 
         if self._searchbar.get_property("visible"):
@@ -1020,7 +1034,7 @@ class GtkInteractiveInterface(GtkInterface):
                 iter = model.get_iter(path)
                 value = model.get_value(iter, 0)
                 showgroups[value] = True
-            if showgroups and _("All") not in showgroups:
+            if showgroups and None not in showgroups:
                 newpackages = []
                 done = {}
                 for pkg in packages:
@@ -1074,6 +1088,10 @@ class GtkInteractiveInterface(GtkInterface):
             groups = packages
 
         self._pv.setPackages(groups, changeset, keepstate=True)
+
+        packages = ctrl.getCache().getPackages()
+        self.showStatus(_("%d packages, %d installed") %
+            (len(packages), len([pkg for pkg in packages if pkg.installed])))
 
         self.setBusy(False)
 
