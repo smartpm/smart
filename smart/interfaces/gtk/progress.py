@@ -47,6 +47,11 @@ class GtkProgress(Progress, gtk.Window):
             self.set_default_size(500, 400)
         else:
             self.set_size_request(300, 80)
+        def configure_event(widget, event):
+            maxlen = widget.allocation.width / 10
+            self._shorturl = ShortURL(maxlen)
+            return False
+        self.connect("configure-event", configure_event)
 
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Operation Progress"))
