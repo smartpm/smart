@@ -322,7 +322,7 @@ class GtkInteractiveInterface(GtkInterface):
                 self._searchentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
                 def pressed(entry, icon_pos, button):
                     if icon_pos == 0: # "primary"
-                        self._searchmenu.popup(None, None, None, button, gtk.gdk.CURRENT_TIME)
+                        self._searchmenu.popup(None, None, None, button, gtk.get_current_event_time())
                     elif icon_pos == 1: # "secondary"
                         self._searchentry.set_text("")
                         self.refreshPackages()
@@ -901,8 +901,8 @@ class GtkInteractiveInterface(GtkInterface):
         ctrl = self._ctrl
         changeset = self._changeset
 
-        self._pg.parent.set_visible(tree == "separate-groups")
-        if self._pg.get_visible():
+        self._pg.parent.set_property('visible', tree == "separate-groups")
+        if self._pg.get_property('visible'):
             model = self._pg.get_model()
             if not model:
                 packages = ctrl.getCache().getPackages()
