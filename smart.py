@@ -92,6 +92,8 @@ def parse_options(argv):
                       help=_("use the default graphic interface"))
     parser.add_option("--shell", action="store_true",
                       help=_("use the default shell interface"))
+    parser.add_option("--quiet", action="store_true",
+                      help=_("use the quiet interface"))
     parser.add_option("--interface", metavar=_("NAME"),
                       help=_("use the given interface"))
     parser.add_option("--ignore-locks", action="store_true",
@@ -159,8 +161,9 @@ def main(argv):
         opts = parse_options(argv)
         ctrl = init(command=opts.command, argv=opts.argv,
                     datadir=opts.data_dir, configfile=opts.config_file,
-                    gui=opts.gui, shell=opts.shell, interface=opts.interface,
-                    forcelocks=opts.ignore_locks, loglevel=opts.log_level)
+                    gui=opts.gui, shell=opts.shell, quiet=opts.quiet,
+                    interface=opts.interface, forcelocks=opts.ignore_locks,
+                    loglevel=opts.log_level)
         if opts.option:
             set_config_options(opts.option)
         initDistro(ctrl)

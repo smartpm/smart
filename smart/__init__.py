@@ -95,7 +95,7 @@ _smart_run_lock = thread.allocate_lock()
 
 def init(command=None, argv=None,
          datadir=None, configfile=None,
-         gui=False, shell=False, interface=None,
+         gui=False, shell=False, quiet=False, interface=None,
          forcelocks=False, loglevel=None):
     from smart.const import DEBUG, INFO, WARNING, ERROR
     from smart.const import DATADIR, USERDATADIR
@@ -128,6 +128,8 @@ def init(command=None, argv=None,
         ifacename = sysconf.get("default-shell", "text")
         if command:
             raise Error, _("Can't use commands with shell interfaces")
+    elif quiet:
+        ifacename = None
     elif interface:
         ifacename = interface
     else:

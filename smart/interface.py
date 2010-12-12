@@ -162,6 +162,8 @@ def getScreenWidth():
 
 
 def createInterface(name, ctrl, command=None, argv=None):
+    if not name:
+        return Interface(ctrl)
     try:
         xname = name.replace('-', '_').lower()
         smart = __import__("smart.interfaces."+xname)
