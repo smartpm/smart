@@ -63,6 +63,7 @@ UI = """
         <separator/>
         <menuitem action="upgrade-all"/>
         <menuitem action="fix-all-problems"/>
+        <menuitem action="remove-auto"/>
         <separator/>
         <menuitem action="check-installed-packages"/>
         <menuitem action="check-uninstalled-packages"/>
@@ -150,6 +151,8 @@ ACTIONS = [
      _("Upgrade all packages"), "self.upgradeAll()"),
     ("fix-all-problems", None, _("Fix All _Problems..."), None,
      _("Fix all problems"), "self.fixAllProblems()"),
+    ("remove-auto", None, _("Remove Automatic..."), None,
+     _("Remove packages installed as dependencies"), "self.removeAuto()"),
     ("find", "gtk-find", _("_Find..."), "<control>f",
      _("Find packages"), "self.toggleSearch()"),
     ("edit-channels", None, _("_Channels"), None,
@@ -598,6 +601,17 @@ class GtkInteractiveInterface(GtkInterface):
                     self.applyChanges(confirm=not emptychangeset)
         else:
             self.showStatus(_("No interesting upgrades available!"))
+
+    def removeAuto(self):
+        changeset = self._ctrl.markAndSweep()
+        if changeset != self._changeset:
+            if self.confirmChange(self._changeset, changeset):
+                self.saveUndo()
+                self._changeset.setState(changeset)
+                self.changedMarks()
+                self.applyChanges(confirm=True)
+        else:
+            self.showStatus(_("No automatic removals possible!"))
 
     def actOnPackages(self, pkgs, op=None):
         cache = self._ctrl.getCache()
