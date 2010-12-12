@@ -524,6 +524,8 @@ class GtkInteractiveInterface(GtkInterface):
         self.updateChannels(selected=True)
 
     def updateChannels(self, selected=False, channels=None):
+        if self._changeset is None:
+            return
         if selected:
             aliases = GtkChannelSelector().show()
             channels = [channel for channel in self._ctrl.getChannels()
@@ -536,6 +538,8 @@ class GtkInteractiveInterface(GtkInterface):
         self.refreshPackages()
 
     def rebuildCache(self):
+        if self._changeset is None:
+            return
         state = self._changeset.getPersistentState()
         self._ctrl.reloadChannels()
         self._changeset.setPersistentState(state)
