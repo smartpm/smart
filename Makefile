@@ -46,9 +46,11 @@ check-po:
 		msgfmt -o /dev/null --statistics -v -c $$po; \
 	done
 
-test:
+ext:
 	$(PYTHON) setup.py build_ext -i
+
+test: ext
 	LC_ALL=C LANG=C $(PYTHON) test $(TEST)
 
-.PHONY: clean smart.pot update-po check-po test
+.PHONY: clean smart.pot update-po check-po ext test
 
