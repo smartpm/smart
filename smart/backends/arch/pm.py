@@ -63,8 +63,6 @@ class ArchPackageManager(PackageManager):
         prog.setTopic(_("Committing transaction..."))
         prog.set(0, len(changeset))
         prog.show()
-        while iface.eventsPending():
-            iface.processEvents()
 
         sorted = ChangeSetSorter(changeset).getSorted()
 
@@ -84,10 +82,6 @@ class ArchPackageManager(PackageManager):
                 else:
                     iface.debug(_("Upgrading %s:") % pkg)
                     iface.debug(output)
-                # make sure that progress is updated
-                # at least once for every package...
-                while iface.eventsPending():
-                    iface.processEvents()
             elif op == INSTALL:
                 prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
@@ -102,10 +96,6 @@ class ArchPackageManager(PackageManager):
                 else:
                     iface.debug(_("Installing %s:") % pkg)
                     iface.debug(output)
-                # make sure that progress is updated
-                # at least once for every package...
-                while iface.eventsPending():
-                    iface.processEvents()
             elif op == REMOVE:
                 prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
@@ -120,10 +110,6 @@ class ArchPackageManager(PackageManager):
                 else:
                     iface.debug(_("Removing %s:") % pkg)
                     iface.debug(output)
-                # make sure that progress is updated
-                # at least once for every package...
-                while iface.eventsPending():
-                    iface.processEvents()
             else:
                 iface.warning(_("Operation ( %s ) not handled on package ( %s )"
                               % (op, pkg.name)))

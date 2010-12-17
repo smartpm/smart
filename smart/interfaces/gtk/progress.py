@@ -24,6 +24,7 @@ from smart.progress import Progress, INTERVAL
 from smart.interfaces.gtk import getPixbuf
 from smart import *
 import gobject, gtk
+import glib
 import posixpath
 import thread
 import time
@@ -35,6 +36,9 @@ class GtkProgress(Progress, gtk.Window):
         gtk.Window.__init__(self)
 
         self.connect("delete-event", lambda x,y: True)
+
+        # updates from subthreads not showing up [#592503]
+        self._threadsafe = glib.glib_version < (2, 24, 0)
 
         self._hassub = hassub
         self._shorturl = ShortURL(50)
@@ -174,8 +178,9 @@ class GtkProgress(Progress, gtk.Window):
     def tick(self):
         while not self._stopticking:
             self.lock()
-            while gtk.events_pending():
-                gtk.main_iteration()
+            if self._threadsafe:
+                while gtk.events_pending():
+                    gtk.main_iteration()
             self.unlock()
             time.sleep(INTERVAL)
         self._ticking = False
@@ -259,6 +264,10 @@ class GtkProgress(Progress, gtk.Window):
             self._progressbar.set_text("%d%%" % percent)
             if self._hassub:
                 self._treeview.queue_draw()
+
+        if not self._threadsafe:
+            while gtk.events_pending():
+                gtk.main_iteration()
 
 gobject.type_register(GtkProgress)
 

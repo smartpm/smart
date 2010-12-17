@@ -184,8 +184,6 @@ class DebPackageManager(PackageManager):
         prog.start()
         prog.setTopic(_("Committing transaction..."))
         prog.show()
-        while iface.eventsPending():
-            iface.processEvents()
 
         # Compute upgraded packages
         upgraded = {}
@@ -323,10 +321,6 @@ class DebPackageManager(PackageManager):
             print >>output # Should avoid that somehow.
             prog.add(len(pkgs))
             prog.show()
-            # make sure that progress is updated
-            # at least once for every package...
-            while iface.eventsPending():
-                iface.processEvents()
             print >>output # Should avoid that somehow.
 
         if output != sys.stdout:

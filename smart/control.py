@@ -362,8 +362,6 @@ class Control(object):
         for channel in channels:
             steps += channel.getFetchSteps()
         progress.set(0, steps)
-        while iface.eventsPending():
-            iface.processEvents()
 
         # Rebuild mirror information.
         self.reloadMirrors()
@@ -384,10 +382,6 @@ class Control(object):
                     progress.setTopic(_("Fetching information for '%s'...") %
                                   (channel.getName() or channel.getAlias()))
                     progress.show()
-                    # make sure that progress is updated
-                    # at least once for every channel...
-                    while iface.eventsPending():
-                        iface.processEvents()
             self._fetcher.setForceCopy(channel.isRemovable())
             self._fetcher.setLocalPathPrefix(channel.getAlias()+"%%")
             try:

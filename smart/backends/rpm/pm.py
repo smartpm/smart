@@ -55,8 +55,6 @@ class RPMPackageManager(PackageManager):
         prog.setTopic(_("Committing transaction..."))
         prog.set(0, len(changeset))
         prog.show()
-        while iface.eventsPending():
-            iface.processEvents()
 
         # Compute upgrading/upgraded packages
         upgrading = {}
@@ -324,10 +322,6 @@ class RPMCallback:
             self.prog.setSub(infopath or "trans", amount, total,
                              subdata=self.data)
             self.prog.show()
-            # make sure that progress is updated
-            # at least once for every package...
-            while iface.eventsPending():
-                iface.processEvents()
 
         elif what == rpm.RPMCALLBACK_TRANS_START:
             self.prog.setSubTopic("trans", _("Preparing..."))
@@ -366,10 +360,6 @@ class RPMCallback:
             else:
                 self.prog.setSubDone(subkey)
             self.prog.show()
-            # make sure that progress is updated
-            # at least once for every package...
-            while iface.eventsPending():
-                iface.processEvents()
 
 from smart.backends.rpm.base import rpm, getTS
 

@@ -32,8 +32,6 @@ class SlackPackageManager(PackageManager):
         prog.start()
         prog.setTopic(_("Committing transaction..."))
         prog.show()
-        while iface.eventsPending():
-            iface.processEvents()
 
         install = {}
         remove = {}
@@ -74,10 +72,6 @@ class SlackPackageManager(PackageManager):
             else:
                 iface.debug(_("Installing %s:") % pkg)
                 iface.debug(output)
-            # make sure that progress is updated
-            # at least once for every package...
-            while iface.eventsPending():
-                iface.processEvents()
         for pkg in upgrade:
             prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
@@ -92,10 +86,6 @@ class SlackPackageManager(PackageManager):
             else:
                 iface.debug(_("Upgrading %s:") % pkg)
                 iface.debug(output)
-            # make sure that progress is updated
-            # at least once for every package...
-            while iface.eventsPending():
-                iface.processEvents()
         for pkg in remove:
             prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
@@ -110,10 +100,6 @@ class SlackPackageManager(PackageManager):
             else:
                 iface.debug(_("Removing %s:") % pkg)
                 iface.debug(output)
-            # make sure that progress is updated
-            # at least once for every package...
-            while iface.eventsPending():
-                iface.processEvents()
 
         prog.setDone()
         prog.stop()
