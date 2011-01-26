@@ -102,8 +102,8 @@ vercmppart(const char *a, const char *b)
 }
 
 static int
-vercmpparts(const char *e1, const char *v1, const char *r1,
-            const char *e2, const char *v2, const char *r2)
+vercmpparts(const char *e1, const char *v1, const char *r1, const char *d1,
+            const char *e2, const char *v2, const char *r2, const char *d2)
 {
     int e1i = 0;
     int e2i = 0;
@@ -119,11 +119,15 @@ vercmpparts(const char *e1, const char *v1, const char *r1,
         return rc;
     else if (!r1 || !r2)
         return 0;
-    return vercmppart(r1, r2);
+    rc = vercmppart(r1, r2);
+    if (rc)
+        return rc;
+    /* ignore distepoch */
+    return 0;
 }
 
 static void
-splitversion(char *buf, char **e, char **v, char **r)
+splitversion(char *buf, char **e, char **v, char **r, char **d)
 {
     char *s = strrchr(buf, '-');
     if (s) {
@@ -143,21 +147,32 @@ splitversion(char *buf, char **e, char **v, char **r)
         *e = "0";
         *v = buf;
     }
+    if (*r == NULL) {
+        *d = NULL;
+        return;
+    }
+    s = strrchr(*r, ':');
+    if (s) {
+        *s++ = '\0';
+        *d = s;
+    } else {
+        *d = NULL;
+    }
 }
 
 static int
 vercmp(const char *s1, const char *s2)
 {
-    char *e1, *v1, *r1, *e2, *v2, *r2;
+    char *e1, *v1, *r1, *d1, *e2, *v2, *r2, *d2;
     char b1[64];
     char b2[64];
     strncpy(b1, s1, sizeof(b1)-1);
     strncpy(b2, s2, sizeof(b2)-1);
     b1[sizeof(b1)-1] = '\0';
     b2[sizeof(b1)-1] = '\0';
-    splitversion(b1, &e1, &v1, &r1);
-    splitversion(b2, &e2, &v2, &r2);
-    return vercmpparts(e1, v1, r1, e2, v2, r2);
+    splitversion(b1, &e1, &v1, &r1, &d1);
+    splitversion(b2, &e2, &v2, &r2, &d2);
+    return vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2);
 }
 
 static PyObject *
@@ -262,10 +277,10 @@ crpmver_vercmp(PyObject *self, PyObject *args)
 static PyObject *
 crpmver_vercmpparts(PyObject *self, PyObject *args)
 {
-    const char *e1, *v1, *r1, *e2, *v2, *r2;
-    if (!PyArg_ParseTuple(args, "ssssss", &e1, &v1, &r1, &e2, &v2, &r2))
+    const char *e1, *v1, *r1, *d1, *e2, *v2, *r2, *d2;
+    if (!PyArg_ParseTuple(args, "ssssssss", &e1, &v1, &r1, &d1, &e2, &v2, &r2, &d2))
         return NULL;
-    return PyInt_FromLong(vercmpparts(e1, v1, r1, e2, v2, r2));
+    return PyInt_FromLong(vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2));
 }
 
 static PyObject *
