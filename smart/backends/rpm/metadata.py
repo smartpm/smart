@@ -317,6 +317,8 @@ class RPMMetaDataLoader(Loader):
 
                     # Use all the information acquired to build the package.
 
+                    if distepoch:
+                        version = "%s:%s" % (version, distepoch)
                     versionarch = "%s@%s" % (version, arch)
 
                     upgdict[(RPMObsoletes,

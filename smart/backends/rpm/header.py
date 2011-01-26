@@ -267,6 +267,9 @@ class RPMHeaderLoader(Loader):
             else:
                 # RPMTAG_VERSION, RPMTAG_RELEASE
                 version = "%s-%s" % (h[1001], h[1002])
+            distepoch = h[1218] # RPMTAG_DISTEPOCH
+            if distepoch:
+                version = "%s:%s" % (version, distepoch)
             versionarch = "%s@%s" % (version, arch)
 
             n = h[1047] # RPMTAG_PROVIDENAME
