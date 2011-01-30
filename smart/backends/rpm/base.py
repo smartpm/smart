@@ -143,7 +143,8 @@ class RPMPackage(Package):
             return False
         selfver, selfarch = splitarch(self.version)
         otherver, otherarch = splitarch(other.version)
-        if getArchColor(selfarch) != getArchColor(otherarch):
+        if (getArchColor(selfarch) != getArchColor(otherarch) and
+            not sysconf.get("rpm-strict-multilib")):
             return True
         if not pkgconf.testFlag("multi-version", self):
             return False

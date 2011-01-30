@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2004-2005 Conectiva, Inc.
 #
 # Written by Gustavo Niemeyer <niemeyer@conectiva.com>
 #            Michael Scherer <misc@mandrake.org>
+#            Per Øyvind Karlsen <peroyvind@mandriva.org>
 #
 # Adapted from slack/loader.py and metadata.py by Michael Scherer.
+# Support for xml metadata format by Per Øyvind Karlsen.
 #
 # This file is part of Smart Package Manager.
 #
@@ -25,10 +28,20 @@
 from smart.backends.rpm.rpmver import splitarch
 from smart.cache import PackageInfo, Loader
 from smart.backends.rpm.base import *
+try:
+    from xml.etree import cElementTree        
+except ImportError:
+    try:
+        import cElementTree
+    except ImportError:     
+        from smart.util import cElementTree
+
 from smart import *
 import posixpath
 import os
 import re
+
+from xml.parsers import expat
 
 DEPENDSRE = re.compile("^([^[]*)(\[\*\])?(\[.*\])?")
 OPERATIONRE = re.compile("\[([<>=]*) *(.+)?\]")
@@ -54,12 +67,26 @@ class URPMISynthesisPackageInfo(PackageInfo):
     def getGroup(self):
         return self._info.get("group", "")
 
+    def getDescription(self):
+        return self._info.get("description")
+
+    def getReferenceURLs(self):
+        return [self._info.get("url", "")]
+
+    def getSource(self):
+        sourcerpm = self._info.get("sourcerpm", "")
+        sourcerpm = sourcerpm.replace(".src", "")
+        sourcerpm = sourcerpm.replace(".nosrc", "")
+        return sourcerpm.replace(".rpm", "")
+    
+    def getLicense(self):
+        return self._info.get("license", "")
 
 class URPMISynthesisLoader(Loader):
 
     __stateversion__ = Loader.__stateversion__+3
 
-    def __init__(self, filename, baseurl, listfile):
+    def __init__(self, filename, baseurl, listfile, infofile=None):
         Loader.__init__(self)
         self._filename = filename
         self._baseurl = baseurl
@@ -70,6 +97,7 @@ class URPMISynthesisLoader(Loader):
                     entry = entry[2:]
                 dirname, basename = os.path.split(entry.rstrip())
                 self._prefix[basename] = dirname
+        self._infofile = infofile
         self._flagdict = None
 
     def setErrataFlags(self, flagdict):
@@ -140,6 +168,20 @@ class URPMISynthesisLoader(Loader):
 
         prog = iface.getProgress(self._cache)
 
+        if self._infofile:
+            try:
+                infofile = self._infofile
+                # mandriva version didn't uncompress
+                if infofile.endswith(".lzma"):
+                    import lzma
+                    infofile = lzma.LZMAFile(infofile)
+                infoxml = cElementTree.parse(infofile).getroot()
+            except (expat.error, SyntaxError), e: # ElementTree.ParseError
+                raise Error, _("Invalid XML file:\n  %s\n  %s") % \
+                              (self._infofile, str(e))
+        else:
+            infoxml = None
+
         for line in open(self._filename):
 
             element = line[1:-1].split("@")
@@ -162,6 +204,30 @@ class URPMISynthesisLoader(Loader):
 
             elif id == "info":
 
+                description = ""
+                sourcerpm = ""
+                url = ""            
+                license = ""
+
+                if infoxml:
+                    infoelement = infoxml[0]
+
+                    # info.xml should have the same order as synthesis, but if
+                    # they're not in sync, we try find the matching package
+                    if infoelement.get("fn") != element[0]:
+                        for elem in infoxml:
+                            if elem.get("fn") == element[0]:
+                                infoelement = elem
+                                break
+                    # Let's check again to be really sure that we have the
+                    # correct package
+                    if infoelement.get("fn") == element[0]:
+                        description = infoelement.text.strip()
+                        sourcerpm = infoelement.get("sourcerpm")
+                        url = infoelement.get("url")
+                        license = infoelement.get("license")
+                        infoxml.remove(infoelement)
+
                 rpmnameparts = element[0].split("-")
 
                 version = "-".join(rpmnameparts[-2:])
@@ -183,7 +249,11 @@ class URPMISynthesisLoader(Loader):
 
                 info = {"summary": summary,
                         "size"   : element[2],
-                        "group"  : element[3]}
+                        "group"  : element[3],
+                        "description" : description,
+                        "sourcerpm" : sourcerpm,
+                        "url"    : url,
+                        "license": license}
 
                 prvdict = {}
                 for n, r, v, f in provides:
