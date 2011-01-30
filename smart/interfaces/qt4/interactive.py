@@ -635,48 +635,56 @@ class QtInteractiveInterface(QtInterface):
         
             def __init__(self, pkgs):
                 self._pkgs = pkgs
-                self._callback = {}
-                self._userdata = {}
+                self._callback = None
+                self._userdata = None
             
             def connect(self, item, callback, userdata=None):
-                self._callback[item] = callback
-                self._userdata[item] = userdata
+                self._callback = callback
+                self._userdata = userdata
             
-            def slot(self, index):
-                self._callback[index](self._pkgs, self._userdata[index])
+            def slot(self):
+                self._callback(self._pkgs, self._userdata)
 
-        action = PackagesAction(pkgs)
+        installaction = PackagesAction(pkgs)
 
         iconset = QtGui.QIcon(getPixmap("package-install"))
-        item = menu.addAction(iconset, _("Install"), action.slot)
-        action.connect(item, self.actOnPackages, INSTALL)
+        item = menu.addAction(iconset, _("Install"), installaction.slot)
+        installaction.connect(item, self.actOnPackages, INSTALL)
         if not hasnoninstalled:
             item.setEnabled(False)
 
+        reinstallaction = PackagesAction(pkgs)
+
         iconset = QtGui.QIcon(getPixmap("package-reinstall"))
-        item = menu.addAction(iconset, _("Reinstall"), action.slot)
-        action.connect(item, self.actOnPackages, REINSTALL)
+        item = menu.addAction(iconset, _("Reinstall"), reinstallaction.slot)
+        reinstallaction.connect(item, self.actOnPackages, REINSTALL)
         if not hasinstalled:
             item.setEnabled(False)
 
+        removeaction = PackagesAction(pkgs)
+
         iconset = QtGui.QIcon(getPixmap("package-remove"))
-        item = menu.addAction(iconset, _("Remove"), action.slot)
-        action.connect(item, self.actOnPackages, REMOVE)
+        item = menu.addAction(iconset, _("Remove"), removeaction.slot)
+        removeaction.connect(item, self.actOnPackages, REMOVE)
         if not hasinstalled:
             item.setEnabled(False)
+
+        keepaction = PackagesAction(pkgs)
 
         if not hasinstalled:
             iconset = QtGui.QIcon(getPixmap("package-available"))
         else:
             iconset = QtGui.QIcon(getPixmap("package-installed"))
-        item = menu.addAction(iconset, _("Keep"), action.slot)
-        action.connect(item, self.actOnPackages, KEEP)
+        item = menu.addAction(iconset, _("Keep"), keepaction.slot)
+        keepaction.connect(item, self.actOnPackages, KEEP)
         if not [pkg for pkg in pkgs if pkg in self._changeset]:
             item.setEnabled(False)
 
+        fixaction = PackagesAction(pkgs)
+
         iconset = QtGui.QIcon(getPixmap("package-broken"))
-        item = menu.addAction(iconset, _("Fix problems"), action.slot)
-        action.connect(item, self.actOnPackages, FIX)
+        item = menu.addAction(iconset, _("Fix problems"), fixaction.slot)
+        fixaction.connect(item, self.actOnPackages, FIX)
         if not hasinstalled:
             item.setEnabled(False)
 

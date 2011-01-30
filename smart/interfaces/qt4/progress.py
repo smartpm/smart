@@ -43,6 +43,7 @@ class QtProgress(Progress, QtGui.QDialog):
         self._fetcher = None
 
         self._beenshown = False
+        self._mainthread = None
 
         if hassub:
             self.setMinimumSize(500, 400)
@@ -116,9 +117,13 @@ class QtProgress(Progress, QtGui.QDialog):
         if self._fetcher:
             self._fetcher.cancel()
 
+    def setMainThread(self, main):
+        self._mainthread = main
+
     def tick(self):
         while not self._stopticking:
             self.lock()
+            ## Note: it's NOT safe to call processEvents from threads other than main
             #while QtGui.QApplication.instance().hasPendingEvents():
             #    QtGui.QApplication.instance().processEvents()
             self.unlock()
@@ -155,7 +160,13 @@ class QtProgress(Progress, QtGui.QDialog):
 
         QtGui.QDialog.hide(self)
 
+    def _currentThread(self):
+        return QtCore.QThread.currentThread()
+
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
+        if self._currentThread() != self._mainthread:
+            # Note: it's NOT safe to use Qt from threads other than main
+            return
             
         QtGui.QDialog.show(self)
         if not self._beenshown:
@@ -217,10 +228,15 @@ class QtProgress(Progress, QtGui.QDialog):
             if self._hassub:
                 self._listview.update()
 
+        while QtGui.QApplication.instance().hasPendingEvents():
+            QtGui.QApplication.instance().processEvents()
+
+
 def test():
     import sys, time
 
     prog = QtProgress(True)
+    prog.setMainThread(QtCore.QThread.currentThread())
         
     data = {"item-number": 0}
     total, subtotal = 100, 100
@@ -233,8 +249,7 @@ def test():
         for i in range(0,subtotal+1):
             prog.setSub(n, i, subtotal, subdata=data)
             prog.show()
-            #while QtGui.QApplication.instance().hasPendingEvents():
-            if True:
+            while QtGui.QApplication.instance().hasPendingEvents():
                 QtGui.QApplication.instance().processEvents()
             time.sleep(0.01)
     prog.stop()

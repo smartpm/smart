@@ -67,7 +67,7 @@ class QtPriorities(object):
         self._treeview.show()
         vbox.layout().addWidget(self._treeview)
 
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemRenamed(QListViewItem *, int, const QString &)"), self.itemRenamed)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemChanged(QTableWidgetItem *, int)"), self.itemChanged)
         QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("selectionChanged()"), self.selectionChanged)
 
         #self._treeview.addColumn(_("Package Name"))
@@ -152,7 +152,8 @@ class QtPriorities(object):
         item = self._treeview.selectedItem()
         self._delpriority.setEnabled(bool(item))
 
-    def itemRenamed(self, item, col, newtext):
+    def itemChanged(self, item, col):
+        newtext = item.text(col)
         newtext = str(newtext).strip()
         if col == 1:
             if newtext == "*":
@@ -302,24 +303,30 @@ class QtSinglePriority(object):
         
         #self._window.setMinimumSize(600, 400)
 
-        vbox = QtGui.QVBox(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        vbox = QtGui.QWidget(self._window)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setMargin(10)
+        vbox.layout().setSpacing(10)
         vbox.show()
 
         self._vbox = vbox
 
-        self._table = QtGui.QGrid(2, vbox)
-        self._table.setSpacing(10)
+        self._table = QtGui.QWidget(vbox)
+        QtGui.QGridLayout(self._table)
+        self._table.layout().setSpacing(10)
         self._table.show()
+        vbox.layout().addWidget(self._table)
 
-        bbox = QtGui.QHBox(vbox)
-        bbox.setSpacing(10)
+        bbox = QtGui.QWidget(vbox)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
+        vbox.layout().addWidget(bbox)
 
         button = QtGui.QPushButton(_("Close"), bbox)
         QtCore.QObject.connect(button, QtCore.SIGNAL("clicked()"), self._window, QtCore.SLOT("hide()"))
+        bbox.layout().addWidget(button)
 
         self._vbox.adjustSize()
         self._window.adjustSize()
@@ -333,9 +340,11 @@ class QtSinglePriority(object):
 
         label = QtGui.QLabel(_("Package:"), table)
         label.show()
+        table.layout().addWidget(label)
 
         label = QtGui.QLabel("<b>%s</b>" % pkg.name, table)
         label.show()
+        table.layout().addWidget(label)
 
         class AliasCheckBox(QtGui.QCheckBox):
         
@@ -373,30 +382,39 @@ class QtSinglePriority(object):
 
         label = QtGui.QLabel(_("Default priority:"), table)
         label.show()
+        table.layout().addWidget(label)
 
-        hbox = QtGui.QHBox(table)
-        hbox.setSpacing(10)
+        hbox = QtGui.QWidget(table)
+        QtGui.QHBoxLayout(hbox)
+        hbox.layout().setSpacing(10)
         hbox.show()
+        table.layout().addWidget(hbox)
 
         radio = QtGui.QRadioButton(_("Channel default"), hbox)
         radio.setChecked(None not in priority)
         radio.show()
+        hbox.layout().addWidget(radio)
         
         radio = QtGui.QRadioButton(_("Set to"), hbox)
         radio.setChecked(None in priority)
         radio.show()
+        hbox.layout().addWidget(radio)
         spin = QtGui.QSpinBox(hbox)
         spin.setSingleStep(1)
         spin.setRange(-100000,+100000)
         spin.setValue(priority.get(None, 0))
         spin.show()
+        table.layout().addWidget(spin)
 
         label = QtGui.QLabel(_("Channel priority:"), table)
         label.show()
+        table.layout().addWidget(label)
 
-        chantable = QtGui.QGrid(2, table)
-        chantable.setSpacing(10)
+        chantable = QtGui.QWidget(table)
+        QtGui.QGridLayout(chantable)
+        chantable.layout().setSpacing(10)
         chantable.show()
+        table.layout().addWidget(chantable)
 
         pos = 0
         channels = sysconf.get("channels")
@@ -410,6 +428,7 @@ class QtSinglePriority(object):
             check = AliasCheckBox(name, chantable)
             check.setChecked(alias in priority)
             check.show()
+            chantable.layout().addWidget(check)
             spin = AliasSpinBox(chantable)
             if alias not in priority:
                 spin.setEnabled(False)
@@ -419,6 +438,7 @@ class QtSinglePriority(object):
             spin.connect("valueChanged(int)", spin.value_changed, alias)
             check.connect("toggled(bool)", check.toggled, spin, alias)
             spin.show()
+            chantable.layout().addWidget(spin)
             pos += 1
         
         table.adjustSize()
