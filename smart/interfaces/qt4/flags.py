@@ -291,12 +291,14 @@ class FlagCreator(object):
         #self._window.setMinimumSize(600, 400)
 
         vbox = QtGui.QWidget(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setMargin(10)
+        vbox.layout().setSpacing(10)
         vbox.show()
 
         table = QtGui.QWidget(vbox) # 2
-        table.setSpacing(10)
+        QtGui.QGridLayout(table)
+        table.layout().setSpacing(10)
         
         label = QtGui.QLabel(_("Name:"), table)
 
@@ -310,7 +312,8 @@ class FlagCreator(object):
         sep.show()
 
         bbox = QtGui.QHBox(vbox)
-        bbox.setSpacing(10)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 
@@ -356,12 +359,14 @@ class TargetCreator(object):
         #self._window.setMinimumSize(600, 400)
 
         vbox = QtGui.QWidget(self._window)
-        vbox.setMargin(10)
-        vbox.setSpacing(10)
+        QtGui.QVBoxLayout(vbox)
+        vbox.layout().setMargin(10)
+        vbox.layout().setSpacing(10)
         vbox.show()
 
         table = QtGui.QWidget(vbox) # 2
-        table.setSpacing(10)
+        QtGui.QGridLayout(table)
+        table.layout().setSpacing(10)
         table.show()
         
         label = QtGui.QLabel(_("Target:"), table)
@@ -381,7 +386,8 @@ class TargetCreator(object):
         sep.show()
 
         bbox = QtGui.QWidget(vbox)
-        bbox.setSpacing(10)
+        QtGui.QHBoxLayout(bbox)
+        bbox.layout().setSpacing(10)
         bbox.layout().addStretch(1)
         bbox.show()
 

@@ -68,7 +68,7 @@ class QtMirrors(object):
 
         #self._treeview.addColumn(_("Mirror"))
         self._treeview.setHeaderLabels([_("Mirror")])
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemRenamed(QListViewItem *, int, const QString &)"), self.itemRenamed)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemChanged(QTreeWidgetItem *, int)"), self.itemChanged)
         QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemSelectionChanged()"), self.selectionChanged)
 
         bbox = QtGui.QWidget(vbox)
@@ -156,7 +156,8 @@ class QtMirrors(object):
         item = self._treeview.selectedItems()
         self._delmirror.setEnabled(bool(item))
 
-    def itemRenamed(self, item, col, newtext):
+    def itemChanged(self, item, col):
+        newtext = item.text(col)
         oldtext = item.oldtext(col)
         if not oldtext:
             return

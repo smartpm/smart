@@ -68,6 +68,8 @@ class QtChannels(object):
         layout.setSpacing(10)
         vbox.show()
 
+        self._vbox = vbox
+
         self._treeview = QtGui.QTreeWidget(vbox)
         self._treeview.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         #self._treeview.setAllColumnsShowFocus(True)
@@ -76,7 +78,7 @@ class QtChannels(object):
         layout.addWidget(self._treeview)
 
         QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemSelectionChanged ()"), self.selectionChanged)
-        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemDoubleClicked (QListViewItem *, int)"), self.doubleClicked)
+        QtCore.QObject.connect(self._treeview, QtCore.SIGNAL("itemDoubleClicked (QTableWidgetItem *)"), self.doubleClicked)
 
         #self._treeview.addColumn("")
         #self._treeview.addColumn(_("Pri"))
@@ -155,6 +157,7 @@ class QtChannels(object):
             
     def show(self):
         self.fill()
+        self._vbox.adjustSize()
         self._window.show()
         centerWindow(self._window)
         self._window.raise_()
@@ -317,7 +320,7 @@ class QtChannels(object):
             self._editchannel.setEnabled(False)
             self._delchannel.setEnabled(False)
 
-    def doubleClicked(self, item, c):
+    def doubleClicked(self, item):
         self.editChannel()
 
 class QtChannelSelector(object):
@@ -331,13 +334,13 @@ class QtChannelSelector(object):
 
         self._window.setMinimumSize(600, 400)
 
-        layout = QtGui.QVBoxLayout(self._window)
+        layout = QtGui.QVBoxLayout(self._window) 
         #layout.setResizeMode(QtGui.QLayout.FreeResize)
-
+        
         #vbox = QtGui.QVBox(self._window)
         vbox = QtGui.QWidget(self._window)
         layout.addWidget(vbox)
-        layout = QtGui.QVBoxLayout(vbox) 
+        layout = QtGui.QVBoxLayout(vbox)
         layout.setMargin(10)
         layout.setSpacing(10)
         vbox.show()
@@ -353,7 +356,7 @@ class QtChannelSelector(object):
         #self._treeview.addColumn(_("Type"))
         #self._treeview.addColumn(_("Name"))
         self._treeview.setHorizontalHeaderLabels(["", _("Alias"), _("Type"), _("Name")])
-        
+
         bbox = QtGui.QWidget(vbox)
         layout.addWidget(bbox)
         layout = QtGui.QHBoxLayout(bbox)
@@ -381,23 +384,24 @@ class QtChannelSelector(object):
             if not channel.get("disabled"):
                 row = self._treeview.rowCount()
                 #item = QtGui.QCheckListItem(self._treeview, "", QtCore.QCheckListItem.CheckBox)
-                item = QtGui.QTreeWidgetItem()
+                item = QtGui.QTableWidgetItem()
                 #item.setOn(False)
                 item.setCheckState(QtCore.Qt.Unchecked)
                 self._treeview.setItem(row, 0, item)
-                item = QtGui.QTreeWidgetItem()
+                item = QtGui.QTableWidgetItem()
                 item.setText(str(alias))
                 self._treeview.setItem(row, 1, item)
-                item = QtGui.QTreeWidgetItem()
+                item = QtGui.QTableWidgetItem()
                 item.setText(channel.get("type", ""))
                 self._treeview.setItem(row, 2, item)
-                item = QtGui.QTreeWidgetItem()
+                item = QtGui.QTableWidgetItem()
                 item.setText(channel.get("name", ""))
                 self._treeview.setItem(row, 3, item)
 
     def show(self):
         self.fill()
         self._result = False
+        self._treeview.adjustSize()
         self._window.show()
         centerWindow(self._window)
         self._window.raise_()
