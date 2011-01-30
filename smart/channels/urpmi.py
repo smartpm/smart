@@ -25,20 +25,29 @@ from smart.backends.rpm.descriptions import RPMDescriptions
 from smart.backends.rpm.header import URPMILoader
 from smart.util.filetools import getFileDigest
 from smart.const import SUCCEEDED, FAILED, ALWAYS, NEVER
-from smart.channel import PackageChannel
+from smart.channel import PackageChannel, MirrorsChannel
 from smart import *
 import posixpath
 import re
 import os
 
-class URPMIChannel(PackageChannel):
+class URPMIChannel(PackageChannel, MirrorsChannel):
+    # It's important for the default to be here so that old pickled
+    # instances which don't have these attributes still work fine.
+    _mirrors = {}
+    _directory = None
+    _mirrorurl = None
 
-    def __init__(self, baseurl, hdlurl, *args):
+    def __init__(self, baseurl, hdlurl, directory=None, mirrorurl=None, *args):
         super(URPMIChannel, self).__init__(*args)
         self._baseurl = baseurl
+        self._directory = directory
+        self._mirrorurl = mirrorurl
+        if directory:
+            baseurl += "/" + directory + "/"
         if hdlurl:
             if hdlurl[0] != "/" and ":/" not in hdlurl:
-                self._hdlurl = posixpath.join(self._baseurl, hdlurl)
+                self._hdlurl = posixpath.join(baseurl, hdlurl)
             else:
                 self._hdlurl = hdlurl
         else:
@@ -53,9 +62,55 @@ class URPMIChannel(PackageChannel):
     def getFetchSteps(self):
         return 4
 
+    def loadMirrors(self, path):
+        from smart.util.geolocate import GeoLocate
+        geoloc = GeoLocate(sysconf.get("clock"), sysconf.get("zone-tab"))
+        mirrors = []
+        fp = open(path)
+        for line in fp.readlines():
+            mirror = {"country": None, "continent": None}
+            for item in line.split(","):
+                key, entry = item.split("=")
+                mirror[key] = entry.strip()
+            mirror["proximity"] = geoloc.getProximity(
+                float(mirror["latitude"]), float(mirror["longitude"]),
+                randomize=True,
+                country=mirror["country"], continent=mirror["continent"])
+            mirrors.append(mirror)
+        fp.close()
+        mirrors.sort(cmp=lambda x,y: cmp(x["proximity"], y["proximity"]))
+        return mirrors
+
     def fetch(self, fetcher, progress):
 
         fetcher.reset()
+
+        if self._mirrorurl:
+            mirrorlist = self._mirrorurl
+            item = fetcher.enqueue(mirrorlist)
+            fetcher.run(progress=progress)
+
+            if item.getStatus() is FAILED:
+                progress.add(self.getFetchSteps()-1)
+                if fetcher.getCaching() is NEVER:
+                    iface.warning(_("Could not load mirror list. Continuing with base URL only."))
+            else:
+                self._mirrors.clear()
+                mirrorurls = []
+                mirrors = self.loadMirrors(item.getTargetPath())
+                for mirror in mirrors:
+                    scheme = mirror["url"].split(":")[0]
+                    if not fetcher.getHandler(scheme, None):
+                        continue
+                    if mirror["type"] != "distrib":
+                        continue
+                    mirrorurls.append(mirror["url"])
+                if mirrorurls:
+                    self._mirrors[self._baseurl] = mirrorurls
+
+            fetcher.reset()
+        else:
+            progress.add(1)
 
         self._compareurl = self._hdlurl
 
@@ -77,14 +132,17 @@ class URPMIChannel(PackageChannel):
 
             basename = posixpath.basename(self._hdlurl)
             infoname = posixpath.basename(self._infourl)
-            for line in open(item.getTargetPath()):
-                line = line.strip()
-                if line:
-                    md5, name = line.split()
-                    if name == basename:
-                        hdlmd5 = md5
-                    if name == infoname:
-                        infomd5 = md5
+            try:
+                for line in open(item.getTargetPath()):
+                    line = line.strip()
+                    if line:
+                        md5, name = line.split()
+                        if name == basename:
+                            hdlmd5 = md5
+                        if name == infoname:
+                            infomd5 = md5
+            except ValueError:
+                pass
 
         fetcher.reset()
         hdlitem = fetcher.enqueue(self._hdlurl, md5=hdlmd5, uncomp=True)
@@ -224,6 +282,8 @@ class URPMIChannel(PackageChannel):
 def create(alias, data):
     return URPMIChannel(data["baseurl"],
                         data["hdlurl"],
+                        data["directory"],
+                        data["mirrorurl"],
                         data["type"],
                         alias,
                         data["name"],
