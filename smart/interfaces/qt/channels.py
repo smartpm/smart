@@ -123,7 +123,7 @@ class QtChannels(object):
             channel = channels[alias]
             item = qt.QCheckListItem(self._treeview, "", qt.QCheckListItem.CheckBoxController)
             item.setOn(not strToBool(channel.get("disabled")))
-            item.setText(1, channel.get("priority", "0"))
+            item.setText(1, str(channel.get("priority", 0)))
             item.setText(2, alias)
             item.setText(3, channel.get("type", ""))
             item.setText(4, channel.get("name", ""))
