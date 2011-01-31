@@ -250,7 +250,6 @@ def syncURPMIChannels(urpmicfg, mediadir=URPMI_MEDIA_DIR, force=None):
 if not sysconf.getReadOnly():
     if sysconf.get("sync-urpmi-medialist",False):
         # Sync is not enabled by default
-        iface.debug(_("Trying to sync urpmi channels..."))
         syncURPMIChannels(sysconf.get("urpmi-config", URPMI_CONFIG))
 
 # vim:ts=4:sw=4:et
