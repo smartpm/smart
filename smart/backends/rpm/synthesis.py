@@ -91,12 +91,6 @@ class URPMISynthesisLoader(Loader):
         self._filename = filename
         self._baseurl = baseurl
         self._prefix = {}
-        if listfile:
-            for entry in open(listfile):
-                if entry[:2] == "./":
-                    entry = entry[2:]
-                dirname, basename = os.path.split(entry.rstrip())
-                self._prefix[basename] = dirname
         self._infofile = infofile
         self._flagdict = None
 
