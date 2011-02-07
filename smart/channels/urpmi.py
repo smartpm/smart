@@ -250,10 +250,14 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                 #errata.setErrataFlags() <-- done in loader
                 flagdict = errata.getErrataFlags()
             
+            baseurl = self._baseurl
+            directory = self._directory
+            if directory:
+                baseurl += "/" + directory + "/"
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
-                loader = URPMILoader(localpath, self._baseurl, listpath)
+                loader = URPMILoader(localpath, baseurl, listpath)
             else:
-                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath, infopath)
+                loader = URPMISynthesisLoader(localpath, baseurl, listpath)
             # need to set flags while loading
             loader.setErrataFlags(flagdict)
                                 
