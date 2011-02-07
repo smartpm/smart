@@ -229,10 +229,14 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                     os.unlink(linkpath)
                 localpath = localpath[:-3]
 
+            baseurl = self._baseurl
+            directory = self._directory
+            if directory:
+                baseurl += "/" + directory + "/"
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
-                loader = URPMILoader(localpath, self._baseurl, listpath)
+                loader = URPMILoader(localpath, baseurl, listpath)
             else:
-                loader = URPMISynthesisLoader(localpath, self._baseurl, listpath)
+                loader = URPMISynthesisLoader(localpath, baseurl, listpath)
                                 
             loader.setChannel(self)
             self._loaders.append(loader)
