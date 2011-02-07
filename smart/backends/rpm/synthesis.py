@@ -101,7 +101,8 @@ class URPMISynthesisLoader(Loader):
         pkg = Loader.buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs)
         name = pkgargs[1]
         if hasattr(self, '_flagdict') and self._flagdict and name in self._flagdict:
-            pkgconf.setFlag(self._flagdict[name], name, "=", pkgargs[2])
+            if not sysconf.getReadOnly():
+                pkgconf.setFlag(self._flagdict[name], name, "=", pkgargs[2])
         return pkg
 
     def getInfo(self, pkg):
