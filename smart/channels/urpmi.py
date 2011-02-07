@@ -93,15 +93,6 @@ class URPMIChannel(PackageChannel):
             progress.add(1) 
             infoitem = None
 
-        if self._hdlurl.endswith("/list"):
-            listitem = None
-        else:
-            m = re.compile(r"/(?:synthesis\.)?hdlist(.*)\.") \
-                  .search(self._hdlurl)
-            suffix = m and m.group(1) or ""
-            listurl = posixpath.join(hdlbaseurl, "list%s" % suffix)
-            listitem = fetcher.enqueue(listurl, uncomp=True)
-
         fetcher.run(progress=progress)
 
         if hdlitem.getStatus() == FAILED:
@@ -141,15 +132,9 @@ class URPMIChannel(PackageChannel):
             localpath = hdlitem.getTargetPath()
             digestpath = None
             infopath = None
-            if listitem and listitem.getStatus() == SUCCEEDED:
-                if self._compareurl == self._hdlurl:
-                    self._compareurl = listurl
-                    digestpath = localpath
-                listpath = listitem.getTargetPath()
-            else:
-                listpath = None
-                if self._compareurl == self._hdlurl:
-                    digestpath = localpath
+            listpath = None
+            if self._compareurl == self._hdlurl:
+                digestpath = localpath
             if digestpath:
                 digest = getFileDigest(digestpath)
                 if digest == self._digest:

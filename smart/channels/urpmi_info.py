@@ -30,7 +30,7 @@ Repository created for Mandriva's URPMI package manager.
 """)
 
 fields = [("baseurl", _("Base URL"), str, None,
-           _("Base URL where packages or the 'list' file are found under. "
+           _("Base URL where packages are found under. "
              "Using ' with <hdlurl>' pattern is also supported.")),
           ("hdlurl", _("Header List URL"), str, "",
            _("URL for header list (hdlist or synthesis). If it's hdlist.cz "
