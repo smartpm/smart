@@ -204,6 +204,11 @@ def initPlugins():
             if os.path.isfile(initpath):
                 __import__("smart.backends."+entry)
 
+def initPycurl():
+    if sysconf.get("pycurl", True):
+        # importing pycurl here segfaults
+        hooks.call("enable-pycurl", pycurl)
+
 def initPsyco():
     if sysconf.get("psyco", True):
         try:

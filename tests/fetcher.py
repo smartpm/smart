@@ -85,6 +85,7 @@ class FetcherTest(MockerTestCase):
         self.assertTrue(("User-Agent: smart/%s\r\n" % VERSION) in headers)
 
     def test_remove_pragma_no_cache_from_curl(self):
+        fetcher.enablePycurl()
         headers = []
         def handler(request):
             headers[:] = request.headers.headers

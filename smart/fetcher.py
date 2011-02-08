@@ -1751,11 +1751,15 @@ try:
     import pycurl
 except ImportError:
     pass
-else:
-    schemes = pycurl.version_info()[8]
-    for scheme in schemes:
-        if scheme != "file":
-            Fetcher.setHandler(scheme, PyCurlHandler)
+
+def enablePycurl():
+    if pycurl:
+        schemes = pycurl.version_info()[8]
+        for scheme in schemes:
+            if scheme != "file":
+                Fetcher.setHandler(scheme, PyCurlHandler)
+
+hooks.register("enable-pycurl", enablePycurl)
 
 class SCPHandler(FetcherHandler):
 
