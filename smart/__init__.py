@@ -207,7 +207,7 @@ def initPlugins():
 def initPycurl():
     if sysconf.get("pycurl", True):
         # importing pycurl here segfaults
-        hooks.call("enable-pycurl", pycurl)
+        hooks.call("enable-pycurl")
 
 def initPsyco():
     if sysconf.get("psyco", True):
