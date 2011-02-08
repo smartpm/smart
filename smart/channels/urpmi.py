@@ -257,7 +257,7 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
             if open(localpath).read(4) == "\x8e\xad\xe8\x01":
                 loader = URPMILoader(localpath, baseurl, listpath)
             else:
-                loader = URPMISynthesisLoader(localpath, baseurl, listpath)
+                loader = URPMISynthesisLoader(localpath, baseurl, listpath, infopath)
             # need to set flags while loading
             loader.setErrataFlags(flagdict)
                                 
