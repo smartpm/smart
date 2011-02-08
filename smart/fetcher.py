@@ -1750,7 +1750,7 @@ class PyCurlHandler(FetcherHandler):
 try:
     import pycurl
 except ImportError:
-    pass
+    pycurl = None
 
 def enablePycurl():
     if pycurl:
