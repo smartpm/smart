@@ -234,6 +234,12 @@ crpmver_splitrelease(PyObject *self, PyObject *version)
         ver = version;
         rel = Py_None;
     } else {
+        const char *s = str;
+        while (s != p && *s != '-') s++;
+        if (s != p) {
+            size -= str+size-p;
+            p = s;
+        }
         ver = PyString_FromStringAndSize(str, p-str);
         if (!ver) return NULL;
         rel = PyString_FromStringAndSize(p+1, str+size-p-1);

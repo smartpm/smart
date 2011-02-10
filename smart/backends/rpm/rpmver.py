@@ -31,10 +31,13 @@ def splitarch(v):
     return v[:at], v[at+1:]
 
 def splitrelease(v):
-    slash = v.rfind("-")
+    slash = v.find("-")
+    rslash = v.rfind("-")
     if slash == -1:
         return v, None
-    return v[:slash], v[slash+1:]
+    if slash == rslash:
+        rslash = None
+    return v[:slash], v[slash+1:rslash]
 
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)

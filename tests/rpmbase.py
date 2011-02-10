@@ -97,3 +97,8 @@ class RPMVerSplitTest(MockerTestCase):
         self.assertEquals(version, "1.0")
         self.assertEquals(release, "1.fc13")
 
+    def test_distepoch(self):
+        version, release = splitrelease("1.0-1-mdv2011.0")
+        self.assertEquals(version, "1.0")
+        self.assertEquals(release, "1")
+
