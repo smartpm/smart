@@ -318,8 +318,10 @@ class RPMMetaDataLoader(Loader):
                     # Use all the information acquired to build the package.
 
                     if distepoch:
-                        version = "%s:%s" % (version, distepoch)
-                    versionarch = "%s@%s" % (version, arch)
+                        distversion = "%s:%s" % (version, distepoch)
+                        versionarch = "%s@%s" % (distversion, arch)
+                    else:
+                        versionarch = "%s@%s" % (version, arch)
 
                     upgdict[(RPMObsoletes,
                              name, '<', versionarch)] = True
@@ -333,10 +335,10 @@ class RPMMetaDataLoader(Loader):
                     upgargs = upgdict.keys()
 
                     if disttag:
-                        version += "-%s" % disttag
+                        distversion = "%s-%s" % (version, disttag)
                         if distepoch:
-                            version += distepoch
-                        versionarch = "%s@%s" % (version, arch)
+                            distversion += distepoch
+                        versionarch = "%s@%s" % (distversion, arch)
 
                     pkg = self.buildPackage((RPMPackage, name, versionarch),
                                             prvargs, reqargs, upgargs, cnfargs)

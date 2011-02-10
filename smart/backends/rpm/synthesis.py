@@ -109,10 +109,13 @@ class URPMISynthesisLoader(Loader):
         return URPMISynthesisPackageInfo(pkg, self, pkg.loaders[self])
 
     def getFileName(self, info):
-        name = info._package.name
-        version, arch = splitarch(info._package.version)
-        version = EPOCHRE.sub("", version)
-        filename = "%s-%s.%s.rpm" % (name, version, arch)
+        if "nvra" in info._info:
+            filename = "%s.rpm" % info._info.get("nvra")
+        else:
+            name = info._package.name
+            version, arch = splitarch(info._package.version)
+            version = EPOCHRE.sub("", version)
+            filename = "%s-%s.%s.rpm" % (name, version, arch)
         if filename in self._prefix:
             filename = os.path.join(self._prefix[filename], filename)
         return filename
@@ -225,6 +228,18 @@ class URPMISynthesisLoader(Loader):
 
                 rpmnameparts = element[0].split("-")
 
+                disttag = None
+                distepoch = None
+                for provide in provides:
+                    if provide[2]:
+                        first = provide[2].split("-")
+                        if len(first) > 1:
+                            second = first[1].split(":")
+                            if len(second) > 1:
+                                distepoch = second[1]
+                                disttag = rpmnameparts[-1].split(distepoch)[0]
+                                break
+
                 version = "-".join(rpmnameparts[-2:])
                 epoch = element[1]
                 if epoch != "0":
@@ -235,14 +250,19 @@ class URPMISynthesisLoader(Loader):
                     arch = "unknown"
                 else:
                     version, arch = version[:dot], version[dot+1:]
-                versionarch = "@".join((version, arch))
+                if distepoch:
+                    distversion = "%s:%s" % (version, distepoch)
+                    versionarch = "%s@%s" % (distversion, arch)
+                else:
+                    versionarch = "%s@%s" % (version, arch)
                 
                 if rpm.archscore(arch) == 0:
                     continue
 
                 name = "-".join(rpmnameparts[0:-2])
 
-                info = {"summary": summary,
+                info = {"nvra": element[0],
+                        "summary": summary,
                         "size"   : element[2],
                         "group"  : element[3],
                         "description" : description,
@@ -280,6 +300,11 @@ class URPMISynthesisLoader(Loader):
                     upgdict[upg] = True
                     cnfdict[upg] = True
                     
+                if disttag:
+                    distversion = "%s-%s" % (version, disttag)
+                    if distepoch:
+                        distversion += distepoch
+                    versionarch = "%s@%s" % (distversion, arch)
                 pkg = self.buildPackage((Pkg, name, versionarch),
                                         prvdict.keys(), reqdict.keys(),
                                         upgdict.keys(), cnfdict.keys())

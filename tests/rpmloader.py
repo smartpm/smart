@@ -7,7 +7,7 @@ from mocker import MockerTestCase, expect, ANY
 
 from smart.backends.rpm.header import \
     RPMHeaderPackageInfo, get_header_filenames, \
-    RPMDirLoader, RPMHeaderListLoader
+    RPMDirLoader, RPMHeaderLoader, RPMHeaderListLoader
 from smart.backends.rpm.yast2 import YaST2PackageInfo
 from smart.searcher import Searcher
 from smart.cache import Cache
@@ -96,6 +96,41 @@ class YAST2PackageInfoTest(MockerTestCase):
         self.assertEquals(info.getURLs(),
                           [u"http://baseurl11/datadir/arch/fname"])
 
+
+class RPMPackageVersionTest(MockerTestCase):
+
+    # RPMTAG_NAME, RPMTAG_VERSION, RPMTAG_RELEASE, RPMTAG_EPOCH
+    # RPMTAG_ARCH, RPMTAG_SOURCEPACKAGE, RPMTAG_DISTTAG, RPMTAG_DISTEPOCH
+    # RPMTAG_PROVIDENAME, RPMTAG_PROVIDEVERSION, RPMTAG_REQUIRENAME
+    # RPMTAG_CONFLICTNAME, RPMTAG_OBSOLETENAME, RPMTAG_GROUP
+    header = {1000: "name", 1001: "1.0", 1002: "1", 1003: None,
+              1022: "noarch", 1106: None, 1155: "unity", 1218: "2011.0",
+              1047: [], 1113: [], 1049: [], 1054: [], 1090: [],
+              rpm.RPMTAG_GROUP: "" }
+
+    def test_packageVersion_distepoch(self):
+        def getHeaders(prog):
+            return [(self.header, 0)]
+        def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
+            assert(pkgargs[2] == "1.0-1-unity2011.0@noarch")
+            from smart.cache import Package
+            return Package(pkgargs[1], pkgargs[2])
+        loader = RPMHeaderLoader()
+        loader.getHeaders = getHeaders
+        loader.buildPackage = buildPackage
+        loader.load()
+
+    def test_packageDepends_distepoch(self):
+        def getHeaders(prog):
+            return [(self.header, 0)]
+        def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
+            assert(upgargs[0][3] == "1.0-1:2011.0@noarch")
+            from smart.cache import Package
+            return Package(pkgargs[1], pkgargs[2])
+        loader = RPMHeaderLoader()
+        loader.getHeaders = getHeaders
+        loader.buildPackage = buildPackage
+        loader.load()
 
 class HeaderFilenamesTest(MockerTestCase):
 

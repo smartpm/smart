@@ -269,8 +269,10 @@ class RPMHeaderLoader(Loader):
                 version = "%s-%s" % (h[1001], h[1002])
             distepoch = h[1218] # RPMTAG_DISTEPOCH
             if distepoch:
-                version = "%s:%s" % (version, distepoch)
-            versionarch = "%s@%s" % (version, arch)
+                distversion = "%s:%s" % (version, distepoch)
+                versionarch = "%s@%s" % (distversion, arch)
+            else:
+                versionarch = "%s@%s" % (version, arch)
 
             n = h[1047] # RPMTAG_PROVIDENAME
             v = h[1113] # RPMTAG_PROVIDEVERSION
@@ -362,10 +364,10 @@ class RPMHeaderLoader(Loader):
             disttag = h[1155] # RPMTAG_DISTTAG
             distepoch = h[1218] # RPMTAG_DISTEPOCH
             if disttag:
-                version += "-%s" % disttag
+                distversion = "%s-%s" % (version, disttag)
                 if distepoch:
-                    version += distepoch
-                versionarch = "%s@%s" % (version, arch)
+                    distversion += distepoch
+                versionarch = "%s@%s" % (distversion, arch)
 
             pkg = self.buildPackage((Pkg, name, versionarch),
                                     prvargs, reqargs, upgargs, cnfargs)
