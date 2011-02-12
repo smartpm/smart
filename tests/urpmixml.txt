@@ -99,6 +99,14 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> info.getDescription()
   'Description1'
 
+  >>> info.getURLs()
+  ['file:///.../tests/data/urpmi-xml/name1-version1-release1.noarch.rpm']
+  >>> url = info.getURLs()[0]
+
+  >>> info.getSHA(url)
+  >>> info.getSHA256(url)
+  >>> info.getSize(url)
+
   >>> # Make sure to restore SysConfChannels...
   >>> sysconf.object = pickle.loads(old_sysconf)
 

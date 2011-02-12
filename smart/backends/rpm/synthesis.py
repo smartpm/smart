@@ -58,6 +58,9 @@ class URPMISynthesisPackageInfo(PackageInfo):
         return [posixpath.join(self._loader._baseurl,
                                self._loader.getFileName(self))]
 
+    def getSize(self, url):
+        return self._info.get("filesize")
+
     def getInstalledSize(self):
         return int(self._info.get("size"))
 
@@ -156,6 +159,9 @@ class URPMISynthesisLoader(Loader):
         Obs = RPMObsoletes
         Cnf = RPMConflicts
 
+        summary = None
+        filesize = None
+        
         requires = ()
         provides = ()
         conflicts = ()
@@ -184,6 +190,9 @@ class URPMISynthesisLoader(Loader):
 
             if id == "summary":
                 summary = element[0]
+
+            elif id == "filesize":
+                filesize = int(element[0])
 
             elif id == "provides":
                 provides = self.splitDepends(element)
@@ -243,6 +252,7 @@ class URPMISynthesisLoader(Loader):
                 name = "-".join(rpmnameparts[0:-2])
 
                 info = {"summary": summary,
+                        "filesize": filesize,
                         "size"   : element[2],
                         "group"  : element[3],
                         "description" : description,
@@ -288,6 +298,9 @@ class URPMISynthesisLoader(Loader):
                 prog.add(1)
                 prog.show()
 
+                summary = None
+                filesize = None
+                
                 provides = ()
                 requires = ()
                 conflicts = ()
