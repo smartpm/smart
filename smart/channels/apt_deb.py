@@ -207,17 +207,17 @@ class APTDEBChannel(PackageChannel):
                 return None
             if compressed_subpath:
                 info["uncomp"] = True
-                info["md5"] = checksum[compressed_subpath]["md5"]
+                info["md5"] = checksum[compressed_subpath].get("md5", None)
                 info["sha1"] = checksum[compressed_subpath].get("sha1", None)
                 info["sha256"] = checksum[compressed_subpath].get("sha256", None)
                 info["size"] = checksum[compressed_subpath]["size"]
                 if subpath in checksum:
-                    info["uncomp_md5"] = checksum[subpath]["md5"]
+                    info["uncomp_md5"] = checksum[subpath].get("md5", None)
                     info["uncomp_sha1"] = checksum[subpath].get("sha1", None)
                     info["uncomp_sha256"] = checksum[subpath].get("sha256", None)
                     info["uncomp_size"] = checksum[subpath]["size"]
             else:
-                info["md5"] = checksum[subpath]["md5"]
+                info["md5"] = checksum[subpath].get("md5", None)
                 info["sha1"] = checksum[subpath].get("sha1", None)
                 info["sha256"] = checksum[subpath].get("sha256", None)
                 info["size"] =  checksum[subpath]["size"]
