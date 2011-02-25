@@ -317,11 +317,14 @@ class RPMMetaDataLoader(Loader):
 
                     # Use all the information acquired to build the package.
 
+                    versionarch = "%s@%s" % (version, arch)
                     if distepoch:
+                        tup = (RPMNameProvides, name, versionarch)
+                        if tup in prvdict: del prvdict[tup]
                         distversion = "%s:%s" % (version, distepoch)
                         versionarch = "%s@%s" % (distversion, arch)
-                    else:
-                        versionarch = "%s@%s" % (version, arch)
+                        prvdict[(RPMNameProvides,
+                                 name, versionarch)] = True
 
                     upgdict[(RPMObsoletes,
                              name, '<', versionarch)] = True
