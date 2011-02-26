@@ -623,14 +623,18 @@ class RPMDBLoader(RPMHeaderLoader):
             prog.show()
         prog.add(left)
 
-    if rpmhelper:
-        def getHeader(self, pkg):
+    def getHeader(self, pkg):
+        if rpmhelper:
             mi = rpmhelper.dbMatch(getTS(), 0, pkg.loaders[self])
-            return mi.next()
-    else:
-        def getHeader(self, pkg):
+        else:
             mi = getTS().dbMatch(0, pkg.loaders[self])
+        try:
             return mi.next()
+        except StopIteration:
+            class NullHeader(object):
+                def __getitem__(self, key):
+                    return None
+            return NullHeader()
 
     def getURL(self):
         return None
