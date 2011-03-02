@@ -24,7 +24,10 @@ from smart.progress import Progress, INTERVAL
 from smart.interfaces.gtk import getPixbuf
 from smart import *
 import gobject, gtk
-import glib
+try:
+    import glib
+except ImportError:
+    glib = None
 import posixpath
 import thread
 import time
@@ -38,7 +41,7 @@ class GtkProgress(Progress, gtk.Window):
         self.connect("delete-event", lambda x,y: True)
 
         # updates from subthreads not showing up [#592503]
-        self._threadsafe = glib.glib_version < (2, 24, 0)
+        self._threadsafe = not glib or glib.glib_version < (2, 24, 0)
 
         self._hassub = hassub
         self._shorturl = ShortURL(50)
