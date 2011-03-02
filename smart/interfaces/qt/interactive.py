@@ -996,6 +996,7 @@ class QtInteractiveInterface(QtInterface):
         self.setBusy(False)
 
     def showAbout(self):
+        copyright = "2010 Smart Team, 2006 Canonical Ltd., 2004 Conectiva, Inc."
         license = """
             This program is free software; you can redistribute it and/or modify
             it under the terms of the GNU General Public License as published by
@@ -1014,7 +1015,7 @@ class QtInteractiveInterface(QtInterface):
         credits=["""Gustavo Niemeyer - Original author and lead developer.""",
            u"""Anders F Bj\u00f6rklund - Current maintainer and developer.""",
             """Conectiva Inc. - Original project funder up to August 2005.""",
-            """Canonical Ltd. - Funded Smart development up to November of 2009.""",
+            """Canonical Ltd. - Funded Smart up to November of 2009.""",
             """Unity Linux - Smart development and deployment support.""",
             """And many others - Check our website for the complete list.""",
             ]
@@ -1022,7 +1023,7 @@ class QtInteractiveInterface(QtInterface):
 
         qt.QMessageBox.about(self._window, "About " + "Smart Package Manager",
             "<h2>" + "Smart Package Manager" + " " + VERSION + "</h2>" + \
-            "<p>Copyright &copy; " + "2010 Smart Team, 2006 Canonical Ltd., 2004 Conectiva, Inc." + \
+            "<p>Copyright &copy; " + copyright + \
             "<p><small>" + license + "</small>" + \
             "<p><h3>Credits</h3>" + "<br>".join(credits) + \
             "<p><a href=\""+website+"\">"+website+"</a>")

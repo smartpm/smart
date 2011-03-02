@@ -1124,6 +1124,7 @@ class GtkInteractiveInterface(GtkInterface):
         self.setBusy(False)
 
     def showAbout(widget):
+        copyright = "2010 Smart Team, 2006 Canonical Ltd., 2004 Conectiva, Inc."
         license = """
             This program is free software; you can redistribute it and/or modify
             it under the terms of the GNU General Public License as published by
@@ -1142,7 +1143,7 @@ class GtkInteractiveInterface(GtkInterface):
         credits=["""Gustavo Niemeyer - Original author and lead developer.""",
            u"""Anders F Bj\u00f6rklund - Current maintainer and developer.""",
             """Conectiva Inc. - Original project funder up to August 2005.""",
-            """Canonical Ltd. - Funding Smart development up to November of 2009.""",
+            """Canonical Ltd. - Funding Smart up to November of 2009.""",
             """Unity Linux - Smart development and deployment support.""",
             """And many others - Check our website for the complete list.""",
             ]
@@ -1151,7 +1152,7 @@ class GtkInteractiveInterface(GtkInterface):
         aboutdialog = gtk.AboutDialog()
         aboutdialog.set_name("Smart Package Manager")
         aboutdialog.set_version(VERSION)
-        aboutdialog.set_copyright("2010 Smart Team, 2006 Canonical Ltd., 2004 Conectiva, Inc.")
+        aboutdialog.set_copyright(copyright)
         aboutdialog.set_authors(credits)
         aboutdialog.set_license(license)
         aboutdialog.set_website(website)
