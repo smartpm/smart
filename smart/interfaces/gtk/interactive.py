@@ -1149,6 +1149,17 @@ class GtkInteractiveInterface(GtkInterface):
             ]
         website = "http://smartpm.org/"
 
+        if gtk.pygtk_version < (2,6,0):
+             dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_CLOSE)
+             dialog.set_markup("<b>Smart Package Manager %s</b>\n"
+                               "<small>(C) %s</small>\n" % (VERSION, copyright) +
+                               "<small>%s</small>\n" % license.replace(" " * 12, "") +
+                               "<span>%s</span>\n" % "\n".join(credits) +
+                               "\n<tt>%s</tt>" % website)
+             dialog.run()
+             dialog.destroy()
+             return
+
         aboutdialog = gtk.AboutDialog()
         aboutdialog.set_name("Smart Package Manager")
         aboutdialog.set_version(VERSION)
