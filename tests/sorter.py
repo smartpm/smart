@@ -1,6 +1,11 @@
 import unittest
+import sys
 
 from smart.sorter import ElementSorter, DisableError
+
+
+if sys.version_info < (2, 4):
+    from sets import Set as set
 
 
 class ElementSorterTest(unittest.TestCase):

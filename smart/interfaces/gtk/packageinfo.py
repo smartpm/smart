@@ -23,7 +23,10 @@ from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk, pango
-import subprocess
+try:
+    import subprocess
+except ImportError:
+    subprocess = None
 import fnmatch
 try:
     import sexy
@@ -364,7 +367,10 @@ class GtkPackageInfo(gtk.Alignment):
                         'x-www-browser', 'firefox', 'open']:
             command = [browser, url]
             try:
-                retcode = subprocess.call(command)
+                if subprocess:
+                    retcode = subprocess.call(command)
+                else:
+                    retcode = os.system(" ".join(command))
                 if retcode == 0:
                     break
             except OSError:

@@ -78,7 +78,7 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                 country=mirror["country"], continent=mirror["continent"])
             mirrors.append(mirror)
         fp.close()
-        mirrors.sort(cmp=lambda x,y: cmp(x["proximity"], y["proximity"]))
+        mirrors.sort(lambda x,y: cmp(x["proximity"], y["proximity"]))
         return mirrors
 
     def fetch(self, fetcher, progress):
