@@ -178,7 +178,6 @@ class GtkPackageInfo(gtk.Alignment):
             image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
             self._filterentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
             def pressed(entry, icon_pos, button):
-                print type(icon_pos)
                 if icon_pos == 0: # "primary"
                     self.filterContent()
                 elif icon_pos == 1: # "secondary"
