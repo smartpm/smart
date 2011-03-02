@@ -141,7 +141,7 @@ class GtkPackageInfo(gtk.Alignment):
         filtertable.set_col_spacings(5)
         filtertable.set_border_width(5)
         filtertable.show()
-        vbox.pack_start(filtertable, False)
+        vbox.pack_end(filtertable, False)
 
         label = gtk.Label(_("Filter:"))
         label.show()
