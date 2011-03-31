@@ -34,6 +34,8 @@ import thread
 import time
 import os
 import re
+import signal
+import threading
 
 MAXRETRIES = 30
 SPEEDDELAY = 1
@@ -182,6 +184,13 @@ class Fetcher(object):
     def run(self, what=None, progress=None):
         socket.setdefaulttimeout(sysconf.get("socket-timeout", SOCKETTIMEOUT))
         self._cancel = False
+        thread_name = threading.currentThread().getName()
+        if thread_name == "MainThread":
+            def quitIntHandler(signal, frame):
+                print '\nInterrupted\n'
+                sys.exit(0)
+            old_quit_handler = signal.signal(signal.SIGQUIT, quitIntHandler)
+            old_int_handler  = signal.signal(signal.SIGINT, quitIntHandler)
         self._activedownloads = 0
         self._maxactivedownloads = sysconf.get("max-active-downloads",
                                                MAXACTIVEDOWNLOADS)
@@ -286,6 +295,9 @@ class Fetcher(object):
             handler.stop()
         if not progress:
             prog.stop()
+        if thread_name == "MainThread":
+            signal.signal(signal.SIGQUIT, old_quit_handler)
+            signal.signal(signal.SIGINT, old_int_handler)
         if self._cancel:
             raise FetcherCancelled, _("Cancelled")
 

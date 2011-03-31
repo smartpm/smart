@@ -23,7 +23,10 @@ from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk, pango
-import subprocess
+try:
+    import subprocess
+except ImportError:
+    subprocess = None
 import fnmatch
 try:
     import sexy
@@ -141,7 +144,7 @@ class GtkPackageInfo(gtk.Alignment):
         filtertable.set_col_spacings(5)
         filtertable.set_border_width(5)
         filtertable.show()
-        vbox.pack_start(filtertable, False)
+        vbox.pack_end(filtertable, False)
 
         label = gtk.Label(_("Filter:"))
         label.show()
@@ -178,7 +181,6 @@ class GtkPackageInfo(gtk.Alignment):
             image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
             self._filterentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
             def pressed(entry, icon_pos, button):
-                print type(icon_pos)
                 if icon_pos == 0: # "primary"
                     self.filterContent()
                 elif icon_pos == 1: # "secondary"
@@ -365,7 +367,10 @@ class GtkPackageInfo(gtk.Alignment):
                         'x-www-browser', 'firefox', 'open']:
             command = [browser, url]
             try:
-                retcode = subprocess.call(command)
+                if subprocess:
+                    retcode = subprocess.call(command)
+                else:
+                    retcode = os.system(" ".join(command))
                 if retcode == 0:
                     break
             except OSError:
