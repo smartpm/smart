@@ -259,11 +259,7 @@ class URPMISynthesisLoader(Loader):
                     arch = "unknown"
                 else:
                     version, arch = version[:dot], version[dot+1:]
-                if distepoch:
-                    distversion = "%s:%s" % (version, distepoch)
-                    versionarch = "%s@%s" % (distversion, arch)
-                else:
-                    versionarch = "%s@%s" % (version, arch)
+                versionarch = "%s@%s" % (version, arch)
                 
                 if rpm.archscore(arch) == 0:
                     continue
