@@ -124,7 +124,7 @@ class RPMPackageVersionTest(MockerTestCase):
         def getHeaders(prog):
             return [(self.header, 0)]
         def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
-            assert(upgargs[0][3] == "1.0-1:2011.0@noarch")
+            assert(upgargs[0][3] == "1.0-1@noarch")
             from smart.cache import Package
             return Package(pkgargs[1], pkgargs[2])
         loader = RPMHeaderLoader()
