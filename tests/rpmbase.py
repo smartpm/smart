@@ -5,7 +5,7 @@ import rpm
 from mocker import MockerTestCase
 
 from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
-from smart.backends.rpm.rpmver import splitarch, splitrelease
+from smart.backends.rpm.rpmver import checkver, splitarch, splitrelease
 from smart import sysconf
 
 
@@ -84,6 +84,17 @@ class RPMPackageTest(MockerTestCase):
         pkg2.provides = [provides1, provides2]
         self.assertTrue(pkg1.equals(pkg2))
         self.assertTrue(pkg2.equals(pkg1))
+
+class RPMVerCheckTest(MockerTestCase):
+
+    def test_checkstring(self):
+        self.assertTrue(checkver("1", "1"))
+
+    def test_checknone(self):
+        self.assertTrue(checkver(None, None))
+
+    def test_checkdistepoch(self):
+        self.assertTrue(checkver("1-2:3", "1-2"))
 
 class RPMVerSplitTest(MockerTestCase):
 

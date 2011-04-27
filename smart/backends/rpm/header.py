@@ -20,7 +20,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.backends.rpm.rpmver import splitarch
+from smart.backends.rpm.rpmver import checkver, splitarch
 from smart.util.strtools import globdistance
 from smart.cache import Loader, PackageInfo
 from smart.channel import FileChannel
@@ -278,7 +278,7 @@ class RPMHeaderLoader(Loader):
                     vi = v[i]
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
-                    if ni == name and vi == version:
+                    if ni == name and checkver(vi, version):
                         prvdict[(NPrv, intern(ni), versionarch)] = True
                     else:
                         prvdict[(Prv, intern(ni), vi or None)] = True

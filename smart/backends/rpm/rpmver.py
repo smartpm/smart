@@ -39,6 +39,12 @@ def splitrelease(v):
         rslash = None
     return v[:slash], v[slash+1:rslash]
 
+def checkver(v1, v2):
+    if v1 == v2:
+        return True
+    cmp = vercmp(v1, v2)
+    return cmp == 0
+
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)
     if cmp == 0:

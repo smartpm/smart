@@ -253,6 +253,33 @@ crpmver_splitrelease(PyObject *self, PyObject *version)
 }
 
 static PyObject *
+crpmver_checkver(PyObject *self, PyObject *args)
+{
+    PyObject *v1, *v2;
+    const char *s1, *s2;
+    PyObject *ret;
+    int rc;
+    if (!PyArg_ParseTuple(args, "OO", &v1, &v2))
+        return NULL;
+    if (PyObject_RichCompareBool(v1, v2, Py_EQ) == 1) {
+        ret = Py_True;
+        Py_INCREF(ret);
+        return ret;
+    }
+    if (!PyString_Check(v1) || !PyString_Check(v2)) {
+        ret = Py_False;
+        Py_INCREF(ret);
+        return ret;
+    }
+    s1 = PyString_AS_STRING(v1);
+    s2 = PyString_AS_STRING(v2);
+    rc = vercmp(s1, s2);
+    ret = (rc == 0) ? Py_True : Py_False;
+    Py_INCREF(ret);
+    return ret;
+}
+
+static PyObject *
 crpmver_checkdep(PyObject *self, PyObject *args)
 {
     const char *v1, *rel, *v2;
@@ -301,6 +328,7 @@ crpmver_vercmppart(PyObject *self, PyObject *args)
 static PyMethodDef crpmver_methods[] = {
     {"splitarch", (PyCFunction)crpmver_splitarch, METH_O, NULL},
     {"splitrelease", (PyCFunction)crpmver_splitrelease, METH_O, NULL},
+    {"checkver", (PyCFunction)crpmver_checkver, METH_VARARGS, NULL},
     {"checkdep", (PyCFunction)crpmver_checkdep, METH_VARARGS, NULL},
     {"vercmp", (PyCFunction)crpmver_vercmp, METH_VARARGS, NULL},
     {"vercmpparts", (PyCFunction)crpmver_vercmpparts, METH_VARARGS, NULL},

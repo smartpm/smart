@@ -24,7 +24,7 @@
 # being linked with rpm. :-(
 import zlib
 
-from rpmver import checkdep, vercmp, splitarch, splitrelease
+from rpmver import checkdep, checkver, vercmp, splitarch, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
 from smart import *
@@ -120,7 +120,7 @@ class RPMPackage(Package):
                 for oreq in oreqs:
                     if (sreq.name == oreq.name and
                         sreq.relation == oreq.relation and
-                        sreq.version == oreq.version):
+                        checkver(sreq.version, oreq.version)):
                         break
                 else:
                     return False
@@ -130,7 +130,7 @@ class RPMPackage(Package):
                 for sreq in sreqs:
                     if (sreq.name == oreq.name and
                         sreq.relation == oreq.relation and
-                        sreq.version == oreq.version):
+                        checkver(sreq.version, oreq.version)):
                         break
                 else:
                     return False
