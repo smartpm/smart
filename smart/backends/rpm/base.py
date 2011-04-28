@@ -105,12 +105,71 @@ class RPMPackage(Package):
             return True
         fk = dict.fromkeys
         if (len(self.upgrades) != len(other.upgrades) or
-            len(self.conflicts) != len(other.conflicts) or
-            fk(self.upgrades) != fk(other.upgrades) or
-            fk(self.conflicts) != fk(other.conflicts) or
-            fk([x for x in self.provides if x.name and x.name[0] != "/"]) !=
-            fk([x for x in other.provides if x.name and x.name[0] != "/"])):
+            len(self.conflicts) != len(other.conflicts)):
             return False
+        supgs = fk(self.upgrades)
+        oupgs = fk(other.upgrades)
+        if supgs != oupgs:
+            for supg in supgs:
+                if supg in oupgs:
+                    continue
+                for oupg in oupgs:
+                    if (supg.name == oupg.name and
+                        checkver(supg.version, oupg.version)):
+                        break
+                else:
+                    return False
+            for oupg in oupgs:
+                if oupg in supgs:
+                    continue
+                for supg in supgs:
+                    if (supg.name == oupg.name and
+                        checkver(supg.version, oupg.version)):
+                        break
+                else:
+                    return False
+        scnfs = fk(self.conflicts)
+        ocnfs = fk(other.conflicts)
+        if scnfs != ocnfs:
+            for scnf in scnfs:
+                if scnf in ocnfs:
+                    continue
+                for ocnf in ocnfs:
+                    if (scnf.name == ocnf.name and
+                        checkver(scnf.version, ocnf.version)):
+                        break
+                else:
+                    return False
+            for ocnf in ocnfs:
+                if ocnf in scnfs:
+                    continue
+                for scnf in scnfs:
+                    if (scnf.name == ocnf.name and
+                        checkver(scnf.version, ocnf.version)):
+                        break
+                else:
+                    return False
+        sprvs = fk(self.provides)
+        oprvs = fk(other.provides)
+        if sprvs != oprvs:
+            for sprv in sprvs:
+                if not sprv.name or sprv.name[0] == "/" or sprv in oprvs:
+                    continue
+                for oprv in oprvs:
+                    if (sprv.name == oprv.name and
+                        checkver(sprv.version, oprv.version)):
+                        break
+                else:
+                    return False
+            for oprv in oprvs:
+                if not oprv.name or oprv.name[0] == "/" or oprv in sprvs:
+                    continue
+                for sprv in sprvs:
+                    if (sprv.name == oprv.name and
+                        checkver(sprv.version, oprv.version)):
+                        break
+                else:
+                    return False
         sreqs = fk(self.requires)
         oreqs = fk(other.requires)
         if sreqs != oreqs:
