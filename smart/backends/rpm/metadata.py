@@ -20,6 +20,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from smart.backends.rpm.rpmver import checkver
 from smart.cache import PackageInfo, Loader
 from smart.backends.rpm.base import *
 
@@ -297,7 +298,7 @@ class RPMMetaDataLoader(Loader):
                         if ename[0] == "/":
                             filedict[ename] = True
                         else:
-                            if ename == name and eversion == version:
+                            if ename == name and checkver(eversion, version):
                                 eversion = "%s@%s" % (eversion, arch)
                                 Prv = RPMNameProvides
                             else:
