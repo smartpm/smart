@@ -25,7 +25,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.backends.rpm.rpmver import splitarch
+from smart.backends.rpm.rpmver import splitarch, checkver
 from smart.cache import PackageInfo, Loader
 from smart.backends.rpm.base import *
 try:
@@ -282,7 +282,7 @@ class URPMISynthesisLoader(Loader):
 
                 prvdict = {}
                 for n, r, v, f in provides:
-                    if n == name and v == version:
+                    if n == name and checkver(v, version):
                         prv = (NPrv, n, versionarch)
                     else:
                         prv = (Prv, n, v)
