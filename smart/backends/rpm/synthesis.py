@@ -239,6 +239,7 @@ class URPMISynthesisLoader(Loader):
 
                 disttag = None
                 distepoch = None
+                releasepos = -2
                 for provide in provides:
                     if provide[2]:
                         first = provide[2].split("-")
@@ -247,9 +248,10 @@ class URPMISynthesisLoader(Loader):
                             if len(second) > 1:
                                 distepoch = second[1]
                                 disttag = rpmnameparts[-1].split(distepoch)[0]
+                                releasepos -= 1
                                 break
 
-                version = "-".join(rpmnameparts[-2:])
+                version = "-".join(rpmnameparts[releasepos:])
                 epoch = element[1]
                 if epoch != "0":
                     version = "%s:%s" % (epoch, version)
@@ -264,7 +266,7 @@ class URPMISynthesisLoader(Loader):
                 if rpm.archscore(arch) == 0:
                     continue
 
-                name = "-".join(rpmnameparts[0:-2])
+                name = "-".join(rpmnameparts[0:releasepos])
 
                 info = {"nvra": element[0],
                         "summary": summary,
