@@ -261,6 +261,8 @@ class URPMISynthesisLoader(Loader):
                     arch = "unknown"
                 else:
                     version, arch = version[:dot], version[dot+1:]
+                if disttag and distepoch:
+                    version = version.replace("-%s%s" % (disttag, distepoch), "")              
                 versionarch = "%s@%s" % (version, arch)
                 
                 if rpm.archscore(arch) == 0:
