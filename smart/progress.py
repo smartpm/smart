@@ -247,6 +247,8 @@ class Progress(object):
         try:
             if subkey in self.__subdone:
                 return
+            if subkey not in self.__subprogress:
+                return
             (subcurrent, subtotal,
              fragment, subdata) = self.__subprogress[subkey]
             if subcurrent != subtotal:
