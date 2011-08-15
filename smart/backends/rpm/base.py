@@ -258,7 +258,7 @@ class RPMPackage(Package):
                     rc = cmp(getArchColor(selfarch), getArchColor(otherarch))
                 if rc == 0:
                     if selfver != otherver:
-                        rc = vercmp(self.version, other.version)
+                        rc = vercmp(selfver, otherver)
                     if rc == 0:
                         rc = -cmp(archscore(selfarch), archscore(otherarch))
         return rc == -1
