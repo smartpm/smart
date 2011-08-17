@@ -233,8 +233,8 @@ class GtkPackageView(gtk.Alignment):
                 else:
                     size = 0L
                     for url in info.getURLs():
-                        size += info.getSize(url)
-                cell.set_property("text", sizeToStr(size))
+                        size += info.getSize(url) or 0
+                cell.set_property("text", sizeToStr(size or None))
                 break
         else:
             cell.set_property("text", "")
