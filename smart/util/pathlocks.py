@@ -21,6 +21,7 @@
 #
 import fcntl
 import os
+import sys
 
 class PathLocks(object):
     
@@ -59,7 +60,28 @@ class PathLocks(object):
         result = self._force
         fd = self._lock.get(path)
         if fd is None:
-            fd = self._lock[path] = os.open(path, os.O_RDONLY)
+            solaris = (sys.platform == "sunos5")
+            if solaris and exclusive:
+                if os.path.isdir(path) or path.endswith('/'):
+                    file = os.path.join(path, ".lck")
+                    if not os.path.exists(file):
+                        fd = os.open(file, os.O_RDWR | os.O_CREAT)
+                    else:
+                        fd = os.open(file, os.O_RDWR)
+                else:
+                    fd = os.open(path, os.O_RDWR)
+            elif solaris and not block:
+                if os.path.isdir(path) or path.endswith('/'):
+                    file = os.path.join(path, ".lck")
+                    try:
+                        fd = os.open(file, os.O_RDWR | os.O_CREAT)
+                    except OSError:
+                        fd = os.open(path, os.O_RDONLY )
+                else:
+                    fd = os.open(path, os.O_RDONLY)
+            else:
+                fd = os.open(path, os.O_RDONLY)
+            self._lock[path] = fd
             flags = fcntl.fcntl(fd, fcntl.F_GETFD, 0)
             flags |= fcntl.FD_CLOEXEC
             fcntl.fcntl(fd, fcntl.F_SETFD, flags)
