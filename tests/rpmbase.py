@@ -5,7 +5,7 @@ import rpm
 from mocker import MockerTestCase
 
 from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
-from smart.backends.rpm.rpmver import splitarch, splitrelease
+from smart.backends.rpm.rpmver import checkver, splitarch, splitrelease
 from smart import sysconf
 
 
@@ -85,6 +85,17 @@ class RPMPackageTest(MockerTestCase):
         self.assertTrue(pkg1.equals(pkg2))
         self.assertTrue(pkg2.equals(pkg1))
 
+class RPMVerCheckTest(MockerTestCase):
+
+    def test_checkstring(self):
+        self.assertTrue(checkver("1", "1"))
+
+    def test_checknone(self):
+        self.assertTrue(checkver(None, None))
+
+    def test_checkdistepoch(self):
+        self.assertTrue(checkver("1-2:3", "1-2"))
+
 class RPMVerSplitTest(MockerTestCase):
 
     def test_splitarch(self):
@@ -96,4 +107,9 @@ class RPMVerSplitTest(MockerTestCase):
         version, release = splitrelease("1.0-1.fc13")
         self.assertEquals(version, "1.0")
         self.assertEquals(release, "1.fc13")
+
+    def test_distepoch(self):
+        version, release = splitrelease("1.0-1-mdv2011.0")
+        self.assertEquals(version, "1.0")
+        self.assertEquals(release, "1")
 

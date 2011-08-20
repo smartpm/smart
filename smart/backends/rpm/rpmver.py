@@ -21,7 +21,7 @@
 #
 import re
 
-VERRE = re.compile("(?:([0-9]+):)?([^-]+)(?:-(.+))?")
+VERRE = re.compile("(?:([0-9]+):)?([^:-]+)(?:-([^:-]+))?(?::([^:-]+))?")
 
 def splitarch(v):
     at = v.rfind("@")
@@ -31,10 +31,19 @@ def splitarch(v):
     return v[:at], v[at+1:]
 
 def splitrelease(v):
-    slash = v.rfind("-")
+    slash = v.find("-")
+    rslash = v.rfind("-")
     if slash == -1:
         return v, None
-    return v[:slash], v[slash+1:]
+    if slash == rslash:
+        rslash = None
+    return v[:slash], v[slash+1:rslash]
+
+def checkver(v1, v2):
+    if v1 == v2:
+        return True
+    cmp = vercmp(v1, v2)
+    return cmp == 0
 
 def checkdep(s1, rel, s2):
     cmp = vercmp(s1, s2)
@@ -52,7 +61,7 @@ def vercmp(s1, s2):
 # return 1: first is newer than second
 #        0: first and second are the same version
 #       -1: second is newer than first
-def vercmpparts(e1, v1, r1, e2, v2, r2):
+def vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2):
     if e1: e1 = int(e1)
     else:  e1 = 0
     if e2: e2 = int(e2)
@@ -64,7 +73,11 @@ def vercmpparts(e1, v1, r1, e2, v2, r2):
         return rc
     elif not r1 or not r2:
         return 0
-    return vercmppart(r1, r2)
+    rc = vercmppart(r1, r2)
+    if rc:
+        return rc
+    # ignore distepoch
+    return 0
 
 # compare alpha and numeric segments of two versions
 # return 1: a is newer than b

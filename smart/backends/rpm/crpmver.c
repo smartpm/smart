@@ -102,8 +102,8 @@ vercmppart(const char *a, const char *b)
 }
 
 static int
-vercmpparts(const char *e1, const char *v1, const char *r1,
-            const char *e2, const char *v2, const char *r2)
+vercmpparts(const char *e1, const char *v1, const char *r1, const char *d1,
+            const char *e2, const char *v2, const char *r2, const char *d2)
 {
     int e1i = 0;
     int e2i = 0;
@@ -119,11 +119,15 @@ vercmpparts(const char *e1, const char *v1, const char *r1,
         return rc;
     else if (!r1 || !r2)
         return 0;
-    return vercmppart(r1, r2);
+    rc = vercmppart(r1, r2);
+    if (rc)
+        return rc;
+    /* ignore distepoch */
+    return 0;
 }
 
 static void
-splitversion(char *buf, char **e, char **v, char **r)
+splitversion(char *buf, char **e, char **v, char **r, char **d)
 {
     char *s = strrchr(buf, '-');
     if (s) {
@@ -143,21 +147,32 @@ splitversion(char *buf, char **e, char **v, char **r)
         *e = "0";
         *v = buf;
     }
+    if (*r == NULL) {
+        *d = NULL;
+        return;
+    }
+    s = strrchr(*r, ':');
+    if (s) {
+        *s++ = '\0';
+        *d = s;
+    } else {
+        *d = NULL;
+    }
 }
 
 static int
 vercmp(const char *s1, const char *s2)
 {
-    char *e1, *v1, *r1, *e2, *v2, *r2;
+    char *e1, *v1, *r1, *d1, *e2, *v2, *r2, *d2;
     char b1[64];
     char b2[64];
     strncpy(b1, s1, sizeof(b1)-1);
     strncpy(b2, s2, sizeof(b2)-1);
     b1[sizeof(b1)-1] = '\0';
     b2[sizeof(b1)-1] = '\0';
-    splitversion(b1, &e1, &v1, &r1);
-    splitversion(b2, &e2, &v2, &r2);
-    return vercmpparts(e1, v1, r1, e2, v2, r2);
+    splitversion(b1, &e1, &v1, &r1, &d1);
+    splitversion(b2, &e2, &v2, &r2, &d2);
+    return vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2);
 }
 
 static PyObject *
@@ -219,6 +234,12 @@ crpmver_splitrelease(PyObject *self, PyObject *version)
         ver = version;
         rel = Py_None;
     } else {
+        const char *s = str;
+        while (s != p && *s != '-') s++;
+        if (s != p) {
+            size -= str+size-p;
+            p = s;
+        }
         ver = PyString_FromStringAndSize(str, p-str);
         if (!ver) return NULL;
         rel = PyString_FromStringAndSize(p+1, str+size-p-1);
@@ -228,6 +249,33 @@ crpmver_splitrelease(PyObject *self, PyObject *version)
     if (!ret) return NULL;
     PyTuple_SET_ITEM(ret, 0, ver);
     PyTuple_SET_ITEM(ret, 1, rel);
+    return ret;
+}
+
+static PyObject *
+crpmver_checkver(PyObject *self, PyObject *args)
+{
+    PyObject *v1, *v2;
+    const char *s1, *s2;
+    PyObject *ret;
+    int rc;
+    if (!PyArg_ParseTuple(args, "OO", &v1, &v2))
+        return NULL;
+    if (PyObject_RichCompareBool(v1, v2, Py_EQ) == 1) {
+        ret = Py_True;
+        Py_INCREF(ret);
+        return ret;
+    }
+    if (!PyString_Check(v1) || !PyString_Check(v2)) {
+        ret = Py_False;
+        Py_INCREF(ret);
+        return ret;
+    }
+    s1 = PyString_AS_STRING(v1);
+    s2 = PyString_AS_STRING(v2);
+    rc = vercmp(s1, s2);
+    ret = (rc == 0) ? Py_True : Py_False;
+    Py_INCREF(ret);
     return ret;
 }
 
@@ -262,10 +310,10 @@ crpmver_vercmp(PyObject *self, PyObject *args)
 static PyObject *
 crpmver_vercmpparts(PyObject *self, PyObject *args)
 {
-    const char *e1, *v1, *r1, *e2, *v2, *r2;
-    if (!PyArg_ParseTuple(args, "ssssss", &e1, &v1, &r1, &e2, &v2, &r2))
+    const char *e1, *v1, *r1, *d1, *e2, *v2, *r2, *d2;
+    if (!PyArg_ParseTuple(args, "ssssssss", &e1, &v1, &r1, &d1, &e2, &v2, &r2, &d2))
         return NULL;
-    return PyInt_FromLong(vercmpparts(e1, v1, r1, e2, v2, r2));
+    return PyInt_FromLong(vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2));
 }
 
 static PyObject *
@@ -280,6 +328,7 @@ crpmver_vercmppart(PyObject *self, PyObject *args)
 static PyMethodDef crpmver_methods[] = {
     {"splitarch", (PyCFunction)crpmver_splitarch, METH_O, NULL},
     {"splitrelease", (PyCFunction)crpmver_splitrelease, METH_O, NULL},
+    {"checkver", (PyCFunction)crpmver_checkver, METH_VARARGS, NULL},
     {"checkdep", (PyCFunction)crpmver_checkdep, METH_VARARGS, NULL},
     {"vercmp", (PyCFunction)crpmver_vercmp, METH_VARARGS, NULL},
     {"vercmpparts", (PyCFunction)crpmver_vercmpparts, METH_VARARGS, NULL},
