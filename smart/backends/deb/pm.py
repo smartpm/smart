@@ -37,6 +37,7 @@ from smart import sysconf, iface, _
 
 UNPACK = Enum("UNPACK")
 CONFIG = Enum("CONFIG")
+PURGE = Enum("PURGE")
 
 DEBIAN_FRONTEND = "DEBIAN_FRONTEND"
 APT_LISTCHANGES_FRONTEND = "APT_LISTCHANGES_FRONTEND"
@@ -180,7 +181,7 @@ class DebPackageManager(PackageManager):
 
     def commit(self, changeset, pkgpaths):
 
-        prog = iface.getProgress(self)
+        prog = iface.getProgress(self, True)
         prog.start()
         prog.setTopic(_("Committing transaction..."))
         prog.show()
@@ -228,8 +229,6 @@ class DebPackageManager(PackageManager):
         opt = sysconf.get("deb-simulate")
         if opt:
             baseargs.append("--simulate")
-
-        PURGE = object()
 
         if sysconf.get("deb-purge"):
             for i in range(len(sorted)):
@@ -301,7 +300,9 @@ class DebPackageManager(PackageManager):
 
             output.flush()
 
-            status = self.dpkg(args, output)
+            cb = DebCallback(prog, op, pkgs)
+
+            status = self.dpkg(args, output, cb)
 
             if thread_name == "MainThread":
                 signal.signal(signal.SIGQUIT, quithandler)
@@ -317,11 +318,6 @@ class DebPackageManager(PackageManager):
                 else:
                     error = _("Sub-process %s exited unexpectedly") % args[0]
                 break
-
-            print >>output # Should avoid that somehow.
-            prog.add(len(pkgs))
-            prog.show()
-            print >>output # Should avoid that somehow.
 
         if output != sys.stdout:
             output.flush()
@@ -348,13 +344,17 @@ class DebPackageManager(PackageManager):
         prog.setDone()
         prog.stop()
 
-    def dpkg(self, argv, output):
+    def dpkg(self, argv, output, callback=None):
+        r, w = os.pipe()
         pid = os.fork()
         if not pid:
             if output != sys.stdout:
                 output_fd = output.fileno()
                 os.dup2(output_fd, 1)
                 os.dup2(output_fd, 2)
+            if callback:
+                os.dup2(w, 3)
+                argv.insert(1, "--status-fd=3")
             #print >>output, " ".join(argv)
             try:
                 os.execvp(argv[0], argv)
@@ -363,8 +363,14 @@ class DebPackageManager(PackageManager):
             os._exit(1)
 
         output.flush()
+        os.close(w)
 
         while True:
+            if callback:
+                data = os.read(r, 8192)
+                while data:
+                    callback(data)
+                    data = os.read(r, 8192)
             try:
                 _pid, status = os.waitpid(pid, 0)
             except OSError, e:
@@ -376,5 +382,66 @@ class DebPackageManager(PackageManager):
 
         return status
 
+class DebCallback:
+    def __init__(self, prog, op, pkgs):
+        self.prog = prog
+        self.op = op
+        self.pkgs = {}
+        for pkg in pkgs:
+            self.pkgs[pkg.name] = pkg
+        self.seen = {}
+
+    def __call__(self, data):
+        for line in data.splitlines():
+            what, pkgname, status = line.split(':', 2)
+            what = what.strip()
+            pkgname = pkgname.strip()
+            status = status.strip()
+            if what != "status":
+                return
+            if self.op is CONFIG and status == "unpacked": # odd duplicate
+                return
+            if not pkgname in self.pkgs:
+                return
+
+            op = self.op
+            pkg = self.pkgs[pkgname]
+            subkey = "%s:%s" % (op, pkgname)
+            if op is REMOVE:
+                self.prog.setSubTopic(subkey, _("Removing %s") % pkg.name)
+                if status == "installed" and subkey not in self.seen:
+                    self.seen[subkey] = True
+                    self.prog.setSub(subkey, 0, 1, 1)
+                elif status == "config-files" and subkey in self.seen:
+                    del self.seen[subkey]
+                    self.prog.setSubDone(subkey)
+                self.prog.show()
+            elif op is PURGE:
+                self.prog.setSubTopic(subkey, _("Purging %s") % pkg.name)
+                if status == "installed" and subkey not in self.seen:
+                    self.seen[subkey] = True
+                    self.prog.setSub(subkey, 0, 1, 1)
+                elif status == "not-installed" and subkey in self.seen:
+                    del self.seen[subkey]
+                    self.prog.setSubDone(subkey)
+                self.prog.show()
+            elif op is UNPACK:
+                self.prog.setSubTopic(subkey, _("Unpacking %s") % pkg.name)
+                if status == "half-installed" and subkey not in self.seen:
+                    self.seen[subkey] = True
+                    self.prog.setSub(subkey, 0, 1, 1)
+                elif status == "unpacked" and subkey in self.seen:
+                    del self.seen[subkey]
+                    self.prog.setSubDone(subkey)
+                self.prog.show()
+            elif op is CONFIG:
+                self.prog.setSubTopic(subkey, _("Configuring %s") % pkg.name)
+                if status == "half-configured" and subkey not in self.seen:
+                    self.seen[subkey] = True
+                    self.prog.setSub(subkey, 0, 1, 1)
+                elif status == "installed" and subkey in self.seen:
+                    del self.seen[subkey]
+                    self.prog.setSubDone(subkey)
+                self.prog.show()
 
 # vim:ts=4:sw=4:et

@@ -128,7 +128,7 @@ class DebPackageManagerTest(unittest.TestCase):
         file_path = file_url[7:]
 
         check_results = []
-        def check(argv, output):
+        def check(argv, output, callback=None):
             check_results.append(os.environ.get("DEBIAN_FRONTEND"))
             check_results.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
             check_results.append("--force-confold" in argv)
@@ -155,7 +155,7 @@ class DebPackageManagerTest(unittest.TestCase):
         file_path = file_url[7:]
 
         check_results = []
-        def check(argv, output):
+        def check(argv, output, callback=None):
             check_results.append(os.environ.get("DEBIAN_FRONTEND"))
             check_results.append(os.environ.get("APT_LISTCHANGES_FRONTEND"))
             check_results.append("--force-confold" in argv)
