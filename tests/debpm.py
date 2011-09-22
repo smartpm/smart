@@ -113,10 +113,11 @@ class DebPackageManagerTest(unittest.TestCase):
 
         self.pm.commit({pkg: INSTALL}, {pkg: [file_path]})
 
-        self.assertEquals(self.iface.output,
-            ["\n[unpack] name1_version1-release1\n"
-             "dpkg: requested operation requires superuser privilege\n",
-             (1, "Sub-process dpkg returned an error code (2)")])
+        self.assertEquals(self.iface.output[0].replace("error: ", ""),
+            "\n[unpack] name1_version1-release1\n"
+            "dpkg: requested operation requires superuser privilege\n")
+        self.assertEquals(self.iface.output[1],
+            (1, "Sub-process dpkg returned an error code (2)"))
 
     def test_deb_non_interactive(self):
         pkg = self.cache.getPackages()[0]
