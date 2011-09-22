@@ -57,6 +57,10 @@ class DebPackageInfo(PackageInfo):
         homepage = self._dict.get("homepage")
         if homepage:
             return [homepage]
+        description = self._dict.get("description")
+        for line in description.splitlines():
+            if line.startswith("Web site:"):
+                return [line[9:].strip()]
         return []
 
     def getURLs(self):
@@ -223,6 +227,13 @@ class DebTagLoader(Loader):
                 for relation in parserelations(value):
                     n, r, v = relation
                     cnfargs.append((Brk, n, r, v))
+
+            newargs = []
+            for args in reqargs:
+                req = args[0](*args[1:])
+                if not system_provides.matches(req):
+                    newargs.append(args)
+            reqargs = newargs
 
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)

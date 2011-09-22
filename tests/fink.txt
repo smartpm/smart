@@ -1,0 +1,17 @@
+
+Set up the system provides.
+
+  >>> from tests import *
+  >>> from smart.backends.deb.base import FinkVirtualPkgs, DebRequires
+  >>> localpath = "%s/aptdeb/fink-virtual-pkgs" % TESTDATADIR
+  >>> pkgs = FinkVirtualPkgs(localpath)
+  
+Check for virtual package.
+
+  >>> depends = DebRequires("macosx", None, None)
+  >>> pkgs.matches(depends)
+  True
+  >>> depends = DebRequires("darwin", ">=" , "8-1")
+  >>> pkgs.matches(depends)
+  True
+
