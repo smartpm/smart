@@ -52,7 +52,11 @@ def getArchitecture():
     elif len(arch) == 4 and arch[0] == "i" and arch.endswith("86"):
         arch = "i386"
     elif arch.startswith("arm"):
-        arch = "arm"
+        from _base import arm_eabi
+        if arm_eabi():
+            arch = "armel"
+        else:
+            arch = "arm"
     elif arch.startswith("hppa"):
         arch = "hppa"
     elif arch.startswith("alpha"):

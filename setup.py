@@ -70,6 +70,8 @@ ext_modules = [
                          ["smart/backends/rpm/crpmver.c"]),
                Extension("smart.backends.deb.cdebver",
                          ["smart/backends/deb/cdebver.c"]),
+               Extension("smart.backends.deb._base",
+                         ["smart/backends/deb/_base.c"]),
                Extension("smart.util.ctagfile",
                          ["smart/util/ctagfile.c"]),
                Extension("smart.util.cdistance",

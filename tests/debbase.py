@@ -2,6 +2,8 @@ import sys
 
 from tests.mocker import MockerTestCase
 
+import smart.backends.deb._base
+
 from smart.backends.deb.base import getArchitecture
 from smart.backends.deb.debver import splitrelease
 
@@ -19,6 +21,7 @@ class GetArchitectureTest(MockerTestCase):
     def setUp(self):
         self.fake_arch = "i686"
         self.real_platform = sys.platform
+        self.real_arm_eabi = smart.backends.deb._base.arm_eabi
 
         uname_mock = self.mocker.replace("os.uname")
         uname_mock()
@@ -27,10 +30,17 @@ class GetArchitectureTest(MockerTestCase):
 
     def tearDown(self):
         sys.platform = self.real_platform
+        smart.backends.deb._base.arm_eabi = self.real_arm_eabi
 
     def test_get_architecture_with_i686_linux2(self):
         self.set_arch_and_platform("i686", "linux2")
         self.assertEquals(getArchitecture(), "i386")
+
+    def test_get_architecture_with_arm_linux2(self):
+        self.set_arch_and_platform("arm", "linux2")
+        def fake_arm_eabi(): return True
+        smart.backends.deb._base.arm_eabi = fake_arm_eabi
+        self.assertEquals(getArchitecture(), "armel")
 
     def test_get_architecture_with_i686_anything(self):
         self.set_arch_and_platform("i686", "anything")
