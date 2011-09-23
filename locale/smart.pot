@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-31 01:00+0100\n"
+"POT-Creation-Date: 2011-09-23 16:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,24 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: smart.py:37
+#: contrib/ksmarttray4/ksmarttray.py:37
+#: contrib/smart-applet/smart-applet.py:38
+msgid "Could not open a valid X display"
+msgstr ""
+
+#: contrib/ksmarttray4/ksmarttray.py:45
+msgid "System has no support for kde python interface"
+msgstr ""
+
+#: contrib/smart-applet/smart-applet.py:46 smart/interfaces/gtk/__init__.py:36
+msgid "System has no support for gtk python interface"
+msgstr ""
+
+#: smart.py:37 smart2.py:40 smart3.py:40
 msgid "smart command [options] [arguments]"
 msgstr ""
 
-#: smart.py:39
+#: smart.py:39 smart2.py:42 smart3.py:42
 msgid ""
 "\n"
 "Action commands:\n"
@@ -52,7 +65,7 @@ msgid ""
 "Run \"smart command --help\" for more information.\n"
 msgstr ""
 
-#: smart.py:68
+#: smart.py:68 smart2.py:71 smart3.py:71
 msgid ""
 "\n"
 "smart install --help\n"
@@ -62,80 +75,81 @@ msgid ""
 "smart --shell\n"
 msgstr ""
 
-#: smart.py:83
+#: smart.py:83 smart2.py:86 smart3.py:86
 msgid "FILE"
 msgstr ""
 
-#: smart.py:84
+#: smart.py:84 smart2.py:87 smart3.py:87
 msgid "configuration file (default is <data-dir>/config)"
 msgstr ""
 
-#: smart.py:86
+#: smart.py:86 smart2.py:89 smart3.py:89
 msgid "DIR"
 msgstr ""
 
-#: smart.py:87
+#: smart.py:87 smart2.py:90 smart3.py:90
 #, python-format
 msgid "data directory (default is %s)"
 msgstr ""
 
-#: smart.py:88
+#: smart.py:88 smart2.py:91 smart3.py:91
 msgid "LEVEL"
 msgstr ""
 
-#: smart.py:89
+#: smart.py:89 smart2.py:92 smart3.py:92
 msgid "set the log level to LEVEL (debug, info, warning, error)"
 msgstr ""
 
-#: smart.py:92
+#: smart.py:92 smart2.py:95 smart3.py:95
 msgid "use the default graphic interface"
 msgstr ""
 
-#: smart.py:94
+#: smart.py:94 smart2.py:97 smart3.py:97
 msgid "use the default shell interface"
 msgstr ""
 
-#: smart.py:96
+#: smart.py:96 smart2.py:99 smart3.py:99
 msgid "use the quiet interface"
 msgstr ""
 
-#: smart.py:97
+#: smart.py:97 smart2.py:100 smart3.py:100
 msgid "NAME"
 msgstr ""
 
-#: smart.py:98
+#: smart.py:98 smart2.py:101 smart3.py:101
 msgid "use the given interface"
 msgstr ""
 
-#: smart.py:100
+#: smart.py:100 smart2.py:103 smart3.py:103
 msgid "don't respect locking"
 msgstr ""
 
-#: smart.py:102
+#: smart.py:102 smart2.py:105 smart3.py:105
 msgid "OPT"
 msgstr ""
 
-#: smart.py:103
+#: smart.py:103 smart2.py:106 smart3.py:106
 msgid "set the option given by a name=value pair"
 msgstr ""
 
 #: smart.py:113 smart/option.py:161 smart/util/optparse.py:1402
-#: smart/util/optparse.py:1556
+#: smart/util/optparse.py:1556 smart2.py:116 smart3.py:116
 #, python-format
 msgid "no such option: %s"
 msgstr ""
 
-#: smart.py:139
+#: smart.py:139 smart2.py:142 smart3.py:142
 #, python-format
 msgid "Invalid option: %s"
 msgstr ""
 
-#: smart.py:184
+#: smart.py:185 smart2.py:188 smart3.py:188
 #, python-format
 msgid "error: %s\n"
 msgstr ""
 
-#: smart.py:193 smart/interfaces/text/interactive.py:200
+#: smart.py:194 smart/interfaces/text/interactive.py:200 smart2.py:197
+#: smart3.py:197
 msgid ""
 "\n"
 "Interrupted\n"
@@ -158,7 +172,7 @@ msgstr ""
 msgid "Invalid package name: %s"
 msgstr ""
 
-#: smart/backends/arch/pm.py:63 smart/backends/deb/pm.py:185
+#: smart/backends/arch/pm.py:63 smart/backends/deb/pm.py:186
 #: smart/backends/rpm/pm.py:55 smart/backends/slack/pm.py:33
 msgid "Committing transaction..."
 msgstr ""
@@ -194,8 +208,9 @@ msgstr ""
 msgid "Installing %s:"
 msgstr ""
 
-#: smart/backends/arch/pm.py:100 smart/backends/rpm/pm.py:343
-#: smart/backends/rpm/pm.py:357 smart/backends/slack/pm.py:90
+#: smart/backends/arch/pm.py:100 smart/backends/deb/pm.py:411
+#: smart/backends/rpm/pm.py:343 smart/backends/rpm/pm.py:357
+#: smart/backends/slack/pm.py:90
 #, python-format
 msgid "Removing %s"
 msgstr ""
@@ -215,19 +230,34 @@ msgstr ""
 msgid "Operation ( %s ) not handled on package ( %s )"
 msgstr ""
 
-#: smart/backends/deb/pm.py:312
+#: smart/backends/deb/pm.py:313
 #, python-format
 msgid "Sub-process %s has received a segmentation fault"
 msgstr ""
 
-#: smart/backends/deb/pm.py:315
+#: smart/backends/deb/pm.py:316
 #, python-format
 msgid "Sub-process %s returned an error code (%d)"
 msgstr ""
 
-#: smart/backends/deb/pm.py:318
+#: smart/backends/deb/pm.py:319
 #, python-format
 msgid "Sub-process %s exited unexpectedly"
+msgstr ""
+
+#: smart/backends/deb/pm.py:420
+#, python-format
+msgid "Purging %s"
+msgstr ""
+
+#: smart/backends/deb/pm.py:429
+#, python-format
+msgid "Unpacking %s"
+msgstr ""
+
+#: smart/backends/deb/pm.py:438
+#, python-format
+msgid "Configuring %s"
 msgstr ""
 
 #: smart/backends/rpm/base.py:42
@@ -249,13 +279,13 @@ msgstr ""
 msgid "Initialized new rpm database at %s"
 msgstr ""
 
-#: smart/backends/rpm/header.py:457
+#: smart/backends/rpm/header.py:465
 msgid ""
 "Your rpm module has no support for readHeaderFromFD()!\n"
 "As a consequence, Smart will consume extra memory."
 msgstr ""
 
-#: smart/backends/rpm/header.py:556 smart/backends/rpm/header.py:595
+#: smart/backends/rpm/header.py:564 smart/backends/rpm/header.py:598
 msgid "Package list with no CRPMTAG_FILENAME tag"
 msgstr ""
 
@@ -301,7 +331,7 @@ msgstr ""
 msgid "Error parsing %s: %s"
 msgstr ""
 
-#: smart/backends/rpm/synthesis.py:180 smart/channels/rpm_md.py:143
+#: smart/backends/rpm/synthesis.py:184 smart/channels/rpm_md.py:143
 #, python-format
 msgid ""
 "Invalid XML file:\n"
@@ -309,27 +339,27 @@ msgid ""
 "  %s"
 msgstr ""
 
-#: smart/cache.py:200 smart/fetcher.py:1305 smart/fetcher.py:1578
-#: smart/fetcher.py:1621
+#: smart/cache.py:200 smart/fetcher.py:1317 smart/fetcher.py:1590
+#: smart/fetcher.py:1633
 msgid "File not found"
 msgstr ""
 
-#: smart/cache.py:206 smart/fetcher.py:368
+#: smart/cache.py:206 smart/fetcher.py:380
 #, python-format
 msgid "Unexpected size (expected %d, got %d)"
 msgstr ""
 
-#: smart/cache.py:223 smart/fetcher.py:385
+#: smart/cache.py:223 smart/fetcher.py:397
 #, python-format
 msgid "Invalid MD5 (expected %s, got %s)"
 msgstr ""
 
-#: smart/cache.py:240 smart/fetcher.py:402
+#: smart/cache.py:240 smart/fetcher.py:414
 #, python-format
 msgid "Invalid SHA256 (expected %s, got %s)"
 msgstr ""
 
-#: smart/cache.py:257 smart/fetcher.py:419
+#: smart/cache.py:257 smart/fetcher.py:431
 #, python-format
 msgid "Invalid SHA (expected %s, got %s)"
 msgstr ""
@@ -514,7 +544,7 @@ msgstr ""
 #: smart/channels/mirrors.py:58 smart/channels/red_carpet.py:64
 #: smart/channels/rpm_hdl.py:60 smart/channels/rpm_md.py:319
 #: smart/channels/slack_site.py:124 smart/channels/up2date_mirrors.py:61
-#: smart/channels/urpmi.py:185 smart/channels/urpmi.py:256
+#: smart/channels/urpmi.py:176 smart/channels/urpmi.py:241
 #: smart/channels/yast2.py:53
 #, python-format
 msgid "Failed acquiring information for '%s':"
@@ -932,8 +962,8 @@ msgstr ""
 
 #: smart/channels/urpmi_info.py:33
 msgid ""
-"Base URL where packages or the 'list' file are found under. Using ' with "
-"<hdlurl>' pattern is also supported."
+"Base URL where packages are found under. Using ' with <hdlurl>' pattern is "
+"also supported."
 msgstr ""
 
 #: smart/channels/urpmi_info.py:35
@@ -1441,7 +1471,7 @@ msgstr ""
 msgid "Argument is not a file nor url: %s"
 msgstr ""
 
-#: smart/commands/download.py:175 smart/interfaces/gtk/packageinfo.py:280
+#: smart/commands/download.py:175 smart/interfaces/gtk/packageinfo.py:282
 #: smart/interfaces/qt/packageinfo.py:141
 #: smart/interfaces/qt4/packageinfo.py:156
 msgid "URLs"
@@ -1629,7 +1659,7 @@ msgstr ""
 msgid "Version:"
 msgstr ""
 
-#: smart/commands/info.py:118 smart/interfaces/gtk/packageinfo.py:87
+#: smart/commands/info.py:118 smart/interfaces/gtk/packageinfo.py:90
 #: smart/interfaces/gtk/priorities.py:242
 #: smart/interfaces/qt/packageinfo.py:68 smart/interfaces/qt/priorities.py:220
 #: smart/interfaces/qt4/packageinfo.py:70
@@ -1641,7 +1671,7 @@ msgstr ""
 msgid "Source:"
 msgstr ""
 
-#: smart/commands/info.py:120 smart/interfaces/gtk/packageinfo.py:88
+#: smart/commands/info.py:120 smart/interfaces/gtk/packageinfo.py:91
 #: smart/interfaces/qt/packageinfo.py:69
 #: smart/interfaces/qt4/packageinfo.py:71
 msgid "Group:"
@@ -1651,13 +1681,13 @@ msgstr ""
 msgid "License:"
 msgstr ""
 
-#: smart/commands/info.py:122 smart/interfaces/gtk/packageinfo.py:89
+#: smart/commands/info.py:122 smart/interfaces/gtk/packageinfo.py:92
 #: smart/interfaces/qt/packageinfo.py:70
 #: smart/interfaces/qt4/packageinfo.py:72
 msgid "Installed Size:"
 msgstr ""
 
-#: smart/commands/info.py:123 smart/interfaces/gtk/packageinfo.py:91
+#: smart/commands/info.py:123 smart/interfaces/gtk/packageinfo.py:94
 #: smart/interfaces/qt/packageinfo.py:72
 #: smart/interfaces/qt4/packageinfo.py:74
 msgid "Reference URLs:"
@@ -1667,7 +1697,7 @@ msgstr ""
 msgid "Flags:"
 msgstr ""
 
-#: smart/commands/info.py:134 smart/interfaces/gtk/packageinfo.py:90
+#: smart/commands/info.py:134 smart/interfaces/gtk/packageinfo.py:93
 #: smart/interfaces/qt/packageinfo.py:71
 #: smart/interfaces/qt4/packageinfo.py:73
 msgid "Channels:"
@@ -1900,14 +1930,14 @@ msgid "(not installed)"
 msgstr ""
 
 #: smart/commands/newer.py:137 smart/commands/priority.py:104
-#: smart/interfaces/gtk/packageinfo.py:272
+#: smart/interfaces/gtk/packageinfo.py:274
 #: smart/interfaces/qt/packageinfo.py:137
 #: smart/interfaces/qt4/packageinfo.py:154
 msgid "Channel"
 msgstr ""
 
 #: smart/commands/newer.py:137 smart/interfaces/gtk/legend.py:72
-#: smart/interfaces/gtk/packageinfo.py:425 smart/interfaces/qt/legend.py:59
+#: smart/interfaces/gtk/packageinfo.py:430 smart/interfaces/qt/legend.py:59
 #: smart/interfaces/qt/packageinfo.py:204 smart/interfaces/qt4/legend.py:66
 #: smart/interfaces/qt4/packageinfo.py:219
 msgid "Installed"
@@ -1918,7 +1948,7 @@ msgstr ""
 msgid "Package Name"
 msgstr ""
 
-#: smart/commands/newer.py:137 smart/interfaces/gtk/packageinfo.py:274
+#: smart/commands/newer.py:137 smart/interfaces/gtk/packageinfo.py:276
 #: smart/interfaces/gtk/packageview.py:149
 #: smart/interfaces/qt/packageinfo.py:138
 #: smart/interfaces/qt4/packageinfo.py:154
@@ -2488,43 +2518,43 @@ msgstr ""
 msgid "%s is not available for downloading"
 msgstr ""
 
-#: smart/fetcher.py:168
+#: smart/fetcher.py:170
 #, python-format
 msgid "%s is already in the queue"
 msgstr ""
 
-#: smart/fetcher.py:203 smart/fetcher.py:210
+#: smart/fetcher.py:212 smart/fetcher.py:219
 #, python-format
 msgid "Fetching %s..."
 msgstr ""
 
-#: smart/fetcher.py:212
+#: smart/fetcher.py:221
 msgid "Fetching information..."
 msgstr ""
 
-#: smart/fetcher.py:290 smart/fetcher.py:597
+#: smart/fetcher.py:302 smart/fetcher.py:609
 msgid "Cancelled"
 msgstr ""
 
-#: smart/fetcher.py:330
+#: smart/fetcher.py:342
 #, python-format
 msgid "Unsupported scheme: %s"
 msgstr ""
 
-#: smart/fetcher.py:347
+#: smart/fetcher.py:359
 msgid "File not found for validation"
 msgstr ""
 
-#: smart/fetcher.py:622
+#: smart/fetcher.py:634
 #, python-format
 msgid "Invalid URL: %s"
 msgstr ""
 
-#: smart/fetcher.py:901
+#: smart/fetcher.py:913
 msgid "Media not found"
 msgstr ""
 
-#: smart/fetcher.py:1029 smart/fetcher.py:1238 smart/fetcher.py:1846
+#: smart/fetcher.py:1041 smart/fetcher.py:1250 smart/fetcher.py:1862
 msgid "Server reports unexpected size"
 msgstr ""
 
@@ -2562,10 +2592,6 @@ msgstr ""
 msgid "Interface '%s' not available"
 msgstr ""
 
-#: smart/interfaces/gtk/__init__.py:36
-msgid "System has no support for gtk python interface"
-msgstr ""
-
 #: smart/interfaces/gtk/__init__.py:61 smart/interfaces/qt/__init__.py:54
 #: smart/interfaces/qt4/__init__.py:54
 #, python-format
@@ -2600,8 +2626,8 @@ msgstr ""
 msgid "Install"
 msgstr ""
 
-#: smart/interfaces/gtk/changes.py:125 smart/interfaces/gtk/packageinfo.py:572
-#: smart/interfaces/gtk/packageinfo.py:624 smart/interfaces/qt/changes.py:108
+#: smart/interfaces/gtk/changes.py:125 smart/interfaces/gtk/packageinfo.py:577
+#: smart/interfaces/gtk/packageinfo.py:629 smart/interfaces/qt/changes.py:108
 #: smart/interfaces/qt/packageinfo.py:336
 #: smart/interfaces/qt/packageinfo.py:388 smart/interfaces/qt4/changes.py:111
 #: smart/interfaces/qt4/packageinfo.py:352
@@ -2615,8 +2641,8 @@ msgid "Downgrades"
 msgstr ""
 
 #: smart/interfaces/gtk/changes.py:133 smart/interfaces/gtk/changes.py:170
-#: smart/interfaces/gtk/packageinfo.py:573
-#: smart/interfaces/gtk/packageinfo.py:615 smart/interfaces/qt/changes.py:116
+#: smart/interfaces/gtk/packageinfo.py:578
+#: smart/interfaces/gtk/packageinfo.py:620 smart/interfaces/qt/changes.py:116
 #: smart/interfaces/qt/changes.py:153 smart/interfaces/qt/packageinfo.py:337
 #: smart/interfaces/qt/packageinfo.py:379 smart/interfaces/qt4/changes.py:119
 #: smart/interfaces/qt4/changes.py:156 smart/interfaces/qt4/packageinfo.py:353
@@ -2625,7 +2651,7 @@ msgid "Requires"
 msgstr ""
 
 #: smart/interfaces/gtk/changes.py:136 smart/interfaces/gtk/changes.py:173
-#: smart/interfaces/gtk/packageinfo.py:590 smart/interfaces/qt/changes.py:119
+#: smart/interfaces/gtk/packageinfo.py:595 smart/interfaces/qt/changes.py:119
 #: smart/interfaces/qt/changes.py:156 smart/interfaces/qt/packageinfo.py:354
 #: smart/interfaces/qt4/changes.py:122 smart/interfaces/qt4/changes.py:159
 #: smart/interfaces/qt4/packageinfo.py:370
@@ -2633,8 +2659,8 @@ msgid "Required By"
 msgstr ""
 
 #: smart/interfaces/gtk/changes.py:141 smart/interfaces/gtk/changes.py:178
-#: smart/interfaces/gtk/packageinfo.py:573
-#: smart/interfaces/gtk/packageinfo.py:633 smart/interfaces/qt/changes.py:124
+#: smart/interfaces/gtk/packageinfo.py:578
+#: smart/interfaces/gtk/packageinfo.py:638 smart/interfaces/qt/changes.py:124
 #: smart/interfaces/qt/changes.py:161 smart/interfaces/qt/packageinfo.py:337
 #: smart/interfaces/qt/packageinfo.py:397 smart/interfaces/qt4/changes.py:127
 #: smart/interfaces/qt4/changes.py:164 smart/interfaces/qt4/packageinfo.py:353
@@ -3271,9 +3297,9 @@ msgstr ""
 
 #: smart/interfaces/gtk/interactive.py:347
 #: smart/interfaces/gtk/interactive.py:420
-#: smart/interfaces/gtk/packageinfo.py:133
+#: smart/interfaces/gtk/packageinfo.py:136
 #: smart/interfaces/gtk/packageview.py:152
-#: smart/interfaces/gtk/progress.py:148 smart/interfaces/qt/interactive.py:409
+#: smart/interfaces/gtk/progress.py:151 smart/interfaces/qt/interactive.py:409
 #: smart/interfaces/qt/packageinfo.py:96 smart/interfaces/qt/progress.py:86
 #: smart/interfaces/qt4/interactive.py:402
 #: smart/interfaces/qt4/packageinfo.py:102 smart/interfaces/qt4/progress.py:92
@@ -3495,61 +3521,61 @@ msgstr ""
 msgid "No mirror provided!"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:86
+#: smart/interfaces/gtk/packageinfo.py:89
 #: smart/interfaces/qt/packageinfo.py:67
 #: smart/interfaces/qt4/packageinfo.py:69
 msgid "Status:"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:112
+#: smart/interfaces/gtk/packageinfo.py:115
 #: smart/interfaces/qt/packageinfo.py:84
 #: smart/interfaces/qt4/packageinfo.py:88
 msgid "General"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:146
+#: smart/interfaces/gtk/packageinfo.py:149
 msgid "Filter:"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:226
+#: smart/interfaces/gtk/packageinfo.py:228
 #: smart/interfaces/qt/packageinfo.py:110
 #: smart/interfaces/qt4/packageinfo.py:120
 msgid "Content"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:246
+#: smart/interfaces/gtk/packageinfo.py:248
 #: smart/interfaces/qt/packageinfo.py:124
 #: smart/interfaces/qt4/packageinfo.py:138
 msgid "Changelog"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:254
+#: smart/interfaces/gtk/packageinfo.py:256
 #: smart/interfaces/qt/packageinfo.py:130
 #: smart/interfaces/qt4/packageinfo.py:144
 msgid "Relations"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:276
+#: smart/interfaces/gtk/packageinfo.py:278
 #: smart/interfaces/qt/packageinfo.py:139
 #: smart/interfaces/qt4/packageinfo.py:154
 msgid "URL"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:425
+#: smart/interfaces/gtk/packageinfo.py:430
 #: smart/interfaces/qt/packageinfo.py:204
 #: smart/interfaces/qt4/packageinfo.py:219
 msgid "Available"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:427
+#: smart/interfaces/gtk/packageinfo.py:432
 #: smart/interfaces/qt/packageinfo.py:206
 #: smart/interfaces/qt4/packageinfo.py:221 smart/util/strtools.py:55
 #: smart/util/strtools.py:75
 msgid "Unknown"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:572
-#: smart/interfaces/gtk/packageinfo.py:605
+#: smart/interfaces/gtk/packageinfo.py:577
+#: smart/interfaces/gtk/packageinfo.py:610
 #: smart/interfaces/qt/packageinfo.py:336
 #: smart/interfaces/qt/packageinfo.py:369
 #: smart/interfaces/qt4/packageinfo.py:352
@@ -3557,13 +3583,13 @@ msgstr ""
 msgid "Provides"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:596
+#: smart/interfaces/gtk/packageinfo.py:601
 #: smart/interfaces/qt/packageinfo.py:360
 #: smart/interfaces/qt4/packageinfo.py:376
 msgid "Upgraded By"
 msgstr ""
 
-#: smart/interfaces/gtk/packageinfo.py:602
+#: smart/interfaces/gtk/packageinfo.py:607
 #: smart/interfaces/qt/packageinfo.py:366
 #: smart/interfaces/qt4/packageinfo.py:382
 msgid "Conflicted By"
@@ -3661,37 +3687,37 @@ msgstr ""
 msgid "Channel priority:"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:61 smart/interfaces/qt/progress.py:53
+#: smart/interfaces/gtk/progress.py:64 smart/interfaces/qt/progress.py:53
 #: smart/interfaces/qt4/progress.py:54
 msgid "Operation Progress"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:112 smart/interfaces/gtk/progress.py:117
+#: smart/interfaces/gtk/progress.py:115 smart/interfaces/gtk/progress.py:120
 #: smart/interfaces/qt/progress.py:75 smart/interfaces/qt4/progress.py:91
 msgid "Progress"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:124 smart/interfaces/qt/progress.py:78
+#: smart/interfaces/gtk/progress.py:127 smart/interfaces/qt/progress.py:78
 #: smart/interfaces/qt4/progress.py:92
 msgid "Current"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:130 smart/interfaces/qt/progress.py:80
+#: smart/interfaces/gtk/progress.py:133 smart/interfaces/qt/progress.py:80
 #: smart/interfaces/qt4/progress.py:92
 msgid "Total"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:136 smart/interfaces/qt/progress.py:82
+#: smart/interfaces/gtk/progress.py:139 smart/interfaces/qt/progress.py:82
 #: smart/interfaces/qt4/progress.py:92
 msgid "Speed"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:142 smart/interfaces/qt/progress.py:84
+#: smart/interfaces/gtk/progress.py:145 smart/interfaces/qt/progress.py:84
 #: smart/interfaces/qt4/progress.py:92
 msgid "ETA"
 msgstr ""
 
-#: smart/interfaces/gtk/progress.py:248 smart/interfaces/gtk/progress.py:249
+#: smart/interfaces/gtk/progress.py:251 smart/interfaces/gtk/progress.py:252
 msgid "Done"
 msgstr ""
 
