@@ -41,11 +41,9 @@ except ImportError:
         traceback.print_exc()
     raise Error, _("'rpm' python module is not available")
 
-archscore = rpm.archscore
-
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes",
-           "rpm", "getTS", "system_provides"]
+           "rpm", "getTS", "getArchScore", "getArchColor", "system_provides"]
 
 def getTS(new=False):
     rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
@@ -202,7 +200,9 @@ class RPMPackage(Package):
             return False
         selfver, selfarch = splitarch(self.version)
         otherver, otherarch = splitarch(other.version)
-        if (getArchColor(selfarch) != getArchColor(otherarch) and
+        selfcolor = getArchColor(selfarch)
+        othercolor = getArchColor(otherarch)
+        if (selfcolor != othercolor and
             not sysconf.get("rpm-strict-multilib")):
             return True
         if not pkgconf.testFlag("multi-version", self):
@@ -255,12 +255,14 @@ class RPMPackage(Package):
                 selfver, selfarch = splitarch(self.version)
                 otherver, otherarch = splitarch(other.version)
                 if selfarch != otherarch:
-                    rc = cmp(getArchColor(selfarch), getArchColor(otherarch))
+                    selfcolor = getArchColor(selfarch)
+                    othercolor = getArchColor(otherarch)
+                    rc = cmp(selfcolor, othercolor)
                 if rc == 0:
                     if selfver != otherver:
                         rc = vercmp(selfver, otherver)
                     if rc == 0:
-                        rc = -cmp(archscore(selfarch), archscore(otherarch))
+                        rc = -cmp(getArchScore(selfarch), getArchScore(otherarch))
         return rc == -1
 
 class RPMProvides(Provides):         __slots__ = ()
@@ -296,10 +298,19 @@ class RPMObsoletes(Depends):
             return True
         selfver, selfarch = splitarch(self.version)
         prvver, prvarch = splitarch(prv.version)
-        if (prvarch and selfarch and
-            getArchColor(selfarch) != getArchColor(prvarch)):
-            return False
+        if prvarch and selfarch:
+            selfcolor = getArchColor(selfarch)
+            prvcolor = getArchColor(prvarch)
+            if selfcolor != prvcolor:
+                return False
         return checkdep(prvver, self.relation, selfver)
+
+_SCOREMAP = {}
+def getArchScore(arch, _sm=_SCOREMAP):
+    if arch not in _sm:
+        score = rpm.archscore(arch)
+        _sm[arch] = score
+    return _sm.get(arch, 0)
 
 # TODO: Embed color into nameprovides and obsoletes relations.
 _COLORMAP = {"x86_64": 2, "ppc64": 2, "s390x": 2, "sparc64": 2}

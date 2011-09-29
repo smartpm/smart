@@ -256,7 +256,7 @@ class RPMHeaderLoader(Loader):
             if h[1106]: # RPMTAG_SOURCEPACKAGE
                 continue
             arch = h[1022] # RPMTAG_ARCH
-            if rpm.archscore(arch) == 0:
+            if getArchScore(arch) == 0:
                 continue
 
             name = h[1000] # RPMTAG_NAME

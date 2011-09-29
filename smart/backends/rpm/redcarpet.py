@@ -191,7 +191,7 @@ class XMLParser(object):
         self._release = data
 
     def handleArchEnd(self, name, attrs, data):
-        if rpm.archscore(data) == 0:
+        if getArchScore(data) == 0:
             self._skip = self.PACKAGE
         else:
             self._arch = data

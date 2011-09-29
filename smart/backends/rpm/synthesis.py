@@ -265,7 +265,7 @@ class URPMISynthesisLoader(Loader):
                     version = version.replace("-%s%s" % (disttag, distepoch), "")              
                 versionarch = "%s@%s" % (version, arch)
                 
-                if rpm.archscore(arch) == 0:
+                if getArchScore(arch) == 0:
                     continue
 
                 name = "-".join(rpmnameparts[0:releasepos])

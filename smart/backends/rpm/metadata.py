@@ -195,7 +195,7 @@ class RPMMetaDataLoader(Loader):
                         skip = None
 
                 elif tag == ARCH:
-                    if rpm.archscore(elem.text) == 0:
+                    if getArchScore(elem.text) == 0:
                         skip = PACKAGE
                     else:
                         arch = elem.text
