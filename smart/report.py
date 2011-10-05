@@ -19,7 +19,11 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import os
+
 from smart.const import INSTALL, REMOVE
+from smart.fetcher import Fetcher, FetchItem
+from smart import *
 
 class Report(object):
 
@@ -180,6 +184,26 @@ class Report(object):
                 size = info.getSize(url)
                 if size:
                     total += size
+        return total
+
+    def getCachedSize(self):
+        fetcher = Fetcher()
+        localdir = os.path.join(sysconf.get("data-dir"), "packages/")
+        fetcher.setLocalDir(localdir, mangle=False)        
+        total = 0
+        for pkg in self.install:
+            for loader in pkg.loaders:
+                if not loader.getInstalled():
+                    break
+            else:
+                continue
+            info = loader.getInfo(pkg)
+            for url in info.getURLs():
+                mirror = fetcher.getMirrorSystem().get(url)
+                item = FetchItem(fetcher, url, mirror)
+                path = fetcher.getLocalPath(item)
+                if os.path.exists(path):
+                    total += os.path.getsize(path)
         return total
 
     def getInstallSize(self):

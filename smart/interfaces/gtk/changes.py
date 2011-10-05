@@ -184,7 +184,7 @@ class GtkChanges(gtk.Window):
         if keep:
             packages[Sorter(_("Keep (%d)") % len(keep))] = keep
 
-        dsize = report.getDownloadSize()
+        dsize = report.getDownloadSize() - report.getCachedSize()
         size = report.getInstallSize() - report.getRemoveSize()
         sizestr = ""
         if dsize:

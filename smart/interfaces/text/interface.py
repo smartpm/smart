@@ -219,7 +219,7 @@ class TextInterface(Interface):
             showPackages(pkgs)
             print
 
-        dsize = report.getDownloadSize()
+        dsize = report.getDownloadSize() - report.getCachedSize()
         size = report.getInstallSize() - report.getRemoveSize()
         if dsize:
             sys.stdout.write(_("%s of package files are needed. ") %
