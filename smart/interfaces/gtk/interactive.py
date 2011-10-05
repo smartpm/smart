@@ -290,6 +290,9 @@ class GtkInteractiveInterface(GtkInterface):
 
         # Search bar
 
+        self._history = [""]
+        self._historypos = 0
+
         if gtk.gtk_version >= (2, 16, 0) or sexy:
             self._searchbar = gtk.ToolItem()
             self._searchbar.set_expand(True)
@@ -315,8 +318,7 @@ class GtkInteractiveInterface(GtkInterface):
                     if int(icon_pos) == 0: # "primary"
                         self._searchmenu.popup(None, None, None, event.button, event.time)
                     elif int(icon_pos) == 1: # "secondary"
-                        self._searchentry.set_text("")
-                        self.refreshPackages()
+                        self.searchClear()
                 self._searchentry.connect("icon-press", press)
             elif sexy:
                 self._searchentry = sexy.IconEntry()
@@ -330,10 +332,10 @@ class GtkInteractiveInterface(GtkInterface):
                     if icon_pos == 0: # "primary"
                         self._searchmenu.popup(None, None, None, button, gtk.get_current_event_time())
                     elif icon_pos == 1: # "secondary"
-                        self._searchentry.set_text("")
-                        self.refreshPackages()
+                        self.searchClear()
                 self._searchentry.connect("icon-pressed", pressed)
-            self._searchentry.connect("activate", lambda x: self.refreshPackages())
+            self._searchentry.connect("activate", lambda x: self.searchFind())
+            self._searchentry.connect("key-press-event", self.searchKeyPress)
             self._searchentry.show()
             searchtable.attach(self._searchentry, 0, 1, 0, 1)
 
@@ -379,13 +381,14 @@ class GtkInteractiveInterface(GtkInterface):
             searchtable.attach(label, 0, 1, 0, 1, 0, 0)
 
             self._searchentry = gtk.Entry()
-            self._searchentry.connect("activate", lambda x: self.refreshPackages())
+            self._searchentry.connect("activate", lambda x: self.searchFind())
+            self._searchentry.connect("key-press-event", self.searchKeyPress)
             self._searchentry.show()
             searchtable.attach(self._searchentry, 1, 2, 0, 1)
 
             button = gtk.Button()
             button.set_relief(gtk.RELIEF_NONE)
-            button.connect("clicked", lambda x: self.refreshPackages())
+            button.connect("clicked", lambda x: self.searchFind())
             button.show()
             searchtable.attach(button, 2, 3, 0, 1, 0, 0)
             image = gtk.Image()
@@ -911,6 +914,35 @@ class GtkInteractiveInterface(GtkInterface):
         self.refreshPackages()
         if visible:
             self._searchentry.grab_focus()
+
+    def searchFind(self):
+        if self._searchentry.get_text() not in self._history:
+            text = self._searchentry.get_text()
+            self._historypos = len(self._history) - 1
+            self._history[self._historypos] = text
+            self._historypos = self._historypos + 1
+            self._history.append("")
+        self.refreshPackages()
+
+    def searchClear(self):
+        self._historypos = len(self._history)
+        self._searchentry.set_text("")
+        self.refreshPackages()
+
+    def searchKeyPress(self, widget, event):
+        if event.keyval == gtk.keysyms.Up:
+            if self._historypos > 0:
+                self._historypos = self._historypos - 1
+                text = self._history[self._historypos]
+                self._searchentry.set_text(text)
+            return True
+        elif event.keyval == gtk.keysyms.Down:
+            if self._historypos < len(self._history) - 1:
+                self._historypos = self._historypos + 1
+                text = self._history[self._historypos]
+                self._searchentry.set_text(text)
+            return True
+        return False
 
     def refreshPackages(self):
         if not self._ctrl:
