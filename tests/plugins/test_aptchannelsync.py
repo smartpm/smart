@@ -30,6 +30,10 @@ SOURCES_LIST_4 = """
 deb cdrom:[Ubuntu 7.10 _Gutsy Gibbon_ - Release i386 (20071016)]/ gutsy main restricted
 """
 
+SOURCES_LIST_5 = """
+deb ssh://some/url/ distro/name1 comp1 comp2
+"""
+
 
 class APTChannelSyncTest(MockerTestCase):
 
@@ -118,6 +122,19 @@ class APTChannelSyncTest(MockerTestCase):
                                  basename="sources.list")
         syncAptChannels(filename, self.sources_dir)
         self.assertEquals(sysconf.get("channels"), None)
+
+    def test_translate_ssh_entries(self):
+        filename = self.makeFile(SOURCES_LIST_5, dirname=self.apt_dir,
+                                 basename="sources.list")
+        syncAptChannels(filename, self.sources_dir)
+        self.assertEquals(sysconf.get("channels"), {
+                          "aptsync-1ce4291e0de00c14900dd35eae867c9b":
+                              {"type": "apt-deb",
+                               "name": "distro/name1 - comp1 comp2",
+                               "distribution": "distro/name1",
+                               "components": "comp1 comp2",
+                               "baseurl": "scp://some/url/"},
+                         })
 
     def test_preserves_unrelated_changes(self):
         filename = self.makeFile(SOURCES_LIST_1, dirname=self.apt_dir,

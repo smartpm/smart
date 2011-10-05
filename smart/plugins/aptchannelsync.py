@@ -73,6 +73,8 @@ def _loadSourcesList(filename):
 
         if uri.startswith("cdrom:"):
             continue # We don't deal with these yet.
+        if uri.startswith("ssh:"):
+            uri = uri.replace("ssh:", "scp:")
 
         # Build a unique alias.
         m = md5("%s|%s|%s|%s" % (type, uri, distro, comps))
