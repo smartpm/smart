@@ -33,7 +33,7 @@ def run():
         os.path.isfile(CLIENT_CONF_PATH)):
         parser = ConfigParser()
         parser.read(CLIENT_CONF_PATH)
-        for type in "http", "https", "ftp":
+        for type in "http", "https", "ftp", "no":
             option = "%s_proxy" % type
             if parser.has_option("client", option) and option not in os.environ:
                 setting = parser.get("client", option)

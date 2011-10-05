@@ -335,6 +335,9 @@ class Fetcher(object):
         proxy = sysconf.get("%s-proxy" % scheme)
         if proxy:
             os.environ["%s_proxy" % scheme] = proxy
+        no_proxy = sysconf.get("no-proxy")
+        if no_proxy:
+            os.environ["no_proxy"] = no_proxy
         handler = self._handlers.get(scheme)
         if not handler:
             klass = self._registry.get(scheme)

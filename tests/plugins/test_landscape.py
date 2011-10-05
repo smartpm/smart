@@ -13,6 +13,7 @@ CLIENT_CONF = """
 http_proxy = http://proxy.url
 https_proxy = https://proxy.url
 ftp_proxy = ftp://proxy.url
+no_proxy = localdomain
 """
 
 EMPTY_CLIENT_CONF = """
@@ -71,6 +72,11 @@ class LandscapePluginTest(MockerTestCase):
         self.assertEquals(sysconf.get("http-proxy"), "http://proxy.url")
         self.assertEquals(sysconf.get("https-proxy"), "https://proxy.url")
         self.assertEquals(sysconf.get("ftp-proxy"), "ftp://proxy.url")
+
+    def test_also_sets_no_proxy_config(self):
+        sysconf.set("use-landscape-proxies", True)
+        landscape.run()
+        self.assertEquals(sysconf.get("no-proxy"), "localdomain")
 
     def test_plguin_sets_proxies_as_weak(self):
         """
