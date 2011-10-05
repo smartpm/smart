@@ -267,7 +267,10 @@ class GtkInteractiveInterface(GtkInterface):
         self._topvbox.pack_start(self._menubar, False)
 
         self._toolbar = self._ui.get_widget("/toolbar")
-        self._toolbar.set_style(gtk.TOOLBAR_ICONS)
+        if sysconf.get("gtk-toolbar-names", False):
+            self._toolbar.set_style(gtk.TOOLBAR_BOTH)
+        else:
+            self._toolbar.set_style(gtk.TOOLBAR_ICONS)
         self._topvbox.pack_start(self._toolbar, False)
         if sysconf.getReadOnly():
            # Can't update channels in readonly mode.
