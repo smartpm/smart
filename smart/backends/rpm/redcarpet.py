@@ -263,6 +263,7 @@ class XMLParser(object):
                    if not ((x[2] is None or "=" in x[2]) and
                            (RPMProvides, x[1], x[3]) in self._prvdict or
                            system_provides.match(*x))]
+        reqargs = collapse_libc_requires(reqargs)
         prvargs = self._prvdict.keys()
         cnfargs = self._cnfdict.keys()
         upgargs = self._upgdict.keys()

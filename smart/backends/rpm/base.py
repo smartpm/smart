@@ -43,7 +43,8 @@ except ImportError:
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes",
-           "rpm", "getTS", "getArchScore", "getArchColor", "system_provides"]
+           "rpm", "getTS", "getArchScore", "getArchColor", "system_provides",
+           "collapse_libc_requires"]
 
 def getTS(new=False):
     rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
@@ -344,6 +345,18 @@ class SystemProvides(object):
 
 system_provides = SystemProvides()
 
+def collapse_libc_requires(requires):
+    """ optionally collapse libc.so.6 requires into highest requires """
+    if sysconf.get("rpm-collapse-libc-requires", True):
+        best = None
+        for req in requires:
+            if (req[1].startswith('libc.so.6') and
+                not req[1].startswith('libc.so.6()') and
+                (not best or vercmp(req[1], best[1]) > 0)):
+                best = req
+        requires = [x for x in requires
+                   if not x[1].startswith('libc.so.6') or x == best]
+    return requires
 
 def enablePsyco(psyco):
     psyco.bind(RPMPackage.equals)

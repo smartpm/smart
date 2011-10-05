@@ -310,7 +310,7 @@ class RPMHeaderLoader(Loader):
                             # RPMSENSE_SCRIPT_POSTUN == 7744
                             reqdict[(f[i]&7744 and PreReq or Req,
                                      intern(ni), r, vi)] = True
-                reqargs = reqdict.keys()
+                reqargs = collapse_libc_requires(reqdict.keys())
             else:
                 reqargs = None
 

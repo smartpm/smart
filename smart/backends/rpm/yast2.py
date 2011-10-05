@@ -269,7 +269,7 @@ class YaST2Loader(Loader):
             cnfdict[upg] = True
                     
         pkg = self.buildPackage((Pkg, name, versionarch),
-                                prvdict.keys(), reqdict.keys(),
+                                prvdict.keys(), collapse_libc_requires(reqdict.keys()),
                                 upgdict.keys(), cnfdict.keys())
                     
         pkg.loaders[self] = info

@@ -4,7 +4,8 @@ import rpm
 
 from mocker import MockerTestCase
 
-from smart.backends.rpm.base import RPMPackage, Package, Provides, getTS
+from smart.backends.rpm.base import RPMPackage, Package, Requires, Provides, \
+                                    getTS, collapse_libc_requires
 from smart.backends.rpm.rpmver import checkver, splitarch, splitrelease
 from smart import sysconf
 
@@ -84,6 +85,18 @@ class RPMPackageTest(MockerTestCase):
         pkg2.provides = [provides1, provides2]
         self.assertTrue(pkg1.equals(pkg2))
         self.assertTrue(pkg2.equals(pkg1))
+
+    def test_collapse_libc_requires(self):
+        requires1 = (Requires, "libc.so.6(GLIBC_2.3.4)(64bit)", None, None)
+        requires2 = (Requires, "libc.so.6(GLIBC_2.2.5)(64bit)", None, None)
+        requires3 = (Requires, "libc.so.6()(64bit)", None, None)
+        requires = [requires1, requires2, requires3]
+        sysconf.set("rpm-collapse-libc-requires", False)
+        req = collapse_libc_requires(requires)
+        self.assertEquals(req, requires)
+        sysconf.set("rpm-collapse-libc-requires", True)
+        req = collapse_libc_requires(requires)
+        self.assertEquals(req, [requires1])
 
 class RPMVerCheckTest(MockerTestCase):
 
