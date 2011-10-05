@@ -170,7 +170,11 @@ class TextInterface(Interface):
             def showPackages(pkgs, showrelations=True):
                 pkgs.sort()
                 for pkg in pkgs:
-                    print " ", pkg
+                    channels = []
+                    for loader in pkg.loaders:
+                        channels.append(loader.getChannel().getAlias())
+                        channels.sort()
+                    print " ", pkg, ("[%s]" % ", ".join(channels))
                     if showrelations:
                         if pkg in report.upgrading:
                             print "   ", _("Upgrades:")
