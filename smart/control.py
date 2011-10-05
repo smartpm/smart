@@ -681,6 +681,9 @@ class Control(object):
         return self.commitChangeSet(trans.getChangeSet(), caching, confirm)
 
     def commitChangeSet(self, changeset, caching=OPTIONAL, confirm=True):
+        if sysconf.get("commit-stepped", False):
+            return self.commitChangeSetStepped(changeset, caching, confirm)
+
         if confirm and not iface.confirmChangeSet(changeset):
             return False
 
