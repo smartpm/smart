@@ -50,6 +50,18 @@ class GtkPackageInfo(gtk.Alignment):
         boldfont = font.copy()
         boldfont.set_weight(pango.WEIGHT_BOLD)
 
+        if sysconf.get("gtk-description-fontsize"):
+            fontsize = int(sysconf.get("gtk-description-fontsize"))
+
+            descfont = self.style.font_desc.copy()
+            descfont.set_size(fontsize*pango.SCALE)
+
+            bolddescfont = descfont.copy()
+            bolddescfont.set_weight(pango.WEIGHT_BOLD)
+        else:
+            descfont = font
+            bolddescfont = boldfont
+
         self._notebook = gtk.Notebook()
         self._notebook.show()
         self.add(self._notebook)
@@ -129,8 +141,8 @@ class GtkPackageInfo(gtk.Alignment):
         self._descrtv.set_right_margin(5)
         self._descrtv.show()
         buffer = self._descrtv.get_buffer()
-        buffer.create_tag("description", font_desc=font)
-        buffer.create_tag("summary", font_desc=boldfont)
+        buffer.create_tag("description", font_desc=descfont)
+        buffer.create_tag("summary", font_desc=bolddescfont)
         sw.add(self._descrtv)
 
         label = gtk.Label(_("Description"))
