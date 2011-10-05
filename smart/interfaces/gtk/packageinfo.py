@@ -301,6 +301,7 @@ class GtkPackageInfo(gtk.Alignment):
         sw.show()
 
         self._notebook.connect("switch_page", self._switchPage)
+        self._notebook.set_current_page(sysconf.get("gtk-starting-tab", 0))
 
     '''
     this motion_notify_event/event_after code was adopted from hypertext demo
