@@ -107,3 +107,12 @@ class PkgConfig(object):
     def removePriority(self, name, channelalias):
         return self._config.remove(("package-priorities", name, channelalias))
 
+    def getOrigin(self, pkg):
+        return self._config.get(("package-origins", pkg.name, pkg.version))
+
+    def setOrigin(self, pkg, channelalias):
+        self._config.set(("package-origins", pkg.name, pkg.version), channelalias)
+
+    def removeOrigin(self, pkg):
+        return self._config.remove(("package-origins", pkg.name, pkg.version))
+

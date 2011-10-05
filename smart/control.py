@@ -668,6 +668,15 @@ class Control(object):
             log.write("%s %s: %s\n" % (time.ctime(), pkg, changeset[pkg]))
         log.write("\n")
 
+    def setPackageOrigins(self, changeset, channels):
+        for pkg in changeset:
+            if changeset[pkg] is INSTALL:
+               if pkg in channels:
+                   alias = channels[pkg].getAlias()
+                   pkgconf.setOrigin(pkg, alias)
+            elif changeset[pkg] is REMOVE:
+                pkgconf.removeOrigin(pkg)
+
     def commitTransaction(self, trans, caching=OPTIONAL, confirm=True):
         return self.commitChangeSet(trans.getChangeSet(), caching, confirm)
 
@@ -714,10 +723,10 @@ class Control(object):
 
             if cs:
 
-                pkgpaths = self.fetchPackages([pkg for pkg in cs
+                pkgpaths, pkgchannels = self.fetchPackages([pkg for pkg in cs
                                                if pkg not in copypkgpaths
                                                   and cs[pkg] is INSTALL],
-                                              caching)
+                                              caching, channels=True)
                 for pkg in cs:
                     if pkg in copypkgpaths:
                         pkgpaths[pkg] = copypkgpaths[pkg]
@@ -735,6 +744,7 @@ class Control(object):
                         pmcs.markPackagesAutoInstalled()
                         self.writeCommitLog(pmcs)
                         pmclass().commit(pmcs, pkgpaths)
+                        self.setPackageOrigins(pmcs, pkgchannels)
 
                 hooks.call("post-commit")
                 
@@ -802,7 +812,7 @@ class Control(object):
 
         return True
 
-    def fetchPackages(self, packages, caching=OPTIONAL, targetdir=None):
+    def fetchPackages(self, packages, caching=OPTIONAL, targetdir=None, channels=False):
         fetcher = self._fetcher
         fetcher.reset()
         fetcher.setCaching(caching)
@@ -815,6 +825,7 @@ class Control(object):
         else:
             fetcher.setLocalDir(targetdir, mangle=False)
         pkgitems = {}
+        pkgchannels = {}
         for pkg in packages:
             for loader in pkg.loaders:
                 if loader.getInstalled():
@@ -824,6 +835,7 @@ class Control(object):
                     break
             else:
                 raise Error, _("No channel available for package %s") % pkg
+            pkgchannels[pkg] = channel
             info = loader.getInfo(pkg)
             urls = info.getURLs()
             pkgitems[pkg] = []
@@ -847,7 +859,9 @@ class Control(object):
         pkgpaths = {}
         for pkg in packages:
             pkgpaths[pkg] = [item.getTargetPath() for item in pkgitems[pkg]]
-        return pkgpaths
+        if not channels:
+            return pkgpaths
+        return pkgpaths, pkgchannels
 
     def search(self, s, cutoff=1.00, suggestioncutoff=0.70,
                globcutoff=1.00, globsuggestioncutoff=0.95,
