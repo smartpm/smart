@@ -309,8 +309,8 @@ class GtkInteractiveInterface(GtkInterface):
 
             if gtk.gtk_version >= (2, 16, 0):
                 self._searchentry = gtk.Entry()
-                self._searchentry.set_property("primary-icon-name", "gtk-find")
-                self._searchentry.set_property("secondary-icon-name", "gtk-clear")
+                self._searchentry.set_property("primary-icon-stock", "gtk-find")
+                self._searchentry.set_property("secondary-icon-stock", "gtk-clear")
                 def press(entry, icon_pos, event):
                     if int(icon_pos) == 0: # "primary"
                         self._searchmenu.popup(None, None, None, event.button, event.time)

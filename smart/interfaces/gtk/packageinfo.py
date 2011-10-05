@@ -177,8 +177,8 @@ class GtkPackageInfo(gtk.Alignment):
         filtertable.attach(align, 2, 3, 0, 1, gtk.FILL, gtk.FILL)
 
         if gtk.gtk_version >= (2, 16, 0):
-            self._filterentry.set_property("primary-icon-name", "gtk-find")
-            self._filterentry.set_property("secondary-icon-name", "gtk-clear")
+            self._filterentry.set_property("primary-icon-stock", "gtk-find")
+            self._filterentry.set_property("secondary-icon-stock", "gtk-clear")
             def press(entry, icon_pos, event):
                 if int(icon_pos) == 0: # "primary"
                     self.filterContent()
