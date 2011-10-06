@@ -26,6 +26,7 @@ from smart.interfaces.gtk.channels import GtkChannels, GtkChannelSelector
 from smart.interfaces.gtk.mirrors import GtkMirrors
 from smart.interfaces.gtk.flags import GtkFlags
 from smart.interfaces.gtk.priorities import GtkPriorities, GtkSinglePriority
+from smart.interfaces.gtk.preferences import GtkPreferences
 from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.interfaces.gtk.packageinfo import GtkPackageInfo
 from smart.interfaces.gtk.legend import GtkLegend
@@ -75,6 +76,8 @@ UI = """
         <menuitem action="edit-mirrors"/>
         <menuitem action="edit-flags"/>
         <menuitem action="edit-priorities"/>
+        <separator/>
+        <menuitem action="preferences"/>
     </menu>
     <menu action="view">
         <menuitem action="hide-non-upgrades"/>
@@ -163,6 +166,8 @@ ACTIONS = [
      _("Edit package flags"), "self.editFlags()"),
     ("edit-priorities", None, _("_Priorities"), None,
      _("Edit package priorities"), "self.editPriorities()"),
+    ("preferences", "gtk-preferences", _("_Preferences"), None,
+     _("Edit preferences"), "self.editPreferences()"),
 
     ("view", None, _("_View")),
     ("tree-style", None, _("_Tree Style")),
@@ -887,6 +892,9 @@ class GtkInteractiveInterface(GtkInterface):
 
     def editPriorities(self):
         GtkPriorities(self._window).show()
+
+    def editPreferences(self):
+        GtkPreferences().show()
 
     def setBusy(self, flag):
         if flag:
