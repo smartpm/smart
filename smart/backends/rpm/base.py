@@ -203,7 +203,7 @@ class RPMPackage(Package):
         otherver, otherarch = splitarch(other.version)
         selfcolor = getArchColor(selfarch)
         othercolor = getArchColor(otherarch)
-        if (selfcolor != othercolor and
+        if (selfcolor and othercolor and selfcolor != othercolor and
             not sysconf.get("rpm-strict-multilib")):
             return True
         if not pkgconf.testFlag("multi-version", self):
@@ -258,7 +258,8 @@ class RPMPackage(Package):
                 if selfarch != otherarch:
                     selfcolor = getArchColor(selfarch)
                     othercolor = getArchColor(otherarch)
-                    rc = cmp(selfcolor, othercolor)
+                    if selfcolor and othercolor:
+                        rc = cmp(selfcolor, othercolor)
                 if rc == 0:
                     if selfver != otherver:
                         rc = vercmp(selfver, otherver)
@@ -302,7 +303,7 @@ class RPMObsoletes(Depends):
         if prvarch and selfarch:
             selfcolor = getArchColor(selfarch)
             prvcolor = getArchColor(prvarch)
-            if selfcolor != prvcolor:
+            if selfcolor and prvcolor and selfcolor != prvcolor:
                 return False
         return checkdep(prvver, self.relation, selfver)
 
@@ -314,7 +315,7 @@ def getArchScore(arch, _sm=_SCOREMAP):
     return _sm.get(arch, 0)
 
 # TODO: Embed color into nameprovides and obsoletes relations.
-_COLORMAP = {"x86_64": 2, "ppc64": 2, "s390x": 2, "sparc64": 2}
+_COLORMAP = {"noarch": 0, "x86_64": 2, "ppc64": 2, "s390x": 2, "sparc64": 2}
 def getArchColor(arch, _cm=_COLORMAP):
     return _cm.get(arch, 1)
 
