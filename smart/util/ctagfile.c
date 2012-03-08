@@ -356,7 +356,7 @@ static PyMethodDef TagFile_methods[] = {
     {NULL, NULL}
 };
 
-statichere PyTypeObject TagFile_Type = {
+static PyTypeObject TagFile_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.util.tagfile.TagFile",	/*tp_name*/
 	sizeof(TagFileObject), /*tp_basicsize*/
