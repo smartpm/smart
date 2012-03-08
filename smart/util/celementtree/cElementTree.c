@@ -2564,7 +2564,7 @@ static PyMethodDef _functions[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 initcElementTree(void)
 {
     PyObject* m;

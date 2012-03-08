@@ -403,7 +403,7 @@ static PyMethodDef ctagfile_methods[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 initctagfile(void)
 {
     PyObject *m;

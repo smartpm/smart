@@ -336,7 +336,7 @@ static PyMethodDef crpmver_methods[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 initcrpmver(void)
 {
     PyObject *m;

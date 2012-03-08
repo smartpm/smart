@@ -471,7 +471,7 @@ static PyMethodDef cdebver_methods[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 initcdebver(void)
 {
     PyObject *m;

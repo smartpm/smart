@@ -43,7 +43,7 @@ static PyMethodDef _base_methods[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 init_base(void)
 {
     PyObject *m;

@@ -269,7 +269,7 @@ static PyMethodDef cdistance_methods[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 initcdistance(void)
 {
     PyObject *m;

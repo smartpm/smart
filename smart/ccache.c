@@ -3623,7 +3623,7 @@ static PyMethodDef ccache_methods[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+void
 initccache(void)
 {
     PyObject *m, *o;
