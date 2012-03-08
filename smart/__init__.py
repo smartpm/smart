@@ -55,14 +55,6 @@ try:
 except IOError as e:
     _ = lambda s: str(s)
     encoding = sys.stdout.encoding or "ascii"
-if encoding:
-    import codecs
-    try:
-        sys.stdout = codecs.getwriter(encoding)(sys.stdout, errors="replace")
-        sys.stderr = codecs.getwriter(encoding)(sys.stderr, errors="replace")
-        del encoding
-    except LookupError:
-        pass
 
 class Proxy:
     def __init__(self, object=None):
