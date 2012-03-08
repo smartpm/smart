@@ -63,16 +63,6 @@ if encoding:
         del encoding
     except LookupError:
         pass
-    else:
-        def raw_input(prompt="", _raw_input=raw_input):
-            if prompt:
-                prompt = sys.stdout.encode(prompt)[0]
-            sys_stdout = sys.stdout
-            sys.stdout = sys.__stdout__
-            res = _raw_input(prompt)
-            sys.stdout = sys_stdout
-            return res
-        __builtins__["raw_input"] = raw_input
 
 class Proxy:
     def __init__(self, object=None):
