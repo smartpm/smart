@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.util import optparse
+import optparse
 from smart import Error, _
 import textwrap
 import sys, os
