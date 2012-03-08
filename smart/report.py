@@ -133,7 +133,7 @@ class Report(object):
                     pass
                 else:
                     if notupgraded:
-                        self.notupgraded[pkg] = notupgraded.keys()
+                        self.notupgraded[pkg] = list(notupgraded.keys())
 
             pkgop = changeset.get(pkg)
             if pkgop:
@@ -153,7 +153,7 @@ class Report(object):
                             if changeset.get(cnfpkg):
                                 map[cnfpkg] = True
                 if map:
-                    self.conflicts[pkg] = map.keys()
+                    self.conflicts[pkg] = list(map.keys())
                     map.clear()
                 for req in pkg.requires:
                     for prv in req.providedby:
@@ -161,7 +161,7 @@ class Report(object):
                             if changeset.get(prvpkg) is pkgop:
                                 map[prvpkg] = True
                 if map:
-                    self.requires[pkg] = map.keys()
+                    self.requires[pkg] = list(map.keys())
                     map.clear()
                 for prv in pkg.provides:
                     for req in prv.requiredby:
@@ -169,7 +169,7 @@ class Report(object):
                             if changeset.get(reqpkg) is pkgop:
                                 map[reqpkg] = True
                 if map:
-                    self.requiredby[pkg] = map.keys()
+                    self.requiredby[pkg] = list(map.keys())
 
     def getDownloadSize(self):
         total = 0
@@ -209,7 +209,7 @@ class Report(object):
     def getInstallSize(self):
         total = 0
         for pkg in self.install:
-            loader = iter(pkg.loaders).next()
+            loader = next(iter(pkg.loaders))
             info = loader.getInfo(pkg)
             size = info.getInstalledSize()
             if size:
@@ -219,7 +219,7 @@ class Report(object):
     def getRemoveSize(self):
         total = 0
         for pkg in self.remove:
-            loader = iter(pkg.loaders).next()
+            loader = next(iter(pkg.loaders))
             info = loader.getInfo(pkg)
             size = info.getInstalledSize()
             if size:

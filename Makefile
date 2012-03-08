@@ -3,7 +3,7 @@
 #
 
 DESTDIR=/
-PYTHON?=python
+PYTHON?=python3
 
 prefix=/usr
 bindir=$(prefix)/bin

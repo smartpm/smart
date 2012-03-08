@@ -165,7 +165,7 @@ class QtInterface(Interface):
         if issubclass(type, Error) and not sysconf.get("log-level") is DEBUG:
             self._hassubprogress.hide()
             self._progress.hide()
-            iface.error(unicode(value[0]))
+            iface.error(str(value[0]))
         else:
             import traceback
             lines = traceback.format_exception(type, value, tb)

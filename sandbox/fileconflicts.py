@@ -1,6 +1,6 @@
 import sys
 sys.argv = ["./smart.py", "test"]
-execfile('./smart.py')
+exec(open('./smart.py').read())
 
 # A problem is identified when:
 #
@@ -182,29 +182,29 @@ def main():
                     except KeyError:
                         problems[(cl10pkg1, cl10pkg2)] = [path]
 
-    print "Problem classes:"
-    print "A) An old package has file conflicts with a new package"
-    print "B) Same as A, and there's no package upgrading the old package"
-    print "C) Same as B, with both packages in the same distribution"
-    print
-    print "Problems:", len(problems)
-    print
+    print("Problem classes:")
+    print("A) An old package has file conflicts with a new package")
+    print("B) Same as A, and there's no package upgrading the old package")
+    print("C) Same as B, with both packages in the same distribution")
+    print()
+    print("Problems:", len(problems))
+    print()
     for problem in problems:
-        print "Problem class:",
+        print("Problem class:", end=' ')
         pkg1, pkg2 = problem
         if pkg1 in cl10dict and pkg2 in cl10dict:
-            print "C"
+            print("C")
         elif problem in noupgproblems:
-            print "B"
+            print("B")
         else:
-            print "A"
+            print("A")
         cl = pkg1 in cl10dict and "CL10:" or "CL9: "
-        print cl, pkg1
+        print(cl, pkg1)
         cl = pkg2 in cl10dict and "CL10:" or "CL9: "
-        print cl, pkg2
+        print(cl, pkg2)
         for path in problems[problem]:
-            print path
-        print
+            print(path)
+        print()
 
 if __name__ == "__main__":
     main()

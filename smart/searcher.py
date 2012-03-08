@@ -176,7 +176,7 @@ class Searcher(object):
         elif len(tokens) == 1:
             prv = Provides(tokens[0], None)
         else:
-            raise Error, _("Invalid string")
+            raise Error(_("Invalid string"))
         return prv
 
     def addRequires(self, s):

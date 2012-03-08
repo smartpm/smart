@@ -231,7 +231,7 @@ class GtkPackageView(gtk.Alignment):
                         continue
                     size = info.getInstalledSize()
                 else:
-                    size = 0L
+                    size = 0
                     for url in info.getURLs():
                         size += info.getSize(url) or 0
                 cell.set_property("text", sizeToStr(size or None))
@@ -384,7 +384,7 @@ class GtkPackageView(gtk.Alignment):
             for subitem in item:
                 self._setPackage(report, model, parent, subitem)
         elif type(item) is dict:
-            keys = item.keys()
+            keys = list(item.keys())
             keys.sort()
             for key in keys:
                 iter = self._setPackage(report, model, parent, key)

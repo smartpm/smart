@@ -47,7 +47,7 @@ class RPMSysChannel(PackageChannel):
 
 def create(alias, data):
     if data["removable"]:
-        raise Error, _("%s channels cannot be removable") % data["type"]
+        raise Error(_("%s channels cannot be removable") % data["type"])
     return RPMSysChannel(data["type"],
                          alias,
                          data["name"],

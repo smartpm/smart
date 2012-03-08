@@ -112,7 +112,7 @@ class FileChannel(PackageChannel):
         if name is None:
             name = os.path.basename(filename)
         if not os.path.isfile(filename):
-            raise Error, _("File not found: %s") % filename
+            raise Error(_("File not found: %s") % filename)
         super(FileChannel, self).__init__("file", filename, name,
                                           manualupdate=True, priority=priority)
 
@@ -166,7 +166,7 @@ def createChannel(alias, data):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, _("Unable to create channel of type '%s'") % type
+        raise Error(_("Unable to create channel of type '%s'") % type)
     data = data.copy()
     info = getChannelInfo(data.get("type"))
     for key, label, ftype, default, descr in info.fields:
@@ -179,10 +179,10 @@ def createChannel(alias, data):
 def createChannelDescription(alias, data):
     ctype = data.get("type")
     if not ctype:
-        raise Error, _("Channel has no type")
+        raise Error(_("Channel has no type"))
     info = getChannelInfo(ctype)
     if not info:
-        raise Error, _("Unknown channel type: %s") % ctype
+        raise Error(_("Unknown channel type: %s") % ctype)
     lines = ["[%s]" % alias]
     for key, label, ftype, default, descr in info.fields:
         if key == "alias":
@@ -192,8 +192,8 @@ def createChannelDescription(alias, data):
             value = value.strip()
         if not value or value == default:
             if default is None:
-                raise Error, _("%s (%s) is a needed field for '%s' channels") \
-                             % (label, key, ctype)
+                raise Error(_("%s (%s) is a needed field for '%s' channels") \
+                             % (label, key, ctype))
             continue
         if type(value) is bool:
             value = value and "yes" or "no"
@@ -205,10 +205,10 @@ def createChannelDescription(alias, data):
 def parseChannelData(data):
     ctype = data.get("type")
     if not ctype:
-        raise Error, _("Channel has no type")
+        raise Error(_("Channel has no type"))
     info = getChannelInfo(ctype)
     if not info:
-        raise Error, _("Unknown channel type: %s") % ctype
+        raise Error(_("Unknown channel type: %s") % ctype)
     if hasattr(info, "preParse"):
         data = info.preParse(data)
     newdata = {}
@@ -220,8 +220,8 @@ def parseChannelData(data):
             value = value.strip()
         if not value or value == default:
             if default is None:
-                raise Error, _("%s (%s) is a needed field for '%s' channels") \
-                             % (label, key, ctype)
+                raise Error(_("%s (%s) is a needed field for '%s' channels") \
+                             % (label, key, ctype))
             continue
         if type(value) is str:
             if ftype is bool:
@@ -233,17 +233,17 @@ def parseChannelData(data):
                                _("n"), _("no"), _("false")):
                     value = False
                 else:
-                    raise Error, _("Invalid value for '%s' (%s) field: %s") % \
-                                 (label, key, `value`)
+                    raise Error(_("Invalid value for '%s' (%s) field: %s") % \
+                                 (label, key, repr(value)))
             elif ftype is not str:
                 try:
                     value = ftype(value)
                 except ValueError:
-                    raise Error, _("Invalid value for '%s' (%s) field: %s") % \
-                                 (label, key, `value`)
+                    raise Error(_("Invalid value for '%s' (%s) field: %s") % \
+                                 (label, key, repr(value)))
         elif type(value) is not ftype:
-            raise Error, _("Invalid value for '%s' (%s) field: %s") % \
-                         (label, key, `value`)
+            raise Error(_("Invalid value for '%s' (%s) field: %s") % \
+                         (label, key, repr(value)))
         newdata[key] = value
     if hasattr(info, "postParse"):
         newdata = info.postParse(newdata)
@@ -259,7 +259,7 @@ def parseChannelsDescription(data):
             continue
         if len(line) > 2 and line[0] == "[" and line[-1] == "]":
             if current and "type" not in current:
-                raise Error, _("Channel '%s' has no type") % alias
+                raise Error(_("Channel '%s' has no type") % alias)
             alias = line[1:-1].strip()
             current = {}
             channels[alias] = current
@@ -281,7 +281,7 @@ def getChannelInfo(type):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, _("Invalid channel type '%s'") % type
+        raise Error(_("Invalid channel type '%s'") % type)
     if not hasattr(info, "_fixed"):
         info._fixed = True
         fields = []

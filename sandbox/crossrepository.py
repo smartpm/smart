@@ -1,6 +1,6 @@
 import sys
 sys.argv = ["./smart.py", "test"]
-execfile('./smart.py')
+exec(open('./smart.py').read())
 
 MAIN = "cooker-ciril"
 CONTRIB = "contrib-ciril"
@@ -31,15 +31,15 @@ def main():
             if not foundmain:
                 if firstreq:
                     firstreq = False
-                    print pkg
-                    print "  Requires:"
-                print "   ", req
+                    print(pkg)
+                    print("  Requires:")
+                print("   ", req)
                 if foundcontrib:
-                    print "      Contrib:"
+                    print("      Contrib:")
                     for prv, prvpkg in foundcontrib:
-                        print "       ", prvpkg
+                        print("       ", prvpkg)
         if not firstreq:
-            print
+            print()
 
 if __name__ == "__main__":
     main()

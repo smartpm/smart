@@ -28,16 +28,16 @@ from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb.base import *
 from smart.progress import Progress
 from smart import *
-from cStringIO import StringIO
+from io import StringIO
 import locale
 import stat
 import os
 
 
 def decode(s):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
-    return unicode(s, "UTF-8", "replace")
+    return str(s, "UTF-8", "replace")
 
 
 class DebPackageInfo(PackageInfo):
@@ -85,7 +85,7 @@ class DebPackageInfo(PackageInfo):
         size = self._dict.get("installed-size")
         if size:
             try:
-                return long(size)*1024
+                return int(size)*1024
             except ValueError:
                 pass
         return None
@@ -96,14 +96,14 @@ class DebPackageInfo(PackageInfo):
             toks = description.split("\n", 1)
             if len(toks) == 2:
                 return decode(toks[1])
-        return u""
+        return ""
 
     def getSummary(self):
         description = self._dict.get("description")
         if description:
             
             return decode(description.split("\n", 1)[0])
-        return u""
+        return ""
 
     def getSource(self):
         import re
@@ -119,7 +119,7 @@ class DebPackageInfo(PackageInfo):
         return decode(self._loader.getSection(self._package))
 
     def getLicense(self):
-        return u""
+        return ""
 
     def getChangeLog(self):
         self._change = self._loader.getChanges(self)
@@ -127,7 +127,7 @@ class DebPackageInfo(PackageInfo):
 
     def getPathList(self):
         self._paths = self._loader.getPaths(self)
-        return self._paths.keys()
+        return list(self._paths.keys())
 
     def pathIsDir(self, path):
         return self._paths[path] == "d"
@@ -192,7 +192,7 @@ class DebTagLoader(Loader):
             if value:
                 for prvname in value.split(","):
                     prvname = prvname.strip()
-                    prvargs.append((Prv, intern(prvname), None))
+                    prvargs.append((Prv, sys.intern(prvname), None))
                     prvdict[prvname] = True
 
             reqargs = []
@@ -201,7 +201,7 @@ class DebTagLoader(Loader):
                 for relation in parserelations(value):
                     if type(relation) is not list:
                         n, r, v = relation
-                        reqargs.append((Req, intern(n), r, v))
+                        reqargs.append((Req, sys.intern(n), r, v))
                     else:
                         reqargs.append((OrReq, tuple(relation)))
             value = section.get("pre-depends")
@@ -238,7 +238,7 @@ class DebTagLoader(Loader):
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
-            self._sections[pkg] = intern(section.get("section", ""))
+            self._sections[pkg] = sys.intern(section.get("section", ""))
 
     def search(self, searcher):
         offsets = {}
@@ -285,20 +285,20 @@ class DebTagLoader(Loader):
                 searcher.addResult(pkg, ratio)
 
     def getSections(self, prog):
-        raise TypeError, "Subclasses of DebTagLoader must " \
-                         "implement the getSections() method"
+        raise TypeError("Subclasses of DebTagLoader must " \
+                         "implement the getSections() method")
 
     def getDict(self, pkg):
-        raise TypeError, "Subclasses of DebTagLoader must " \
-                         "implement the getDict() method"
+        raise TypeError("Subclasses of DebTagLoader must " \
+                         "implement the getDict() method")
 
     def getFileName(self, info):
-        raise TypeError, "Subclasses of DebTagLoader must " \
-                         "implement the getFileName() method"
+        raise TypeError("Subclasses of DebTagLoader must " \
+                         "implement the getFileName() method")
 
     def getSize(self, info):
-        raise TypeError, "Subclasses of DebTagLoader must " \
-                         "implement the getFileName() method"
+        raise TypeError("Subclasses of DebTagLoader must " \
+                         "implement the getFileName() method")
 
     def getChanges(self, info):
         return []
@@ -347,7 +347,7 @@ class DebTagFileLoader(DebTagLoader):
     def getSize(self, info):
         size = info._dict.get("size")
         if size:
-            return long(size)
+            return int(size)
         return None
 
     def getChanges(self, info):
@@ -463,11 +463,11 @@ def createFileChannel(filename):
 hooks.register("create-file-channel", createFileChannel)
 
 def getControl(filename):
-    from cStringIO import StringIO
+    from io import StringIO
     from tarfile import TarFile
     file = open(filename)
     if file.read(8) != "!<arch>\n":
-        raise ValueError, "Invalid file"
+        raise ValueError("Invalid file")
     while True:
         name = file.read(16)
         date = file.read(12)

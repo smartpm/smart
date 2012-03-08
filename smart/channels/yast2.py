@@ -52,7 +52,7 @@ class YaST2Channel(PackageChannel):
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (item.getURL(), failed)]
-                raise Error, "\n".join(lines)
+                raise Error("\n".join(lines))
         return item
 
     def fetch(self, fetcher, progress):
@@ -120,7 +120,7 @@ class YaST2Channel(PackageChannel):
 
             if (fetched.getStatus() == FAILED or
                 open(fetched.getTargetPath()).readline().strip() != "=Ver: 2.0"):
-                raise Error, "YaST2 package descriptions not loaded."
+                raise Error("YaST2 package descriptions not loaded.")
             else:
                 pkgdescfile = fetched.getTargetPath()
                 loader = YaST2Loader(self._baseurl, datadir,
@@ -129,7 +129,7 @@ class YaST2Channel(PackageChannel):
             loader.setChannel(self)
             self._loaders.append(loader)
         else:
-            raise Error, _("Invalid package file header (%s)" % header)
+            raise Error(_("Invalid package file header (%s)" % header))
 
         self._digest = digest
 

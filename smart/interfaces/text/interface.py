@@ -47,7 +47,7 @@ class TextInterface(Interface):
 
     def showStatus(self, msg):
         if self._activestatus:
-            print
+            print()
         else:
             self._activestatus = True
         sys.stdout.write(msg)
@@ -56,17 +56,17 @@ class TextInterface(Interface):
     def hideStatus(self):
         if self._activestatus:
             self._activestatus = False
-            print
+            print()
 
     def askYesNo(self, question, default=False):
         self.hideStatus()
         mask = default and _("%s (Y/n): ") or _("%s (y/N): ")
         try:
-            res = raw_input(mask % question).strip().lower()
+            res = input(mask % question).strip().lower()
         except (KeyboardInterrupt, EOFError):
-            print
+            print()
             return False
-        print
+        print()
         if res:
             return (_("yes").startswith(res) and not
                     _("no").startswith(res))
@@ -79,11 +79,11 @@ class TextInterface(Interface):
         else:
             mask = _("%s (continue/Cancel): ")
         try:
-            res = raw_input(mask % question).strip().lower()
+            res = input(mask % question).strip().lower()
         except (KeyboardInterrupt, EOFError):
-            print
+            print()
             return False
-        print
+        print()
         if res:
             return (_("continue").startswith(res) and not
                     _("cancel").startswith(res))
@@ -93,11 +93,11 @@ class TextInterface(Interface):
         self.hideStatus()
         mask = default and _("%s (Ok/cancel): ") or _("%s (ok/Cancel): ")
         try:
-            res = raw_input(mask % question).strip().lower()
+            res = input(mask % question).strip().lower()
         except (KeyboardInterrupt, EOFError):
-            print
+            print()
             return False
-        print
+        print()
         if res:
             return (_("ok").startswith(res) and not
                     _("cancel").startswith(res))
@@ -107,18 +107,18 @@ class TextInterface(Interface):
         return self.showChangeSet(changeset, confirm=True)
 
     def askInput(self, prompt, message=None, widthchars=None, echo=True):
-        print
+        print()
         if message:
-            print message
+            print(message)
         prompt += ": "
         try:
             if echo:
-                res = raw_input(prompt)
+                res = input(prompt)
             else:
                 res = getpass.getpass(prompt)
         except (KeyboardInterrupt, EOFError):
             res = ""
-        print
+        print()
         return res
 
     def askPassword(self, location, caching=OPTIONAL):
@@ -129,12 +129,12 @@ class TextInterface(Interface):
 
     def insertRemovableChannels(self, channels):
         self.hideStatus()
-        print
-        print _("Insert one or more of the following removable channels:")
-        print
+        print()
+        print(_("Insert one or more of the following removable channels:"))
+        print()
         for channel in channels:
-            print "   ", str(channel)
-        print
+            print("   ", str(channel))
+        print()
         return self.askOkCancel(_("Continue?"), True)
 
     # Non-standard interface methods:
@@ -174,54 +174,54 @@ class TextInterface(Interface):
                     for loader in pkg.loaders:
                         channels.append(loader.getChannel().getAlias())
                         channels.sort()
-                    print " ", pkg, ("[%s]" % ", ".join(channels))
+                    print(" ", pkg, ("[%s]" % ", ".join(channels)))
                     if showrelations:
                         if pkg in report.upgrading:
-                            print "   ", _("Upgrades:")
+                            print("   ", _("Upgrades:"))
                             for upgpkg in report.upgrading[pkg]:
-                                print "     ", upgpkg, being(upgpkg)
+                                print("     ", upgpkg, being(upgpkg))
                         if pkg in report.downgrading:
-                            print "   ", _("Downgrades:")
+                            print("   ", _("Downgrades:"))
                             for dwnpkg in report.downgrading[pkg]:
-                                print "     ", dwnpkg, being(dwnpkg)
+                                print("     ", dwnpkg, being(dwnpkg))
                         if pkg in report.requires:
-                            print "   ", _("Requires:")
+                            print("   ", _("Requires:"))
                             for reqpkg in report.requires[pkg]:
-                                print "     ", reqpkg, being(reqpkg)
+                                print("     ", reqpkg, being(reqpkg))
                         if pkg in report.requiredby:
-                            print "   ", _("Required By:")
+                            print("   ", _("Required By:"))
                             for reqpkg in report.requiredby[pkg]:
-                                print "     ", reqpkg, being(reqpkg)
+                                print("     ", reqpkg, being(reqpkg))
                         if pkg in report.conflicts:
-                            print "   ", _("Conflicts:")
+                            print("   ", _("Conflicts:"))
                             for cnfpkg in report.conflicts[pkg]:
-                                print "     ", cnfpkg, being(cnfpkg)
+                                print("     ", cnfpkg, being(cnfpkg))
 
-        print
+        print()
         if keep:
-            print _("Kept packages (%d):") % len(keep)
+            print(_("Kept packages (%d):") % len(keep))
             showPackages(keep, False)
-            print
-        pkgs = report.upgrading.keys()
+            print()
+        pkgs = list(report.upgrading.keys())
         if pkgs:
-            print _("Upgrading packages (%d):") % len(pkgs)
+            print(_("Upgrading packages (%d):") % len(pkgs))
             showPackages(pkgs)
-            print
-        pkgs = report.downgrading.keys()
+            print()
+        pkgs = list(report.downgrading.keys())
         if pkgs:
-            print _("Downgrading packages (%d):") % len(pkgs)
+            print(_("Downgrading packages (%d):") % len(pkgs))
             showPackages(pkgs)
-            print
-        pkgs = report.installing.keys()
+            print()
+        pkgs = list(report.installing.keys())
         if pkgs:
-            print _("Installing packages (%d):") % len(pkgs)
+            print(_("Installing packages (%d):") % len(pkgs))
             showPackages(pkgs)
-            print
-        pkgs = report.removed.keys()
+            print()
+        pkgs = list(report.removed.keys())
         if pkgs:
-            print _("Removing packages (%d):") % len(pkgs)
+            print(_("Removing packages (%d):") % len(pkgs))
             showPackages(pkgs)
-            print
+            print()
 
         dsize = report.getDownloadSize() - report.getCachedSize()
         size = report.getInstallSize() - report.getRemoveSize()

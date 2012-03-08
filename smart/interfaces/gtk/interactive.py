@@ -197,7 +197,7 @@ def compileActions(actions, globals):
             code = compile(action[5], "<callback>", "exec")
             def callback(action, code=code, globals=globals):
                 globals["action"] = action
-                exec code in globals
+                exec(code, globals)
             action[5] = callback
         newactions.append(tuple(action))
     return newactions
@@ -980,7 +980,7 @@ class GtkInteractiveInterface(GtkInterface):
                 groups = []
                 names = {}
                 all = "%s (%d)" % (_("All"), len(packages))
-                for group, count in packagegroups.iteritems():
+                for group, count in packagegroups.items():
                      displayicon = None
                      displayname = "%s (%d)" % (group, count)
                      groups.append(displayname)
@@ -1058,7 +1058,7 @@ class GtkInteractiveInterface(GtkInterface):
                             pass
                         else:
                             newpackages.update(upgpkgs)
-                packages = newpackages.keys()
+                packages = list(newpackages.keys())
             if "hide-non-newest" in filters:
                 newest = {}
                 for pkg in packages:
@@ -1184,7 +1184,7 @@ class GtkInteractiveInterface(GtkInterface):
             Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
             """
         credits=["""Gustavo Niemeyer - Original author and lead developer.""",
-           u"""Anders F Bj\u00f6rklund - Current maintainer and developer.""",
+           """Anders F Bj\u00f6rklund - Current maintainer and developer.""",
             """Conectiva Inc. - Original project funder up to August 2005.""",
             """Canonical Ltd. - Funding Smart up to November of 2009.""",
             """Unity Linux - Smart development and deployment support.""",

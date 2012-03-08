@@ -1,4 +1,4 @@
-from mocker import MockerTestCase
+from .mocker import MockerTestCase
 
 from smart.searcher import Searcher
 

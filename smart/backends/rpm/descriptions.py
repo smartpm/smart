@@ -87,7 +87,7 @@ class RPMDescriptions:
         if sysconf.getReadOnly():
             return
 
-        for pkg, type in self._flagdict.iteritems():
+        for pkg, type in self._flagdict.items():
             pkgconf.setFlag(type, pkg)
 
     def getType(self, package):

@@ -50,7 +50,7 @@ def main(ctrl, opts):
     packagesdir = os.path.join(sysconf.get("data-dir"), "packages/")
 
     if not os.path.isdir(packagesdir):
-        raise Error, _("Directory not found: %s") % packagesdir
+        raise Error(_("Directory not found: %s") % packagesdir)
 
     iface.info(_("Removing cached package files..."))
    
@@ -74,7 +74,7 @@ def main(ctrl, opts):
             try:
                 os.unlink(os.path.join(root, cached_pkg))
                 iface.debug(_("Removed %s") % cached_pkg)
-            except os.error, e:
+            except os.error as e:
                 iface.error(_("Can't remove cached package %s: %s") \
                             % (cached_pkg, str(e)))
 

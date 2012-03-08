@@ -107,16 +107,16 @@ def parsePackageFile(filename):
                 os.write(output, data)
                 data = input.read(BLOCKSIZE)
             os.close(output)
-        except ImportError, e:
-            import commands
+        except ImportError as e:
+            import subprocess
             if not os.path.exists(filename):
                 raise IOError("File not found: '%s'" % filename)
             else:
                 filename = os.path.abspath(filename)
-            (status, output) = commands.getstatusoutput(
+            (status, output) = subprocess.getstatusoutput(
                                "unxz <'%s' >%s" % (filename, tempname))
             if (status != 0):
-                raise Error, "%s, unxz helper could not be found" % e
+                raise Error("%s, unxz helper could not be found" % e)
         tar = tarfile.open(tempname)
     else:
         tar = tarfile.open(filename)

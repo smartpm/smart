@@ -33,8 +33,8 @@ class TagFile(dict):
 
     def __getstate__(self):
         if not self._filename:
-            raise TypeError, "Can't pickle TagFile instance " \
-                             "constructed with file object"
+            raise TypeError("Can't pickle TagFile instance " \
+                             "constructed with file object")
         return self._filename
 
     def __setstate__(self, state):

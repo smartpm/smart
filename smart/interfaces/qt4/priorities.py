@@ -107,10 +107,10 @@ class QtPriorities(object):
     def fill(self):
         self._treeview.clear()
         priorities = sysconf.get("package-priorities", {})
-        prioritieslst = priorities.items()
+        prioritieslst = list(priorities.items())
         prioritieslst.sort()
         for name, pkgpriorities in prioritieslst:
-            aliaslst = pkgpriorities.items()
+            aliaslst = list(pkgpriorities.items())
             aliaslst.sort()
             for alias, priority in aliaslst:
                  item = TextListViewItem(self._treeview)

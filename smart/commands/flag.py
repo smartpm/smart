@@ -107,12 +107,12 @@ def main(ctrl, opts):
             pkgconf.clearFlag(flag)
             continue
         if len(args) % 2 != 0:
-            raise Error, _("Invalid arguments")
+            raise Error(_("Invalid arguments"))
         for i in range(0, len(args), 2):
             flag, target = args[i:i+2]
             m = TARGETRE.match(target)
             if not m:
-                raise Error, _("Invalid target: %s") % arg
+                raise Error(_("Invalid target: %s") % arg)
             if args is opts.set:
                 pkgconf.setFlag(flag, m.group("name"),
                                 m.group("rel"), m.group("version"))
@@ -125,17 +125,17 @@ def main(ctrl, opts):
         showflags.sort()
         for flag in showflags:
             flag = flag.strip()
-            print flag
+            print(flag)
             names = pkgconf.getFlagTargets(flag)
-            nameslst = names.keys()
+            nameslst = list(names.keys())
             nameslst.sort()
             for name in nameslst:
                 for relation, version in names[name]:
                     if relation and version:
-                        print "   ", name, relation, version
+                        print("   ", name, relation, version)
                     else:
-                        print "   ", name
-            print
+                        print("   ", name)
+            print()
 
     if opts.yaml is not None:
         import yaml
@@ -143,11 +143,11 @@ def main(ctrl, opts):
         for flag in opts.yaml or pkgconf.getFlagNames():
             flag = flag.strip()
             names = pkgconf.getFlagTargets(flag)
-            for name, relvers in names.iteritems():
+            for name, relvers in names.items():
                 targets = []
                 for relation, version in relvers:
                     targets += [relation, version]
                 yamlflags[flag] = { name: targets }
-        print yaml.dump(yamlflags)
+        print(yaml.dump(yamlflags))
 
 # vim:ts=4:sw=4:et

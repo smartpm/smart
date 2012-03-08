@@ -81,11 +81,11 @@ def main(ctrl, opts, reloadchannels=True):
                             dct[obj] = True
                         else:
                             dct.update(dict.fromkeys(obj.packages, True))
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
 
             dct = {}
             for obj in results:
@@ -94,7 +94,7 @@ def main(ctrl, opts, reloadchannels=True):
                 else:
                     dct.update(dict.fromkeys(obj.packages, True))
             pkgs.update(dct)
-        pkgs = pkgs.keys()
+        pkgs = list(pkgs.keys())
     else:
         pkgs = cache.getPackages()
 
@@ -113,14 +113,14 @@ def main(ctrl, opts, reloadchannels=True):
         infos.sort()
         info = infos[0]
 
-        print _("Name:"), pkg.name
-        print _("Version:"), pkg.version
-        print _("Priority:"), pkg.getPriority()
-        print _("Source:"), info.getSource()
-        print _("Group:"), info.getGroup()
-        print _("License:"), info.getLicense()
-        print _("Installed Size:"), sizeToStr(info.getInstalledSize())
-        print _("Reference URLs:"), " ".join(info.getReferenceURLs())
+        print(_("Name:"), pkg.name)
+        print(_("Version:"), pkg.version)
+        print(_("Priority:"), pkg.getPriority())
+        print(_("Source:"), info.getSource())
+        print(_("Group:"), info.getGroup())
+        print(_("License:"), info.getLicense())
+        print(_("Installed Size:"), sizeToStr(info.getInstalledSize()))
+        print(_("Reference URLs:"), " ".join(info.getReferenceURLs()))
 
 
         flags = pkgconf.testAllFlags(pkg)
@@ -129,23 +129,23 @@ def main(ctrl, opts, reloadchannels=True):
             flags = "%s" % ", ".join(flags)
         else:
             flags = ""
-        print _("Flags:"), flags
+        print(_("Flags:"), flags)
 
-        print _("Channels:"),
-        channelnames = channels.keys()
+        print(_("Channels:"), end=' ')
+        channelnames = list(channels.keys())
         channelnames.sort()
-        print "; ".join(channelnames)
+        print("; ".join(channelnames))
 
-        print _("Summary:"), info.getSummary()
-        print _("Description:")
+        print(_("Summary:"), info.getSummary())
+        print(_("Description:"))
         for line in info.getDescription().splitlines():
             line = line.strip()
             if not line:
                 line = "."
-            print "", line
+            print("", line)
 
         if opts.urls:
-            print _("URLs:")
+            print(_("URLs:"))
             seen = {}
             for loader in pkg.loaders:
                 if loader not in seen:
@@ -154,13 +154,13 @@ def main(ctrl, opts, reloadchannels=True):
                     first = True
                     for url in info.getURLs():
                         if first:
-                            print "", loader.getChannel()
+                            print("", loader.getChannel())
                             first = False
                         size = info.getSize(url)
                         if size:
-                            print "   ", url, "(%s)" % sizeToStr(size)
+                            print("   ", url, "(%s)" % sizeToStr(size))
                         else:
-                            print "   ", url
+                            print("   ", url)
 
         if opts.paths or opts.changelog:
             for loader in pkg.loaders:
@@ -169,22 +169,22 @@ def main(ctrl, opts, reloadchannels=True):
                     break
 
         if opts.paths:
-            print _("Paths:")
+            print(_("Paths:"))
             paths = info.getPathList()
             paths.sort()
             for entry in paths:
-                print "", entry
+                print("", entry)
 
         if opts.changelog:
-            print _("Changelog:")
+            print(_("Changelog:"))
             changelog = info.getChangeLog()
             for i in range(len(changelog)/2):
-                print "       ", "%s" % changelog[2*i]
+                print("       ", "%s" % changelog[2*i])
                 changesplit = changelog[2*i+1].split("\n")
-                print "       ", "%s" % changesplit[0]
+                print("       ", "%s" % changesplit[0])
                 for i in range(1, len(changesplit)):
-                    print "         ", "%s" % changesplit[i]
+                    print("         ", "%s" % changesplit[i])
 
-        print
+        print()
 
 # vim:ts=4:sw=4:et

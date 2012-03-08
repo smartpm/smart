@@ -24,7 +24,7 @@
 # being linked with rpm. :-(
 import zlib
 
-from rpmver import checkdep, checkver, vercmp, splitarch, splitrelease
+from .rpmver import checkdep, checkver, vercmp, splitarch, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
 from smart import *
@@ -39,7 +39,7 @@ except ImportError:
     if sysconf.get("log-level") == DEBUG:
         import traceback
         traceback.print_exc()
-    raise Error, _("'rpm' python module is not available")
+    raise Error(_("'rpm' python module is not available"))
 
 __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "RPMRequires", "RPMUpgrades", "RPMConflicts", "RPMObsoletes",
@@ -60,15 +60,15 @@ def getTS(new=False):
         if not os.path.isdir(dbdir):
             try:
                 os.makedirs(dbdir)
-            except (OSError), e:
-                raise Error, _("Could not create rpm-root at %s: %s") \
-                             % (dbdir, unicode(e))
+            except (OSError) as e:
+                raise Error(_("Could not create rpm-root at %s: %s") \
+                             % (dbdir, str(e)))
         if not os.path.isfile(os.path.join(dbdir, "Packages")):
             try:
                 getTS.ts.initDB()
             except (rpm.error, OSError):
-                raise Error, _("Couldn't initizalize rpm database at %s") \
-                             % getTS.root
+                raise Error(_("Couldn't initizalize rpm database at %s") \
+                             % getTS.root)
             else:
                 iface.warning(_("Initialized new rpm database at %s")
                               % getTS.root)

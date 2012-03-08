@@ -107,7 +107,7 @@ def fetch_urpmi_cfg(filename):
             config[-1][key.strip()] = value
             if key == "mirrorlist":
                 if mirrorscache:
-                    if mirrorscache.has_key(value):
+                    if value in mirrorscache:
                         value = mirrorscache[value]
                         # Make sure to find a mirror using a protocol that we
                         # actually handle...
@@ -140,7 +140,7 @@ def find_urpmi_password(url):
             while line:
                 netrc = {}
                 splitted = line.strip("\n").split(" ")
-                for i in xrange(0, len(splitted), 2):
+                for i in range(0, len(splitted), 2):
                     netrc[splitted[i]] = splitted[i+1]
                 if netrc["machine"] == machine and netrc["login"] == login:
                     url = "%s:%s@%s" % (url[:url.rfind("@")], netrc["password"], url[url.rfind("@")+1:])
@@ -148,7 +148,7 @@ def find_urpmi_password(url):
                 line = fp.readline()
 
             fp.close()
-        except IOError, e:
+        except IOError as e:
             pass
 
     return url
@@ -167,7 +167,7 @@ def _loadMediaList(filename):
         baseurl = None
         mirrorurl = None
         
-        if not media.has_key("url"): 
+        if "url" not in media: 
             continue
 
         def getMirrorListURL(mirrorurl):
@@ -189,23 +189,23 @@ def _loadMediaList(filename):
         hdlurl = None
         directory = None
         
-        if media.has_key("with_hdlist"):
+        if "with_hdlist" in media:
             hdlurl = media["with_hdlist"]
-        elif media.has_key("media_info_dir"):
+        elif "media_info_dir" in media:
             hdlurl = media["media_info_dir"] + "/synthesis.hdlist.cz"
         else:
-            if media.has_key("with-dir"):
+            if "with-dir" in media:
                 directory = media["with-dir"]
             hdlurl = "media_info/synthesis.hdlist.cz"
 
-        if media.has_key("mirrorlist"):
+        if "mirrorlist" in media:
             mirrorurl = getMirrorListURL(media["mirrorlist"])
 
         data = {"type": "urpmi",
                 "name": name,
                 "baseurl": baseurl,
                 "hdlurl": hdlurl,
-                "disabled": media.has_key("ignore"),
+                "disabled": "ignore" in media,
                 "removable": removable,
                 "priority": priority}
         if directory:
@@ -218,7 +218,7 @@ def _loadMediaList(filename):
         # See if creating a channel works.
         try:
             createChannel(alias, data)
-        except Error, e:
+        except Error as e:
             iface.error(_("While using %s: %s") % (file.name, e))
         else:
             # Store it persistently, without destroying existing setttings.

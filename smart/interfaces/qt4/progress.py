@@ -26,7 +26,7 @@ from smart import *
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import posixpath
-import thread
+import _thread
 import time
 import sys
 
@@ -143,7 +143,7 @@ class QtProgress(Progress, QtGui.QDialog):
             #self._listview.hideColumn(self._etacolumn) 
             pass
 
-        thread.start_new_thread(self.tick, ())
+        _thread.start_new_thread(self.tick, ())
 
     def stop(self):
         self._stopticking = True

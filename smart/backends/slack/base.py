@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.slack.pm import SlackPackageManager
-from slackver import checkdep, vercmp, splitrelease
+from .slackver import checkdep, vercmp, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
 import fnmatch

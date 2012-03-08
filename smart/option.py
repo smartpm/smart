@@ -96,7 +96,7 @@ class OptionParser(optparse.OptionParser):
         return result
 
     def error(self, msg):
-        raise Error, msg
+        raise Error(msg)
 
     def _process_args(self, largs, rargs, values):
         """_process_args(largs : [string],
@@ -158,7 +158,7 @@ class OptionParser(optparse.OptionParser):
                 # That's the reason to change this function. We must
                 # raise an error so that the argument is post-processed
                 # when using skipunknown.
-                raise optparse.BadOptionError, _("no such option: %s") % opt
+                raise optparse.BadOptionError(_("no such option: %s") % opt)
             if option.takes_value():
                 # Any characters left in arg?  Pretend they're the
                 # next arg, and stop consuming characters of arg.

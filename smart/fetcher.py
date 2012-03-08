@@ -28,9 +28,9 @@ from smart.const import *
 from smart import *
 import tempfile
 import socket
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import string
-import thread
+import _thread
 import time
 import os
 import re
@@ -66,7 +66,7 @@ class Fetcher(object):
         self._cancel = False
         self._speedupdated = 0
         self._activedownloads = 0
-        self._activedownloadslock = thread.allocate_lock()
+        self._activedownloadslock = _thread.allocate_lock()
         self._maxactivedownloads = 0
         self.time = 0
         self._eta = 0
@@ -82,18 +82,18 @@ class Fetcher(object):
         return self._items.get(url)
 
     def getItems(self):
-        return self._items.values()
+        return list(self._items.values())
 
     def getSucceededSet(self):
         set = {}
-        for item in self._items.values():
+        for item in list(self._items.values()):
             if item.getStatus() == SUCCEEDED:
                 set[item.getOriginalURL()] = item.getTargetPath()
         return set
 
     def getFailedSet(self):
         set = {}
-        for item in self._items.values():
+        for item in list(self._items.values()):
             if item.getStatus() == FAILED:
                 set[item.getOriginalURL()] = item.getFailedReason()
         return set
@@ -135,7 +135,7 @@ class Fetcher(object):
             scheme, selector = urllib.splittype(url)
             host, path = urllib.splithost(selector)
             path, query = urllib.splitquery(path)
-            path = urllib.unquote(path)
+            path = urllib.parse.unquote(path)
             filename = os.path.basename(path)
         if self._localpathprefix:
             filename = self._localpathprefix+filename
@@ -167,7 +167,7 @@ class Fetcher(object):
 
     def enqueue(self, url, **info):
         if url in self._items:
-            raise Error, _("%s is already in the queue") % url
+            raise Error(_("%s is already in the queue") % url)
         mirror = self._mirrorsystem.get(url)
         item = FetchItem(self, url, mirror)
         self._items[url] = item
@@ -178,7 +178,7 @@ class Fetcher(object):
         return item
 
     def runLocal(self):
-        for handler in self._handlers.values():
+        for handler in list(self._handlers.values()):
             handler.runLocal()
 
     def run(self, what=None, progress=None):
@@ -187,7 +187,7 @@ class Fetcher(object):
         thread_name = threading.currentThread().getName()
         if thread_name == "MainThread":
             def quitIntHandler(signal, frame):
-                print '\nInterrupted\n'
+                print('\nInterrupted\n')
                 sys.exit(0)
             old_quit_handler = signal.signal(signal.SIGQUIT, quitIntHandler)
             old_int_handler  = signal.signal(signal.SIGINT, quitIntHandler)
@@ -196,10 +196,10 @@ class Fetcher(object):
                                                MAXACTIVEDOWNLOADS)
         self._maxdownloadrate = sysconf.get("max-download-rate", 0)
         self.time = time.time()
-        handlers = self._handlers.values()
+        handlers = list(self._handlers.values())
         total = len(self._items)
         self.runLocal()
-        local = len([x for x in self._items.values()
+        local = len([x for x in list(self._items.values())
                      if x.getStatus() == SUCCEEDED])
         if local == total or self._caching is ALWAYS:
             if progress:
@@ -240,7 +240,7 @@ class Fetcher(object):
                         active.remove(handler)
                 # We won't wait for handlers which are not being nice.
                 if time.time() > cancelledtime+CANCELDELAY:
-                    for item in self._items.values():
+                    for item in list(self._items.values()):
                         if item.getStatus() != SUCCEEDED:
                             item.setCancelled()
                     # Remove handlers, since we don't know their state.
@@ -285,7 +285,7 @@ class Fetcher(object):
                 if (not self.hasStrongValidate(item, uncomp=True) or
                     not self.validate(item, uncomppath, uncomp=True)):
                     self._uncompressing += 1
-                    thread.start_new_thread(self._uncompress,
+                    _thread.start_new_thread(self._uncompress,
                                             (item, localpath, uncomphandler))
                 else:
                     item.setSucceeded(uncomppath)
@@ -299,13 +299,13 @@ class Fetcher(object):
             signal.signal(signal.SIGQUIT, old_quit_handler)
             signal.signal(signal.SIGINT, old_int_handler)
         if self._cancel:
-            raise FetcherCancelled, _("Cancelled")
+            raise FetcherCancelled(_("Cancelled"))
 
     def _uncompress(self, item, localpath, uncomphandler):
         try:
             uncomphandler.uncompress(localpath)
-        except Error, e:
-            item.setFailed(unicode(e))
+        except Error as e:
+            item.setFailed(str(e))
         else:
             uncomppath = uncomphandler.getTargetPath(localpath)
             valid, reason = self.validate(item, uncomppath,
@@ -342,7 +342,7 @@ class Fetcher(object):
         if not handler:
             klass = self._registry.get(scheme)
             if not klass:
-                raise Error, _("Unsupported scheme: %s") % scheme
+                raise Error(_("Unsupported scheme: %s") % scheme)
             handler = klass(self)
             self._handlers[scheme] = handler
         return handler
@@ -359,7 +359,7 @@ class Fetcher(object):
     def validate(self, item, localpath, withreason=False, uncomp=False):
         try:
             if not os.path.isfile(localpath):
-                raise Error, _("File not found for validation")
+                raise Error(_("File not found for validation"))
 
             if uncomp:
                 uncompprefix = "uncomp_"
@@ -380,8 +380,8 @@ class Fetcher(object):
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
-                    raise Error, _("Unexpected size (expected %d, got %d)") % \
-                                 (size, lsize)
+                    raise Error(_("Unexpected size (expected %d, got %d)") % \
+                                 (size, lsize))
 
             filemd5 = item.getInfo(uncompprefix+"md5")
             if filemd5:
@@ -397,8 +397,8 @@ class Fetcher(object):
                     data = file.read(BLOCKSIZE)
                 lfilemd5 = digest.hexdigest()
                 if lfilemd5 != filemd5:
-                    raise Error, _("Invalid MD5 (expected %s, got %s)") % \
-                                 (filemd5, lfilemd5)
+                    raise Error(_("Invalid MD5 (expected %s, got %s)") % \
+                                 (filemd5, lfilemd5))
 
             filesha256 = item.getInfo(uncompprefix+"sha256")
             if filesha256:
@@ -414,8 +414,8 @@ class Fetcher(object):
                     data = file.read(BLOCKSIZE)
                 lfilesha256 = digest.hexdigest()
                 if lfilesha256 != filesha256:
-                   raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
-                                 (filesha256, lfilesha256)
+                   raise Error(_("Invalid SHA256 (expected %s, got %s)") % \
+                                 (filesha256, lfilesha256))
             else:
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
@@ -431,9 +431,9 @@ class Fetcher(object):
                         data = file.read(BLOCKSIZE)
                     lfilesha = digest.hexdigest()
                     if lfilesha != filesha:
-                        raise Error, _("Invalid SHA (expected %s, got %s)") % \
-                                     (filesha, lfilesha)
-        except Error, reason:
+                        raise Error(_("Invalid SHA (expected %s, got %s)") % \
+                                     (filesha, lfilesha))
+        except Error as reason:
             if withreason:
                 return False, reason
             return False
@@ -634,7 +634,7 @@ class URL(object):
             rest = url
         else:
             if ":/" not in url:
-                raise Error, _("Invalid URL: %s") % url
+                raise Error(_("Invalid URL: %s") % url)
             self.scheme, rest = urllib.splittype(url)
         if self.scheme in Fetcher.getLocalSchemes():
             scheme = self.scheme
@@ -657,25 +657,25 @@ class URL(object):
         if self.host.startswith("[") and self.host.endswith("]"):
             self.host = self.host[1:-1]
         self.path, self.query = urllib.splitquery(rest)
-        self.user = self.user and urllib.unquote(self.user) or ""
-        self.passwd = self.passwd and urllib.unquote(self.passwd) or ""
-        self.path = urllib.unquote(self.path)
+        self.user = self.user and urllib.parse.unquote(self.user) or ""
+        self.passwd = self.passwd and urllib.parse.unquote(self.passwd) or ""
+        self.path = urllib.parse.unquote(self.path)
 
     def __str__(self):
         if self.scheme in Fetcher.getLocalSchemes():
-            return "%s://%s" % (self.scheme, urllib.quote(self.path))
+            return "%s://%s" % (self.scheme, urllib.parse.quote(self.path))
         url = self.scheme+"://"
         if self.user:
-            url += urllib.quote(self.user)
+            url += urllib.parse.quote(self.user)
             if self.passwd:
                 url += ":"
-                url += urllib.quote(self.passwd)
+                url += urllib.parse.quote(self.passwd)
             url += "@"
         url += self.host
         if self.port:
             url += ":%s" % self.port
         if self.path:
-            url += urllib.quote(self.path)
+            url += urllib.parse.quote(self.path)
         else:
             url += "/"
         if self.query:
@@ -847,12 +847,12 @@ class FileHandler(FetcherHandler):
             FetcherHandler.runLocal(self, caching=ALWAYS)
 
             if caching is not ALWAYS:
-                self._queue.extend(self._forcecopy.keys())
+                self._queue.extend(list(self._forcecopy.keys()))
 
     def tick(self):
         if self._queue and not self._active:
             self._active = True
-            thread.start_new_thread(self.copy, ())
+            _thread.start_new_thread(self.copy, ())
         return self._active
 
     def copy(self):
@@ -872,8 +872,8 @@ class FileHandler(FetcherHandler):
                         if not data:
                             break
                         output.write(data)
-                except (IOError, OSError), e:
-                    error = unicode(e)
+                except (IOError, OSError) as e:
+                    error = str(e)
                     retries += 1
                 else:
                     item.setSucceeded(localpath)
@@ -932,7 +932,7 @@ class FTPHandler(FetcherHandler):
         FetcherHandler.__init__(self, *args)
         self._active = {}   # ftp -> host
         self._inactive = {} # ftp -> (user, host, port)
-        self._lock = thread.allocate_lock()
+        self._lock = _thread.allocate_lock()
         self._activelimit = {} # host -> num
 
     def tick(self):
@@ -955,7 +955,7 @@ class FTPHandler(FetcherHandler):
                             if self._inactive[ftp] == userhost:
                                 del self._inactive[ftp]
                                 self._active[ftp] = url.host
-                                thread.start_new_thread(self.fetch, (ftp, item))
+                                _thread.start_new_thread(self.fetch, (ftp, item))
                                 break
                         else:
                             if len(self._inactive) > self.MAXINACTIVE:
@@ -963,7 +963,7 @@ class FTPHandler(FetcherHandler):
                             ftp = ftplib.FTP()
                             ftp.lasttime = self._fetcher.time
                             self._active[ftp] = url.host
-                            thread.start_new_thread(self.connect,
+                            _thread.start_new_thread(self.connect,
                                                     (ftp, item, len(hostactive)))
         self._lock.release()
         return bool(self._queue or self._active)
@@ -975,7 +975,7 @@ class FTPHandler(FetcherHandler):
         try:
             ftp.connect(url.host, url.port)
             ftp.login(url.user, url.passwd)
-        except (socket.error, ftplib.Error, EOFError), e:
+        except (socket.error, ftplib.Error, EOFError) as e:
             if (isinstance(e, ftplib.error_perm) or
                 isinstance(e, ftplib.error_temp)) and active:
                 item.reset()
@@ -985,9 +985,9 @@ class FTPHandler(FetcherHandler):
                 self._activelimit[item.getURL().host] = active
             else:
                 try:
-                    errmsg = unicode(e[1])
+                    errmsg = str(e[1])
                 except IndexError:
-                    errmsg = unicode(e)
+                    errmsg = str(e)
                 item.setFailed(errmsg)
             self._lock.acquire()
             del self._active[ftp]
@@ -1041,7 +1041,7 @@ class FTPHandler(FetcherHandler):
             else:
                 size = item.getInfo("size")
                 if size and size != total:
-                    raise Error, _("Server reports unexpected size")
+                    raise Error(_("Server reports unexpected size"))
 
             if (not mtime or not os.path.isfile(localpath) or
                 mtime != os.path.getmtime(localpath) or
@@ -1060,8 +1060,8 @@ class FTPHandler(FetcherHandler):
 
                 try:
                     local = open(localpathpart, openmode)
-                except (IOError, OSError), e:
-                    raise Error, "%s: %s" % (localpathpart, e)
+                except (IOError, OSError) as e:
+                    raise Error("%s: %s" % (localpathpart, e))
 
                 def write(data):
                     if self._cancel:
@@ -1095,7 +1095,7 @@ class FTPHandler(FetcherHandler):
                         self._queue.append(item)
                         self._lock.release()
                     else:
-                        raise Error, reason
+                        raise Error(reason)
                 else:
                     if total:
                         fetchedsize = total-(rest or 0)
@@ -1116,8 +1116,8 @@ class FTPHandler(FetcherHandler):
             self.changeActiveDownloads(-1)
             return
 
-        except (Error, IOError, OSError, ftplib.Error), e:
-            item.setFailed(unicode(e))
+        except (Error, IOError, OSError, ftplib.Error) as e:
+            item.setFailed(str(e))
 
         except FetcherCancelled:
             item.setCancelled()
@@ -1138,7 +1138,7 @@ class URLLIBHandler(FetcherHandler):
     def __init__(self, *args):
         FetcherHandler.__init__(self, *args)
         self._active = 0
-        self._lock = thread.allocate_lock()
+        self._lock = _thread.allocate_lock()
 
     def tick(self):
         self._lock.acquire()
@@ -1146,12 +1146,12 @@ class URLLIBHandler(FetcherHandler):
             while (self._active < self.MAXACTIVE and
                    self.changeActiveDownloads(+1)):
                 self._active += 1
-                thread.start_new_thread(self.fetch, ())
+                _thread.start_new_thread(self.fetch, ())
         self._lock.release()
         return bool(self._queue or self._active)
 
     def fetch(self):
-        import urllib, rfc822, calendar
+        import urllib.request, urllib.parse, urllib.error, rfc822, calendar
         from time import time, sleep
 
         class Opener(urllib.FancyURLopener):
@@ -1250,12 +1250,12 @@ class URLLIBHandler(FetcherHandler):
                     openmode = "w"
 
                 if size and total and size != total:
-                    raise Error, _("Server reports unexpected size")
+                    raise Error(_("Server reports unexpected size"))
 
                 try:
                     local = open(localpathpart, openmode)
-                except (IOError, OSError), e:
-                    raise IOError, "%s: %s" % (localpathpart, e)
+                except (IOError, OSError) as e:
+                    raise IOError("%s: %s" % (localpathpart, e))
 
                 rate_limit = self._fetcher._maxdownloadrate
                 if rate_limit:
@@ -1295,7 +1295,7 @@ class URLLIBHandler(FetcherHandler):
                         self._queue.append(item)
                         self._lock.release()
                     else:
-                        raise Error, reason
+                        raise Error(reason)
                 else:
                     if total:
                         fetchedsize = total-partsize
@@ -1312,7 +1312,7 @@ class URLLIBHandler(FetcherHandler):
                             mtime = calendar.timegm(mtimet)
                             os.utime(localpath, (mtime, mtime))
 
-            except urllib.addinfourl, remote:
+            except urllib.addinfourl as remote:
                 if remote.errcode == 304: # Not modified
                     item.setSucceeded(localpath)
                 elif remote.errcode == 404:
@@ -1321,11 +1321,11 @@ class URLLIBHandler(FetcherHandler):
                 else:
                     item.setFailed(remote.errmsg)
 
-            except (IOError, OSError, Error, socket.error), e:
+            except (IOError, OSError, Error, socket.error) as e:
                 try:
-                    errmsg = unicode(e[1])
+                    errmsg = str(e[1])
                 except IndexError:
-                    errmsg = unicode(e)
+                    errmsg = str(e)
                 item.setFailed(errmsg)
 
             except FetcherCancelled:
@@ -1525,14 +1525,14 @@ class PyCurlHandler(FetcherHandler):
         self._activelimit = {} # host -> num
         self._running = False
         self._multi = pycurl.CurlMulti()
-        self._lock = thread.allocate_lock()
+        self._lock = _thread.allocate_lock()
 
     def tick(self):
         import pycurl
 
         if not self._running and (self._queue or self._active):
             self._running = True
-            thread.start_new_thread(self.perform, ())
+            _thread.start_new_thread(self.perform, ())
 
         fetcher = self._fetcher
         multi = self._multi
@@ -1678,14 +1678,14 @@ class PyCurlHandler(FetcherHandler):
                         if partsize:
                             openmode = "a"
                             handle.setopt(pycurl.RESUME_FROM_LARGE,
-                                          long(partsize))
+                                          int(partsize))
                         else:
                             openmode = "w"
-                            handle.setopt(pycurl.RESUME_FROM_LARGE, 0L)
+                            handle.setopt(pycurl.RESUME_FROM_LARGE, 0)
 
                         try:
                             local = open(localpathpart, openmode)
-                        except (IOError, OSError), e:
+                        except (IOError, OSError) as e:
                             item.setFailed("%s: %s" % (localpathpart, e))
                             del self._active[handle]
                             self.changeActiveDownloads(-1)
@@ -1784,7 +1784,7 @@ class SCPHandler(FetcherHandler):
     def __init__(self, *args):
         FetcherHandler.__init__(self, *args)
         self._active = [] # item
-        self._lock = thread.allocate_lock()
+        self._lock = _thread.allocate_lock()
 
     def tick(self):
         import ftplib
@@ -1802,7 +1802,7 @@ class SCPHandler(FetcherHandler):
                         self._active.append(item)
                         item.total = None
                         item.localpath = None
-                        thread.start_new_thread(self.fetch, (item,))
+                        _thread.start_new_thread(self.fetch, (item,))
         prog = iface.getSubProgress(self._fetcher)
         for item in self._active:
             if item.total and item.localpath:
@@ -1862,7 +1862,7 @@ class SCPHandler(FetcherHandler):
                         total = size
                 else:
                     if size and size != total:
-                        raise Error, _("Server reports unexpected size")
+                        raise Error(_("Server reports unexpected size"))
             elif size:
                 total = size
 
@@ -1878,7 +1878,7 @@ class SCPHandler(FetcherHandler):
 
                 status, output = ssh.rscp(url.path, item.localpath)
                 if status != 0:
-                    raise Error, output
+                    raise Error(output)
 
                 os.rename(item.localpath, localpath)
 
@@ -1890,10 +1890,10 @@ class SCPHandler(FetcherHandler):
                 valid, reason = fetcher.validate(item, localpath,
                                                  withreason=True)
                 if not valid:
-                    raise Error, reason
+                    raise Error(reason)
 
-        except (Error, IOError, OSError), e:
-            item.setFailed(unicode(e))
+        except (Error, IOError, OSError) as e:
+            item.setFailed(str(e))
         else:
             item.setSucceeded(localpath, fetchedsize)
 

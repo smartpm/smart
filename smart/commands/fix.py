@@ -95,11 +95,11 @@ def main(ctrl, opts):
                             dct[obj] = True
                         else:
                             dct.update(dict.fromkeys(obj.packages, True))
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
 
             dct = {}
             for obj in results:
@@ -108,7 +108,7 @@ def main(ctrl, opts):
                 else:
                     dct.update(dict.fromkeys(obj.packages, True))
             pkgs.update(dct)
-        pkgs = pkgs.keys()
+        pkgs = list(pkgs.keys())
     else:
         pkgs = cache.getPackages()
     for pkg in pkgs:

@@ -193,7 +193,7 @@ class RPMUpdateInfo:
         if sysconf.getReadOnly():
             return
 
-        for pkg, type in self._flagdict.iteritems():
+        for pkg, type in self._flagdict.items():
             (name, version) = pkg.split("=")
             pkgconf.setFlag(type, name, "=", version)
 

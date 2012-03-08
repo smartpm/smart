@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from io import StringIO
 import unittest
 
 from smart.backends.deb.loader import DebTagLoader, DEBARCH, TagFile
@@ -93,6 +93,6 @@ class DebLoaderTest(unittest.TestCase):
         info = self.loader.getInfo(packages[0])
         try:
             self.assertEquals(info.getInstalledSize(), None)
-        except ValueError, e:
+        except ValueError as e:
             self.fail(e)
 

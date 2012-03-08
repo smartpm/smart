@@ -90,7 +90,7 @@ def main(ctrl, opts, reloadchannels=True):
         pass
     else:
         iface.hideStatus()
-        upgrades = [pkg for (pkg, op) in changeset.items() if op == INSTALL]
+        upgrades = [pkg for (pkg, op) in list(changeset.items()) if op == INSTALL]
         upgrades.sort()
         report = []
         for pkg in upgrades:
@@ -159,9 +159,9 @@ def main(ctrl, opts, reloadchannels=True):
 
         maskline = ' | '.join(mask)
 
-        print maskline % tuple(report[0])
-        print '-+-'.join(mask) % tuple(line)
+        print(maskline % tuple(report[0]))
+        print('-+-'.join(mask) % tuple(line))
         for entry in report[1:]:
-            print maskline % tuple(entry)
+            print(maskline % tuple(entry))
 
 # vim:ts=4:sw=4:et

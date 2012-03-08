@@ -1,6 +1,6 @@
 import os
 
-from mocker import MockerTestCase
+from .mocker import MockerTestCase
 
 from smart.backends.arch.base import ArchPackage, Package, Provides
 from smart.backends.arch.archver import splitarch, splitrelease

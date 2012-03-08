@@ -22,7 +22,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.arch.pm import ArchPackageManager
-from archver import checkdep, vercmp, splitrelease
+from .archver import checkdep, vercmp, splitrelease
 from smart.util.strtools import isGlob
 from smart.cache import *
 import fnmatch

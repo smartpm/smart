@@ -174,9 +174,9 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                     refailed = reconfigitem.getFailedReason()
                     if fetcher.getCaching() is NEVER:
                         lines = [_("Failed acquiring information for '%s':") % self,
-                            u"%s: %s" % (hdlitem.getURL(), hdfailed),
-                            u"%s: %s" % (reconfigitem.getURL(), refailed)]
-                        raise Error, "\n".join(lines)
+                            "%s: %s" % (hdlitem.getURL(), hdfailed),
+                            "%s: %s" % (reconfigitem.getURL(), refailed)]
+                        raise Error("\n".join(lines))
                     return False
                 else:
                     # Need to inject "/" at the end to avoid buggy urls
@@ -227,7 +227,7 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                     uncomphandler = uncompressor.getHandler(linkpath)
                     try:
                         uncomphandler.uncompress(linkpath)
-                    except Error, e:
+                    except Error as e:
                         # cz file has trailing information which breaks
                         # current gzip module logic.
                         if "Not a gzipped file" not in e[0]:
@@ -239,8 +239,8 @@ class URPMIChannel(PackageChannel, MirrorsChannel):
                 infopath = infoitem.getTargetPath()
             elif infoitem and infoitem.getStatus() == FAILED:
                 lines = [_("Failed acquiring information for '%s':") % self,
-                    u"%s: %s" % (infoitem.getURL(), infoitem.getFailedReason())]
-                raise Warning, "\n".join(lines)
+                    "%s: %s" % (infoitem.getURL(), infoitem.getFailedReason())]
+                raise Warning("\n".join(lines))
 
             flagdict = {}
             if descitem and descitem.getStatus() == SUCCEEDED:

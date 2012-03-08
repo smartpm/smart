@@ -172,18 +172,18 @@ def main(ctrl, opts, reloadchannels=True):
                             dct[obj] = True
                         else:
                             dct.update(dct.fromkeys(obj.packages, True))
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
             else:
                 for obj in results:
                     if isinstance(obj, Package):
                         packages[obj] = True
                     else:
                         packages.update(dict.fromkeys(obj.packages, True))
-        packages = packages.keys()
+        packages = list(packages.keys())
 
     if opts.installed or opts.dupes or opts.leaves or opts.orphans:
         packages = [pkg for pkg in packages if pkg.installed]
@@ -312,7 +312,7 @@ def main(ctrl, opts, reloadchannels=True):
                     for pkg in cnf.packages:
                         if pkg in packages:
                             newpackages[pkg] = True
-        packages = newpackages.keys()
+        packages = list(newpackages.keys())
 
     def sh2re(pattern, stripeol=True, joinspace=True):
         """ Convert the shell-style pattern to a regular expression. """
@@ -361,7 +361,7 @@ def main(ctrl, opts, reloadchannels=True):
                     if pattern.search(pkg.name):
                         newpackages[pkg] = True
             if needsinfo:
-                info = pkg.loaders.keys()[0].getInfo(pkg)
+                info = list(pkg.loaders.keys())[0].getInfo(pkg)
                 if hasgroup:
                     for pattern in hasgroup:
                         if pattern.search(info.getGroup()):
@@ -394,7 +394,7 @@ def main(ctrl, opts, reloadchannels=True):
                         del newpackages[pkg]
                         break
         
-        packages = newpackages.keys()
+        packages = list(newpackages.keys())
 
     if haschannel:
         newpackages = {}
@@ -403,7 +403,7 @@ def main(ctrl, opts, reloadchannels=True):
                 alias = loader.getChannel().getAlias()
                 if alias in haschannel:
                     newpackages[pkg] = True
-        packages = newpackages.keys()
+        packages = list(newpackages.keys())
 
     if hasflag:
         newpackages = {}
@@ -411,15 +411,15 @@ def main(ctrl, opts, reloadchannels=True):
             for flag in hasflag:
                 if pkgconf.testFlag(flag, pkg):
                     newpackages[pkg] = True
-        packages = newpackages.keys()
+        packages = list(newpackages.keys())
 
     format = opts.format.lower()+"output"
-    for attr, value in globals().items():
+    for attr, value in list(globals().items()):
         if attr.lower() == format:
             output = value(opts)
             break
     else:
-        raise Error, "Output format unknown"
+        raise Error("Output format unknown")
 
     output.setPackageCount(len(packages))
     output.startGrabOutput()
@@ -610,7 +610,7 @@ class NullOutput(object):
 class TextOutput(NullOutput):
 
     def end(self):
-        print
+        print()
 
     def showPackage(self, pkg):
         self._firstprovides = True
@@ -625,7 +625,7 @@ class TextOutput(NullOutput):
         self._firstconflictsprovidedby = True
 
         if self.opts.show_format:
-            info = pkg.loaders.keys()[0].getInfo(pkg)
+            info = list(pkg.loaders.keys())[0].getInfo(pkg)
             tags = dict(name=pkg.name, version=pkg.version,
                         group=info.getGroup(), summary=info.getSummary())
             fmt = self.opts.show_format.safe_substitute(tags)
@@ -633,21 +633,21 @@ class TextOutput(NullOutput):
             sys.stdout.write(fmt)
             return
         if self.opts.hide_version:
-            print pkg.name,
+            print(pkg.name, end=' ')
         else:
-            print pkg,
+            print(pkg, end=' ')
         if self.opts.show_priority:
-            print "{%s}" % pkg.getPriority(),
+            print("{%s}" % pkg.getPriority(), end=' ')
         if self.opts.show_channels:
             channels = []
             for loader in pkg.loaders:
                 channels.append(loader.getChannel().getAlias())
             channels.sort()
-            print "[%s]" % ', '.join(channels),
+            print("[%s]" % ', '.join(channels), end=' ')
         if self.opts.show_summary:
-            info = pkg.loaders.keys()[0].getInfo(pkg)
-            print "-", info.getSummary(),
-        print
+            info = list(pkg.loaders.keys())[0].getInfo(pkg)
+            print("-", info.getSummary(), end=' ')
+        print()
 
     def showProvides(self, pkg, prv):
         self._firstrequiredby = True
@@ -655,171 +655,171 @@ class TextOutput(NullOutput):
         self._firstconflictedby = True
         if self._firstprovides:
             self._firstprovides = False
-            print " ", _("Provides:")
-        print "   ", prv
+            print(" ", _("Provides:"))
+        print("   ", prv)
 
     def showRequiredBy(self, pkg, prv, req, reqpkg):
         if self._firstrequiredby:
             self._firstrequiredby = False
-            print "     ", _("Required By:")
+            print("     ", _("Required By:"))
         if isinstance(req, PreRequires):
-            print "       ", "%s (%s) [%s]" % \
-                  (reqpkg, prv, _("pre"))
+            print("       ", "%s (%s) [%s]" % \
+                  (reqpkg, prv, _("pre")))
         else:
             if self.opts.hide_version:
                 name = reqpkg.name
             else:
                 name = str(reqpkg)
-            print "       ", "%s (%s)" % (name, prv)
+            print("       ", "%s (%s)" % (name, prv))
 
     def showUpgradedBy(self, pkg, prv, upg, upgpkg):
         if self._firstupgradedby:
             self._firstupgradedby = False
-            print "     ", _("Upgraded By:")
+            print("     ", _("Upgraded By:"))
         if self.opts.hide_version:
             name = upgpkg.name
         else:
             name = str(upgpkg)
-        print "       ", "%s (%s)" % (name, prv)
+        print("       ", "%s (%s)" % (name, prv))
 
     def showConflictedBy(self, pkg, prv, cnf, cnfpkg):
         if self._firstconflictedby:
             self._firstconflictedby = False
-            print "     ", _("Conflicted By:")
+            print("     ", _("Conflicted By:"))
         if self.opts.hide_version:
             name = cnfpkg.name
         else:
             name = str(cnfpkg)
-        print "       ", "%s (%s)" % (name, prv)
+        print("       ", "%s (%s)" % (name, prv))
 
     def showRequires(self, pkg, req):
         if self._firstrequires:
             self._firstrequires = False
-            print " ", _("Requires:")
+            print(" ", _("Requires:"))
         if isinstance(req, PreRequires):
-            print "   ", req, "[%s]" % _("pre")
+            print("   ", req, "[%s]" % _("pre"))
         else:
-            print "   ", req
+            print("   ", req)
 
     def showRequiresProvidedBy(self, pkg, req, prv, prvpkg):
         if self._firstrequiresprovidedby:
             self._firstrequiresprovidedby = False
-            print "     ", _("Provided By:")
+            print("     ", _("Provided By:"))
         if self.opts.hide_version:
             name = prvpkg.name
         else:
             name = str(prvpkg)
-        print "       ", "%s (%s)" % (name, prv)
+        print("       ", "%s (%s)" % (name, prv))
 
     def showUpgrades(self, pkg, upg):
         if self._firstupgrades:
             self._firstupgrades = False
-            print " ", _("Upgrades:")
-        print "   ", upg
+            print(" ", _("Upgrades:"))
+        print("   ", upg)
 
     def showUpgradesProvidedBy(self, pkg, upg, prv, prvpkg):
         if self._firstupgradesprovidedby:
             self._firstupgradesprovidedby = False
-            print "     ", _("Provided By:")
+            print("     ", _("Provided By:"))
         if self.opts.hide_version:
             name = prvpkg.name
         else:
             name = str(prvpkg)
-        print "       ", "%s (%s)" % (name, prv)
+        print("       ", "%s (%s)" % (name, prv))
 
     def showConflicts(self, pkg, cnf):
         if self._firstconflicts:
             self._firstconflicts = False
-            print " ", _("Conflicts:")
-        print "   ", cnf
+            print(" ", _("Conflicts:"))
+        print("   ", cnf)
 
     def showConflictsProvidedBy(self, pkg, cnf, prv, prvpkg):
         if self._firstconflictsprovidedby:
             self._firstconflictsprovidedby = False
-            print "     ", _("Provided By:")
+            print("     ", _("Provided By:"))
         if self.opts.hide_version:
             name = prvpkg.name
         else:
             name = str(prvpkg)
-        print "       ", "%s (%s)" % (name, prv)
+        print("       ", "%s (%s)" % (name, prv))
 
 
 class GraphVizOutput(NullOutput):
 
     def start(self):
         self._shown = {}
-        print "digraph Packages {"
+        print("digraph Packages {")
         #print "    rankdir=LR;"
 
     def end(self):
-        print "}"
+        print("}")
 
     def showPackage(self, pkg):
         if pkg not in self._shown:
             self._shown[pkg] = True
-            print '    "%s" [ shape=box, style=filled, fillcolor=yellow ];'%pkg
+            print('    "%s" [ shape=box, style=filled, fillcolor=yellow ];'%pkg)
 
     def showProvides(self, pkg, prv):
         if (pkg, prv) not in self._shown:
             self._shown[pkg, prv] = True
-            print '    "Provides: %s" -> "%s";' % (prv, pkg)
+            print('    "Provides: %s" -> "%s";' % (prv, pkg))
 
     def showRequiredBy(self, pkg, prv, req, reqpkg):
         self.showPackage(reqpkg)
         self.showRequires(reqpkg, req)
         if (req, prv) not in self._shown:
             self._shown[req, prv] = True
-            print '    "Requires: %s" -> "Provides: %s";' % (req, prv)
+            print('    "Requires: %s" -> "Provides: %s";' % (req, prv))
 
     def showUpgradedBy(self, pkg, prv, upg, upgpkg):
         self.showPackage(upgpkg)
         self.showUpgrades(upgpkg, upg)
         if (upg, prv) not in self._shown:
             self._shown[upg, prv] = True
-            print '    "Upgrades: %s" -> "Provides: %s";' % (upg, prv)
+            print('    "Upgrades: %s" -> "Provides: %s";' % (upg, prv))
 
     def showConflictedBy(self, pkg, prv, cnf, cnfpkg):
         self.showPackage(cnfpkg)
         self.showConflicts(cnfpkg, cnf)
         if (cnf, prv) not in self._shown:
             self._shown[cnf, prv] = True
-            print '    "Conflicts: %s" -> "Provides: %s";' % (cnf, prv)
+            print('    "Conflicts: %s" -> "Provides: %s";' % (cnf, prv))
 
     def showRequires(self, pkg, req):
         if (pkg, req) not in self._shown:
             self._shown[pkg, req] = True
-            print '    "%s" -> "Requires: %s";' % (pkg, req)
+            print('    "%s" -> "Requires: %s";' % (pkg, req))
 
     def showRequiresProvidedBy(self, pkg, req, prv, prvpkg):
         self.showPackage(prvpkg)
         self.showProvides(prvpkg, prv)
         if (req, prv) not in self._shown:
             self._shown[req, prv] = True
-            print '    "Requires: %s" -> "Provides: %s";' % (req, prv)
+            print('    "Requires: %s" -> "Provides: %s";' % (req, prv))
 
     def showUpgrades(self, pkg, upg):
         if (pkg, upg) not in self._shown:
             self._shown[pkg, upg] = True
-            print '    "%s" -> "Upgrades: %s";' % (pkg, upg)
+            print('    "%s" -> "Upgrades: %s";' % (pkg, upg))
 
     def showUpgradesProvidedBy(self, pkg, upg, prv, prvpkg):
         self.showPackage(prvpkg)
         self.showProvides(prvpkg, prv)
         if (upg, prv) not in self._shown:
             self._shown[upg, prv] = True
-            print '    "Upgrades: %s" -> "Provides: %s";' % (upg, prv)
+            print('    "Upgrades: %s" -> "Provides: %s";' % (upg, prv))
 
     def showConflicts(self, pkg, cnf):
         if (pkg, cnf) not in self._shown:
             self._shown[pkg, cnf] = True
-            print '    "%s" -> "Conflicts: %s";' % (pkg, cnf)
+            print('    "%s" -> "Conflicts: %s";' % (pkg, cnf))
 
     def showConflictsProvidedBy(self, pkg, cnf, prv, prvpkg):
         self.showPackage(prvpkg)
         self.showProvides(prvpkg, prv)
         if (cnf, prv) not in self._shown:
             self._shown[cnf, prv] = True
-            print '    "Conflicts: %s" -> "Provides: %s";' % (cnf, prv)
+            print('    "Conflicts: %s" -> "Provides: %s";' % (cnf, prv))
 
 DotOutput = GraphVizOutput
 
@@ -855,12 +855,12 @@ class PrologOutput(NullOutput):
         self._firstrequiredby = True
 
     def end(self):
-        facts = self._facts.keys()
+        facts = list(self._facts.keys())
         self._facts.clear()
         facts.sort()
         for fact in facts:
-            print fact
-        print
+            print(fact)
+        print()
     
     def showPackage(self, pkg):
         self.add("package('%s')." % pkg)

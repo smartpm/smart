@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-import thread
+import _thread
 import time
 import sys
 
@@ -37,7 +37,7 @@ class Progress(object):
         self.__sublastshown = {}
         self.__subdone = {}
         self.__lasttime = 0
-        self.__lock = thread.allocate_lock()
+        self.__lock = _thread.allocate_lock()
         self.__hassub = False
 
     def lock(self):
@@ -79,7 +79,7 @@ class Progress(object):
             self.__lasttime = now
             current, total, data = self.__progress
             subexpose = []
-            for subkey in self.__subprogress.keys():
+            for subkey in list(self.__subprogress.keys()):
                 sub = self.__subprogress[subkey]
                 subcurrent, subtotal, fragment, subdata = sub
                 subpercent = int(100*float(subcurrent)/(subtotal or 1))

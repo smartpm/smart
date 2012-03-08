@@ -59,7 +59,7 @@ class TextProgress(Progress):
     def stop(self):
         Progress.stop(self)
         self._shorturl.reset()
-        print
+        print()
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
         out = sys.stdout
@@ -70,10 +70,10 @@ class TextProgress(Progress):
                 self._lasttopic = topic
                 out.write(" "*(self._screenwidth-1)+"\r")
                 if self._addline:
-                    print
+                    print()
                 else:
                     self._addline = True
-                print topic
+                print(topic)
             if not subkey:
                 return
             if not done:
@@ -96,7 +96,7 @@ class TextProgress(Progress):
                 if topic not in self._seentopics:
                     self._seentopics[topic] = True
                     out.write(" "*(self._screenwidth-1)+"\r")
-                    print "->", self._shorturl.get(topic)
+                    print("->", self._shorturl.get(topic))
                 topic = posixpath.basename(topic)
         else:
             current = percent

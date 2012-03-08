@@ -2,7 +2,7 @@ import os
 
 import rpm
 
-from mocker import MockerTestCase
+from .mocker import MockerTestCase
 
 from smart.backends.rpm.base import RPMPackage, Package, Requires, Provides, \
                                     getTS, collapse_libc_requires

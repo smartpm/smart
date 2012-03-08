@@ -25,7 +25,7 @@ from smart.util.filetools import getFileDigest
 from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart import *
-from urlparse import urlparse
+from urllib.parse import urlparse
 import posixpath
 
 class ArchSiteChannel(PackageChannel):
@@ -76,8 +76,8 @@ class ArchSiteChannel(PackageChannel):
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
-                     u"%s: %s" % (item.getURL(), item.getFailedReason())]
-            raise Error, "\n".join(lines)
+                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            raise Error("\n".join(lines))
         else:
             return False
 

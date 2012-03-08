@@ -76,7 +76,7 @@ class MirrorSystem(object):
                 for mirror in self._mirrors[origin]:
                     elements[mirror] = MirrorElement(self, origin, mirror)
         if elements:
-            elements = elements.values()
+            elements = list(elements.values())
         else:
             elements = [MirrorElement(self, "", "")]
         return MirrorItem(self, url, elements)

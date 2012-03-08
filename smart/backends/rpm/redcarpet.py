@@ -264,9 +264,9 @@ class XMLParser(object):
                            (RPMProvides, x[1], x[3]) in self._prvdict or
                            system_provides.match(*x))]
         reqargs = collapse_libc_requires(reqargs)
-        prvargs = self._prvdict.keys()
-        cnfargs = self._cnfdict.keys()
-        upgargs = self._upgdict.keys()
+        prvargs = list(self._prvdict.keys())
+        cnfargs = list(self._cnfdict.keys())
+        upgargs = list(self._upgdict.keys())
 
         for i in range(len(prvargs)):
             tup = prvargs[i]
@@ -279,7 +279,7 @@ class XMLParser(object):
         pkg.loaders[self._loader] = self._info
 
         self._loader._fileprovides.setdefault(pkg, []) \
-                                  .extend(self._filedict.keys())
+                                  .extend(list(self._filedict.keys()))
 
         self.resetPackage()
 
@@ -306,9 +306,9 @@ class XMLParser(object):
         self._file = open(self._loader._filename)
         try:
             parser.ParseFile(open(self._loader._filename))
-        except expat.ExpatError, e:
+        except expat.ExpatError as e:
             iface.error(_("Error parsing %s: %s") %
-                        (self._loader._filename, unicode(e)))
+                        (self._loader._filename, str(e)))
         self.updateProgress()
         self._file.close()
 

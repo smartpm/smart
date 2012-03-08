@@ -64,7 +64,7 @@ def detectLocalChannels(path, media):
                 entry = entry[12:]
                 for component in entry.strip().split(" "):
                     components[component] = True
-        for component in components.keys():
+        for component in list(components.keys()):
             if not os.path.isdir(os.path.join(distpath, component)):
                 del components[component]
         if components:
@@ -74,7 +74,7 @@ def detectLocalChannels(path, media):
             else:
                 baseurl = "file://"
                 baseurl += path
-            components = " ".join(components.keys())
+            components = " ".join(list(components.keys()))
             channel = {"baseurl": baseurl, "components": components}
             if dist:
                 channel["distribution"] = dist

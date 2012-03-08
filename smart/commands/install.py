@@ -91,10 +91,10 @@ def main(ctrl, opts):
         succ, fail = ctrl.downloadURLs(urls, _("packages"),
                                        targetdir=os.getcwd())
         if fail:
-            raise Error, _("Failed to download packages:\n") + \
+            raise Error(_("Failed to download packages:\n") + \
                          "\n".join(["    %s: %s" % (url, fail[url])
-                                    for url in fail])
-        for url, file in succ.items():
+                                    for url in fail]))
+        for url, file in list(succ.items()):
             ctrl.addFileChannel(file)
             opts.args.remove(url)
     if sysconf.get("auto-update"):
@@ -109,7 +109,7 @@ def main(ctrl, opts):
         for loader in channel.getLoaders():
             for pkg in loader.getPackages():
                 if pkg.installed:
-                    raise Error, _("%s is already installed") % pkg
+                    raise Error(_("%s is already installed") % pkg)
                 trans.enqueue(pkg, INSTALL)
 
 
@@ -125,11 +125,11 @@ def main(ctrl, opts):
                         dct[obj] = True
                     else:
                         dct.update(dict.fromkeys(obj.packages, True))
-                raise Error, _("'%s' matches no packages. "
+                raise Error(_("'%s' matches no packages. "
                                "Suggestions:\n%s") % \
-                             (arg, "\n".join(["    "+str(x) for x in dct]))
+                             (arg, "\n".join(["    "+str(x) for x in dct])))
             else:
-                raise Error, _("'%s' matches no packages") % arg
+                raise Error(_("'%s' matches no packages") % arg)
 
         pkgs = []
 
@@ -163,8 +163,8 @@ def main(ctrl, opts):
                     names.pop(pkg.name)
                     pkgs.remove(pkg)
             if len(names) > 1:
-                raise Error, _("There are multiple matches for '%s':\n%s") % \
-                              (arg, "\n".join(["    "+str(x) for x in pkgs]))
+                raise Error(_("There are multiple matches for '%s':\n%s") % \
+                              (arg, "\n".join(["    "+str(x) for x in pkgs])))
 
         if len(pkgs) > 1:
             sortUpgrades(pkgs)

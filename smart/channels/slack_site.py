@@ -25,7 +25,7 @@ from smart.channel import PackageChannel
 from smart.const import SUCCEEDED, FAILED, NEVER
 from smart import *
 import posixpath
-import commands
+import subprocess
 
 class SlackSiteChannel(PackageChannel):
 
@@ -86,7 +86,7 @@ class SlackSiteChannel(PackageChannel):
             if self._fingerprint:
                 if gpgitem.getStatus() is SUCCEEDED:
                     try:
-                        status, output = commands.getstatusoutput(
+                        status, output = subprocess.getstatusoutput(
                             "gpg --batch --no-secmem-warning --status-fd 1 "
                             "--verify %s %s" % (gpgitem.getTargetPath(),
                                                 item.getTargetPath()))
@@ -105,11 +105,11 @@ class SlackSiteChannel(PackageChannel):
                                 elif first == "BADSIG":
                                     badsig = True
                         if badsig:
-                            raise Error, _("Channel '%s' has bad signature") % self
+                            raise Error(_("Channel '%s' has bad signature") % self)
                         if not goodsig or validsig != self._fingerprint:
-                            raise Error, _("Channel '%s' signed with unknown key") \
-                                         % self
-                    except Error, e:
+                            raise Error(_("Channel '%s' signed with unknown key") \
+                                         % self)
+                    except Error as e:
                         progress.add(self.getFetchSteps()-2)
                         progress.show()
                         if fetcher.getCaching() is NEVER:
@@ -122,8 +122,8 @@ class SlackSiteChannel(PackageChannel):
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
-                     u"%s: %s" % (item.getURL(), item.getFailedReason())]
-            raise Error, "\n".join(lines)
+                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            raise Error("\n".join(lines))
         else:
             return False
 

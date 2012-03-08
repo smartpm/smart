@@ -38,7 +38,7 @@ class BackgroundScrollView(qt.QScrollView):
 
     def drawContents(self, *args):
         if len(args)==1:
-            return apply(qt.QFrame.drawContents, (self,)+args)
+            return qt.QFrame.drawContents(*(self,)+args)
         else:
             painter, clipx, clipy, clipw, cliph = args
         color = self.eraseColor()
@@ -103,7 +103,7 @@ class QtLog(qt.QDialog):
         prefix = {ERROR: _("error"), WARNING: _("warning"),
                   DEBUG: _("debug")}.get(level)
         buffer = self._textview.text()
-        if not isinstance(msg, unicode):
+        if not isinstance(msg, str):
             msg = msg.decode(ENCODING)
         if prefix:
             for line in msg.split("\n"):

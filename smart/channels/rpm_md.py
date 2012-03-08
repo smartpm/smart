@@ -35,7 +35,7 @@ from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel, MirrorsChannel
 from smart import *
 import posixpath
-import commands
+import subprocess
 import os
 
 from xml.parsers import expat
@@ -81,9 +81,9 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
         try:
             root = ElementTree.parse(metalinkfile).getroot()
-        except (expat.error, SyntaxError), e: # ElementTree.ParseError
+        except (expat.error, SyntaxError) as e: # ElementTree.ParseError
             iface.warning(_("Could not load meta link. Continuing with base URL only."))
-            iface.debug(unicode(e))
+            iface.debug(str(e))
             return
 
         filename = None
@@ -117,9 +117,9 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
         try:
             file = open(mirrorlistfile, 'r')
-        except IOError, e:
+        except IOError as e:
             iface.warning(_("Could not load mirror list. Continuing with base URL only."))
-            iface.debug(unicode(e))
+            iface.debug(str(e))
             return
 
         for line in file:
@@ -139,9 +139,9 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
 
         try:
             root = ElementTree.parse(metadatafile).getroot()
-        except (expat.error, SyntaxError), e: # ElementTree.ParseError
-            raise Error, _("Invalid XML file:\n  %s\n  %s") % \
-                          (metadatafile, str(e))
+        except (expat.error, SyntaxError) as e: # ElementTree.ParseError
+            raise Error(_("Invalid XML file:\n  %s\n  %s") % \
+                          (metadatafile, str(e)))
 
         for node in root.getchildren():
             if node.tag != DATA:
@@ -206,17 +206,16 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             progress.add(self.getFetchSteps()-1)
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring release file for '%s':") % self,
-                         u"%s: %s" % (item.getURL(), item.getFailedReason())]
-                raise Error, "\n".join(lines)
+                         "%s: %s" % (item.getURL(), item.getFailedReason())]
+                raise Error("\n".join(lines))
             return False
 
         if self._fingerprint:
             if gpgitem.getStatus() is FAILED:
-                raise Error, \
-                      _("Download of repomd.xml.asc failed for secure "
-                        "channel '%s': %s") % (self, gpgitem.getFailedReason())
+                raise Error(_("Download of repomd.xml.asc failed for secure "
+                        "channel '%s': %s") % (self, gpgitem.getFailedReason()))
 
-            status, output = commands.getstatusoutput(
+            status, output = subprocess.getstatusoutput(
                 "gpg --batch --no-secmem-warning --status-fd 1 --verify "
                 "%s %s" % (gpgitem.getTargetPath(), item.getTargetPath()))
 
@@ -234,10 +233,10 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
                     elif first == "BADSIG":
                         badsig = True
             if badsig:
-                raise Error, _("Channel '%s' has bad signature") % self
+                raise Error(_("Channel '%s' has bad signature") % self)
             if (not goodsig or
                 (self._fingerprint and validsig != self._fingerprint)):
-                raise Error, _("Channel '%s' signed with unknown key") % self
+                raise Error(_("Channel '%s' signed with unknown key") % self)
 
         digest = getFileDigest(item.getTargetPath())
         if digest == self._digest:
@@ -248,8 +247,8 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
         info = self.loadMetadata(item.getTargetPath())
 
         if "primary" not in info and "primary_lzma" not in info:
-            raise Error, _("Primary information not found in repository "
-                           "metadata for '%s'") % self
+            raise Error(_("Primary information not found in repository "
+                           "metadata for '%s'") % self)
 
         if "primary_lzma" in info:
             primary = info["primary_lzma"]
@@ -317,9 +316,9 @@ class RPMMetaDataChannel(PackageChannel, MirrorsChannel):
             else:
                 faileditem = flitem
             lines = [_("Failed acquiring information for '%s':") % self,
-                       u"%s: %s" % (faileditem.getURL(),
+                       "%s: %s" % (faileditem.getURL(),
                        faileditem.getFailedReason())]
-            raise Error, "\n".join(lines)
+            raise Error("\n".join(lines))
         else:
             return False
 

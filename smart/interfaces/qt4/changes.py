@@ -101,7 +101,7 @@ class QtChanges(QtGui.QDialog):
             reinstall = {}
             upgrade = {}
             downgrade = {}
-            lst = report.install.keys()
+            lst = list(report.install.keys())
             lst.sort()
             for pkg in lst:
                 package = {}
@@ -146,7 +146,7 @@ class QtChanges(QtGui.QDialog):
 
         if report.removed:
             remove = {}
-            lst = report.removed.keys()
+            lst = list(report.removed.keys())
             lst.sort()
             for pkg in lst:
                 package = {}

@@ -1,6 +1,6 @@
 import sys
 sys.argv = ["./smart.py", "test"]
-execfile('./smart.py')
+exec(open('./smart.py').read())
 
 def requiredByPackageObsoletingCL9(pkg, donemap=None):
     # Is any recursively requiring package obsoleting some package in CL9?
@@ -45,7 +45,7 @@ def main():
             continue
         else:
             if not requiredByPackageObsoletingCL9(pkg):
-                print pkg
+                print(pkg)
 
 if __name__ == "__main__":
     main()

@@ -142,7 +142,7 @@ class QtFlags(object):
         self._targetsview.clear()
         if self._flag:
             names = pkgconf.getFlagTargets(self._flag)
-            namelst = names.keys()
+            namelst = list(names.keys())
             namelst.sort()
             for name in namelst:
                 for relation, version in names[name]:

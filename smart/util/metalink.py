@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 try:
     from xml.etree import ElementTree
@@ -132,11 +132,11 @@ class Metalink:
                elif tag == nstag(NS_METALINKER, "version"):
                   version = elem.text
                elif tag == nstag(NS_METALINKER, "description"):
-                  summary = unicode(elem.text)
+                  summary = str(elem.text)
                elif tag == nstag(NS_METALINKER, "url"):
                   urls.append(elem.text)
                elif tag == nstag(NS_METALINKER, "size"):
-                  info["size"] = long(elem.text)
+                  info["size"] = int(elem.text)
                elif tag == nstag(NS_METALINKER, "hash"):
                   type = elem.get("type")
                   if type == "sha1":

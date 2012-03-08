@@ -31,7 +31,7 @@ except ImportError:
     if sysconf.get("log-level") == DEBUG:
         import traceback
         traceback.print_exc()
-    raise Error, _("System has no support for qt python interface")
+    raise Error(_("System has no support for qt python interface"))
 
 def create(ctrl, command=None, argv=None):
     if command:
@@ -51,7 +51,7 @@ def getPixmap(name):
             pixmap = qt.QPixmap(filename)
             _pixmap[name] = pixmap
         else:
-            raise Error, _("Image '%s' not found") % name
+            raise Error(_("Image '%s' not found") % name)
     return _pixmap[name]
 
 def centerWindow(window):

@@ -48,7 +48,7 @@ class Interface(object):
                 if sysconf.get("log-level") == DEBUG:
                     import traceback
                     traceback.print_exc()
-                raise Error, _("Invalid command '%s'") % command
+                raise Error(_("Invalid command '%s'") % command)
             opts = _command.parse_options(argv or [])
             result = _command.main(self._ctrl, opts)
         return result
@@ -118,7 +118,7 @@ class Interface(object):
         return True
 
     def insertRemovableChannels(self, channels):
-        raise Error, "insertRemovableChannels() not implemented"
+        raise Error("insertRemovableChannels() not implemented")
 
     def error(self, msg):
         if sysconf.get("log-level", INFO) >= ERROR:
@@ -143,9 +143,9 @@ class Interface(object):
             sys.stderr.write(" "*(getScreenWidth()-1)+"\r")
         if prefix:
             for line in msg.split("\n"):
-                sys.stderr.write(u"%s: %s\n" % (prefix, line))
+                sys.stderr.write("%s: %s\n" % (prefix, line))
         else:
-            sys.stderr.write(u"%s\n" % msg.rstrip())
+            sys.stderr.write("%s\n" % msg.rstrip())
         sys.stderr.flush()
 
 def getScreenWidth():
@@ -173,7 +173,7 @@ def createInterface(name, ctrl, command=None, argv=None):
         if sysconf.get("log-level") == DEBUG:
             import traceback
             traceback.print_exc()
-        raise Error, _("Interface '%s' not available") % name
+        raise Error(_("Interface '%s' not available") % name)
     return interface.create(ctrl, command, argv)
 
 def getImagePath(name, _dirname=os.path.dirname(_images__file__)):

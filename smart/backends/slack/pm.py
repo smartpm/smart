@@ -22,7 +22,7 @@
 from smart.const import INSTALL, REMOVE
 from smart.pm import PackageManager
 from smart import *
-import commands
+import subprocess
 
 class SlackPackageManager(PackageManager):
 
@@ -62,7 +62,7 @@ class SlackPackageManager(PackageManager):
             prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
-            status, output = commands.getstatusoutput("installpkg %s" %
+            status, output = subprocess.getstatusoutput("installpkg %s" %
                                                       pkgpaths[pkg][0])
             prog.setSubDone(pkg)
             prog.show()
@@ -76,7 +76,7 @@ class SlackPackageManager(PackageManager):
             prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
-            status, output = commands.getstatusoutput("upgradepkg %s" %
+            status, output = subprocess.getstatusoutput("upgradepkg %s" %
                                                       pkgpaths[pkg][0])
             prog.setSubDone(pkg)
             prog.show()
@@ -90,7 +90,7 @@ class SlackPackageManager(PackageManager):
             prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
             prog.setSub(pkg, 0, 1, 1)
             prog.show()
-            status, output = commands.getstatusoutput("removepkg %s" %
+            status, output = subprocess.getstatusoutput("removepkg %s" %
                                                       pkg.name)
             prog.setSubDone(pkg)
             prog.show()

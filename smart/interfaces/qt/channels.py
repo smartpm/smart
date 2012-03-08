@@ -117,7 +117,7 @@ class QtChannels(object):
     def fill(self):
         self._treeview.clear()
         channels = sysconf.get("channels", {})
-        aliases = channels.keys()
+        aliases = list(channels.keys())
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
@@ -354,7 +354,7 @@ class QtChannelSelector(object):
     def fill(self):
         self._treeview.clear()
         channels = sysconf.get("channels", {})
-        aliases = channels.keys()
+        aliases = list(channels.keys())
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
@@ -458,7 +458,7 @@ class ChannelEditor(object):
                     widget.resize(qt.QSize(widget.sizeHint().width()*2,
                                            widget.sizeHint().height()))
             else:
-                raise Error, _("Don't know how to handle %s fields") % ftype
+                raise Error(_("Don't know how to handle %s fields") % ftype)
 
         widget.show()
 
@@ -520,22 +520,22 @@ class ChannelEditor(object):
                     elif ftype == bool:
                         newchannel[key] = widget.isChecked()
                     else:
-                        raise Error, _("Don't know how to handle %s fields") %\
-                                     ftype
+                        raise Error(_("Don't know how to handle %s fields") %\
+                                     ftype)
                 try:
                     if editalias:
                         value = newchannel["alias"]
                         if not value:
-                            raise Error, _("Invalid alias!")
+                            raise Error(_("Invalid alias!"))
                         if (value != alias and 
                             sysconf.has(("channels", value))):
-                            raise Error, _("Alias already in use!")
+                            raise Error(_("Alias already in use!"))
                         if not alias:
                             alias = value
                     createChannel(alias, newchannel)
-                except Error, e:
+                except Error as e:
                     self._result == qt.QDialog.Rejected
-                    iface.error(unicode(e))
+                    iface.error(str(e))
                     continue
                 else:
                     oldchannel.clear()
@@ -599,7 +599,7 @@ class TypeSelector(object):
         self._type = None
 
         infos = [(info.name, type) for type, info in
-                 getAllChannelInfos().items()]
+                 list(getAllChannelInfos().items())]
         infos.sort()
         for name, type in infos:
             if not self._type:

@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-import cPickle
+import pickle
 try:
     from hashlib import md5
 except ImportError:
@@ -45,7 +45,7 @@ class ObjectDigest(object):
         return self._digest.hexdigest()
     
     def addObject(self, obj):
-        cPickle.dump(obj, DigestFile(self._digest), 2)
+        pickle.dump(obj, DigestFile(self._digest), 2)
 
 class DigestFile(object):
 

@@ -107,7 +107,7 @@ def main(ctrl, opts, reloadchannels=True):
                 elif channels[alias].get("disabled"):
                     disabled.append(alias)
             if notfound:
-                raise Error, _("Channels not found: %s") % ", ".join(notfound)
+                raise Error(_("Channels not found: %s") % ", ".join(notfound))
             elif disabled:
                 iface.warning(_("Channels are disabled: %s") % \
                               ", ".join(disabled))
@@ -135,11 +135,11 @@ def main(ctrl, opts, reloadchannels=True):
                             dct[obj] = True
                         else:
                             dct.update(dict.fromkeys(obj.packages, True))
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
 
             dct = {}
             for obj in results:

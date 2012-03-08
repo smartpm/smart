@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-import cPickle as pickle
+import pickle as pickle
 from smart import *
 import sys, os
 import copy
@@ -63,12 +63,12 @@ class SysConfig(object):
 
     def assertWritable(self):
         if self._readonly:
-            raise Error, _("Configuration is in readonly mode.")
+            raise Error(_("Configuration is in readonly mode."))
 
     def load(self, filepath):
         filepath = os.path.expanduser(filepath)
         if not os.path.isfile(filepath):
-            raise Error, _("File not found: %s") % filepath
+            raise Error(_("File not found: %s") % filepath)
         if os.path.getsize(filepath) == 0:
             return
         file = open(filepath)
@@ -86,11 +86,11 @@ class SysConfig(object):
                 try:
                     self._hardmap.update(pickle.load(file))
                 except:
-                    raise Error, _("Broken configuration file at %s") % \
-                                  filepathold
+                    raise Error(_("Broken configuration file at %s") % \
+                                  filepathold)
             else:
-                raise Error, _("Broken configuration file at %s") % \
-                              filepath
+                raise Error(_("Broken configuration file at %s") % \
+                              filepath)
         file.close()
 
     def save(self, filepath):
@@ -126,8 +126,8 @@ class SysConfig(object):
             else:
                 if queue:
                     path = path[:-len(queue)]
-                raise Error, "Can't traverse %s (%s): %s" % \
-                             (type(obj), pathTupleToString(path), str(obj))
+                raise Error("Can't traverse %s (%s): %s" % \
+                             (type(obj), pathTupleToString(path), str(obj)))
             if newobj is marker:
                 break
         if newobj is not marker:
@@ -157,8 +157,8 @@ class SysConfig(object):
                             elem = 0
                         newobj = obj[elem] = newvalue
                     else:
-                        raise Error, "Can't traverse %s with %s" % \
-                                     (type(obj), type(elem))
+                        raise Error("Can't traverse %s with %s" % \
+                                     (type(obj), type(elem)))
                     if not queue:
                         break
                     obj = newobj
@@ -193,18 +193,18 @@ class SysConfig(object):
         elif type(obj) in (dict, list):
             return value in obj
         else:
-            raise Error, "Can't check %s for containment" % type(obj)
+            raise Error("Can't check %s for containment" % type(obj))
 
     def keys(self, path, soft=False, hard=False, weak=False):
         value = self._getvalue(path, soft, hard, weak)
         if value is NOTHING:
             return []
         if type(value) is dict:
-            return value.keys()
+            return list(value.keys())
         elif type(value) is list:
-            return range(len(value))
+            return list(range(len(value)))
         else:
-            raise Error, "Can't return keys for %s" % type(value)
+            raise Error("Can't return keys for %s" % type(value))
 
     def get(self, path, default=None, soft=False, hard=False, weak=False):
         value = self._getvalue(path, soft, hard, weak)
@@ -244,7 +244,7 @@ class SysConfig(object):
             current = self._traverse(map, path)
             if type(current) is list and value in current:
                 return
-        path = path+(sys.maxint,)
+        path = path+(sys.maxsize,)
         self._traverse(map, path, setvalue=value)
 
     def remove(self, path, value=NOTHING, soft=False, weak=False):
@@ -285,8 +285,8 @@ class SysConfig(object):
                     obj[:] = [x for x in obj if x != elem]
                     result = True
             else:
-                raise Error, "Can't remove %s from %s" % \
-                             (`elem`, type(obj))
+                raise Error("Can't remove %s from %s" % \
+                             (repr(elem), type(obj)))
             if not obj:
                 if value is not marker:
                     value = marker
@@ -324,7 +324,7 @@ def pathStringToTuple(path):
                 try:
                     result.append(int(token[1:-1]))
                 except ValueError:
-                    raise Error, "Invalid path index: %s" % token
+                    raise Error("Invalid path index: %s" % token)
             else:
                 result.append(token.replace(r"\.", "."))
     return tuple(result)

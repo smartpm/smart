@@ -102,7 +102,7 @@ class QtPackageView(qt.QWidget):
         if hasattr(pkg, "name"):
             iter.setText(1, pkg.name)
         else:
-            iter.setText(1, unicode(pkg))
+            iter.setText(1, str(pkg))
 
         if hasattr(pkg, "version"):
             iter.setText(2, pkg.version)
@@ -265,7 +265,7 @@ class QtPackageView(qt.QWidget):
             for subitem in item:
                 self._setPackage(report, parent, subitem)
         elif type(item) is dict:
-            keys = item.keys()
+            keys = list(item.keys())
             keys.sort()
             for key in keys:
                 iter = self._setPackage(report, parent, key)

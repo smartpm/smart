@@ -74,7 +74,7 @@ def main(ctrl, opts):
                     channels.append(channel)
                     break
             else:
-                raise Error, _("Argument '%s' is not a channel alias.") % arg
+                raise Error(_("Argument '%s' is not a channel alias.") % arg)
     else:
         channels = None
     # First, load current cache to keep track of new packages.

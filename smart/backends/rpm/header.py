@@ -113,7 +113,7 @@ class RPMHeaderPackageInfo(PackageInfo):
         return self._h[rpm.RPMTAG_SIZE]
 
     def _getHeaderString(self, tag):
-        result = self._h and self._h[tag] or u""
+        result = self._h and self._h[tag] or ""
         if result:
             if type(result) == list:
                 # Must have an element, or the check above would fail.
@@ -192,7 +192,7 @@ class RPMHeaderPackageInfo(PackageInfo):
                     self._path[paths[i]] = modes[i]
             else:
                 self._path = dict.fromkeys(paths, 0)
-        return self._path.keys()
+        return list(self._path.keys())
 
     def pathIsDir(self, path):
         return stat.S_ISDIR(self._path[path])
@@ -279,10 +279,10 @@ class RPMHeaderLoader(Loader):
                     if vi and vi[:2] == "0:":
                         vi = vi[2:]
                     if ni == name and checkver(vi, version):
-                        prvdict[(NPrv, intern(ni), versionarch)] = True
+                        prvdict[(NPrv, sys.intern(ni), versionarch)] = True
                     else:
-                        prvdict[(Prv, intern(ni), vi or None)] = True
-            prvargs = prvdict.keys()
+                        prvdict[(Prv, sys.intern(ni), vi or None)] = True
+            prvargs = list(prvdict.keys())
 
             n = h[1049] # RPMTAG_REQUIRENAME
             if n:
@@ -309,8 +309,8 @@ class RPMHeaderLoader(Loader):
                             # RPMSENSE_SCRIPT_POST |
                             # RPMSENSE_SCRIPT_POSTUN == 7744
                             reqdict[(f[i]&7744 and PreReq or Req,
-                                     intern(ni), r, vi)] = True
-                reqargs = collapse_libc_requires(reqdict.keys())
+                                     sys.intern(ni), r, vi)] = True
+                reqargs = collapse_libc_requires(list(reqdict.keys()))
             else:
                 reqargs = None
 
@@ -368,7 +368,7 @@ class RPMHeaderLoader(Loader):
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
             self._offsets[offset] = pkg
-            self._groups[pkg] = intern(h[rpm.RPMTAG_GROUP])
+            self._groups[pkg] = sys.intern(h[rpm.RPMTAG_GROUP])
 
     def search(self, searcher):
         ic = searcher.ignorecase
@@ -467,9 +467,9 @@ class RPMHeaderListLoader(RPMHeaderLoader):
                                 "As a consequence, Smart will consume "
                                 "extra memory."))
 
-            self.__class__.getHeaders = self.getHeadersHDL.im_func
-            self.__class__.getHeader = self.getHeaderHDL.im_func
-            self.__class__.loadFileProvides = self.loadFileProvidesHDL.im_func
+            self.__class__.getHeaders = self.getHeadersHDL.__func__
+            self.__class__.getHeader = self.getHeaderHDL.__func__
+            self.__class__.loadFileProvides = self.loadFileProvidesHDL.__func__
 
             self._hdl = rpm.readHeaderListFromFile(self._filename)
 
@@ -561,7 +561,7 @@ class RPMPackageListLoader(RPMHeaderListLoader):
         h = info._h
         filename = h[CRPMTAG_FILENAME]
         if not filename:
-            raise Error, _("Package list with no CRPMTAG_FILENAME tag")
+            raise Error(_("Package list with no CRPMTAG_FILENAME tag"))
         directory = h[CRPMTAG_DIRECTORY]
         if directory:
             filename = os.path.join(directory, filename)
@@ -595,7 +595,7 @@ class URPMILoader(RPMHeaderListLoader):
         h = info._h
         filename = h[CRPMTAG_FILENAME]
         if not filename:
-            raise Error, _("Package list with no CRPMTAG_FILENAME tag")
+            raise Error(_("Package list with no CRPMTAG_FILENAME tag"))
         if filename in self._prefix:
             filename = os.path.join(self._prefix[filename], filename)
         return filename
@@ -637,7 +637,7 @@ class RPMDBLoader(RPMHeaderLoader):
         else:
             mi = getTS().dbMatch(0, pkg.loaders[self])
         try:
-            return mi.next()
+            return next(mi)
         except StopIteration:
             class NullHeader(object):
                 def __getitem__(self, key):
@@ -662,12 +662,12 @@ class RPMDBLoader(RPMHeaderLoader):
         for fn in fndict:
             mi = ts.dbMatch(1117, fn) # RPMTAG_BASENAMES
             try:
-                h = mi.next()
+                h = next(mi)
                 while h:
                     i = mi.instance()
                     if i in self._offsets:
                         bfp(self._offsets[i], (RPMProvides, fn, None))
-                    h = mi.next()
+                    h = next(mi)
             except StopIteration:
                 pass
 
@@ -693,7 +693,7 @@ class RPMDirLoader(RPMHeaderLoader):
             file = open(filepath)
             try:
                 h = ts.hdrFromFdno(file.fileno())
-            except rpm.error, e:
+            except rpm.error as e:
                 iface.error("%s: %s" % (os.path.basename(filepath), e))
             else:
                 yield (h, i)
@@ -708,7 +708,7 @@ class RPMDirLoader(RPMHeaderLoader):
         ts = getTS()
         try:
             h = ts.hdrFromFdno(file.fileno())
-        except rpm.error, e:
+        except rpm.error as e:
             iface.error("%s: %s" % (os.path.basename(filepath), e))
             h = None
         file.close()
@@ -742,7 +742,7 @@ class RPMDirLoader(RPMHeaderLoader):
             file = open(filepath)
             try:
                 h = ts.hdrFromFdno(file.fileno())
-            except rpm.error, e:
+            except rpm.error as e:
                 file.close()
                 iface.error("%s: %s" % (os.path.basename(filepath), e))
             else:

@@ -909,7 +909,7 @@ class QtInteractiveInterface(QtInterface):
                             pass
                         else:
                             newpackages.update(upgpkgs)
-                packages = newpackages.keys()
+                packages = list(newpackages.keys())
             if "hide-uninstalled" in filters:
                 packages = [x for x in packages if x.installed]
             if "hide-unmarked" in filters:
@@ -998,7 +998,7 @@ class QtInteractiveInterface(QtInterface):
             Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
             """
         credits=["""Gustavo Niemeyer - Original author and lead developer.""",
-           u"""Anders F Bj\u00f6rklund - Current maintainer and developer.""",
+           """Anders F Bj\u00f6rklund - Current maintainer and developer.""",
             """Conectiva Inc. - Original project funder up to August 2005.""",
             """Canonical Ltd. - Funded Smart up to November of 2009.""",
             """Unity Linux - Smart development and deployment support.""",

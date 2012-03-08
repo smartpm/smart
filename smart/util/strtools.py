@@ -134,4 +134,4 @@ def printColumns(lst, indent=0, spacing=2, width=80, out=None):
             s = str(lst[k])
             out.write(s)
             out.write(" "*(columnlen-len(s)))
-        print
+        print()

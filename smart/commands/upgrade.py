@@ -24,7 +24,7 @@ from smart.transaction import Transaction, PolicyUpgrade, \
 from smart.option import OptionParser
 from smart.cache import Package
 from smart import *
-import cPickle
+import pickle
 import string
 import re
 import os
@@ -132,11 +132,11 @@ def main(ctrl, opts):
                     if not dct:
                         del suggestions[:]
                 if suggestions:
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
 
             foundany = False
             foundinstalled = False
@@ -168,7 +168,7 @@ def main(ctrl, opts):
         checkfile = os.path.expanduser("~/.smart/upgradecheck")
         if os.path.isfile(checkfile):
             file = open(checkfile)
-            checkstate = cPickle.load(file)
+            checkstate = pickle.load(file)
             file.close()
         else:
             checkstate = None
@@ -179,7 +179,7 @@ def main(ctrl, opts):
             if not os.path.isdir(dirname):
                 os.makedirs(dirname)
             file = open(checkfile, "w")
-            cPickle.dump(state, file, 2)
+            pickle.dump(state, file, 2)
             file.close()
         if not state:
             iface.showStatus(_("No interesting upgrades available."))

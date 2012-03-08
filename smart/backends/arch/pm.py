@@ -25,14 +25,14 @@ from smart.const import INSTALL, REMOVE
 from smart.pm import PackageManager
 from smart.sorter import ChangeSetSorter
 from smart import *
-import commands
+import subprocess
 
 class ArchPackageManager(PackageManager):
 
     def commit(self, changeset, pkgpaths):
         upgrades = {}
         depchkoff = {}
-        for pkg in changeset.keys():
+        for pkg in list(changeset.keys()):
             if changeset.get(pkg) is INSTALL:
                 upgpkgs = [upgpkg for prv in pkg.provides
                                   for upg in prv.upgradedby
@@ -72,7 +72,7 @@ class ArchPackageManager(PackageManager):
                 prog.setSubTopic(pkg, _("Upgrading %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -U%s %s" %
+                status, output = subprocess.getstatusoutput("pacman -U%s %s" %
                                                           (depchk, pkgpaths[pkg][0]))
                 prog.setSubDone(pkg)
                 prog.show()
@@ -86,7 +86,7 @@ class ArchPackageManager(PackageManager):
                 prog.setSubTopic(pkg, _("Installing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -U%s %s" %
+                status, output = subprocess.getstatusoutput("pacman -U%s %s" %
                                                           (depchk, pkgpaths[pkg][0]))
                 prog.setSubDone(pkg)
                 prog.show()
@@ -100,7 +100,7 @@ class ArchPackageManager(PackageManager):
                 prog.setSubTopic(pkg, _("Removing %s") % pkg.name)
                 prog.setSub(pkg, 0, 1, 1)
                 prog.show()
-                status, output = commands.getstatusoutput("pacman -R%s %s" %
+                status, output = subprocess.getstatusoutput("pacman -R%s %s" %
                                                           (depchk, pkg.name))
                 prog.setSubDone(pkg)
                 prog.show()

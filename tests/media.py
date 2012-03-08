@@ -12,14 +12,14 @@ class MediaTest(unittest.TestCase):
     def test_rootismounted(self):
         try:
             media = Media("/")
-        except Error, error:
+        except Error as error:
             self.fail("Error(%s)" % error)
         self.assertTrue(media.isMounted())
 
     def test_fakeisnotmounted(self):
         try:
             media = Media("/no/such/dir")
-        except Error, error:
+        except Error as error:
             self.fail("Error(%s)" % error)
         self.assertFalse(media.isMounted())
 

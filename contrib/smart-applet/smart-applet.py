@@ -35,7 +35,7 @@ try:
     pygtk.require("2.0")
     import gtk
 except RuntimeError:
-    raise Error, _("Could not open a valid X display")
+    raise Error(_("Could not open a valid X display"))
 except ImportError:
     import smart
     from smart.const import DEBUG
@@ -43,7 +43,7 @@ except ImportError:
     if sysconf.get("log-level") == DEBUG:
         import traceback
         traceback.print_exc()
-    raise Error, _("System has no support for gtk python interface")
+    raise Error(_("System has no support for gtk python interface"))
 
 def exit_applet(*args):
     gtk.main_quit()

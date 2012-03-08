@@ -197,14 +197,14 @@ class PackageInfo(object):
     def validate(self, url, localpath, withreason=False):
         try:
             if not os.path.isfile(localpath):
-                raise Error, _("File not found")
+                raise Error(_("File not found"))
 
             size = self.getSize(url)
             if size:
                 lsize = os.path.getsize(localpath)
                 if lsize != size:
-                    raise Error, _("Unexpected size (expected %d, got %d)") % \
-                                 (size, lsize)
+                    raise Error(_("Unexpected size (expected %d, got %d)") % \
+                                 (size, lsize))
 
             filemd5 = self.getMD5(url)
             if filemd5:
@@ -220,8 +220,8 @@ class PackageInfo(object):
                     data = file.read(BLOCKSIZE)
                 lfilemd5 = digest.hexdigest()
                 if lfilemd5 != filemd5:
-                    raise Error, _("Invalid MD5 (expected %s, got %s)") % \
-                                 (filemd5, lfilemd5)
+                    raise Error(_("Invalid MD5 (expected %s, got %s)") % \
+                                 (filemd5, lfilemd5))
 
             filesha256 = self.getSHA256(url)
             if filesha256:
@@ -237,8 +237,8 @@ class PackageInfo(object):
                     data = file.read(BLOCKSIZE)
                 lfilesha256 = digest.hexdigest()
                 if lfilesha256 != filesha256:
-                   raise Error, _("Invalid SHA256 (expected %s, got %s)") % \
-                                 (filesha256, lfilesha256)
+                   raise Error(_("Invalid SHA256 (expected %s, got %s)") % \
+                                 (filesha256, lfilesha256))
             else:
                 filesha = self.getSHA(url)
                 if filesha:
@@ -254,9 +254,9 @@ class PackageInfo(object):
                         data = file.read(BLOCKSIZE)
                     lfilesha = digest.hexdigest()
                     if lfilesha != filesha:
-                        raise Error, _("Invalid SHA (expected %s, got %s)") % \
-                                     (filesha, lfilesha)
-        except Error, reason:
+                        raise Error(_("Invalid SHA (expected %s, got %s)") % \
+                                     (filesha, lfilesha))
+        except Error as reason:
             if withreason:
                 return False, reason
             return False
@@ -633,7 +633,7 @@ class Cache(object):
                     pkg.installed = loader._installed
                     packages[pkg] = True
                     objmap.setdefault(pkg.getInitArgs(), []).append(pkg)
-                    for pkgloader in pkg.loaders.keys():
+                    for pkgloader in list(pkg.loaders.keys()):
                         if pkgloader not in loaders:
                             del pkg.loaders[pkgloader]
                     for prv in pkg.provides:
@@ -656,11 +656,11 @@ class Cache(object):
                         if cnf not in conflicts:
                             conflicts[cnf] = True
                             objmap[cnf.getInitArgs()] = cnf
-        self._packages[:] = packages.keys()
-        self._provides[:] = provides.keys()
-        self._requires[:] = requires.keys()
-        self._upgrades[:] = upgrades.keys()
-        self._conflicts[:] = conflicts.keys()
+        self._packages[:] = list(packages.keys())
+        self._provides[:] = list(provides.keys())
+        self._requires[:] = list(requires.keys())
+        self._upgrades[:] = list(upgrades.keys())
+        self._conflicts[:] = list(conflicts.keys())
 
     def load(self):
         self._reload()
@@ -854,10 +854,10 @@ class Cache(object):
             for cnf in pkg.conflicts:
                 cnf.packages.append(pkg)
                 conflicts[cnf] = True
-        self._provides = provides.keys()
-        self._requires = requires.keys()
-        self._upgrades = upgrades.keys()
-        self._conflicts = conflicts.keys()
+        self._provides = list(provides.keys())
+        self._requires = list(requires.keys())
+        self._upgrades = list(upgrades.keys())
+        self._conflicts = list(conflicts.keys())
         self._objmap = {}
 
 from ccache import *

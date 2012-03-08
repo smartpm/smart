@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import rpm
 
-from mocker import MockerTestCase, expect, ANY
+from .mocker import MockerTestCase, expect, ANY
 
 from smart.backends.rpm.header import \
     RPMHeaderPackageInfo, get_header_filenames, \
@@ -23,7 +23,7 @@ class RPMHeaderPackageInfoTest(MockerTestCase):
         loader.getHeader(package)
         self.mocker.replay()
         info = RPMHeaderPackageInfo(package, loader)
-        self.assertEquals(info.getSummary(), u"")
+        self.assertEquals(info.getSummary(), "")
 
     def test_getDescription_without_header(self):
         package = self.mocker.mock()
@@ -31,7 +31,7 @@ class RPMHeaderPackageInfoTest(MockerTestCase):
         loader.getHeader(package)
         self.mocker.replay()
         info = RPMHeaderPackageInfo(package, loader)
-        self.assertEquals(info.getDescription(), u"")
+        self.assertEquals(info.getDescription(), "")
 
     def test_getSummary_without_tag(self):
         package = self.mocker.mock()
@@ -40,7 +40,7 @@ class RPMHeaderPackageInfoTest(MockerTestCase):
         self.mocker.result({})
         self.mocker.replay()
         info = RPMHeaderPackageInfo(package, loader)
-        self.assertEquals(info.getSummary(), u"")
+        self.assertEquals(info.getSummary(), "")
 
     def test_getDescription_without_tag(self):
         package = self.mocker.mock()
@@ -49,7 +49,7 @@ class RPMHeaderPackageInfoTest(MockerTestCase):
         self.mocker.result({})
         self.mocker.replay()
         info = RPMHeaderPackageInfo(package, loader)
-        self.assertEquals(info.getDescription(), u"")
+        self.assertEquals(info.getDescription(), "")
 
     def test_getSummary_decodes_string(self):
         package = self.mocker.mock()
@@ -58,7 +58,7 @@ class RPMHeaderPackageInfoTest(MockerTestCase):
         self.mocker.result({rpm.RPMTAG_SUMMARY: "áéíóú"})
         self.mocker.replay()
         info = RPMHeaderPackageInfo(package, loader)
-        self.assertEquals(info.getSummary(), u"áéíóú")
+        self.assertEquals(info.getSummary(), "áéíóú")
 
     def test_getDescription_decodes_string(self):
         package = self.mocker.mock()
@@ -67,7 +67,7 @@ class RPMHeaderPackageInfoTest(MockerTestCase):
         self.mocker.result({rpm.RPMTAG_DESCRIPTION: "áéíóú"})
         self.mocker.replay()
         info = RPMHeaderPackageInfo(package, loader)
-        self.assertEquals(info.getDescription(), u"áéíóú")
+        self.assertEquals(info.getDescription(), "áéíóú")
 
 
 class YAST2PackageInfoTest(MockerTestCase):
@@ -82,7 +82,7 @@ class YAST2PackageInfoTest(MockerTestCase):
         info = YaST2PackageInfo(package, loader,
                                 {"media": "7", "filename": "fname"})
         self.assertEquals(info.getURLs(),
-                          [u"http://baseurl7/datadir/arch/fname"])
+                          ["http://baseurl7/datadir/arch/fname"])
 
     def test_getURLs_without_media_replacing(self):
         package = self.mocker.mock()
@@ -94,7 +94,7 @@ class YAST2PackageInfoTest(MockerTestCase):
         info = YaST2PackageInfo(package, loader,
                                 {"media": "7", "filename": "fname"})
         self.assertEquals(info.getURLs(),
-                          [u"http://baseurl11/datadir/arch/fname"])
+                          ["http://baseurl11/datadir/arch/fname"])
 
 
 class RPMPackageVersionTest(MockerTestCase):
@@ -165,7 +165,7 @@ class HeaderFilenamesTest(MockerTestCase):
                   rpm.RPMTAG_BASENAMES: "foo",
                   rpm.RPMTAG_DIRINDEXES: 0,
                   rpm.RPMTAG_DIRNAMES: "/dir/",
-                  rpm.RPMTAG_FILEMODES: 0644}
+                  rpm.RPMTAG_FILEMODES: 0o644}
 
         package = self.mocker.mock()
         loader = self.mocker.mock()

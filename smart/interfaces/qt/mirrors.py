@@ -134,10 +134,10 @@ class QtMirrors(object):
             origin = str(item.text(0))
             sysconf.remove(("mirrors", origin))
         else:
-            print
+            print()
             mirror = str(item.text(0))
             origin = str(item.parent().text(0))
-            print "%s %s" % (mirror, origin)
+            print("%s %s" % (mirror, origin))
             sysconf.remove(("mirrors", origin), mirror)
         self.fill()
 

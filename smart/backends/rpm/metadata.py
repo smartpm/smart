@@ -268,7 +268,7 @@ class RPMMetaDataLoader(Loader):
                         ename[:7] in ("rpmlib(", "config(")):
                         continue
 
-                    if "ver" in elem.keys():
+                    if "ver" in list(elem.keys()):
                         e = elem.get("epoch")
                         v = elem.get("ver")
                         r = elem.get("rel")
@@ -277,7 +277,7 @@ class RPMMetaDataLoader(Loader):
                             eversion = "%s:%s" % (e, eversion)
                         if r:
                             eversion = "%s-%s" % (eversion, r)
-                        if "flags" in elem.keys():
+                        if "flags" in list(elem.keys()):
                             erelation = COMPMAP.get(elem.get("flags"))
                         else:
                             erelation = None
@@ -328,9 +328,9 @@ class RPMMetaDataLoader(Loader):
                                        (RPMProvides, x[1], x[3]) in prvdict or
                                        system_provides.match(*x[:3]))]
                     reqargs = collapse_libc_requires(reqargs)
-                    prvargs = prvdict.keys()
-                    cnfargs = cnfdict.keys()
-                    upgargs = upgdict.keys()
+                    prvargs = list(prvdict.keys())
+                    cnfargs = list(cnfdict.keys())
+                    upgargs = list(upgdict.keys())
 
                     if disttag:
                         distversion = "%s-%s" % (version, disttag)

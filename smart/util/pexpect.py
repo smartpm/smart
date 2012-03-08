@@ -35,10 +35,10 @@ try:
     import tty
     import termios
     import fcntl
-except ImportError, e:
-    raise ImportError, str(e) + """
+except ImportError as e:
+    raise ImportError(str(e) + """
 A critical module was not found. Probably this OS does not support it.
-Currently pexpect is intended for UNIX operating systems."""
+Currently pexpect is intended for UNIX operating systems.""")
 
 
 
@@ -55,7 +55,7 @@ class ExceptionPexpect(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return `self.value`
+        return repr(self.value)
 class EOF(ExceptionPexpect):
     """Raised when EOF is read from a child."""
 class TIMEOUT(ExceptionPexpect):
@@ -137,7 +137,7 @@ class spawn:
             try: # Command is an int, so now check if it is a file descriptor.
                 os.fstat(command)
             except OSError:
-                raise ExceptionPexpect, 'Command is an int type, yet is not a valid file descriptor.'
+                raise ExceptionPexpect('Command is an int type, yet is not a valid file descriptor.')
             self.pid = -1 
             self.child_fd = command
             self.__child_fd_owner = 0 # Sets who is reponsible for the child_fd
@@ -147,7 +147,7 @@ class spawn:
             return
 
         if type (args) != type([]):
-            raise TypeError, 'The second argument, args, must be a list.'
+            raise TypeError('The second argument, args, must be a list.')
 
         if args == []:
             self.args = _split_command_line(command)
@@ -199,7 +199,7 @@ class spawn:
 
         try:
             self.pid, self.child_fd = pty.fork()
-        except OSError, e:
+        except OSError as e:
             raise ExceptionPexpect('Pexpect: pty.fork() failed: ' + str(e))
 
         if self.pid == 0: # Child
@@ -336,7 +336,7 @@ class spawn:
         if self.child_fd in r:
             try:
                 s = os.read(self.child_fd, size)
-            except OSError, e:
+            except OSError as e:
                 self.flag_eof = 1
                 raise EOF('End Of File (EOF) in read(). Exception style platform.')
             if s == '':
@@ -399,7 +399,7 @@ class spawn:
         """This is to support interators over a file-like object.
         """
         return self
-    def next (self):
+    def __next__ (self):
         """This is to support iterators over a file-like object.
         """
         result = self.readline()
@@ -570,7 +570,7 @@ class spawn:
             elif type(p) is type(re.compile('')):
                 compiled_pattern_list.append(p)
             else:
-                raise TypeError, 'Argument must be one of StringType, EOF, TIMEOUT, SRE_Pattern, or a list of those type. %s' % str(type(p))
+                raise TypeError('Argument must be one of StringType, EOF, TIMEOUT, SRE_Pattern, or a list of those type. %s' % str(type(p)))
 
         return compiled_pattern_list
  
@@ -790,7 +790,7 @@ class spawn:
         # Newer versions of Linux have totally different values for TIOCSWINSZ.
         # Note that this fix is a hack.
         TIOCSWINSZ = termios.TIOCSWINSZ
-        if TIOCSWINSZ == 2148037735L: # L is not required in Python >= 2.2.
+        if TIOCSWINSZ == 2148037735: # L is not required in Python >= 2.2.
             TIOCSWINSZ = -2146929561 # Same bits, but with sign.
 
         # Note, assume ws_xpixel and ws_ypixel are zero.
@@ -856,7 +856,7 @@ def _which (filename):
         if os.access (filename, os.X_OK):
             return filename
 
-    if not os.environ.has_key('PATH') or os.environ['PATH'] == '':
+    if 'PATH' not in os.environ or os.environ['PATH'] == '':
         p = os.defpath
     else:
         p = os.environ['PATH']

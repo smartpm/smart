@@ -43,7 +43,7 @@ class Uncompressor(object):
             if handler.query(localpath):
                 return handler.uncompress(localpath)
         else:
-            raise Error, _("Unknown compressed file: %s") % localpath
+            raise Error(_("Unknown compressed file: %s") % localpath)
 
 class UncompressorHandler(object):
 
@@ -54,7 +54,7 @@ class UncompressorHandler(object):
         return None
 
     def uncompress(self, localpath):
-        raise Error, _("Unsupported file type")
+        raise Error(_("Unsupported file type"))
 
 class BZ2Handler(UncompressorHandler):
 
@@ -74,10 +74,10 @@ class BZ2Handler(UncompressorHandler):
             while data:
                 output.write(data)
                 data = input.read(BLOCKSIZE)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
-        except EOFError, e:
-            raise Error, ("%s\nPossibly corrupted channel file.") % e
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
+        except EOFError as e:
+            raise Error(("%s\nPossibly corrupted channel file.") % e)
 
 Uncompressor.addHandler(BZ2Handler)
 
@@ -94,13 +94,13 @@ class LZMAHandler(UncompressorHandler):
     def uncompress(self, localpath):
         try:
             import lzma
-        except ImportError, e:
+        except ImportError as e:
             unlzma = sysconf.get("unlzma", "unlzma")
             localpath = os.path.abspath(localpath)
             if os.system("%s <%s >%s 2>/dev/null" % (unlzma, localpath,
                          self.getTargetPath(localpath))) == 0:
                 return
-            raise Error, "%s, unlzma helper could not be found" % e
+            raise Error("%s, unlzma helper could not be found" % e)
         try:
             input = lzma.LZMAFile(localpath)
             output = open(self.getTargetPath(localpath), "w")
@@ -108,10 +108,10 @@ class LZMAHandler(UncompressorHandler):
             while data:
                 output.write(data)
                 data = input.read(BLOCKSIZE)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
-        except EOFError, e:
-            raise Error, ("%s\nPossibly corrupted channel file.") % e
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
+        except EOFError as e:
+            raise Error(("%s\nPossibly corrupted channel file.") % e)
 
 Uncompressor.addHandler(LZMAHandler)
 
@@ -135,10 +135,10 @@ class XZHandler(UncompressorHandler):
             while data:
                 output.write(data)
                 data = input.read(BLOCKSIZE)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
-        except EOFError, e:
-            raise Error, ("%s\nPossibly corrupted channel file.") % e
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
+        except EOFError as e:
+            raise Error(("%s\nPossibly corrupted channel file.") % e)
 
 Uncompressor.addHandler(XZHandler)
 
@@ -160,10 +160,10 @@ class GZipHandler(UncompressorHandler):
             while data:
                 output.write(data)
                 data = input.read(BLOCKSIZE)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
-        except EOFError, e:
-            raise Error, ("%s\nPossibly corrupted channel file.") % e
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
+        except EOFError as e:
+            raise Error(("%s\nPossibly corrupted channel file.") % e)
 
 Uncompressor.addHandler(GZipHandler)
 
@@ -184,8 +184,8 @@ class ZipHandler(UncompressorHandler):
                     name = members[0]
                 dir = os.path.dirname(localpath)
                 return os.path.join(dir, name)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
         return None
 
     def uncompress(self, localpath, name=None):
@@ -199,8 +199,8 @@ class ZipHandler(UncompressorHandler):
             data = zip.read(name)
             output.write(data)
             zip.close()
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
 
 Uncompressor.addHandler(ZipHandler)
 
@@ -220,8 +220,8 @@ class SevenZipHandler(UncompressorHandler):
                     name = members[0]
                 dir = os.path.dirname(localpath)
                 return os.path.join(dir, name)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
         return None
 
     def uncompress(self, localpath, name=None):
@@ -235,7 +235,7 @@ class SevenZipHandler(UncompressorHandler):
             input = zip.getmember(name)
             data = input.read()
             output.write(data)
-        except (IOError, OSError), e:
-            raise Error, "%s: %s" % (localpath, e)
+        except (IOError, OSError) as e:
+            raise Error("%s: %s" % (localpath, e))
 
 Uncompressor.addHandler(SevenZipHandler)

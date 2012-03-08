@@ -125,13 +125,13 @@ def read_mirrors(ctrl, filename):
         url = filename
         succ, fail = ctrl.downloadURLs([url], _("mirror descriptions"))
         if fail:
-            raise Error, _("Failed to download mirror descriptions:\n") + \
+            raise Error(_("Failed to download mirror descriptions:\n") + \
                          "\n".join(["    %s: %s" % (url, fail[url])
-                                    for url in fail])
+                                    for url in fail]))
         filename = succ[url]
         fetched = True
     elif not os.path.isfile(filename):
-        raise Error, _("File not found: %s") % filename
+        raise Error(_("File not found: %s") % filename)
     try:
         result = []
         origin = None
@@ -150,7 +150,7 @@ def read_mirrors(ctrl, filename):
                 mirror = None
                 continue
             if not origin:
-                raise Error, _("Invalid mirrors file")
+                raise Error(_("Invalid mirrors file"))
             result.append(origin)
             result.append(mirror)
         if origin and mirror is None:
@@ -167,7 +167,7 @@ def main(ctrl, opts):
         if len(opts.add) == 1:
             opts.add = read_mirrors(ctrl, opts.add[0])
         if len(opts.add) % 2 != 0:
-            raise Error, _("Invalid arguments for --add")
+            raise Error(_("Invalid arguments for --add"))
         for i in range(0,len(opts.add),2):
             origin, mirror = opts.add[i:i+2]
             if mirror:
@@ -177,7 +177,7 @@ def main(ctrl, opts):
         if len(opts.remove) == 1:
             opts.remove = read_mirrors(ctrl, opts.remove[0])
         if len(opts.remove) % 2 != 0:
-            raise Error, _("Invalid arguments for --remove")
+            raise Error(_("Invalid arguments for --remove"))
         for i in range(0,len(opts.remove),2):
             origin, mirror = opts.remove[i:i+2]
             if not sysconf.has(("mirrors", origin)):
@@ -212,10 +212,10 @@ def main(ctrl, opts):
     if opts.show:
         mirrors = sysconf.get("mirrors", ())
         for origin in mirrors:
-            print origin
+            print(origin)
             for mirror in mirrors[origin]:
-                print "   ", mirror
-            print
+                print("   ", mirror)
+            print()
 
     if opts.yaml:
         import yaml
@@ -223,22 +223,22 @@ def main(ctrl, opts):
         mirrors = sysconf.get("mirrors", ())
         for origin in mirrors:
             yamlmirrors[origin] = mirrors[origin]
-        print yaml.dump(yamlmirrors)
+        print(yaml.dump(yamlmirrors))
 
     if opts.edit:
         sysconf.assertWritable()
         
         fd, name = tempfile.mkstemp(".txt")
         file = os.fdopen(fd, "w")
-        print >>file, EDITEXAMPLE
+        print(EDITEXAMPLE, file=file)
         origins = sysconf.keys("mirrors")
         origins.sort()
         for origin in origins:
-            print >>file, origin
+            print(origin, file=file)
             mirrors = sysconf.get(("mirrors", origin))
             for mirror in mirrors:
-                print >>file, "   ", mirror
-            print >>file
+                print("   ", mirror, file=file)
+            print(file=file)
         file.close()
         editor = os.environ.get("EDITOR", "vi")
         olddigest = getFileDigest(name)
@@ -249,8 +249,8 @@ def main(ctrl, opts):
                 break
             try:
                 lst = read_mirrors(ctrl, name)
-            except Error, e:
-                iface.error(unicode(e))
+            except Error as e:
+                iface.error(str(e))
                 if not iface.askYesNo(_("Continue?"), True):
                     break
                 else:continue
@@ -273,9 +273,9 @@ def main(ctrl, opts):
             for mirror in mirrors[origin]:
                 if mirror not in penalities:
                     penalities[origin] = 0
-        penalities = [(y, x) for x, y in penalities.items()]
+        penalities = [(y, x) for x, y in list(penalities.items())]
         penalities.sort()
         for penality, url in penalities:
-            print "%s %d" % (url, penality)
+            print("%s %d" % (url, penality))
 
 # vim:ts=4:sw=4:et

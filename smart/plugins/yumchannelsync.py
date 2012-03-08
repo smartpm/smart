@@ -21,7 +21,7 @@
 #
 import posixpath
 import os
-import ConfigParser
+import configparser
 import re
 
 # be compatible with 2.3
@@ -63,7 +63,7 @@ def _getreleasever():
     if idx.count() == 0:
         idx = ts.dbMatch('provides', 'redhat-release')
     if idx.count() != 0:
-        hdr = idx.next()
+        hdr = next(idx)
         releasever = str(hdr['version'])
         del hdr
     del idx
@@ -85,7 +85,7 @@ def _findBaseUrl(mirrorlist, repo):
     """
     Fetches the first suggested mirror from the mirrorlist and use as baseurl.
     """
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
     list = urllib.urlopen(mirrorlist)
     baseurl = None
     while 1:
@@ -131,7 +131,7 @@ def _loadRepoFile(filename):
     # The computed aliases we have seen in the given file
     seen = set()
 
-    repofile = ConfigParser.ConfigParser()
+    repofile = configparser.ConfigParser()
     repofile.read(filename)
 
     for repo in repofile.sections():
@@ -174,7 +174,7 @@ def _loadRepoFile(filename):
  
         try:
             createChannel(alias, data)
-        except Error, e:
+        except Error as e:
             iface.error(_("While using %s: %s") % (filename, e))
         else:
             # Store it persistently.

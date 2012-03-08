@@ -133,15 +133,15 @@ for command in commands:
 
     if hasattr(mod, 'option_parser'):
         #print command
-        print ('<sect3 id="smart-text-%s" xreflabel="%s"><title>%s</title>\n' %
-              (command, command.capitalize(), command.capitalize()))
+        print(('<sect3 id="smart-text-%s" xreflabel="%s"><title>%s</title>\n' %
+              (command, command.capitalize(), command.capitalize())))
 
         parser = mod.option_parser()
         parser.remove_option("--help")
         if parser._examples:
             parser._examples = "<synopsis>" + parser._examples + "</synopsis>\n"
         parser.formatter = formatter
-        print parser.format_help(formatter)
+        print(parser.format_help(formatter))
         
-        print "</sect3>\n"
+        print("</sect3>\n")
 

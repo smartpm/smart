@@ -1,6 +1,6 @@
 import sys
 sys.argv = ["./smart.py", "nothing"]
-execfile('./smart.py')
+exec(open('./smart.py').read())
 
 from smart.cache import *
 from sets import Set

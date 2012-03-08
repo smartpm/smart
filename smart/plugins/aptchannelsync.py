@@ -96,7 +96,7 @@ def _loadSourcesList(filename):
         # See if creating a channel works.
         try:
             createChannel(alias, data)
-        except Error, e:
+        except Error as e:
             iface.error(_("While using %s: %s") % (file.name, e))
         else:
             # Store it persistently, without destroying existing setttings.

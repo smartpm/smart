@@ -110,7 +110,7 @@ def parse_options(argv):
                 parser.print_help()
                 sys.exit(0)
             else:
-                raise Error, _("no such option: %s") % arg
+                raise Error(_("no such option: %s") % arg)
     else:
         opts.command = None
         opts.argv = []
@@ -136,7 +136,7 @@ def set_config_options(options):
     for opt in options:
         m = SETRE.match(opt)
         if not m:
-            raise Error, _("Invalid option: %s") % opt
+            raise Error(_("Invalid option: %s") % opt)
         path, assign, value = m.groups()
         try:
             value = int(value)
@@ -175,12 +175,12 @@ def main(argv):
             exitcode = 0
         ctrl.saveSysConf()
         ctrl.restoreMediaState()
-    except Error, e:
+    except Error as e:
         if opts and opts.log_level == "debug":
             import traceback
             traceback.print_exc()
         if iface.object:
-            iface.error(unicode(e))
+            iface.error(str(e))
         else:
             sys.stderr.write(_("error: %s\n") % e)
         if ctrl:
@@ -192,7 +192,7 @@ def main(argv):
             traceback.print_exc()
             sys.exit(1)
         sys.stderr.write(_("\nInterrupted\n"))
-    print
+    print()
     if exitcode != 0:
         sys.exit(exitcode)
 

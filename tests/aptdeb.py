@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from io import StringIO
 import shutil
 import sys
 import os
@@ -87,7 +87,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "keyring": "/dev/null"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Download of Release failed for channel 'alias': "
                               "File not found for validation")
@@ -105,7 +105,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "components": "component"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Channel 'alias' signed with unknown key")
         else:
@@ -121,7 +121,7 @@ class AptDebChannelTest(MockerTestCase):
                                             TESTDATADIR})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Channel 'alias' signed with unknown key")
         else:
@@ -137,7 +137,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "components": "component"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Channel 'alias' signed with unknown key")
         else:
@@ -152,7 +152,7 @@ class AptDebChannelTest(MockerTestCase):
                                             TESTDATADIR})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Channel 'alias' signed with unknown key")
         else:
@@ -168,7 +168,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "components": "component"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Channel 'alias' signed with unknown key")
         else:
@@ -183,7 +183,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "keyring": "/dev/null"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             self.assertEquals(str(error),
                               "Channel 'alias' signed with unknown key")
         else:
@@ -259,7 +259,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "distribution": "component-less"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             error_message = "Unexpected size (expected 571, got 572)"
             self.assertTrue(str(error).endswith(error_message), str(error))
         else:
@@ -279,7 +279,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "distribution": "component-less"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             error_message =  ("Invalid MD5 "
                               "(expected 384ccb05e3f6da02312b6e383b211777,"
                               " got 6a2857275a35bf2b79e480e653431f83)")
@@ -301,7 +301,7 @@ class AptDebChannelTest(MockerTestCase):
                                  "distribution": "component-less"})
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             error_message =  ("Invalid MD5 "
                               "(expected 384ccb05e3f6da02312b6e383b211777,"
                               " got 6a2857275a35bf2b79e480e653431f83)")
@@ -326,7 +326,7 @@ class AptDebChannelTest(MockerTestCase):
                                  })
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             error_message =  ("Invalid MD5 "
                               "(expected 384ccb05e3f6da02312b6e383b211777,"
                               " got 6a2857275a35bf2b79e480e653431f83)")
@@ -351,7 +351,7 @@ class AptDebChannelTest(MockerTestCase):
                                  })
         try:
             self.check_channel(channel)
-        except Error, error:
+        except Error as error:
             error_message =  ("Invalid MD5 "
                               "(expected 384ccb05e3f6da02312b6e383b211777,"
                               " got 6a2857275a35bf2b79e480e653431f83)")

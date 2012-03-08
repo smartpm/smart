@@ -53,12 +53,12 @@ def main(ctrl, opts, reloadchannels=True):
 
     cache = ctrl.getCache()
 
-    print _("Installed Packages:"), len([pkg for pkg in cache.getPackages()
-                                              if pkg.installed])
-    print _("Total Packages:"), len(cache.getPackages())
-    print _("Total Provides:"), len(cache.getProvides())
-    print _("Total Requires:"), len(cache.getRequires())
-    print _("Total Upgrades:"), len(cache.getUpgrades())
-    print _("Total Conflicts:"), len(cache.getConflicts())
+    print(_("Installed Packages:"), len([pkg for pkg in cache.getPackages()
+                                              if pkg.installed]))
+    print(_("Total Packages:"), len(cache.getPackages()))
+    print(_("Total Provides:"), len(cache.getProvides()))
+    print(_("Total Requires:"), len(cache.getRequires()))
+    print(_("Total Upgrades:"), len(cache.getUpgrades()))
+    print(_("Total Conflicts:"), len(cache.getConflicts()))
 
 # vim:ts=4:sw=4:et

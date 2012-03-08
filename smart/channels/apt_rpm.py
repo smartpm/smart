@@ -26,7 +26,7 @@ from smart.const import SUCCEEDED, FAILED, NEVER
 from smart import *
 import posixpath
 import tempfile
-import commands
+import subprocess
 import os
 
 class APTRPMChannel(PackageChannel):
@@ -61,7 +61,7 @@ class APTRPMChannel(PackageChannel):
             if fetcher.getCaching() is NEVER:
                 lines = [_("Failed acquiring information for '%s':") % self,
                          "%s: %s" % (item.getURL(), failed)]
-                raise Error, "\n".join(lines)
+                raise Error("\n".join(lines))
             return False
 
         digest = getFileDigest(item.getTargetPath())
@@ -99,8 +99,8 @@ class APTRPMChannel(PackageChannel):
             sfile = os.fdopen(sfd, "w")
             try:
                 if not hassignature:
-                    raise Error, _("Channel '%s' has fingerprint but is not "
-                                   "signed") % self
+                    raise Error(_("Channel '%s' has fingerprint but is not "
+                                   "signed") % self)
 
                 file = rfile
                 for line in open(item.getTargetPath()):
@@ -110,7 +110,7 @@ class APTRPMChannel(PackageChannel):
                 rfile.close()
                 sfile.close()
 
-                status, output = commands.getstatusoutput(
+                status, output = subprocess.getstatusoutput(
                     "gpg --batch --no-secmem-warning --status-fd 1 "
                     "--verify %s %s" % (sname, rname))
 
@@ -128,10 +128,10 @@ class APTRPMChannel(PackageChannel):
                         elif first == "BADSIG":
                             badsig = True
                 if badsig:
-                    raise Error, _("Channel '%s' has bad signature") % self
+                    raise Error(_("Channel '%s' has bad signature") % self)
                 if not goodsig or validsig != self._fingerprint:
-                    raise Error, _("Channel '%s' signed with unknown key")%self
-            except Error, e:
+                    raise Error(_("Channel '%s' signed with unknown key")%self)
+            except Error as e:
                 progress.add(self.getFetchSteps()-1)
                 progress.show()
                 rfile.close()
@@ -205,13 +205,13 @@ class APTRPMChannel(PackageChannel):
                 loader.setChannel(self)
                 self._loaders.append(loader)
             else:
-                errorlines.append(u"%s: %s" % (pkgitem.getURL(),
+                errorlines.append("%s: %s" % (pkgitem.getURL(),
                                                pkgitem.getFailedReason()))
         if errorlines:
             if fetcher.getCaching() is NEVER:
                 errorlines.insert(0, _("Failed acquiring information for "
                                        "'%s':") % self)
-                raise Error, "\n".join(errorlines)
+                raise Error("\n".join(errorlines))
             return False
 
         self._digest = digest

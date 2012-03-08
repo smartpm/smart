@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart import Error, _
-import pexpect
+from . import pexpect
 import time
 import sys
 
@@ -50,8 +50,8 @@ class SSH:
                 elif self.getpassword:
                     password = self.getpassword()
                 else:
-                    raise Error, _("SSH asked for password, "
-                                   "but no password is available")
+                    raise Error(_("SSH asked for password, "
+                                   "but no password is available"))
                 p.sendline(password)
                 outlist = []
             elif i == 4:

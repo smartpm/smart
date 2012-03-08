@@ -22,7 +22,7 @@
 #
 from smart.util.filetools import compareFiles
 from smart import *
-import commands
+import subprocess
 import stat
 import os
 
@@ -187,7 +187,7 @@ class Media(object):
         if not os.path.isfile("/proc/mounts"):
             if self._mountpoint:
                 return os.path.ismount(self._mountpoint)
-            raise Error, _("/proc/mounts not found")
+            raise Error(_("/proc/mounts not found"))
         for line in open("/proc/mounts"):
             device, mountpoint, type = line.split()[:3]
             if mountpoint == self._mountpoint:
@@ -202,7 +202,7 @@ class Media(object):
 
     def eject(self):
         if self._device:
-            status, output = commands.getstatusoutput("eject %s" %
+            status, output = subprocess.getstatusoutput("eject %s" %
                                                       self._device)
             if status == 0:
                 return True
@@ -254,7 +254,7 @@ class MountMedia(Media):
             cmd = "mount %s" % self._mountpoint
         if self._options:
             cmd += " -o %s" % self._options
-        status, output = commands.getstatusoutput(cmd)
+        status, output = subprocess.getstatusoutput(cmd)
         if status != 0:
             iface.debug(output)
             return False
@@ -265,7 +265,7 @@ class UmountMedia(Media):
     def umount(self):
         if not self.isMounted():
             return True
-        status, output = commands.getstatusoutput("umount %s" % 
+        status, output = subprocess.getstatusoutput("umount %s" % 
                                                   self._mountpoint)
         if status != 0:
             iface.debug(output)
@@ -372,9 +372,9 @@ def discoverHalVolumeMedias():
     result = []
     if dbus:
         import sys
-        import StringIO
+        import io
         olderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = io.StringIO()
         try:
             bus = dbus.SystemBus()
             hal_object = bus.get_object('org.freedesktop.Hal',
@@ -407,9 +407,9 @@ def discoverDeviceKitDisksMedias():
     result = []
     if dbus:
         import sys
-        import StringIO
+        import io
         olderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = io.StringIO()
         try:
             bus = dbus.SystemBus()
             dk_object = bus.get_object('org.freedesktop.DeviceKit.Disks',
@@ -425,7 +425,7 @@ def discoverDeviceKitDisksMedias():
                 optical_disc = bool(volume.Get(interface, 'DeviceIsOpticalDisc'))
                 is_removable = bool(volume.Get(interface, 'DeviceIsRemovable'))
                 if mount_paths and (fstype == "iso9660" or optical_disc):
-                    mount_point = unicode(mount_paths.pop())
+                    mount_point = str(mount_paths.pop())
                     result.append(AutoMountMedia(mount_point, device,
                                                               removable=is_removable))
         except:

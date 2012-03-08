@@ -1,5 +1,5 @@
-from StringIO import StringIO
-import __builtin__
+from io import StringIO
+import builtins
 import shutil
 import sys
 import os
@@ -65,8 +65,8 @@ class YumRpmChannelTest(MockerTestCase):
     def test_fetch_with_broken_mirrorlist(self):
         def fail_open(filename, mode='r', bufsize=-1):
              raise IOError("emulating a broken mirrorlist...")
-        old_open = __builtin__.open
-        __builtin__.open = fail_open
+        old_open = builtins.open
+        builtins.open = fail_open
         channel = createChannel("alias",
                                 {"type": "rpm-md",
                                  "baseurl": "file://%s/yumrpm" % TESTDATADIR,
@@ -74,13 +74,13 @@ class YumRpmChannelTest(MockerTestCase):
         try:
             try:
                 self.check_channel(channel)
-            except AttributeError, error:
+            except AttributeError as error:
                 # AttributeError: 'exceptions.IOError' object has no attribute 'split'
                 self.fail(error)
             except IOError:
                 pass
         finally:
-             __builtin__.open = old_open
+             builtins.open = old_open
 
     def test_fetch_with_broken_metalink(self):
         channel = createChannel("alias",
@@ -89,6 +89,6 @@ class YumRpmChannelTest(MockerTestCase):
                                  "mirrorlist": "file://%s/yumrpm/metalink-broken.xml" % TESTDATADIR})
         try:
              self.check_channel(channel)
-        except AttributeError, error:
+        except AttributeError as error:
              # AttributeError: 'ExpatError' object has no attribute 'split'
              self.fail(error)

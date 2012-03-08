@@ -62,8 +62,8 @@ class RedCarpetChannel(PackageChannel):
             self._loaders.append(loader)
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
-                     u"%s: %s" % (item.getURL(), item.getFailedReason())]
-            raise Error, "\n".join(lines)
+                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            raise Error("\n".join(lines))
         else:
             return False
 

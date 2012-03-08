@@ -59,7 +59,7 @@ class RPMPackageManager(PackageManager):
         # Compute upgrading/upgraded packages
         upgrading = {}
         upgraded = {}
-        for pkg in changeset.keys():
+        for pkg in list(changeset.keys()):
             if changeset.get(pkg) is INSTALL:
                 upgpkgs = [upgpkg for prv in pkg.provides
                                   for upg in prv.upgradedby
@@ -127,8 +127,8 @@ class RPMPackageManager(PackageManager):
             try:
                 rpmlog = open(rpmlogfile, 'w')
                 rpm.setLogFile(rpmlog)
-            except (IOError, OSError), e:
-                raise Error, "%s: %s" % (rpmlogfile, unicode(e))
+            except (IOError, OSError) as e:
+                raise Error("%s: %s" % (rpmlogfile, str(e)))
 
         # Let's help RPM, since it doesn't do a good
         # ordering job on erasures.
@@ -164,9 +164,9 @@ class RPMPackageManager(PackageManager):
                     if sysconf.get("rpm-check-signatures", False):
                          if get_public_key(h) == '(none)':
                              raise rpm.error('package is not signed')
-                except rpm.error, e:
+                except rpm.error as e:
                     os.close(fd)
-                    raise Error, "%s: %s" % (os.path.basename(path), e)
+                    raise Error("%s: %s" % (os.path.basename(path), e))
                 os.close(fd)
                 ts.addInstall(h, (info, path), mode)
                 packages += 1
@@ -175,9 +175,9 @@ class RPMPackageManager(PackageManager):
                 offset = pkg.loaders[loader]
                 try:
                     ts.addErase(offset)
-                except rpm.error, e:
-                    raise Error, "%s-%s: %s" % \
-                                 (pkg.name, pkg.version, unicode(e))
+                except rpm.error as e:
+                    raise Error("%s-%s: %s" % \
+                                 (pkg.name, pkg.version, str(e)))
 
         upgradednames = {}
         for pkg in upgraded:
@@ -211,7 +211,7 @@ class RPMPackageManager(PackageManager):
                     else:
                         line = _("%s conflicts with %s") % (name1, name2)
                     problines.append(line)
-                raise Error, "\n".join(problines)
+                raise Error("\n".join(problines))
         if sysconf.get("rpm-order"):
             ts.order()
         probfilter = rpm.RPMPROB_FILTER_OLDPACKAGE
@@ -230,7 +230,7 @@ class RPMPackageManager(PackageManager):
             cb.grabOutput(False)
             prog.setDone()
             if probs:
-                raise Error, "\n".join([x[0] for x in probs])
+                raise Error("\n".join([x[0] for x in probs]))
             prog.stop()
 
 class RPMCallback:

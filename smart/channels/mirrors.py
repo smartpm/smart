@@ -56,8 +56,8 @@ class StandardMirrorsChannel(MirrorsChannel):
                     origin = line.strip()
         elif fetcher.getCaching() is NEVER:
             lines = [_("Failed acquiring information for '%s':") % self,
-                     u"%s: %s" % (item.getURL(), item.getFailedReason())]
-            raise Error, "\n".join(lines)
+                     "%s: %s" % (item.getURL(), item.getFailedReason())]
+            raise Error("\n".join(lines))
         return True
 
 def create(alias, data):

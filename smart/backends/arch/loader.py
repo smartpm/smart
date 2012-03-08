@@ -66,7 +66,7 @@ class ArchPackageInfo(PackageInfo):
     def getSize(self, url):
         size = self._info.get("csize")
         if size:
-            return long(size)
+            return int(size)
         return None
 
     def getMD5(self, url):
@@ -81,7 +81,7 @@ class ArchPackageInfo(PackageInfo):
     def getInstalledSize(self):
         size = self._info.get("isize")
         if size:
-            return long(size)
+            return int(size)
         return None
 
     def getReferenceURLs(self):
@@ -92,7 +92,7 @@ class ArchPackageInfo(PackageInfo):
 
     def getPathList(self):
         self._paths = self._loader.getPaths(self)
-        return self._paths.keys()
+        return list(self._paths.keys())
 
     def pathIsDir(self, path):
         return self._paths[path] == "d"
@@ -116,16 +116,16 @@ def parseFilePackageInfo(filename):
                 os.write(output, data)
                 data = input.read(BLOCKSIZE)
             os.close(output)
-        except ImportError, e:
-            import commands
+        except ImportError as e:
+            import subprocess
             if not os.path.exists(filename):
                 raise IOError("File not found: '%s'" % filename)
             else:
                 filename = os.path.abspath(filename)
-            (status, output) = commands.getstatusoutput(
+            (status, output) = subprocess.getstatusoutput(
                                "unxz <'%s' >%s" % (filename, tempname))
             if (status != 0):
-                raise Error, "%s, unxz helper could not be found" % e
+                raise Error("%s, unxz helper could not be found" % e)
         tar = tarfile.open(tempname)
     else:
         tar = tarfile.open(filename)
@@ -266,7 +266,7 @@ def parseSitePackageInfo(dbpath):
          temppath = posixpath.join(tempdir, pkgdir)
          os.rmdir(temppath)
          pkgdir = None
-    return infolst.values()
+    return list(infolst.values())
 
 def parseSitePackageList(flpath, dirname):
     info = None

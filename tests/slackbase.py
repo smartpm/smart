@@ -1,6 +1,6 @@
 import os
 
-from mocker import MockerTestCase
+from .mocker import MockerTestCase
 
 from smart.backends.slack.base import SlackPackage, Package, Provides
 from smart.backends.slack.slackver import splitarch, splitrelease

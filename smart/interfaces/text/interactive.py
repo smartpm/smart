@@ -33,8 +33,8 @@ HISTFILE = "~/.smart_history"
 class TextInteractiveInterface(TextInterface):
 
     def run(self, command=None, argv=None):
-        print "Smart Package Manager %s - Shell Mode" % VERSION
-        print
+        print("Smart Package Manager %s - Shell Mode" % VERSION)
+        print()
         self._ctrl.reloadChannels()
         histfile = os.path.expanduser(HISTFILE)
         try:
@@ -152,11 +152,11 @@ class Interpreter(Cmd):
                             dct[obj] = True
                         else:
                             dct.update(dct.fromkeys(obj.packages, True))
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
             else:
                 pkgs = {}
                 for obj in results:
@@ -164,7 +164,7 @@ class Interpreter(Cmd):
                         pkgs[obj] = True
                     else:
                         pkgs.update(dict.fromkeys(obj.packages, True))
-            pkgs = pkgs.keys()
+            pkgs = list(pkgs.keys())
             if len(pkgs) > 1:
                 sortUpgrades(pkgs)
             yield arg, pkgs
@@ -193,8 +193,8 @@ class Interpreter(Cmd):
                 except AttributeError:
                     pass
             return Cmd.onecmd(self, line)
-        except Error, e:
-            iface.error(unicode(e))
+        except Error as e:
+            iface.error(str(e))
             return None
         except KeyboardInterrupt:
             sys.stderr.write(_("\nInterrupted\n"))
@@ -212,24 +212,24 @@ class Interpreter(Cmd):
             self.stdout.write("\n")
 
     def help_help(self):
-        print _("What would you expect!? ;-)")
+        print(_("What would you expect!? ;-)"))
 
     def help_EOF(self):
-        print _("The exit/quit/EOF command returns to the system.")
+        print(_("The exit/quit/EOF command returns to the system."))
     help_exit = help_EOF
     help_quit = help_EOF
 
     def do_EOF(self, line):
-        print
+        print()
         return True
     do_exit = do_EOF
     do_quit = do_EOF
 
     def help_shell(self):
-        print _("The shell command offers execution of system commands.")
-        print
-        print _("Usage: shell [<cmd>]")
-        print _("       ![<cmd>]")
+        print(_("The shell command offers execution of system commands."))
+        print()
+        print(_("Usage: shell [<cmd>]"))
+        print(_("       ![<cmd>]"))
 
     def do_shell(self, line):
         if not line.strip():
@@ -237,26 +237,26 @@ class Interpreter(Cmd):
         os.system(line)
 
     def help_status(self):
-        print _("The status command shows currently marked changes.")
-        print
-        print _("Usage: status")
+        print(_("The status command shows currently marked changes."))
+        print()
+        print(_("Usage: status"))
 
     def do_status(self, line):
         if line.strip():
-            raise Error, _("Invalid arguments")
+            raise Error(_("Invalid arguments"))
         if not self._changeset:
-            print _("There are no marked changes.")
+            print(_("There are no marked changes."))
         else:
             iface.showChangeSet(self._changeset)
 
     def help_install(self):
-        print _("The install command marks packages for installation.")
-        print
-        print _("Options:")
-        print _("   --explain  Include additional information about\n"
-                "              changes, when possible")
-        print
-        print _("Usage: install <pkgname> ...")
+        print(_("The install command marks packages for installation."))
+        print()
+        print(_("Options:"))
+        print(_("   --explain  Include additional information about\n"
+                "              changes, when possible"))
+        print()
+        print(_("Usage: install <pkgname> ..."))
 
     complete_install = completeAvailable
     def do_install(self, line):
@@ -283,7 +283,7 @@ class Interpreter(Cmd):
                     found = True
                     transaction.enqueue(pkg, INSTALL)
             if not found:
-                raise Error, _("No uninstalled packages matched '%s'") % arg
+                raise Error(_("No uninstalled packages matched '%s'") % arg)
         transaction.run()
         if opts.explain:
             self.setExplain(True)
@@ -294,13 +294,13 @@ class Interpreter(Cmd):
             self.setExplain(False)
 
     def help_reinstall(self):
-        print _("The reinstall command marks packages for reinstallation.")
-        print
-        print _("Options:")
-        print _("   --explain  Include additional information about\n"
-                "              changes, when possible")
-        print
-        print _("Usage: reinstall <pkgname> ...")
+        print(_("The reinstall command marks packages for reinstallation."))
+        print()
+        print(_("Options:"))
+        print(_("   --explain  Include additional information about\n"
+                "              changes, when possible"))
+        print()
+        print(_("Usage: reinstall <pkgname> ..."))
 
     complete_reinstall = completeInstalled
     def do_reinstall(self, line):
@@ -316,9 +316,9 @@ class Interpreter(Cmd):
         for arg, pkgs in self.pkgsFromArgs(args):
             expected += 1
             if not pkgs:
-                raise Error, _("'%s' matches no installed packages") % arg
+                raise Error(_("'%s' matches no installed packages") % arg)
             if len(pkgs) > 1:
-                raise Error, _("'%s' matches multiple installed packages")%arg
+                raise Error(_("'%s' matches multiple installed packages")%arg)
             transaction.enqueue(pkgs[0], REINSTALL)
         transaction.run()
         if opts.explain:
@@ -330,13 +330,13 @@ class Interpreter(Cmd):
             self.setExplain(False)
 
     def help_upgrade(self):
-        print _("The upgrade command marks packages for upgrading.")
-        print
-        print _("Options:")
-        print _("   --explain  Include additional information about\n"
-                "              changes, when possible")
-        print
-        print _("Usage: upgrade <pkgname> ...")
+        print(_("The upgrade command marks packages for upgrading."))
+        print()
+        print(_("Options:"))
+        print(_("   --explain  Include additional information about\n"
+                "              changes, when possible"))
+        print()
+        print(_("Usage: upgrade <pkgname> ..."))
 
     complete_upgrade = completeInstalled
     def do_upgrade(self, line):
@@ -362,12 +362,12 @@ class Interpreter(Cmd):
                         found = True
                         transaction.enqueue(pkg, UPGRADE)
                 if not found:
-                    raise Error, _("'%s' matches no installed packages") % arg
+                    raise Error(_("'%s' matches no installed packages") % arg)
         transaction.run()
         if opts.explain:
             self.setExplain(True)
         if changeset == self._changeset:
-            print _("No interesting upgrades available!")
+            print(_("No interesting upgrades available!"))
         elif iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
@@ -375,13 +375,13 @@ class Interpreter(Cmd):
             self.setExplain(False)
 
     def help_remove(self):
-        print _("The remove command marks packages for being removed.")
-        print
-        print _("Options:")
-        print _("   --explain  Include additional information about\n"
-                "              changes, when possible")
-        print
-        print _("Usage: remove <pkgname> ...")
+        print(_("The remove command marks packages for being removed."))
+        print()
+        print(_("Options:"))
+        print(_("   --explain  Include additional information about\n"
+                "              changes, when possible"))
+        print()
+        print(_("Usage: remove <pkgname> ..."))
 
     complete_remove = completeInstalled
     def do_remove(self, line):
@@ -406,7 +406,7 @@ class Interpreter(Cmd):
                         if not _pkg.installed:
                             policy.setLocked(_pkg, True)
             if not found:
-                raise Error, _("'%s' matches no installed packages") % arg
+                raise Error(_("'%s' matches no installed packages") % arg)
         transaction.run()
         if opts.explain:
             self.setExplain(True)
@@ -417,13 +417,13 @@ class Interpreter(Cmd):
             self.setExplain(False)
 
     def help_keep(self):
-        print _("The keep command unmarks currently marked packages.")
-        print
-        print _("Options:")
-        print _("   --explain  Include additional information about\n"
-                "              changes, when possible")
-        print
-        print _("Usage: keep <pkgname> ...")
+        print(_("The keep command unmarks currently marked packages."))
+        print()
+        print(_("Options:"))
+        print(_("   --explain  Include additional information about\n"
+                "              changes, when possible"))
+        print()
+        print(_("Usage: keep <pkgname> ..."))
 
     complete_keep = completeMarked
     def do_keep(self, line):
@@ -440,7 +440,7 @@ class Interpreter(Cmd):
             expected += 1
             pkgs = [x for x in pkgs if x in changeset]
             if not pkgs:
-                raise Error, _("'%s' matches no marked packages") % arg
+                raise Error(_("'%s' matches no marked packages") % arg)
             for pkg in pkgs:
                 transaction.enqueue(pkg, KEEP)
         transaction.run()
@@ -453,14 +453,14 @@ class Interpreter(Cmd):
             self.setExplain(False)
 
     def help_fix(self):
-        print _("The fix command verifies relations of given packages\n"
-                "and marks the necessary changes for fixing them.")
-        print
-        print _("Options:")
-        print _("   --explain  Include additional information about\n"
-                "              changes, when possible")
-        print
-        print _("Usage: fix <pkgname> ...")
+        print(_("The fix command verifies relations of given packages\n"
+                "and marks the necessary changes for fixing them."))
+        print()
+        print(_("Options:"))
+        print(_("   --explain  Include additional information about\n"
+                "              changes, when possible"))
+        print()
+        print(_("Usage: fix <pkgname> ..."))
 
     complete_fix = completeAll
     def do_fix(self, line):
@@ -481,7 +481,7 @@ class Interpreter(Cmd):
         if opts.explain:
             self.setExplain(True)
         if changeset == self._changeset:
-            print _("No problems to resolve!")
+            print(_("No problems to resolve!"))
         elif iface.confirmChange(self._changeset, changeset, expected):
             self.saveUndo()
             self._changeset.setState(changeset)
@@ -489,10 +489,10 @@ class Interpreter(Cmd):
             self.setExplain(False)
 
     def help_download(self):
-        print _("The download command fetches the given packages\n"
-                "to the local filesystem.")
-        print
-        print _("Usage: download <pkgname> ...")
+        print(_("The download command fetches the given packages\n"
+                "to the local filesystem."))
+        print()
+        print(_("Usage: download <pkgname> ..."))
 
     complete_download = completeAll
     def do_download(self, line):
@@ -506,9 +506,9 @@ class Interpreter(Cmd):
             self._ctrl.downloadPackages(packages, targetdir=os.getcwd())
 
     def help_commit(self):
-        print _("The commit command applies marked changes in the system.")
-        print
-        print _("Usage: commit")
+        print(_("The commit command applies marked changes in the system."))
+        print()
+        print(_("Usage: commit"))
 
     def do_commit(self, line):
         transaction = Transaction(self._ctrl.getCache(),
@@ -520,9 +520,9 @@ class Interpreter(Cmd):
             self._ctrl.reloadChannels()
 
     def help_undo(self):
-        print _("The undo command reverts marked changes.")
-        print
-        print _("Usage: undo")
+        print(_("The undo command reverts marked changes."))
+        print()
+        print(_("Usage: undo"))
 
     def do_undo(self, line):
         if not self._undo:
@@ -535,9 +535,9 @@ class Interpreter(Cmd):
             self._changeset.setPersistentState(state)
 
     def help_redo(self):
-        print _("The redo command reapplies undone changes.")
-        print
-        print _("Usage: redo")
+        print(_("The redo command reapplies undone changes."))
+        print()
+        print(_("Usage: redo"))
 
     def do_redo(self, line):
         if not self._redo:
@@ -550,16 +550,16 @@ class Interpreter(Cmd):
             self._changeset.setPersistentState(state)
 
     def help_ls(self):
-        print _("The ls command lists packages by name. Wildcards\n"
-                "are accepted.")
-        print
-        print _("Options:")
-        print _("   -i  List only installed packages")
-        print _("   -n  List only new packages")
-        print _("   -v  Show versions")
-        print _("   -s  Show summaries")
-        print
-        print _("Usage: ls [options] [<string>] ...")
+        print(_("The ls command lists packages by name. Wildcards\n"
+                "are accepted."))
+        print()
+        print(_("Options:"))
+        print(_("   -i  List only installed packages"))
+        print(_("   -n  List only new packages"))
+        print(_("   -v  Show versions"))
+        print(_("   -s  Show summaries"))
+        print()
+        print(_("Usage: ls [options] [<string>] ..."))
 
     complete_ls = completeAll
     def do_ls(self, line):
@@ -583,12 +583,12 @@ class Interpreter(Cmd):
                                 dct[obj] = True
                             else:
                                 dct.update(dct.fromkeys(obj.packages, True))
-                        raise Error, _("'%s' matches no packages. "
+                        raise Error(_("'%s' matches no packages. "
                                        "Suggestions:\n%s") % \
                                      (arg, "\n".join(["    "+str(x)
-                                                      for x in dct]))
+                                                      for x in dct])))
                     else:
-                        raise Error, _("'%s' matches no packages") % arg
+                        raise Error(_("'%s' matches no packages") % arg)
                 else:
                     for obj in results:
                         if isinstance(obj, Package):
@@ -601,23 +601,23 @@ class Interpreter(Cmd):
             pkgs = [x for x in pkgs if x.installed]
         if opts.new:
             pkgs = pkgconf.filterByFlag("new", pkgs)
-        pkgs = dict.fromkeys(pkgs).keys()
+        pkgs = list(dict.fromkeys(pkgs).keys())
         pkgs.sort()
 
         if opts.summary:
             for pkg in pkgs:
                 if opts.version:
-                    print str(pkg), "-",
+                    print(str(pkg), "-", end=' ')
                 else:
-                    print pkg.name, "-",
+                    print(pkg.name, "-", end=' ')
                 for loader in pkg.loaders:
                     info = loader.getInfo(pkg)
                     summary = info.getSummary()
                     if summary:
-                        print summary
+                        print(summary)
                         break
                 else:
-                    print
+                    print()
             return
 
         maxnamelen = 0
@@ -647,12 +647,12 @@ class Interpreter(Cmd):
                 s = opts.version and str(pkg) or pkg.name
                 out.write(s)
                 out.write(" "*(columnlen-len(s)))
-            print
+            print()
 
     def help_update(self):
-        print _("The update command will update channel information.")
-        print
-        print _("Usage: update [<alias>] ...")
+        print(_("The update command will update channel information."))
+        print()
+        print(_("Usage: update [<alias>] ..."))
 
     def complete_update(self, text, line, begidx, endidx):
         matches = []
@@ -675,7 +675,7 @@ class Interpreter(Cmd):
         cache = self._ctrl.getCache()
         newpackages = pkgconf.filterByFlag("new", cache.getPackages())
         if not newpackages:
-            print _("Channels have no new packages.")
+            print(_("Channels have no new packages."))
         else:
             if len(newpackages) <= 10:
                 newpackages.sort()
@@ -684,16 +684,16 @@ class Interpreter(Cmd):
                     info += "    %s\n" % pkg
             else:
                 info = "."
-            print _("Channels have %d new packages%s") % \
-                   (len(newpackages), info)
-        print
+            print(_("Channels have %d new packages%s") % \
+                   (len(newpackages), info))
+        print()
 
     def help_flag(self):
-        print _("The flag command allows configuring, removing and\n"
+        print(_("The flag command allows configuring, removing and\n"
                 "verifying package flags, and accepts the same options\n"
-                "available in the command line interface.")
-        print
-        print _("Usage: flag [options]")
+                "available in the command line interface."))
+        print()
+        print(_("Usage: flag [options]"))
 
     complete_flag = completeAll
     def do_flag(self, line):
@@ -701,18 +701,18 @@ class Interpreter(Cmd):
         try:
             try:
                 opts = flag.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             flag.main(self._ctrl, opts)
         except SystemExit:
             pass
 
     def help_query(self):
-        print _("The query command allows querying package information,\n"
+        print(_("The query command allows querying package information,\n"
                 "and accepts the same options available in the command\n"
-                "line interface.")
-        print
-        print _("Usage: query [options] [<pkgname>] ...")
+                "line interface."))
+        print()
+        print(_("Usage: query [options] [<pkgname>] ..."))
 
     complete_query = completeAll
     def do_query(self, line):
@@ -720,16 +720,16 @@ class Interpreter(Cmd):
         try:
             try:
                 opts = query.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             query.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
 
     def help_search(self):
-        print _("The search command allows searching for packages.")
-        print
-        print _("Usage: search <string> ...")
+        print(_("The search command allows searching for packages."))
+        print()
+        print(_("Usage: search <string> ..."))
 
     complete_search = completeAll
     def do_search(self, line):
@@ -737,16 +737,16 @@ class Interpreter(Cmd):
         try:
             try:
                 opts = search.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             search.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
 
     def help_info(self):
-        print _("The info command shows information about packages.")
-        print
-        print _("Usage: info <pkgname> ...")
+        print(_("The info command shows information about packages."))
+        print()
+        print(_("Usage: info <pkgname> ..."))
 
     complete_info = completeAll
     def do_info(self, line):
@@ -754,42 +754,42 @@ class Interpreter(Cmd):
         try:
             try:
                 opts = info.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             info.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
 
     def help_stats(self):
-        print _("The stats command shows some statistics.")
-        print
-        print _("Usage: stats")
+        print(_("The stats command shows some statistics."))
+        print()
+        print(_("Usage: stats"))
 
     def do_stats(self, line):
         from smart.commands import stats
         try:
             try:
                 opts = stats.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             stats.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
 
     def help_check(self):
-        print _("The check command verifies relations between packages,\n"
+        print(_("The check command verifies relations between packages,\n"
                 "and accepts the same options available in the command\n"
-                "line interface.")
-        print
-        print _("Usage: check [options] [<pkgname>] ...")
+                "line interface."))
+        print()
+        print(_("Usage: check [options] [<pkgname>] ..."))
 
     def do_check(self, line):
         from smart.commands import check
         try:
             try:
                 opts = check.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             check.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass
@@ -799,8 +799,8 @@ class Interpreter(Cmd):
         try:
             try:
                 opts = newer.parse_options(shlex.split(line))
-            except ValueError, e:
-                raise Error, str(e)
+            except ValueError as e:
+                raise Error(str(e))
             newer.main(self._ctrl, opts, reloadchannels=False)
         except SystemExit:
             pass

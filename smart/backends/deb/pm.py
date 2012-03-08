@@ -52,7 +52,7 @@ class DebSorter(ElementSorter):
 
     def setChangeSet(self, changeset):
         # Set of priorities we use in this sorter.
-        HIGH, MEDIUM, LOW = range(3)
+        HIGH, MEDIUM, LOW = list(range(3))
 
         # XXX The organization here sucks a bit. :-(  We should clean this
         #     up, perhaps by refactoring this code into separate methods.
@@ -188,7 +188,7 @@ class DebPackageManager(PackageManager):
 
         # Compute upgraded packages
         upgraded = {}
-        for pkg in changeset.keys():
+        for pkg in list(changeset.keys()):
             if changeset[pkg] is INSTALL:
                 upgpkgs = [upgpkg for prv in pkg.provides
                                   for upg in prv.upgradedby
@@ -248,7 +248,7 @@ class DebPackageManager(PackageManager):
         else:
             output = sys.stdout
 
-        print >>output
+        print(file=output)
 
         done = {}
         error = None
@@ -264,7 +264,7 @@ class DebPackageManager(PackageManager):
                 done[pkg] = True
                 opname = {REMOVE: "remove", PURGE: "purge", CONFIG: "config",
                           UNPACK: "unpack", INSTALL: "install"}
-                print >>output, "[%s] %s" % (opname[op], pkg)
+                print("[%s] %s" % (opname[op], pkg), file=output)
                 pkgs.append(pkg)
 
             if not pkgs:
@@ -358,7 +358,7 @@ class DebPackageManager(PackageManager):
             #print >>output, " ".join(argv)
             try:
                 os.execvp(argv[0], argv)
-            except OSError, e:
+            except OSError as e:
                 output.write("%s: %s\n" % (argv[0], str(e)))
             os._exit(1)
 
@@ -373,7 +373,7 @@ class DebPackageManager(PackageManager):
                     data = os.read(r, 8192)
             try:
                 _pid, status = os.waitpid(pid, 0)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.EINTR:
                     raise
             else:

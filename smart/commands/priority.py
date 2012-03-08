@@ -82,11 +82,11 @@ def main(ctrl, opts):
         elif len(opts.args) == 3:
             name, alias, priority = opts.args
         else:
-            raise Error, _("Invalid arguments")
+            raise Error(_("Invalid arguments"))
         try:
             priority = int(priority)
         except ValueError:
-            raise Error, _("Invalid priority")
+            raise Error(_("Invalid priority"))
         pkgconf.setPriority(name, alias, priority)
 
     elif opts.remove:
@@ -96,25 +96,25 @@ def main(ctrl, opts):
         elif len(opts.args) == 2:
             name, alias = opts.args
         else:
-            raise Error, _("Invalid arguments")
+            raise Error(_("Invalid arguments"))
         if not pkgconf.removePriority(name, alias):
             iface.warning(_("Priority not found"))
 
     elif opts.show:
         header = (_("Package"), _("Channel"), _("Priority"))
-        print "%-30s %-20s %s" % header
-        print "-"*(52+len(header[-1]))
+        print("%-30s %-20s %s" % header)
+        print("-"*(52+len(header[-1])))
         priorities = sysconf.get("package-priorities", {})
-        showpriorities = opts.args or priorities.keys()
+        showpriorities = opts.args or list(priorities.keys())
         showpriorities.sort()
         for name in showpriorities:
             pkgpriorities = priorities.get(name)
-            aliases = pkgpriorities.keys()
+            aliases = list(pkgpriorities.keys())
             aliases.sort()
             for alias in aliases:
                 priority = pkgpriorities[alias]
-                print "%-30s %-20s %d" % (name, alias or "*", priority)
-        print
+                print("%-30s %-20s %d" % (name, alias or "*", priority))
+        print()
 
     elif opts.yaml:
         import yaml
@@ -122,6 +122,6 @@ def main(ctrl, opts):
         priorities = sysconf.get("package-priorities", {})
         for name in opts.args or priorities:
             yamlpriorities[name] = priorities.get(name)
-        print yaml.dump(yamlpriorities)
+        print(yaml.dump(yamlpriorities))
 
 # vim:ts=4:sw=4:et

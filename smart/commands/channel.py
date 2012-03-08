@@ -62,7 +62,7 @@ smart channel --add /mnt/cdrom
 
 def build_types():
     result = ""
-    typeinfo = getAllChannelInfos().items()
+    typeinfo = list(getAllChannelInfos().items())
     typeinfo.sort()
     for type, info in typeinfo:
         result += "  %-10s - %s\n" % (type, info.name)
@@ -142,21 +142,21 @@ def main(ctrl, opts):
 
     if opts.help_type:
         info = getChannelInfo(opts.help_type)
-        print _("Type:"), opts.help_type, "-", info.name
-        print
-        print info.description.strip()
-        print
-        print _("Fields:")
-        print format_fields(info.fields)
-        print
-        print _("(*) These fields are necessary for this type.")
-        print
+        print(_("Type:"), opts.help_type, "-", info.name)
+        print()
+        print(info.description.strip())
+        print()
+        print(_("Fields:"))
+        print(format_fields(info.fields))
+        print()
+        print(_("(*) These fields are necessary for this type."))
+        print()
         sys.exit(0)
 
     if (sysconf.getReadOnly() is True and opts.list is None and
                               opts.show is None and opts.yaml is None):
         iface.warning(_("Can't edit channels information."))
-        raise Error, _("Configuration is in readonly mode.")
+        raise Error(_("Configuration is in readonly mode."))
     
     if opts.add is not None:
         if not opts.add and opts.args == ["-"]:
@@ -183,8 +183,8 @@ def main(ctrl, opts):
             elif ":/" in arg:
                 succ, fail = ctrl.downloadURLs([arg], "channel description")
                 if fail:
-                    raise Error, _("Unable to fetch channel description: %s")\
-                                 % fail[arg]
+                    raise Error(_("Unable to fetch channel description: %s")\
+                                 % fail[arg])
                 data = open(succ[arg]).read()
                 if succ[arg].startswith(sysconf.get("data-dir")):
                     os.unlink(succ[arg])
@@ -195,86 +195,86 @@ def main(ctrl, opts):
                     channel["alias"] = alias
                     newchannels.append(channel)
             else:
-                raise Error, _("File not found: %s") % arg
+                raise Error(_("File not found: %s") % arg)
         elif opts.add:
             alias = opts.add.pop(0).strip()
             if not alias:
-                raise Error, _("Channel has no alias")
+                raise Error(_("Channel has no alias"))
             channel = {}
             for arg in opts.add:
                 if "=" not in arg:
-                    raise Error, _("Argument '%s' has no '='") % arg
+                    raise Error(_("Argument '%s' has no '='") % arg)
                 key, value = arg.split("=", 1)
                 channel[key.strip()] = value.strip()
             channel = parseChannelData(channel)
             channel["alias"] = alias
             newchannels = [channel]
         else:
-            raise Error, _("Channel information needed")
+            raise Error(_("Channel information needed"))
 
         newaliases = []
         for channel in newchannels:
             type = channel.get("type")
             if not opts.yes:
                 info = getChannelInfo(type)
-                print
+                print()
                 for key, label, ftype, default, descr in info.fields:
                     if key in channel:
-                        print "%s: %s" % (label, channel[key])
-                print
+                        print("%s: %s" % (label, channel[key]))
+                print()
             if opts.yes or iface.askYesNo(_("Include this channel?")):
                 try:
                     createChannel("alias", channel)
-                except Error, e:
+                except Error as e:
                     raise
                 else:
                     try:
                         alias = channel.get("alias")
                         while not alias or sysconf.has(("channels", alias)):
                             if alias:
-                                print _("Channel alias '%s' is already in "
-                                        "use.") % alias
-                            alias = raw_input(_("Channel alias: ")).strip()
+                                print(_("Channel alias '%s' is already in "
+                                        "use.") % alias)
+                            alias = input(_("Channel alias: ")).strip()
                         del channel["alias"]
                         sysconf.set(("channels", alias), channel)
                         newaliases.append(alias)
                     except KeyboardInterrupt:
-                        print
+                        print()
 
         removable = [alias for alias in newaliases
                      if sysconf.get(("channels", alias, "removable"))]
         if removable:
-            print
-            print _("Updating removable channels...")
-            print
-            import update
+            print()
+            print(_("Updating removable channels..."))
+            print()
+            from . import update
             updateopts = update.parse_options(removable)
             update.main(ctrl, updateopts)
 
     if opts.set:
         if not opts.set:
-            raise Error, _("Invalid arguments")
+            raise Error(_("Invalid arguments"))
 
         alias = opts.set.pop(0)
         if "=" in alias:
-            raise Error, _("First argument must be the channel alias")
+            raise Error(_("First argument must be the channel alias"))
 
         channel = sysconf.get(("channels", alias))
         if not channel:
-            raise Error, _("Channel with alias '%s' not found") % alias
+            raise Error(_("Channel with alias '%s' not found") % alias)
 
         for arg in opts.set:
             if "=" not in arg:
-                raise Error, _("Argument '%s' has no '='") % arg
+                raise Error(_("Argument '%s' has no '='") % arg)
             key, value = arg.split("=", 1)
             key = key.strip()
             if key == "type":
-                raise Error, _("Can't change the channel type")
+                raise Error(_("Can't change the channel type"))
             if key == "alias":
-                raise Error, _("Can't change the channel alias")
+                raise Error(_("Can't change the channel alias"))
             channel[key] = value.strip()
 
-        for key in channel.keys():
+        for key in list(channel.keys()):
             if not channel[key]:
                 del channel[key]
 
@@ -314,7 +314,7 @@ def main(ctrl, opts):
             if not channel:
                 iface.warning(_("Channel '%s' not found.") % alias)
             else:
-                print alias
+                print(alias)
 
     if opts.show is not None:
         for alias in (opts.show or sysconf.get("channels", ())):
@@ -325,8 +325,8 @@ def main(ctrl, opts):
                 desc = createChannelDescription(alias,
                                                 parseChannelData(channel))
                 if desc:
-                    print desc
-                    print
+                    print(desc)
+                    print()
 
     if opts.yaml is not None:
         import yaml
@@ -338,7 +338,7 @@ def main(ctrl, opts):
             else:
                 data = parseChannelData(channel)
                 yamlchannels[alias] = data    
-        print yaml.dump(yamlchannels)
+        print(yaml.dump(yamlchannels))
 
     if opts.edit:
         sysconf.assertWritable()
@@ -350,8 +350,8 @@ def main(ctrl, opts):
         for alias in aliases:
             channel = sysconf.get(("channels", alias))
             desc = createChannelDescription(alias, parseChannelData(channel))
-            print >>file, desc
-            print >>file
+            print(desc, file=file)
+            print(file=file)
         file.close()
         editor = os.environ.get("EDITOR", "vi")
         olddigest = getFileDigest(name)
@@ -365,8 +365,8 @@ def main(ctrl, opts):
             file.close()
             try:
                 newchannels = parseChannelsDescription(data)
-            except Error, e:
-                iface.error(unicode(e))
+            except Error as e:
+                iface.error(str(e))
                 if not iface.askYesNo(_("Continue?"), True):
                     break
                 else:continue
@@ -375,10 +375,10 @@ def main(ctrl, opts):
                 channel = newchannels[alias]
                 try:
                     createChannel(alias, channel)
-                except Error, e:
+                except Error as e:
                     failed = True
                     iface.error(_("Error in '%s' channel: %s") %
-                                (alias, unicode(e)))
+                                (alias, str(e)))
             if failed:
                 if not iface.askYesNo(_("Continue?"), True):
                     break

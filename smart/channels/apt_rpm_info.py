@@ -49,7 +49,7 @@ def detectLocalChannels(path, media):
                 elif entry.endswith(".gz"):
                     entry = entry[:-3]
                 components[entry] = True
-        for component in components.keys():
+        for component in list(components.keys()):
             if not os.path.isdir(os.path.join(path, "RPMS."+component)):
                 del components[component]
         if components:
@@ -59,7 +59,7 @@ def detectLocalChannels(path, media):
             else:
                 baseurl = "file://"
                 baseurl += path
-            components = " ".join(components.keys())
+            components = " ".join(list(components.keys()))
             channel = {"baseurl": baseurl, "components": components}
             if media:
                 infofile = os.path.join(media.getMountPoint(), ".disk/info")

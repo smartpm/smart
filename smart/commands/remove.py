@@ -110,11 +110,11 @@ def main(ctrl, opts):
                 if not dct:
                     del suggestions[:]
             if suggestions:
-                raise Error, _("'%s' matches no packages. "
+                raise Error(_("'%s' matches no packages. "
                                "Suggestions:\n%s") % \
-                             (arg, "\n".join(["    "+str(x) for x in dct]))
+                             (arg, "\n".join(["    "+str(x) for x in dct])))
             else:
-                raise Error, _("'%s' matches no packages") % arg
+                raise Error(_("'%s' matches no packages") % arg)
 
         pkgs = []
 

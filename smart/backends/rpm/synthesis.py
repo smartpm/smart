@@ -180,9 +180,9 @@ class URPMISynthesisLoader(Loader):
                     import lzma
                     infofile = lzma.LZMAFile(infofile)
                 infoxml = cElementTree.parse(infofile).getroot()
-            except (expat.error, SyntaxError), e: # ElementTree.ParseError
-                raise Error, _("Invalid XML file:\n  %s\n  %s") % \
-                              (self._infofile, str(e))
+            except (expat.error, SyntaxError) as e: # ElementTree.ParseError
+                raise Error(_("Invalid XML file:\n  %s\n  %s") % \
+                              (self._infofile, str(e)))
         else:
             infoxml = None
 
@@ -316,8 +316,8 @@ class URPMISynthesisLoader(Loader):
                         distversion += distepoch
                     versionarch = "%s@%s" % (distversion, arch)
                 pkg = self.buildPackage((Pkg, name, versionarch),
-                                        prvdict.keys(), collapse_libc_requires(reqdict.keys()),
-                                        upgdict.keys(), cnfdict.keys())
+                                        list(prvdict.keys()), collapse_libc_requires(list(reqdict.keys())),
+                                        list(upgdict.keys()), list(cnfdict.keys()))
                 pkg.loaders[self] = info
 
                 prog.add(1)

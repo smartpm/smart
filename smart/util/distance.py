@@ -32,7 +32,7 @@ def distance(a, b, cutoff=None):
         a, al, b, bl = b, bl, a, al
     if cutoff and type(cutoff) is float:
         cutoff = int(bl-cutoff*bl)
-    lst = range(1,bl+1)
+    lst = list(range(1,bl+1))
     for ai in range(al):
         last, lst[0] = lst[0], min(lst[0]+1, ai+(b[0] != a[ai]))
         for bi in range(1, bl):
@@ -70,7 +70,7 @@ def globdistance(a, b, cutoff=None, ignorecase=False):
     if wildstart:
         lst = [0]*bl
     else:
-        lst = range(1,bl+1)
+        lst = list(range(1,bl+1))
     for ai in range(al):
         if a[ai] == "*":
             last, lst[0] = lst[0], min(lst[0], ai)

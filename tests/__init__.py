@@ -35,7 +35,7 @@ def smart_process(*argv):
 def doctest_run_examples_inner(out, fakeout, examples, globs, verbose,
                                name, compileflags, optionflags):
     import sys, traceback
-    OK, BOOM, FAIL = range(3)
+    OK, BOOM, FAIL = list(range(3))
     NADA = "nothing"
     stderr = doctest._SpoofOut()
     _tag_out = doctest._tag_out
@@ -46,8 +46,8 @@ def doctest_run_examples_inner(out, fakeout, examples, globs, verbose,
                           ("Expecting", want or NADA))
         fakeout.clear()
         try:
-            exec compile(source, "<string>", "single",
-                         compileflags, 1) in globs
+            exec(compile(source, "<string>", "single",
+                         compileflags, 1), globs)
             got = fakeout.get()
             state = OK
         except KeyboardInterrupt:
@@ -79,7 +79,7 @@ def doctest_run_examples_inner(out, fakeout, examples, globs, verbose,
         failures = failures + 1
         out("*" * 65 + "\n")
         _tag_out(out, ("Failure in example", source))
-        out("from line #" + `lineno` + " of " + name + "\n")
+        out("from line #" + repr(lineno) + " of " + name + "\n")
         if state == FAIL:
             _tag_out(out, ("Expected", want or NADA), ("Got", got))
         else:

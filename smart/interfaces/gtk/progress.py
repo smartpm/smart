@@ -29,7 +29,7 @@ try:
 except ImportError:
     glib = None
 import posixpath
-import thread
+import _thread
 import time
 
 class GtkProgress(Progress, gtk.Window):
@@ -200,7 +200,7 @@ class GtkProgress(Progress, gtk.Window):
             self._speedcolumn.set_visible(False)
             self._etacolumn.set_visible(False)
 
-        thread.start_new_thread(self.tick, ())
+        _thread.start_new_thread(self.tick, ())
 
     def stop(self):
         self._stopticking = True

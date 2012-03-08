@@ -108,10 +108,10 @@ class GtkPriorities(object):
     def fill(self):
         self._treemodel.clear()
         priorities = sysconf.get("package-priorities", {})
-        prioritieslst = priorities.items()
+        prioritieslst = list(priorities.items())
         prioritieslst.sort()
         for name, pkgpriorities in prioritieslst:
-            aliaslst = pkgpriorities.items()
+            aliaslst = list(pkgpriorities.items())
             aliaslst.sort()
             for alias, priority in aliaslst:
                 self._treemodel.append((name, alias or "*", str(priority)))

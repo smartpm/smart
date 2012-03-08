@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import posixpath
-import commands
+import subprocess
 
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.filetools import getFileDigest
@@ -88,15 +88,14 @@ class APTDEBChannel(PackageChannel):
         release_failed = release_item.getFailedReason()
 
         if need_release and release_failed:
-            raise Error, _("Download of Release failed for channel '%s': %s") \
-                         % (self, release_failed)
+            raise Error(_("Download of Release failed for channel '%s': %s") \
+                         % (self, release_failed))
 
         if is_secure_channel:
             release_gpg_failed = release_gpg_item.getFailedReason()
             if release_gpg_failed:
-                raise Error, \
-                      _("Download of Release.gpg failed for secure "
-                        "channel '%s': %s") % (self, release_gpg_failed)
+                raise Error(_("Download of Release.gpg failed for secure "
+                        "channel '%s': %s") % (self, release_gpg_failed))
 
             arguments = ["gpg", "--batch", "--no-secmem-warning",
                          "--status-fd", "1"]
@@ -113,7 +112,7 @@ class APTDEBChannel(PackageChannel):
                               release_item.getTargetPath()])
 
             command = " ".join(arguments)
-            status, output = commands.getstatusoutput(command)
+            status, output = subprocess.getstatusoutput(command)
 
             badsig = False
             goodsig = False
@@ -129,10 +128,10 @@ class APTDEBChannel(PackageChannel):
                     elif first == "BADSIG":
                         badsig = True
             if badsig:
-                raise Error, _("Channel '%s' has bad signature") % self
+                raise Error(_("Channel '%s' has bad signature") % self)
             if (not goodsig or
                 (self._fingerprint and validsig != self._fingerprint)):
-                raise Error, _("Channel '%s' signed with unknown key") % self
+                raise Error(_("Channel '%s' signed with unknown key") % self)
 
     def _parseRelease(self, release_item):
         checksum = {}
@@ -238,7 +237,7 @@ class APTDEBChannel(PackageChannel):
 
         try:
             self._checkRelease(release_item, release_gpg_item)
-        except Error, e:
+        except Error as e:
             progress.add(self.getFetchSteps()-2)
             progress.show()
             if fetcher.getCaching() is NEVER:
@@ -282,14 +281,14 @@ class APTDEBChannel(PackageChannel):
                 loader.setChannel(self)
                 self._loaders.append(loader)
             else:
-                errorlines.append(u"%s: %s" % (item.getURL(),
+                errorlines.append("%s: %s" % (item.getURL(),
                                                item.getFailedReason()))
 
         if errorlines:
             if fetcher.getCaching() is NEVER:
                 errorlines.insert(0, _("Failed acquiring information for '%s':")
                                      % self)
-                raise Error, "\n".join(errorlines)
+                raise Error("\n".join(errorlines))
             return False
 
         if digest:

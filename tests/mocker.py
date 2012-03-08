@@ -3,7 +3,7 @@ Copyright (c) 2007  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 Graceful platform for test doubles in Python (mocks, stubs, fakes, and dummies).
 """
-import __builtin__
+import builtins
 import tempfile
 import unittest
 import inspect
@@ -284,7 +284,7 @@ class MockerTestCase(unittest.TestCase):
         """
         first_methods = dict(inspect.getmembers(first, inspect.ismethod))
         second_methods = dict(inspect.getmembers(second, inspect.ismethod))
-        for name, first_method in first_methods.iteritems():
+        for name, first_method in first_methods.items():
             first_argspec = inspect.getargspec(first_method)
             first_formatted = inspect.formatargspec(*first_argspec)
 
@@ -497,7 +497,7 @@ class MockerBase(object):
         for event in self._events:
             try:
                 event.verify()
-            except AssertionError, e:
+            except AssertionError as e:
                 error = str(e)
                 if not error:
                     raise RuntimeError("Empty error message from %r"
@@ -572,7 +572,7 @@ class MockerBase(object):
                             explicitly requested via the L{passthrough()}
                             method.
         """
-        if isinstance(object, basestring):
+        if isinstance(object, str):
             if name is None:
                 name = object
             import_stack = object.split(".")
@@ -593,7 +593,7 @@ class MockerBase(object):
         if spec is True:
             spec = object
         if type is True:
-            type = __builtin__.type(object)
+            type = builtins.type(object)
         return Mock(self, spec=spec, type=type, object=object,
                     name=name, count=count, passthrough=passthrough)
 
@@ -1039,7 +1039,7 @@ class Mock(object):
             path.root_object = object
         try:
             return self.__mocker__.act(path)
-        except MatchError, exception:
+        except MatchError as exception:
             root_mock = path.root_mock
             if (path.root_object is not None and
                 root_mock.__mocker_passthrough__):
@@ -1047,7 +1047,7 @@ class Mock(object):
             # Reinstantiate to show raise statement on traceback, and
             # also to make the traceback shown shorter.
             raise MatchError(str(exception))
-        except AssertionError, e:
+        except AssertionError as e:
             lines = str(e).splitlines()
             message = [ERROR_PREFIX + "Unmet expectation:", ""]
             message.append("=> " + lines.pop(0))
@@ -1093,16 +1093,16 @@ class Mock(object):
         # something that doesn't offer them.
         try:
             result = self.__mocker_act__("len")
-        except MatchError, e:
+        except MatchError as e:
             raise AttributeError(str(e))
         if type(result) is Mock:
             return 0
         return result
 
-    def __nonzero__(self):
+    def __bool__(self):
         try:
             return self.__mocker_act__("nonzero")
-        except MatchError, e:
+        except MatchError as e:
             return True
 
     def __iter__(self):
@@ -1125,13 +1125,13 @@ def find_object_name(obj, depth=0):
         frame = sys._getframe(depth+1)
     except:
         return None
-    for name, frame_obj in frame.f_locals.iteritems():
+    for name, frame_obj in frame.f_locals.items():
         if frame_obj is obj:
             return name
     self = frame.f_locals.get("self")
     if self is not None:
         try:
-            items = list(self.__dict__.iteritems())
+            items = list(self.__dict__.items())
         except:
             pass
         else:
@@ -1280,7 +1280,7 @@ class Path(object):
                 result = "del %s.%s" % (result, action.args[0])
             elif action.kind == "call":
                 args = [repr(x) for x in action.args]
-                items = list(action.kwargs.iteritems())
+                items = list(action.kwargs.items())
                 items.sort()
                 for pair in items:
                     args.append("%s=%r" % pair)
@@ -1400,7 +1400,7 @@ def match_params(args1, kwargs1, args2, kwargs2):
 
     # Either we have the same number of kwargs, or unknown keywords are
     # accepted (KWARGS was used), so check just the ones in kwargs1.
-    for key, arg1 in kwargs1.iteritems():
+    for key, arg1 in kwargs1.items():
         if key not in kwargs2:
             return False
         arg2 = kwargs2[key]
@@ -1529,7 +1529,7 @@ class Event(object):
         for task in self._tasks:
             try:
                 task_result = task.run(path)
-            except AssertionError, e:
+            except AssertionError as e:
                 error = str(e)
                 if not error:
                     raise RuntimeError("Empty error message from %r" % task)
@@ -1572,7 +1572,7 @@ class Event(object):
         for task in self._tasks:
             try:
                 task.verify()
-            except AssertionError, e:
+            except AssertionError as e:
                 error = str(e)
                 if not error:
                     raise RuntimeError("Empty error message from %r" % task)
@@ -1682,7 +1682,7 @@ class RunCounter(Task):
     def __init__(self, min, max=False):
         self.min = min
         if max is None:
-            self.max = sys.maxint
+            self.max = sys.maxsize
         elif max is False:
             self.max = min
         else:
@@ -1930,7 +1930,7 @@ def global_replace(remove, install):
     for referrer in gc.get_referrers(remove):
         if (type(referrer) is dict and
             referrer.get("__mocker_replace__", True)):
-            for key, value in list(referrer.iteritems()):
+            for key, value in list(referrer.items()):
                 if value is remove:
                     referrer[key] = install
 
@@ -2002,7 +2002,7 @@ class Patcher(Task):
         for kind in self._monitored:
             attr = self._get_kind_attr(kind)
             seen = set()
-            for obj in self._monitored[kind].itervalues():
+            for obj in self._monitored[kind].values():
                 cls = type(obj)
                 if issubclass(cls, type):
                     cls = obj
@@ -2016,7 +2016,7 @@ class Patcher(Task):
                                     self.execute)
 
     def restore(self):
-        for obj, attr, original in self._patched.itervalues():
+        for obj, attr, original in self._patched.values():
             if original is Undefined:
                 delattr(obj, attr)
             else:
@@ -2041,7 +2041,7 @@ class Patcher(Task):
                     pass
                 else:
                     return __getattr__(*action.args, **action.kwargs)
-            raise type, value, traceback
+            raise type(value).with_traceback(traceback)
 
 
 class PatchedMethod(object):

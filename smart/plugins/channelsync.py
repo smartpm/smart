@@ -48,7 +48,7 @@ def syncChannels(channelsdir, force=None):
 
             try:
                 descriptions = parseChannelsDescription(data)
-            except Error, e:
+            except Error as e:
                 iface.error(_("While using %s: %s") % (filepath, e))
                 continue
 
@@ -84,7 +84,7 @@ def syncChannels(channelsdir, force=None):
                                          "Include it?") % name, True)):
                         try:
                             createChannel(alias, newdescr)
-                        except Error, e:
+                        except Error as e:
                             iface.error(_("While using %s: %s") %
                                         (filepath, e))
                         else:
@@ -115,7 +115,7 @@ def syncChannels(channelsdir, force=None):
                                        True)):
                         try:
                             createChannel(alias, newdescr)
-                        except Error, e:
+                        except Error as e:
                             iface.error(_("While using %s: %s") %
                                         (filepath, e))
                         else:
@@ -141,7 +141,7 @@ def syncChannels(channelsdir, force=None):
 
                     try:
                         pardescr = parseChannelData(newdescr)
-                    except Error, e:
+                    except Error as e:
                         iface.error(_("While using %s: %s") % (filepath, e))
                         continue
 
@@ -170,8 +170,8 @@ def syncChannels(channelsdir, force=None):
                     if changed:
                         try:
                             createChannel(alias, chndescr)
-                        except Error, e:
-                            iface.error(unicode(e))
+                        except Error as e:
+                            iface.error(str(e))
                         else:
                             sysconf.set(("channels", alias), chndescr)
 

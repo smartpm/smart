@@ -84,7 +84,7 @@ def main(ctrl, opts):
         for opt in opts.set:
             m = SETRE.match(opt)
             if not m:
-                raise Error, _("Invalid --set argument: %s") % opt
+                raise Error(_("Invalid --set argument: %s") % opt)
             path, assign, value = m.groups()
             try:
                 value = int(value)
@@ -102,7 +102,7 @@ def main(ctrl, opts):
         for opt in opts.remove:
             m = DELRE.match(opt)
             if not m:
-                raise Error, _("Invalid --remove argument: %s") % opt
+                raise Error(_("Invalid --remove argument: %s") % opt)
             path, value = m.groups()
             if value:
                 try:
@@ -139,8 +139,8 @@ def main(ctrl, opts):
                 if value is marker:
                     iface.warning(_("Option '%s' not found.") % opt)
                 else:
-                    print yaml.safe_dump(value, explicit_end=True)
+                    print(yaml.safe_dump(value, explicit_end=True))
         else:
-            print yaml.safe_dump(sysconf.get((), hard=True))
+            print(yaml.safe_dump(sysconf.get((), hard=True)))
 
 # vim:ts=4:sw=4:et

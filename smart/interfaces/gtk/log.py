@@ -123,7 +123,7 @@ class GtkLog(gtk.Window):
                   DEBUG: _("debug")}.get(level)
         buffer = self._textview.get_buffer()
         iter = buffer.get_end_iter()
-        if not isinstance(msg, unicode):
+        if not isinstance(msg, str):
             msg = msg.decode(ENCODING)
         if prefix:
             for line in msg.split("\n"):

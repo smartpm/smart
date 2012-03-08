@@ -94,6 +94,6 @@ class PathLocks(object):
         try:
             fcntl.flock(fd, flags)
             result = True
-        except IOError, e:
+        except IOError as e:
             pass
         return result

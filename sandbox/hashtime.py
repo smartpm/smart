@@ -43,4 +43,4 @@ for type in ["MD5", "SHA", "SHA256"]:
                              'from __main__ import block, hash')
         seconds = timer.timeit(repetitions)
         speed = (size * repetitions) / (seconds * 1000.0)
-        print "%s\t%d\t%fs\t%fk" % (type, size, seconds, speed)
+        print("%s\t%d\t%fs\t%fk" % (type, size, seconds, speed))

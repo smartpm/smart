@@ -1,4 +1,4 @@
-import BaseHTTPServer
+import http.server
 import threading
 import unittest
 import socket
@@ -19,13 +19,13 @@ PORT = 43543
 URL = "http://127.0.0.1:%d/filename.pkg" % PORT
 
 
-class HTTPServer(BaseHTTPServer.HTTPServer):
+class HTTPServer(http.server.HTTPServer):
 
     hide_errors = False
 
     def handle_error(self, request, client_address):
         if not self.hide_errors:
-            BaseHTTPServer.HTTPServer.handle_error(self, request, client_address)
+            http.server.HTTPServer.handle_error(self, request, client_address)
 
 
 class FetcherTest(MockerTestCase):
@@ -49,7 +49,7 @@ class FetcherTest(MockerTestCase):
         startup_lock = threading.Lock()
         startup_lock.acquire()
         def server():
-            class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+            class Handler(http.server.BaseHTTPRequestHandler):
                 def do_GET(self):
                     return handler(self)
                 def log_message(self, format, *args):
@@ -58,7 +58,7 @@ class FetcherTest(MockerTestCase):
                 try:
                     httpd = HTTPServer(("127.0.0.1", PORT), Handler)
                     break
-                except socket.error, error:
+                except socket.error as error:
                     if "Address already in use" not in str(error):
                         raise
                     time.sleep(1)
@@ -124,7 +124,7 @@ class FetcherTest(MockerTestCase):
         self.fetcher.enqueue(URL)
         self.fetcher.run(progress=Progress())
         item = self.fetcher.getItem(URL)
-        self.assertEquals(item.getFailedReason(), u"File not found")
+        self.assertEquals(item.getFailedReason(), "File not found")
 
     def test_timeout(self):
         timeout = 3

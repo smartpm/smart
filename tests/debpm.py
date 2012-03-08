@@ -193,7 +193,7 @@ class DebSorterTest(unittest.TestCase):
                cache.Upgrades: [],
                cache.Conflicts: []}
         for arg in args:
-            for cls, lst in map.iteritems():
+            for cls, lst in map.items():
                 if issubclass(arg[0], cls):
                     lst.append(arg)
                     break

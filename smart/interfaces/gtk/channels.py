@@ -133,7 +133,7 @@ class GtkChannels(object):
     def fill(self):
         self._treemodel.clear()
         channels = sysconf.get("channels", {})
-        aliases = channels.keys()
+        aliases = list(channels.keys())
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
@@ -394,7 +394,7 @@ class GtkChannelSelector(object):
     def fill(self):
         self._treemodel.clear()
         channels = sysconf.get("channels", {})
-        aliases = channels.keys()
+        aliases = list(channels.keys())
         aliases.sort()
         for alias in aliases:
             channel = channels[alias]
@@ -515,7 +515,7 @@ class ChannelEditor(object):
                     child = widget
                     widget.set_width_chars(40)
             else:
-                raise Error, _("Don't know how to handle %s fields") % ftype
+                raise Error(_("Don't know how to handle %s fields") % ftype)
 
         child.show_all()
 
@@ -572,22 +572,22 @@ class ChannelEditor(object):
                     elif ftype == bool:
                         newchannel[key] = widget.get_active()
                     else:
-                        raise Error, _("Don't know how to handle %s fields") %\
-                                     ftype
+                        raise Error(_("Don't know how to handle %s fields") %\
+                                     ftype)
                 try:
                     if editalias:
                         value = newchannel["alias"]
                         if not value:
-                            raise Error, _("Invalid alias!")
+                            raise Error(_("Invalid alias!"))
                         if (value != alias and 
                             sysconf.has(("channels", value))):
-                            raise Error, _("Alias already in use!")
+                            raise Error(_("Alias already in use!"))
                         if not alias:
                             alias = value
                     createChannel(alias, newchannel)
-                except Error, e:
+                except Error as e:
                     self._result = False
-                    iface.error(unicode(e))
+                    iface.error(str(e))
                     continue
                 else:
                     oldchannel.clear()
@@ -673,7 +673,7 @@ class TypeSelector(object):
             if button.get_active():
                 self._type = type
         infos = [(info.name, type) for type, info in
-                 getAllChannelInfos().items()]
+                 list(getAllChannelInfos().items())]
         infos.sort()
         for name, type in infos:
             if not self._type:

@@ -98,11 +98,11 @@ def main(ctrl, opts):
                 if not dct:
                     del suggestions[:]
             if suggestions:
-                raise Error, _("'%s' matches no packages. "
+                raise Error(_("'%s' matches no packages. "
                                "Suggestions:\n%s") % \
-                             (arg, "\n".join(["    "+str(x) for x in dct]))
+                             (arg, "\n".join(["    "+str(x) for x in dct])))
             else:
-                raise Error, _("'%s' matches no packages") % arg
+                raise Error(_("'%s' matches no packages") % arg)
 
         pkgs = []
 
@@ -124,8 +124,8 @@ def main(ctrl, opts):
                     if not loader.getInstalled():
                         break
                 else:
-                    raise Error, _("'%s' is not available for "
-                                   "reinstallation") % pkg
+                    raise Error(_("'%s' is not available for "
+                                   "reinstallation") % pkg)
         if not found:
             iface.warning(_("'%s' matches no installed packages") % arg)
 

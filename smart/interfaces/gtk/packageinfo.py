@@ -483,7 +483,7 @@ class GtkPackageInfo(gtk.Alignment):
                                                           "description")
                     break
             else:
-                loader = pkg.loaders.keys()[0]
+                loader = list(pkg.loaders.keys())[0]
 
         elif num == 2:
 
@@ -508,7 +508,7 @@ class GtkPackageInfo(gtk.Alignment):
                 if loader.getInstalled():
                     break
             else:
-                loader = pkg.loaders.keys()[0]
+                loader = list(pkg.loaders.keys())[0]
             info = loader.getInfo(pkg)
             changelog = info.getChangeLog()
 
@@ -574,7 +574,7 @@ class GtkPackageInfo(gtk.Alignment):
                 if loader.getInstalled():
                     break
             else:
-                loader = pkg.loaders.keys()[0]
+                loader = list(pkg.loaders.keys())[0]
             info = loader.getInfo(pkg)
             pathlist = info.getPathList()
             filter = self._filterentry.get_text().strip()
@@ -628,7 +628,7 @@ class GtkPackageInfo(gtk.Alignment):
             lst = requires.setdefault(str(req), [])
             for prv in req.providedby:
                 lst.extend(prv.packages)
-            lst[:] = dict.fromkeys(lst).keys()
+            lst[:] = list(dict.fromkeys(lst).keys())
         if requires:
             relations[Sorter(_("Requires"))] = requires
 
@@ -637,7 +637,7 @@ class GtkPackageInfo(gtk.Alignment):
             lst = upgrades.setdefault(str(upg), [])
             for prv in upg.providedby:
                 lst.extend(prv.packages)
-            lst[:] = dict.fromkeys(lst).keys()
+            lst[:] = list(dict.fromkeys(lst).keys())
         if upgrades:
             relations[Sorter(_("Upgrades"))] = upgrades
 
@@ -646,7 +646,7 @@ class GtkPackageInfo(gtk.Alignment):
             lst = conflicts.setdefault(str(cnf), [])
             for prv in cnf.providedby:
                 lst.extend(prv.packages)
-            lst[:] = dict.fromkeys(lst).keys()
+            lst[:] = list(dict.fromkeys(lst).keys())
         if conflicts:
             relations[Sorter(_("Conflicts"))] = conflicts
 

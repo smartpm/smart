@@ -1,6 +1,6 @@
 import sys
 sys.argv = ["./smart.py", "test"]
-execfile('./smart.py')
+exec(open('./smart.py').read())
 import user
     
 # Check if upgrading a package would require upgrading another

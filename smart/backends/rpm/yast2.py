@@ -102,7 +102,7 @@ class YaST2Loader(Loader):
                 if len(parts) == 1:
                     data.append((line, None, None))
                 if len(parts) == 2:
-                    print "Error parsing package '%s' (tag '%s'). Possibly corrupted channel file (%s)." % (self.curpkgname, tag, self._channel)
+                    print("Error parsing package '%s' (tag '%s'). Possibly corrupted channel file (%s)." % (self.curpkgname, tag, self._channel))
                 if len(parts) == 3:
                     data.append((parts[0], parts[1], parts[2]))
         return data
@@ -124,7 +124,7 @@ class YaST2Loader(Loader):
 
     def readPkgSummDesc(self, entryname):
         summary = description = reading_ins = reading_del = ""
-        if self._pkgdescfile and self._pkgoffsets.has_key(entryname):
+        if self._pkgdescfile and entryname in self._pkgoffsets:
             self._descfile.seek((self._pkgoffsets[entryname] + 1))
             summary = self._descfile.readline()[5:-1]
             description = ""
@@ -269,8 +269,8 @@ class YaST2Loader(Loader):
             cnfdict[upg] = True
                     
         pkg = self.buildPackage((Pkg, name, versionarch),
-                                prvdict.keys(), collapse_libc_requires(reqdict.keys()),
-                                upgdict.keys(), cnfdict.keys())
+                                list(prvdict.keys()), collapse_libc_requires(list(reqdict.keys())),
+                                list(upgdict.keys()), list(cnfdict.keys()))
                     
         pkg.loaders[self] = info
                     
@@ -281,8 +281,8 @@ class YaST2Loader(Loader):
 
         try:
             self._infofile = open(self._pkginfofile)
-        except (IOError, OSError), e:
-            raise Error, "Error opening package information file. %s", e
+        except (IOError, OSError) as e:
+            raise Error("Error opening package information file. %s").with_traceback(e)
 
         if self._pkgdescfile:
             try:
@@ -294,7 +294,7 @@ class YaST2Loader(Loader):
                     if not line: break
                     if line[:6] == "=Pkg: ":
                         self._pkgoffsets[line[6:-1]] = self._descfile.tell()
-            except (IOError, OSError), e:
+            except (IOError, OSError) as e:
                 pass
 
         while 1:

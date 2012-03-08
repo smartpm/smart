@@ -25,7 +25,7 @@ from smart.interfaces.qt import getPixmap, centerWindow
 from smart import *
 import qt
 import posixpath
-import thread
+import _thread
 import time
 import sys
 
@@ -137,7 +137,7 @@ class QtProgress(Progress, qt.QDialog):
             self._listview.hideColumn(self._speedcolumn) 
             self._listview.hideColumn(self._etacolumn) 
 
-        thread.start_new_thread(self.tick, ())
+        _thread.start_new_thread(self.tick, ())
 
     def stop(self):
         self._stopticking = True

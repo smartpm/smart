@@ -59,7 +59,7 @@
 
 import xmllib, string
 
-import ElementTree
+from . import ElementTree
 
 ##
 # ElementTree builder for XML source data.
@@ -100,7 +100,7 @@ class TreeBuilder(xmllib.XMLParser):
 
     def unknown_starttag(self, tag, attrs):
         attrib = {}
-        for key, value in attrs.items():
+        for key, value in list(attrs.items()):
             attrib[fixname(key)] = value
         self.__builder.start(fixname(tag), attrib)
 
@@ -136,9 +136,9 @@ if __name__ == "__main__":
         status.append("default namespace applied to unqualified attribute")
     # report bugs
     if status:
-        print "xmllib doesn't work properly in this Python version:"
+        print("xmllib doesn't work properly in this Python version:")
         for bug in status:
-            print "-", bug
+            print("-", bug)
     else:
-        print "congratulations; no problems found in xmllib"
+        print("congratulations; no problems found in xmllib")
 

@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gettext import translation
-import thread
+import _thread
 import locale
 import sys
 import os
@@ -52,8 +52,8 @@ try:
         localedir = None
     _ = translation("smart", localedir).ugettext
     encoding = locale.getpreferredencoding()
-except IOError, e:
-    _ = lambda s: unicode(s)
+except IOError as e:
+    _ = lambda s: str(s)
     encoding = sys.stdout.encoding or "ascii"
 if encoding:
     import codecs
@@ -90,7 +90,7 @@ hooks = Hooks()
 
 # For now, the Smart library only allows one instance of the system
 # to be run at a time per-process.
-_smart_run_lock = thread.allocate_lock()
+_smart_run_lock = _thread.allocate_lock()
 
 
 def init(command=None, argv=None,
@@ -116,7 +116,7 @@ def init(command=None, argv=None,
         level = {"error": ERROR, "warning": WARNING,
                  "debug": DEBUG, "info": INFO}.get(loglevel)
         if level is None:
-            raise Error, _("Unknown log level")
+            raise Error(_("Unknown log level"))
         sysconf.set("log-level", level, soft=True)
     if datadir:
         sysconf.set("data-dir", os.path.expanduser(datadir), soft=True)
@@ -127,7 +127,7 @@ def init(command=None, argv=None,
     elif shell:
         ifacename = sysconf.get("default-shell", "text")
         if command:
-            raise Error, _("Can't use commands with shell interfaces")
+            raise Error(_("Can't use commands with shell interfaces"))
     elif quiet:
         ifacename = None
     elif interface:
@@ -172,7 +172,7 @@ def initDistro(ctrl):
     from smart.const import DISTROFILE
     distrofile = sysconf.get("distro-init-file", DISTROFILE)
     if distrofile and os.path.isfile(distrofile):
-        execfile(distrofile, {"ctrl": ctrl, "iface": iface,
+        exec(open(distrofile).read(), {"ctrl": ctrl, "iface": iface,
                               "sysconf": sysconf, "pkgconf": pkgconf,
                               "hooks": hooks})
 
@@ -195,7 +195,7 @@ def initPlugins():
     if os.path.isdir(PLUGINSDIR):
         for entry in os.listdir(PLUGINSDIR):
             entrypath = os.path.join(PLUGINSDIR, entry)
-            execfile(entrypath)
+            exec(open(entrypath).read())
     backendsdir = os.path.dirname(backends.__file__)
     for entry in os.listdir(backendsdir):
         entrypath = os.path.join(backendsdir, entry)

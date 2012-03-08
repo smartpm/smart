@@ -34,8 +34,8 @@ class ArchDirChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         if not os.path.isdir(self._path):
-            raise Error, _("Channel '%s' has invalid directory: %s") % \
-                         (self, self._path)
+            raise Error(_("Channel '%s' has invalid directory: %s") % \
+                         (self, self._path))
         digest = os.path.getmtime(self._path)
         if digest == self._digest:
             return True
@@ -54,7 +54,7 @@ class ArchDirChannel(PackageChannel):
 
 def create(alias, data):
     if data["removable"]:
-        raise Error, _("%s channels cannot be removable") % data["type"]
+        raise Error(_("%s channels cannot be removable") % data["type"])
     return ArchDirChannel(data["path"],
                           data["recursive"],
                           data["type"],

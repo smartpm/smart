@@ -34,7 +34,7 @@ class BackgroundScrollView(qt.QScrollView):
 
     def drawContents(self, *args):
         if len(args)==1:
-            return apply(qt.QFrame.drawContents, (self,)+args)
+            return qt.QFrame.drawContents(*(self,)+args)
         else:
             painter, clipx, clipy, clipw, cliph = args
         color = self.eraseColor()
@@ -196,10 +196,10 @@ class QtPackageInfo(qt.QTabWidget):
                 flags = ""
 
             def bold(text):
-                return "<b>"+unicode(qt.QStyleSheet.escape(text))+"</b>"
+                return "<b>"+str(qt.QStyleSheet.escape(text))+"</b>"
 
             def link(text, url):
-                return "<a href=\""+url+"\">"+unicode(qt.QStyleSheet.escape(text))+"</a>"
+                return "<a href=\""+url+"\">"+str(qt.QStyleSheet.escape(text))+"</a>"
             
             status = pkg.installed and _("Installed") or _("Available")
             self._info.status.setText(bold(status+flags))
@@ -235,13 +235,13 @@ class QtPackageInfo(qt.QTabWidget):
                 info = loader.getInfo(pkg)
                 summary = info.getSummary()
                 if summary:
-                    text += "<b>"+unicode(qt.QStyleSheet.escape(summary))+"</b><br><br>"
+                    text += "<b>"+str(qt.QStyleSheet.escape(summary))+"</b><br><br>"
                     description = info.getDescription()
                     if description != summary:
                          text += description+"\n\n"
                     break
             else:
-                loader = pkg.loaders.keys()[0]
+                loader = list(pkg.loaders.keys())[0]
 
             self._descr.setText(text)
 
@@ -257,7 +257,7 @@ class QtPackageInfo(qt.QTabWidget):
                 if loader.getInstalled():
                     break
             else:
-                loader = pkg.loaders.keys()[0]
+                loader = list(pkg.loaders.keys())[0]
             info = loader.getInfo(pkg)
             pathlist = info.getPathList()
             pathlist.sort()
@@ -278,16 +278,16 @@ class QtPackageInfo(qt.QTabWidget):
                 if loader.getInstalled():
                     break
             else:
-                loader = pkg.loaders.keys()[0]
+                loader = list(pkg.loaders.keys())[0]
             info = loader.getInfo(pkg)
             changelog = info.getChangeLog()
 
             for i in range(len(changelog)/2):
-                text += "<b>"+unicode(qt.QStyleSheet.escape(changelog[2*i]))+"</b><br>"
+                text += "<b>"+str(qt.QStyleSheet.escape(changelog[2*i]))+"</b><br>"
                 changesplit = changelog[2*i+1].split("\n")
-                text += unicode(qt.QStyleSheet.escape(changesplit[0]))+"<br>"
+                text += str(qt.QStyleSheet.escape(changesplit[0]))+"<br>"
                 for i in range(1, len(changesplit)):
-                   text += "  " + unicode(qt.QStyleSheet.escape(changesplit[i]))+"<br>"
+                   text += "  " + str(qt.QStyleSheet.escape(changesplit[i]))+"<br>"
 
             self._change.setText(text)
             self._change.adjustSize()
@@ -332,12 +332,12 @@ class QtPackageInfo(qt.QTabWidget):
 
     def _setRelations(self, pkg):
 
-        class Sorter(unicode):
+        class Sorter(str):
             ORDER = [_("Provides"), _("Upgrades"),
                      _("Requires"), _("Conflicts")]
             def __cmp__(self, other):
-                return cmp(self.ORDER.index(unicode(self)),
-                           self.ORDER.index(unicode(other)))
+                return cmp(self.ORDER.index(str(self)),
+                           self.ORDER.index(str(other)))
             def __lt__(self, other):
                 return cmp(self, other) < 0
 
@@ -374,7 +374,7 @@ class QtPackageInfo(qt.QTabWidget):
             lst = requires.setdefault(str(req), [])
             for prv in req.providedby:
                 lst.extend(prv.packages)
-            lst[:] = dict.fromkeys(lst).keys()
+            lst[:] = list(dict.fromkeys(lst).keys())
         if requires:
             relations[Sorter(_("Requires"))] = requires
 
@@ -383,7 +383,7 @@ class QtPackageInfo(qt.QTabWidget):
             lst = upgrades.setdefault(str(upg), [])
             for prv in upg.providedby:
                 lst.extend(prv.packages)
-            lst[:] = dict.fromkeys(lst).keys()
+            lst[:] = list(dict.fromkeys(lst).keys())
         if upgrades:
             relations[Sorter(_("Upgrades"))] = upgrades
 
@@ -392,7 +392,7 @@ class QtPackageInfo(qt.QTabWidget):
             lst = conflicts.setdefault(str(cnf), [])
             for prv in cnf.providedby:
                 lst.extend(prv.packages)
-            lst[:] = dict.fromkeys(lst).keys()
+            lst[:] = list(dict.fromkeys(lst).keys())
         if conflicts:
             relations[Sorter(_("Conflicts"))] = conflicts
 

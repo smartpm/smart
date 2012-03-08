@@ -76,7 +76,7 @@ class QtChanges(qt.QDialog):
         report = Report(changeset)
         report.compute()
         
-        class Sorter(unicode):
+        class Sorter(str):
             ORDER = [_("Remove"), _("Downgrade"), _("Reinstall"),
                      _("Install"), _("Upgrade")]
             def _index(self, s):
@@ -87,7 +87,7 @@ class QtChanges(qt.QDialog):
                     i += 1
                 return i
             def __cmp__(self, other):
-                return cmp(self._index(unicode(self)), self._index(unicode(other)))
+                return cmp(self._index(str(self)), self._index(str(other)))
             def __lt__(self, other):
                 return cmp(self, other) < 0
 
@@ -98,7 +98,7 @@ class QtChanges(qt.QDialog):
             reinstall = {}
             upgrade = {}
             downgrade = {}
-            lst = report.install.keys()
+            lst = list(report.install.keys())
             lst.sort()
             for pkg in lst:
                 package = {}
@@ -143,7 +143,7 @@ class QtChanges(qt.QDialog):
 
         if report.removed:
             remove = {}
-            lst = report.removed.keys()
+            lst = list(report.removed.keys())
             lst.sort()
             for pkg in lst:
                 package = {}

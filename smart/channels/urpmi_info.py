@@ -46,11 +46,11 @@ def postParse(data):
     withre = re.compile("\s+with\s+", re.I)
     if withre.search(data["baseurl"]):
         if "hdlurl" in data:
-            raise Error, _("Base URL has 'with', but Header List URL "
-                           "was provided")
+            raise Error(_("Base URL has 'with', but Header List URL "
+                           "was provided"))
         tokens = withre.split(data["baseurl"])
         if len(tokens) != 2:
-            raise Error, _("Base URL has invalid 'with' pattern")
+            raise Error(_("Base URL has invalid 'with' pattern"))
         data["baseurl"] = tokens[0].strip()
         if tokens[1].strip():
             data["hdlurl"] = tokens[1].strip()

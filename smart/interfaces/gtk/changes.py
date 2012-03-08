@@ -115,7 +115,7 @@ class GtkChanges(gtk.Window):
             reinstall = {}
             upgrade = {}
             downgrade = {}
-            lst = report.install.keys()
+            lst = list(report.install.keys())
             lst.sort()
             for pkg in lst:
                 package = {}
@@ -160,7 +160,7 @@ class GtkChanges(gtk.Window):
 
         if report.removed:
             remove = {}
-            lst = report.removed.keys()
+            lst = list(report.removed.keys())
             lst.sort()
             for pkg in lst:
                 package = {}

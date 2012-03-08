@@ -1,6 +1,6 @@
 import sys
 sys.argv = ["./smart.py", "test"]
-execfile('./smart.py')
+exec(open('./smart.py').read())
 
 def main():
     for pkg in cache.getPackages():
@@ -27,9 +27,9 @@ def main():
                                 conflicted.append(str(cnfpkg))
                                 break
             if conflicted:
-                print pkg, "(conflicted by %s)" % ", ".join(conflicted)
+                print(pkg, "(conflicted by %s)" % ", ".join(conflicted))
             else:
-                print pkg
+                print(pkg)
 
 if __name__ == "__main__":
     main()

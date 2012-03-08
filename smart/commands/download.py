@@ -76,7 +76,7 @@ def parse_options(argv):
     opts, args = parser.parse_args(argv)
     opts.args = args
     if not os.path.isdir(opts.target):
-        raise Error, _("Directory not found:"), opts.target
+        raise Error(_("Directory not found:")).with_traceback(opts.target)
     return opts
 
 def main(ctrl, opts):
@@ -103,11 +103,11 @@ def main(ctrl, opts):
                             dct[obj] = True
                         else:
                             dct.update(dict.fromkeys(obj.packages, True))
-                    raise Error, _("'%s' matches no packages. "
+                    raise Error(_("'%s' matches no packages. "
                                    "Suggestions:\n%s") % \
-                                 (arg, "\n".join(["    "+str(x) for x in dct]))
+                                 (arg, "\n".join(["    "+str(x) for x in dct])))
                 else:
-                    raise Error, _("'%s' matches no packages") % arg
+                    raise Error(_("'%s' matches no packages") % arg)
 
             pkgs = []
 
@@ -134,8 +134,8 @@ def main(ctrl, opts):
                 if installed:
                     continue
                 if len(names) > 1:
-                    raise Error, _("There are multiple matches for '%s':\n%s") % \
-                                  (arg, "\n".join(["    "+str(x) for x in pkgs]))
+                    raise Error(_("There are multiple matches for '%s':\n%s") % \
+                                  (arg, "\n".join(["    "+str(x) for x in pkgs])))
 
             if len(pkgs) > 1:
                 sortUpgrades(pkgs)
@@ -146,7 +146,7 @@ def main(ctrl, opts):
             for name in names:
                 packages[names[name][0]] = True
 
-        packages = packages.keys()
+        packages = list(packages.keys())
 
         if opts.urls:
             ctrl.dumpURLs(packages)
@@ -170,7 +170,7 @@ def main(ctrl, opts):
                     continue
                 urls.extend([x.strip() for x in open(arg)])
             else:
-                raise Error, _("Argument is not a file nor url: %s") % arg
+                raise Error(_("Argument is not a file nor url: %s") % arg)
         if urls:
             ctrl.downloadURLs(urls, _("URLs"), targetdir=opts.target)
     elif opts.from_metalink:
