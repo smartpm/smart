@@ -181,12 +181,12 @@ crpmver_splitarch(PyObject *self, PyObject *version)
     PyObject *ret, *ver, *arch;
     const char *str, *p;
     int size;
-    if (!PyString_Check(version)) {
+    if (!PyBytes_Check(version)) {
         PyErr_SetString(PyExc_TypeError, "version string expected");
         return NULL;
     }
-    str = PyString_AS_STRING(version);
-    size = PyString_GET_SIZE(version);
+    str = PyBytes_AS_STRING(version);
+    size = PyBytes_GET_SIZE(version);
     p = str+size;
     for (; p != str; p--) {
         if (*p == '@') {
@@ -194,9 +194,9 @@ crpmver_splitarch(PyObject *self, PyObject *version)
             while (s != str && *s != '-') s--;
             if (s == str) break;
             ret = PyTuple_New(2);
-            ver = PyString_FromStringAndSize(str, p-str);
+            ver = PyBytes_FromStringAndSize(str, p-str);
             if (!ver) return NULL;
-            arch = PyString_FromStringAndSize(p+1, str+size-p-1);
+            arch = PyBytes_FromStringAndSize(p+1, str+size-p-1);
             if (!arch) return NULL;
             PyTuple_SET_ITEM(ret, 0, ver);
             PyTuple_SET_ITEM(ret, 1, arch);
@@ -220,12 +220,12 @@ crpmver_splitrelease(PyObject *self, PyObject *version)
     PyObject *ret, *ver, *rel;
     const char *str, *p;
     int size;
-    if (!PyString_Check(version)) {
+    if (!PyBytes_Check(version)) {
         PyErr_SetString(PyExc_TypeError, "version string expected");
         return NULL;
     }
-    str = PyString_AS_STRING(version);
-    size = PyString_GET_SIZE(version);
+    str = PyBytes_AS_STRING(version);
+    size = PyBytes_GET_SIZE(version);
     p = str+size;
     while (p != str && *p != '-') p--;
     if (p == str) {
@@ -240,9 +240,9 @@ crpmver_splitrelease(PyObject *self, PyObject *version)
             size -= str+size-p;
             p = s;
         }
-        ver = PyString_FromStringAndSize(str, p-str);
+        ver = PyBytes_FromStringAndSize(str, p-str);
         if (!ver) return NULL;
-        rel = PyString_FromStringAndSize(p+1, str+size-p-1);
+        rel = PyBytes_FromStringAndSize(p+1, str+size-p-1);
         if (!rel) return NULL;
     }
     ret = PyTuple_New(2);
@@ -266,13 +266,13 @@ crpmver_checkver(PyObject *self, PyObject *args)
         Py_INCREF(ret);
         return ret;
     }
-    if (!PyString_Check(v1) || !PyString_Check(v2)) {
+    if (!PyBytes_Check(v1) || !PyBytes_Check(v2)) {
         ret = Py_False;
         Py_INCREF(ret);
         return ret;
     }
-    s1 = PyString_AS_STRING(v1);
-    s2 = PyString_AS_STRING(v2);
+    s1 = PyBytes_AS_STRING(v1);
+    s2 = PyBytes_AS_STRING(v2);
     rc = vercmp(s1, s2);
     ret = (rc == 0) ? Py_True : Py_False;
     Py_INCREF(ret);

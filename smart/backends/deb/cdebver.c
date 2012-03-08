@@ -233,12 +233,12 @@ cdebver_splitrelease(PyObject *self, PyObject *version)
     PyObject *ret, *ver, *rel;
     const char *str, *p;
     int size;
-    if (!PyString_Check(version)) {
+    if (!PyBytes_Check(version)) {
         PyErr_SetString(PyExc_TypeError, "version string expected");
         return NULL;
     }
-    str = PyString_AS_STRING(version);
-    size = PyString_GET_SIZE(version);
+    str = PyBytes_AS_STRING(version);
+    size = PyBytes_GET_SIZE(version);
     p = str+size;
     while (p != str && *p != '-') p--;
     if (p == str) {
@@ -247,9 +247,9 @@ cdebver_splitrelease(PyObject *self, PyObject *version)
         ver = version;
         rel = Py_None;
     } else {
-        ver = PyString_FromStringAndSize(str, p-str);
+        ver = PyBytes_FromStringAndSize(str, p-str);
         if (!ver) return NULL;
-        rel = PyString_FromStringAndSize(p+1, str+size-p-1);
+        rel = PyBytes_FromStringAndSize(p+1, str+size-p-1);
         if (!rel) return NULL;
     }
     ret = PyTuple_New(2);
@@ -267,12 +267,12 @@ cdebver_parserelation(PyObject *self, PyObject *version)
     char buf[64];
     char *n, *r, *v;
 
-    if (!PyString_Check(version)) {
+    if (!PyBytes_Check(version)) {
         PyErr_SetString(PyExc_TypeError, "version string expected");
         return NULL;
     }
 
-    strncpy(buf, PyString_AS_STRING(version), sizeof(buf)-1);
+    strncpy(buf, PyBytes_AS_STRING(version), sizeof(buf)-1);
     buf[sizeof(buf)-1] = '\0';
 
     parserelation(buf, &n, &r, &v);
@@ -280,18 +280,18 @@ cdebver_parserelation(PyObject *self, PyObject *version)
     on = or = ov = NULL;
 
     if (!n) n = "";
-    on = PyString_FromString(n);
+    on = PyBytes_FromString(n);
     if (!on) goto error;
 
     if (r) {
-        or = PyString_FromString(r);
+        or = PyBytes_FromString(r);
         if (!or) goto error;
     } else {
         Py_INCREF(Py_None);
         or = Py_None;
     }
     if (v) {
-        ov = PyString_FromString(v);
+        ov = PyBytes_FromString(v);
         if (!ov) goto error;
     } else {
         Py_INCREF(Py_None);
@@ -322,12 +322,12 @@ cdebver_parserelations(PyObject *self, PyObject *version)
     char *lastpos, *pos;
     int groupsize, resetgroup;
 
-    if (!PyString_Check(version)) {
+    if (!PyBytes_Check(version)) {
         PyErr_SetString(PyExc_TypeError, "version string expected");
         return NULL;
     }
 
-    strncpy(buf, PyString_AS_STRING(version), sizeof(buf)-1);
+    strncpy(buf, PyBytes_AS_STRING(version), sizeof(buf)-1);
     buf[sizeof(buf)-1] = '\0';
 
     pos = buf;
@@ -360,11 +360,11 @@ cdebver_parserelations(PyObject *self, PyObject *version)
 
             on = or = ov = tup = NULL;
 
-            on = PyString_FromString(n);
+            on = PyBytes_FromString(n);
             if (!on) goto error;
 
             if (r) {
-                or = PyString_FromString(r);
+                or = PyBytes_FromString(r);
                 if (!or) goto error;
             } else {
                 Py_INCREF(Py_None);
@@ -372,7 +372,7 @@ cdebver_parserelations(PyObject *self, PyObject *version)
             }
 
             if (v) {
-                ov = PyString_FromString(v);
+                ov = PyBytes_FromString(v);
                 if (!ov) goto error;
             } else {
                 Py_INCREF(Py_None);
