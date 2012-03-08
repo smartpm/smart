@@ -32,7 +32,7 @@
 
 #define BLOCKSIZE 16384
 
-#define STR(obj) PyString_AS_STRING(obj)
+#define STR(obj) PyBytes_AS_STRING(obj)
 
 static PyTypeObject TagFile_Type;
 
@@ -57,7 +57,7 @@ TagFile_init(TagFileObject *self, PyObject *args)
     Py_DECREF(noargs);
     if (!PyArg_ParseTuple(args, "O", &file))
         return -1;
-    if (PyString_Check(file)) {
+    if (PyBytes_Check(file)) {
         self->_filename = strdup(STR(file));
         self->_file = fopen(self->_filename, "r");
         if (!self->_file) {
@@ -100,13 +100,13 @@ TagFile__getstate__(TagFileObject *self, PyObject *args)
                                           "constructed with file object");
         return NULL;
     }
-    return PyString_FromString(self->_filename);
+    return PyBytes_FromString(self->_filename);
 }
 
 static PyObject *
 TagFile__setstate__(TagFileObject *self, PyObject *state)
 {
-    if (!PyString_Check(state)) {
+    if (!PyBytes_Check(state)) {
         PyErr_SetString(PyExc_TypeError, "TagFile expects string as state");
         return NULL;
     }
@@ -186,13 +186,13 @@ TagFile_advanceSection(TagFileObject *self, PyObject *args)
                                           self->_bufsize-self->_bufread-2);
                 if (!res)
                     return NULL;
-                if (!PyString_Check(res)) {
+                if (!PyBytes_Check(res)) {
                     PyErr_SetString(PyExc_ValueError,
                                     "file.read() returned non-string");
                     Py_DECREF(res);
                     return NULL;
                 }
-                read = PyString_GET_SIZE(res);
+                read = PyBytes_GET_SIZE(res);
                 if (read > self->_bufsize-self->_bufread-2) {
                     PyErr_SetString(PyExc_ValueError,
                                     "file.read() returned more data than "
@@ -204,7 +204,7 @@ TagFile_advanceSection(TagFileObject *self, PyObject *args)
                     eof = 1;
                 else
                     memcpy(self->_buf+self->_bufread,
-                           PyString_AS_STRING(res), read);
+                           PyBytes_AS_STRING(res), read);
                 Py_DECREF(res);
             } else {
                 read = fread(self->_buf+self->_bufread, sizeof(char),
@@ -332,8 +332,8 @@ exitvalueloop:
 
         *(self->_buf+valueend) = '\0';
 
-        key = PyString_FromString(self->_buf+keystart);
-        value = PyString_FromString(self->_buf+valuestart);
+        key = PyBytes_FromString(self->_buf+keystart);
+        value = PyBytes_FromString(self->_buf+valuestart);
         PyDict_SetItem((PyObject *)&self->dict, key, value);
         Py_DECREF(key);
         Py_DECREF(value);
