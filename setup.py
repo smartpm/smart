@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from distutils.command.install_data import install_data
 from distutils.sysconfig import get_python_lib, get_config_var
 from distutils.core import setup, Extension
