@@ -92,4 +92,4 @@ def globdistance(a, b, cutoff=None, ignorecase=False):
         return bl, 0.0
     return res, float(maxl-res)/maxl
 
-from cdistance import *
+from smart.util.cdistance import *

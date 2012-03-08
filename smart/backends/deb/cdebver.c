@@ -483,12 +483,13 @@ static struct PyModuleDef cdebver_module = {
     NULL,                /* m_free */
 };
 
-void
-initcdebver(void)
+PyMODINIT_FUNC
+PyInit_cdebver(void)
 {
     PyObject *m;
     m = PyModule_Create(&cdebver_module);
     _buildORDER();
+    return m;
 }
 
 /* vim:ts=4:sw=4:et

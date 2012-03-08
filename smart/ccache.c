@@ -920,7 +920,7 @@ Provides_compare(ProvidesObject *self, ProvidesObject *other)
                 if (!class1 || !class2)
                     rc = -1;
                 else
-                    rc = PyObject_Compare(class1, class2);
+                    rc = PyObject_RichCompareBool(class1, class2, Py_EQ);
                 Py_XDECREF(class1);
                 Py_XDECREF(class2);
             }
@@ -1121,7 +1121,7 @@ Depends_compare(DependsObject *self, DependsObject *other)
             if (!class1 || !class2) {
                 rc = -1;
             } else {
-                rc = PyObject_Compare(class1, class2);
+                rc = PyObject_RichCompareBool(class1, class2, Py_EQ);
                 Py_DECREF(class1);
                 Py_DECREF(class2);
             }
@@ -2251,7 +2251,7 @@ Loader__setstate__(LoaderObject *self, PyObject *state)
     self__stateversion__ = PyObject_GetAttrString((PyObject *)self,
                                                   "__stateversion__");
     if (!__stateversion__ || !self__stateversion__ ||
-        PyObject_Compare(__stateversion__, self__stateversion__) != 0) {
+        PyObject_RichCompareBool(__stateversion__, self__stateversion__, Py_EQ) != 0) {
         Py_XDECREF(self__stateversion__);
         PyErr_SetString(StateVersionError, "");
         return NULL;
@@ -3635,8 +3635,8 @@ static struct PyModuleDef ccache_module = {
     NULL,                /* m_free */
 };
 
-void
-initccache(void)
+PyMODINIT_FUNC
+PyInit_ccache(void)
 {
     PyObject *m, *o;
     Py_TYPE(&Package_Type) = &PyType_Type;
@@ -3646,11 +3646,11 @@ initccache(void)
     Py_TYPE(&Cache_Type) = &PyType_Type;
 
     PyType_Ready(&Loader_Type);
-    o = PyInt_FromLong(Loader__stateversion__);
+    o = PyLong_FromLong(Loader__stateversion__);
     PyDict_SetItemString(Loader_Type.tp_dict, "__stateversion__", o);
     Py_DECREF(o);
     PyType_Ready(&Cache_Type);
-    o = PyInt_FromLong(Loader__stateversion__);
+    o = PyLong_FromLong(Loader__stateversion__);
     PyDict_SetItemString(Cache_Type.tp_dict, "__stateversion__", o);
     Py_DECREF(o);
 
@@ -3681,6 +3681,7 @@ initccache(void)
     StateVersionError = PyErr_NewException("ccache.StateVersionError",
                                            NULL, NULL);
     PyModule_AddObject(m, "StateVersionError", StateVersionError);
+    return m;
 }
 
 /* vim:ts=4:sw=4:et

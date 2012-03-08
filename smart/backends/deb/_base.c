@@ -55,10 +55,11 @@ static struct PyModuleDef _base_module = {
     NULL,                /* m_free */
 };
 
-void
-init_base(void)
+PyMODINIT_FUNC
+PyInit__base(void)
 {
     PyObject *m;
     m = PyModule_Create(&_base_module);
+    return m;
 }
 

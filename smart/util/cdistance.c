@@ -281,11 +281,12 @@ static struct PyModuleDef cdistance_module = {
     NULL,                /* m_free */
 };
 
-void
-initcdistance(void)
+PyMODINIT_FUNC
+PyInit_cdistance(void)
 {
     PyObject *m;
     m = PyModule_Create(&cdistance_module);
+    return m;
 }
 
 /* vim:ts=4:sw=4:et

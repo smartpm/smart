@@ -80,4 +80,4 @@ class TagFile(dict):
             pass
         return bool(self)
 
-from ctagfile import *
+from smart.util.ctagfile import *

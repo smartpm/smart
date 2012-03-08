@@ -348,11 +348,12 @@ static struct PyModuleDef crpmver_module = {
     NULL,                /* m_free */
 };
 
-void
-initcrpmver(void)
+PyMODINIT_FUNC
+PyInit_crpmver(void)
 {
     PyObject *m;
     m = PyModule_Create(&crpmver_module);
+    return m;
 }
 
 /* vim:ts=4:sw=4:et

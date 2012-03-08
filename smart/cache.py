@@ -860,6 +860,6 @@ class Cache(object):
         self._conflicts = list(conflicts.keys())
         self._objmap = {}
 
-from ccache import *
+from smart.ccache import *
 
 # vim:ts=4:sw=4:et

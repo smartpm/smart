@@ -415,8 +415,8 @@ static struct PyModuleDef ctagfile_module = {
     NULL,                /* m_free */
 };
 
-void
-initctagfile(void)
+PyMODINIT_FUNC
+PyInit_ctagfile(void)
 {
     PyObject *m;
     TagFile_Type.tp_base = &PyDict_Type;
@@ -425,6 +425,7 @@ initctagfile(void)
     m = PyModule_Create(&ctagfile_module);
     Py_INCREF(&TagFile_Type);
     PyModule_AddObject(m, "TagFile", (PyObject *)&TagFile_Type);
+    return m;
 }
 
 /* vim:ts=4:sw=4:et

@@ -124,6 +124,6 @@ def vercmppart(a, b):
     else:
         return 1
 
-from crpmver import *
+from smart.backends.rpm.crpmver import *
 
 # vim:ts=4:sw=4:et

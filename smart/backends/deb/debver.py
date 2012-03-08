@@ -154,6 +154,6 @@ for i in range(256):
     else:
         ORDER[c] = i+256
 
-from cdebver import *
+from smart.backends.deb.cdebver import *
 
 # vim:ts=4:sw=4
