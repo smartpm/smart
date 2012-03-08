@@ -3627,11 +3627,11 @@ void
 initccache(void)
 {
     PyObject *m, *o;
-    Package_Type.ob_type = &PyType_Type;
-    Provides_Type.ob_type = &PyType_Type;
-    Depends_Type.ob_type = &PyType_Type;
-    Loader_Type.ob_type = &PyType_Type;
-    Cache_Type.ob_type = &PyType_Type;
+    Py_TYPE(&Package_Type) = &PyType_Type;
+    Py_TYPE(&Provides_Type) = &PyType_Type;
+    Py_TYPE(&Depends_Type) = &PyType_Type;
+    Py_TYPE(&Loader_Type) = &PyType_Type;
+    Py_TYPE(&Cache_Type) = &PyType_Type;
 
     PyType_Ready(&Loader_Type);
     o = PyInt_FromLong(Loader__stateversion__);
