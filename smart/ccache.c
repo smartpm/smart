@@ -696,7 +696,7 @@ static PyMemberDef Package_members[] = {
 };
 #undef OFF
 
-statichere PyTypeObject Package_Type = {
+static PyTypeObject Package_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Package",	/*tp_name*/
 	sizeof(PackageObject), /*tp_basicsize*/
@@ -965,7 +965,7 @@ static PyMemberDef Provides_members[] = {
 };
 #undef OFF
 
-statichere PyTypeObject Provides_Type = {
+static PyTypeObject Provides_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Provides",	/*tp_name*/
 	sizeof(ProvidesObject), /*tp_basicsize*/
@@ -1167,7 +1167,7 @@ static PyMemberDef Depends_members[] = {
 };
 #undef OFF
 
-statichere PyTypeObject Depends_Type = {
+static PyTypeObject Depends_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Depends",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
@@ -1210,7 +1210,7 @@ statichere PyTypeObject Depends_Type = {
     0,                      /*tp_is_gc*/
 };
 
-statichere PyTypeObject PreRequires_Type = {
+static PyTypeObject PreRequires_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.PreRequires",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
@@ -1253,7 +1253,7 @@ statichere PyTypeObject PreRequires_Type = {
     0,                      /*tp_is_gc*/
 };
 
-statichere PyTypeObject Requires_Type = {
+static PyTypeObject Requires_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Requires",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
@@ -1296,7 +1296,7 @@ statichere PyTypeObject Requires_Type = {
     0,                      /*tp_is_gc*/
 };
 
-statichere PyTypeObject Upgrades_Type = {
+static PyTypeObject Upgrades_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Upgrades",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
@@ -1339,7 +1339,7 @@ statichere PyTypeObject Upgrades_Type = {
     0,                      /*tp_is_gc*/
 };
 
-statichere PyTypeObject Conflicts_Type = {
+static PyTypeObject Conflicts_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Conflicts",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
@@ -2331,7 +2331,7 @@ static PyMemberDef Loader_members[] = {
 };
 #undef OFF
 
-statichere PyTypeObject Loader_Type = {
+static PyTypeObject Loader_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Loader",	/*tp_name*/
 	sizeof(LoaderObject), /*tp_basicsize*/
@@ -3575,7 +3575,7 @@ static PyMemberDef Cache_members[] = {
 };
 #undef OFF
 
-statichere PyTypeObject Cache_Type = {
+static PyTypeObject Cache_Type = {
 	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Cache",	/*tp_name*/
 	sizeof(CacheObject), /*tp_basicsize*/
