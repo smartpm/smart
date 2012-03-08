@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from thread import start_new_thread
+import threading
 import traceback
 
 class Hooks:
@@ -31,8 +31,8 @@ class Hooks:
         if metahookname in self._hook:
             for hook in self._hook[metahookname][:]:
                 if hook[2]:
-                    start_new_thread(hook[0],
-                                     (hookname, hookfunc, priority, threaded))
+                    threading.Thread(target=hook[0],
+                                     args=(hookname, hookfunc, priority, threaded))
                 else:
                     val = hook[0](hookname, hookfunc, priority, threaded)
                     if val == -1:
@@ -59,7 +59,7 @@ class Hooks:
         if hookname in self._hook:
             for hook in self._hook[hookname][:]:
                 if hook[2]:
-                    start_new_thread(hook[0], hookparam, hookkwparam)
+                    threading.Thread(target=hook[0], args=hookparam, kwargs=hookkwparam)
                 else:
                     val = hook[0](*hookparam, **hookkwparam)
                     ret.append(val)
