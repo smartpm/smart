@@ -55,7 +55,7 @@ typedef struct {
     int Endianness;
     int local;				/* unprocessed amount in data */
     int digestsize;
-} SHAobject;
+}SHAobject; 
 
 /* When run on a little-endian CPU we need to perform byte reversal on an
    array of longwords. */
@@ -475,7 +475,7 @@ static PyMethodDef SHA_methods[] = {
 static PyObject *
 SHA256_get_block_size(PyObject *self, void *closure)
 {
-    return PyInt_FromLong(SHA_BLOCKSIZE);
+    return PyLong_FromLong(SHA_BLOCKSIZE);
 }
 
 static PyObject *
@@ -505,8 +505,7 @@ static PyMemberDef SHA_members[] = {
 };
 
 static PyTypeObject SHA256type = {
-    PyObject_HEAD_INIT(NULL)
-    0,			/*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
     "sha256.sha256",	/*tp_name*/
     sizeof(SHAobject),	/*tp_size*/
     0,			/*tp_itemsize*/
@@ -591,7 +590,7 @@ initsha256(void)
 {
     PyObject *m;
 
-    SHA256type.ob_type = &PyType_Type;
+    Py_TYPE(&SHA256type) = &PyType_Type;
     if (PyType_Ready(&SHA256type) < 0)
         return;
     m = Py_InitModule("sha256", SHA_functions);

@@ -88,7 +88,7 @@ typedef struct {
     PyObject *essential;
     PyObject *priority;
     PyObject *loaders;
-} PackageObject;
+}PackageObject; 
 
 typedef struct {
     PyObject_HEAD
@@ -98,7 +98,7 @@ typedef struct {
     PyObject *requiredby;
     PyObject *upgradedby;
     PyObject *conflictedby;
-} ProvidesObject;
+}ProvidesObject; 
 
 typedef struct {
     PyObject_HEAD
@@ -107,7 +107,7 @@ typedef struct {
     PyObject *version;
     PyObject *packages;
     PyObject *providedby;
-} DependsObject;
+}DependsObject; 
 
 typedef struct {
     PyObject_HEAD
@@ -115,7 +115,7 @@ typedef struct {
     PyObject *_channel;
     PyObject *_cache;
     PyObject *_installed;
-} LoaderObject;
+}LoaderObject; 
 
 typedef struct {
     PyObject_HEAD
@@ -126,7 +126,7 @@ typedef struct {
     PyObject *_upgrades;
     PyObject *_conflicts;
     PyObject *_objmap;
-} CacheObject;
+}CacheObject; 
 
 static PyObject *
 getHooks(void)
@@ -218,7 +218,7 @@ Package_init(PackageObject *self, PyObject *args)
     self->installed = Py_False;
     Py_INCREF(Py_False);
     self->essential = Py_False;
-    self->priority = PyInt_FromLong(0);
+    self->priority = PyLong_FromLong(0);
     self->loaders = PyDict_New();
     return 0;
 }
@@ -258,7 +258,7 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->essential);
     Py_XDECREF(self->priority);
     Py_XDECREF(self->loaders);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
@@ -593,14 +593,14 @@ Package_getPriority(PackageObject *self, PyObject *args)
             Py_XDECREF(priority);
             return NULL;
         }
-        if (i == 0 || PyInt_AS_LONG(priority) > lpriority)
-            lpriority = PyInt_AS_LONG(priority);
+        if (i == 0 || PyLong_AS_LONG(priority) > lpriority)
+            lpriority = PyLong_AS_LONG(priority);
         Py_DECREF(priority);
         Py_DECREF(channel);
     }
     Py_DECREF(loaders);
-    lpriority += PyInt_AS_LONG(self->priority);
-    return PyInt_FromLong(lpriority);
+    lpriority += PyLong_AS_LONG(self->priority);
+    return PyLong_FromLong(lpriority);
 }
 
 static PyObject *
@@ -697,8 +697,7 @@ static PyMemberDef Package_members[] = {
 #undef OFF
 
 statichere PyTypeObject Package_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Package",	/*tp_name*/
 	sizeof(PackageObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -784,7 +783,7 @@ Provides_dealloc(ProvidesObject *self)
     Py_XDECREF(self->requiredby);
     Py_XDECREF(self->upgradedby);
     Py_XDECREF(self->conflictedby);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
@@ -967,8 +966,7 @@ static PyMemberDef Provides_members[] = {
 #undef OFF
 
 statichere PyTypeObject Provides_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Provides",	/*tp_name*/
 	sizeof(ProvidesObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -1048,7 +1046,7 @@ Depends_dealloc(DependsObject *self)
     Py_XDECREF(self->version);
     Py_XDECREF(self->packages);
     Py_XDECREF(self->providedby);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
@@ -1170,8 +1168,7 @@ static PyMemberDef Depends_members[] = {
 #undef OFF
 
 statichere PyTypeObject Depends_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Depends",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -1214,8 +1211,7 @@ statichere PyTypeObject Depends_Type = {
 };
 
 statichere PyTypeObject PreRequires_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.PreRequires",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -1258,8 +1254,7 @@ statichere PyTypeObject PreRequires_Type = {
 };
 
 statichere PyTypeObject Requires_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Requires",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -1302,8 +1297,7 @@ statichere PyTypeObject Requires_Type = {
 };
 
 statichere PyTypeObject Upgrades_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Upgrades",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -1346,8 +1340,7 @@ statichere PyTypeObject Upgrades_Type = {
 };
 
 statichere PyTypeObject Conflicts_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Conflicts",	/*tp_name*/
 	sizeof(DependsObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -1429,7 +1422,7 @@ Loader_dealloc(LoaderObject *self)
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_installed);
     Py_XDECREF(self->_cache);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 PyObject *
@@ -1501,7 +1494,7 @@ Loader_setInstalled(LoaderObject *self, PyObject *flag)
 PyObject *
 Loader_getLoadSteps(LoaderObject *self, PyObject *args)
 {
-    return PyInt_FromLong(0);
+    return PyLong_FromLong(0);
 }
 
 PyObject *
@@ -2339,8 +2332,7 @@ static PyMemberDef Loader_members[] = {
 #undef OFF
 
 statichere PyTypeObject Loader_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Loader",	/*tp_name*/
 	sizeof(LoaderObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/
@@ -2433,7 +2425,7 @@ Cache_dealloc(CacheObject *self)
     Py_XDECREF(self->_upgrades);
     Py_XDECREF(self->_conflicts);
     Py_XDECREF(self->_objmap);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 PyObject *
@@ -2790,7 +2782,7 @@ Cache_load(CacheObject *self, PyObject *args)
                 Py_DECREF(prog);
                 return NULL;
             }
-            total += PyInt_AsLong(res);
+            total += PyLong_AsLong(res);
             Py_DECREF(res);
         }
     }
@@ -3411,7 +3403,7 @@ Cache__getstate__(CacheObject *self, PyObject *args)
     PyObject *state = PyDict_New();
     if (!state) return NULL;
     PyDict_SetItemString(state, "__stateversion__",
-                         PyInt_FromLong(Cache__stateversion__));
+                         PyLong_FromLong(Cache__stateversion__));
     PyDict_SetItemString(state, "_loaders", self->_loaders);
     PyDict_SetItemString(state, "_packages", self->_packages);
     return state;
@@ -3434,8 +3426,8 @@ Cache__setstate__(CacheObject *self, PyObject *state)
         return NULL;
     }
     __stateversion__ = PyDict_GetItemString(state, "__stateversion__");
-    if (!__stateversion__ || !PyInt_Check(__stateversion__) ||
-        PyInt_AsLong(__stateversion__) != Cache__stateversion__) {
+    if (!__stateversion__ || !PyLong_Check(__stateversion__) ||
+        PyLong_AsLong(__stateversion__) != Cache__stateversion__) {
         PyErr_SetString(StateVersionError, "");
         return NULL;
     }
@@ -3572,20 +3564,19 @@ static PyMethodDef Cache_methods[] = {
 
 #define OFF(x) offsetof(CacheObject, x)
 static PyMemberDef Cache_members[] = {
-    {"_loaders", T_OBJECT, OFF(_loaders), RO, 0},
-    {"_packages", T_OBJECT, OFF(_packages), RO, 0},
-    {"_provides", T_OBJECT, OFF(_provides), RO, 0},
-    {"_requires", T_OBJECT, OFF(_requires), RO, 0},
-    {"_upgrades", T_OBJECT, OFF(_upgrades), RO, 0},
-    {"_conflicts", T_OBJECT, OFF(_conflicts), RO, 0},
-    {"_objmap", T_OBJECT, OFF(_objmap), RO, 0},
+    {"_loaders", T_OBJECT, OFF(_loaders), READONLY, 0},
+    {"_packages", T_OBJECT, OFF(_packages), READONLY, 0},
+    {"_provides", T_OBJECT, OFF(_provides), READONLY, 0},
+    {"_requires", T_OBJECT, OFF(_requires), READONLY, 0},
+    {"_upgrades", T_OBJECT, OFF(_upgrades), READONLY, 0},
+    {"_conflicts", T_OBJECT, OFF(_conflicts), READONLY, 0},
+    {"_objmap", T_OBJECT, OFF(_objmap), READONLY, 0},
     {NULL}
 };
 #undef OFF
 
 statichere PyTypeObject Cache_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.cache.Cache",	/*tp_name*/
 	sizeof(CacheObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/

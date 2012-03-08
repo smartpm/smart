@@ -255,7 +255,7 @@ typedef struct {
 
     ElementObjectExtra* extra;
 
-} ElementObject;
+}ElementObject; 
 
 staticforward PyTypeObject Element_Type;
 
@@ -682,7 +682,7 @@ element_deepcopy(ElementObject* self, PyObject* args)
     }
 
     /* add object to memo dictionary (so deepcopy won't visit it again) */
-    id = PyInt_FromLong((Py_uintptr_t) self);
+    id = PyLong_FromLong((Py_uintptr_t)self);
 
     i = PyDict_SetItem(memo, id, (PyObject*) element);
 
@@ -1375,8 +1375,7 @@ static PySequenceMethods element_as_sequence = {
 };
 
 statichere PyTypeObject Element_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0, "Element", sizeof(ElementObject), 0,
+    PyVarObject_HEAD_INIT(NULL, 0) "Element", sizeof(ElementObject), 0,
     /* methods */
     (destructor)element_dealloc, /* tp_dealloc */
     0, /* tp_print */
@@ -1411,7 +1410,7 @@ typedef struct {
     PyObject* start_ns_event_obj;
     PyObject* end_ns_event_obj;
 
-} TreeBuilderObject;
+}TreeBuilderObject; 
 
 staticforward PyTypeObject TreeBuilder_Type;
 
@@ -1776,8 +1775,7 @@ treebuilder_getattr(TreeBuilderObject* self, char* name)
 }
 
 statichere PyTypeObject TreeBuilder_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0, "TreeBuilder", sizeof(TreeBuilderObject), 0,
+    PyVarObject_HEAD_INIT(NULL, 0) "TreeBuilder", sizeof(TreeBuilderObject), 0,
     /* methods */
     (destructor)treebuilder_dealloc, /* tp_dealloc */
     0, /* tp_print */
@@ -1817,7 +1815,7 @@ typedef struct {
     PyObject* handle_comment;
     PyObject* handle_pi;
 
-} XMLParserObject;
+}XMLParserObject; 
 
 staticforward PyTypeObject XMLParser_Type;
 
@@ -2543,8 +2541,7 @@ xmlparser_getattr(XMLParserObject* self, char* name)
 }
 
 statichere PyTypeObject XMLParser_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0, "XMLParser", sizeof(XMLParserObject), 0,
+    PyVarObject_HEAD_INIT(NULL, 0) "XMLParser", sizeof(XMLParserObject), 0,
     /* methods */
     (destructor)xmlparser_dealloc, /* tp_dealloc */
     0, /* tp_print */

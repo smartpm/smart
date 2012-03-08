@@ -439,7 +439,7 @@ cdebver_vercmp(PyObject *self, PyObject *args)
     const char *v1, *v2;
     if (!PyArg_ParseTuple(args, "ss", &v1, &v2))
         return NULL;
-    return PyInt_FromLong(vercmp(v1, v2));
+    return PyLong_FromLong(vercmp(v1, v2));
 }
 
 static PyObject *
@@ -448,7 +448,7 @@ cdebver_vercmpparts(PyObject *self, PyObject *args)
     const char *e1, *v1, *r1, *e2, *v2, *r2;
     if (!PyArg_ParseTuple(args, "ssssss", &e1, &v1, &r1, &e2, &v2, &r2))
         return NULL;
-    return PyInt_FromLong(vercmpparts(e1, v1, r1, e2, v2, r2));
+    return PyLong_FromLong(vercmpparts(e1, v1, r1, e2, v2, r2));
 }
 
 static PyObject *
@@ -457,7 +457,7 @@ cdebver_vercmppart(PyObject *self, PyObject *args)
     const char *a, *b;
     if (!PyArg_ParseTuple(args, "ss", &a, &b))
         return NULL;
-    return PyInt_FromLong(vercmppart(a, b));
+    return PyLong_FromLong(vercmppart(a, b));
 }
 
 static PyMethodDef cdebver_methods[] = {

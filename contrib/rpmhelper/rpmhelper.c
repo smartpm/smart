@@ -12,7 +12,7 @@ typedef struct rpmtsObject_s {
     PyObject *md_dict;
     rpmts       ts;
     /* Other unneeded fields */
-} rpmtsObject;
+}rpmtsObject; 
 
 PyObject *rpmmi_Wrap(rpmdbMatchIterator mi);
 long tagNumFromPyObject(PyObject *item);
@@ -42,8 +42,8 @@ dbMatch(PyObject *self, PyObject *args, PyObject *kwds)
         if (PyString_Check(Key)) {
             key = PyString_AsString(Key);
             len = PyString_Size(Key);
-        } else if (PyInt_Check(Key)) {
-            ikey = PyInt_AsLong(Key);
+        } else if (PyLong_Check(Key)) {
+            ikey = PyLong_AsLong(Key);
             key = (char *)&ikey;
             len = sizeof(ikey);
         } else {

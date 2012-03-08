@@ -208,8 +208,8 @@ cdistance_distance(PyObject *self, PyObject *args)
         b = t; bl = tl;
     }
     if (cutoffo != Py_None) {
-        if (PyInt_Check(cutoffo)) {
-            cutoff = (int)PyInt_AsLong(cutoffo);
+        if (PyLong_Check(cutoffo)) {
+            cutoff = (int)PyLong_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
             cutoff = (int)(float)(bl-PyFloat_AsDouble(cutoffo)*bl);
         } else {
@@ -217,7 +217,7 @@ cdistance_distance(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    resulto = PyInt_FromLong(distance(a, al, b, bl, cutoff, &ratio));
+    resulto = PyLong_FromLong(distance(a, al, b, bl, cutoff, &ratio));
     if (!resulto) return NULL;
     ratioo = PyFloat_FromDouble((double)ratio);
     if (!ratioo) return NULL;
@@ -243,8 +243,8 @@ cdistance_globdistance(PyObject *self, PyObject *args)
         return NULL;
     maxl = al>bl?al:bl;
     if (cutoffo != Py_None) {
-        if (PyInt_Check(cutoffo)) {
-            cutoff = (int)PyInt_AsLong(cutoffo);
+        if (PyLong_Check(cutoffo)) {
+            cutoff = (int)PyLong_AsLong(cutoffo);
         } else if (PyFloat_Check(cutoffo)) {
             cutoff = (int)(float)(maxl-PyFloat_AsDouble(cutoffo)*maxl);
         } else {
@@ -252,8 +252,7 @@ cdistance_globdistance(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    resulto = PyInt_FromLong(globdistance(a, al, b, bl,
-                                          cutoff, &ratio, ignorecase));
+    resulto = PyLong_FromLong(globdistance(a, al, b, bl, cutoff, &ratio, ignorecase));
     if (!resulto) return NULL;
     ratioo = PyFloat_FromDouble((double)ratio);
     if (!ratioo) return NULL;

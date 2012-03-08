@@ -123,12 +123,12 @@ TagFile__setstate__(TagFileObject *self, PyObject *state)
 static PyObject *
 TagFile_setOffset(TagFileObject *self, PyObject *offset)
 {
-    if (!PyInt_Check(offset)) {
+    if (!PyLong_Check(offset)) {
         PyErr_SetString(PyExc_ValueError, "Invalid offset");
         return NULL;
     }
     self->_bufread = 0;
-    self->_offset = PyInt_AsLong(offset);
+    self->_offset = PyLong_AsLong(offset);
     if (self->_fileobj) {
         PyObject *res = PyObject_CallMethod(self->_fileobj,
                                             "seek", "O", offset);
@@ -148,7 +148,7 @@ TagFile_setOffset(TagFileObject *self, PyObject *offset)
 static PyObject *
 TagFile_getOffset(TagFileObject *self, PyObject *args)
 {
-    return PyInt_FromLong(self->_offset);
+    return PyLong_FromLong(self->_offset);
 }
 
 static PyObject *
@@ -357,8 +357,7 @@ static PyMethodDef TagFile_methods[] = {
 };
 
 statichere PyTypeObject TagFile_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
+	PyVarObject_HEAD_INIT(NULL, 0)			/*ob_size*/
 	"smart.util.tagfile.TagFile",	/*tp_name*/
 	sizeof(TagFileObject), /*tp_basicsize*/
 	0,			/*tp_itemsize*/

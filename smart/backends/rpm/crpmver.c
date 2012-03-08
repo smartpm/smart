@@ -304,7 +304,7 @@ crpmver_vercmp(PyObject *self, PyObject *args)
     const char *v1, *v2;
     if (!PyArg_ParseTuple(args, "ss", &v1, &v2))
         return NULL;
-    return PyInt_FromLong(vercmp(v1, v2));
+    return PyLong_FromLong(vercmp(v1, v2));
 }
 
 static PyObject *
@@ -313,7 +313,7 @@ crpmver_vercmpparts(PyObject *self, PyObject *args)
     const char *e1, *v1, *r1, *d1, *e2, *v2, *r2, *d2;
     if (!PyArg_ParseTuple(args, "ssssssss", &e1, &v1, &r1, &d1, &e2, &v2, &r2, &d2))
         return NULL;
-    return PyInt_FromLong(vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2));
+    return PyLong_FromLong(vercmpparts(e1, v1, r1, d1, e2, v2, r2, d2));
 }
 
 static PyObject *
@@ -322,7 +322,7 @@ crpmver_vercmppart(PyObject *self, PyObject *args)
     const char *a, *b;
     if (!PyArg_ParseTuple(args, "ss", &a, &b))
         return NULL;
-    return PyInt_FromLong(vercmppart(a, b));
+    return PyLong_FromLong(vercmppart(a, b));
 }
 
 static PyMethodDef crpmver_methods[] = {
