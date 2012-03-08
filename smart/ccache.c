@@ -974,7 +974,7 @@ static PyTypeObject Provides_Type = {
 	0,			/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
-	(cmpfunc)Provides_compare, /*tp_compare*/
+	(void*)Provides_compare, /*tp_compare*/
 	PyObject_Str, /*tp_repr*/
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
@@ -1176,7 +1176,7 @@ static PyTypeObject Depends_Type = {
 	0,			/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
-	(cmpfunc)Depends_compare, /*tp_compare*/
+	(void*)Depends_compare, /*tp_compare*/
 	PyObject_Str, /*tp_repr*/
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
