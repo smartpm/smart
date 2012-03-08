@@ -136,50 +136,50 @@ def main():
             def __call__(self, failures, tests):
                 self.total_failures += failures
                 self.total_tests += tests
-                print "(failures=%d, tests=%d)" % (failures, tests)
+                print("(failures=%d, tests=%d)" % (failures, tests))
 
         summary = Summary()
 
         if unittests:
-            print "Running unittests..."
+            print("Running unittests...")
             for filename in unittests:
-                print "[%s]" % filename
+                print("[%s]" % filename)
                 modulename = filename[:-3].replace("/", ".")
                 module = __import__(modulename, None, None, [filename])
                 test = loader.loadTestsFromModule(module)
                 result = runner.run(test)
                 summary(len(result.failures), test.countTestCases())
-                print
+                print()
 
                 shutil.rmtree(datadir)
                 os.mkdir(datadir)
                 from smart import sysconf
                 if sysconf.get("channels"):
-                    print "GOT CHANNELS:", sysconf.get("channels")
+                    print("GOT CHANNELS:", sysconf.get("channels"))
 
         if doctests:
-            print "Running doctests..."
+            print("Running doctests...")
             for filename in doctests:
-                print "[%s]" % filename
+                print("[%s]" % filename)
                 if hasattr(doctest, 'testfile'):
                     summary(*doctest.testfile(filename,
                                               optionflags=doctest_flags))
                 else:
                     tester = doctest.Tester(globs={}, optionflags=doctest_flags)
                     summary(*tester.runstring(open(filename).read(), filename))
-                print
+                print()
 
                 shutil.rmtree(datadir)
                 os.mkdir(datadir)
                 from smart import sysconf
                 if sysconf.get("channels"):
-                    print "GOT CHANNELS:", sysconf.get("channels")
+                    print("GOT CHANNELS:", sysconf.get("channels"))
 
     finally:
         shutil.rmtree(datadir)
 
-    print "Total failures: %d" % summary.total_failures
-    print "Total tests: %d" % summary.total_tests
+    print("Total failures: %d" % summary.total_failures)
+    print("Total tests: %d" % summary.total_tests)
 
     return bool(summary.total_failures)
 
