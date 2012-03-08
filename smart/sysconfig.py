@@ -71,7 +71,7 @@ class SysConfig(object):
             raise Error(_("File not found: %s") % filepath)
         if os.path.getsize(filepath) == 0:
             return
-        file = open(filepath)
+        file = open(filepath, "rb")
         self._hardmap.clear()
         try:
             self._hardmap.update(pickle.load(file))
@@ -100,7 +100,7 @@ class SysConfig(object):
         dirname = os.path.dirname(filepath)
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
-        file = open(filepath, "w")
+        file = open(filepath, "wb")
         pickle.dump(self._hardmap, file, 2)
         file.close()
 
