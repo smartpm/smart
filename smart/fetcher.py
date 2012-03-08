@@ -30,7 +30,7 @@ import tempfile
 import socket
 import urllib.request, urllib.parse, urllib.error
 import string
-import _thread
+import thread
 import time
 import os
 import re
@@ -66,7 +66,7 @@ class Fetcher(object):
         self._cancel = False
         self._speedupdated = 0
         self._activedownloads = 0
-        self._activedownloadslock = _thread.allocate_lock()
+        self._activedownloadslock = thread.allocate_lock()
         self._maxactivedownloads = 0
         self.time = 0
         self._eta = 0
@@ -285,7 +285,7 @@ class Fetcher(object):
                 if (not self.hasStrongValidate(item, uncomp=True) or
                     not self.validate(item, uncomppath, uncomp=True)):
                     self._uncompressing += 1
-                    _thread.start_new_thread(self._uncompress,
+                    thread.start_new_thread(self._uncompress,
                                             (item, localpath, uncomphandler))
                 else:
                     item.setSucceeded(uncomppath)
@@ -852,7 +852,7 @@ class FileHandler(FetcherHandler):
     def tick(self):
         if self._queue and not self._active:
             self._active = True
-            _thread.start_new_thread(self.copy, ())
+            thread.start_new_thread(self.copy, ())
         return self._active
 
     def copy(self):
@@ -932,7 +932,7 @@ class FTPHandler(FetcherHandler):
         FetcherHandler.__init__(self, *args)
         self._active = {}   # ftp -> host
         self._inactive = {} # ftp -> (user, host, port)
-        self._lock = _thread.allocate_lock()
+        self._lock = thread.allocate_lock()
         self._activelimit = {} # host -> num
 
     def tick(self):
@@ -955,7 +955,7 @@ class FTPHandler(FetcherHandler):
                             if self._inactive[ftp] == userhost:
                                 del self._inactive[ftp]
                                 self._active[ftp] = url.host
-                                _thread.start_new_thread(self.fetch, (ftp, item))
+                                thread.start_new_thread(self.fetch, (ftp, item))
                                 break
                         else:
                             if len(self._inactive) > self.MAXINACTIVE:
@@ -963,7 +963,7 @@ class FTPHandler(FetcherHandler):
                             ftp = ftplib.FTP()
                             ftp.lasttime = self._fetcher.time
                             self._active[ftp] = url.host
-                            _thread.start_new_thread(self.connect,
+                            thread.start_new_thread(self.connect,
                                                     (ftp, item, len(hostactive)))
         self._lock.release()
         return bool(self._queue or self._active)
@@ -1138,7 +1138,7 @@ class URLLIBHandler(FetcherHandler):
     def __init__(self, *args):
         FetcherHandler.__init__(self, *args)
         self._active = 0
-        self._lock = _thread.allocate_lock()
+        self._lock = thread.allocate_lock()
 
     def tick(self):
         self._lock.acquire()
@@ -1146,7 +1146,7 @@ class URLLIBHandler(FetcherHandler):
             while (self._active < self.MAXACTIVE and
                    self.changeActiveDownloads(+1)):
                 self._active += 1
-                _thread.start_new_thread(self.fetch, ())
+                thread.start_new_thread(self.fetch, ())
         self._lock.release()
         return bool(self._queue or self._active)
 
@@ -1525,14 +1525,14 @@ class PyCurlHandler(FetcherHandler):
         self._activelimit = {} # host -> num
         self._running = False
         self._multi = pycurl.CurlMulti()
-        self._lock = _thread.allocate_lock()
+        self._lock = thread.allocate_lock()
 
     def tick(self):
         import pycurl
 
         if not self._running and (self._queue or self._active):
             self._running = True
-            _thread.start_new_thread(self.perform, ())
+            thread.start_new_thread(self.perform, ())
 
         fetcher = self._fetcher
         multi = self._multi
@@ -1784,7 +1784,7 @@ class SCPHandler(FetcherHandler):
     def __init__(self, *args):
         FetcherHandler.__init__(self, *args)
         self._active = [] # item
-        self._lock = _thread.allocate_lock()
+        self._lock = thread.allocate_lock()
 
     def tick(self):
         import ftplib
@@ -1802,7 +1802,7 @@ class SCPHandler(FetcherHandler):
                         self._active.append(item)
                         item.total = None
                         item.localpath = None
-                        _thread.start_new_thread(self.fetch, (item,))
+                        thread.start_new_thread(self.fetch, (item,))
         prog = iface.getSubProgress(self._fetcher)
         for item in self._active:
             if item.total and item.localpath:

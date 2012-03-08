@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-import _thread
+import thread
 import time
 import sys
 
@@ -37,7 +37,7 @@ class Progress(object):
         self.__sublastshown = {}
         self.__subdone = {}
         self.__lasttime = 0
-        self.__lock = _thread.allocate_lock()
+        self.__lock = thread.allocate_lock()
         self.__hassub = False
 
     def lock(self):

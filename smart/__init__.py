@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from gettext import translation
-import _thread
+import thread
 import locale
 import sys
 import os
@@ -90,7 +90,7 @@ hooks = Hooks()
 
 # For now, the Smart library only allows one instance of the system
 # to be run at a time per-process.
-_smart_run_lock = _thread.allocate_lock()
+_smart_run_lock = thread.allocate_lock()
 
 
 def init(command=None, argv=None,
