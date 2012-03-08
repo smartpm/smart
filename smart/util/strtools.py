@@ -24,7 +24,6 @@ from smart import _
 from smart.util.distance import *
 
 import posixpath
-import string
 import sys
 
 class ShortURL(object):
@@ -89,7 +88,7 @@ def secondsToStr(time):
         else:
             return "%02is" % seconds
 
-_nulltrans = string.maketrans('', '')
+_nulltrans = bytes.maketrans(b'', b'')
 def isRegEx(s):
     return s.translate(_nulltrans, '^{[*') != s
 
