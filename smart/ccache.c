@@ -42,7 +42,7 @@
 #define LIST_CLEAR(x) \
     PyList_SetSlice((x), 0, PyList_GET_SIZE(x), (PyObject *)NULL);
 
-#define STR(obj) PyString_AS_STRING(obj)
+#define STR(obj) PyBytes_AS_STRING(obj)
 
 
 #ifndef Py_VISIT
@@ -205,8 +205,8 @@ _(const char *str)
 static int
 Package_init(PackageObject *self, PyObject *args)
 {
-    if (!PyArg_ParseTuple(args, "O!O!", &PyString_Type, &self->name,
-                          &PyString_Type, &self->version))
+    if (!PyArg_ParseTuple(args, "O!O!", &PyBytes_Type, &self->name,
+                          &PyBytes_Type, &self->version))
         return -1;
     Py_INCREF(self->name);
     Py_INCREF(self->version);
@@ -264,12 +264,12 @@ Package_dealloc(PackageObject *self)
 static PyObject *
 Package_str(PackageObject *self)
 {
-    if (!PyString_Check(self->name) || !PyString_Check(self->version)) {
+    if (!PyBytes_Check(self->name) || !PyBytes_Check(self->version)) {
         PyErr_SetString(PyExc_TypeError,
                         "Package name or version is not string");
         return NULL;
     }
-    return PyString_FromFormat("%s-%s", STR(self->name), STR(self->version));
+    return PyBytes_FromFormat("%s-%s", STR(self->name), STR(self->version));
 }
 
 static PyObject *
@@ -284,7 +284,7 @@ Package_richcompare(PackageObject *self, PackageObject *other, int op)
     }
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Package_Type)) {
         const char *self_name, *other_name;
-        if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
+        if (!PyBytes_Check(self->name) || !PyBytes_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError,
                             "Package name is not string");
             return NULL;
@@ -294,8 +294,8 @@ Package_richcompare(PackageObject *self, PackageObject *other, int op)
         rc = strcmp(self_name, other_name);
         if (rc == 0) {
             const char *self_version, *other_version;
-            if (!PyString_Check(self->version) ||
-                !PyString_Check(other->version)) {
+            if (!PyBytes_Check(self->version) ||
+                !PyBytes_Check(other->version)) {
                 PyErr_SetString(PyExc_TypeError,
                                 "Package version is not string");
                 return NULL;
@@ -468,7 +468,7 @@ Package_coexists(PackageObject *self, PackageObject *other)
         return NULL;
     }
 
-    if (!PyString_Check(self->version) || !PyString_Check(other->version)) {
+    if (!PyBytes_Check(self->version) || !PyBytes_Check(other->version)) {
         PyErr_SetString(PyExc_TypeError, "Package version is not string");
         return NULL;
     }
@@ -535,8 +535,8 @@ Package_search(PackageObject *self, PyObject *searcher)
         }
         Py_DECREF(res);
 
-        tmp = PyString_FromFormat("%s-%s", PyString_AS_STRING(self->name),
-                                           PyString_AS_STRING(self->version));
+        tmp = PyBytes_FromFormat("%s-%s", PyBytes_AS_STRING(self->name),
+                                           PyBytes_AS_STRING(self->version));
         if (tmp == NULL)
             return NULL;
         res = PyObject_CallFunction(globdistance, "OOOO",
@@ -742,7 +742,7 @@ static PyTypeObject Package_Type = {
 static int
 Provides_init(ProvidesObject *self, PyObject *args)
 {
-    if (!PyArg_ParseTuple(args, "O!O", &PyString_Type, &self->name,
+    if (!PyArg_ParseTuple(args, "O!O", &PyBytes_Type, &self->name,
                           &self->version))
         return -1;
     Py_INCREF(self->name);
@@ -846,8 +846,8 @@ Provides_search(PackageObject *self, PyObject *searcher)
         }
         Py_DECREF(res);
 
-        tmp = PyString_FromFormat("%s-%s", PyString_AS_STRING(self->name),
-                                           PyString_AS_STRING(self->version));
+        tmp = PyBytes_FromFormat("%s-%s", PyBytes_AS_STRING(self->name),
+                                           PyBytes_AS_STRING(self->version));
         if (tmp == NULL)
             return NULL;
         res = PyObject_CallFunction(globdistance, "OOOO",
@@ -884,16 +884,16 @@ Provides_search(PackageObject *self, PyObject *searcher)
 static PyObject *
 Provides_str(ProvidesObject *self)
 {
-    if (!PyString_Check(self->name)) {
+    if (!PyBytes_Check(self->name)) {
         PyErr_SetString(PyExc_TypeError, "package name is not string");
         return NULL;
     }
     if (self->version != Py_None) {
-        if (!PyString_Check(self->version)) {
+        if (!PyBytes_Check(self->version)) {
             PyErr_SetString(PyExc_TypeError, "package version is not string");
             return NULL;
         }
-        return PyString_FromFormat("%s = %s", STR(self->name),
+        return PyBytes_FromFormat("%s = %s", STR(self->name),
                                               STR(self->version));
     }
     Py_INCREF(self->name);
@@ -905,7 +905,7 @@ Provides_compare(ProvidesObject *self, ProvidesObject *other)
 {
     int rc = -1;
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Provides_Type)) {
-        if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
+        if (!PyBytes_Check(self->name) || !PyBytes_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError, "Provides name is not string");
             return -1;
         }
@@ -1011,7 +1011,7 @@ static PyTypeObject Provides_Type = {
 static int
 Depends_init(DependsObject *self, PyObject *args)
 {
-    if (!PyArg_ParseTuple(args, "O!OO", &PyString_Type, &self->name,
+    if (!PyArg_ParseTuple(args, "O!OO", &PyBytes_Type, &self->name,
                           &self->relation, &self->version))
         return -1;
     Py_INCREF(self->name);
@@ -1084,18 +1084,18 @@ Depends_matches(DependsObject *self, PyObject *prv)
 static PyObject *
 Depends_str(DependsObject *self)
 {
-    if (!PyString_Check(self->name)) {
+    if (!PyBytes_Check(self->name)) {
         PyErr_SetString(PyExc_TypeError, "Package name is not string");
         return NULL;
     }
     if (self->version != Py_None) {
-        if (!PyString_Check(self->version) ||
-            !PyString_Check(self->relation)) {
+        if (!PyBytes_Check(self->version) ||
+            !PyBytes_Check(self->relation)) {
             PyErr_SetString(PyExc_TypeError,
                             "Package version or relation is not string");
             return NULL;
         }
-        return PyString_FromFormat("%s %s %s", STR(self->name),
+        return PyBytes_FromFormat("%s %s %s", STR(self->name),
                                                STR(self->relation),
                                                STR(self->version));
     }
@@ -1108,7 +1108,7 @@ Depends_compare(DependsObject *self, DependsObject *other)
 {
     int rc = -1;
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Depends_Type)) {
-        if (!PyString_Check(self->name) || !PyString_Check(other->name)) {
+        if (!PyBytes_Check(self->name) || !PyBytes_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError, "Depends name is not string");
             return -1;
         }
@@ -3298,8 +3298,8 @@ Cache_search(CacheObject *self, PyObject *searcher)
                                                    "non-sequence object");
             if (seq == NULL) return NULL;
             for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
-                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
-                           PyString_AS_STRING(prv->name)) == 0) {
+                if (strcmp(PyBytes_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyBytes_AS_STRING(prv->name)) == 0) {
                     res = PyObject_CallMethod(req, "matches", "O", prv);
                     if (res == NULL)
                         return NULL;
@@ -3330,8 +3330,8 @@ Cache_search(CacheObject *self, PyObject *searcher)
                                                    "non-sequence object");
             if (seq == NULL) return NULL;
             for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
-                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
-                           PyString_AS_STRING(prv->name)) == 0) {
+                if (strcmp(PyBytes_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyBytes_AS_STRING(prv->name)) == 0) {
                     res = PyObject_CallMethod(upg, "matches", "O", prv);
                     if (res == NULL)
                         return NULL;
@@ -3362,8 +3362,8 @@ Cache_search(CacheObject *self, PyObject *searcher)
                                                    "non-sequence object");
             if (seq == NULL) return NULL;
             for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
-                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
-                           PyString_AS_STRING(prv->name)) == 0) {
+                if (strcmp(PyBytes_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyBytes_AS_STRING(prv->name)) == 0) {
                     res = PyObject_CallMethod(cnf, "matches", "O", prv);
                     if (res == NULL)
                         return NULL;
