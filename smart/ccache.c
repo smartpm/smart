@@ -3623,6 +3623,18 @@ static PyMethodDef ccache_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef ccache_module = {
+    PyModuleDef_HEAD_INIT,
+    "ccache",            /* m_name */
+    "",                  /* m_doc */
+    -1,                  /* m_size */
+    ccache_methods,      /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
 void
 initccache(void)
 {
@@ -3647,7 +3659,7 @@ initccache(void)
     PyType_Ready(&Upgrades_Type);
     PyType_Ready(&Conflicts_Type);
 
-    m = Py_InitModule3("ccache", ccache_methods, "");
+    m = PyModule_Create(&ccache_module);
     Py_INCREF(&Package_Type);
 
 #define REGISTER_TYPE(name) \

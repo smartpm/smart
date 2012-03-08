@@ -43,10 +43,22 @@ static PyMethodDef _base_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef _base_module = {
+    PyModuleDef_HEAD_INIT,
+    "_base",             /* m_name */
+    "",                  /* m_doc */
+    -1,                  /* m_size */
+    _base_methods,       /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
 void
 init_base(void)
 {
     PyObject *m;
-    m = Py_InitModule3("_base", _base_methods, "");
+    m = PyModule_Create(&_base_module);
 }
 

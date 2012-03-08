@@ -336,11 +336,23 @@ static PyMethodDef crpmver_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef crpmver_module = {
+    PyModuleDef_HEAD_INIT,
+    "crpmver",           /* m_name */
+    "",                  /* m_doc */
+    -1,                  /* m_size */
+    crpmver_methods,     /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
 void
 initcrpmver(void)
 {
     PyObject *m;
-    m = Py_InitModule3("crpmver", crpmver_methods, "");
+    m = PyModule_Create(&crpmver_module);
 }
 
 /* vim:ts=4:sw=4:et

@@ -471,11 +471,23 @@ static PyMethodDef cdebver_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef cdebver_module = {
+    PyModuleDef_HEAD_INIT,
+    "cdebver",           /* m_name */
+    "",                  /* m_doc */
+    -1,                  /* m_size */
+    cdebver_methods,     /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
 void
 initcdebver(void)
 {
     PyObject *m;
-    m = Py_InitModule3("cdebver", cdebver_methods, "");
+    m = PyModule_Create(&cdebver_module);
     _buildORDER();
 }
 

@@ -269,11 +269,23 @@ static PyMethodDef cdistance_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef cdistance_module = {
+    PyModuleDef_HEAD_INIT,
+    "cdistance",         /* m_name */
+    "",                  /* m_doc */
+    -1,                  /* m_size */
+    cdistance_methods,   /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
 void
 initcdistance(void)
 {
     PyObject *m;
-    m = Py_InitModule3("cdistance", cdistance_methods, "");
+    m = PyModule_Create(&cdistance_module);
 }
 
 /* vim:ts=4:sw=4:et

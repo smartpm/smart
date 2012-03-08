@@ -403,6 +403,18 @@ static PyMethodDef ctagfile_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef ctagfile_module = {
+    PyModuleDef_HEAD_INIT,
+    "ctagfile",          /* m_name */
+    "",                  /* m_doc */
+    -1,                  /* m_size */
+    ctagfile_methods,    /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
 void
 initctagfile(void)
 {
@@ -410,7 +422,7 @@ initctagfile(void)
     TagFile_Type.tp_base = &PyDict_Type;
     if (PyType_Ready(&TagFile_Type) < 0)
         return;
-    m = Py_InitModule3("ctagfile", ctagfile_methods, "");
+    m = PyModule_Create(&ctagfile_module);
     Py_INCREF(&TagFile_Type);
     PyModule_AddObject(m, "TagFile", (PyObject *)&TagFile_Type);
 }
