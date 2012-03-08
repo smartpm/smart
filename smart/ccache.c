@@ -68,11 +68,11 @@
 #endif
 
 
-staticforward PyTypeObject Package_Type;
-staticforward PyTypeObject Provides_Type;
-staticforward PyTypeObject Depends_Type;
-staticforward PyTypeObject Loader_Type;
-staticforward PyTypeObject Cache_Type;
+static PyTypeObject Package_Type;
+static PyTypeObject Provides_Type;
+static PyTypeObject Depends_Type;
+static PyTypeObject Loader_Type;
+static PyTypeObject Cache_Type;
 
 static PyObject *StateVersionError;
 

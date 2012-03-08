@@ -34,7 +34,7 @@
 
 #define STR(obj) PyString_AS_STRING(obj)
 
-staticforward PyTypeObject TagFile_Type;
+static PyTypeObject TagFile_Type;
 
 typedef struct {
     PyDictObject dict;

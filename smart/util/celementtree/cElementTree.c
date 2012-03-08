@@ -257,7 +257,7 @@ typedef struct {
 
 }ElementObject; 
 
-staticforward PyTypeObject Element_Type;
+static PyTypeObject Element_Type;
 
 #define Element_CheckExact(op) ((op)->ob_type == &Element_Type)
 
@@ -1412,7 +1412,7 @@ typedef struct {
 
 }TreeBuilderObject; 
 
-staticforward PyTypeObject TreeBuilder_Type;
+static PyTypeObject TreeBuilder_Type;
 
 #define TreeBuilder_CheckExact(op) ((op)->ob_type == &TreeBuilder_Type)
 
@@ -1817,7 +1817,7 @@ typedef struct {
 
 }XMLParserObject; 
 
-staticforward PyTypeObject XMLParser_Type;
+static PyTypeObject XMLParser_Type;
 
 /* helpers */
 
