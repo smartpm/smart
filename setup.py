@@ -97,49 +97,6 @@ packages = [
             "smart.util"
            ]
                     
-try:
-    import cElementTree
-except ImportError:
-    try:
-        from xml.etree import cElementTree
-    except ImportError:
-        # we need to build in-tree cElementTree
-        # cElementTree needed defines
-        CET_DEFINES = [
-            ("XML_STATIC", None),
-            ("XML_NS", "1"),
-            ("XML_DTD", "1"),
-            ("XML_CONTEXT_BYTES", "1024")
-            ]
-        
-        if "HAVE_MEMMOVE" in config_h_vars:
-            CET_DEFINES.append(("HAVE_MEMMOVE", "1"))
-        if "HAVE_BCOPY" in config_h_vars:
-            CET_DEFINES.append(("HAVE_BCOPY", "1"))
-        if sys.byteorder == "little":
-            CET_DEFINES.append(("BYTEORDER", "1234"))
-        else:
-            CET_DEFINES.append(("BYTEORDER", "4321"))
-
-        ext_modules.append(
-          Extension("smart.util.cElementTree",
-                    ["smart/util/celementtree/cElementTree.c",
-                     "smart/util/celementtree/expat/xmlparse.c",
-                     "smart/util/celementtree/expat/xmlrole.c",
-                     "smart/util/celementtree/expat/xmltok.c"],
-                    include_dirs=["smart/util/celementtree/expat"],
-                    define_macros=CET_DEFINES)
-                   )
-        packages.append("smart.util.elementtree")
-
-try:
-    from hashlib import sha256
-except ImportError:
-    ext_modules.append(
-      Extension("smart.util.sha256",
-                ["smart/util/sha256module.c"])
-               )
-
 
 setup(name="smart",
       version = VERSION,
