@@ -150,7 +150,7 @@ class RPMMetaDataLoader(Loader):
         DISTTAG     = nstag(NS_RPM, "disttag")
         DISTEPOCH   = nstag(NS_RPM, "distepoch")
 
-        COMPMAP = { "EQ":"=", "LT":"<", "LE":"<=", "GT":">", "GE":">="}
+        COMPMAP = { "EQ":b"=", "LT":b"<", "LE":b"<=", "GT":b">", "GE":b">="}
 
         # Prepare progress reporting.
         lastoffset = 0
@@ -201,16 +201,16 @@ class RPMMetaDataLoader(Loader):
                         arch = elem.text
 
                 elif tag == NAME:
-                    name = elem.text
+                    name = elem.text.encode()
 
                 elif tag == VERSION:
                     e = elem.get("epoch")
                     if e and e != "0":
-                        version = "%s:%s-%s" % \
-                                  (e, elem.get("ver"), elem.get("rel"))
+                        version = ("%s:%s-%s" % \
+                                  (e, elem.get("ver"), elem.get("rel"))).encode()
                     else:
-                        version = "%s-%s" % \
-                                  (elem.get("ver"), elem.get("rel"))
+                        version = ("%s-%s" % \
+                                  (elem.get("ver"), elem.get("rel"))).encode()
 
                 elif tag == DISTTAG:
                     disttag = elem.text
@@ -263,9 +263,9 @@ class RPMMetaDataLoader(Loader):
                     filedict[elem.text] = True
 
                 elif tag == ENTRY:
-                    ename = elem.get("name")
+                    ename = elem.get("name").encode()
                     if (not ename or
-                        ename[:7] in ("rpmlib(", "config(")):
+                        ename[:7] in (b"rpmlib(", "config(")):
                         continue
 
                     if "ver" in list(elem.keys()):
@@ -277,6 +277,7 @@ class RPMMetaDataLoader(Loader):
                             eversion = "%s:%s" % (e, eversion)
                         if r:
                             eversion = "%s-%s" % (eversion, r)
+                        eversion = eversion.encode()
                         if "flags" in list(elem.keys()):
                             erelation = COMPMAP.get(elem.get("flags"))
                         else:
@@ -295,15 +296,15 @@ class RPMMetaDataLoader(Loader):
                                      ename, erelation, eversion)] = True
 
                     elif lasttag == PROVIDES:
-                        if ename[0] == "/":
+                        if ename[0] == b"/":
                             filedict[ename] = True
                         else:
                             if ename == name and checkver(eversion, version):
-                                eversion = "%s@%s" % (eversion, arch)
+                                eversion = ("%s@%s" % (eversion, arch)).encode()
                                 Prv = RPMNameProvides
                             else:
                                 Prv = RPMProvides
-                            prvdict[(Prv, ename.encode('utf-8'), eversion)] = True
+                            prvdict[(Prv, ename, eversion)] = True
 
                     elif lasttag == OBSOLETES:
                         tup = (RPMObsoletes, ename, erelation, eversion)
@@ -318,13 +319,13 @@ class RPMMetaDataLoader(Loader):
 
                     # Use all the information acquired to build the package.
 
-                    versionarch = "%s@%s" % (version, arch)
+                    versionarch = ("%s@%s" % (version, arch)).encode()
 
                     upgdict[(RPMObsoletes,
-                             name, '<', versionarch)] = True
+                             name, b'<', versionarch)] = True
 
                     reqargs = [x for x in reqdict
-                               if not ((x[2] is None or "=" in x[2]) and
+                               if not ((x[2] is None or b"=" in x[2]) and
                                        (RPMProvides, x[1], x[3]) in prvdict or
                                        system_provides.match(*x[:3]))]
                     reqargs = collapse_libc_requires(reqargs)
@@ -333,10 +334,10 @@ class RPMMetaDataLoader(Loader):
                     upgargs = list(upgdict.keys())
 
                     if disttag:
-                        distversion = "%s-%s" % (version, disttag)
+                        distversion = "%s-%s" % (version.decode(), disttag)
                         if distepoch:
                             distversion += distepoch
-                        versionarch = "%s@%s" % (distversion, arch)
+                        versionarch = ("%s@%s" % (distversion, arch)).encode()
 
                     pkg = self.buildPackage((RPMPackage, name, versionarch),
                                             prvargs, reqargs, upgargs, cnfargs)
