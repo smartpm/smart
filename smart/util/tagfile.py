@@ -63,14 +63,14 @@ class TagFile(dict):
                     if key:
                         break
                     continue
-                if line[0].isspace():
+                if str(line[0]).isspace():
                     if key:
                         line = line[1:].rstrip()
-                        if line == ".":
-                            line = ""
-                        self[key] += "\n"+line
+                        if line == b".":
+                            line = b""
+                        self[key] += b"\n"+line
                 else:
-                    toks = line.split(":", 1)
+                    toks = line.split(b":", 1)
                     if len(toks) == 2:
                         key = toks[0].strip().lower()
                         self[key] = toks[1].strip()
