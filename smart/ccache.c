@@ -269,7 +269,7 @@ Package_str(PackageObject *self)
                         "Package name or version is not string");
         return NULL;
     }
-    return PyBytes_FromFormat("%s-%s", STR(self->name), STR(self->version));
+    return PyUnicode_FromFormat("%s-%s", STR(self->name), STR(self->version));
 }
 
 static PyObject *
@@ -893,11 +893,10 @@ Provides_str(ProvidesObject *self)
             PyErr_SetString(PyExc_TypeError, "package version is not string");
             return NULL;
         }
-        return PyBytes_FromFormat("%s = %s", STR(self->name),
+        return PyUnicode_FromFormat("%s = %s", STR(self->name),
                                               STR(self->version));
     }
-    Py_INCREF(self->name);
-    return self->name;
+    return PyUnicode_FromEncodedObject(self->name, NULL, NULL);
 }
 
 static int
