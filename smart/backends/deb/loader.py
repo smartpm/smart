@@ -28,7 +28,7 @@ from smart.backends.deb.debver import parserelation, parserelations
 from smart.backends.deb.base import *
 from smart.progress import Progress
 from smart import *
-from io import StringIO
+from io import BytesIO
 import locale
 import stat
 import os
@@ -54,10 +54,10 @@ class DebPackageInfo(PackageInfo):
         self._loader = loader
 
     def getReferenceURLs(self):
-        homepage = self._dict.get("homepage")
+        homepage = self._dict.get(b"homepage")
         if homepage:
             return [homepage]
-        description = self._dict.get("description")
+        description = self._dict.get(b"description")
         for line in description.splitlines():
             if line.startswith("Web site:"):
                 return [line[9:].strip()]
@@ -66,23 +66,23 @@ class DebPackageInfo(PackageInfo):
     def getURLs(self):
         url = self._loader.getURL()
         if url:
-            return [os.path.join(url, self._loader.getFileName(self))]
+            return [os.path.join(url, self._loader.getFileName(self).decode())]
         return []
 
     def getSize(self, url):
         return self._loader.getSize(self)
 
     def getMD5(self, url):
-        return self._dict.get("md5sum")
+        return self._dict.get(b"md5sum")
 
     def getSHA(self, url):
-        return self._dict.get("sha1")
+        return self._dict.get(b"sha1")
 
     def getSHA256(self, url):
-        return self._dict.get("sha256")
+        return self._dict.get(b"sha256")
 
     def getInstalledSize(self):
-        size = self._dict.get("installed-size")
+        size = self._dict.get(b"installed-size")
         if size:
             try:
                 return int(size)*1024
@@ -91,26 +91,26 @@ class DebPackageInfo(PackageInfo):
         return None
 
     def getDescription(self):
-        description = self._dict.get("description")
+        description = self._dict.get(b"description")
         if description:
-            toks = description.split("\n", 1)
+            toks = description.split(b"\n", 1)
             if len(toks) == 2:
                 return decode(toks[1])
         return ""
 
     def getSummary(self):
-        description = self._dict.get("description")
+        description = self._dict.get(b"description")
         if description:
             
-            return decode(description.split("\n", 1)[0])
+            return decode(description.split(b"\n", 1)[0])
         return ""
 
     def getSource(self):
         import re
-        sourcename = self._dict.get("source") or self._package.name
-        m = re.match(r"([a-z0-9+-.]+)\s?\((.+)\)", sourcename)
+        sourcename = self._dict.get(b"source") or self._package.name
+        m = re.match(r"([a-z0-9+-.]+)\s?\((.+)\)", sourcename.decode())
         if not m:
-            sourcename = "%s_%s" % (sourcename, self._package.version)
+            sourcename = "%s_%s" % (sourcename.decode(), self._package.version.decode())
         else:
             sourcename = "%s_%s" % m.groups()
         return sourcename
@@ -171,40 +171,40 @@ class DebTagLoader(Loader):
         inst = self.getInstalled()
         sysarch = DEBARCH
         for section, offset in self.getSections(prog):
-            arch = section.get("architecture")
+            arch = section.get(b"architecture").decode()
             if arch and arch != sysarch and arch != "all":
                 continue
 
             if inst:
                 try:
-                    want, flag, status = section.get("status", "").split()
+                    want, flag, status = section.get(b"status", b"").split()
                 except ValueError:
                     continue
-                if status != "installed":
+                if status != b"installed":
                     continue
             
-            name = section.get("package")
-            version = section.get("version")
+            name = section.get(b"package")
+            version = section.get(b"version")
 
             prvargs = [(NPrv, name, version)]
             prvdict = {name: True}
-            value = section.get("provides")
+            value = section.get(b"provides")
             if value:
-                for prvname in value.split(","):
+                for prvname in value.split(b","):
                     prvname = prvname.strip()
-                    prvargs.append((Prv, sys.intern(prvname), None))
+                    prvargs.append((Prv, prvname, None))
                     prvdict[prvname] = True
 
             reqargs = []
-            value = section.get("depends")
+            value = section.get(b"depends")
             if value:
                 for relation in parserelations(value):
                     if type(relation) is not list:
                         n, r, v = relation
-                        reqargs.append((Req, sys.intern(n), r, v))
+                        reqargs.append((Req, n, r, v))
                     else:
                         reqargs.append((OrReq, tuple(relation)))
-            value = section.get("pre-depends")
+            value = section.get(b"pre-depends")
             if value:
                 for relation in parserelations(value):
                     if type(relation) is not list:
@@ -213,16 +213,16 @@ class DebTagLoader(Loader):
                     else:
                         reqargs.append((OrPreReq, tuple(relation)))
 
-            upgargs = [(Upg, name, '<', version)]
+            upgargs = [(Upg, name, b'<', version)]
 
             cnfargs = []
-            value = section.get("conflicts")
+            value = section.get(b"conflicts")
             if value:
                 for relation in parserelations(value):
                     n, r, v = relation
                     cnfargs.append((Cnf, n, r, v))
 
-            value = section.get("breaks")
+            value = section.get(b"breaks")
             if value:
                 for relation in parserelations(value):
                     n, r, v = relation
@@ -238,7 +238,7 @@ class DebTagLoader(Loader):
             pkg = self.buildPackage((Pkg, name, version),
                                     prvargs, reqargs, upgargs, cnfargs)
             pkg.loaders[self] = offset
-            self._sections[pkg] = sys.intern(section.get("section", ""))
+            self._sections[pkg] = section.get(b"section", "")
 
     def search(self, searcher):
         offsets = {}
@@ -262,7 +262,7 @@ class DebTagLoader(Loader):
                 continue
 
             if searcher.summary or searcher.description:
-                toks = section.get("description", "").split("\n", 1)
+                toks = section.get(b"description", "").split("\n", 1)
                 if len(toks) == 2:
                     summary, description = toks
                 else:
@@ -319,7 +319,7 @@ class DebTagFileLoader(DebTagLoader):
         self._filename = filename
         self._filelistsname = filelistsname
         self._changelogname = changelogname
-        self._tagfile = TagFile(self._filename)
+        self._tagfile = TagFile(self._filename.encode())
 
     def getLoadSteps(self):
         return os.path.getsize(self._filename)/800
@@ -342,10 +342,10 @@ class DebTagFileLoader(DebTagLoader):
         return self._tagfile.copy()
 
     def getFileName(self, info):
-        return info._dict.get("filename")
+        return info._dict.get(b"filename")
 
     def getSize(self, info):
-        size = info._dict.get("size")
+        size = info._dict.get(b"size")
         if size:
             return int(size)
         return None
@@ -361,7 +361,7 @@ class DebTagFileLoader(DebTagLoader):
                     import gzip
                     file = gzip.open(filename)
                 else:
-                    file = open(filename)
+                    file = open(filename, "rb")
                 line = file.readline()
                 while True:
                     if not line:
@@ -416,7 +416,7 @@ class DebDirLoader(DebTagLoader):
         for i, filename in enumerate(self._filenames):
             filepath = os.path.join(self._dir, filename)
             control = getControl(filepath)
-            tf = TagFile(StringIO(control))
+            tf = TagFile(BytesIO(control))
             tf.advanceSection()
             yield (tf, i)
             prog.add(1)
@@ -426,7 +426,7 @@ class DebDirLoader(DebTagLoader):
         filename = self._filenames[pkg.loaders[self]]
         filepath = os.path.join(self._dir, filename)
         control = getControl(filepath)
-        tf = TagFile(StringIO(control))
+        tf = TagFile(BytesIO(control))
         tf.advanceSection()
         return tf
 
@@ -463,10 +463,10 @@ def createFileChannel(filename):
 hooks.register("create-file-channel", createFileChannel)
 
 def getControl(filename):
-    from io import StringIO
+    from io import BytesIO
     from tarfile import TarFile
-    file = open(filename)
-    if file.read(8) != "!<arch>\n":
+    file = open(filename, "rb")
+    if file.read(8) != b"!<arch>\n":
         raise ValueError("Invalid file")
     while True:
         name = file.read(16)
@@ -476,9 +476,9 @@ def getControl(filename):
         mode = file.read(8)
         size = file.read(10)
         magic = file.read(2)
-        if name == "control.tar.gz  ":
+        if name == b"control.tar.gz  ":
             data = file.read(int(size))
-            sio = StringIO(data)
+            sio = BytesIO(data)
             tf = TarFile.gzopen("", fileobj=sio)
             try:
                 control = tf.extractfile("./control")

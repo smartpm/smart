@@ -104,6 +104,8 @@ class DebPackage(Package):
             searcher.addResult(self, ratio)
 
     def __lt__(self, other):
+        def cmp(a, b):
+            return (a > b) - (a < b)
         rc = cmp(self.name, other.name)
         if type(other) is DebPackage:
             if rc == 0 and self.version != other.version:
@@ -111,7 +113,7 @@ class DebPackage(Package):
         return rc == -1
 
     def __str__(self):
-        return "%s_%s" % (self.name, self.version)
+        return "%s_%s" % (self.name.decode(), self.version.decode())
 
 class DebProvides(Provides):        __slots__ = ()
 class DebNameProvides(DebProvides): __slots__ = ()
@@ -137,7 +139,7 @@ class DebOrDepends(Depends):
     __slots__ = ("_nrv",)
 
     def __init__(self, nrv):
-        name = " | ".join([(x[2] and " ".join(x) or x[0]) for x in nrv])
+        name = b" | ".join([(x[2] and b" ".join(x) or x[0]) for x in nrv])
         Depends.__init__(self, name, None, None)
         self._nrv = nrv
 
@@ -195,10 +197,10 @@ class FinkVirtualPkgs(object):
 
         output = os.popen(path).readlines()
         for line in output:
-            line = string.rstrip(line)
-            keyval = string.split(line, ':', 1)
+            line = line.rstrip()
+            keyval = line.split(':', 1)
             if len(keyval) > 1:
-               val = string.lstrip(keyval[1])
+               val = keyval[1].lstrip()
                info[keyval[0]] = val
             else:
                pkgs.append(info)
@@ -207,12 +209,13 @@ class FinkVirtualPkgs(object):
         for info in pkgs:
             if info["Status"].endswith("not-installed"):
                 continue
-            name = info["Package"]
-            version = info["Version"]
+            name = info["Package"].encode()
+            version = info["Version"].encode()
             self._provides.setdefault(name, DebNameProvides(name, version))
-            provides = string.split(info.get("provides", ""), ', ')
+            provides = info.get("provides", "").split(', ')
             for provide in provides:
                if provide:
+                   provide = provide.encode()
                    self._provides.setdefault(provide, DebProvides(provide, None))
 
     def matches(self, requires):
