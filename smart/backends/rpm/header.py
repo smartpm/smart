@@ -118,6 +118,8 @@ class RPMHeaderPackageInfo(PackageInfo):
             if type(result) == list:
                 # Must have an element, or the check above would fail.
                 result = result[0]
+            if type(result) == str:
+                return result
             for encoding in ENCODINGS:
                 try:
                     result = result.decode(encoding)

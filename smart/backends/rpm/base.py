@@ -152,7 +152,7 @@ class RPMPackage(Package):
         oprvs = fk(other.provides)
         if sprvs != oprvs:
             for sprv in sprvs:
-                if not sprv.name or sprv.name[0] == "/" or sprv in oprvs:
+                if not sprv.name or sprv.name[0] == b"/" or sprv in oprvs:
                     continue
                 for oprv in oprvs:
                     if (sprv.name == oprv.name and
@@ -161,7 +161,7 @@ class RPMPackage(Package):
                 else:
                     return False
             for oprv in oprvs:
-                if not oprv.name or oprv.name[0] == "/" or oprv in sprvs:
+                if not oprv.name or oprv.name[0] == b"/" or oprv in sprvs:
                     continue
                 for sprv in sprvs:
                     if (sprv.name == oprv.name and
@@ -173,7 +173,7 @@ class RPMPackage(Package):
         oreqs = fk(other.requires)
         if sreqs != oreqs:
             for sreq in sreqs:
-                if sreq.name[0] == "/" or sreq in oreqs:
+                if sreq.name[0] == b"/" or sreq in oreqs:
                     continue
                 for oreq in oreqs:
                     if (sreq.name == oreq.name and
@@ -183,7 +183,7 @@ class RPMPackage(Package):
                 else:
                     return False
             for oreq in oreqs:
-                if oreq.name[0] == "/" or oreq in sreqs:
+                if oreq.name[0] == b"/" or oreq in sreqs:
                     continue
                 for sreq in sreqs:
                     if (sreq.name == oreq.name and
@@ -250,6 +250,8 @@ class RPMPackage(Package):
             searcher.addResult(self, ratio)
 
     def __lt__(self, other):
+        def cmp(a, b):
+            return (a > b) - (a < b)
         rc = cmp(self.name, other.name)
         if type(other) is RPMPackage:
             if rc == 0 and self.version != other.version:
@@ -309,6 +311,7 @@ class RPMObsoletes(Depends):
 
 _SCOREMAP = {}
 def getArchScore(arch, _sm=_SCOREMAP):
+    arch = str(arch)
     if arch not in _sm:
         score = rpm.archscore(arch)
         _sm[arch] = score
@@ -351,12 +354,12 @@ def collapse_libc_requires(requires):
     if sysconf.get("rpm-collapse-libc-requires", True):
         best = None
         for req in requires:
-            if (req[1].startswith('libc.so.6') and
-                not req[1].startswith('libc.so.6()') and
+            if (req[1].decode().startswith('libc.so.6') and
+                not req[1].decode().startswith('libc.so.6()') and
                 (not best or vercmp(req[1], best[1]) > 0)):
                 best = req
         requires = [x for x in requires
-                   if not x[1].startswith('libc.so.6') or x == best]
+                   if not x[1].decode().startswith('libc.so.6') or x == best]
     return requires
 
 def enablePsyco(psyco):
