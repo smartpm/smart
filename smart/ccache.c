@@ -899,14 +899,18 @@ Provides_str(ProvidesObject *self)
     return PyUnicode_FromEncodedObject(self->name, NULL, NULL);
 }
 
-static int
-Provides_compare(ProvidesObject *self, ProvidesObject *other)
+static PyObject *
+Provides_richcompare(ProvidesObject *self, ProvidesObject *other, int op)
 {
     int rc = -1;
+    if (op != Py_EQ && op != Py_LT) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Provides_Type)) {
         if (!PyBytes_Check(self->name) || !PyBytes_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError, "Provides name is not string");
-            return -1;
+            return NULL;
         }
         rc = strcmp(STR(self->name), STR(other->name));
         if (rc == 0) {
@@ -919,13 +923,19 @@ Provides_compare(ProvidesObject *self, ProvidesObject *other)
                 if (!class1 || !class2)
                     rc = -1;
                 else
-                    rc = PyObject_RichCompareBool(class1, class2, Py_EQ);
+                    rc = PyObject_RichCompareBool(class1, class2, op) == 1 ? (op == Py_EQ ? 0 : -1): +1;
                 Py_XDECREF(class1);
                 Py_XDECREF(class2);
             }
         }
     }
-    return rc > 0 ? 1 : ( rc < 0 ? -1 : 0);
+    if ((op == Py_EQ && rc == 0) || (op == Py_LT && rc < 0)) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    } else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 }
 
 static PyObject *
@@ -973,7 +983,7 @@ static PyTypeObject Provides_Type = {
 	0,			/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
-	(void*)Provides_compare, /*tp_compare*/
+	0,          /*tp_compare*/
 	PyObject_Str, /*tp_repr*/
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
@@ -988,7 +998,7 @@ static PyTypeObject Provides_Type = {
     0,                      /*tp_doc*/
     (traverseproc)Provides_traverse,  /*tp_traverse*/
     (inquiry)Provides_clear,          /*tp_clear*/
-    0,                      /*tp_richcompare*/
+    (richcmpfunc)Provides_richcompare,/*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
     0,                      /*tp_iternext*/
@@ -1094,22 +1104,25 @@ Depends_str(DependsObject *self)
                             "Package version or relation is not string");
             return NULL;
         }
-        return PyBytes_FromFormat("%s %s %s", STR(self->name),
+        return PyUnicode_FromFormat("%s %s %s", STR(self->name),
                                                STR(self->relation),
                                                STR(self->version));
     }
-    Py_INCREF(self->name);
-    return self->name;
+    return PyUnicode_FromEncodedObject(self->name, NULL, NULL);
 }
 
-static int
-Depends_compare(DependsObject *self, DependsObject *other)
+static PyObject *
+Depends_richcompare(DependsObject *self, DependsObject *other, int op)
 {
-    int rc = -1;
+    int rc = +1;
+    if (op != Py_EQ && op != Py_LT) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
     if (PyObject_IsInstance((PyObject *)other, (PyObject *)&Depends_Type)) {
         if (!PyBytes_Check(self->name) || !PyBytes_Check(other->name)) {
             PyErr_SetString(PyExc_TypeError, "Depends name is not string");
-            return -1;
+            return NULL;
         }
         rc = strcmp(STR(self->name), STR(other->name));
         if (rc == 0) {
@@ -1118,15 +1131,21 @@ Depends_compare(DependsObject *self, DependsObject *other)
             PyObject *class2 = PyObject_GetAttrString((PyObject *)other,
                                                       "__class__");
             if (!class1 || !class2) {
-                rc = -1;
+                rc = +1;
             } else {
-                rc = PyObject_RichCompareBool(class1, class2, Py_EQ);
+                rc = PyObject_RichCompareBool(class1, class2, op) == 1 ? (op == Py_EQ ? 0 : -1): +1;
                 Py_DECREF(class1);
                 Py_DECREF(class2);
             }
         }
     }
-    return rc > 0 ? 1 : ( rc < 0 ? -1 : 0);
+    if ((op == Py_EQ && rc == 0) || (op == Py_LT && rc < 0)) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    } else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 }
 
 static PyObject *
@@ -1175,7 +1194,7 @@ static PyTypeObject Depends_Type = {
 	0,			/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
-	(void*)Depends_compare, /*tp_compare*/
+	0,          /*tp_compare*/
 	PyObject_Str, /*tp_repr*/
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
@@ -1190,7 +1209,7 @@ static PyTypeObject Depends_Type = {
     0,                      /*tp_doc*/
     (traverseproc)Depends_traverse,  /*tp_traverse*/
     (inquiry)Depends_clear,          /*tp_clear*/
-    0,                      /*tp_richcompare*/
+    (richcmpfunc)Depends_richcompare,/*tp_richcompare*/
     0,                      /*tp_weaklistoffset*/
     0,                      /*tp_iter*/
     0,                      /*tp_iternext*/
