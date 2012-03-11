@@ -301,13 +301,13 @@ class Provides(object):
             return "%s = %s" % (self.name.decode(), self.version.decode())
         return self.name
 
-    def __cmp__(self, other):
-        rc = cmp(self.name, other.name)
-        if rc == 0:
-            rc = cmp(self.version, other.version)
-            if rc == 0:
-                rc = cmp(self.__class__, other.__class__)
-        return rc
+    def __lt__(self, other):
+        r = object.__lt__(self.name, other.name)
+        if not r:
+           r = object.__lt__(self.version, other.version)
+           if not r:
+               r = object.__lt__(self.__class__, other.__class__)
+        return r
 
     def __reduce__(self):
         return (self.__class__, (self.name, self.version))
@@ -338,13 +338,13 @@ class Depends(object):
         else:
             return self.name
 
-    def __cmp__(self, other):
-        rc = cmp(self.name, other.name)
-        if rc == 0:
-            rc = cmp(self.version, other.version)
-            if rc == 0:
-                rc = cmp(self.__class__, other.__class__)
-        return rc
+    def __lt__(self, other):
+        r = object.__lt__(self.name, other.name)
+        if not r:
+           r = object.__lt__(self.version, other.version)
+           if not r:
+               r = object.__lt__(self.__class__, other.__class__)
+        return r
 
     def __reduce__(self):
         return (self.__class__, (self.name, self.relation, self.version))
