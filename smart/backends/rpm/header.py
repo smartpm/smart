@@ -33,11 +33,6 @@ import os
 from datetime import datetime
 import time
 
-try:
-    import rpmhelper
-except ImportError:
-    rpmhelper = None
-
 CRPMTAG_FILENAME          = 1000000
 CRPMTAG_FILESIZE          = 1000001
 CRPMTAG_MD5               = 1000005
@@ -634,10 +629,7 @@ class RPMDBLoader(RPMHeaderLoader):
         prog.add(left)
 
     def getHeader(self, pkg):
-        if rpmhelper:
-            mi = rpmhelper.dbMatch(getTS(), 0, pkg.loaders[self])
-        else:
-            mi = getTS().dbMatch(0, pkg.loaders[self])
+        mi = getTS().dbMatch(0, pkg.loaders[self])
         try:
             return next(mi)
         except StopIteration:
