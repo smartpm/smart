@@ -7,12 +7,6 @@ recursive-include tests *.py *.txt
 recursive-include tests/data *
 include test
 
-recursive-include contrib/ksmarttray *.png *.cc *.h *.am *.in.in
-recursive-include contrib/ksmarttray LICENSE eventsrc AUTHORS build.sh
-recursive-include contrib/ksmarttray ChangeLog COPYING INSTALL NEWS README
-recursive-include contrib/ksmarttray ksmarttray.desktop
-graft contrib/ksmarttray/admin
-
 recursive-include contrib/smart-update *.c Makefile
 
 recursive-include contrib/patches *
