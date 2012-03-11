@@ -23,13 +23,7 @@ from smart.backends.rpm.metadata import RPMMetaDataLoader
 from smart.backends.rpm.updateinfo import RPMUpdateInfo
 from smart.util.filetools import getFileDigest
 
-try:
-    from xml.etree import ElementTree
-except ImportError:
-    try:
-        from elementtree import ElementTree
-    except ImportError:
-        from smart.util.elementtree import ElementTree
+from xml.etree import ElementTree
 
 from smart.const import SUCCEEDED, FAILED, NEVER, ALWAYS
 from smart.channel import PackageChannel, MirrorsChannel

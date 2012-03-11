@@ -22,13 +22,7 @@
 import os
 import urllib.request, urllib.parse, urllib.error
 
-try:
-    from xml.etree import ElementTree
-except ImportError:
-    try:
-        from elementtree import ElementTree
-    except ImportError:
-        from smart.util.elementtree import ElementTree
+from xml.etree import ElementTree
 
 NS_METALINKER = "http://www.metalinker.org/"
 
