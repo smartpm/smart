@@ -217,14 +217,14 @@ class RPMPackage(Package):
         ver, arch = splitarch(version)
         return checkdep(selfver, relation, ver)
 
-    def search(self, searcher, _epochre=re.compile("[0-9]+:")):
+    def search(self, searcher, _epochre=re.compile(b"[0-9]+:")):
         myname = self.name
         myversionwithepoch, myarch = splitarch(self.version)
-        myversionwithoutepoch = _epochre.sub("", myversionwithepoch)
+        myversionwithoutepoch = _epochre.sub(b"", myversionwithepoch)
         ratio = 0
         ic = searcher.ignorecase
         for nameversion, cutoff in searcher.nameversion:
-            if _epochre.search(nameversion):
+            if _epochre.search(nameversion.encode()):
                 myversion = myversionwithepoch
             else:
                 myversion = myversionwithoutepoch
