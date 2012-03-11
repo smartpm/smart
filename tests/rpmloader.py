@@ -75,7 +75,7 @@ class YAST2PackageInfoTest(MockerTestCase):
     def test_getURLs_with_media_replacing(self):
         package = self.mocker.mock()
         loader = self.mocker.mock()
-        expect(package.version).result("1.0-1@arch")
+        expect(package.version).result(b"1.0-1@arch")
         expect(loader._datadir).result("datadir")
         expect(loader._baseurl).result("http://baseurl1/")
         self.mocker.replay()
@@ -87,7 +87,7 @@ class YAST2PackageInfoTest(MockerTestCase):
     def test_getURLs_without_media_replacing(self):
         package = self.mocker.mock()
         loader = self.mocker.mock()
-        expect(package.version).result("1.0-1@arch")
+        expect(package.version).result(b"1.0-1@arch")
         expect(loader._datadir).result("datadir")
         expect(loader._baseurl).result("http://baseurl11/")
         self.mocker.replay()
@@ -103,8 +103,8 @@ class RPMPackageVersionTest(MockerTestCase):
     # RPMTAG_ARCH, RPMTAG_SOURCEPACKAGE, RPMTAG_DISTTAG, RPMTAG_DISTEPOCH
     # RPMTAG_PROVIDENAME, RPMTAG_PROVIDEVERSION, RPMTAG_REQUIRENAME
     # RPMTAG_CONFLICTNAME, RPMTAG_OBSOLETENAME, RPMTAG_GROUP
-    header = {1000: "name", 1001: "1.0", 1002: "1", 1003: None,
-              1022: "noarch", 1106: None, 1155: "unity", 1218: "2011.0",
+    header = {1000: b"name", 1001: b"1.0", 1002: b"1", 1003: None,
+              1022: b"noarch", 1106: None, 1155: b"unity", 1218: b"2011.0",
               1047: [], 1113: [], 1049: [], 1054: [], 1090: [],
               rpm.RPMTAG_GROUP: "" }
 
@@ -112,7 +112,7 @@ class RPMPackageVersionTest(MockerTestCase):
         def getHeaders(prog):
             return [(self.header, 0)]
         def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
-            assert(pkgargs[2] == "1.0-1-unity2011.0@noarch")
+            assert(pkgargs[2] == b"1.0-1-unity2011.0@noarch")
             from smart.cache import Package
             return Package(pkgargs[1], pkgargs[2])
         loader = RPMHeaderLoader()
@@ -124,7 +124,7 @@ class RPMPackageVersionTest(MockerTestCase):
         def getHeaders(prog):
             return [(self.header, 0)]
         def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
-            assert(upgargs[0][3] == "1.0-1@noarch")
+            assert(upgargs[0][3] == b"1.0-1@noarch")
             from smart.cache import Package
             return Package(pkgargs[1], pkgargs[2])
         loader = RPMHeaderLoader()

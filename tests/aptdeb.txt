@@ -54,9 +54,9 @@ This should give us one package with the data we already know.
 Let's inspect the package data.
 
   >>> pkg.name
-  'name1'
+  b'name1'
   >>> pkg.version
-  'version1-release1'
+  b'version1-release1'
 
   >>> sorted(pkg.provides)
   [name1 = version1-release1, providesname1]
@@ -87,23 +87,23 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   <smart.backends.deb.loader.DebPackageInfo object at ...>
 
   >>> info.getGroup()
-  u'Group1'
+  'Group1'
   >>> info.getSummary()
-  u'Summary1'
+  'Summary1'
 
   >>> info.getDescription()
-  u'Description1'
+  'Description1'
 
   >>> info.getURLs()
   ['file:///.../tests/data/deb/./name1_version1-release1_all.deb']
   >>> url = info.getURLs()[0]
 
   >>> info.getSHA(url)
-  'b4ebcd2b0493008852a4954edc30a236d516c638'
+  b'b4ebcd2b0493008852a4954edc30a236d516c638'
   >>> info.getSHA256(url)
-  'f899cba22b79780dbe9bbbb802ff901b7e432425c264dc72e6bb20c0061e4f26'
+  b'f899cba22b79780dbe9bbbb802ff901b7e432425c264dc72e6bb20c0061e4f26'
   >>> info.getSize(url)
-  1038L
+  1038
 
 
 vim:ft=doctest

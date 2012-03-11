@@ -30,14 +30,14 @@ class AutoMountTest(unittest.TestCase):
         self.auto_misc = NamedTemporaryFile()
         self.auto_net = NamedTemporaryFile()
 
-        self.auto_misc.write(AUTO_MISC)
+        self.auto_misc.write(AUTO_MISC.encode())
         self.auto_misc.flush()
 
-        self.auto_net.write(AUTO_NET)
+        self.auto_net.write(AUTO_NET.encode())
         self.auto_net.flush()
 
-        self.auto_master.write(AUTO_MASTER %
-                               (self.auto_misc.name, self.auto_net.name))
+        self.auto_master.write((AUTO_MASTER %
+                               (self.auto_misc.name, self.auto_net.name)).encode())
         self.auto_master.flush()
 
     def tearDown(self):
@@ -56,7 +56,7 @@ class FSTabTest(unittest.TestCase):
 
     def setUp(self):
         self.file = NamedTemporaryFile()
-        self.file.write(FSTAB)
+        self.file.write(FSTAB.encode())
         self.file.flush()
 
     def tearDown(self):

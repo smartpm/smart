@@ -53,9 +53,9 @@ This should give us one package with the data we already know.
 Let's inspect the package data.
 
   >>> pkg.name
-  'name1'
+  b'name1'
   >>> pkg.version
-  'version1-release1@noarch'
+  b'version1-release1@noarch'
 
   >>> sorted(pkg.provides)
   [name1 = version1-release1@noarch, providename1 = provideversion1]
@@ -89,13 +89,13 @@ Now let's ask the loader for a PackageInfo instance, and inspect it.
   >>> str(info.getSource())
   'name1-version1-release1'
   >>> info.getGroup()
-  u'Group1'
+  'Group1'
   >>> info.getLicense()
-  u'License1'
+  'License1'
   >>> info.getSummary()
-  u'Summary1'
+  'Summary1'
   >>> info.getDescription()
-  u'Description1'
+  'Description1'
 
   >>> int(info.getBuildTime())
   1135342886

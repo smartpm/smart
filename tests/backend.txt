@@ -24,37 +24,37 @@ We want everything from the cache.
   >>> class TestLoader(Loader):
   ...     def load(self):
   ...         pkg1 = self.buildPackage(
-  ...             (TestPackage, "name1", "version1"),
-  ...             [(TestProvides, "name1", "version1"),
-  ...              (TestProvides, "name2", "version2")],
-  ...             [(TestRequires, "name1", "=", "version1"),
-  ...              (TestRequires, "name2", "=", "version2")],
-  ...             [(TestUpgrades, "name1", "=", "version1"),
-  ...              (TestUpgrades, "name2", "=", "version2")],
-  ...             [(TestConflicts, "name1", "=", "version1"),
-  ...              (TestConflicts, "name2", "=", "version2")])
+  ...             (TestPackage, b"name1", b"version1"),
+  ...             [(TestProvides, b"name1", b"version1"),
+  ...              (TestProvides, b"name2", b"version2")],
+  ...             [(TestRequires, b"name1", b"=", b"version1"),
+  ...              (TestRequires, b"name2", b"=", b"version2")],
+  ...             [(TestUpgrades, b"name1", b"=", b"version1"),
+  ...              (TestUpgrades, b"name2", b"=", b"version2")],
+  ...             [(TestConflicts, b"name1", b"=", b"version1"),
+  ...              (TestConflicts, b"name2", b"=", b"version2")])
   ...         pkg1.loaders[self] = 1
   ...         pkg2 = self.buildPackage(
-  ...             (TestPackage, "name2", "version2"),
-  ...             [(TestProvides, "name1", "version1"),
-  ...              (TestProvides, "name2", "version2")],
-  ...             [(TestRequires, "name1", "=", "version1"),
-  ...              (TestRequires, "name2", "=", "version2")],
-  ...             [(TestUpgrades, "name1", "=", "version1"),
-  ...              (TestUpgrades, "name2", "=", "version2")],
-  ...             [(TestConflicts, "name1", "=", "version1"),
-  ...              (TestConflicts, "name2", "=", "version2")])
+  ...             (TestPackage, b"name2", b"version2"),
+  ...             [(TestProvides, b"name1", b"version1"),
+  ...              (TestProvides, b"name2", b"version2")],
+  ...             [(TestRequires, b"name1", b"=", b"version1"),
+  ...              (TestRequires, b"name2", b"=", b"version2")],
+  ...             [(TestUpgrades, b"name1", b"=", b"version1"),
+  ...              (TestUpgrades, b"name2", b"=", b"version2")],
+  ...             [(TestConflicts, b"name1", b"=", b"version1"),
+  ...              (TestConflicts, b"name2", b"=", b"version2")])
   ...         pkg2.loaders[self] = 2
   ...         pkg3 = self.buildPackage(
-  ...             (TestPackage, "name3", "version3"),
-  ...             [(TestProvides, "name1", "version1"),
-  ...              (TestProvides, "name2", "version2")],
-  ...             [(TestRequires, "name1", "=", "version1"),
-  ...              (TestRequires, "name2", "=", "version2")],
-  ...             [(TestUpgrades, "name1", "=", "version1"),
-  ...              (TestUpgrades, "name2", "=", "version2")],
-  ...             [(TestConflicts, "name1", "=", "version1"),
-  ...              (TestConflicts, "name2", "=", "version2")])
+  ...             (TestPackage, b"name3", b"version3"),
+  ...             [(TestProvides, b"name1", b"version1"),
+  ...              (TestProvides, b"name2", b"version2")],
+  ...             [(TestRequires, b"name1", b"=", b"version1"),
+  ...              (TestRequires, b"name2", b"=", b"version2")],
+  ...             [(TestUpgrades, b"name1", b"=", b"version1"),
+  ...              (TestUpgrades, b"name2", b"=", b"version2")],
+  ...             [(TestConflicts, b"name1", b"=", b"version1"),
+  ...              (TestConflicts, b"name2", b"=", b"version2")])
   ...         pkg3.loaders[self] = 3
 
 

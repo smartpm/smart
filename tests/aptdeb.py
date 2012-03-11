@@ -54,8 +54,8 @@ class AptDebChannelTest(MockerTestCase):
         packages = sorted(self.cache.getPackages())
 
         self.assertEquals(len(packages), 2)
-        self.assertEquals(packages[0].name, "name1")
-        self.assertEquals(packages[1].name, "name2")
+        self.assertEquals(packages[0].name, b"name1")
+        self.assertEquals(packages[1].name, b"name2")
 
     def test_fetch_with_component(self):
         channel = createChannel("alias",

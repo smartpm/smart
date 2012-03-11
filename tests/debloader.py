@@ -1,4 +1,4 @@
-from io import StringIO
+from io import BytesIO
 import unittest
 
 from smart.backends.deb.loader import DebTagLoader, DEBARCH, TagFile
@@ -6,7 +6,7 @@ from smart.backends.deb.base import DebBreaks
 from smart.cache import Cache
 
 
-SMARTPM_SECTION = """\
+SMARTPM_SECTION = ("""\
 Package: smartpm-core
 Status: install ok installed
 Priority: optional
@@ -17,7 +17,7 @@ Source: smart
 Version: 0.51-1
 Description: Summary line
  Full description.
-""" % DEBARCH
+""" % DEBARCH).encode()
 
 
 class FakeLoader(DebTagLoader):
@@ -29,13 +29,13 @@ class FakeLoader(DebTagLoader):
 
     def getSections(self, prog):
         for offset, section in enumerate(self.fake_sections):
-            tf = TagFile(StringIO(section))
+            tf = TagFile(BytesIO(section))
             tf.advanceSection()
             yield tf, offset
 
     def getDict(self, pkg):
         for offset, section in enumerate(self.fake_sections):
-            tf = TagFile(StringIO(section))
+            tf = TagFile(BytesIO(section))
             tf.advanceSection()
             return tf.copy()
 
@@ -51,42 +51,42 @@ class DebLoaderTest(unittest.TestCase):
         self.loader.load()
         packages = self.cache.getPackages()
         self.assertEquals(len(packages), 1)
-        self.assertEquals(packages[0].name, "smartpm-core")
-        self.assertEquals(packages[0].version, "0.51-1")
+        self.assertEquals(packages[0].name, b"smartpm-core")
+        self.assertEquals(packages[0].version, b"0.51-1")
 
     def test_wrong_arch(self):
-        wrong_arch = ["i386", "amd64"][DEBARCH == "i386"]
-        section = SMARTPM_SECTION.replace(DEBARCH, wrong_arch)
+        wrong_arch = ["i386", "amd64"][DEBARCH == "i386"].encode()
+        section = SMARTPM_SECTION.replace(DEBARCH.encode(), wrong_arch)
         self.loader.fake_sections = [section]
         self.loader.load()
         packages = self.cache.getPackages()
         self.assertEquals(len(packages), 0)
 
     def test_all_arch(self):
-        section = SMARTPM_SECTION.replace(DEBARCH, "all")
+        section = SMARTPM_SECTION.replace(DEBARCH.encode(), b"all")
         self.loader.fake_sections = [section]
         self.loader.load()
         packages = self.cache.getPackages()
         self.assertEquals(len(packages), 1)
-        self.assertEquals(packages[0].name, "smartpm-core")
-        self.assertEquals(packages[0].version, "0.51-1")
+        self.assertEquals(packages[0].name, b"smartpm-core")
+        self.assertEquals(packages[0].version, b"0.51-1")
 
     def test_breaks(self):
-        section = SMARTPM_SECTION + "Breaks: name (= 1.0)"
+        section = SMARTPM_SECTION + b"Breaks: name (= 1.0)"
         self.loader.fake_sections = [section]
         self.loader.load()
         packages = self.cache.getPackages()
         self.assertEquals(len(packages), 1)
         self.assertEquals(len(packages[0].conflicts), 1)
         breaks = packages[0].conflicts[0]
-        self.assertEquals(breaks.name, "name")
-        self.assertEquals(breaks.relation, "=")
-        self.assertEquals(breaks.version, "1.0")
+        self.assertEquals(breaks.name, b"name")
+        self.assertEquals(breaks.relation, b"=")
+        self.assertEquals(breaks.version, b"1.0")
         self.assertEquals(type(breaks), DebBreaks)
 
     def test_badsize(self):
-        section = SMARTPM_SECTION.replace("Installed-Size: 2116\n", \
-                                          "Installed-Size: 123M\n")
+        section = SMARTPM_SECTION.replace(b"Installed-Size: 2116\n", \
+                                          b"Installed-Size: 123M\n")
         self.loader.fake_sections = [section]
         self.loader.load()
         packages = self.cache.getPackages()

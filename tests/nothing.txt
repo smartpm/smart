@@ -7,7 +7,7 @@ just build the cache, and return.
   >>> process.wait()
   0
 
-  >>> print "Output:\n\n" + process.stdout.read()
+  >>> print("Output:\n\n" + process.stdout.read().decode())
   Output:
   ...
   Updating cache...               ######################################## [100%]

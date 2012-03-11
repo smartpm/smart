@@ -19,11 +19,11 @@ We want everything from the cache.
   >>> class TestLoader(Loader):
   ...     def load(self):
   ...         pkg1 = self.buildPackage(
-  ...             (TestPackage, "name1", "version1"),
-  ...             [(TestProvides, "name1", "version1")], [], [], [])
+  ...             (TestPackage, b"name1", b"version1"),
+  ...             [(TestProvides, b"name1", b"version1")], [], [], [])
   ...         pkg1.loaders[self] = 1
   ...         pkg2 = self.buildPackage(
-  ...             (TestPackage, "name2", "version2"),
+  ...             (TestPackage, b"name2", b"version2"),
   ...             [], [], [], [])
   ...         pkg2.loaders[self] = 2
 
@@ -52,7 +52,7 @@ package name2 and name1.
   ...     verify_data.append(pkg1.provides[0].upgradedby)
   ...
   ...     # Then, stick an artificial upgrades relation.
-  ...     upg = TestUpgrades("name1", "=", "version1")
+  ...     upg = TestUpgrades(b"name1", b"=", b"version1")
   ...     cache._upgrades.append(upg)
   ...     pkg2 = cache.getPackages("name2")[0]
   ...     pkg2.upgrades += (upg,)

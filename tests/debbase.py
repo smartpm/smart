@@ -61,7 +61,7 @@ class GetArchitectureTest(MockerTestCase):
 class DebVerSplitTest(MockerTestCase):
 
     def test_splitrelease(self):
-        version, release = splitrelease("1.0-1_0ubuntu0.10.04")
-        self.assertEquals(version, "1.0")
-        self.assertEquals(release, "1_0ubuntu0.10.04")
+        version, release = splitrelease(b"1.0-1_0ubuntu0.10.04")
+        self.assertEquals(version, b"1.0")
+        self.assertEquals(release, b"1_0ubuntu0.10.04")
 
