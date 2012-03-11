@@ -113,8 +113,8 @@ def main(ctrl, opts, reloadchannels=True):
         infos.sort()
         info = infos[0]
 
-        print(_("Name:"), pkg.name)
-        print(_("Version:"), pkg.version)
+        print(_("Name:"), pkg.name.decode())
+        print(_("Version:"), pkg.version.decode())
         print(_("Priority:"), pkg.getPriority())
         print(_("Source:"), info.getSource())
         print(_("Group:"), info.getGroup())
