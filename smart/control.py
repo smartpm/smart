@@ -43,10 +43,6 @@ from smart.const import *
 from smart import *
 
 
-if sys.version_info < (2, 4):
-    from sets import Set as set
-
-
 class Control(object):
 
     def __init__(self, confpath=None, forcelocks=False):

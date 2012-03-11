@@ -21,8 +21,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import sys
-if sys.version_info < (2, 3):
-    sys.exit("error: Python 2.3 or later required")
 
 from smart import init, initDistro, initPlugins, initPycurl, initPsyco
 from smart.const import VERSION, DATADIR

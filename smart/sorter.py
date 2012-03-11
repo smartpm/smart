@@ -26,21 +26,6 @@ from smart.cache import PreRequires
 from smart import *
 
 
-if sys.version_info < (2, 4):
-    from sets import Set as set
-
-    def sorted(iterable, key=None):
-       mylist = list(iterable)[:]
-       if key:
-           def mycmp(a, b):
-               return cmp(key(a), key(b))
-           mylist.sort(mycmp)
-       else:
-           mylist.sort()
-       return mylist
-    __builtins__['sorted'] = sorted
-
-
 class DisableError(Error):
     """Raised on a request to break a non-existent or unbreakable relation."""
 

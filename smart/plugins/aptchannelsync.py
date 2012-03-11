@@ -26,11 +26,6 @@ except ImportError:
     from md5 import md5
 import os
 
-# be compatible with 2.3
-import sys
-if sys.version_info < (2, 4):
-    from sets import Set as set
-
 from smart.channel import *
 from smart import *
 
