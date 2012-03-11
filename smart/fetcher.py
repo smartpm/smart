@@ -389,7 +389,7 @@ class Fetcher(object):
                 except ImportError:
                     from md5 import md5
                 digest = md5()
-                file = open(localpath)
+                file = open(localpath, "rb")
                 data = file.read(BLOCKSIZE)
                 while data:
                     digest.update(data)
@@ -406,7 +406,7 @@ class Fetcher(object):
                 except ImportError:
                     from smart.util.sha256 import sha256
                 digest = sha256()
-                file = open(localpath)
+                file = open(localpath, "rb")
                 data = file.read(BLOCKSIZE)
                 while data:
                     digest.update(data)
@@ -423,7 +423,7 @@ class Fetcher(object):
                     except ImportError:
                         from sha import sha
                     digest = sha()
-                    file = open(localpath)
+                    file = open(localpath, "rb")
                     data = file.read(BLOCKSIZE)
                     while data:
                         digest.update(data)
@@ -865,7 +865,7 @@ class FileHandler(FetcherHandler):
             while retries < self.RETRIES:
                 try:
                     input = open(filepath)
-                    output = open(localpath, "w")
+                    output = open(localpath, "wb")
                     while True:
                         data = input.read(BLOCKSIZE)
                         if not data:
@@ -1050,11 +1050,11 @@ class FTPHandler(FetcherHandler):
                 if (os.path.isfile(localpathpart) and
                     (not total or os.path.getsize(localpathpart) < total)):
                     rest = os.path.getsize(localpathpart)
-                    openmode = "a"
+                    openmode = "ab"
                     item.current = rest
                 else:
                     rest = None
-                    openmode = "w"
+                    openmode = "wb"
                     item.current = 0
 
                 try:
@@ -1168,7 +1168,7 @@ class URLLIBHandler(FetcherHandler):
                 return self.user, self.passwd
             def http_error_default(self, url, fp, errcode, errmsg, headers):
                 if not fp:
-                    fp = open("/dev/null")
+                    fp = open("/dev/null", "b")
                 info = urllib.addinfourl(fp, headers, "http:" + url)
                 info.errcode = errcode
                 info.errmsg = errmsg
@@ -1675,11 +1675,11 @@ class PyCurlHandler(FetcherHandler):
                             partsize = 0
                         handle.partsize = partsize
                         if partsize:
-                            openmode = "a"
+                            openmode = "ab"
                             handle.setopt(pycurl.RESUME_FROM_LARGE,
                                           int(partsize))
                         else:
-                            openmode = "w"
+                            openmode = "wb"
                             handle.setopt(pycurl.RESUME_FROM_LARGE, 0)
 
                         try:

@@ -31,7 +31,7 @@ import os
 def getFileDigest(path, digest=None):
     if not digest:
         digest = md5()
-    file = open(path)
+    file = open(path, "rb")
     while True:
         data = file.read(BLOCKSIZE)
         if not data:
@@ -48,7 +48,7 @@ def compareFiles(path1, path2):
     path1sum = md5()
     path2sum = md5()
     for path, sum in [(path1, path1sum), (path2, path2sum)]:
-        file = open(path)
+        file = open(path, "rb")
         while True:
             data = file.read(BLOCKSIZE)
             if not data:

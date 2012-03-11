@@ -69,7 +69,7 @@ class BZ2Handler(UncompressorHandler):
         import bz2
         try:
             input = bz2.BZ2File(localpath)
-            output = open(self.getTargetPath(localpath), "w")
+            output = open(self.getTargetPath(localpath), "wb")
             data = input.read(BLOCKSIZE)
             while data:
                 output.write(data)
@@ -103,7 +103,7 @@ class LZMAHandler(UncompressorHandler):
             raise Error("%s, unlzma helper could not be found" % e)
         try:
             input = lzma.LZMAFile(localpath)
-            output = open(self.getTargetPath(localpath), "w")
+            output = open(self.getTargetPath(localpath), "wb")
             data = input.read(BLOCKSIZE)
             while data:
                 output.write(data)
@@ -130,7 +130,7 @@ class XZHandler(UncompressorHandler):
         import lzma
         try:
             input = lzma.LZMAFile(localpath)
-            output = open(self.getTargetPath(localpath), "w")
+            output = open(self.getTargetPath(localpath), "wb")
             data = input.read(BLOCKSIZE)
             while data:
                 output.write(data)
@@ -155,7 +155,7 @@ class GZipHandler(UncompressorHandler):
         import gzip
         try:
             input = gzip.GzipFile(localpath)
-            output = open(self.getTargetPath(localpath), "w")
+            output = open(self.getTargetPath(localpath), "wb")
             data = input.read(BLOCKSIZE)
             while data:
                 output.write(data)
@@ -195,7 +195,7 @@ class ZipHandler(UncompressorHandler):
             members = zip.namelist()
             if not name:
                 name = members[0]
-            output = open(self.getTargetPath(localpath), "w")
+            output = open(self.getTargetPath(localpath), "wb")
             data = zip.read(name)
             output.write(data)
             zip.close()
@@ -213,7 +213,7 @@ class SevenZipHandler(UncompressorHandler):
     def getTargetPath(self, localpath, name=None):
         import py7zlib
         try:
-            zip = py7zlib.Archive7z(open(localpath, 'r'))
+            zip = py7zlib.Archive7z(open(localpath, 'rb'))
             members = zip.getnames()
             if len(members) > 0:
                 if not name:
@@ -227,11 +227,11 @@ class SevenZipHandler(UncompressorHandler):
     def uncompress(self, localpath, name=None):
         import py7zlib
         try:
-            zip = py7zlib.Archive7z(open(localpath, 'r'))
+            zip = py7zlib.Archive7z(open(localpath, 'rb'))
             members = zip.getnames()
             if not name:
                 name = members[0]
-            output = open(self.getTargetPath(localpath), "w")
+            output = open(self.getTargetPath(localpath), "wb")
             input = zip.getmember(name)
             data = input.read()
             output.write(data)
