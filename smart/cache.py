@@ -208,10 +208,7 @@ class PackageInfo(object):
 
             filemd5 = self.getMD5(url)
             if filemd5:
-                try:
-                    from hashlib import md5
-                except ImportError:
-                    from md5 import md5
+                from hashlib import md5
                 digest = md5()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
@@ -225,10 +222,7 @@ class PackageInfo(object):
 
             filesha256 = self.getSHA256(url)
             if filesha256:
-                try:
-                    from hashlib import sha256
-                except ImportError:
-                    from smart.util.sha256 import sha256
+                from hashlib import sha256
                 digest = sha256()
                 file = open(localpath)
                 data = file.read(BLOCKSIZE)
@@ -242,10 +236,7 @@ class PackageInfo(object):
             else:
                 filesha = self.getSHA(url)
                 if filesha:
-                    try:
-                        from hashlib import sha1 as sha
-                    except ImportError:
-                        from sha import sha
+                    from hashlib import sha1 as sha
                     digest = sha()
                     file = open(localpath)
                     data = file.read(BLOCKSIZE)

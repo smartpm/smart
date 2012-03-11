@@ -384,10 +384,7 @@ class Fetcher(object):
 
             filemd5 = item.getInfo(uncompprefix+"md5")
             if filemd5:
-                try:
-                    from hashlib import md5
-                except ImportError:
-                    from md5 import md5
+                from hashlib import md5
                 digest = md5()
                 file = open(localpath, "rb")
                 data = file.read(BLOCKSIZE)
@@ -401,10 +398,7 @@ class Fetcher(object):
 
             filesha256 = item.getInfo(uncompprefix+"sha256")
             if filesha256:
-                try:
-                    from hashlib import sha256
-                except ImportError:
-                    from smart.util.sha256 import sha256
+                from hashlib import sha256
                 digest = sha256()
                 file = open(localpath, "rb")
                 data = file.read(BLOCKSIZE)
@@ -418,10 +412,7 @@ class Fetcher(object):
             else:
                 filesha = item.getInfo(uncompprefix+"sha")
                 if filesha:
-                    try:
-                        from hashlib import sha1 as sha
-                    except ImportError:
-                        from sha import sha
+                    from hashlib import sha1 as sha
                     digest = sha()
                     file = open(localpath, "rb")
                     data = file.read(BLOCKSIZE)

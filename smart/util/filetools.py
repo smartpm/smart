@@ -22,10 +22,7 @@
 from smart.const import BLOCKSIZE
 import resource
 import fcntl
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
+from hashlib import md5
 import os
 
 def getFileDigest(path, digest=None):
