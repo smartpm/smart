@@ -420,7 +420,7 @@ cdebver_checkdep(PyObject *self, PyObject *args)
     const char *v1, *rel, *v2;
     PyObject *ret;
     int rc;
-    if (!PyArg_ParseTuple(args, "sss", &v1, &rel, &v2))
+    if (!PyArg_ParseTuple(args, "SSS", &v1, &rel, &v2))
         return NULL;
     rc = vercmp(v1, v2);
     if (rc == 0)
@@ -437,7 +437,7 @@ static PyObject *
 cdebver_vercmp(PyObject *self, PyObject *args)
 {
     const char *v1, *v2;
-    if (!PyArg_ParseTuple(args, "ss", &v1, &v2))
+    if (!PyArg_ParseTuple(args, "SS", &v1, &v2))
         return NULL;
     return PyLong_FromLong(vercmp(v1, v2));
 }
@@ -446,7 +446,7 @@ static PyObject *
 cdebver_vercmpparts(PyObject *self, PyObject *args)
 {
     const char *e1, *v1, *r1, *e2, *v2, *r2;
-    if (!PyArg_ParseTuple(args, "ssssss", &e1, &v1, &r1, &e2, &v2, &r2))
+    if (!PyArg_ParseTuple(args, "SSSSSS", &e1, &v1, &r1, &e2, &v2, &r2))
         return NULL;
     return PyLong_FromLong(vercmpparts(e1, v1, r1, e2, v2, r2));
 }
@@ -455,7 +455,7 @@ static PyObject *
 cdebver_vercmppart(PyObject *self, PyObject *args)
 {
     const char *a, *b;
-    if (!PyArg_ParseTuple(args, "ss", &a, &b))
+    if (!PyArg_ParseTuple(args, "SS", &a, &b))
         return NULL;
     return PyLong_FromLong(vercmppart(a, b));
 }
