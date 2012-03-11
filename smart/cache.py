@@ -298,7 +298,7 @@ class Provides(object):
 
     def __str__(self):
         if self.version:
-            return "%s = %s" % (self.name, self.version)
+            return "%s = %s" % (self.name.decode(), self.version.decode())
         return self.name
 
     def __cmp__(self, other):
@@ -334,7 +334,7 @@ class Depends(object):
 
     def __str__(self):
         if self.version:
-            return "%s %s %s" % (self.name, self.relation, self.version)
+            return "%s %s %s" % (self.name.decode(), self.relation.decode(), self.version.decode())
         else:
             return self.name
 
