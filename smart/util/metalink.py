@@ -78,7 +78,7 @@ class Metafile:
             if url.startswith("/"):
                 scheme = "file"
             else:
-                scheme = urllib.splittype(url)[0]
+                scheme = urllib.parse.splittype(url)[0]
             country = None # country code ("US")
             priority = None # priority (100-1)
             filename = os.path.basename(url)

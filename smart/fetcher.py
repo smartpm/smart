@@ -636,17 +636,17 @@ class URL(object):
                 self.path = self.path[1:]
             return
         self.original = url
-        host, rest = urllib.splithost(rest)
-        user, host = urllib.splituser(host)
+        host, rest = urllib.parse.splithost(rest)
+        user, host = urllib.parse.splituser(host)
         if user:
-            self.user, self.passwd = urllib.splitpasswd(user)
+            self.user, self.passwd = urllib.parse.splitpasswd(user)
         else:
             self.user = ""
             self.passwd = ""
-        self.host, self.port = urllib.splitport(host)
+        self.host, self.port = urllib.parse.splitport(host)
         if self.host.startswith("[") and self.host.endswith("]"):
             self.host = self.host[1:-1]
-        self.path, self.query = urllib.splitquery(rest)
+        self.path, self.query = urllib.parse.splitquery(rest)
         self.user = self.user and urllib.parse.unquote(self.user) or ""
         self.passwd = self.passwd and urllib.parse.unquote(self.passwd) or ""
         self.path = urllib.parse.unquote(self.path)
