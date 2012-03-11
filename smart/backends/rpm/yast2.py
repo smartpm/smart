@@ -45,7 +45,7 @@ class YaST2PackageInfo(PackageInfo):
             baseurl = baseurl.rstrip("1")
             baseurl += self._info.get("media")
 
-        return [posixpath.join(baseurl, self._loader._datadir, arch,
+        return [posixpath.join(baseurl, self._loader._datadir, arch.decode(),
                                self._info.get("filename"))]
 
     def getInstalledSize(self):
