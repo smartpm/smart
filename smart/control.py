@@ -248,7 +248,7 @@ class Control(object):
             cachepath = os.path.join(sysconf.get("data-dir"), "cache")
             if os.path.isfile(cachepath) and sysconf.get("disk-cache", True):
                 iface.showStatus(_("Loading cache..."))
-                cachefile = open(cachepath, "b")
+                cachefile = open(cachepath, "rb")
                 try:
                     state = pickle.load(cachefile)
                     if state[0] != self.__stateversion__:
