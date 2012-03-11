@@ -131,9 +131,9 @@ class Fetcher(object):
         if self._mangle:
             filename = url.replace("/", "_")
         else:
-            scheme, selector = urllib.splittype(url)
-            host, path = urllib.splithost(selector)
-            path, query = urllib.splitquery(path)
+            scheme, selector = urllib.parse.splittype(url)
+            host, path = urllib.parse.splithost(selector)
+            path, query = urllib.parse.splitquery(path)
             path = urllib.parse.unquote(path)
             filename = os.path.basename(path)
         if self._localpathprefix:
@@ -634,7 +634,7 @@ class URL(object):
         else:
             if ":/" not in url:
                 raise Error(_("Invalid URL: %s") % url)
-            self.scheme, rest = urllib.splittype(url)
+            self.scheme, rest = urllib.parse.splittype(url)
         if self.scheme in Fetcher.getLocalSchemes():
             scheme = self.scheme
             self.reset()
