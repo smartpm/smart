@@ -77,7 +77,7 @@ def _loadSourcesList(filename):
             uri = uri.replace("ssh:", "scp:")
 
         # Build a unique alias.
-        m = md5("%s|%s|%s|%s" % (type, uri, distro, comps))
+        m = md5(("%s|%s|%s|%s" % (type, uri, distro, comps)).encode())
         alias = "aptsync-%s" % m.hexdigest()
         seen.add(alias)
 
