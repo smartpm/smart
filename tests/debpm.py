@@ -205,21 +205,21 @@ class DebSorterTest(unittest.TestCase):
                  map[cache.Conflicts]))
 
     def test_conflicts_order_remove_after_unpack_whenever_possible(self):
-        self.build((DebPackage, "a", "1"),
-                   (DebNameProvides, "a", "1"))
-        self.build((DebPackage, "a", "2"),
-                   (DebNameProvides, "a", "2"),
-                   (DebUpgrades, "a", "<", "2"),
-                   (DebRequires, "b", "=", "1"))
-        self.build((DebPackage, "b", "1"),
-                   (DebNameProvides, "b", "1"),
-                   (DebConflicts, "a", "<", "2"))
+        self.build((DebPackage, b"a", b"1"),
+                   (DebNameProvides, b"a", b"1"))
+        self.build((DebPackage, b"a", b"2"),
+                   (DebNameProvides, b"a", b"2"),
+                   (DebUpgrades, b"a", b"<", b"2"),
+                   (DebRequires, b"b", b"=", b"1"))
+        self.build((DebPackage, b"b", b"1"),
+                   (DebNameProvides, b"b", b"1"),
+                   (DebConflicts, b"a", b"<", b"2"))
         self.cache.load()
         changeset = {}
         for pkg in self.cache.getPackages():
-            if pkg.name == "a" and pkg.version == "1":
+            if pkg.name == b"a" and pkg.version == b"1":
                 a_1 = pkg
-            elif pkg.name == "a":
+            elif pkg.name == b"a":
                 a_2 = pkg
             else:
                 b_1 = pkg
