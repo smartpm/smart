@@ -479,7 +479,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         return self._count
 
     def getHeaders(self, prog):
-        file = open(self._filename)
+        file = open(self._filename, "rb")
         lastoffset = mod = 0
         h, offset = rpm.readHeaderFromFD(file.fileno())
         if self._count:
@@ -507,7 +507,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
             prog.show()
 
     def getHeader(self, pkg):
-        file = open(self._filename)
+        file = open(self._filename, "rb")
         file.seek(pkg.loaders[self])
         h, offset = rpm.readHeaderFromFD(file.fileno())
         file.close()
@@ -533,7 +533,7 @@ class RPMHeaderListLoader(RPMHeaderLoader):
         return None
 
     def loadFileProvides(self, fndict):
-        file = open(self._filename)
+        file = open(self._filename, "rb")
         h, offset = rpm.readHeaderFromFD(file.fileno())
         bfp = self.buildFileProvides
         while h:
@@ -684,7 +684,7 @@ class RPMDirLoader(RPMHeaderLoader):
         ts = getTS()
         for i, filename in enumerate(self._filenames):
             filepath = os.path.join(self._dir, filename)
-            file = open(filepath)
+            file = open(filepath, "rb")
             try:
                 h = ts.hdrFromFdno(file.fileno())
             except rpm.error as e:
@@ -698,7 +698,7 @@ class RPMDirLoader(RPMHeaderLoader):
     def getHeader(self, pkg):
         filename = self._filenames[pkg.loaders[self]]
         filepath = os.path.join(self._dir, filename)
-        file = open(filepath)
+        file = open(filepath, "rb")
         ts = getTS()
         try:
             h = ts.hdrFromFdno(file.fileno())
@@ -733,7 +733,7 @@ class RPMDirLoader(RPMHeaderLoader):
             if i not in self._offsets:
                 continue
             filepath = os.path.join(self._dir, filename)
-            file = open(filepath)
+            file = open(filepath, "rb")
             try:
                 h = ts.hdrFromFdno(file.fileno())
             except rpm.error as e:
