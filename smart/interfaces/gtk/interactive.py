@@ -902,7 +902,7 @@ class GtkInteractiveInterface(GtkInterface):
             while Gtk.events_pending():
                 Gtk.main_iteration()
         else:
-            self._window.window.set_cursor(None)
+            self._window.get_window().set_cursor(None)
 
     def changedMarks(self):
         if "hide-unmarked" in self._filters:
