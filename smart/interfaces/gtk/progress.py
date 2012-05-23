@@ -55,7 +55,7 @@ class GtkProgress(Progress, Gtk.Window):
         else:
             self.set_size_request(300, 80)
         def configure_event(widget, event):
-            maxlen = widget.allocation.width / 10
+            maxlen = widget.get_allocation().width / 10
             self._shorturl = ShortURL(maxlen)
             return False
         self.connect("configure-event", configure_event)

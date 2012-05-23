@@ -898,7 +898,7 @@ class GtkInteractiveInterface(GtkInterface):
 
     def setBusy(self, flag):
         if flag:
-            self._window.window.set_cursor(self._watch)
+            self._window.get_window().set_cursor(self._watch)
             while Gtk.events_pending():
                 Gtk.main_iteration()
         else:
