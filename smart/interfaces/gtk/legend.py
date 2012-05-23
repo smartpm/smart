@@ -43,11 +43,11 @@ class GtkLegend(Gtk.Window):
         self._vbox.show()
         self.add(self._vbox)
 
-        attrslabel = Pango.AttrList()
-        attrslabel.insert(Pango.AttrFontDesc(boldfont, 0, -1))
+        #attrslabel = Pango.AttrList()
+        #attrslabel.insert(Pango.AttrFontDesc(boldfont, 0, -1))
 
         label = Gtk.Label(label=_("The following icons are used to indicate\nthe current status of a package:"))
-        label.set_attributes(attrslabel)
+        #label.set_attributes(attrslabel)
         label.show()
         self._vbox.add(label)
 

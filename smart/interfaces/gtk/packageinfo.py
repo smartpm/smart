@@ -80,10 +80,10 @@ class GtkPackageInfo(Gtk.Alignment):
 
         self._info = type("Info", (), {})()
 
-        attrsleft = Pango.AttrList()
-        attrsleft.insert(Pango.AttrFontDesc(font, 0, -1))
-        attrsright = Pango.AttrList()
-        attrsright.insert(Pango.AttrFontDesc(boldfont, 0, -1))
+        #attrsleft = Pango.AttrList()
+        #attrsleft.insert(Pango.AttrFontDesc(font, 0, -1))
+        #attrsright = Pango.AttrList()
+        #attrsright.insert(Pango.AttrFontDesc(boldfont, 0, -1))
 
         style = sw.get_style()
         bgcolor = style.bg[Gtk.StateType.NORMAL]
@@ -105,7 +105,7 @@ class GtkPackageInfo(Gtk.Alignment):
                            ("channels", _("Channels:")),
                            ("reference", _("Reference URLs:"))]:
             label = Gtk.Label(label=text)
-            label.set_attributes(attrsleft)
+            #label.set_attributes(attrsleft)
             if attr == "channels":
                 label.set_alignment(1.0, 0.0)
             else:
@@ -117,7 +117,7 @@ class GtkPackageInfo(Gtk.Alignment):
                 label = self._reftv
             else:
                 label = Gtk.Label()
-                label.set_attributes(attrsright)
+                #label.set_attributes(attrsright)
                 label.set_alignment(0.0, 0.5)
             label.show()
             table.attach(label, 1, 2, row, row+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
