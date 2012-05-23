@@ -169,7 +169,7 @@ class GtkPackageView(Gtk.Alignment):
         self._Rpixbuf = getPixbuf("package-remove")
         self._rpixbuf = getPixbuf("package-reinstall")
 
-    def _setPixbuf(self, treeview, cell, model, iter):
+    def _setPixbuf(self, treeview, cell, model, iter, destroy):
         value = model.get_value(iter, 0)
         if not hasattr(value, "name"):
             cell.set_property("pixbuf", self._fpixbuf)
@@ -197,21 +197,21 @@ class GtkPackageView(Gtk.Alignment):
             else:
                 cell.set_property("pixbuf", self._apixbuf)
 
-    def _setName(self, treeview, cell, model, iter):
+    def _setName(self, treeview, cell, model, iter, destroy):
         value = model.get_value(iter, 0)
         if hasattr(value, "name"):
             cell.set_property("text", value.name)
         else:
             cell.set_property("text", str(value))
 
-    def _setVersion(self, treeview, cell, model, iter):
+    def _setVersion(self, treeview, cell, model, iter, destroy):
         value = model.get_value(iter, 0)
         if hasattr(value, "version"):
             cell.set_property("text", str(value.version))
         else:
             cell.set_property("text", "")
 
-    def _setDescription(self, treeview, cell, model, iter):
+    def _setDescription(self, treeview, cell, model, iter, destroy):
         value = model.get_value(iter, 0)
         if hasattr(value, "loaders"):
             for loader in value.loaders:
@@ -221,7 +221,7 @@ class GtkPackageView(Gtk.Alignment):
         else:
             cell.set_property("text", "")
 
-    def _setSize(self, treeview, cell, model, iter):
+    def _setSize(self, treeview, cell, model, iter, destroy):
         value = model.get_value(iter, 0)
         if hasattr(value, "loaders"):
             for loader in value.loaders:
@@ -378,7 +378,7 @@ class GtkPackageView(Gtk.Alignment):
             self.setCursor(cursor)
         treeview.queue_draw()
 
-    def _setPackage(self, report, model, parent, item):
+    def _setPackage(self, report, model, parent, item, destroy):
         if type(item) is list:
             item.sort()
             for subitem in item:
