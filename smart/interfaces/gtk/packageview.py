@@ -37,6 +37,7 @@ class PixbufCellRenderer(Gtk.GenericCellRenderer):
     }
 
     def __init__(self):
+        Gtk.GenericCellRenderer.__init__(self)
         self.pixbuf = None
         self.activate = None
 
