@@ -31,7 +31,7 @@ class GtkPreferences(Gtk.Window):
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Smart Preferences"))
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.set_geometry_hints(min_width=400, min_height=300)
+        #self.set_geometry_hints(min_width=400, min_height=300)
 
         self._vbox = Gtk.VBox()
         self._vbox.set_border_width(10)

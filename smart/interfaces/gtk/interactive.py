@@ -212,7 +212,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._window = Gtk.Window()
         self._window.set_title("Smart Package Manager %s" % VERSION)
         self._window.set_position(Gtk.WindowPosition.CENTER)
-        self._window.set_geometry_hints(min_width=640, min_height=480)
+        #self._window.set_geometry_hints(min_width=640, min_height=480)
         def delete(widget, event):
             Gtk.main_quit()
             return True

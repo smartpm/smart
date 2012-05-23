@@ -35,7 +35,7 @@ class GtkChanges(Gtk.Window):
         self.set_title(_("Change Summary"))
         self.set_modal(True)
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.set_geometry_hints(min_width=600, min_height=400)
+        #self.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
             Gtk.main_quit()
             return True

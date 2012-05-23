@@ -36,7 +36,7 @@ class GtkFlags(object):
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
         self._window.set_position(Gtk.WindowPosition.CENTER)
-        self._window.set_geometry_hints(min_width=600, min_height=400)
+        #self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
             Gtk.main_quit()
             return True

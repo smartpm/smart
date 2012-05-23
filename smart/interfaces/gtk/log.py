@@ -74,7 +74,7 @@ class GtkLog(Gtk.Window):
 
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Log"))
-        self.set_geometry_hints(min_width=400, min_height=300)
+        #self.set_geometry_hints(min_width=400, min_height=300)
         self.set_modal(True)
 
         self._vbox = Gtk.VBox()
