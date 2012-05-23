@@ -71,7 +71,6 @@ class GtkLog(Gtk.Window):
 
     def __init__(self):
         GObject.GObject.__init__(self)
-        self.__gobject_init__()
 
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Log"))

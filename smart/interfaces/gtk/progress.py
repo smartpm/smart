@@ -283,7 +283,6 @@ class ProgressCellRenderer(Gtk.GenericCellRenderer):
     }
                      
     def __init__(self):
-        self.__gobject_init__()
         self.percent = 0
 
     def do_set_property(self, pspec, value):
