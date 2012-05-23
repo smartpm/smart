@@ -31,7 +31,7 @@ class GtkLegend(Gtk.Window):
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Icon Legend"))
 
-        font = self.style.font_desc.copy()
+        font = self.get_style_context().get_font(Gtk.StateFlags.NORMAL).copy()
         font.set_size(font.get_size()-Pango.SCALE)
 
         boldfont = font.copy()
