@@ -232,7 +232,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._topvbox.show()
         self._window.add(self._topvbox)
 
-        globals = {"self": self, "gtk": gtk}
+        globals = {"self": self, "gtk": Gtk}
         self._actions = Gtk.ActionGroup("Actions")
         self._actions.add_actions(compileActions(ACTIONS, globals))
 
