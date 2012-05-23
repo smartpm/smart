@@ -260,7 +260,7 @@ class GtkInteractiveInterface(GtkInterface):
             if name == treestyle:
                 action.set_active(True)
             if lastaction:
-                action.set_group(lastaction)
+                action.set_group([lastaction])
             lastaction = action
             action.connect("toggled", lambda x, y: self.setTreeStyle(y), name)
             self._actions.add_action(action)
