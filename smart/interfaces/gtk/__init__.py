@@ -25,8 +25,6 @@ from smart import *
 import os
 
 try:
-    import gi
-    pyGtk.require("2.0")
     from gi.repository import Gtk
 except ImportError:
     from smart.const import DEBUG
