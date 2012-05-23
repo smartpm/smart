@@ -144,13 +144,13 @@ class GtkPackageView(Gtk.Alignment):
 
         renderer = Gtk.CellRendererText()
         self._treeview.insert_column_with_data_func(-1, _("Version"), renderer,
-                                                    self._setVersion)
+                                                    self._setVersion, None)
         self._treeview.get_columns()[-1].set_visible(True)
         self._treeview.insert_column_with_data_func(-1, _("Size"), renderer,
-                                                    self._setSize)
+                                                    self._setSize, None)
         self._treeview.get_columns()[-1].set_visible(False)
         self._treeview.insert_column_with_data_func(-1, _("Description"),
-                                          renderer, self._setDescription)
+                                          renderer, self._setDescription, None)
         self._treeview.get_columns()[-1].set_visible(False)
 
         self._columns = {"name": 0,
