@@ -25,6 +25,10 @@ from smart import *
 import os
 
 try:
+    import gi
+    import gi.pygtkcompat
+    gi.pygtkcompat.enable() 
+    gi.pygtkcompat.enable_gtk(version='3.0')
     from gi.repository import Gtk
 except ImportError:
     from smart.const import DEBUG
