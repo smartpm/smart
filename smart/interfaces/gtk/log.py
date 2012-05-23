@@ -57,7 +57,7 @@ class LongMessageDialog(Gtk.Dialog):
         sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
         text = Gtk.TextView()
         text.set_editable(False)
-        text.modify_base(Gtk.StateType.NORMAL, self.style.bg[Gtk.StateType.NORMAL])
+        #text.modify_base(Gtk.StateType.NORMAL, self.style.bg[Gtk.StateType.NORMAL])
         text.set_wrap_mode(Gtk.WrapMode.WORD)
         text.get_buffer().set_text(message_format)
         text.show()
