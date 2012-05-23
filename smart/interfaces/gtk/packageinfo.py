@@ -22,7 +22,7 @@
 from smart.interfaces.gtk.packageview import GtkPackageView
 from smart.util.strtools import sizeToStr
 from smart import *
-from gi.repository import GObject, Gtk, Pango
+from gi.repository import GObject, Gtk, Gdk, Pango
 try:
     import subprocess
 except ImportError:

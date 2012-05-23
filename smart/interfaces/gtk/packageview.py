@@ -23,7 +23,7 @@ from smart.interfaces.gtk import getPixbuf
 from smart.const import INSTALL, REMOVE
 from smart.util.strtools import sizeToStr
 from smart import *
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gdk
 
 class PixbufCellRenderer(Gtk.GenericCellRenderer):
 
