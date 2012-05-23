@@ -44,7 +44,7 @@ class GtkPackageInfo(Gtk.Alignment):
         self._pkg = None
         self._changeset = None
 
-        font = self.style.font_desc.copy()
+        font = self.get_style_context().get_font(Gtk.StateFlags.NORMAL).copy()
         font.set_size(font.get_size()-Pango.SCALE)
 
         boldfont = font.copy()
@@ -53,7 +53,7 @@ class GtkPackageInfo(Gtk.Alignment):
         if sysconf.get("gtk-description-fontsize"):
             fontsize = int(sysconf.get("gtk-description-fontsize"))
 
-            descfont = self.style.font_desc.copy()
+            descfont = self.get_style_context().get_font(Gtk.StateFlags.NORMAL).copy()
             descfont.set_size(fontsize*Pango.SCALE)
 
             bolddescfont = descfont.copy()
