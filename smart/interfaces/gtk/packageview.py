@@ -371,7 +371,7 @@ class GtkPackageView(Gtk.Alignment):
             model = Gtk.ListStore(GObject.TYPE_PYOBJECT)
         elif isinstance(packages, dict):
             model = Gtk.TreeStore(GObject.TYPE_PYOBJECT)
-        self._setPackage(None, model, None, packages)
+        self._setPackage(None, model, None, packages, None)
         treeview.set_model(model)
         if keepstate:
             self.setExpanded(expanded)
@@ -382,13 +382,13 @@ class GtkPackageView(Gtk.Alignment):
         if type(item) is list:
             item.sort()
             for subitem in item:
-                self._setPackage(report, model, parent, subitem)
+                self._setPackage(report, model, parent, subitem, destroy)
         elif type(item) is dict:
             keys = list(item.keys())
             keys.sort()
             for key in keys:
-                iter = self._setPackage(report, model, parent, key)
-                self._setPackage(report, model, iter, item[key])
+                iter = self._setPackage(report, model, parent, key, destroy)
+                self._setPackage(report, model, iter, item[key], destroy)
         else:
             # On lists, first argument is the row itself, but since
             # in these cases parent must be None, this works.
