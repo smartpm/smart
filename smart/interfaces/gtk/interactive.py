@@ -991,7 +991,7 @@ class GtkInteractiveInterface(GtkInterface):
                                       GObject.TYPE_STRING)
                 self._pg.set_model(model)
                 iter = model.append()
-                model.set(iter, 0, None)
+                model.set(iter, 0, "")
                 model.set(iter, 1, all)
                 self._pg.get_selection().select_iter(iter)
                 for group in groups:
