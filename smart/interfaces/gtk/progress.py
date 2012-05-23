@@ -23,7 +23,7 @@ from smart.util.strtools import ShortURL, sizeToStr
 from smart.progress import Progress, INTERVAL
 from smart.interfaces.gtk import getPixbuf
 from smart import *
-import gobject, gtk
+from gi.repository import GObject, Gtk
 try:
     import glib
 except ImportError:

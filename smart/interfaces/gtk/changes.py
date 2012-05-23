@@ -24,7 +24,7 @@ from smart.interfaces.gtk import getPixbuf
 from smart.util.strtools import sizeToStr
 from smart.report import Report
 from smart import *
-import gobject, gtk
+from gi.repository import GObject, Gtk
 
 class GtkChanges(Gtk.Window):
 

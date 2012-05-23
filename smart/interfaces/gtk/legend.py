@@ -21,7 +21,7 @@
 #
 from smart.interfaces.gtk import getPixbuf
 from smart import *
-import gobject, gtk, pango
+from gi.repository import GObject, Gtk, Pango
 
 class GtkLegend(Gtk.Window):
 

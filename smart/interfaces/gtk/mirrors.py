@@ -21,7 +21,7 @@
 #
 from smart.interfaces.gtk import getPixbuf
 from smart import *
-import gobject, gtk
+from gi.repository import GObject, Gtk
 
 class GtkMirrors(object):
 

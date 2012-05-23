@@ -24,7 +24,7 @@ from smart.util.strtools import strToBool
 from smart.const import NEVER
 from smart.channel import *
 from smart import *
-import gobject, gtk
+from gi.repository import GObject, Gtk
 import textwrap
 import os
 

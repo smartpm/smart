@@ -22,7 +22,7 @@
 from smart.interfaces.gtk import getPixbuf
 from smart.channel import getChannelInfo
 from smart import *
-import gobject, gtk
+from gi.repository import GObject, Gtk
 
 class GtkPriorities(object):
 

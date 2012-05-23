@@ -22,7 +22,7 @@
 from smart.const import ERROR, WARNING, DEBUG
 from smart.interfaces.gtk import getPixbuf
 from smart import *
-import gtk, gobject
+from gi.repository import Gtk, GObject
 import locale
 
 try:

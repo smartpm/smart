@@ -38,7 +38,7 @@ from smart.cache import Package
 from smart import *
 import shlex, re
 import fnmatch
-import gobject, gtk
+from gi.repository import GObject, Gtk
 try:
     import sexy
 except ImportError:
