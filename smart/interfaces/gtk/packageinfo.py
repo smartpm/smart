@@ -170,7 +170,7 @@ class GtkPackageInfo(Gtk.Alignment):
         self._filterentry.show()
         filtertable.attach(self._filterentry, 1, 2, 0, 1)
 
-        align = Gtk.Alignment.new()
+        align = Gtk.Alignment.new(1, 0, 0, 0)
         align.set(1, 0, 0, 0)
         align.set_padding(0, 0, 10, 0)
         align.show()
