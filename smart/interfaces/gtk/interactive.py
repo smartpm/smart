@@ -962,8 +962,8 @@ class GtkInteractiveInterface(GtkInterface):
         ctrl = self._ctrl
         changeset = self._changeset
 
-        self._pg.parent.set_property('visible', tree == "separate-groups")
-        if self._pg.get_property('visible'):
+        self._pg.parent.set_visible(tree == "separate-groups")
+        if self._pg.get_visible():
             model = self._pg.get_model()
             if not model:
                 packages = ctrl.getCache().getPackages()
