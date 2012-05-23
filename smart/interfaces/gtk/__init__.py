@@ -29,7 +29,7 @@ try:
     import gi.pygtkcompat
     gi.pygtkcompat.enable() 
     gi.pygtkcompat.enable_gtk(version='3.0')
-    from gi.repository import Gtk
+    from gi.repository import Gtk, GdkPixbuf
 except ImportError:
     from smart.const import DEBUG
     if sysconf.get("log-level") == DEBUG:
