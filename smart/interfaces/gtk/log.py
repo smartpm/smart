@@ -45,7 +45,7 @@ class LongMessageDialog(Gtk.Dialog):
         btns = None
         if buttons == Gtk.ButtonsType.OK:
             btns = (Gtk.STOCK_OK, Gtk.ResponseType.OK)
-        GObject.GObject.__init__(self, None, parent, flags, btns)
+        Gtk.Dialog.__init__(self, None, parent, flags, btns)
         hbox = Gtk.HBox()
         hbox.set_border_width(10)
         hbox.set_spacing(10)
