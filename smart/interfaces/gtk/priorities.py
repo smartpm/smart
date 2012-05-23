@@ -28,39 +28,39 @@ class GtkPriorities(object):
 
     def __init__(self, parent=None):
 
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
         self._window.set_title(_("Priorities"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
         self._window.add(vbox)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.show()
         vbox.add(sw)
 
-        self._treemodel = gtk.ListStore(gobject.TYPE_STRING,
-                                        gobject.TYPE_STRING,
-                                        gobject.TYPE_STRING)
-        self._treeview = gtk.TreeView(self._treemodel)
+        self._treemodel = Gtk.ListStore(GObject.TYPE_STRING,
+                                        GObject.TYPE_STRING,
+                                        GObject.TYPE_STRING)
+        self._treeview = Gtk.TreeView(self._treemodel)
         self._treeview.set_rules_hint(True)
         self._treeview.show()
         sw.add(self._treeview)
 
-        self._namerenderer = gtk.CellRendererText()
+        self._namerenderer = Gtk.CellRendererText()
         self._namerenderer.set_property("xpad", 3)
         self._namerenderer.set_property("editable", True)
         self._namerenderer.connect("edited", self.rowEdited)
@@ -68,7 +68,7 @@ class GtkPriorities(object):
                                                      self._namerenderer,
                                                      text=0)
 
-        self._aliasrenderer = gtk.CellRendererText()
+        self._aliasrenderer = Gtk.CellRendererText()
         self._aliasrenderer.set_property("xpad", 3)
         self._aliasrenderer.set_property("editable", True)
         self._aliasrenderer.connect("edited", self.rowEdited)
@@ -76,7 +76,7 @@ class GtkPriorities(object):
                                                      self._aliasrenderer,
                                                      text=1)
 
-        self._priorityrenderer = gtk.CellRendererText()
+        self._priorityrenderer = Gtk.CellRendererText()
         self._priorityrenderer.set_property("xpad", 3)
         self._priorityrenderer.set_property("editable", True)
         self._priorityrenderer.connect("edited", self.rowEdited)
@@ -84,26 +84,26 @@ class GtkPriorities(object):
                                                      self._priorityrenderer,
                                                      text=2)
 
-        bbox = gtk.HButtonBox()
+        bbox = Gtk.HButtonBox()
         bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.set_layout(Gtk.ButtonBoxStyle.END)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, False, True, 0)
 
-        button = gtk.Button(stock="gtk-new")
+        button = Gtk.Button(stock="gtk-new")
         button.show()
         button.connect("clicked", lambda x: self.newPriority())
-        bbox.pack_start(button)
+        bbox.pack_start(button, True, True, 0)
 
-        button = gtk.Button(stock="gtk-delete")
+        button = Gtk.Button(stock="gtk-delete")
         button.show()
         button.connect("clicked", lambda x: self.delPriority())
-        bbox.pack_start(button)
+        bbox.pack_start(button, True, True, 0)
 
-        button = gtk.Button(stock="gtk-close")
+        button = Gtk.Button(stock="gtk-close")
         button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
+        button.connect("clicked", lambda x: Gtk.main_quit())
+        bbox.pack_start(button, True, True, 0)
 
     def fill(self):
         self._treemodel.clear()
@@ -119,7 +119,7 @@ class GtkPriorities(object):
     def show(self):
         self.fill()
         self._window.show()
-        gtk.main()
+        Gtk.main()
         self._window.hide()
 
     def newPriority(self):
@@ -197,86 +197,86 @@ class PriorityCreator(object):
 
     def __init__(self):
 
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
         self._window.set_title(_("New Package Priority"))
         self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
         self._window.add(vbox)
 
-        table = gtk.Table()
+        table = Gtk.Table()
         table.set_row_spacings(10)
         table.set_col_spacings(10)
         table.show()
-        vbox.pack_start(table)
+        vbox.pack_start(table, True, True, 0)
         
-        label = gtk.Label(_("Package Name:"))
+        label = Gtk.Label(label=_("Package Name:"))
         label.set_alignment(1.0, 0.5)
         label.show()
-        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 0, 1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        self._name = gtk.Entry()
+        self._name = Gtk.Entry()
         self._name.show()
-        table.attach(self._name, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        table.attach(self._name, 1, 2, 0, 1, Gtk.AttachOptions.EXPAND|Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        label = gtk.Label(_("Channel Alias:"))
+        label = Gtk.Label(label=_("Channel Alias:"))
         label.set_alignment(1.0, 0.0)
         label.show()
-        table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 1, 2, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        self._alias = gtk.Entry()
+        self._alias = Gtk.Entry()
         self._alias.set_text("*")
         self._alias.show()
-        table.attach(self._alias, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        table.attach(self._alias, 1, 2, 1, 2, Gtk.AttachOptions.EXPAND|Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        label = gtk.Label(_("Priority:"))
+        label = Gtk.Label(label=_("Priority:"))
         label.set_alignment(1.0, 0.0)
         label.show()
-        table.attach(label, 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 2, 3, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        self._priority = gtk.SpinButton()
+        self._priority = Gtk.SpinButton()
         self._priority.set_width_chars(8)
         self._priority.set_increments(1, 10)
         self._priority.set_numeric(True)
         self._priority.set_range(-100000,+100000)
         self._priority.show()
-        align = gtk.Alignment(0.0, 0.5)
+        align = Gtk.Alignment.new(0.0, 0.5)
         align.show()
         align.add(self._priority)
-        table.attach(align, 1, 2, 2, 3, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        table.attach(align, 1, 2, 2, 3, Gtk.AttachOptions.EXPAND|Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        sep = gtk.HSeparator()
+        sep = Gtk.HSeparator()
         sep.show()
-        vbox.pack_start(sep, expand=False)
+        vbox.pack_start(sep, False, True, 0)
 
-        bbox = gtk.HButtonBox()
+        bbox = Gtk.HButtonBox()
         bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.set_layout(Gtk.ButtonBoxStyle.END)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, False, True, 0)
 
-        button = gtk.Button(stock="gtk-cancel")
+        button = Gtk.Button(stock="gtk-cancel")
         button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
+        button.connect("clicked", lambda x: Gtk.main_quit())
+        bbox.pack_start(button, True, True, 0)
 
-        button = gtk.Button(stock="gtk-ok")
+        button = Gtk.Button(stock="gtk-ok")
         button.show()
         def clicked(x):
             self._result = True
-            gtk.main_quit()
+            Gtk.main_quit()
         button.connect("clicked", clicked)
-        bbox.pack_start(button)
+        bbox.pack_start(button, True, True, 0)
 
     def show(self):
 
@@ -284,7 +284,7 @@ class PriorityCreator(object):
 
         self._result = False
         while True:
-            gtk.main()
+            Gtk.main()
             if self._result:
                 self._result = False
                 name = self._name.get_text().strip()
@@ -307,40 +307,40 @@ class GtkSinglePriority(object):
 
     def __init__(self, parent=None):
 
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
         self._window.set_title(_("Package Priority"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
         self._window.add(vbox)
 
-        self._table = gtk.Table()
+        self._table = Gtk.Table()
         self._table.set_row_spacings(10)
         self._table.set_col_spacings(10)
         self._table.show()
-        vbox.pack_start(self._table)
+        vbox.pack_start(self._table, True, True, 0)
 
-        bbox = gtk.HButtonBox()
+        bbox = Gtk.HButtonBox()
         bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.set_layout(Gtk.ButtonBoxStyle.END)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, False, True, 0)
 
-        button = gtk.Button(stock="gtk-close")
+        button = Gtk.Button(stock="gtk-close")
         button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
+        button.connect("clicked", lambda x: Gtk.main_quit())
+        bbox.pack_start(button, True, True, 0)
 
     def show(self, pkg):
 
@@ -349,16 +349,16 @@ class GtkSinglePriority(object):
         table = self._table
         table.foreach(table.remove)
 
-        label = gtk.Label(_("Package:"))
+        label = Gtk.Label(label=_("Package:"))
         label.set_alignment(1.0, 0.5)
         label.show()
-        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 0, 1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        label = gtk.Label()
+        label = Gtk.Label()
         label.set_markup("<b>%s</b>" % pkg.name)
         label.set_alignment(0.0, 0.5)
         label.show()
-        table.attach(label, 1, 2, 0, 1, gtk.FILL, gtk.FILL)
+        table.attach(label, 1, 2, 0, 1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
         def toggled(check, spin, alias):
             if check.get_active():
@@ -372,26 +372,26 @@ class GtkSinglePriority(object):
         def value_changed(spin, alias):
             priority[alias] = int(spin.get_value())
 
-        label = gtk.Label(_("Default priority:"))
+        label = Gtk.Label(label=_("Default priority:"))
         label.set_alignment(1.0, 0.5)
         label.show()
-        table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 1, 2, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        hbox = gtk.HBox()
+        hbox = Gtk.HBox()
         hbox.set_spacing(10)
         hbox.show()
-        table.attach(hbox, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
+        table.attach(hbox, 1, 2, 1, 2, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        radio = gtk.RadioButton(None, _("Channel default"))
+        radio = Gtk.RadioButton(None, _("Channel default"))
         radio.set_active(None not in priority)
         radio.show()
-        hbox.pack_start(radio, expand=False)
+        hbox.pack_start(radio, False, True, 0)
 
-        radio = gtk.RadioButton(radio, _("Set to"))
+        radio = Gtk.RadioButton(radio, _("Set to"))
         radio.set_active(None in priority)
         radio.show()
-        hbox.pack_start(radio, expand=False)
-        spin = gtk.SpinButton()
+        hbox.pack_start(radio, False, True, 0)
+        spin = Gtk.SpinButton()
         if None not in priority:
             spin.set_sensitive(False)
         spin.set_increments(1, 10)
@@ -401,18 +401,18 @@ class GtkSinglePriority(object):
         spin.connect("value-changed", value_changed, None)
         radio.connect("toggled", toggled, spin, None)
         spin.show()
-        hbox.pack_start(spin, expand=False)
+        hbox.pack_start(spin, False, True, 0)
 
-        label = gtk.Label(_("Channel priority:"))
+        label = Gtk.Label(label=_("Channel priority:"))
         label.set_alignment(1.0, 0.0)
         label.show()
-        table.attach(label, 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 2, 3, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        chantable = gtk.Table()
+        chantable = Gtk.Table()
         chantable.set_row_spacings(10)
         chantable.set_col_spacings(10)
         chantable.show()
-        table.attach(chantable, 1, 2, 2, 3, gtk.FILL, gtk.FILL)
+        table.attach(chantable, 1, 2, 2, 3, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
         pos = 0
         channels = sysconf.get("channels")
@@ -423,11 +423,11 @@ class GtkSinglePriority(object):
             name = channel.get("name")
             if not name:
                 name = alias
-            check = gtk.CheckButton(name)
+            check = Gtk.CheckButton(name)
             check.set_active(alias in priority)
             check.show()
-            chantable.attach(check, 0, 1, pos, pos+1, gtk.FILL, gtk.FILL)
-            spin = gtk.SpinButton()
+            chantable.attach(check, 0, 1, pos, pos+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
+            spin = Gtk.SpinButton()
             if alias not in priority:
                 spin.set_sensitive(False)
             spin.set_increments(1, 10)
@@ -437,11 +437,11 @@ class GtkSinglePriority(object):
             spin.connect("value_changed", value_changed, alias)
             check.connect("toggled", toggled, spin, alias)
             spin.show()
-            chantable.attach(spin, 1, 2, pos, pos+1, gtk.FILL, gtk.FILL)
+            chantable.attach(spin, 1, 2, pos, pos+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
             pos += 1
         
         self._window.show()
-        gtk.main()
+        Gtk.main()
         self._window.hide()
 
         if not priority:

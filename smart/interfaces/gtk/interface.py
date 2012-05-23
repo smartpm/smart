@@ -26,7 +26,7 @@ from smart.interface import Interface
 from smart.fetcher import Fetcher
 from smart.const import DEBUG
 from smart import *
-import gtk
+from gi.repository import Gtk
 import sys
 
 class GtkInterface(Interface):
@@ -47,10 +47,10 @@ class GtkInterface(Interface):
         return result
 
     def eventsPending(self):
-        return gtk.events_pending()
+        return Gtk.events_pending()
 
     def processEvents(self):
-        gtk.main_iteration()
+        Gtk.main_iteration()
 
     def getProgress(self, obj, hassub=False):
         if hassub:
@@ -66,19 +66,19 @@ class GtkInterface(Interface):
         return self._hassubprogress
 
     def askYesNo(self, question, default=False):
-        dialog = gtk.MessageDialog(parent=self._window,
-                                   flags=gtk.DIALOG_MODAL,
-                                   type=gtk.MESSAGE_QUESTION,
-                                   buttons=gtk.BUTTONS_YES_NO,
+        dialog = Gtk.MessageDialog(parent=self._window,
+                                   flags=Gtk.DialogFlags.MODAL,
+                                   type=Gtk.MessageType.QUESTION,
+                                   buttons=Gtk.ButtonsType.YES_NO,
                                    message_format=question)
         dialog.set_transient_for(self._window)
-        dialog.set_default_response(default and gtk.RESPONSE_YES
-                                             or gtk.RESPONSE_NO)
+        dialog.set_default_response(default and Gtk.ResponseType.YES
+                                             or Gtk.ResponseType.NO)
         response = dialog.run()
         dialog.destroy()
-        if response == gtk.RESPONSE_YES:
+        if response == Gtk.ResponseType.YES:
             return True
-        elif response == gtk.RESPONSE_NO:
+        elif response == Gtk.ResponseType.NO:
             return False
         else:
             return default
@@ -89,57 +89,57 @@ class GtkInterface(Interface):
         return self.askYesNo(question+_(" Continue?"), default)
 
     def askOkCancel(self, question, default=False):
-        dialog = gtk.MessageDialog(parent=self._window,
-                                   flags=gtk.DIALOG_MODAL,
-                                   type=gtk.MESSAGE_INFO,
-                                   buttons=gtk.BUTTONS_OK_CANCEL,
+        dialog = Gtk.MessageDialog(parent=self._window,
+                                   flags=Gtk.DialogFlags.MODAL,
+                                   type=Gtk.MessageType.INFO,
+                                   buttons=Gtk.ButtonsType.OK_CANCEL,
                                    message_format=question)
         dialog.set_transient_for(self._window)
-        dialog.set_default_response(default and gtk.RESPONSE_OK
-                                             or gtk.RESPONSE_CANCEL)
+        dialog.set_default_response(default and Gtk.ResponseType.OK
+                                             or Gtk.ResponseType.CANCEL)
         response = dialog.run()
         dialog.destroy()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             return True
-        elif response == gtk.RESPONSE_CANCEL:
+        elif response == Gtk.ResponseType.CANCEL:
             return False
         else:
             return default
 
     def askInput(self, prompt, message=None, widthchars=40, echo=True):
-        dialog = gtk.Dialog(_("Input"),
+        dialog = Gtk.Dialog(_("Input"),
                             parent=self._window,
-                            flags=gtk.DIALOG_MODAL,
-                            buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
-                                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+                            flags=Gtk.DialogFlags.MODAL,
+                            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
                             )
         dialog.set_transient_for(self._window)
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
         dialog.vbox.pack_start(vbox, False, False)
         if message:
-            label = gtk.Label(message)
+            label = Gtk.Label(label=message)
             label.set_alignment(0.0, 0.5)
             label.show()
             vbox.pack_start(label, False, True)
-        hbox = gtk.HBox()
+        hbox = Gtk.HBox()
         hbox.set_spacing(10)
         hbox.show()
-        vbox.pack_start(hbox)
-        label = gtk.Label(prompt)
+        vbox.pack_start(hbox, True, True, 0)
+        label = Gtk.Label(label=prompt)
         label.show()
         hbox.pack_start(label, False, False)
-        entry = gtk.Entry()
+        entry = Gtk.Entry()
         entry.set_width_chars(widthchars)
         if not echo:
             entry.set_visibility(False)
             entry.set_invisible_char('*')
         entry.show()
-        hbox.pack_start(entry)
+        hbox.pack_start(entry, True, True, 0)
         response = dialog.run()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             result = entry.get_text()
         else:
             result = ""

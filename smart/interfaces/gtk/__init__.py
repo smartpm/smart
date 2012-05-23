@@ -25,9 +25,9 @@ from smart import *
 import os
 
 try:
-    import pygtk
-    pygtk.require("2.0")
-    import gtk
+    import gi
+    pyGtk.require("2.0")
+    from gi.repository import Gtk
 except ImportError:
     from smart.const import DEBUG
     if sysconf.get("log-level") == DEBUG:
@@ -51,11 +51,11 @@ def getPixbuf(name):
         if os.path.isfile(filename):
             icon_size = sysconf.get("gtk-icon-size")
             if icon_size:
-                pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(filename,
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filename,
                                                               icon_size,
                                                               icon_size)
             else:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
             _pixbuf[name] = pixbuf
         else:
             raise Error(_("Image '%s' not found") % name)

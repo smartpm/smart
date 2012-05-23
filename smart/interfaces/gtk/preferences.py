@@ -23,36 +23,36 @@ from smart.interfaces.gtk import getPixbuf
 from smart import *
 import gobject, gtk
 
-class GtkPreferences(gtk.Window):
+class GtkPreferences(Gtk.Window):
 
     def __init__(self, parent=None):
-        gtk.Window.__init__(self)
+        GObject.GObject.__init__(self)
         self.__gobject_init__()
 
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Smart Preferences"))
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WindowPosition.CENTER)
         self.set_geometry_hints(min_width=400, min_height=300)
 
-        self._vbox = gtk.VBox()
+        self._vbox = Gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
         self.add(self._vbox)
 
-        self._notebook = gtk.Notebook()
+        self._notebook = Gtk.Notebook()
         self._notebook.show()
         self._vbox.add(self._notebook)
 
-        if gtk.pygtk_version < (2,12,0):
-            self._tooltips = gtk.Tooltips()
+        if Gtk.pygtk_version < (2,12,0):
+            self._tooltips = Gtk.Tooltips()
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         sw.set_border_width(5)
         sw.show()
 
-        table = gtk.Table()
+        table = Gtk.Table()
         table.set_row_spacings(2)
         table.set_col_spacings(5)
         table.set_border_width(5)
@@ -60,45 +60,45 @@ class GtkPreferences(gtk.Window):
         sw.add_with_viewport(table)
 
         def set_tooltip(widget, text):
-            if gtk.pygtk_version < (2,12,0):
+            if Gtk.pygtk_version < (2,12,0):
                 self._tooltips.set_tip(widget, text)
             else:
                 widget.set_tooltip_text(text)
 
-        self._remove_packages = gtk.CheckButton(_("Remove Packages"))
+        self._remove_packages = Gtk.CheckButton(_("Remove Packages"))
         set_tooltip(self._remove_packages,
                     _("Remove downloaded packages after installation"))
         self._remove_packages.set_active(sysconf.get("remove-packages", True))
         self._remove_packages.show()
         table.attach(self._remove_packages, 0, 1, 0, 0+1,
-                     gtk.FILL, gtk.FILL)
+                     Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        self._commit_stepped = gtk.CheckButton(_("Commit Stepped"))
+        self._commit_stepped = Gtk.CheckButton(_("Commit Stepped"))
         set_tooltip(self._commit_stepped,
                     _("Split operations in steps before committing"))
         self._commit_stepped.set_active(sysconf.get("commit-stepped", False))
         self._commit_stepped.show()
         table.attach(self._commit_stepped, 0, 1, 1, 1+1,
-                     gtk.FILL, gtk.FILL)
+                     Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        label = gtk.Label(_("General"))
+        label = Gtk.Label(label=_("General"))
         self._notebook.append_page(sw, label)
 
-        self._buttonbox = gtk.HButtonBox()
+        self._buttonbox = Gtk.HButtonBox()
         self._buttonbox.set_spacing(10)
-        self._buttonbox.set_layout(gtk.BUTTONBOX_END)
+        self._buttonbox.set_layout(Gtk.ButtonBoxStyle.END)
         self._buttonbox.show()
         self._vbox.pack_start(self._buttonbox, expand=False, fill=False)
 
-        self._closebutton = gtk.Button(stock="gtk-close")
+        self._closebutton = Gtk.Button(stock="gtk-close")
         self._closebutton.show()
         self._closebutton.connect("clicked", lambda x: self.close())
-        self._buttonbox.pack_start(self._closebutton)
+        self._buttonbox.pack_start(self._closebutton, True, True, 0)
 
     def close(self):
         sysconf.set("remove-packages", self._remove_packages.get_active())
         sysconf.set("commit-stepped", self._commit_stepped.get_active())
         self.hide()
 
-gobject.type_register(GtkPreferences)
+GObject.type_register(GtkPreferences)
 

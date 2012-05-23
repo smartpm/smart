@@ -33,44 +33,44 @@ except locale.Error:
 LONG_MESSAGE_LENGTH = 1024
 LONG_MESSAGE_LINES = 8
 
-class LongMessageDialog(gtk.Dialog):
-    """Scrolling version of gtk.MessageDialog"""
+class LongMessageDialog(Gtk.Dialog):
+    """Scrolling version of Gtk.MessageDialog"""
     def __init__(self, parent=None, flags=0,
-                 type=gtk.MESSAGE_INFO,
-                 buttons=gtk.BUTTONS_NONE,
+                 type=Gtk.MessageType.INFO,
+                 buttons=Gtk.ButtonsType.NONE,
                  message_format=None):
-        icon = gtk.STOCK_DIALOG_INFO
-        if type == gtk.MESSAGE_ERROR:
-            icon = gtk.STOCK_DIALOG_ERROR
+        icon = Gtk.STOCK_DIALOG_INFO
+        if type == Gtk.MessageType.ERROR:
+            icon = Gtk.STOCK_DIALOG_ERROR
         btns = None
-        if buttons == gtk.BUTTONS_OK:
-            btns = (gtk.STOCK_OK, gtk.RESPONSE_OK)
-        gtk.Dialog.__init__(self, None, parent, flags, btns)
-        hbox = gtk.HBox()
+        if buttons == Gtk.ButtonsType.OK:
+            btns = (Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        GObject.GObject.__init__(self, None, parent, flags, btns)
+        hbox = Gtk.HBox()
         hbox.set_border_width(10)
         hbox.set_spacing(10)
-        image = gtk.Image()
-        image.set_from_stock(icon, gtk.ICON_SIZE_DIALOG)
+        image = Gtk.Image()
+        image.set_from_stock(icon, Gtk.IconSize.DIALOG)
         image.show()
         hbox.pack_start(image, expand=False, fill=False)
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
-        text = gtk.TextView()
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        text = Gtk.TextView()
         text.set_editable(False)
-        text.modify_base(gtk.STATE_NORMAL, self.style.bg[gtk.STATE_NORMAL])
-        text.set_wrap_mode(gtk.WRAP_WORD)
+        text.modify_base(Gtk.StateType.NORMAL, self.style.bg[Gtk.StateType.NORMAL])
+        text.set_wrap_mode(Gtk.WrapMode.WORD)
         text.get_buffer().set_text(message_format)
         text.show()
         sw.add(text)
         sw.show()
         hbox.pack_start(sw, expand=True, fill=True)
         hbox.show()
-        self.vbox.pack_start(hbox)
+        self.vbox.pack_start(hbox, True, True, 0)
 
-class GtkLog(gtk.Window):
+class GtkLog(Gtk.Window):
 
     def __init__(self):
-        gtk.Window.__init__(self)
+        GObject.GObject.__init__(self)
         self.__gobject_init__()
 
         self.set_icon(getPixbuf("smart"))
@@ -78,39 +78,39 @@ class GtkLog(gtk.Window):
         self.set_geometry_hints(min_width=400, min_height=300)
         self.set_modal(True)
 
-        self._vbox = gtk.VBox()
+        self._vbox = Gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
         self.add(self._vbox)
 
-        self._scrollwin = gtk.ScrolledWindow()
-        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        self._scrollwin = Gtk.ScrolledWindow()
+        self._scrollwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self._scrollwin.set_shadow_type(Gtk.ShadowType.IN)
         self._scrollwin.show()
         self._vbox.add(self._scrollwin)
 
-        self._textview = gtk.TextView()
+        self._textview = Gtk.TextView()
         self._textview.set_editable(False)
         self._textview.show()
         self._scrollwin.add(self._textview)
 
-        self._buttonbox = gtk.HButtonBox()
+        self._buttonbox = Gtk.HButtonBox()
         self._buttonbox.set_spacing(10)
-        self._buttonbox.set_layout(gtk.BUTTONBOX_END)
+        self._buttonbox.set_layout(Gtk.ButtonBoxStyle.END)
         self._buttonbox.show()
         self._vbox.pack_start(self._buttonbox, expand=False, fill=False)
 
-        self._clearbutton = gtk.Button(stock="gtk-clear")
+        self._clearbutton = Gtk.Button(stock="gtk-clear")
         self._clearbutton.show()
         self._clearbutton.connect("clicked",
                                   lambda x: self.clearText())
-        self._buttonbox.pack_start(self._clearbutton)
+        self._buttonbox.pack_start(self._clearbutton, True, True, 0)
 
-        self._closebutton = gtk.Button(stock="gtk-close")
+        self._closebutton = Gtk.Button(stock="gtk-close")
         self._closebutton.show()
         self._closebutton.connect("clicked", lambda x: self.hide())
-        self._buttonbox.pack_start(self._closebutton)
+        self._buttonbox.pack_start(self._closebutton, True, True, 0)
 
     def clearText(self):
         self._textview.get_buffer().set_text("")
@@ -137,11 +137,11 @@ class GtkLog(gtk.Window):
                 msg.count("\n") > LONG_MESSAGE_LINES):
                 gtk_MessageDialog = LongMessageDialog
             else:
-                gtk_MessageDialog = gtk.MessageDialog
+                gtk_MessageDialog = Gtk.MessageDialog
                 
-            dialog = gtk_MessageDialog(self, flags=gtk.DIALOG_MODAL,
-                                       type=gtk.MESSAGE_ERROR,
-                                       buttons=gtk.BUTTONS_OK,
+            dialog = gtk_MessageDialog(self, flags=Gtk.DialogFlags.MODAL,
+                                       type=Gtk.MessageType.ERROR,
+                                       buttons=Gtk.ButtonsType.OK,
                                        message_format=msg)
             dialog.run()
             dialog.hide()
@@ -149,5 +149,5 @@ class GtkLog(gtk.Window):
         else:
             self.show()
 
-gobject.type_register(GtkLog)
+GObject.type_register(GtkLog)
 

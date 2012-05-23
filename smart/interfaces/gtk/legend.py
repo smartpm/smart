@@ -23,36 +23,36 @@ from smart.interfaces.gtk import getPixbuf
 from smart import *
 import gobject, gtk, pango
 
-class GtkLegend(gtk.Window):
+class GtkLegend(Gtk.Window):
 
     def __init__(self):
-        gtk.Window.__init__(self)
+        GObject.GObject.__init__(self)
         self.__gobject_init__()
 
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Icon Legend"))
 
         font = self.style.font_desc.copy()
-        font.set_size(font.get_size()-pango.SCALE)
+        font.set_size(font.get_size()-Pango.SCALE)
 
         boldfont = font.copy()
-        boldfont.set_weight(pango.WEIGHT_BOLD)
+        boldfont.set_weight(Pango.Weight.BOLD)
 
-        self._vbox = gtk.VBox()
+        self._vbox = Gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
         self.add(self._vbox)
 
-        attrslabel = pango.AttrList()
-        attrslabel.insert(pango.AttrFontDesc(boldfont, 0, -1))
+        attrslabel = Pango.AttrList()
+        attrslabel.insert(Pango.AttrFontDesc(boldfont, 0, -1))
 
-        label = gtk.Label(_("The following icons are used to indicate\nthe current status of a package:"))
+        label = Gtk.Label(label=_("The following icons are used to indicate\nthe current status of a package:"))
         label.set_attributes(attrslabel)
         label.show()
         self._vbox.add(label)
 
-        table = gtk.Table()
+        table = Gtk.Table()
         table.set_row_spacings(2)
         table.set_col_spacings(5)
         table.set_border_width(5)
@@ -74,29 +74,29 @@ class GtkLegend(gtk.Window):
         (getPixbuf("package-installed-locked"),   _("Installed (locked)")),
         (getPixbuf("package-broken"),             _("Broken")),
         ]:
-            image = gtk.Image()
+            image = Gtk.Image()
             image.set_from_pixbuf(icon)
             image.show()
-            table.attach(image, 0, 1, row, row+1, gtk.FILL, gtk.FILL)
-            label = gtk.Label(legend)
+            table.attach(image, 0, 1, row, row+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
+            label = Gtk.Label(label=legend)
             label.set_alignment(0.0, 0.5)
             label.show()
-            table.attach(label, 1, 2, row, row+1, gtk.FILL, gtk.FILL)
+            table.attach(label, 1, 2, row, row+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
             row += 1
         
-        self._buttonbox = gtk.HButtonBox()
+        self._buttonbox = Gtk.HButtonBox()
         self._buttonbox.set_spacing(10)
-        self._buttonbox.set_layout(gtk.BUTTONBOX_END)
+        self._buttonbox.set_layout(Gtk.ButtonBoxStyle.END)
         self._buttonbox.show()
         self._vbox.pack_start(self._buttonbox, expand=False, fill=False)
 
-        self._closebutton = gtk.Button(stock="gtk-close")
+        self._closebutton = Gtk.Button(stock="gtk-close")
         self._closebutton.show()
         self._closebutton.connect("clicked", lambda x: self.hide())
-        self._buttonbox.pack_start(self._closebutton)
+        self._buttonbox.pack_start(self._closebutton, True, True, 0)
 
     def isVisible(self):
         return self.get_property("visible")
 
-gobject.type_register(GtkLegend)
+GObject.type_register(GtkLegend)
 

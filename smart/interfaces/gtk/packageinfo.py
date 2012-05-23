@@ -33,45 +33,45 @@ try:
 except ImportError:
     sexy = None
 
-class GtkPackageInfo(gtk.Alignment):
+class GtkPackageInfo(Gtk.Alignment):
     hovering_over_link = False
-    hand_cursor = gtk.gdk.Cursor(gtk.gdk.HAND2)
-    regular_cursor = gtk.gdk.Cursor(gtk.gdk.XTERM)
+    hand_cursor = Gdk.Cursor.new(Gdk.HAND2)
+    regular_cursor = Gdk.Cursor.new(Gdk.XTERM)
 
     def __init__(self):
-        gtk.Alignment.__init__(self, 0.5, 0.5, 1.0, 1.0)
+        GObject.GObject.__init__(self, 0.5, 0.5, 1.0, 1.0)
 
         self._pkg = None
         self._changeset = None
 
         font = self.style.font_desc.copy()
-        font.set_size(font.get_size()-pango.SCALE)
+        font.set_size(font.get_size()-Pango.SCALE)
 
         boldfont = font.copy()
-        boldfont.set_weight(pango.WEIGHT_BOLD)
+        boldfont.set_weight(Pango.Weight.BOLD)
 
         if sysconf.get("gtk-description-fontsize"):
             fontsize = int(sysconf.get("gtk-description-fontsize"))
 
             descfont = self.style.font_desc.copy()
-            descfont.set_size(fontsize*pango.SCALE)
+            descfont.set_size(fontsize*Pango.SCALE)
 
             bolddescfont = descfont.copy()
-            bolddescfont.set_weight(pango.WEIGHT_BOLD)
+            bolddescfont.set_weight(Pango.Weight.BOLD)
         else:
             descfont = font
             bolddescfont = boldfont
 
-        self._notebook = gtk.Notebook()
+        self._notebook = Gtk.Notebook()
         self._notebook.show()
         self.add(self._notebook)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         #sw.set_border_width(5)
         sw.show()
 
-        table = gtk.Table()
+        table = Gtk.Table()
         table.set_row_spacings(2)
         table.set_col_spacings(5)
         table.set_border_width(5)
@@ -80,16 +80,16 @@ class GtkPackageInfo(gtk.Alignment):
 
         self._info = type("Info", (), {})()
 
-        attrsleft = pango.AttrList()
-        attrsleft.insert(pango.AttrFontDesc(font, 0, -1))
-        attrsright = pango.AttrList()
-        attrsright.insert(pango.AttrFontDesc(boldfont, 0, -1))
+        attrsleft = Pango.AttrList()
+        attrsleft.insert(Pango.AttrFontDesc(font, 0, -1))
+        attrsright = Pango.AttrList()
+        attrsright.insert(Pango.AttrFontDesc(boldfont, 0, -1))
 
         style = sw.get_style()
-        bgcolor = style.bg[gtk.STATE_NORMAL]
+        bgcolor = style.bg[Gtk.StateType.NORMAL]
         
-        self._reftv = gtk.TextView()
-        self._reftv.modify_base(gtk.STATE_NORMAL, bgcolor)
+        self._reftv = Gtk.TextView()
+        self._reftv.modify_base(Gtk.StateType.NORMAL, bgcolor)
         self._reftv.set_editable(False)
         self._reftv.set_cursor_visible(False)
         self._reftv.connect("motion-notify-event", self.motion_notify_event)
@@ -104,37 +104,37 @@ class GtkPackageInfo(gtk.Alignment):
                            ("installedsize", _("Installed Size:")),
                            ("channels", _("Channels:")),
                            ("reference", _("Reference URLs:"))]:
-            label = gtk.Label(text)
+            label = Gtk.Label(label=text)
             label.set_attributes(attrsleft)
             if attr == "channels":
                 label.set_alignment(1.0, 0.0)
             else:
                 label.set_alignment(1.0, 0.5)
             label.show()
-            table.attach(label, 0, 1, row, row+1, gtk.FILL, gtk.FILL)
+            table.attach(label, 0, 1, row, row+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
             setattr(self._info, attr+"_label", label)
             if attr == "reference":
                 label = self._reftv
             else:
-                label = gtk.Label()
+                label = Gtk.Label()
                 label.set_attributes(attrsright)
                 label.set_alignment(0.0, 0.5)
             label.show()
-            table.attach(label, 1, 2, row, row+1, gtk.FILL, gtk.FILL)
+            table.attach(label, 1, 2, row, row+1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
             setattr(self._info, attr, label)
             row += 1
 
-        label = gtk.Label(_("General"))
+        label = Gtk.Label(label=_("General"))
         self._notebook.append_page(sw, label)
 
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.set_border_width(5)
         sw.show()
 
-        self._descrtv = gtk.TextView()
+        self._descrtv = Gtk.TextView()
         self._descrtv.set_editable(False)
         self._descrtv.set_cursor_visible(False)
         self._descrtv.set_left_margin(5)
@@ -145,38 +145,38 @@ class GtkPackageInfo(gtk.Alignment):
         buffer.create_tag("summary", font_desc=bolddescfont)
         sw.add(self._descrtv)
 
-        label = gtk.Label(_("Description"))
+        label = Gtk.Label(label=_("Description"))
         self._notebook.append_page(sw, label)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.show()
 
-        filtertable = gtk.Table(1, 1)
+        filtertable = Gtk.Table(1, 1)
         filtertable.set_row_spacings(5)
         filtertable.set_col_spacings(5)
         filtertable.set_border_width(5)
         filtertable.show()
         vbox.pack_end(filtertable, False)
 
-        label = gtk.Label(_("Filter:"))
+        label = Gtk.Label(label=_("Filter:"))
         label.show()
         filtertable.attach(label, 0, 1, 0, 1, 0, 0)
 
-        if gtk.gtk_version >= (2, 16, 0) or not sexy:
-            self._filterentry = gtk.Entry()
+        if Gtk.gtk_version >= (2, 16, 0) or not sexy:
+            self._filterentry = Gtk.Entry()
         else:
             self._filterentry = sexy.IconEntry()
         self._filterentry.connect("activate", lambda x: self.filterContent())
         self._filterentry.show()
         filtertable.attach(self._filterentry, 1, 2, 0, 1)
 
-        align = gtk.Alignment()
+        align = Gtk.Alignment.new()
         align.set(1, 0, 0, 0)
         align.set_padding(0, 0, 10, 0)
         align.show()
-        filtertable.attach(align, 2, 3, 0, 1, gtk.FILL, gtk.FILL)
+        filtertable.attach(align, 2, 3, 0, 1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        if gtk.gtk_version >= (2, 16, 0):
+        if Gtk.gtk_version >= (2, 16, 0):
             self._filterentry.set_property("primary-icon-stock", "gtk-find")
             self._filterentry.set_property("secondary-icon-stock", "gtk-clear")
             def press(entry, icon_pos, event):
@@ -186,11 +186,11 @@ class GtkPackageInfo(gtk.Alignment):
                     self.filterClear()
             self._filterentry.connect("icon-press", press)
         elif sexy:
-            image = gtk.Image()
-            image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+            image = Gtk.Image()
+            image.set_from_stock("gtk-find", Gtk.IconSize.BUTTON)
             self._filterentry.set_icon(sexy.ICON_ENTRY_PRIMARY, image)
-            image = gtk.Image()
-            image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
+            image = Gtk.Image()
+            image.set_from_stock("gtk-clear", Gtk.IconSize.BUTTON)
             self._filterentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
             def pressed(entry, icon_pos, button):
                 if icon_pos == 0: # "primary"
@@ -199,33 +199,33 @@ class GtkPackageInfo(gtk.Alignment):
                     self.filterClear()
             self._filterentry.connect("icon-pressed", pressed)
         else:
-            button = gtk.Button()
-            button.set_relief(gtk.RELIEF_NONE)
+            button = Gtk.Button()
+            button.set_relief(Gtk.ReliefStyle.NONE)
             button.connect("clicked", lambda x: self.filterContent())
             button.show()
             filtertable.attach(button, 3, 4, 0, 1, 0, 0)
-            image = gtk.Image()
-            image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+            image = Gtk.Image()
+            image.set_from_stock("gtk-find", Gtk.IconSize.BUTTON)
             image.show()
             button.add(image)
 
-            button = gtk.Button()
-            button.set_relief(gtk.RELIEF_NONE)
+            button = Gtk.Button()
+            button.set_relief(Gtk.ReliefStyle.NONE)
             button.connect("clicked", lambda x: self.filterClear())
             button.show()
             filtertable.attach(button, 4, 5, 0, 1, 0, 0)
-            image = gtk.Image()
-            image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
+            image = Gtk.Image()
+            image.set_from_stock("gtk-clear", Gtk.IconSize.BUTTON)
             image.show()
             button.add(image)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.set_border_width(5)
         sw.show()
 
-        self._conttv = gtk.TextView()
+        self._conttv = Gtk.TextView()
         self._conttv.set_editable(False)
         self._conttv.set_cursor_visible(False)
         self._conttv.set_left_margin(5)
@@ -237,16 +237,16 @@ class GtkPackageInfo(gtk.Alignment):
 
         vbox.add(sw)
 
-        label = gtk.Label(_("Content"))
+        label = Gtk.Label(label=_("Content"))
         self._notebook.append_page(vbox, label)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.set_border_width(5)
         sw.show()
 
-        self._change = gtk.TextView()
+        self._change = Gtk.TextView()
         self._change.set_editable(False)
         self._change.set_cursor_visible(False)
         self._change.set_left_margin(5)
@@ -257,7 +257,7 @@ class GtkPackageInfo(gtk.Alignment):
         buffer.create_tag("changelog", font_desc=font)
         sw.add(self._change)
 
-        label = gtk.Label(_("Changelog"))
+        label = Gtk.Label(label=_("Changelog"))
         self._notebook.append_page(sw, label)
 
         self._relations = GtkPackageView()
@@ -265,23 +265,23 @@ class GtkPackageInfo(gtk.Alignment):
         self._relations.getTreeView().set_headers_visible(False)
         self._relations.show()
 
-        label = gtk.Label(_("Relations"))
+        label = Gtk.Label(label=_("Relations"))
         self._notebook.append_page(self._relations, label)
 
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         sw.set_border_width(5)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.show()
 
-        model = gtk.ListStore(gobject.TYPE_STRING,
-                              gobject.TYPE_STRING,
-                              gobject.TYPE_STRING)
-        self._urls = gtk.TreeView(model)
+        model = Gtk.ListStore(GObject.TYPE_STRING,
+                              GObject.TYPE_STRING,
+                              GObject.TYPE_STRING)
+        self._urls = Gtk.TreeView(model)
         self._urls.set_headers_visible(False)
         self._urls.show()
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         renderer.set_property("font-desc", font)
         self._urls.insert_column_with_attributes(-1, _("Channel"),
                                                  renderer, text=0)
@@ -291,12 +291,12 @@ class GtkPackageInfo(gtk.Alignment):
                                                  renderer, text=2)
         sw.add(self._urls)
 
-        label = gtk.Label(_("URLs"))
+        label = Gtk.Label(label=_("URLs"))
         self._notebook.append_page(sw, label)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.set_border_width(5)
         sw.show()
 
@@ -309,7 +309,7 @@ class GtkPackageInfo(gtk.Alignment):
 
     # Update the cursor image if the pointer moved.
     def motion_notify_event(self, text_view, event):
-        x, y = text_view.window_to_buffer_coords(gtk.TEXT_WINDOW_WIDGET,
+        x, y = text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET,
             int(event.x), int(event.y))
         self.set_cursor_if_appropriate(text_view, x, y)
         text_view.window.get_pointer()
@@ -335,12 +335,12 @@ class GtkPackageInfo(gtk.Alignment):
             self.hovering_over_link = hovering
 
         if self.hovering_over_link:
-            text_view.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(self.hand_cursor)
+            text_view.get_window(Gtk.TextWindowType.TEXT).set_cursor(self.hand_cursor)
         else:
-            text_view.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(self.regular_cursor)
+            text_view.get_window(Gtk.TextWindowType.TEXT).set_cursor(self.regular_cursor)
 
     def event_after(self, text_view, event):
-        if event.type != gtk.gdk.BUTTON_RELEASE:
+        if event.type != Gdk.BUTTON_RELEASE:
             return False
         if event.button != 1:
             return False
@@ -356,7 +356,7 @@ class GtkPackageInfo(gtk.Alignment):
             if start.get_offset() != end.get_offset():
                 return False
 
-        x, y = text_view.window_to_buffer_coords(gtk.TEXT_WINDOW_WIDGET,
+        x, y = text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET,
             int(event.x), int(event.y))
         iter = text_view.get_iter_at_location(x, y)
 
@@ -433,7 +433,7 @@ class GtkPackageInfo(gtk.Alignment):
                                  channel.getAlias()))
                 urls.extend(info.getReferenceURLs())
 
-            flags = pkgconf.testAllFlags(pkg)
+            flags = pkGConf.testAllFlags(pkg)
             if flags:
                 flags.sort()
                 flags = " (%s)" % ", ".join(flags)
@@ -449,7 +449,7 @@ class GtkPackageInfo(gtk.Alignment):
             for url in urls:
                 refbuf = self._info.reference.get_buffer()
                 tag = refbuf.create_tag(None,
-                        foreground="blue", underline=pango.UNDERLINE_SINGLE)
+                        foreground="blue", underline=Pango.Underline.SINGLE)
                 tag.set_data("url", url)
                 refbuf.insert_with_tags(refbuf.get_end_iter(), url, tag)
 
@@ -654,6 +654,6 @@ class GtkPackageInfo(gtk.Alignment):
 
 # XXX This is deprecated and must be removed in the future.
 #     No replacement is needed.
-gobject.type_register(GtkPackageInfo)
+GObject.type_register(GtkPackageInfo)
 
 # vim:ts=4:sw=4:et

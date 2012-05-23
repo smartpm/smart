@@ -23,7 +23,7 @@ from smart.interfaces.gtk.interface import GtkInterface
 from smart.interfaces.gtk import getPixbuf
 from smart import *
 import time
-import gtk
+from gi.repository import Gtk
 
 class GtkCommandInterface(GtkInterface):
 
@@ -33,34 +33,34 @@ class GtkCommandInterface(GtkInterface):
 
     def showStatus(self, msg):
         self._status.show(msg)
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     def hideStatus(self):
         self._status.hide()
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     def run(self, command=None, argv=None):
         result = GtkInterface.run(self, command, argv)        
         self._status.wait()
         while self._log.isVisible():
             time.sleep(0.1)
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
         return result
 
 class GtkStatus(object):
 
     def __init__(self):
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
         self._window.set_title(_("Status"))
         self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         self._window.set_border_width(20)
 
-        self._label = gtk.Label()
+        self._label = Gtk.Label()
         self._label.show()
         self._window.add(self._label)
 
@@ -70,8 +70,8 @@ class GtkStatus(object):
         self._label.set_text(msg)
         self._window.show()
         self._lastshown = time.time()
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     def hide(self):
         self._window.hide()
@@ -82,7 +82,7 @@ class GtkStatus(object):
     def wait(self):
         while self.isVisible() and self._lastshown+3 > time.time():
             time.sleep(0.3)
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
 
 # vim:ts=4:sw=4:et

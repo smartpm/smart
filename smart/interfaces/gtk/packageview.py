@@ -25,15 +25,15 @@ from smart.util.strtools import sizeToStr
 from smart import *
 import gobject, gtk
 
-class PixbufCellRenderer(gtk.GenericCellRenderer):
+class PixbufCellRenderer(Gtk.GenericCellRenderer):
 
     __gproperties__ = {
-        "pixbuf":   (gobject.TYPE_OBJECT, "Pixbuf",
+        "pixbuf":   (GObject.TYPE_OBJECT, "Pixbuf",
                      "Pixbuf to be shown",
-                     gobject.PARAM_READWRITE),
-        "activate": (gobject.TYPE_PYOBJECT, "Activate function",
+                     GObject.PARAM_READWRITE),
+        "activate": (GObject.TYPE_PYOBJECT, "Activate function",
                      "Function to call on activation",
-                     gobject.PARAM_READWRITE),
+                     GObject.PARAM_READWRITE),
     }
 
     def __init__(self):
@@ -68,7 +68,7 @@ class PixbufCellRenderer(gtk.GenericCellRenderer):
                            self.pixbuf, 0, 0,
                            cell_area.x+x_offset, cell_area.y+y_offset,
                            width-2*xpad, height-2*ypad,
-                           gtk.gdk.RGB_DITHER_NORMAL, 0, 0)
+                           Gdk.RGB_DITHER_NORMAL, 0, 0)
 
     def on_get_size(self, widget, cell_area):
         if not self.pixbuf:
@@ -93,33 +93,33 @@ class PixbufCellRenderer(gtk.GenericCellRenderer):
 
 # XXX This is deprecated and must be removed in the future.
 #     No replacement is needed.
-gobject.type_register(PixbufCellRenderer)
+GObject.type_register(PixbufCellRenderer)
 
-class GtkPackageView(gtk.Alignment):
+class GtkPackageView(Gtk.Alignment):
 
     __gsignals__ = {
-        "package_selected":  (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                              (gobject.TYPE_PYOBJECT,)),
-        "package_activated": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                              (gobject.TYPE_PYOBJECT,)),
-        "package_popup":     (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                              (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)),
+        "package_selected":  (GObject.SignalFlags.RUN_FIRST, None,
+                              (GObject.TYPE_PYOBJECT,)),
+        "package_activated": (GObject.SignalFlags.RUN_FIRST, None,
+                              (GObject.TYPE_PYOBJECT,)),
+        "package_popup":     (GObject.SignalFlags.RUN_FIRST, None,
+                              (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT)),
     }
 
     def __init__(self):
-        gtk.Alignment.__init__(self, 0.5, 0.5, 1.0, 1.0)
+        GObject.GObject.__init__(self, 0.5, 0.5, 1.0, 1.0)
 
         self._expandpackage = False
 
         self._changeset = {}
 
-        self._scrollwin = gtk.ScrolledWindow()
-        self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        self._scrollwin = Gtk.ScrolledWindow()
+        self._scrollwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        self._scrollwin.set_shadow_type(Gtk.ShadowType.IN)
         self._scrollwin.show()
         self.add(self._scrollwin)
 
-        self._treeview = gtk.TreeView()
+        self._treeview = Gtk.TreeView()
         self._treeview.set_rules_hint(True)
         self._treeview.connect("button_press_event", self._buttonPress)
         self._treeview.connect("select_cursor_row", self._selectCursor)
@@ -128,21 +128,21 @@ class GtkPackageView(gtk.Alignment):
         self._scrollwin.add(self._treeview)
 
         selection = self._treeview.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
-        column = gtk.TreeViewColumn(_("Package"))
+        column = Gtk.TreeViewColumn(_("Package"))
         renderer = PixbufCellRenderer()
         renderer.set_property("activate", self._pixbufClicked)
         renderer.set_property("xpad", 3)
-        renderer.set_property("mode", gtk.CELL_RENDERER_MODE_ACTIVATABLE)
+        renderer.set_property("mode", Gtk.CellRendererMode.ACTIVATABLE)
         column.pack_start(renderer, False)
         column.set_cell_data_func(renderer, self._setPixbuf)
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         column.pack_start(renderer, True)
         column.set_cell_data_func(renderer, self._setName)
         self._treeview.append_column(column)
 
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         self._treeview.insert_column_with_data_func(-1, _("Version"), renderer,
                                                     self._setVersion)
         self._treeview.get_columns()[-1].set_visible(True)
@@ -180,19 +180,19 @@ class GtkPackageView(gtk.Alignment):
                 cell.set_property("pixbuf", self._Rpixbuf)
             elif self._changeset.get(pkg) is INSTALL:
                 cell.set_property("pixbuf", self._rpixbuf)
-            elif pkgconf.testFlag("lock", pkg):
+            elif pkGConf.testFlag("lock", pkg):
                 cell.set_property("pixbuf", self._ilpixbuf)
             else:
                 cell.set_property("pixbuf", self._ipixbuf)
         else:
             if self._changeset.get(pkg) is INSTALL:
                 cell.set_property("pixbuf", self._Ipixbuf)
-            elif pkgconf.testFlag("lock", pkg):
-                if pkgconf.testFlag("new", pkg):
+            elif pkGConf.testFlag("lock", pkg):
+                if pkGConf.testFlag("new", pkg):
                     cell.set_property("pixbuf", self._nlpixbuf)
                 else:
                     cell.set_property("pixbuf", self._alpixbuf)
-            elif pkgconf.testFlag("new", pkg):
+            elif pkGConf.testFlag("new", pkg):
                 cell.set_property("pixbuf", self._npixbuf)
             else:
                 cell.set_property("pixbuf", self._apixbuf)
@@ -368,9 +368,9 @@ class GtkPackageView(gtk.Alignment):
         # clear the model until the new one is ready
         treeview.set_model(None)
         if isinstance(packages, list):
-            model = gtk.ListStore(gobject.TYPE_PYOBJECT)
+            model = Gtk.ListStore(GObject.TYPE_PYOBJECT)
         elif isinstance(packages, dict):
-            model = gtk.TreeStore(gobject.TYPE_PYOBJECT)
+            model = Gtk.TreeStore(GObject.TYPE_PYOBJECT)
         self._setPackage(None, model, None, packages)
         treeview.set_model(model)
         if keepstate:
@@ -407,7 +407,7 @@ class GtkPackageView(gtk.Alignment):
         model = treeview.get_model()
         iter = model.get_iter(path)
         value = model.get_value(iter, 0)
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if event.type == Gdk._2BUTTON_PRESS:
             if not self._expandpackage and hasattr(value, "name"):
                 pkgs = self.getSelectedPkgs()
                 if len(pkgs) > 1:
@@ -418,7 +418,7 @@ class GtkPackageView(gtk.Alignment):
                 treeview.collapse_row(path)
             else:
                 treeview.expand_row(path, False)
-        elif event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+        elif event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
             pkgs = self.getSelectedPkgs()
             if len(pkgs) > 1:
                 self.emit("package_popup", pkgs, event)
@@ -467,6 +467,6 @@ class GtkPackageView(gtk.Alignment):
 
 # XXX This is deprecated and must be removed in the future.
 #     No replacement is needed.
-gobject.type_register(GtkPackageView)
+GObject.type_register(GtkPackageView)
 
 # vim:ts=4:sw=4:et

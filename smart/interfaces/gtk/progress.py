@@ -32,11 +32,11 @@ import posixpath
 import _thread
 import time
 
-class GtkProgress(Progress, gtk.Window):
+class GtkProgress(Progress, Gtk.Window):
 
     def __init__(self, hassub):
         Progress.__init__(self)
-        gtk.Window.__init__(self)
+        GObject.GObject.__init__(self)
 
         self.connect("delete-event", lambda x,y: True)
 
@@ -63,26 +63,26 @@ class GtkProgress(Progress, gtk.Window):
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Operation Progress"))
         self.set_modal(True)
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WindowPosition.CENTER)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
-        gtk.Window.add(self, vbox)
+        Gtk.Window.add(self, vbox)
 
-        self._topic = gtk.Label()
+        self._topic = Gtk.Label()
         self._topic.set_alignment(0, 0.5)
         self._topic.show()
         vbox.pack_start(self._topic, expand=False, fill=False)
 
-        self._progressbar = gtk.ProgressBar()
+        self._progressbar = Gtk.ProgressBar()
         self._progressbar.set_size_request(-1, 25)
         self._progressbar.show()
         vbox.pack_start(self._progressbar, expand=False, fill=False)
 
         if hassub:
-            expander = gtk.Expander()
+            expander = Gtk.Expander()
             expander.set_expanded(True)
             expander.show()
             def toggle_window(expander, param_spec):
@@ -91,80 +91,80 @@ class GtkProgress(Progress, gtk.Window):
                 else:
                     self.resize(500, 100)
             expander.connect("notify::expanded", toggle_window)
-            vbox.pack_start(expander)
+            vbox.pack_start(expander, True, True, 0)
 
-            self._scrollwin = gtk.ScrolledWindow()
-            self._scrollwin.set_policy(gtk.POLICY_AUTOMATIC,
-                                       gtk.POLICY_AUTOMATIC)
-            self._scrollwin.set_shadow_type(gtk.SHADOW_IN)
+            self._scrollwin = Gtk.ScrolledWindow()
+            self._scrollwin.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                       Gtk.PolicyType.AUTOMATIC)
+            self._scrollwin.set_shadow_type(Gtk.ShadowType.IN)
             self._scrollwin.show()
             expander.add(self._scrollwin)
 
-            self._treemodel = gtk.ListStore(gobject.TYPE_INT,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING)
-            self._treeview = gtk.TreeView(self._treemodel)
+            self._treemodel = Gtk.ListStore(GObject.TYPE_INT,
+                                            GObject.TYPE_STRING,
+                                            GObject.TYPE_STRING,
+                                            GObject.TYPE_STRING,
+                                            GObject.TYPE_STRING,
+                                            GObject.TYPE_STRING)
+            self._treeview = Gtk.TreeView(self._treemodel)
             self._treeview.show()
             self._scrollwin.add(self._treeview)
 
-            if gtk.pygtk_version < (2,6,0):
+            if Gtk.pygtk_version < (2,6,0):
                 renderer = ProgressCellRenderer()
-                column = gtk.TreeViewColumn(_("Progress"), renderer, percent=0)
+                column = Gtk.TreeViewColumn(_("Progress"), renderer, percent=0)
             else:
-                renderer = gtk.CellRendererProgress()
+                renderer = Gtk.CellRendererProgress()
                 # don't display the percent label
                 renderer.set_property("text", "")
-                column = gtk.TreeViewColumn(_("Progress"), renderer, value=0)
-            column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+                column = Gtk.TreeViewColumn(_("Progress"), renderer, value=0)
+            column.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
             column.set_fixed_width(110)
             self._treeview.append_column(column)
 
-            renderer = gtk.CellRendererText()
+            renderer = Gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn(_("Current"), renderer, text=2)
+            column = Gtk.TreeViewColumn(_("Current"), renderer, text=2)
             self._currentcolumn = column
             self._treeview.append_column(column)
 
-            renderer = gtk.CellRendererText()
+            renderer = Gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn(_("Total"), renderer, text=3)
+            column = Gtk.TreeViewColumn(_("Total"), renderer, text=3)
             self._totalcolumn = column
             self._treeview.append_column(column)
 
-            renderer = gtk.CellRendererText()
+            renderer = Gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn(_("Speed"), renderer, text=4)
+            column = Gtk.TreeViewColumn(_("Speed"), renderer, text=4)
             self._speedcolumn = column
             self._treeview.append_column(column)
 
-            renderer = gtk.CellRendererText()
+            renderer = Gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn(_("ETA"), renderer, text=5)
+            column = Gtk.TreeViewColumn(_("ETA"), renderer, text=5)
             self._etacolumn = column
             self._treeview.append_column(column)
 
-            renderer = gtk.CellRendererText()
+            renderer = Gtk.CellRendererText()
             renderer.set_fixed_height_from_font(True)
-            column = gtk.TreeViewColumn(_("Description"), renderer, text=1)
-            column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+            column = Gtk.TreeViewColumn(_("Description"), renderer, text=1)
+            column.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
             self._treeview.append_column(column)
 
             self._subiters = {}
             self._subindex = 0
             self._lastpath = None
 
-            self._bbox = gtk.HButtonBox()
+            self._bbox = Gtk.HButtonBox()
             self._bbox.set_spacing(10)
-            self._bbox.set_layout(gtk.BUTTONBOX_END)
-            vbox.pack_start(self._bbox, expand=False)
+            self._bbox.set_layout(Gtk.ButtonBoxStyle.END)
+            vbox.pack_start(self._bbox, False, True, 0)
 
-            button = gtk.Button(stock="gtk-cancel")
+            button = Gtk.Button(stock="gtk-cancel")
             button.show()
             button.connect("clicked", self._cancel)
-            self._bbox.pack_start(button)
+            self._bbox.pack_start(button, True, True, 0)
 
     def setFetcher(self, fetcher):
         if fetcher:
@@ -182,8 +182,8 @@ class GtkProgress(Progress, gtk.Window):
         while not self._stopticking:
             self.lock()
             if self._threadsafe:
-                while gtk.events_pending():
-                    gtk.main_iteration()
+                while Gtk.events_pending():
+                    Gtk.main_iteration()
             self.unlock()
             time.sleep(INTERVAL)
         self._ticking = False
@@ -216,10 +216,10 @@ class GtkProgress(Progress, gtk.Window):
 
         self._shorturl.reset()
 
-        gtk.Window.hide(self)
+        Gtk.Window.hide(self)
 
     def expose(self, topic, percent, subkey, subtopic, subpercent, data, done):
-        gtk.Window.show(self)
+        Gtk.Window.show(self)
         
         if self._hassub and subkey:
             if subkey in self._subiters:
@@ -269,17 +269,17 @@ class GtkProgress(Progress, gtk.Window):
                 self._treeview.queue_draw()
 
         if not self._threadsafe:
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
 
-gobject.type_register(GtkProgress)
+GObject.type_register(GtkProgress)
 
-class ProgressCellRenderer(gtk.GenericCellRenderer):
+class ProgressCellRenderer(Gtk.GenericCellRenderer):
 
     __gproperties__ = {
-        "percent": (gobject.TYPE_INT, "Percent", 
+        "percent": (GObject.TYPE_INT, "Percent", 
                     "Progress percentage", 0, 100, 0,
-                    gobject.PARAM_READWRITE),
+                    GObject.PARAM_READWRITE),
     }
                      
     def __init__(self):
@@ -295,14 +295,14 @@ class ProgressCellRenderer(gtk.GenericCellRenderer):
     def on_render(self, window, widget, background_area,
                   cell_area, expose_area, flags):
         x_offset, y_offset, width, height = self.on_get_size(widget, cell_area)
-        widget.style.paint_box(window, gtk.STATE_NORMAL, gtk.SHADOW_IN,
+        widget.style.paint_box(window, Gtk.StateType.NORMAL, Gtk.ShadowType.IN,
                                None, widget, "trough",
                                cell_area.x+x_offset, cell_area.y+y_offset,
                                width, height)
         xt = widget.style.xthickness
         xpad = self.get_property("xpad")
         space = (width-2*xt-2*xpad)*(self.percent/100.)
-        widget.style.paint_box(window, gtk.STATE_PRELIGHT, gtk.SHADOW_OUT,
+        widget.style.paint_box(window, Gtk.StateType.PRELIGHT, Gtk.ShadowType.OUT,
                                None, widget, "bar",
                                cell_area.x+x_offset+xt,
                                cell_area.y+y_offset+xt,
@@ -329,7 +329,7 @@ class ProgressCellRenderer(gtk.GenericCellRenderer):
 
 # XXX This is deprecated and must be removed in the future.
 #     No replacement is needed.
-gobject.type_register(ProgressCellRenderer)
+GObject.type_register(ProgressCellRenderer)
 
 def test():
     import sys, time

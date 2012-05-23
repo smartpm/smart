@@ -26,67 +26,67 @@ from smart.report import Report
 from smart import *
 import gobject, gtk
 
-class GtkChanges(gtk.Window):
+class GtkChanges(Gtk.Window):
 
     def __init__(self):
-        gtk.Window.__init__(self)
+        GObject.GObject.__init__(self)
         self.__gobject_init__()
 
         self.set_icon(getPixbuf("smart"))
         self.set_title(_("Change Summary"))
         self.set_modal(True)
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WindowPosition.CENTER)
         self.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self.connect("delete-event", delete)
 
-        self._vbox = gtk.VBox()
+        self._vbox = Gtk.VBox()
         self._vbox.set_border_width(10)
         self._vbox.set_spacing(10)
         self._vbox.show()
         self.add(self._vbox)
 
-        self._label = gtk.Label()
-        self._vbox.pack_start(self._label, expand=False)
+        self._label = Gtk.Label()
+        self._vbox.pack_start(self._label, False, True, 0)
 
         self._pv = GtkPackageView()
         self._pv.getTreeView().set_headers_visible(False)
         self._pv.setExpandPackage(True)
         self._pv.show()
-        self._vbox.pack_start(self._pv)
+        self._vbox.pack_start(self._pv, True, True, 0)
 
-        self._sizelabel = gtk.Label()
-        self._vbox.pack_start(self._sizelabel, expand=False)
+        self._sizelabel = Gtk.Label()
+        self._vbox.pack_start(self._sizelabel, False, True, 0)
 
-        self._confirmbbox = gtk.HButtonBox()
+        self._confirmbbox = Gtk.HButtonBox()
         self._confirmbbox.set_spacing(10)
-        self._confirmbbox.set_layout(gtk.BUTTONBOX_END)
-        self._vbox.pack_start(self._confirmbbox, expand=False)
+        self._confirmbbox.set_layout(Gtk.ButtonBoxStyle.END)
+        self._vbox.pack_start(self._confirmbbox, False, True, 0)
 
-        self._cancelbutton = gtk.Button(stock="gtk-cancel")
+        self._cancelbutton = Gtk.Button(stock="gtk-cancel")
         self._cancelbutton.show()
-        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        self._confirmbbox.pack_start(self._cancelbutton)
+        self._cancelbutton.connect("clicked", lambda x: Gtk.main_quit())
+        self._confirmbbox.pack_start(self._cancelbutton, True, True, 0)
 
-        self._okbutton = gtk.Button(stock="gtk-ok")
+        self._okbutton = Gtk.Button(stock="gtk-ok")
         self._okbutton.show()
         def clicked(x):
             self._result = True
-            gtk.main_quit()
+            Gtk.main_quit()
         self._okbutton.connect("clicked", clicked)
-        self._confirmbbox.pack_start(self._okbutton)
+        self._confirmbbox.pack_start(self._okbutton, True, True, 0)
 
-        self._closebbox = gtk.HButtonBox()
+        self._closebbox = Gtk.HButtonBox()
         self._closebbox.set_spacing(10)
-        self._closebbox.set_layout(gtk.BUTTONBOX_END)
-        self._vbox.pack_start(self._closebbox, expand=False)
+        self._closebbox.set_layout(Gtk.ButtonBoxStyle.END)
+        self._vbox.pack_start(self._closebbox, False, True, 0)
 
-        self._closebutton = gtk.Button(stock="gtk-close")
+        self._closebutton = Gtk.Button(stock="gtk-close")
         self._closebutton.show()
-        self._closebutton.connect("clicked", lambda x: gtk.main_quit())
-        self._closebbox.pack_start(self._closebutton)
+        self._closebutton.connect("clicked", lambda x: Gtk.main_quit())
+        self._closebbox.pack_start(self._closebutton, True, True, 0)
 
     def showChangeSet(self, changeset, keep=None, confirm=False, label=None):
 
@@ -220,7 +220,7 @@ class GtkChanges(gtk.Window):
 
         self._result = False
         self.show()
-        gtk.main()
+        Gtk.main()
         self.hide()
 
         return self._result

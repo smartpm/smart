@@ -27,64 +27,64 @@ class GtkMirrors(object):
 
     def __init__(self, parent=None):
 
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
         self._window.set_title(_("Mirrors"))
         self._window.set_modal(True)
         self._window.set_transient_for(parent)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
         self._window.add(vbox)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.IN)
         sw.show()
         vbox.add(sw)
 
-        self._treemodel = gtk.TreeStore(gobject.TYPE_STRING)
-        self._treeview = gtk.TreeView(self._treemodel)
+        self._treemodel = Gtk.TreeStore(GObject.TYPE_STRING)
+        self._treeview = Gtk.TreeView(self._treemodel)
         self._treeview.set_rules_hint(True)
         self._treeview.set_headers_visible(False)
         self._treeview.show()
         sw.add(self._treeview)
 
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         renderer.set_property("xpad", 3)
         renderer.set_property("editable", True)
         renderer.connect("edited", self.rowEdited)
         self._treeview.insert_column_with_attributes(-1, _("Mirror"), renderer,
                                                      text=0)
 
-        bbox = gtk.HButtonBox()
+        bbox = Gtk.HButtonBox()
         bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.set_layout(Gtk.ButtonBoxStyle.END)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, False, True, 0)
 
-        button = gtk.Button(stock="gtk-new")
+        button = Gtk.Button(stock="gtk-new")
         button.show()
         button.connect("clicked", lambda x: self.newMirror())
-        bbox.pack_start(button)
+        bbox.pack_start(button, True, True, 0)
 
-        button = gtk.Button(stock="gtk-delete")
+        button = Gtk.Button(stock="gtk-delete")
         button.show()
         button.connect("clicked", lambda x: self.delMirror())
-        bbox.pack_start(button)
+        bbox.pack_start(button, True, True, 0)
 
-        button = gtk.Button(stock="gtk-close")
+        button = Gtk.Button(stock="gtk-close")
         button.show()
-        button.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(button)
+        button.connect("clicked", lambda x: Gtk.main_quit())
+        bbox.pack_start(button, True, True, 0)
 
     def fill(self):
         self._treemodel.clear()
@@ -98,7 +98,7 @@ class GtkMirrors(object):
     def show(self):
         self.fill()
         self._window.show()
-        gtk.main()
+        Gtk.main()
         self._window.hide()
 
     def newMirror(self):
@@ -159,71 +159,71 @@ class MirrorCreator(object):
 
     def __init__(self):
 
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_icon(getPixbuf("smart"))
         self._window.set_title(_("New Mirror"))
         self._window.set_modal(True)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         #self._window.set_geometry_hints(min_width=600, min_height=400)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
 
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_border_width(10)
         vbox.set_spacing(10)
         vbox.show()
         self._window.add(vbox)
 
-        table = gtk.Table()
+        table = Gtk.Table()
         table.set_row_spacings(10)
         table.set_col_spacings(10)
         table.show()
-        vbox.pack_start(table)
+        vbox.pack_start(table, True, True, 0)
         
-        label = gtk.Label(_("Origin URL:"))
+        label = Gtk.Label(label=_("Origin URL:"))
         label.set_alignment(1.0, 0.5)
         label.show()
-        table.attach(label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 0, 1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        self._origin = gtk.Entry()
+        self._origin = Gtk.Entry()
         self._origin.set_width_chars(40)
         self._origin.show()
-        table.attach(self._origin, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        table.attach(self._origin, 1, 2, 0, 1, Gtk.AttachOptions.EXPAND|Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        label = gtk.Label(_("Mirror URL:"))
+        label = Gtk.Label(label=_("Mirror URL:"))
         label.set_alignment(1.0, 0.5)
         label.show()
-        table.attach(label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        table.attach(label, 0, 1, 1, 2, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        self._mirror = gtk.Entry()
+        self._mirror = Gtk.Entry()
         self._mirror.set_width_chars(40)
         self._mirror.show()
-        table.attach(self._mirror, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.FILL)
+        table.attach(self._mirror, 1, 2, 1, 2, Gtk.AttachOptions.EXPAND|Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
 
-        sep = gtk.HSeparator()
+        sep = Gtk.HSeparator()
         sep.show()
-        vbox.pack_start(sep, expand=False)
+        vbox.pack_start(sep, False, True, 0)
 
-        bbox = gtk.HButtonBox()
+        bbox = Gtk.HButtonBox()
         bbox.set_spacing(10)
-        bbox.set_layout(gtk.BUTTONBOX_END)
+        bbox.set_layout(Gtk.ButtonBoxStyle.END)
         bbox.show()
-        vbox.pack_start(bbox, expand=False)
+        vbox.pack_start(bbox, False, True, 0)
 
-        self._okbutton = gtk.Button(stock="gtk-ok")
+        self._okbutton = Gtk.Button(stock="gtk-ok")
         self._okbutton.show()
         def clicked(x):
             self._result = True
-            gtk.main_quit()
+            Gtk.main_quit()
         self._okbutton.connect("clicked", clicked)
-        bbox.pack_start(self._okbutton)
+        bbox.pack_start(self._okbutton, True, True, 0)
 
-        self._cancelbutton = gtk.Button(stock="gtk-cancel")
+        self._cancelbutton = Gtk.Button(stock="gtk-cancel")
         self._cancelbutton.show()
-        self._cancelbutton.connect("clicked", lambda x: gtk.main_quit())
-        bbox.pack_start(self._cancelbutton)
+        self._cancelbutton.connect("clicked", lambda x: Gtk.main_quit())
+        bbox.pack_start(self._cancelbutton, True, True, 0)
 
     def show(self, origin="", mirror=""):
 
@@ -235,7 +235,7 @@ class MirrorCreator(object):
 
         self._result = False
         while True:
-            gtk.main()
+            Gtk.main()
             if self._result:
                 self._result = False
                 origin = self._origin.get_text().strip()

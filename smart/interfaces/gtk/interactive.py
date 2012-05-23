@@ -135,7 +135,7 @@ ACTIONS = [
     ("exec-changes", "gtk-execute", _("_Execute Changes..."), "<control>c",
      _("Apply marked changes"), "self.applyChanges()"),
     ("quit", "gtk-quit", _("_Quit"), "<control>q",
-     _("Quit application"), "gtk.main_quit()"),
+     _("Quit application"), "Gtk.main_quit()"),
 
     ("edit", None, _("_Edit")),
     ("undo", "gtk-undo", _("_Undo"), "<control>z",
@@ -209,12 +209,12 @@ class GtkInteractiveInterface(GtkInterface):
 
         self._changeset = None
 
-        self._window = gtk.Window()
+        self._window = Gtk.Window()
         self._window.set_title("Smart Package Manager %s" % VERSION)
-        self._window.set_position(gtk.WIN_POS_CENTER)
+        self._window.set_position(Gtk.WindowPosition.CENTER)
         self._window.set_geometry_hints(min_width=640, min_height=480)
         def delete(widget, event):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         self._window.connect("delete-event", delete)
 
@@ -223,17 +223,17 @@ class GtkInteractiveInterface(GtkInterface):
         self._hassubprogress.set_transient_for(self._window)
         self._changes.set_transient_for(self._window)
 
-        self._watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
+        self._watch = Gdk.Cursor.new(Gdk.WATCH)
 
         self._undo = []
         self._redo = []
 
-        self._topvbox = gtk.VBox()
+        self._topvbox = Gtk.VBox()
         self._topvbox.show()
         self._window.add(self._topvbox)
 
         globals = {"self": self, "gtk": gtk}
-        self._actions = gtk.ActionGroup("Actions")
+        self._actions = Gtk.ActionGroup("Actions")
         self._actions.add_actions(compileActions(ACTIONS, globals))
 
         self._filters = {}
@@ -245,7 +245,7 @@ class GtkInteractiveInterface(GtkInterface):
                             ("hide-unlocked", _("Hide Unlocked")),
                             ("hide-requested", _("Hide Requested")),
                             ("hide-old", _("Hide Old"))]:
-            action = gtk.ToggleAction(name, label, "", "")
+            action = Gtk.ToggleAction(name, label, "", "")
             action.connect("toggled", lambda x, y: self.toggleFilter(y), name)
             self._actions.add_action(action)
 
@@ -256,7 +256,7 @@ class GtkInteractiveInterface(GtkInterface):
                             ("channels", _("Channels")),
                             ("channels-groups", _("Channels & Groups")),
                             ("none", _("None"))]:
-            action = gtk.RadioAction("tree-style-"+name, label, "", "", 0)
+            action = Gtk.RadioAction("tree-style-"+name, label, "", "", 0)
             if name == treestyle:
                 action.set_active(True)
             if lastaction:
@@ -265,7 +265,7 @@ class GtkInteractiveInterface(GtkInterface):
             action.connect("toggled", lambda x, y: self.setTreeStyle(y), name)
             self._actions.add_action(action)
 
-        self._ui = gtk.UIManager()
+        self._ui = Gtk.UIManager()
         self._ui.insert_action_group(self._actions, 0)
         self._ui.add_ui_from_string(UI)
         self._menubar = self._ui.get_widget("/menubar")
@@ -273,9 +273,9 @@ class GtkInteractiveInterface(GtkInterface):
 
         self._toolbar = self._ui.get_widget("/toolbar")
         if sysconf.get("gtk-toolbar-names", False):
-            self._toolbar.set_style(gtk.TOOLBAR_BOTH)
+            self._toolbar.set_style(Gtk.TOOLBAR_BOTH)
         else:
-            self._toolbar.set_style(gtk.TOOLBAR_ICONS)
+            self._toolbar.set_style(Gtk.TOOLBAR_ICONS)
         self._topvbox.pack_start(self._toolbar, False)
         if sysconf.getReadOnly():
            # Can't update channels in readonly mode.
@@ -298,8 +298,8 @@ class GtkInteractiveInterface(GtkInterface):
         self._history = [""]
         self._historypos = 0
 
-        if gtk.gtk_version >= (2, 16, 0) or sexy:
-            self._searchbar = gtk.ToolItem()
+        if Gtk.gtk_version >= (2, 16, 0) or sexy:
+            self._searchbar = Gtk.ToolItem()
             self._searchbar.set_expand(True)
             self._searchbar.set_homogeneous(False)
             self._searchbar.show()
@@ -308,15 +308,15 @@ class GtkInteractiveInterface(GtkInterface):
             self._toolbar.remove(find)
             self._toolbar.insert(self._searchbar, -1)
 
-            searchtable = gtk.Table(1, 1)
+            searchtable = Gtk.Table(1, 1)
             searchtable.set_row_spacings(5)
             searchtable.set_col_spacings(5)
             searchtable.set_border_width(5)
             searchtable.show()
             self._searchbar.add(searchtable)
 
-            if gtk.gtk_version >= (2, 16, 0):
-                self._searchentry = gtk.Entry()
+            if Gtk.gtk_version >= (2, 16, 0):
+                self._searchentry = Gtk.Entry()
                 self._searchentry.set_property("primary-icon-stock", "gtk-find")
                 self._searchentry.set_property("secondary-icon-stock", "gtk-clear")
                 def press(entry, icon_pos, event):
@@ -327,15 +327,15 @@ class GtkInteractiveInterface(GtkInterface):
                 self._searchentry.connect("icon-press", press)
             elif sexy:
                 self._searchentry = sexy.IconEntry()
-                image = gtk.Image()
-                image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+                image = Gtk.Image()
+                image.set_from_stock("gtk-find", Gtk.IconSize.BUTTON)
                 self._searchentry.set_icon(sexy.ICON_ENTRY_PRIMARY, image)
-                image = gtk.Image()
-                image.set_from_stock("gtk-clear", gtk.ICON_SIZE_BUTTON)
+                image = Gtk.Image()
+                image.set_from_stock("gtk-clear", Gtk.IconSize.BUTTON)
                 self._searchentry.set_icon(sexy.ICON_ENTRY_SECONDARY, image)
                 def pressed(entry, icon_pos, button):
                     if icon_pos == 0: # "primary"
-                        self._searchmenu.popup(None, None, None, button, gtk.get_current_event_time())
+                        self._searchmenu.popup(None, None, None, button, Gtk.get_current_event_time())
                     elif icon_pos == 1: # "secondary"
                         self.searchClear()
                 self._searchentry.connect("icon-pressed", pressed)
@@ -344,8 +344,8 @@ class GtkInteractiveInterface(GtkInterface):
             self._searchentry.show()
             searchtable.attach(self._searchentry, 0, 1, 0, 1)
 
-            self._searchmenu = gtk.Menu()
-            self._searchname = gtk.CheckMenuItem(_("Automatic"))
+            self._searchmenu = Gtk.Menu()
+            self._searchname = Gtk.CheckMenuItem(_("Automatic"))
             self._searchname.set_draw_as_radio(True)
             self._searchname.set_active(True)
             def search_automatic(item):
@@ -354,7 +354,7 @@ class GtkInteractiveInterface(GtkInterface):
             self._searchname.connect("activate", search_automatic)
             self._searchname.show()
             self._searchmenu.append(self._searchname)
-            self._searchdesc = gtk.CheckMenuItem(_("Description"))
+            self._searchdesc = Gtk.CheckMenuItem(_("Description"))
             self._searchdesc.set_draw_as_radio(True)
             self._searchdesc.set_active(False)
             def search_description(item):
@@ -364,87 +364,87 @@ class GtkInteractiveInterface(GtkInterface):
             self._searchdesc.show()
             self._searchmenu.append(self._searchdesc)
         else:
-            self._searchbar = gtk.Alignment()
+            self._searchbar = Gtk.Alignment.new()
             self._searchbar.set(0, 0, 1, 1)
             self._searchbar.set_padding(3, 3, 0, 0)
             self._topvbox.pack_start(self._searchbar, False)
 
-            searchvp = gtk.Viewport()
-            searchvp.set_shadow_type(gtk.SHADOW_OUT)
+            searchvp = Gtk.Viewport()
+            searchvp.set_shadow_type(Gtk.ShadowType.OUT)
             searchvp.show()
             self._searchbar.add(searchvp)
 
-            searchtable = gtk.Table(1, 1)
+            searchtable = Gtk.Table(1, 1)
             searchtable.set_row_spacings(5)
             searchtable.set_col_spacings(5)
             searchtable.set_border_width(5)
             searchtable.show()
             searchvp.add(searchtable)
 
-            label = gtk.Label(_("Search:"))
+            label = Gtk.Label(label=_("Search:"))
             label.show()
             searchtable.attach(label, 0, 1, 0, 1, 0, 0)
 
-            self._searchentry = gtk.Entry()
+            self._searchentry = Gtk.Entry()
             self._searchentry.connect("activate", lambda x: self.searchFind())
             self._searchentry.connect("key-press-event", self.searchKeyPress)
             self._searchentry.show()
             searchtable.attach(self._searchentry, 1, 2, 0, 1)
 
-            button = gtk.Button()
-            button.set_relief(gtk.RELIEF_NONE)
+            button = Gtk.Button()
+            button.set_relief(Gtk.ReliefStyle.NONE)
             button.connect("clicked", lambda x: self.searchFind())
             button.show()
             searchtable.attach(button, 2, 3, 0, 1, 0, 0)
-            image = gtk.Image()
-            image.set_from_stock("gtk-find", gtk.ICON_SIZE_BUTTON)
+            image = Gtk.Image()
+            image.set_from_stock("gtk-find", Gtk.IconSize.BUTTON)
             image.show()
             button.add(image)
 
-            align = gtk.Alignment()
+            align = Gtk.Alignment.new()
             align.set(1, 0, 0, 0)
             align.set_padding(0, 0, 10, 0)
             align.show()
-            searchtable.attach(align, 3, 4, 0, 1, gtk.FILL, gtk.FILL)
-            button = gtk.Button()
+            searchtable.attach(align, 3, 4, 0, 1, Gtk.AttachOptions.FILL, Gtk.AttachOptions.FILL)
+            button = Gtk.Button()
             button.set_size_request(20, 20)
-            button.set_relief(gtk.RELIEF_NONE)
+            button.set_relief(Gtk.ReliefStyle.NONE)
             button.connect("clicked", lambda x: self.toggleSearch())
             button.show()
             align.add(button)
-            image = gtk.Image()
-            image.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
+            image = Gtk.Image()
+            image.set_from_stock("gtk-close", Gtk.IconSize.MENU)
             image.show()
             button.add(image)
 
-            hbox = gtk.HBox()
+            hbox = Gtk.HBox()
             hbox.set_spacing(10)
             hbox.show()
             searchtable.attach(hbox, 1, 2, 1, 2)
 
             self._searchmenu = None
-            self._searchname = gtk.RadioButton(None, _("Automatic"))
+            self._searchname = Gtk.RadioButton(None, _("Automatic"))
             self._searchname.set_active(True)
             self._searchname.connect("clicked", lambda x: self.refreshPackages())
             self._searchname.show()
             hbox.pack_start(self._searchname, False)
-            self._searchdesc = gtk.RadioButton(self._searchname, _("Description"))
+            self._searchdesc = Gtk.RadioButton(self._searchname, _("Description"))
             self._searchdesc.connect("clicked", lambda x: self.refreshPackages())
             self._searchdesc.show()
             hbox.pack_start(self._searchdesc, False)
 
         # Packages and information
 
-        self._hpaned = gtk.HPaned()
+        self._hpaned = Gtk.HPaned()
         self._hpaned.show()
-        self._topvbox.pack_start(self._hpaned)
+        self._topvbox.pack_start(self._hpaned, True, True, 0)
 
-        scrollwin = gtk.ScrolledWindow()
-        scrollwin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        scrollwin.set_shadow_type(gtk.SHADOW_IN)
+        scrollwin = Gtk.ScrolledWindow()
+        scrollwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        scrollwin.set_shadow_type(Gtk.ShadowType.IN)
         self._hpaned.pack1(scrollwin, True)
 
-        self._pg = gtk.TreeView()
+        self._pg = Gtk.TreeView()
         def group_selected(treeview):
             self.refreshPackages()
         self._pg.connect("cursor_changed", group_selected)
@@ -452,13 +452,13 @@ class GtkInteractiveInterface(GtkInterface):
         scrollwin.add(self._pg)
 
         selection = self._pg.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn(_("Group"), renderer, text=1)
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn(_("Group"), renderer, text=1)
         self._pg.append_column(column)
 
-        self._vpaned = gtk.VPaned()
+        self._vpaned = Gtk.VPaned()
         self._vpaned.show()
         self._hpaned.pack2(self._vpaned, True)
 
@@ -475,7 +475,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._pv.connect("package_popup", self.packagePopup)
         self._vpaned.pack2(self._pi, False)
 
-        self._status = gtk.Statusbar()
+        self._status = Gtk.Statusbar()
         self._status.show()
         self._topvbox.pack_start(self._status, False)
         
@@ -484,13 +484,13 @@ class GtkInteractiveInterface(GtkInterface):
     def showStatus(self, msg):
         self._status.pop(0)
         self._status.push(0, msg)
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     def hideStatus(self):
         self._status.pop(0)
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     def run(self, command=None, argv=None):
         self.setCatchExceptions(True)
@@ -502,7 +502,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._pi.setChangeSet(self._changeset)
         self._progress.hide()
         self.refreshPackages()
-        gtk.main()
+        Gtk.main()
         self.saveState()
         self.setCatchExceptions(False)
 
@@ -672,48 +672,48 @@ class GtkInteractiveInterface(GtkInterface):
     def lockPackages(self, pkgs, lock):
         if not lock:
              for pkg in pkgs:
-                  pkgconf.clearFlag("lock", pkg.name, "=", pkg.version)
+                  pkGConf.clearFlag("lock", pkg.name, "=", pkg.version)
              self._pv.queue_draw()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
-                  pkgconf.setFlag("lock", pkg.name, "=", pkg.version)
+                  pkGConf.setFlag("lock", pkg.name, "=", pkg.version)
              self._pv.queue_draw()
              self._pi.setPackage(pkgs[0])
 
     def lockAllPackages(self, pkgs, lock):
         if not lock:
              for pkg in pkgs:
-                  pkgconf.clearFlag("lock", pkg.name)
+                  pkGConf.clearFlag("lock", pkg.name)
              self._pv.queue_draw()
              self._pi.setPackage(pkgs[0])
         else:
              for pkg in pkgs:
-                  pkgconf.setFlag("lock", pkg.name)
+                  pkGConf.setFlag("lock", pkg.name)
              self._pv.queue_draw()
              self._pi.setPackage(pkgs[0])
 
     def packagePopup(self, packageview, pkgs, event):
 
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
 
         hasinstalled = bool([pkg for pkg in pkgs if pkg.installed
                              and self._changeset.get(pkg) is not REMOVE])
         hasnoninstalled = bool([pkg for pkg in pkgs if not pkg.installed
                                 and self._changeset.get(pkg) is not INSTALL])
 
-        image = gtk.Image()
+        image = Gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-install"))
-        item = gtk.ImageMenuItem(_("Install"))
+        item = Gtk.ImageMenuItem(_("Install"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, INSTALL))
         if not hasnoninstalled:
             item.set_sensitive(False)
         menu.append(item)
 
-        image = gtk.Image()
+        image = Gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-reinstall"))
-        item = gtk.ImageMenuItem(_("Reinstall"))
+        item = Gtk.ImageMenuItem(_("Reinstall"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, REINSTALL))
         if not hasinstalled:
@@ -721,30 +721,30 @@ class GtkInteractiveInterface(GtkInterface):
         menu.append(item)
 
 
-        image = gtk.Image()
+        image = Gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-remove"))
-        item = gtk.ImageMenuItem(_("Remove"))
+        item = Gtk.ImageMenuItem(_("Remove"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, REMOVE))
         if not hasinstalled:
             item.set_sensitive(False)
         menu.append(item)
 
-        image = gtk.Image()
+        image = Gtk.Image()
         if not hasinstalled:
             image.set_from_pixbuf(getPixbuf("package-available"))
         else:
             image.set_from_pixbuf(getPixbuf("package-installed"))
-        item = gtk.ImageMenuItem(_("Keep"))
+        item = Gtk.ImageMenuItem(_("Keep"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, KEEP))
         if not [pkg for pkg in pkgs if pkg in self._changeset]:
             item.set_sensitive(False)
         menu.append(item)
 
-        image = gtk.Image()
+        image = Gtk.Image()
         image.set_from_pixbuf(getPixbuf("package-broken"))
-        item = gtk.ImageMenuItem(_("Fix problems"))
+        item = Gtk.ImageMenuItem(_("Fix problems"))
         item.set_image(image)
         item.connect("activate", lambda x: self.actOnPackages(pkgs, FIX))
         if not hasinstalled:
@@ -754,7 +754,7 @@ class GtkInteractiveInterface(GtkInterface):
         inconsistent = False
         thislocked = None
         alllocked = None
-        names = pkgconf.getFlagTargets("lock")
+        names = pkGConf.getFlagTargets("lock")
         if [pkg for pkg in pkgs if pkg in self._changeset]:
             inconsistent = True
         else:
@@ -765,7 +765,7 @@ class GtkInteractiveInterface(GtkInterface):
                     newalllocked = len(names[pkg.name]) > 1
                 else:
                     newthislocked = False
-                    newalllocked = pkgconf.testFlag("lock", pkg)
+                    newalllocked = pkGConf.testFlag("lock", pkg)
                 if (thislocked is not None and thislocked != newthislocked or
                     alllocked is not None and alllocked != newalllocked):
                     inconsistent = True
@@ -773,9 +773,9 @@ class GtkInteractiveInterface(GtkInterface):
                 thislocked = newthislocked
                 alllocked = newalllocked
 
-        image = gtk.Image()
+        image = Gtk.Image()
         if thislocked:
-            item = gtk.ImageMenuItem(_("Unlock this version"))
+            item = Gtk.ImageMenuItem(_("Unlock this version"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed"))
             else:
@@ -784,7 +784,7 @@ class GtkInteractiveInterface(GtkInterface):
                 self.lockPackages(pkgs, False)
             item.connect("activate", unlock_this)
         else:
-            item = gtk.ImageMenuItem(_("Lock this version"))
+            item = Gtk.ImageMenuItem(_("Lock this version"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed-locked"))
             else:
@@ -797,9 +797,9 @@ class GtkInteractiveInterface(GtkInterface):
             item.set_sensitive(False)
         menu.append(item)
 
-        image = gtk.Image()
+        image = Gtk.Image()
         if alllocked:
-            item = gtk.ImageMenuItem(_("Unlock all versions"))
+            item = Gtk.ImageMenuItem(_("Unlock all versions"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed"))
             else:
@@ -808,7 +808,7 @@ class GtkInteractiveInterface(GtkInterface):
                 self.lockAllPackages(pkgs, False)
             item.connect("activate", unlock_all)
         else:
-            item = gtk.ImageMenuItem(_("Lock all versions"))
+            item = Gtk.ImageMenuItem(_("Lock all versions"))
             if not hasnoninstalled:
                 image.set_from_pixbuf(getPixbuf("package-installed-locked"))
             else:
@@ -821,7 +821,7 @@ class GtkInteractiveInterface(GtkInterface):
             item.set_sensitive(False)
         menu.append(item)
 
-        item = gtk.MenuItem(_("Priority"))
+        item = Gtk.MenuItem(_("Priority"))
         def priority(x):
             GtkSinglePriority(self._window).show(pkgs[0])
             self._pi.setPackage(pkgs[0])
@@ -899,8 +899,8 @@ class GtkInteractiveInterface(GtkInterface):
     def setBusy(self, flag):
         if flag:
             self._window.window.set_cursor(self._watch)
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
         else:
             self._window.window.set_cursor(None)
 
@@ -913,7 +913,7 @@ class GtkInteractiveInterface(GtkInterface):
         self._clearmenuitem.set_property("sensitive", bool(self._changeset))
 
     def toggleSearch(self):
-        if not isinstance(self._searchbar, gtk.ToolItem):
+        if not isinstance(self._searchbar, Gtk.ToolItem):
             visible = not self._searchbar.get_property('visible')
             self._searchbar.set_property('visible', visible)
         else:
@@ -938,13 +938,13 @@ class GtkInteractiveInterface(GtkInterface):
         self.refreshPackages()
 
     def searchKeyPress(self, widget, event):
-        if event.keyval == gtk.keysyms.Up:
+        if event.keyval == Gdk.KEY_Up:
             if self._historypos > 0:
                 self._historypos = self._historypos - 1
                 text = self._history[self._historypos]
                 self._searchentry.set_text(text)
             return True
-        elif event.keyval == gtk.keysyms.Down:
+        elif event.keyval == Gdk.KEY_Down:
             if self._historypos < len(self._history) - 1:
                 self._historypos = self._historypos + 1
                 text = self._history[self._historypos]
@@ -987,8 +987,8 @@ class GtkInteractiveInterface(GtkInterface):
                      names[displayname] = group
                 groups.sort()
                     
-                model = gtk.ListStore(gobject.TYPE_STRING,
-                                      gobject.TYPE_STRING)
+                model = Gtk.ListStore(GObject.TYPE_STRING,
+                                      GObject.TYPE_STRING)
                 self._pg.set_model(model)
                 iter = model.append()
                 model.set(iter, 0, None)
@@ -1035,7 +1035,7 @@ class GtkInteractiveInterface(GtkInterface):
                         packages.append(obj)
                     else:
                         packages.extend(obj.packages)
-            elif isinstance(self._searchbar, gtk.ToolItem):
+            elif isinstance(self._searchbar, Gtk.ToolItem):
                 packages = ctrl.getCache().getPackages()
         else:
             packages = ctrl.getCache().getPackages()
@@ -1075,11 +1075,11 @@ class GtkInteractiveInterface(GtkInterface):
             if "hide-installed" in filters:
                 packages = [x for x in packages if not x.installed]
             if "hide-unlocked" in filters:
-                packages = pkgconf.filterByFlag("lock", packages)
+                packages = pkGConf.filterByFlag("lock", packages)
             if "hide-requested" in filters:
-                packages = pkgconf.filterByFlag("auto", packages)
+                packages = pkGConf.filterByFlag("auto", packages)
             if "hide-old" in filters:
-                packages = pkgconf.filterByFlag("new", packages)
+                packages = pkGConf.filterByFlag("new", packages)
 
         if tree == "groups":
             groups = {}
@@ -1192,8 +1192,8 @@ class GtkInteractiveInterface(GtkInterface):
             ]
         website = "http://smartpm.org/"
 
-        if gtk.pygtk_version < (2,6,0):
-             dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_CLOSE)
+        if Gtk.pygtk_version < (2,6,0):
+             dialog = Gtk.MessageDialog(buttons=Gtk.ButtonsType.CLOSE)
              dialog.set_markup("<b>Smart Package Manager %s</b>\n"
                                "<small>(C) %s</small>\n" % (VERSION, copyright) +
                                "<small>%s</small>\n" % license.replace(" " * 12, "") +
@@ -1203,7 +1203,7 @@ class GtkInteractiveInterface(GtkInterface):
              dialog.destroy()
              return
 
-        aboutdialog = gtk.AboutDialog()
+        aboutdialog = Gtk.AboutDialog()
         aboutdialog.set_name("Smart Package Manager")
         aboutdialog.set_version(VERSION)
         aboutdialog.set_copyright(copyright)
