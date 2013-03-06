@@ -309,7 +309,8 @@ class RPMHeaderLoader(Loader):
                             # RPMSENSE_SCRIPT_PREUN |
                             # RPMSENSE_SCRIPT_POST |
                             # RPMSENSE_SCRIPT_POSTUN == 7744
-                            if (f[i]&rpm.RPMSENSE_MISSINGOK):
+                            hint = (f[i]&1 << 19) # RPMSENSE_MISSINGOK
+                            if hint:
                                 recdict[(f[i]&7744 and PreReq or Req,
                                          intern(ni), r, vi)] = True
                             else:
