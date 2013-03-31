@@ -319,8 +319,38 @@ class RPMHeaderLoader(Loader):
                 recargs = collapse_libc_requires(recdict.keys())
                 reqargs = collapse_libc_requires(reqdict.keys())
             else:
-                recargs = None
+                recargs = []
                 reqargs = None
+
+            n = h[1156] # RPMTAG_SUGGESTSNAME
+            if n:
+                f = h[1158] # RPMTAG_SUGGESTSFLAGS
+                v = h[1157] # RPMTAG_SUGGESTSVERSION
+                if f == None:
+                    f = [0]
+                elif type(f) != list:
+                    f = [f]
+                recdict = {}
+                for i in range(len(n)):
+                    ni = n[i]
+                    if ni[:7] not in ("rpmlib(", "config("):
+                        vi = v[i] or None
+                        if vi and vi[:2] == "0:":
+                            vi = vi[2:]
+                        r = CM.get(f[i]&CF)
+                        if not ((r is None or "=" in r) and
+                                (Prv, ni, vi) in prvdict or
+                                system_provides.match(ni, r, vi)):
+                            # RPMSENSE_PREREQ |
+                            # RPMSENSE_SCRIPT_PRE |
+                            # RPMSENSE_SCRIPT_PREUN |
+                            # RPMSENSE_SCRIPT_POST |
+                            # RPMSENSE_SCRIPT_POSTUN == 7744
+                            strong = (f[i]&1 << 27) # RPMSENSE_STRONG
+                            if strong:
+                                recdict[(f[i]&7744 and PreReq or Req,
+                                         intern(ni), r, vi)] = True
+                recargs.extend(recdict.keys())
 
             n = h[1054] # RPMTAG_CONFLICTNAME
             if n:
