@@ -67,6 +67,11 @@ Let's inspect the package data.
   >>> [type(x).__name__ for x in sorted(pkg.requires)]
   ['DebPreRequires', 'DebRequires']
 
+  >>> sorted(pkg.recommends)
+  [recommendsname1 = recommendsversion1]
+  >>> [type(x).__name__ for x in sorted(pkg.recommends)]
+  ['DebRequires']
+
   >>> sorted(pkg.upgrades)
   [name1 < version1-release1]
   >>> [type(x).__name__ for x in sorted(pkg.upgrades)]

@@ -215,6 +215,16 @@ class DebTagLoader(Loader):
 
             upgargs = [(Upg, name, '<', version)]
 
+            recargs = []
+            value = section.get("recommends")
+            if value:
+                for relation in parserelations(value):
+                    if type(relation) is not list:
+                        n, r, v = relation
+                        recargs.append((Req, intern(n), r, v))
+                    else:
+                        recargs.append((OrReq, tuple(relation)))
+
             cnfargs = []
             value = section.get("conflicts")
             if value:
@@ -236,7 +246,7 @@ class DebTagLoader(Loader):
             reqargs = newargs
 
             pkg = self.buildPackage((Pkg, name, version),
-                                    prvargs, reqargs, upgargs, cnfargs)
+                                    prvargs, reqargs, upgargs, cnfargs, recargs)
             pkg.loaders[self] = offset
             self._sections[pkg] = intern(section.get("section", ""))
 
