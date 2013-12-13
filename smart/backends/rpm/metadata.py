@@ -189,7 +189,8 @@ class RPMMetaDataLoader(Loader):
 
             elif event == "end":
 
-                assert queue.pop() is elem
+                popped = queue.pop()
+                assert popped is elem
 
                 if skip:
                     if tag == skip:
