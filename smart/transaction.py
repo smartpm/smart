@@ -19,7 +19,7 @@
 # along with Smart Package Manager; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from smart.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP, LOCKED_INSTALL, LOCKED_CONFLICT, LOCKED_CONFLICT_BY, LOCKED_NO_COEXIST, LOCKED_SYSCONF, LOCKED_REMOVE
+from smart.const import INSTALL, REMOVE, UPGRADE, FIX, REINSTALL, KEEP, LOCKED_EXCLUDE, LOCKED_INSTALL, LOCKED_CONFLICT, LOCKED_CONFLICT_BY, LOCKED_NO_COEXIST, LOCKED_SYSCONF, LOCKED_REMOVE
 from smart.cache import PreRequires, Package
 from smart import *
 
@@ -29,7 +29,9 @@ def lock_reason(pkg, lockvalue):
     except TypeError:
         reason = None
         lockvalue = None
-    if reason == LOCKED_INSTALL:
+    if reason == LOCKED_EXCLUDE:
+        return _("%s is to be excluded") % pkg
+    elif reason == LOCKED_INSTALL:
         return _("%s is to be installed") % pkg
     elif reason == LOCKED_CONFLICT:
         return _("%s conflicts with %s") % (pkg, otherpkg)
@@ -209,6 +211,10 @@ class Policy(object):
             if pkg not in self._locked:
                 self._sysconflocked.append(pkg)
                 self._locked[pkg] = (LOCKED_SYSCONF, None)
+
+        for pkg in pkgconf.filterByFlag("exclude-packages", cache.getPackages()):
+            if pkg not in self._locked:
+                self._locked[pkg] = (LOCKED_EXCLUDE, None)
 
     def runFinished(self):
         self._priorities.clear()

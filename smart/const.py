@@ -70,6 +70,7 @@ DATADIR     = "/var/lib/smart/"
 USERDATADIR = "~/.smart/"
 CONFFILE    = "config"
 
+LOCKED_EXCLUDE     = Enum('LOCKED_EXCLUDE')
 LOCKED_INSTALL     = Enum('LOCKED_INSTALL')
 LOCKED_REMOVE      = Enum('LOCKED_REMOVE')
 LOCKED_CONFLICT    = Enum('LOCKED_CONFLICT')

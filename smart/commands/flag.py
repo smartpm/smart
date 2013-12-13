@@ -47,6 +47,8 @@ Currently known flags are:
   multi-version - Flagged packages may have more than one version
                   installed in the system at the same time
                   (backend dependent).
+  exclude-packages - Flagged packages will be excluded, if they are
+                  required, an error will be generated.
   ignore-recommends - Flagged packages will not be installed, if
                   they are only recommended by a package to be
                   installed rather than required.
