@@ -106,6 +106,23 @@ class RPMPackageManager(PackageManager):
             flags |= rpm.RPMTRANS_FLAG_TEST
         ts.setFlags(flags)
 
+        dflags = ts.setDFlags(0)
+        if sysconf.get("rpm-noupgrade", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOUPGRADE
+        if sysconf.get("rpm-norequires", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOREQUIRES
+        if sysconf.get("rpm-noconflicts", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOCONFLICTS
+        if sysconf.get("rpm-noobsoletes", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOOBSOLETES
+        if sysconf.get("rpm-noparentdirs", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOPARENTDIRS
+        if sysconf.get("rpm-nolinktos", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOLINKTOS
+        if sysconf.get("rpm-nosuggest", False):
+            dflags |= rpm.RPMDEPS_FLAG_NOSUGGEST
+        ts.setDFlags(dflags)
+
         # Set rpm verbosity level.
         levelname = sysconf.get('rpm-log-level')
         level = {
