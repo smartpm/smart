@@ -50,6 +50,8 @@ def option_parser():
     parser = OptionParser(usage=USAGE,
                           description=DESCRIPTION,
                           examples=EXAMPLES)
+    parser.add_option("--attempt", action="store_true",
+                      help=_("attempt to install packages, ignore failures"))
     parser.add_option("--stepped", action="store_true",
                       help=_("split operation in steps"))
     parser.add_option("--urls", action="store_true",
@@ -79,6 +81,9 @@ def main(ctrl, opts):
     # Argument check
     if not opts.args:
         raise Error, _("no package(s) given")
+
+    if opts.attempt:
+	sysconf.set("attempt-install", True, soft=True)
 
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)

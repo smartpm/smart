@@ -1216,9 +1216,17 @@ class Transaction(object):
                     else:
                         op = REMOVE
                 if op is INSTALL or op is REINSTALL:
-                    self._install(pkg, changeset, locked, pending)
-                    if pkg in changeset:
-                        changeset.setRequested(pkg, True)
+                    try:
+                        self._install(pkg, changeset, locked, pending)
+                        if pkg in changeset:
+                            changeset.setRequested(pkg, True)
+                    except Failed, e:
+                        if sysconf.has("attempt-install", soft=True):
+                            if pkg in changeset:
+                                del changeset[pkg]
+                            continue
+                        else:
+                            raise Failed, e
                 elif op is REMOVE:
                     self._remove(pkg, changeset, locked, pending)
                 elif op is UPGRADE:
