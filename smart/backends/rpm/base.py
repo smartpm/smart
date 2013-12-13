@@ -228,6 +228,8 @@ class RPMPackage(Package):
             return False
         selfver, selfarch = splitarch(self.version)
         otherver, otherarch = splitarch(other.version)
+        if selfarch != otherarch:
+            return True
         selfcolor = getArchColor(selfarch)
         othercolor = getArchColor(otherarch)
         if (selfcolor and othercolor and selfcolor != othercolor and
