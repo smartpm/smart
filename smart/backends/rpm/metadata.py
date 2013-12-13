@@ -332,13 +332,13 @@ class RPMMetaDataLoader(Loader):
                     reqargs = [x for x in reqdict
                                if not ((x[2] is None or "=" in x[2]) and
                                        (RPMProvides, x[1], x[3]) in prvdict or
-                                       system_provides.match(*x[:3]))]
+                                       system_provides.match(x[1], x[2], x[3]))]
                     reqargs = collapse_libc_requires(reqargs)
 
                     recargs = [x for x in recdict
                                if not ((x[2] is None or "=" in x[2]) and
                                        (RPMProvides, x[1], x[3]) in prvdict or
-                                       system_provides.match(*x[:3]))]
+                                       system_provides.match(x[1], x[2], x[3]))]
 
                     prvargs = prvdict.keys()
                     cnfargs = cnfdict.keys()
