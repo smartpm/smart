@@ -53,6 +53,10 @@ def rpm_join_dbpath(root, dbpath):
         return os.path.join(root, dbpath)
 
 def getTS(new=False):
+    if sysconf.get("rpm-extra-macros"):
+        for key, value in sysconf.get("rpm-extra-macros").items():
+            rpm.addMacro(key, str(value))
+
     rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
     if not hasattr(getTS, "ts") or getTS.root != rpm_root:
         getTS.root = rpm_root
