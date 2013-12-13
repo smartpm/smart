@@ -56,7 +56,8 @@ def _getreleasever():
 
     rpmroot = sysconf.get("rpm-root", "/")
     ts = rpmUtils.transaction.initReadOnlyTransaction(root=rpmroot)
-    ts.pushVSFlags(~(rpm._RPMVSF_NOSIGNATURES|rpm._RPMVSF_NODIGESTS))
+    #ts.pushVSFlags(~(rpm._RPMVSF_NOSIGNATURES|rpm._RPMVSF_NODIGESTS))
+    ts.pushVSFlags(~(rpm._RPMVSF_NODIGESTS))
     releasever = None
     # HACK: we're hard-coding the most used distros, will add more if needed
     idx = ts.dbMatch('provides', 'fedora-release')
