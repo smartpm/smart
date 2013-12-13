@@ -82,6 +82,7 @@ typedef struct {
     PyObject *version;
     PyObject *provides;
     PyObject *requires;
+    PyObject *recommends;
     PyObject *upgrades;
     PyObject *conflicts;
     PyObject *installed;
@@ -96,6 +97,7 @@ typedef struct {
     PyObject *version;
     PyObject *packages;
     PyObject *requiredby;
+    PyObject *recommendedby;
     PyObject *upgradedby;
     PyObject *conflictedby;
 } ProvidesObject;
@@ -123,6 +125,7 @@ typedef struct {
     PyObject *_packages;
     PyObject *_provides;
     PyObject *_requires;
+    PyObject *_recommends;
     PyObject *_upgrades;
     PyObject *_conflicts;
     PyObject *_objmap;
@@ -211,7 +214,8 @@ Package_init(PackageObject *self, PyObject *args)
     Py_INCREF(self->name);
     Py_INCREF(self->version);
     self->provides = PyTuple_New(0);
-    self->requires = PyTuple_New(0);
+    self->requires = PyList_New(0);
+    self->recommends = PyList_New(0);
     self->upgrades = PyTuple_New(0);
     self->conflicts = PyTuple_New(0);
     Py_INCREF(Py_False);
@@ -228,6 +232,7 @@ Package_traverse(PackageObject *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->provides);
     Py_VISIT(self->requires);
+    Py_VISIT(self->recommends);
     Py_VISIT(self->upgrades);
     Py_VISIT(self->conflicts);
     Py_VISIT(self->loaders);
@@ -239,6 +244,7 @@ Package_clear(PackageObject *self)
 {
     Py_CLEAR(self->provides);
     Py_CLEAR(self->requires);
+    Py_CLEAR(self->recommends);
     Py_CLEAR(self->upgrades);
     Py_CLEAR(self->conflicts);
     Py_CLEAR(self->loaders);
@@ -252,6 +258,7 @@ Package_dealloc(PackageObject *self)
     Py_XDECREF(self->version);
     Py_XDECREF(self->provides);
     Py_XDECREF(self->requires);
+    Py_XDECREF(self->recommends);
     Py_XDECREF(self->upgrades);
     Py_XDECREF(self->conflicts);
     Py_XDECREF(self->installed);
@@ -453,6 +460,46 @@ Package_equals(PackageObject *self, PackageObject *other)
         }
     }
 
+    ilen = 0;
+    jlen = 0;
+    for (i = 0; i != PyList_GET_SIZE(self->recommends); i++) {
+        PyObject *item = PyList_GET_ITEM(self->recommends, i);
+        if (!PyObject_IsInstance(item, (PyObject *)&Depends_Type)) {
+            PyErr_SetString(PyExc_TypeError, "Depends instance expected");
+            return NULL;
+        }
+        if (STR(((DependsObject *)item)->name)[0] != '/')
+            ilen += 1;
+    }
+    for (j = 0; j != PyList_GET_SIZE(other->recommends); j++) {
+        PyObject *item = PyList_GET_ITEM(other->recommends, j);
+        if (!PyObject_IsInstance(item, (PyObject *)&Depends_Type)) {
+            PyErr_SetString(PyExc_TypeError, "Depends instance expected");
+            return NULL;
+        }
+        if (STR(((DependsObject *)item)->name)[0] != '/')
+            jlen += 1;
+    }
+    if (ilen != jlen) {
+        ret = Py_False;
+        goto exit;
+    }
+
+    ilen = PyList_GET_SIZE(self->recommends);
+    jlen = PyList_GET_SIZE(other->recommends);
+    for (i = 0; i != ilen; i++) {
+        PyObject *item = PyList_GET_ITEM(self->recommends, i);
+        if (STR(((DependsObject *)item)->name)[0] != '/') {
+            for (j = 0; j != jlen; j++)
+                if (item == PyList_GET_ITEM(other->recommends, j))
+                    break;
+            if (j == jlen) {
+                ret = Py_False;
+                goto exit;
+            }
+        }
+    }
+
 exit:
     Py_INCREF(ret);
     return ret;
@@ -606,13 +653,14 @@ Package_getPriority(PackageObject *self, PyObject *args)
 static PyObject *
 Package__getstate__(PackageObject *self, PyObject *args)
 {
-    PyObject *state = PyTuple_New(10);
+    PyObject *state = PyTuple_New(11);
     if (!state) return NULL;
 
     Py_INCREF(self->name);
     Py_INCREF(self->version);
     Py_INCREF(self->provides);
     Py_INCREF(self->requires);
+    Py_INCREF(self->recommends);
     Py_INCREF(self->upgrades);
     Py_INCREF(self->conflicts);
     Py_INCREF(self->installed);
@@ -620,16 +668,17 @@ Package__getstate__(PackageObject *self, PyObject *args)
     Py_INCREF(self->priority);
     Py_INCREF(self->loaders);
 
-    PyTuple_SET_ITEM(state, 0, self->name);
-    PyTuple_SET_ITEM(state, 1, self->version);
-    PyTuple_SET_ITEM(state, 2, self->provides);
-    PyTuple_SET_ITEM(state, 3, self->requires);
-    PyTuple_SET_ITEM(state, 4, self->upgrades);
-    PyTuple_SET_ITEM(state, 5, self->conflicts);
-    PyTuple_SET_ITEM(state, 6, self->installed);
-    PyTuple_SET_ITEM(state, 7, self->essential);
-    PyTuple_SET_ITEM(state, 8, self->priority);
-    PyTuple_SET_ITEM(state, 9, self->loaders);
+    PyTuple_SET_ITEM(state,  0, self->name);
+    PyTuple_SET_ITEM(state,  1, self->version);
+    PyTuple_SET_ITEM(state,  2, self->provides);
+    PyTuple_SET_ITEM(state,  3, self->requires);
+    PyTuple_SET_ITEM(state,  4, self->recommends);
+    PyTuple_SET_ITEM(state,  5, self->upgrades);
+    PyTuple_SET_ITEM(state,  6, self->conflicts);
+    PyTuple_SET_ITEM(state,  7, self->installed);
+    PyTuple_SET_ITEM(state,  8, self->essential);
+    PyTuple_SET_ITEM(state,  9, self->priority);
+    PyTuple_SET_ITEM(state, 10, self->loaders);
 
     return state;
 }
@@ -637,7 +686,7 @@ Package__getstate__(PackageObject *self, PyObject *args)
 static PyObject *
 Package__setstate__(PackageObject *self, PyObject *state)
 {
-    if (!PyTuple_Check(state) || PyTuple_GET_SIZE(state) != 10) {
+    if (!PyTuple_Check(state) || PyTuple_GET_SIZE(state) != 11) {
         PyErr_SetString(StateVersionError, "");
         return NULL;
     }
@@ -645,18 +694,20 @@ Package__setstate__(PackageObject *self, PyObject *state)
     self->version = PyTuple_GET_ITEM(state, 1);
     self->provides = PyTuple_GET_ITEM(state, 2);
     self->requires = PyTuple_GET_ITEM(state, 3);
-    self->upgrades = PyTuple_GET_ITEM(state, 4);
-    self->conflicts = PyTuple_GET_ITEM(state, 5);
-    self->installed = PyTuple_GET_ITEM(state, 6);
-    self->essential = PyTuple_GET_ITEM(state, 7);
-    self->priority = PyTuple_GET_ITEM(state, 8);
-    self->loaders = PyTuple_GET_ITEM(state, 9);
+    self->recommends = PyTuple_GET_ITEM(state, 4);
+    self->upgrades = PyTuple_GET_ITEM(state, 5);
+    self->conflicts = PyTuple_GET_ITEM(state, 6);
+    self->installed = PyTuple_GET_ITEM(state, 7);
+    self->essential = PyTuple_GET_ITEM(state, 8);
+    self->priority = PyTuple_GET_ITEM(state, 9);
+    self->loaders = PyTuple_GET_ITEM(state, 10);
 
 
     Py_INCREF(self->name);
     Py_INCREF(self->version);
     Py_INCREF(self->provides);
     Py_INCREF(self->requires);
+    Py_INCREF(self->recommends);
     Py_INCREF(self->upgrades);
     Py_INCREF(self->conflicts);
     Py_INCREF(self->installed);
@@ -686,6 +737,7 @@ static PyMemberDef Package_members[] = {
     {"version", T_OBJECT, OFF(version), 0, 0},
     {"provides", T_OBJECT, OFF(provides), 0, 0},
     {"requires", T_OBJECT, OFF(requires), 0, 0},
+    {"recommends", T_OBJECT, OFF(recommends), 0, 0},
     {"upgrades", T_OBJECT, OFF(upgrades), 0, 0},
     {"conflicts", T_OBJECT, OFF(conflicts), 0, 0},
     {"installed", T_OBJECT, OFF(installed), 0, 0},
@@ -750,6 +802,7 @@ Provides_init(ProvidesObject *self, PyObject *args)
     Py_INCREF(self->version);
     self->packages = PyList_New(0);
     self->requiredby = PyTuple_New(0);
+    self->recommendedby = PyTuple_New(0);
     self->upgradedby = PyTuple_New(0);
     self->conflictedby = PyTuple_New(0);
     return 0;
@@ -760,6 +813,7 @@ Provides_traverse(ProvidesObject *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->packages);
     Py_VISIT(self->requiredby);
+    Py_VISIT(self->recommendedby);
     Py_VISIT(self->upgradedby);
     Py_VISIT(self->conflictedby);
     return 0;
@@ -770,6 +824,7 @@ Provides_clear(ProvidesObject *self)
 {
     Py_CLEAR(self->packages);
     Py_CLEAR(self->requiredby);
+    Py_CLEAR(self->recommendedby);
     Py_CLEAR(self->upgradedby);
     Py_CLEAR(self->conflictedby);
     return 0;
@@ -782,6 +837,7 @@ Provides_dealloc(ProvidesObject *self)
     Py_XDECREF(self->version);
     Py_XDECREF(self->packages);
     Py_XDECREF(self->requiredby);
+    Py_XDECREF(self->recommendedby);
     Py_XDECREF(self->upgradedby);
     Py_XDECREF(self->conflictedby);
     self->ob_type->tp_free((PyObject *)self);
@@ -960,6 +1016,7 @@ static PyMemberDef Provides_members[] = {
     {"version", T_OBJECT, OFF(version), 0, 0},
     {"packages", T_OBJECT, OFF(packages), 0, 0},
     {"requiredby", T_OBJECT, OFF(requiredby), 0, 0},
+    {"recommendedby", T_OBJECT, OFF(recommendedby), 0, 0},
     {"upgradedby", T_OBJECT, OFF(upgradedby), 0, 0},
     {"conflictedby", T_OBJECT, OFF(conflictedby), 0, 0},
     {NULL}
@@ -1555,6 +1612,7 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
     PyObject *reqargs;
     PyObject *upgargs;
     PyObject *cnfargs;
+    PyObject *recargs = NULL;
     PyObject *callargs;
     
     PyObject *pkg;
@@ -1574,9 +1632,10 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
 
     cache = (CacheObject *)self->_cache;
 
-    if (!PyArg_ParseTuple(args, "O!O&O&O&O&", &PyTuple_Type, &pkgargs,
+    if (!PyArg_ParseTuple(args, "O!O&O&O&O&|O&", &PyTuple_Type, &pkgargs,
                           mylist, &prvargs, mylist, &reqargs,
-                          mylist, &upgargs, mylist, &cnfargs))
+                          mylist, &upgargs, mylist, &cnfargs,
+                          mylist, &recargs))
         return NULL;
 
     if (PyTuple_GET_SIZE(pkgargs) < 2) {
@@ -1698,6 +1757,59 @@ Loader_buildPackage(LoaderObject *self, PyObject *args)
             /* pkg.requires.append(req) */
             Py_INCREF(req);
             PyList_SET_ITEM(pkgobj->requires, i, req);
+        }
+    }
+
+    /* if recargs: */
+    if (recargs) {
+        int i = 0;
+        int len = PyList_GET_SIZE(recargs);
+        /* pkg.recommends = [] */
+        Py_DECREF(pkgobj->recommends);
+        pkgobj->recommends = PyList_New(len);
+        /* for args in recargs: */
+        for (; i != len; i++) {
+            PyObject *args = PyList_GET_ITEM(recargs, i);
+            DependsObject *recobj;
+            PyObject *rec;
+            
+            if (!PyTuple_Check(args)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "Item in recargs is not a tuple");
+                return NULL;
+            }
+
+            /* rec = cache._objmap.get(args) */
+            rec = PyDict_GetItem(cache->_objmap, args);
+            recobj = (DependsObject *)rec;
+
+            /* if not rec: */
+            if (!rec) {
+                if (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) < 2) {
+                    PyErr_SetString(PyExc_ValueError, "Invalid recargs tuple");
+                    return NULL;
+                }
+                /* rec = args[0](*args[1:]) */
+                callargs = PyTuple_GetSlice(args, 1, PyTuple_GET_SIZE(args));
+                rec = PyObject_CallObject(PyTuple_GET_ITEM(args, 0), callargs);
+                Py_DECREF(callargs);
+                if (!rec) return NULL;
+                recobj = (DependsObject *)rec;
+
+                /* cache._objmap[args] = rec */
+                PyDict_SetItem(cache->_objmap, args, rec);
+                Py_DECREF(rec);
+
+                /* cache._recommends.append(rec) */
+                PyList_Append(cache->_recommends, rec);
+            }
+
+            /* relpkgs.append(rec.packages) */
+            PyList_Append(relpkgs, recobj->packages);
+
+            /* pkg.recommends.append(rec) */
+            Py_INCREF(rec);
+            PyList_SET_ITEM(pkgobj->recommends, i, rec);
         }
     }
 
@@ -2391,6 +2503,7 @@ Cache_init(CacheObject *self, PyObject *args)
     self->_packages = PyList_New(0);
     self->_provides = PyList_New(0);
     self->_requires = PyList_New(0);
+    self->_recommends = PyList_New(0);
     self->_upgrades = PyList_New(0);
     self->_conflicts = PyList_New(0);
     self->_objmap = PyDict_New();
@@ -2404,6 +2517,7 @@ Cache_traverse(CacheObject *self, visitproc visit, void *arg)
     Py_VISIT(self->_packages);
     Py_VISIT(self->_provides);
     Py_VISIT(self->_requires);
+    Py_VISIT(self->_recommends);
     Py_VISIT(self->_upgrades);
     Py_VISIT(self->_conflicts);
     Py_VISIT(self->_objmap);
@@ -2417,6 +2531,7 @@ Cache_clear(CacheObject *self)
     Py_CLEAR(self->_packages);
     Py_CLEAR(self->_provides);
     Py_CLEAR(self->_requires);
+    Py_CLEAR(self->_recommends);
     Py_CLEAR(self->_upgrades);
     Py_CLEAR(self->_conflicts);
     Py_CLEAR(self->_objmap);
@@ -2430,6 +2545,7 @@ Cache_dealloc(CacheObject *self)
     Py_XDECREF(self->_packages);
     Py_XDECREF(self->_provides);
     Py_XDECREF(self->_requires);
+    Py_XDECREF(self->_recommends);
     Py_XDECREF(self->_upgrades);
     Py_XDECREF(self->_conflicts);
     Py_XDECREF(self->_objmap);
@@ -2449,6 +2565,8 @@ Cache_reset(CacheObject *self, PyObject *args)
         LIST_CLEAR(prvobj->packages);
         if (PyList_Check(prvobj->requiredby))
             LIST_CLEAR(prvobj->requiredby);
+        if (PyList_Check(prvobj->recommendedby))
+            LIST_CLEAR(prvobj->recommendedby);
         if (PyList_Check(prvobj->upgradedby))
             LIST_CLEAR(prvobj->upgradedby);
         if (PyList_Check(prvobj->conflictedby))
@@ -2459,6 +2577,16 @@ Cache_reset(CacheObject *self, PyObject *args)
         DependsObject *reqobj;
         PyObject *req;
         req = PyList_GET_ITEM(self->_requires, i);
+        reqobj = (DependsObject *)req;
+        LIST_CLEAR(reqobj->packages);
+        if (PyList_Check(reqobj->providedby))
+            LIST_CLEAR(reqobj->providedby);
+    }
+    len = PyList_GET_SIZE(self->_recommends);
+    for (i = 0; i != len; i++) {
+        DependsObject *reqobj;
+        PyObject *req;
+        req = PyList_GET_ITEM(self->_recommends, i);
         reqobj = (DependsObject *)req;
         LIST_CLEAR(reqobj->packages);
         if (PyList_Check(reqobj->providedby))
@@ -2487,6 +2615,7 @@ Cache_reset(CacheObject *self, PyObject *args)
     LIST_CLEAR(self->_packages);
     LIST_CLEAR(self->_provides);
     LIST_CLEAR(self->_requires);
+    LIST_CLEAR(self->_recommends);
     LIST_CLEAR(self->_upgrades);
     LIST_CLEAR(self->_conflicts);
     PyDict_Clear(self->_objmap);
@@ -2534,6 +2663,7 @@ Cache__reload(CacheObject *self, PyObject *args)
       packages = {}
       provides = {}
       requires = {}
+      recommends = {}
       upgrades = {}
       conflicts = {}
       objmap = self._objmap
@@ -2541,11 +2671,12 @@ Cache__reload(CacheObject *self, PyObject *args)
     PyObject *packages = PyDict_New();
     PyObject *provides = PyDict_New();
     PyObject *requires = PyDict_New();
+    PyObject *recommends = PyDict_New();
     PyObject *upgrades = PyDict_New();
     PyObject *conflicts = PyDict_New();
     PyObject *objmap = self->_objmap;
     int i, ilen;
-    if (!packages || !provides || !requires || !conflicts)
+    if (!packages || !provides || !requires || !recommends || !conflicts )
         return NULL;
 
     /* for loader in loaders: */
@@ -2679,6 +2810,30 @@ Cache__reload(CacheObject *self, PyObject *args)
                 }
 
                 /*
+                   for rec in pkg.recommends:
+                       rec.packages.append(pkg)
+                       if rec not in recommends:
+                           recommends[rec] = True
+                           objmap[rec.getInitArgs()] = rec
+                */
+                if (PyList_Check(pkg->recommends)) {
+                    klen = PyList_GET_SIZE(pkg->recommends);
+                    for (k = 0; k != klen; k++) {
+                        PyObject *rec = PyList_GET_ITEM(pkg->recommends, k);
+                        PyList_Append(((DependsObject *)rec)->packages,
+                                      (PyObject *)pkg);
+                        if (!PyDict_GetItem(recommends, rec)) {
+                            PyDict_SetItem(recommends, rec, Py_True);
+                            args = PyObject_CallMethod(rec, "getInitArgs",
+                                                       NULL);
+                            if (!args) return NULL;
+                            PyDict_SetItem(objmap, args, rec);
+                            Py_DECREF(args);
+                        }
+                    }
+                }
+
+                /*
                    for upg in pkg.upgrades:
                        upg.packages.append(pkg)
                        if upg not in upgrades:
@@ -2746,6 +2901,11 @@ Cache__reload(CacheObject *self, PyObject *args)
     Py_DECREF(self->_requires);
     self->_requires = PyDict_Keys(requires);
     Py_DECREF(requires);
+
+    /* self._recommends[:] = recommends.keys() */
+    Py_DECREF(self->_recommends);
+    self->_recommends = PyDict_Keys(recommends);
+    Py_DECREF(recommends);
 
     /* self._upgrades[:] = upgrades.keys() */
     Py_DECREF(self->_upgrades);
@@ -2852,7 +3012,7 @@ PyObject *
 Cache_linkDeps(CacheObject *self, PyObject *args)
 {
     int i, j, len;
-    PyObject *reqnames, *upgnames, *cnfnames;
+    PyObject *reqnames, *recnames, *upgnames, *cnfnames;
     PyObject *lst;
 
     /* reqnames = {} */
@@ -2888,6 +3048,47 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
                 Py_INCREF(req);
                 PyList_SET_ITEM(lst, 0, req);
                 PyDict_SetItem(reqnames, name, lst);
+                Py_DECREF(lst);
+            }
+        }
+
+        Py_DECREF(names);
+        Py_DECREF(seq);
+    }
+
+    /* recnames = {} */
+    recnames = PyDict_New();
+    /* for rec in self._recommends: */
+    len = PyList_GET_SIZE(self->_recommends);
+    for (i = 0; i != len; i++) {
+        PyObject *rec = PyList_GET_ITEM(self->_recommends, i);
+
+        /* for name in rec.getMatchNames(): */
+        PyObject *names = PyObject_CallMethod(rec, "getMatchNames", NULL);
+        PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                               "non-sequence object");
+        int nameslen;
+        if (!seq) return NULL;
+        nameslen = PySequence_Fast_GET_SIZE(seq);
+        for (j = 0; j != nameslen; j++) {
+            PyObject *name = PySequence_Fast_GET_ITEM(seq, j);
+            
+            /* lst = recnames.get(name) */
+            lst = PyDict_GetItem(recnames, name);
+
+            /* 
+               if lst:
+                   lst.append(rec)
+               else:
+                   recnames[name] = [rec]
+            */
+            if (lst) {
+                PyList_Append(lst, rec);
+            } else {
+                lst = PyList_New(1);
+                Py_INCREF(rec);
+                PyList_SET_ITEM(lst, 0, rec);
+                PyDict_SetItem(recnames, name, lst);
                 Py_DECREF(lst);
             }
         }
@@ -3035,6 +3236,56 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
             }
         }
 
+        /* lst = recnames.get(prv.name) */
+        lst = PyDict_GetItem(recnames, prv->name);
+
+        /* if lst: */
+        if (lst) {
+            /* for rec in lst: */
+            int reclen = PyList_GET_SIZE(lst);
+            for (j = 0; j != reclen; j++) {
+                DependsObject *rec = (DependsObject *)PyList_GET_ITEM(lst, j);
+                /* if rec.matches(prv): */
+                PyObject *ret = PyObject_CallMethod((PyObject *)rec, "matches",
+                                                    "O", (PyObject *)prv);
+                if (!ret) return NULL;
+                if (PyObject_IsTrue(ret)) {
+                    /*
+                       if rec.providedby:
+                           rec.providedby.append(prv)
+                       else:
+                           rec.providedby = [prv]
+                    */
+                    if (PyList_Check(rec->providedby)) {
+                        PyList_Append(rec->providedby, (PyObject *)prv);
+                    } else {
+                        PyObject *_lst = PyList_New(1);
+                        Py_INCREF(prv);
+                        PyList_SET_ITEM(_lst, 0, (PyObject *)prv);
+                        Py_DECREF(rec->providedby);
+                        rec->providedby = _lst;
+                    }
+
+                    /*
+                       if prv.recommendedby:
+                           prv.recommendedby.append(prv)
+                       else:
+                           prv.recommendedby = [prv]
+                    */
+                    if (PyList_Check(prv->recommendedby)) {
+                        PyList_Append(prv->recommendedby, (PyObject *)rec);
+                    } else {
+                        PyObject *_lst = PyList_New(1);
+                        Py_INCREF(rec);
+                        PyList_SET_ITEM(_lst, 0, (PyObject *)rec);
+                        Py_DECREF(prv->recommendedby);
+                        prv->recommendedby = _lst;
+                    }
+                }
+                Py_DECREF(ret);
+            }
+        }
+
         /* lst = upgnames.get(prv.name) */
         lst = PyDict_GetItem(upgnames, prv->name);
 
@@ -3139,6 +3390,7 @@ Cache_linkDeps(CacheObject *self, PyObject *args)
     }
 
     Py_DECREF(reqnames);
+    Py_DECREF(recnames);
     Py_DECREF(upgnames);
     Py_DECREF(cnfnames);
 
@@ -3210,6 +3462,29 @@ Cache_getRequires(CacheObject *self, PyObject *args)
             (DependsObject*)PyList_GET_ITEM(self->_requires, i);
         if (strcmp(STR(req->name), name) == 0)
             PyList_Append(lst, (PyObject *)req);
+    }
+    return lst;
+}
+
+PyObject *
+Cache_getRecommends(CacheObject *self, PyObject *args)
+{
+    const char *name = NULL;
+    PyObject *lst;
+    int i, len;
+    if (!PyArg_ParseTuple(args, "|s", &name))
+        return NULL;
+    if (!name) {
+        Py_INCREF(self->_recommends);
+        return self->_recommends;
+    }
+    lst = PyList_New(0);
+    len = PyList_GET_SIZE(self->_recommends);
+    for (i = 0; i != len; i++) {
+        DependsObject *rec =
+            (DependsObject*)PyList_GET_ITEM(self->_recommends, i);
+        if (strcmp(STR(rec->name), name) == 0)
+            PyList_Append(lst, (PyObject *)rec);
     }
     return lst;
 }
@@ -3324,6 +3599,38 @@ Cache_search(CacheObject *self, PyObject *searcher)
     }
     Py_DECREF(lst);
 
+    lst = PyObject_GetAttrString(searcher, "recommends");
+    if (lst == NULL || !PyList_Check(lst)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid recommends attribute");
+        return NULL;
+    }
+    for (i = 0; i != PyList_GET_SIZE(lst); i++) {
+        ProvidesObject *prv = (ProvidesObject *)PyList_GET_ITEM(lst, i);
+        for (j = 0; j != PyList_GET_SIZE(self->_recommends); j++) {
+            PyObject *rec = PyList_GET_ITEM(self->_recommends, j);
+            PyObject *names = PyObject_CallMethod(rec, "getMatchNames", NULL);
+            PyObject *seq = PySequence_Fast(names, "getMatchNames() returned "
+                                                   "non-sequence object");
+            if (seq == NULL) return NULL;
+            for (k = 0; k != PySequence_Fast_GET_SIZE(seq); k++) {
+                if (strcmp(PyString_AS_STRING(PySequence_Fast_GET_ITEM(seq, k)),
+                           PyString_AS_STRING(prv->name)) == 0) {
+                    res = PyObject_CallMethod(rec, "matches", "O", prv);
+                    if (res == NULL)
+                        return NULL;
+                    if (PyObject_IsTrue(res))
+                        CALLMETHOD(searcher, "addResult", "O", rec);
+                    Py_DECREF(res);
+                    break;
+                }
+            }
+
+            Py_DECREF(names);
+            Py_DECREF(seq);
+        }
+    }
+    Py_DECREF(lst);
+
     lst = PyObject_GetAttrString(searcher, "upgrades");
     if (lst == NULL || !PyList_Check(lst)) {
         PyErr_SetString(PyExc_TypeError, "Invalid upgrades attribute");
@@ -3420,7 +3727,7 @@ Cache__getstate__(CacheObject *self, PyObject *args)
 static PyObject *
 Cache__setstate__(CacheObject *self, PyObject *state)
 {
-    PyObject *provides, *requires, *upgrades, *conflicts;
+    PyObject *provides, *requires, *recommends, *upgrades, *conflicts;
     int i, ilen;
     int j, jlen;
     
@@ -3452,11 +3759,13 @@ Cache__setstate__(CacheObject *self, PyObject *state)
     /*
        provides = {}
        requires = {}
+       recommends = {}
        upgrades = {}
        conflicts = {}
     */
     provides = PyDict_New();
     requires = PyDict_New();
+    recommends = PyDict_New();
     upgrades = PyDict_New();
     conflicts = PyDict_New();
 
@@ -3497,6 +3806,21 @@ Cache__setstate__(CacheObject *self, PyObject *state)
         }
 
         /*
+           for rec in pkg.recommends:
+               rec.packages.append(pkg)
+               recommends[rec] = True
+        */
+        if (PyList_Check(pkgobj->recommends)) {
+            jlen = PyList_GET_SIZE(pkgobj->recommends);
+            for (j = 0; j != jlen; j++) {
+                PyObject *rec = PyList_GET_ITEM(pkgobj->recommends, j);
+                DependsObject *recobj = (DependsObject *)rec;
+                PyList_Append(recobj->packages, pkg);
+                PyDict_SetItem(recommends, rec, Py_True);
+            }
+        }
+
+        /*
            for upg in pkg.upgrades:
                upg.packages.append(pkg)
                upgrades[upg] = True
@@ -3525,6 +3849,7 @@ Cache__setstate__(CacheObject *self, PyObject *state)
                 PyDict_SetItem(conflicts, cnf, Py_True);
             }
         }
+
     }
 
     /* self._provides = provides.keys() */
@@ -3534,6 +3859,10 @@ Cache__setstate__(CacheObject *self, PyObject *state)
     /* self._requires = requires.keys() */
     self->_requires = PyDict_Keys(requires);
     Py_DECREF(requires);
+
+    /* self._recommends = recommends.keys() */
+    self->_recommends = PyDict_Keys(recommends);
+    Py_DECREF(recommends);
 
     /* self._upgrades = upgrades.keys() */
     self->_upgrades = PyDict_Keys(upgrades);
@@ -3562,6 +3891,7 @@ static PyMethodDef Cache_methods[] = {
     {"getPackages", (PyCFunction)Cache_getPackages, METH_VARARGS, NULL},
     {"getProvides", (PyCFunction)Cache_getProvides, METH_VARARGS, NULL},
     {"getRequires", (PyCFunction)Cache_getRequires, METH_VARARGS, NULL},
+    {"getRecommends", (PyCFunction)Cache_getRecommends, METH_VARARGS, NULL},
     {"getUpgrades", (PyCFunction)Cache_getUpgrades, METH_VARARGS, NULL},
     {"getConflicts", (PyCFunction)Cache_getConflicts, METH_VARARGS, NULL},
     {"search", (PyCFunction)Cache_search, METH_O, NULL},
@@ -3576,6 +3906,7 @@ static PyMemberDef Cache_members[] = {
     {"_packages", T_OBJECT, OFF(_packages), RO, 0},
     {"_provides", T_OBJECT, OFF(_provides), RO, 0},
     {"_requires", T_OBJECT, OFF(_requires), RO, 0},
+    {"_recommends", T_OBJECT, OFF(_recommends), RO, 0},
     {"_upgrades", T_OBJECT, OFF(_upgrades), RO, 0},
     {"_conflicts", T_OBJECT, OFF(_conflicts), RO, 0},
     {"_objmap", T_OBJECT, OFF(_objmap), RO, 0},

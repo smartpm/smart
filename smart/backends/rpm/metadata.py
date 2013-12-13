@@ -165,6 +165,7 @@ class RPMMetaDataLoader(Loader):
         distepoch = None
         info = {}
         reqdict = {}
+        recdict = {}
         prvdict = {}
         upgdict = {}
         cnfdict = {}
@@ -287,12 +288,16 @@ class RPMMetaDataLoader(Loader):
 
                     lasttag = queue[-1].tag
                     if lasttag == REQUIRES:
-                        if elem.get("pre") == "1":
-                            reqdict[(RPMPreRequires,
-                                     ename, erelation, eversion)] = True
+                        if elem.get("missingok") == "1":
+                            recdict[(RPMRequires,
+                                    ename, erelation, eversion)] = True
                         else:
-                            reqdict[(RPMRequires,
-                                     ename, erelation, eversion)] = True
+                            if elem.get("pre") == "1":
+                                reqdict[(RPMPreRequires,
+                                        ename, erelation, eversion)] = True
+                            else:
+                                reqdict[(RPMRequires,
+                                        ename, erelation, eversion)] = True
 
                     elif lasttag == PROVIDES:
                         if ename[0] == "/":
@@ -328,6 +333,12 @@ class RPMMetaDataLoader(Loader):
                                        (RPMProvides, x[1], x[3]) in prvdict or
                                        system_provides.match(*x[:3]))]
                     reqargs = collapse_libc_requires(reqargs)
+
+                    recargs = [x for x in recdict
+                               if not ((x[2] is None or "=" in x[2]) and
+                                       (RPMProvides, x[1], x[3]) in prvdict or
+                                       system_provides.match(*x[:3]))]
+
                     prvargs = prvdict.keys()
                     cnfargs = cnfdict.keys()
                     upgargs = upgdict.keys()
@@ -339,7 +350,7 @@ class RPMMetaDataLoader(Loader):
                         versionarch = "%s@%s" % (distversion, arch)
 
                     pkg = self.buildPackage((RPMPackage, name, versionarch),
-                                            prvargs, reqargs, upgargs, cnfargs)
+                                            prvargs, reqargs, upgargs, cnfargs, recargs)
                     pkg.loaders[self] = info
 
                     # Store the provided files for future usage.
@@ -362,6 +373,7 @@ class RPMMetaDataLoader(Loader):
                     distepoch = None
                     pkgid = None
                     reqdict.clear()
+                    recdict.clear()
                     prvdict.clear()
                     upgdict.clear()
                     cnfdict.clear()

@@ -447,7 +447,7 @@ class Control(object):
         queue = marked.keys()
         while queue:
             pkg = queue.pop(0)
-            for req in pkg.requires:
+            for req in pkg.requires + pkg.recommends:
                 for prv in req.providedby:
                     for prvpkg in prv.packages:
                         if (prvpkg.installed and
@@ -794,7 +794,7 @@ class Control(object):
         pkglst = []
         for pkg in changeset:
             n = 0
-            for req in pkg.requires:
+            for req in pkg.requires + pkg.recommends:
                 for prv in req.providedby:
                     for prvpkg in prv.packages:
                         if changeset.get(prvpkg) is INSTALL:

@@ -32,7 +32,8 @@ class Package(object):
         self.name = name
         self.version = version
         self.provides = ()
-        self.requires = ()
+        self.requires = []
+        self.recommends = []
         self.upgrades = ()
         self.conflicts = ()
         self.installed = False
@@ -55,7 +56,9 @@ class Package(object):
             fk([x for x in self.provides if x.name[0] != "/"]) !=
             fk([x for x in other.provides if x.name[0] != "/"]) or
             fk([x for x in self.requires if x.name[0] != "/"]) !=
-            fk([x for x in other.requires if x.name[0] != "/"])):
+            fk([x for x in other.requires if x.name[0] != "/"]) or
+            fk([x for x in self.recommends if x.name[0] != "/"]) !=
+            fk([x for x in other.recommends if x.name[0] != "/"])):
             return False
         return True
 
@@ -110,6 +113,7 @@ class Package(object):
                 self.version,
                 self.provides,
                 self.requires,
+                self.recommends,
                 self.upgrades,
                 self.conflicts,
                 self.installed,
@@ -122,6 +126,7 @@ class Package(object):
          self.version,
          self.provides,
          self.requires,
+         self.recommends,
          self.upgrades,
          self.conflicts,
          self.installed,
@@ -274,6 +279,7 @@ class Provides(object):
         self.version = version
         self.packages = []
         self.requiredby = ()
+        self.recommendedby = ()
         self.upgradedby = ()
         self.conflictedby = ()
 
@@ -401,7 +407,7 @@ class Loader(object):
     def loadFileProvides(self, fndict):
         pass
 
-    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
+    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs, recargs = None):
         cache = self._cache
         pkg = pkgargs[0](*pkgargs[1:])
         relpkgs = []
@@ -426,6 +432,17 @@ class Loader(object):
                     cache._requires.append(req)
                 relpkgs.append(req.packages)
                 pkg.requires.append(req)
+
+        if recargs:
+            pkg.recommends = []
+            for args in recargs:
+                rec = cache._objmap.get(args)
+                if not rec:
+                    rec = args[0](*args[1:])
+                    cache._objmap[args] = rec
+                    cache._recommends.append(rec)
+                relpkgs.append(rec.packages)
+                pkg.recommends.append(rec)
 
         if upgargs:
             pkg.upgrades = []
@@ -572,6 +589,7 @@ class Cache(object):
         self._packages = []
         self._provides = []
         self._requires = []
+        self._recommends = []
         self._upgrades = []
         self._conflicts = []
         self._objmap = {}
@@ -581,6 +599,8 @@ class Cache(object):
             del prv.packages[:]
             if prv.requiredby:
                 del prv.requiredby[:]
+            if prv.recommendedby:
+                del prv.recommendedby[:]
             if prv.upgradedby:
                 del prv.upgradedby[:]
             if prv.conflictedby:
@@ -589,6 +609,10 @@ class Cache(object):
             del req.packages[:]
             if req.providedby:
                 del req.providedby[:]
+        for rec in self._recommends:
+            del rec.packages[:]
+            if rec.providedby:
+                del rec.providedby[:]
         for upg in self._upgrades:
             del upg.packages[:]
             if upg.providedby:
@@ -600,6 +624,7 @@ class Cache(object):
         del self._packages[:]
         del self._provides[:]
         del self._requires[:]
+        del self._recommends[:]
         del self._upgrades[:]
         del self._conflicts[:]
         self._objmap.clear()
@@ -621,6 +646,7 @@ class Cache(object):
         packages = {}
         provides = {}
         requires = {}
+        recommends = {}
         upgrades = {}
         conflicts = {}
         objmap = self._objmap
@@ -646,6 +672,11 @@ class Cache(object):
                         if req not in requires:
                             objmap[req.getInitArgs()] = req
                             requires[req] = True
+                    for rec in pkg.recommends[:]:
+                        rec.packages.append(pkg)
+                        if rec not in recommends:
+                            objmap[rec.getInitArgs()] = rec
+                            recommends[rec] = True
                     for upg in pkg.upgrades:
                         upg.packages.append(pkg)
                         if upg not in upgrades:
@@ -659,6 +690,7 @@ class Cache(object):
         self._packages[:] = packages.keys()
         self._provides[:] = provides.keys()
         self._requires[:] = requires.keys()
+        self._recommends[:] = recommends.keys()
         self._upgrades[:] = upgrades.keys()
         self._conflicts[:] = conflicts.keys()
 
@@ -710,6 +742,14 @@ class Cache(object):
                     lst.append(req)
                 else:
                     reqnames[name] = [req]
+        recnames = {}
+        for rec in self._recommends:
+            for name in rec.getMatchNames():
+                lst = recnames.get(name)
+                if lst:
+                    lst.append(rec)
+                else:
+                    recnames[name] = [rec]
         upgnames = {}
         for upg in self._upgrades:
             for name in upg.getMatchNames():
@@ -739,6 +779,18 @@ class Cache(object):
                             prv.requiredby.append(req)
                         else:
                             prv.requiredby = [req]
+            lst = recnames.get(prv.name)
+            if lst:
+                for rec in lst:
+                    if rec.matches(prv):
+                        if rec.providedby:
+                            rec.providedby.append(prv)
+                        else:
+                            rec.providedby = [prv]
+                        if prv.recommendedby:
+                            prv.recommendedby.append(rec)
+                        else:
+                            prv.recommendedby = [rec]
             lst = upgnames.get(prv.name)
             if lst:
                 for upg in lst:
@@ -782,6 +834,12 @@ class Cache(object):
         else:
             return [x for x in self._requires if x.name == name]
 
+    def getRecommends(self, name=None):
+        if not name:
+            return self._recommends
+        else:
+            return [x for x in self._recommends if x.name == name]
+
     def getUpgrades(self, name=None):
         if not name:
             return self._upgrades
@@ -805,6 +863,12 @@ class Cache(object):
             for prv in searcher.requires:
                 prvname = prv.name
                 for req in self._requires:
+                    if prvname in req.getMatchNames() and req.matches(prv):
+                        searcher.addResult(req)
+        if searcher.recommends:
+            for prv in searcher.recommends:
+                prvname = prv.name
+                for req in self._recommends:
                     if prvname in req.getMatchNames() and req.matches(prv):
                         searcher.addResult(req)
         if searcher.upgrades:
@@ -839,6 +903,7 @@ class Cache(object):
         self._packages = state["_packages"]
         provides = {}
         requires = {}
+        recommends = {}
         upgrades = {}
         conflicts = {}
         for pkg in self._packages:
@@ -848,6 +913,9 @@ class Cache(object):
             for req in pkg.requires:
                 req.packages.append(pkg)
                 requires[req] = True
+            for rec in pkg.recommends:
+                rec.packages.append(pkg)
+                recommends[rec] = True
             for upg in pkg.upgrades:
                 upg.packages.append(pkg)
                 upgrades[upg] = True
@@ -856,6 +924,7 @@ class Cache(object):
                 conflicts[cnf] = True
         self._provides = provides.keys()
         self._requires = requires.keys()
+        self._recommends = recommends.keys()
         self._upgrades = upgrades.keys()
         self._conflicts = conflicts.keys()
         self._objmap = {}

@@ -573,7 +573,7 @@ class Transaction(object):
                 self._remove(namepkg, changeset, locked, pending, depth)
 
         # Install packages required by this one.
-        for req in pkg.requires:
+        for req in pkg.requires + pkg.recommends:
 
             # Check if someone is already providing it.
             prvpkgs = {}
@@ -596,8 +596,12 @@ class Transaction(object):
 
             if not prvpkgs:
                 # No packages provide it at all. Give up.
-                raise Failed, _("Can't install %s: no package provides %s") % \
-                              (pkg, req)
+                if req in pkg.requires:
+                    raise Failed, _("Can't install %s: no package provides %s") % \
+                                (pkg, req)
+                else:
+                    # It's only a recommend, skip
+                    continue
 
             if len(prvpkgs) == 1:
                 # Don't check locked here. prvpkgs was
@@ -1359,7 +1363,7 @@ class ChangeSetSplitter(object):
         set = self._changeset
 
         # Check all dependencies needed by this package.
-        for req in pkg.requires:
+        for req in pkg.requires + pkg.recommends:
 
             # Check if any already installed or to be installed
             # package will solve the problem.
@@ -1424,8 +1428,9 @@ class ChangeSetSplitter(object):
 
             # There are no solutions for the problem.
             # Should we really care about it?
-            if (self._forcerequires or
-                isinstance(req, PreRequires)):
+            if ((self._forcerequires or
+                isinstance(req, PreRequires))
+                and req in pkg.requires):
                 raise Error, _("No providers for '%s', "
                                "required by '%s'") % (req, pkg)
 
@@ -1625,7 +1630,7 @@ def recursiveInternalRequires(pkgmap, pkg, numrel, done=None):
     return n
 
 def forwardRequires(pkg, map):
-    for req in pkg.requires:
+    for req in pkg.requires + pkg.recommends:
         if req not in map:
             map[req] = True
             for prv in req.providedby:
@@ -1793,6 +1798,15 @@ def checkPackages(cache, checkset, relateset, report=False):
                 problems = True
                 iface.info(_("Unsatisfied dependency: %s requires %s") %
                            (pkg, req))
+
+        for req in pkg.recommends:
+            for prv in req.providedby:
+                for prvpkg in prv.packages:
+                    if prvpkg in relateset:
+                        break
+                else:
+                    continue
+                break
 
         if not pkg.installed:
             continue

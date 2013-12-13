@@ -107,6 +107,8 @@ def option_parser(**kwargs):
                       help=_("show requires for the given packages"))
     parser.add_option("--show-prerequires", action="store_true",
                       help=_("show requires selecting only pre-dependencies"))
+    parser.add_option("--show-recommends", action="store_true",
+                      help=_("show recommends for the given packages"))
     parser.add_option("--show-upgrades", action="store_true",
                       help=_("show upgrades for the given packages"))
     parser.add_option("--show-conflicts", action="store_true",
@@ -488,6 +490,19 @@ def main(ctrl, opts, reloadchannels=True):
                                 continue
                             output.showRequiresProvidedBy(pkg, req,
                                                           prv, prvpkg)
+        if pkg.recommends and (opts.show_recommends):
+            pkg.recommends.sort()
+            first = True
+            for req in pkg.recommends:
+                output.showRecommends(pkg, req)
+                if opts.show_providedby and req.providedby:
+                    for prv in req.providedby:
+                        prv.packages.sort()
+                        for prvpkg in prv.packages:
+                            if opts.installed and not prvpkg.installed:
+                                continue
+                            output.showRecommendsProvidedBy(pkg, req,
+                                                          prv, prvpkg)
         if pkg.upgrades and (opts.show_upgrades or whoupgrades):
             pkg.upgrades.sort()
             first = True
@@ -594,6 +609,12 @@ class NullOutput(object):
     def showRequiresProvidedBy(self, pkg, req, prv, prvpkg):
         pass
 
+    def showRecommends(self, pkg, req):
+        pass
+
+    def showRecommendsProvidedBy(self, pkg, req, prv, prvpkg):
+        pass
+
     def showUpgrades(self, pkg, upg):
         pass
 
@@ -619,6 +640,8 @@ class TextOutput(NullOutput):
         self._firstconflictedby = True
         self._firstrequires = True
         self._firstrequiresprovidedby = True
+        self._firstrecommends = True
+        self._firstrecommendsprovidedby = True
         self._firstupgrades = True
         self._firstupgradesprovidedby = True
         self._firstconflicts = True
@@ -711,6 +734,22 @@ class TextOutput(NullOutput):
             name = str(prvpkg)
         print "       ", "%s (%s)" % (name, prv)
 
+    def showRecommends(self, pkg, rec):
+        if self._firstrecommends:
+            self._firstrecommends = False
+            print " ", _("Recommends:")
+        print "   ", rec
+
+    def showRecommendsProvidedBy(self, pkg, req, prv, prvpkg):
+        if self._firstrecommendsprovidedby:
+            self._firstrecommendsprovidedby = False
+            print "     ", _("Provided By:")
+        if self.opts.hide_version:
+            name = prvpkg.name
+        else:
+            name = str(prvpkg)
+        print "       ", "%s (%s)" % (name, prv)
+
     def showUpgrades(self, pkg, upg):
         if self._firstupgrades:
             self._firstupgrades = False
@@ -796,6 +835,18 @@ class GraphVizOutput(NullOutput):
         if (req, prv) not in self._shown:
             self._shown[req, prv] = True
             print '    "Requires: %s" -> "Provides: %s";' % (req, prv)
+
+    def showRecommends(self, pkg, req):
+        if (pkg, req) not in self._shown:
+            self._shown[pkg, req] = True
+            print '    "%s" -> "Recommends: %s";' % (pkg, req)
+
+    def showRecommendsProvidedBy(self, pkg, req, prv, prvpkg):
+        self.showPackage(prvpkg)
+        self.showProvides(prvpkg, prv)
+        if (req, prv) not in self._shown:
+            self._shown[req, prv] = True
+            print '    "Recommends: %s" -> "Provides: %s";' % (req, prv)
 
     def showUpgrades(self, pkg, upg):
         if (pkg, upg) not in self._shown:

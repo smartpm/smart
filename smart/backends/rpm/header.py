@@ -292,6 +292,7 @@ class RPMHeaderLoader(Loader):
                     f = [0]
                 elif type(f) != list:
                     f = [f]
+                recdict = {}
                 reqdict = {}
                 for i in range(len(n)):
                     ni = n[i]
@@ -308,10 +309,16 @@ class RPMHeaderLoader(Loader):
                             # RPMSENSE_SCRIPT_PREUN |
                             # RPMSENSE_SCRIPT_POST |
                             # RPMSENSE_SCRIPT_POSTUN == 7744
-                            reqdict[(f[i]&7744 and PreReq or Req,
-                                     intern(ni), r, vi)] = True
+                            if (f[i]&rpm.RPMSENSE_MISSINGOK):
+                                recdict[(f[i]&7744 and PreReq or Req,
+                                         intern(ni), r, vi)] = True
+                            else:
+                                reqdict[(f[i]&7744 and PreReq or Req,
+                                         intern(ni), r, vi)] = True
+                recargs = collapse_libc_requires(recdict.keys())
                 reqargs = collapse_libc_requires(reqdict.keys())
             else:
+                recargs = None
                 reqargs = None
 
             n = h[1054] # RPMTAG_CONFLICTNAME
@@ -365,7 +372,7 @@ class RPMHeaderLoader(Loader):
                 versionarch = "%s@%s" % (distversion, arch)
 
             pkg = self.buildPackage((Pkg, name, versionarch),
-                                    prvargs, reqargs, upgargs, cnfargs)
+                                    prvargs, reqargs, upgargs, cnfargs, recargs)
             pkg.loaders[self] = offset
             self._offsets[offset] = pkg
             self._groups[pkg] = intern(h[rpm.RPMTAG_GROUP])
@@ -583,8 +590,8 @@ class URPMILoader(RPMHeaderListLoader):
     def setErrataFlags(self, flagdict):
         self._flagdict = flagdict
     
-    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs):
-        pkg = Loader.buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs)
+    def buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs, recargs):
+        pkg = Loader.buildPackage(self, pkgargs, prvargs, reqargs, upgargs, cnfargs, recargs)
         name = pkgargs[1]
         if hasattr(self, '_flagdict') and self._flagdict and name in self._flagdict:
             if sysconf.getReadOnly():

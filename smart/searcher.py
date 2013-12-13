@@ -45,9 +45,9 @@ class Searcher(object):
 
     - provides is matched in Provides.search(), for the same reason.
 
-    - requires, upgrades, and conflicts don't have special searching
-      methods. Instead, their usual match() method is given an instance
-      of the Provides type.
+    - requires, recommends, upgrades, and conflicts don't have special
+      searching methods. Instead, their usual match() method is given
+      an instance of the Provides type.
 
     - group, path, url, and other information which is found by
       PackageInfo, is searched by the Loader.search() method and
@@ -62,6 +62,7 @@ class Searcher(object):
         self.nameversion = []
         self.provides = []
         self.requires = []
+        self.recommends = []
         self.upgrades = []
         self.conflicts = []
         self.path = []
@@ -76,6 +77,7 @@ class Searcher(object):
         del self.nameversion[:]
         del self.provides[:]
         del self.requires[:]
+        del self.recommends[:]
         del self.upgrades[:]
         del self.conflicts[:]
         del self.path[:]
@@ -122,6 +124,8 @@ class Searcher(object):
             self.addProvides(s[9:], cutoff)
         elif s.startswith("requires:"):
             self.addRequires(s[9:])
+        elif s.startswith("recommends:"):
+            self.addRecommends(s[11:])
         elif s.startswith("upgrades:"):
             self.addUpgrades(s[9:])
         elif s.startswith("conflicts:"):
@@ -151,6 +155,7 @@ class Searcher(object):
         return s and (
                 s.startswith("provides:") or
                 s.startswith("requires:") or
+                s.startswith("recommends:") or
                 s.startswith("upgrades:") or
                 s.startswith("conflicts:") or
                 s.startswith("url:") or
@@ -181,6 +186,9 @@ class Searcher(object):
 
     def addRequires(self, s):
         self.requires.append(self._buildProvides(s))
+
+    def addRecommends(self, s):
+        self.recommends.append(self._buildProvides(s))
 
     def addUpgrades(self, s):
         self.upgrades.append(self._buildProvides(s))

@@ -198,6 +198,29 @@ class RPMPackage(Package):
                         break
                 else:
                     return False
+        srecs = fk(self.recommends)
+        orecs = fk(other.recommends)
+        if srecs != orecs:
+            for srec in srecs:
+                if srec.name[0] == "/" or srec in orecs:
+                    continue
+                for orec in orecs:
+                    if (srec.name == orec.name and
+                        srec.relation == orec.relation and
+                        checkver(srec.version, orec.version)):
+                        break
+                else:
+                    return False
+            for orec in orecs:
+                if orec.name[0] == "/" or orec in srecs:
+                    continue
+                for srec in srecs:
+                    if (srec.name == orec.name and
+                        srec.relation == orec.relation and
+                        checkver(srec.version, orec.version)):
+                        break
+                else:
+                    return False
         return True
 
     def coexists(self, other):
