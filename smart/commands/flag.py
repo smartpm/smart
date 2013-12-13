@@ -47,6 +47,9 @@ Currently known flags are:
   multi-version - Flagged packages may have more than one version
                   installed in the system at the same time
                   (backend dependent).
+  ignore-recommends - Flagged packages will not be installed, if
+                  they are only recommended by a package to be
+                  installed rather than required.
 
   security      - Flagged packages are updates for security errata.
   bugfix        - Flagged packages are updates for bugfix errata.

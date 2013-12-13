@@ -596,12 +596,17 @@ class Transaction(object):
         # Install packages required by this one.
         for req in pkg.requires + pkg.recommends:
 
+            reqrequired = req in pkg.requires
+
             # Check if someone is already providing it.
             prvpkgs = {}
             lockedpkgs = {}
             found = False
             for prv in req.providedby:
                 for prvpkg in prv.packages:
+                    if not reqrequired:
+                        if pkgconf.testFlag("ignore-recommends", prvpkg):
+                            continue
                     if isinst(prvpkg):
                         found = True
                         break
@@ -620,7 +625,7 @@ class Transaction(object):
 
             if not prvpkgs:
                 # No packages provide it at all. Give up.
-                if req in pkg.requires:
+                if reqrequired:
                     reasons = []
                     for prv in req.providedby:
                         for prvpkg in prv.packages:
