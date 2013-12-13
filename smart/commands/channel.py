@@ -339,7 +339,10 @@ def main(ctrl, opts):
                     print
 
     if opts.yaml is not None:
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise Error, _("Please install PyYAML in order to use this function")
         yamlchannels = {}
         for alias in (opts.yaml or sysconf.get("channels", ())):
             channel = sysconf.get(("channels", alias))

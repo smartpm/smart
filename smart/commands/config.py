@@ -137,7 +137,10 @@ def main(ctrl, opts):
             pprint.pprint(sysconf.get((), hard=True))
 
     if opts.yaml is not None:
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise Error, _("Please install PyYAML in order to use this function")
         if opts.yaml:
             marker = object()
             for opt in opts.yaml:

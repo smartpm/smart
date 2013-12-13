@@ -218,7 +218,10 @@ def main(ctrl, opts):
             print
 
     if opts.yaml:
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise Error, _("Please install PyYAML in order to use this function")
         yamlmirrors = {}
         mirrors = sysconf.get("mirrors", ())
         for origin in mirrors:

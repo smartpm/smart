@@ -138,7 +138,10 @@ def main(ctrl, opts):
             print
 
     if opts.yaml is not None:
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise Error, _("Please install PyYAML in order to use this function")
         yamlflags = {}
         for flag in opts.yaml or pkgconf.getFlagNames():
             flag = flag.strip()

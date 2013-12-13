@@ -117,7 +117,10 @@ def main(ctrl, opts):
         print
 
     elif opts.yaml:
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise Error, _("Please install PyYAML in order to use this function")
         yamlpriorities = {}
         priorities = sysconf.get("package-priorities", {})
         for name in opts.args or priorities:
