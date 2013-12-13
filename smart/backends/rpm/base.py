@@ -82,12 +82,6 @@ def getTS(new=False):
             else:
                 iface.warning(_("Initialized new rpm database at %s")
                               % getTS.root)
-        tmpdir = os.path.join(getTS.root, "var/tmp")
-        if not os.path.isdir(tmpdir):
-            try:
-                os.makedirs(tmpdir)
-            except OSError:
-                pass
     if new:
         if sysconf.get("rpm-dbpath"):
             rpm.addMacro('_dbpath', "/" + sysconf.get("rpm-dbpath"))
