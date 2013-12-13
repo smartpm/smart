@@ -44,6 +44,8 @@ def option_parser():
 def parse_options(argv):
     opts = query.parse_options(argv, usage=USAGE, \
                                description=DESCRIPTION, examples=EXAMPLES)
+    if not argv:
+      raise Error, _("Search expression not specified")
     opts.name = opts.args
     opts.summary = opts.args
     opts.description = opts.args

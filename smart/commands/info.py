@@ -58,6 +58,10 @@ def parse_options(argv):
 
 def main(ctrl, opts, reloadchannels=True):
 
+    # Argument check
+    if not opts.args:
+      raise Error, _("No package(s) given")
+
     if sysconf.get("auto-update"):
         from smart.commands import update
         updateopts = update.parse_options([])

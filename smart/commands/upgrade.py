@@ -91,6 +91,9 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
+    # Argument check
+    opts.check_args_of_option("flag", 1)
+
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
 

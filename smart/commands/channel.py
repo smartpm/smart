@@ -157,7 +157,17 @@ def main(ctrl, opts):
                               opts.show is None and opts.yaml is None):
         iface.warning(_("Can't edit channels information."))
         raise Error, _("Configuration is in readonly mode.")
-    
+
+    # Argument check
+    opts.check_args_of_option("set", -1)
+    opts.check_args_of_option("remove", -1)
+    opts.check_args_of_option("edit", 0)
+    opts.check_args_of_option("enable", -1)
+    opts.check_args_of_option("disable", -1)
+    opts.ensure_action("channel", ["add", "set", "remove", "remove-all",
+                       "list", "show", "yaml", "enable", "disable"])
+    opts.check_remaining_args()
+
     if opts.add is not None:
         if not opts.add and opts.args == ["-"]:
             newchannels = []

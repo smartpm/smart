@@ -76,6 +76,10 @@ def parse_options(argv):
 
 def main(ctrl, opts):
  
+    # Argument check
+    if not opts.args:
+        raise Error, _("no package(s) given")
+
     if opts.explain:
         sysconf.set("explain-changesets", True, soft=True)
 

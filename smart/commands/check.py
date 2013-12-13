@@ -72,6 +72,9 @@ def parse_options(argv):
 
 def main(ctrl, opts, reloadchannels=True):
 
+    # Argument check
+    opts.check_args_of_option("channels", 1)
+
     if sysconf.get("auto-update"):
         from smart.commands import update
         updateopts = update.parse_options([])

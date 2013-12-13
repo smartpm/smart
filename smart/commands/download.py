@@ -81,6 +81,14 @@ def parse_options(argv):
 
 def main(ctrl, opts):
 
+    # Argument check
+    opts.check_args_of_option("target", 1)
+    opts.check_args_of_option("output", 1)
+    opts.check_args_of_option("from_urls", -1)
+    opts.check_args_of_option("from_metalink", -1)
+    if not opts.args and not opts.from_metalink and not opts.from_urls:
+        raise Error, _("no package(s) given")
+
     packages = []
     if opts.args:
         if sysconf.get("auto-update"):
