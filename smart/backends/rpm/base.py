@@ -46,6 +46,12 @@ __all__ = ["RPMPackage", "RPMProvides", "RPMNameProvides", "RPMPreRequires",
            "rpm", "getTS", "getArchScore", "getArchColor", "system_provides",
            "collapse_libc_requires"]
 
+def rpm_join_dbpath(root, dbpath):
+    if dbpath.startswith('/') and root:
+        return os.path.join(root, dbpath[1:])
+    else:
+        return os.path.join(root, dbpath)
+
 def getTS(new=False):
     rpm_root = os.path.abspath(sysconf.get("rpm-root", "/"))
     if not hasattr(getTS, "ts") or getTS.root != rpm_root:
@@ -56,7 +62,7 @@ def getTS(new=False):
         #if not sysconf.get("rpm-check-signatures", False):
         #    getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
         rpm_dbpath = sysconf.get("rpm-dbpath", "var/lib/rpm")
-        dbdir = os.path.join(getTS.root, rpm_dbpath)
+        dbdir = rpm_join_dbpath(getTS.root, rpm_dbpath)
         if not os.path.isdir(dbdir):
             try:
                 os.makedirs(dbdir)

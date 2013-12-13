@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart.backends.rpm.header import RPMDBLoader
-from smart.backends.rpm.base import getTS
+from smart.backends.rpm.base import getTS, rpm_join_dbpath
 from smart.channel import PackageChannel
 from smart import *
 import os
@@ -32,9 +32,9 @@ class RPMSysChannel(PackageChannel):
 
     def fetch(self, fetcher, progress):
         getTS() # Make sure the db exists.
-        path = os.path.join(sysconf.get("rpm-root", "/"),
-                            sysconf.get("rpm-dbpath", "var/lib/rpm"),
-                            "Packages")
+        dbdir = rpm_join_dbpath(sysconf.get("rpm-root", "/"),
+                            sysconf.get("rpm-dbpath", "var/lib/rpm"))
+        path = os.path.join(dbdir, "Packages")
         digest = os.path.getmtime(path)
         if digest == self._digest:
             return True

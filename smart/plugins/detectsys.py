@@ -20,10 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from smart import *
+from smart.backends.rpm.base import rpm_join_dbpath
 import os
 
 def detectRPMSystem():
-    dir = os.path.join(sysconf.get("rpm-root", "/"),
+    dir = rpm_join_dbpath(sysconf.get("rpm-root", "/"),
                        sysconf.get("rpm-dbpath", "var/lib/rpm"))
     file = os.path.join(dir, "Packages")
     if os.path.exists(file):
