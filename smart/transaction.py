@@ -611,7 +611,9 @@ class Transaction(object):
             for prv in req.providedby:
                 for prvpkg in prv.packages:
                     if not reqrequired:
-                        if pkgconf.testFlag("ignore-recommends", prvpkg):
+                        if sysconf.get("ignore-all-recommends", 0) == 1:
+                            continue
+                        elif pkgconf.testFlag("ignore-recommends", prvpkg):
                             continue
                     if isinst(prvpkg):
                         found = True
