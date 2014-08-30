@@ -476,6 +476,8 @@ initcdebver(void)
 {
     PyObject *m;
     m = Py_InitModule3("cdebver", cdebver_methods, "");
+    if (m == NULL)
+        return;
     _buildORDER();
 }
 

@@ -48,5 +48,7 @@ init_base(void)
 {
     PyObject *m;
     m = Py_InitModule3("_base", _base_methods, "");
+    if (m == NULL)
+        return;
 }
 

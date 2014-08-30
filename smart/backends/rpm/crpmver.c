@@ -341,6 +341,8 @@ initcrpmver(void)
 {
     PyObject *m;
     m = Py_InitModule3("crpmver", crpmver_methods, "");
+    if (m == NULL)
+        return;
 }
 
 /* vim:ts=4:sw=4:et
