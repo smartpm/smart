@@ -148,7 +148,6 @@ setup(name="smart",
       author = "Gustavo Niemeyer",
       author_email = "gustavo@niemeyer.net",
       license = "GPL",
-      url = "http://smartpm.org",
       long_description =
 """\
 Smart Package Manager is a next generation package handling tool.

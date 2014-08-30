@@ -91,7 +91,6 @@ def about(*args):
     aboutdlg.set_copyright("2008 Canonical, Inc.")
     aboutdlg.set_authors(AUTHORS)
     aboutdlg.set_license(license)
-    aboutdlg.set_website("http://smartpm.org")
     aboutdlg.run()
     aboutdlg.destroy()
     return

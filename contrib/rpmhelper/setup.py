@@ -14,7 +14,6 @@ setup(name="rpmhelper",
       author = "Gustavo Niemeyer",
       author_email = "niemeyer@conectiva.com",
       license = "GPL",
-      url = "http://smartpm.org",
       long_description = "",
       ext_modules = [
                      Extension("rpmhelper", ["rpmhelper.c"],

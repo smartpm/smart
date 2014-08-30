@@ -67,7 +67,7 @@ def show_about(*args):
 
 aboutData = KAboutData("ksmarttray", "", ki18n(NAME), VERSION, ki18n(""),
             KAboutData.License_GPL_V2, ki18n("2008 Canonical, Inc."), 
-            ki18n(""), "http://smartpm.org", "smart@labix.org")
+            ki18n(""), "", "smart@labix.org")
 for author in AUTHORS:
     name, email = author.rsplit(" ", 1)
     aboutData.addAuthor(ki18n(name), ki18n(""), email.strip("<>"), "")
