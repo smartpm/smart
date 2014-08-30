@@ -1019,7 +1019,7 @@ class QtInteractiveInterface(QtInterface):
             """Unity Linux - Smart development and deployment support.""",
             """And many others - Check our website for the complete list.""",
             ]
-        website = "http://smartpm.org/"
+        website = "http://smartpm.github.io/smart"
 
         qt.QMessageBox.about(self._window, "About " + "Smart Package Manager",
             "<h2>" + "Smart Package Manager" + " " + VERSION + "</h2>" + \

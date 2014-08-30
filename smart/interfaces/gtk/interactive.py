@@ -1190,7 +1190,7 @@ class GtkInteractiveInterface(GtkInterface):
             """Unity Linux - Smart development and deployment support.""",
             """And many others - Check our website for the complete list.""",
             ]
-        website = "http://smartpm.org/"
+        website = "http://smartpm.github.io/smart"
 
         if gtk.pygtk_version < (2,6,0):
              dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_CLOSE)
