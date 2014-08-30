@@ -1167,7 +1167,7 @@ class GtkInteractiveInterface(GtkInterface):
         self.setBusy(False)
 
     def showAbout(widget):
-        copyright = "2010 Smart Team, 2006 Canonical Ltd., 2004 Conectiva, Inc."
+        copyright = "2010-2014 Smart PM Team, 2006 Canonical Ltd., 2004 Conectiva, Inc."
         license = """
             This program is free software; you can redistribute it and/or modify
             it under the terms of the GNU General Public License as published by
