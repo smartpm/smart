@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Smart by smartpm</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Smart</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/smartpm/smart">View the Project on GitHub <small>smartpm/smart</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/smartpm/smart/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/smartpm/smart/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/smartpm/smart">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="smart-package-manager" class="anchor" href="#smart-package-manager"><span class="octicon octicon-link"></span></a>Smart Package Manager</h1>
+
+<h2>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
+
+<p>The <strong>Smart Package Manager</strong> project has the ambitious objective of
+creating smart and portable algorithms for solving adequately the
+problem of managing software upgrading and installation. This tool
+works in all major distributions, and will bring notable advantages
+over native tools currently in use (APT, APT-RPM, YUM, URPMI, etc).</p>
+
+<p>Notice that this project is not a magical bridge between every
+distribution in the planet. Instead, this is software offering better
+package management for these distributions when working with their
+native packages. Using multiple packaging systems at the same time (like
+rpm and dpkg) is possible but would require packages from those systems
+to follow the same packaging guidelines. As this is not the case at the
+moment, mixing package systems is not recommended.</p>
+
+<p>From <em>The Free On-line Dictionary of Computing</em>:</p>
+
+<pre><code>smart
+
+    1. &lt;programming&gt; Said of a program that does the {Right Thing}
+    in a wide variety of complicated circumstances. (...)
+</code></pre>
+
+<h2>
+<a name="project-status" class="anchor" href="#project-status"><span class="octicon octicon-link"></span></a>Project Status</h2>
+
+<p>The development of Smart Package Manager started on May 4th, 2004, and
+version 1.0 was released on Aug 14th, 2008, after extended beta testing.</p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<h3>
+<a name="modular" class="anchor" href="#modular"><span class="octicon octicon-link"></span></a>Modular</h3>
+
+<p>Smart has been developed with modularity and flexibility in mind. It's
+completely backend-based, and package-manager-agnostic. Support is
+currently implemented for <strong>RPM</strong>, <strong>DPKG</strong>, and <strong>Slackware</strong>
+package management systems, and porting it to new systems should be
+very easy.</p>
+
+<h3>
+<a name="smart-transactions" class="anchor" href="#smart-transactions"><span class="octicon octicon-link"></span></a>Smart Transactions</h3>
+
+<p>That's one of the most interesting aspects of Smart Package Manager,
+and the one who has motivated calling it smart. Computing
+transactions respecting the relations involved in the package
+management world may become an unpleasant task when thousands of
+packages and relations are being considered, or even when just
+a few complex relations turn the most obvious choice into the
+unwanted one.</p>
+
+<p>While other applications try to find a possible solution to satisfy
+the relations involved in some user-requested operation, and
+sometimes even fail to do so [1], Smart goes beyond it. In the
+kernel of Smart Package Manager lives an algorithm that will
+not only find a solution, if one is available, but will find
+the best solution. This is done by quickly weighting every
+possible solution with a pluggable policy, which redefines
+the term "best" depending on the operation goal (install,
+remove, upgrade, etc).</p>
+
+<p>This behavior has many interesting consequences. In upgrades,
+for instance, while precedence is given to newer versions,
+intermediate versions may get selected if they bring a
+better global result for the system. Packages may even be
+reinstalled, if different packages with the same name-version
+pair have different relations, and the one not installed
+is considered a better option.</p>
+
+<p>Another important goal achieved with the transaction algorithm
+is that, even though it is able to check and fix relations in
+the whole system, it will work even when there are broken
+relations in installed packages. Only relations related to
+the operation being made are checked for correctness.</p>
+
+<p>.. [1] Check "Case Studies" for real cases where the algorithm
+       works better than what is implemented in other applications.</p>
+
+<h3>
+<a name="multiple-interfaces" class="anchor" href="#multiple-interfaces"><span class="octicon octicon-link"></span></a>Multiple Interfaces</h3>
+
+<p>Smart has multiple native and completely integrated interfaces:</p>
+
+<ul>
+<li><p>Command line interface, with several useful subcommands: update,
+install, reinstall, upgrade, remove, check, fix, download, search,
+and more.</p></li>
+<li><p>Shell interface, with command and argument completion, making it
+easy to perform multiple operations quickly using a local or
+remote terminal.</p></li>
+<li><p>Graphic interface, offering the friendliness of visual
+user interaction.</p></li>
+<li><p>Command line interface with graphic feedback, allowing one to
+integrate the power of command line with graphic environments.</p></li>
+</ul><p>Besides these interfaces, ksmarttray is also included in the Smart
+package. It notifies users about available updates using a KDE
+tray icon.</p>
+
+<h3>
+<a name="channels" class="anchor" href="#channels"><span class="octicon octicon-link"></span></a>Channels</h3>
+
+<p>Channels are the way Smart becomes aware about external repositories
+of information. Many different channel types are supported, depending
+on the backend and kind of information desired:</p>
+
+<ul>
+<li>APT-DEB Repository</li>
+<li>APT-RPM Repository</li>
+<li>DPKG Installed Packages</li>
+<li>Mirror Information</li>
+<li>Red Carpet Channel</li>
+<li>RPM Directory</li>
+<li>RPM Header List</li>
+<li>RPM MetaData (YUM)</li>
+<li>RPM Installed Packages</li>
+<li>Slackware Repository</li>
+<li>Slackware Installed Packages</li>
+<li>URPMI Repository</li>
+</ul><h3>
+<a name="priority-handling" class="anchor" href="#priority-handling"><span class="octicon octicon-link"></span></a>Priority Handling</h3>
+
+<p>Priorities are a powerful way to easily handle integration
+of multiple channels and explicit user setups regarding
+preferred package versions.</p>
+
+<p>Basically, packages with higher priorities are considered a
+better option to be installed in the system, even when package
+versions state otherwise. Priorities may be individually
+assigned to all packages in given channels, to all packages
+with given names, and to packages with given names inside
+given channels.</p>
+
+<p>With custom priority setups, it becomes possible to avoid
+unwanted upgrades, force downgrades, select packages in given
+channels as preferential, and other kinds of interesting setups.</p>
+
+<h3>
+<a name="autobalancing-mirror-system" class="anchor" href="#autobalancing-mirror-system"><span class="octicon octicon-link"></span></a>Autobalancing Mirror System</h3>
+
+<p>Smart offers a very flexible mirror support. Mirrors are URLs
+that supposedly provide the same contents as are available in
+other URLs, named origins. There is no internal restriction on
+the kind of information which is mirrored. Once an origin URL
+is provided, and one or more mirror URLs are provided, these
+mirrors will be considered for any file which is going to be
+fetched from an URL starting with the origin URL.</p>
+
+<p>Mirror precedence is dynamically computed based on the history
+of downloads of all mirrors available for a given origin URL
+(including the origin site itself). The fastest mirrors and
+with less errors are chosen. When errors occur, the next
+mirror in the queue is tried.</p>
+
+<p>For instance, if a mirror <code>http://mirror.url/path/</code> is provided
+for the origin <code>ftp://origin.url/other/path/</code>, and a file in
+<code>ftp://origin.url/other/path/subpath/somefile</code> is going to be
+fetched, the mirror will be considered for being used, and the
+URL <code>http://mirror.url/path/subpath/somefile</code> will be used if
+the mirror is chosen. Notice that strings are compared and
+replaced without any pre-processing, so that it's possible to
+use different schemes (ftp, http, etc) in mirror entries, and
+even URLs ending in prefixes of directory entries.</p>
+
+<h3>
+<a name="downloading-mechanism" class="anchor" href="#downloading-mechanism"><span class="octicon octicon-link"></span></a>Downloading Mechanism</h3>
+
+<p>Smart has a fast parallel downloading mechanism, allowing multiple
+connections to be used for one or more sites. The mechanism
+supports:</p>
+
+<ul>
+<li>Resuming</li>
+<li>Timestamp checking</li>
+<li>Parallel uncompression</li>
+<li>Autodetection of FTP user limit</li>
+<li>Cached file validation</li>
+</ul><p>and more.</p>
+
+<p>At the moment, the following schemes are nativelly supported:</p>
+
+<ul>
+<li>file</li>
+<li>ftp</li>
+<li>http</li>
+<li>https</li>
+<li>scp</li>
+</ul><p>Additionally, the following schemes are supported when pycurl is
+available:</p>
+
+<ul>
+<li>ftps</li>
+<li>telnet</li>
+<li>dict</li>
+<li>ldap</li>
+</ul><h3>
+<a name="removable-media-support" class="anchor" href="#removable-media-support"><span class="octicon octicon-link"></span></a>Removable Media Support</h3>
+
+<p>Smart Package Manager implements builtin support for removable media
+(CDROMs, DVDs, etc) in most of the supported channel types. The
+following features are currently implemented:</p>
+
+<ul>
+<li>Mountpoint autodetection</li>
+<li>Support for multiple simultaneous media drives</li>
+<li>Medias may be inserted in any order</li>
+<li>Installed system is guaranteed to maintain correct relations
+between media changes</li>
+<li>Remote removable media support using any of the supported schemes
+(ftp, http, scp, etc)</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/smartpm">smartpm</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
