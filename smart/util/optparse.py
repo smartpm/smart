@@ -70,8 +70,6 @@ import sys, os
 import types
 import textwrap
 from gettext import gettext as _
-from smart import Error
-import re
 
 def _repr(self):
     return "<%s at 0x%x: %s>" % (self.__class__.__name__, id(self), self)
@@ -549,8 +547,10 @@ class Option:
                 else:
                     setattr(self, attr, None)
         if attrs:
+            attrs = attrs.keys()
+            attrs.sort()
             raise OptionError(
-                "invalid keyword arguments: %s" % ", ".join(attrs.keys()),
+                "invalid keyword arguments: %s" % ", ".join(attrs),
                 self)
 
 
@@ -710,12 +710,6 @@ class Option:
             self.action, self.dest, opt, value, values, parser)
 
     def take_action(self, action, dest, opt, value, values, parser):
-        # Keep all the options in the command line in the '_given_opts' array
-        # This will be used later to validate the command line
-        given_opts = getattr(parser.values, "_given_opts", [])
-        user_opt = re.sub(r"^\-*", "", opt).replace("-", "_")
-        given_opts.append(user_opt)
-        setattr(parser.values, "_given_opts", given_opts)
         if action == "store":
             setattr(values, dest, value)
         elif action == "store_const":
@@ -827,54 +821,6 @@ class Values:
             setattr(self, attr, value)
         return getattr(self, attr)
 
-    # Check if the given option has the specified number of arguments
-    # Raise an error if the option has an invalid number of arguments
-    # A negative number for 'nargs' means "at least |nargs| arguments are needed"
-    def check_args_of_option(self, opt, nargs, err=None):
-        given_opts = getattr(self, "_given_opts", [])
-        if not opt in given_opts:
-            return
-        values = getattr(self, opt, [])
-        if type(values) != type([]):
-            return
-        if nargs < 0:
-            nargs = -nargs
-            if len(values) >= nargs:
-                return
-            if not err:
-                if nargs == 1:
-                    err = _("Option '%s' requires at least one argument") % opt
-                else:
-                    err = _("Option '%s' requires at least %d arguments") % (opt, nargs)
-            raise Error, err
-        elif nargs == 0:
-            if len( values ) == 0:
-                return
-            raise Error, err
-        else:
-            if len(values) == nargs:
-                return
-            if not err:
-                if nargs == 1:
-                    err = _("Option '%s' requires one argument") % opt
-                else:
-                    err = _("Option '%s' requires %d arguments") % (opt, nargs)
-            raise Error, err
-
-    # Check that at least one of the options in 'actlist' was given as an argument
-    # to the command 'cmdname'
-    def ensure_action(self, cmdname, actlist):
-        given_opts = getattr(self, "_given_opts", [])
-        for action in actlist:
-            if action in given_opts:
-                return
-        raise Error, _("No action specified for command '%s'") % cmdname
-
-    # Check if there are any other arguments left after parsing the command line and
-    # raise an error if such arguments are found
-    def check_remaining_args(self):
-        if self.args:
-            raise Error, _("Invalid argument(s) '%s'" % str(self.args))
 
 class OptionContainer:
 
@@ -1612,6 +1558,7 @@ def _match_abbrev(s, wordmap):
             raise BadOptionError(_("no such option: %s") % s)
         else:
             # More than one possible completion: ambiguous prefix.
+            possibilities.sort()
             raise BadOptionError(_("ambiguous option: %s (%s?)")
                                  % (s, ", ".join(possibilities)))
 

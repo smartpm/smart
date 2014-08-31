@@ -105,13 +105,13 @@ class RPMPackageVersionTest(MockerTestCase):
     # RPMTAG_CONFLICTNAME, RPMTAG_OBSOLETENAME, RPMTAG_GROUP
     header = {1000: "name", 1001: "1.0", 1002: "1", 1003: None,
               1022: "noarch", 1106: None, 1155: "unity", 1218: "2011.0",
-              1047: [], 1113: [], 1049: [], 1054: [], 1090: [],
+              1047: [], 1113: [], 1049: [], 1054: [], 1090: [], 1156: [],
               rpm.RPMTAG_GROUP: "" }
 
     def test_packageVersion_distepoch(self):
         def getHeaders(prog):
             return [(self.header, 0)]
-        def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
+        def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs, recargs):
             assert(pkgargs[2] == "1.0-1-unity2011.0@noarch")
             from smart.cache import Package
             return Package(pkgargs[1], pkgargs[2])
@@ -123,7 +123,7 @@ class RPMPackageVersionTest(MockerTestCase):
     def test_packageDepends_distepoch(self):
         def getHeaders(prog):
             return [(self.header, 0)]
-        def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs):
+        def buildPackage(pkgargs, prvargs, reqargs, upgargs, cnfargs, recargs):
             assert(upgargs[0][3] == "1.0-1@noarch")
             from smart.cache import Package
             return Package(pkgargs[1], pkgargs[2])

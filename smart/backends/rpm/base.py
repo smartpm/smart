@@ -63,8 +63,11 @@ def getTS(new=False):
         if sysconf.get("rpm-dbpath"):
             rpm.addMacro('_dbpath', "/" + sysconf.get("rpm-dbpath"))
         getTS.ts = rpm.ts(getTS.root)
-        #if not sysconf.get("rpm-check-signatures", False):
-        #    getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+        if not sysconf.get("rpm-check-signatures", False):
+            if hasattr(rpm, '_RPMVSF_NOSIGNATURES'):
+                getTS.ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+            else:
+                raise Error, _("rpm requires checking signatures")
         rpm_dbpath = sysconf.get("rpm-dbpath", "var/lib/rpm")
         dbdir = rpm_join_dbpath(getTS.root, rpm_dbpath)
         if not os.path.isdir(dbdir):
@@ -86,8 +89,11 @@ def getTS(new=False):
         if sysconf.get("rpm-dbpath"):
             rpm.addMacro('_dbpath', "/" + sysconf.get("rpm-dbpath"))
         ts = rpm.ts(getTS.root)
-        #if not sysconf.get("rpm-check-signatures", False):
-        #    ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+        if not sysconf.get("rpm-check-signatures", False):
+            if hasattr(rpm, '_RPMVSF_NOSIGNATURES'):
+                ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+            else:
+                raise Error, _("rpm requires checking signatures")
         return ts
     else:
         return getTS.ts

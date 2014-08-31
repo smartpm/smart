@@ -23,12 +23,13 @@ from smart.util import optparse
 from smart import Error, _
 import textwrap
 import sys, os
+import re
 
 # NOTICE: The standard optparse module haven't been touched, but since
 #         this code subclasses it and trusts on a specific interface,
 #         an internal copy is being used to avoid future breakage.
 
-__all__ = ["OptionParser", "OptionValueError", "append_all"]
+__all__ = ["OptionParser", "OptionValueError", "Values", "Option", "append_all"]
 
 try:
     optparse.STD_HELP_OPTION.help = \
@@ -64,16 +65,93 @@ class HelpFormatter(optparse.HelpFormatter):
         option.help = help
         return result
 
+class Values(optparse.Values):
+
+    # Check if the given option has the specified number of arguments
+    # Raise an error if the option has an invalid number of arguments
+    # A negative number for 'nargs' means "at least |nargs| arguments are needed"
+    def check_args_of_option(self, opt, nargs, err=None):
+        given_opts = getattr(self, "_given_opts", [])
+        if not opt in given_opts:
+            return
+        values = getattr(self, opt, [])
+        if type(values) != type([]):
+            return
+        if nargs < 0:
+            nargs = -nargs
+            if len(values) >= nargs:
+                return
+            if not err:
+                if nargs == 1:
+                    err = _("Option '%s' requires at least one argument") % opt
+                else:
+                    err = _("Option '%s' requires at least %d arguments") % (opt, nargs)
+            raise Error, err
+        elif nargs == 0:
+            if len( values ) == 0:
+                return
+            raise Error, err
+        else:
+            if len(values) == nargs:
+                return
+            if not err:
+                if nargs == 1:
+                    err = _("Option '%s' requires one argument") % opt
+                else:
+                    err = _("Option '%s' requires %d arguments") % (opt, nargs)
+            raise Error, err
+
+    # Check that at least one of the options in 'actlist' was given as an argument
+    # to the command 'cmdname'
+    def ensure_action(self, cmdname, actlist):
+        given_opts = getattr(self, "_given_opts", [])
+        for action in actlist:
+            if action in given_opts:
+                return
+        raise Error, _("No action specified for command '%s'") % cmdname
+
+    # Check if there are any other arguments left after parsing the command line and
+    # raise an error if such arguments are found
+    def check_remaining_args(self):
+        if self.args:
+            raise Error, _("Invalid argument(s) '%s'" % str(self.args))
+
+class Option(optparse.Option):
+
+    def take_action(self, action, dest, opt, value, values, parser):
+        # Keep all the options in the command line in the '_given_opts' array
+        # This will be used later to validate the command line
+        given_opts = getattr(parser.values, "_given_opts", [])
+        user_opt = re.sub(r"^\-*", "", opt).replace("-", "_")
+        given_opts.append(user_opt)
+        setattr(parser.values, "_given_opts", given_opts)
+        optparse.Option.take_action(self, action, dest, opt, value, values, parser)
+
 class OptionParser(optparse.OptionParser):
 
     def __init__(self, usage=None, help=None, examples=None, skipunknown=False,
                  **kwargs):
         if not "formatter" in kwargs:
             kwargs["formatter"] = HelpFormatter()
+        kwargs["option_class"] = Option
         optparse.OptionParser.__init__(self, usage, **kwargs)
         self._override_help = help
         self._examples = examples
         self._skipunknown = skipunknown
+
+    def get_default_values(self):
+        if not self.process_default_values:
+            # Old, pre-Optik 1.5 behaviour.
+            return Values(self.defaults)
+
+        defaults = self.defaults.copy()
+        for option in self._get_all_options():
+            default = defaults.get(option.dest)
+            if isinstance(default, basestring):
+                opt_str = option.get_opt_string()
+                defaults[option.dest] = option.check_value(opt_str, default)
+
+        return Values(defaults)
 
     def format_help(self, formatter=None):
         if formatter is None:

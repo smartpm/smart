@@ -196,6 +196,8 @@ class FinkVirtualPkgs(object):
         output = os.popen(path).readlines()
         for line in output:
             line = string.rstrip(line)
+            if line.startswith(' '):
+               continue
             keyval = string.split(line, ':', 1)
             if len(keyval) > 1:
                val = string.lstrip(keyval[1])

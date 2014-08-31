@@ -14,4 +14,18 @@ Version: 10.4.11-1
 homepage: http://www.finkproject.org/faq/usage-general.php#virtpackage
 description: [virtual package representing the system]
 
+Package: macosx
+Status: install ok installed
+Priority: optional
+Architecture: darwin-i386
+Version: 10.6.8-1
+Maintainer: Fink Core Group <fink-core@lists.sourceforge.net>
+Description: [virtual package representing the system]
+ This package represents the Mac OS X software release.
+ It will not show as installed on pure Darwin systems.
+ .
+ Web site: http://www.finkproject.org/faq/usage-general.php#virtpackage
+ .
+ Maintainer: Fink Core Group <fink-core@lists.sourceforge.net>
+
 __EOF__

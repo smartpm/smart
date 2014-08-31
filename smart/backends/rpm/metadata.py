@@ -144,6 +144,7 @@ class RPMMetaDataLoader(Loader):
         LICENSE     = nstag(NS_RPM, "license")
         ENTRY       = nstag(NS_RPM, "entry")
         REQUIRES    = nstag(NS_RPM, "requires")
+        RECOMMENDS  = nstag(NS_RPM, "recommends")
         PROVIDES    = nstag(NS_RPM, "provides")
         CONFLICTS   = nstag(NS_RPM, "conflicts")
         OBSOLETES   = nstag(NS_RPM, "obsoletes")
@@ -289,16 +290,19 @@ class RPMMetaDataLoader(Loader):
 
                     lasttag = queue[-1].tag
                     if lasttag == REQUIRES:
-                        if elem.get("missingok") == "1":
+                        if elem.get("pre") == "1":
+                            reqdict[(RPMPreRequires,
+                                     ename, erelation, eversion)] = True
+                        elif elem.get("hint") == "1" or elem.get("missingok") == "1":
                             recdict[(RPMRequires,
-                                    ename, erelation, eversion)] = True
+                                     ename, erelation, eversion)] = True
                         else:
-                            if elem.get("pre") == "1":
-                                reqdict[(RPMPreRequires,
-                                        ename, erelation, eversion)] = True
-                            else:
-                                reqdict[(RPMRequires,
-                                        ename, erelation, eversion)] = True
+                            reqdict[(RPMRequires,
+                                     ename, erelation, eversion)] = True
+
+                    elif lasttag == RECOMMENDS:
+                        recdict[(RPMRequires,
+                                 ename, erelation, eversion)] = True
 
                     elif lasttag == PROVIDES:
                         if ename[0] == "/":
