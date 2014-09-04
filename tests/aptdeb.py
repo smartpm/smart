@@ -31,9 +31,11 @@ class AptDebChannelTest(MockerTestCase):
         self.fetcher.setCaching(NEVER)
 
         sysconf.set("deb-arch", "i386")
+        self.trustdb = open("%s/aptdeb/trustdb.gpg" % TESTDATADIR).read()
 
     def tearDown(self):
         sysconf.remove("deb-arch")
+        open("%s/aptdeb/trustdb.gpg" % TESTDATADIR, 'w').write(self.trustdb)
 
     def check_channel(self, channel):
         self.assertEquals(channel.fetch(self.fetcher, self.progress), True)
