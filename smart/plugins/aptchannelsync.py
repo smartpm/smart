@@ -38,12 +38,15 @@ from smart import *
 APT_SOURCES_DIR = "/etc/apt/sources.list.d/"
 APT_SOURCES = "/etc/apt/sources.list"
 
-
 def _loadSourcesList(filename):
 
     keyring_path = sysconf.get("sync-apt-keyring", "/etc/apt/trusted.gpg")
-    if not os.path.isfile(keyring_path):
-        keyring_path = None
+    if not os.path.isfile(keyring_path) or os.path.getsize(keyring_path) == 0:
+        keydir_path = sysconf.get("sync-apt-keydir", "/etc/apt/trusted.gpg.d/")
+        if os.path.isdir(keydir_path):
+            keyring_path = keydir_path
+        else:
+            keyring_path = None
     trustdb_path = sysconf.get("sync-apt-trustdb", "/etc/apt/trustdb.gpg")
     if not os.path.isfile(trustdb_path):
         trustdb_path = None

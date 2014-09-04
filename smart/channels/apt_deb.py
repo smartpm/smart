@@ -21,6 +21,7 @@
 #
 import posixpath
 import commands
+import os
 
 from smart.backends.deb.loader import DebTagFileLoader
 from smart.util.filetools import getFileDigest
@@ -102,8 +103,13 @@ class APTDEBChannel(PackageChannel):
                          "--status-fd", "1"]
 
             if self._keyring:
-                arguments.extend(["--no-default-keyring",
-                                  "--keyring", self._keyring])
+                arguments.append("--no-default-keyring")
+                if os.path.isfile(self._keyring):
+                    arguments.extend(["--keyring", self._keyring])
+                elif os.path.isdir(self._keyring):
+                    for keyring in next(os.walk(self._keyring))[2]:
+                        keyring = os.path.join(self._keyring, keyring)
+                        arguments.extend(["--keyring", keyring])
 
             if self._trustdb:
                 arguments.extend(["--trustdb-name", self._trustdb])
