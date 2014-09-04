@@ -45,14 +45,17 @@ class APTChannelSyncTest(MockerTestCase):
         self.apt_dir = self.makeDir()
         self.sources_dir = os.path.join(self.apt_dir, "sources.list.d")
         self.keyring_file = os.path.join(self.apt_dir, "trusted.gpg")
+        self.keydir_file = os.path.join(self.apt_dir, "trusted.gpg.d")
         self.trustdb_file = os.path.join(self.apt_dir, "trustdb.gpg")
         os.mkdir(self.sources_dir)
         sysconf.set("sync-apt-keyring", self.keyring_file)
+        sysconf.set("sync-apt-keydir", self.keydir_file)
         sysconf.set("sync-apt-trustdb", self.trustdb_file)
 
     def tearDown(self):
         sysconf.remove("channels")
         sysconf.remove("sync-apt-keyring")
+        sysconf.remove("sync-apt-keydir")
         sysconf.remove("sync-apt-trustdb")
 
     def test_sychronize_sources_list(self):
