@@ -76,7 +76,7 @@ class SSH:
             r = "-r "
         else:
             r = ""
-        return self._exec("scp %s-c blowfish %s %s@%s:%s" %
+        return self._exec("scp %s %s %s@%s:%s" %
                           (r, src, self.username, self.host, dst), **kwargs)
 
     def rscp(self, src, dst, recursive=0, **kwargs):
@@ -84,7 +84,7 @@ class SSH:
             r = "-r "
         else:
             r = ""
-        return self._exec("scp %s-c blowfish %s@%s:%s %s" %
+        return self._exec("scp %s %s@%s:%s %s" %
                           (r, self.username, self.host, src, dst), **kwargs)
 
     def exists(self, file):
