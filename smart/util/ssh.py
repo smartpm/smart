@@ -38,7 +38,7 @@ class SSH:
         while True:
             i = p.expect([pexpect.EOF, pexpect.TIMEOUT,
                           r"assword:", r"passphrase for key '.*':",
-                          r"\(yes/no\)?"])
+                          r"\(yes/no\)?", r"\(y/n\)"])
             if i == 0:
                 outlist.append(p.before)
                 break
@@ -54,7 +54,7 @@ class SSH:
                                    "but no password is available")
                 p.sendline(password)
                 outlist = []
-            elif i == 4:
+            elif i == 4 or i == 5:
                 p.sendline("yes")
                 outlist = []
         while p.isalive():
